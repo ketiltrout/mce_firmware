@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.62 2006/10/19 21:56:42 bburger Exp $
+-- $Id: clk_card.vhd,v 1.63 2006/10/24 17:06:14 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,65 +29,8 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
--- Revision 1.62  2006/10/19 21:56:42  bburger
--- Bryce:  Added interfaces to support the crc_err_en command
---
--- Revision 1.61  2006/09/21 16:19:14  bburger
--- Bryce:  Added support for the TES Bias Step internal commands
---
--- Revision 1.60  2006/09/07 22:30:23  bburger
--- Bryce:  cleaned up the file by removing code that was commented out
---
--- Revision 1.59  2006/09/06 00:20:54  bburger
--- Bryce:  Changed top-level signals to match the PSUC names.  Note:  now some of the CC signals do not match the schematic.
---
--- Revision 1.58  2006/08/16 17:50:39  bburger
--- Bryce:  The Clock Card now uses the err_o signals from fpga_thermo and id_thermo
---
--- Revision 1.57  2006/08/11 23:57:43  bburger
--- Bryce:  Added the Power Supply Control Wishbone slave
---
--- Revision 1.56  2006/08/02 16:24:30  bburger
--- Bryce:  trying to fixed occasional wb bugs in issue_reply
---
--- Revision 1.55  2006/08/01 19:18:46  bburger
--- Bryce:  v0200000f
---
--- Revision 1.54  2006/07/26 01:19:26  bburger
--- Bryce:  v0200000e
---
--- Revision 1.53  2006/07/17 15:37:55  bburger
--- Bryce:  cc_v0200000c_17jul2006
---
--- Revision 1.52  2006/07/17 14:27:19  bburger
--- Bryce:  rev v0200000d
---
--- Revision 1.51  2006/07/15 05:41:09  bburger
--- Bryce:  Added some signals to the top-level that were forgotten
---
--- Revision 1.50  2006/07/11 18:46:03  bburger
--- Bryce:  Corrected the mictor debug port interfaces
---
--- Revision 1.49  2006/07/11 18:20:32  bburger
--- Bryce:  Adjusted the Mictor signals slightly to debug the odd-byte problem we see on the fibre
---
--- Revision 1.48  2006/07/07 00:39:36  bburger
--- Bryce:  Added commented out code for controlling functionality in the dispatch block with dip switches
---
--- Revision 1.47  2006/07/04 22:47:09  bburger
--- Bryce:  Changed the manchester pll input from inclk1 to inclk15
---
--- Revision 1.46  2006/06/30 22:05:59  bburger
--- Bryce:  Added dv_rx and clk_switchover status signals to issue_reply
---
--- Revision 1.45  2006/06/19 17:20:59  bburger
--- Bryce:  added some signals to the clock_switchover interface
---
--- Revision 1.44  2006/06/09 22:14:13  bburger
--- Bryce:  v0200000b
---
--- Revision 1.43  2006/05/30 00:53:37  bburger
--- Bryce:  Interim committal
+-- Revision 1.63  2006/10/24 17:06:14  bburger
+-- Bryce:  removed unused signal from issue_reply interface
 --
 --
 -----------------------------------------------------------------------------
@@ -740,7 +683,7 @@ begin
          ret_dat_data       when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | 
                                  TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
          id_thermo_data     when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         box_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
+--         box_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data   when FPGA_TEMP_ADDR,
          config_fpga_data   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_data    when SELECT_CLK_ADDR,
@@ -755,7 +698,7 @@ begin
          ret_dat_ack        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | 
                                  TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
          id_thermo_ack      when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         box_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
+--         box_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack    when FPGA_TEMP_ADDR,
          config_fpga_ack    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_ack     when SELECT_CLK_ADDR,
@@ -770,7 +713,7 @@ begin
                                  TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
          fw_rev_err         when FW_REV_ADDR,
          id_thermo_err      when CARD_ID_ADDR | CARD_TEMP_ADDR,
-         box_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
+--         box_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err    when FPGA_TEMP_ADDR,
          '1'                when others;
 
@@ -935,30 +878,30 @@ begin
       wren_o  => open
    );
          
-   id_thermo1: id_thermo
-   generic map(
-      tristate => "EXTERNAL",
-      card_or_box => "BOX")
-   port map(
-      clk_i   => clk,
-      rst_i   => rst,  
-      
-      -- Wishbone signals
-      dat_i   => data, 
-      addr_i  => addr,
-      tga_i   => tga,
-      we_i    => we,
-      stb_i   => stb,
-      cyc_i   => cyc,
-      err_o   => box_id_thermo_err,
-      dat_o   => box_id_thermo_data,
-      ack_o   => box_id_thermo_ack,
-         
-      -- silicon id/temperature chip signals
-      data_io => box_id_in,
-      data_o  => box_id_out,
-      wren_o  => box_id_ena
-   );
+--   id_thermo1: id_thermo
+--   generic map(
+--      tristate => "EXTERNAL",
+--      card_or_box => "BOX")
+--   port map(
+--      clk_i   => clk,
+--      rst_i   => rst,  
+--      
+--      -- Wishbone signals
+--      dat_i   => data, 
+--      addr_i  => addr,
+--      tga_i   => tga,
+--      we_i    => we,
+--      stb_i   => stb,
+--      cyc_i   => cyc,
+--      err_o   => box_id_thermo_err,
+--      dat_o   => box_id_thermo_data,
+--      ack_o   => box_id_thermo_ack,
+--         
+--      -- silicon id/temperature chip signals
+--      data_io => box_id_in,
+--      data_o  => box_id_out,
+--      wren_o  => box_id_ena
+--   );
 
 
    fpga_thermo0: fpga_thermo

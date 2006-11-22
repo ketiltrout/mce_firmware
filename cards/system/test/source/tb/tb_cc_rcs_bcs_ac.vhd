@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.37 2006/10/28 00:12:25 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.38 2006/11/03 01:06:00 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.38  2006/11/03 01:06:00  bburger
+-- Bryce:  Additional test cases.
+--
 -- Revision 1.37  2006/10/28 00:12:25  bburger
 -- Bryce:  Added several more test cases
 --
@@ -410,6 +413,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_data_rate_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & DATA_RATE_ADDR;
    constant cc_select_clk_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SELECT_CLK_ADDR;
 
+   constant cc_box_id_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & BOX_ID_ADDR;
    constant cc_tes_tgl_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_EN_ADDR;
    constant cc_tes_tgl_max_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MAX_ADDR;
    constant cc_tes_tgl_min_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MIN_ADDR;
@@ -2227,41 +2231,41 @@ begin
 ------------------------------------------------------
 --  2:  A Single Data Packet
 ------------------------------------------------------
-      command <= command_wb;
-      address_id <= all_row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000080";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-      
-      command <= command_wb;
-      address_id <= all_num_rows_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000004";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"0000000F";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
+--      command <= command_wb;
+--      address_id <= all_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000080";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--      
+--      command <= command_wb;
+--      address_id <= all_num_rows_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000004";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"0000000F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
 
 ------------------------------------------------------
 --  3:  DV Pulses from Fibre Input -- only 2 frames should be returned
@@ -2669,7 +2673,7 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;            
---      wait for 250 us;
+--      wait for 500 us;
 -- 
 --      command <= command_rb;
 --      address_id <= cc_led_cmd;
@@ -3467,18 +3471,38 @@ begin
 --      load_checksum;
 --
 --      wait for 3200 us;
+------------------------------------------------------
+--  Testing commands for which there is not Wishbone Slave
+------------------------------------------------------
+      command <= command_rb;
+      address_id <= cc_box_id_cmd;
+      data_valid <= X"00000004";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;      
+      wait for 200 us;
+
+      command <= command_wb;
+      address_id <= cc_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000007";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 200 us;
+
 
 ------------------------------------------------------
 --  Manchester DV Rx testing
+--  constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+--  constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
+--  constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
 ------------------------------------------------------
---      constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
---      constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
---      constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
---
 --      command <= command_wb;
 --      address_id <= cc_ret_dat_s_cmd;
 --      data_valid <= X"00000002";
-----      data       <= X"00000001";
+--      data       <= X"0000000E";
 --      load_preamble;
 --      load_command;
 --      load_checksum;      
@@ -3508,7 +3532,7 @@ begin
 --      wait for 320 ns;
 --      wait for 1240 ns; -- dv sequence # 1
 --      manchester_data <= '1';      
---      wait for 900 us;
+--      wait for 100 us;
 --      
 --      manchester_data <= '0';
 --      wait for 320 ns;
@@ -3525,6 +3549,7 @@ begin
 --      load_checksum;
 --      
 --      wait for 100 us;
+--
 ------------------------------------------------------
 
       assert false report "Simulation done." severity FAILURE;

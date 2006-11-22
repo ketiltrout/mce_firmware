@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.3 2006/05/29 23:11:00 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.4 2006/11/03 23:04:11 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: config_fpga.vhd,v $
+-- Revision 1.4  2006/11/03 23:04:11  bburger
+-- Bryce:  Added a timer to lengthen the time between asserting the epc16_sel_n_o line and strobing the config_n_o line.
+--
 -- Revision 1.3  2006/05/29 23:11:00  bburger
 -- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
 --
@@ -127,7 +130,7 @@ begin
       end if;
    end process state_FF;
    
-   out_state_NS: process(current_out_state, config_n, epc16_sel_n, timeout_count)
+   out_state_NS: process(current_out_state, config_n, epc16_sel_n)
    begin
       -- Default assignments
       next_out_state <= current_out_state;
@@ -141,24 +144,24 @@ begin
             end if;                  
             
          when SEL_FAC =>     
-            if(timeout_count > 1024) then
+--            if(timeout_count > 1024) then
                next_out_state <= CONFIG_FAC;            
-            end if;
+--            end if;
             
          when CONFIG_FAC =>     
-            if(timeout_count > 1024) then
-               next_out_state <= IDLE;            
-            end if;
+--            if(timeout_count > 1024) then
+--               next_out_state <= IDLE;            
+--            end if;
          
          when SEL_APP =>     
-            if(timeout_count > 1024) then
+--            if(timeout_count > 1024) then
                next_out_state <= CONFIG_APP;            
-            end if;
+--            end if;
 
          when CONFIG_APP =>     
-            if(timeout_count > 1024) then
-               next_out_state <= IDLE;            
-            end if;
+--            if(timeout_count > 1024) then
+--               next_out_state <= IDLE;            
+--            end if;
 
          when others =>
             next_out_state <= IDLE;
@@ -166,7 +169,7 @@ begin
       end case;
    end process out_state_NS;
 
-   out_state_out: process(current_out_state, timeout_count)
+   out_state_out: process(current_out_state)
    begin
       -- Default assignments
       config_n_o    <= '1';  -- '0' triggers reconfiguration
@@ -179,36 +182,36 @@ begin
          when SEL_FAC =>     
             epc16_sel_n_o <= '1';
 
-            if(timeout_count <= 1024) then
-               -- Allow for a long settling time for the epc16_sel_n_o signal
-               timeout_clr   <= '0';
-            end if;
+--            if(timeout_count <= 1024) then
+--               -- Allow for a long settling time for the epc16_sel_n_o signal
+--               timeout_clr   <= '0';
+--            end if;
          
          when CONFIG_FAC =>     
             config_n_o    <= '0';  
             epc16_sel_n_o <= '1';  
 
-            if(timeout_count <= 1024) then
-               -- Allow for a long settling time for the epc16_sel_n_o signal
-               timeout_clr   <= '0';
-            end if;
+--            if(timeout_count <= 1024) then
+--               -- Allow for a long settling time for the epc16_sel_n_o signal
+--               timeout_clr   <= '0';
+--            end if;
 
          when SEL_APP =>     
             epc16_sel_n_o <= '0';  
 
-            if(timeout_count <= 1024) then
-               -- Allow for a long settling time for the epc16_sel_n_o signal
-               timeout_clr   <= '0';
-            end if;
+--            if(timeout_count <= 1024) then
+--               -- Allow for a long settling time for the epc16_sel_n_o signal
+--               timeout_clr   <= '0';
+--            end if;
          
          when CONFIG_APP =>     
             config_n_o    <= '0';  
             epc16_sel_n_o <= '0';  
 
-            if(timeout_count <= 1024) then
-               -- Allow for a long settling time for the epc16_sel_n_o signal
-               timeout_clr   <= '0';
-            end if;
+--            if(timeout_count <= 1024) then
+--               -- Allow for a long settling time for the epc16_sel_n_o signal
+--               timeout_clr   <= '0';
+--            end if;
 
          when others =>
          
