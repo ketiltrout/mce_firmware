@@ -5,6 +5,9 @@
 /************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.11  2006/11/21 23:30:40  stuartah
+// Added soft_reset assembly code, triggered via external button (timer2 input)
+//
 // Revision 1.10  2006/11/21 21:25:41  stuartah
 // Implemented Timer2 as external interrupt
 //
@@ -69,7 +72,7 @@ main()
 
    	// Initial Power-Up
 	sequence_on();				
-	ENABLE_BLINK;
+//	ENABLE_BLINK;
 	//reset_MCE();						// ** This line disables initial subrack reset **
    	  
   	/***  Main Loop - Periodically update PSU data block, respond to Clock Card / RS232 Commands  ***/
@@ -108,7 +111,9 @@ main()
 		
 		// Send data block if it has been requested
 		if ( cc_spi == TRUE) {		 			   
-	  	  	send_psu_data_block();						// Time to send SPI Data to Clock Card
+	  	  	cc_req_320ms = 0;							// Reset count since last CC request
+			LED_FAULT = 0;								// Turn Off LED if on
+			send_psu_data_block();						// Time to send SPI Data to Clock Card
 			cc_spi = FALSE;  							// Data Block Transmission Complete			
 		}
 	
@@ -134,6 +139,10 @@ main()
 		    	default:								// Status Request or erroneous command.  Difference is ACK/NAK.
 					cc_command = NULL;
 			   		break;  
+		}
+
+		if (cc_req_320ms > 187)	{						// if its been more than a minute since last CC request, 187*320ms = 
+				LED_FAULT = 1;							// then turn on fault LED
 		}
 
 	}
@@ -229,7 +238,7 @@ void init(void)
 	spi_complete = CLEAR;		// SPI transmission/reception complete status bit
 	sio_msg_complete = CLEAR;
 	timeup_T1 = CLEAR;
-	DISABLE_BLINK;		  		// Initially disable LED blink
+//	DISABLE_BLINK;		  		// Initially disable LED blink
 		
 	// Initialize other vars	
 	spi_idx = 0;				// Reset pointer for SPI data output
@@ -237,6 +246,7 @@ void init(void)
 	bcnt = 0;
 	num_T1_ints = 0;
 	running_checksum = 0;
+	cc_req_320ms = 0;
 	
 	// Initialize pointers
 	cc_command = NULL;
@@ -391,8 +401,9 @@ void timer0_isr (void) interrupt 1 using 3
 	if ( bcnt == BRATE320mS) {
       	bcnt = 0;
 	  	poll_data = SET;						// poll data every 320ms
-	  	if (blink_en == SET)
-	   		LED_FAULT = ~LED_FAULT;				// toggle LED every 320ms if enabled
+		cc_req_320ms++;							// increment count every 320ms
+//	  	if (blink_en == SET)
+//	   		LED_FAULT = ~LED_FAULT;				// toggle LED every 320ms if enabled
    }
 }
 
