@@ -49,6 +49,7 @@
 -- #z_addr_ch0_i: Read address from flux_loop_ctrl channle0. 
 -- #sa_bias_ch0_o: sa_bias Data for flux_loop_ctrl channel0.
 -- #offset_dat_ch0_o: offset_dat Data for flux_loop_ctrl channel0.
+-- #const_val_ch0_o: const_val  Data for flux_loop_ctrl Channel0.
 -- ####### Similarly for channels 1 to 7
 -- #filter_coeff0_o: First filter coefficient to all flux_loop_ctrl.
 -- #filter_coeff1_o: Second filter coefficient to all flux_loop_ctrl.
@@ -60,7 +61,6 @@
 -- #servo_mode_o: servo_mode Data for flux_loop_ctrl.
 -- #ramp_step_size_o: ramp_step_size Data for flux_loop_ctrl.
 -- #ramp_amp_o: ramp_ampl Data for flux_loop_ctrl.
--- #const_val_o: const_val  Data for flux_loop_ctrl.
 -- #num_ramp_frame_cycles_o: num_ramp_frame_cycles Data for flux_loop_ctrl.
 -- #dat_i: Data in from Dispatch
 -- #addr_i: Address from Dispatch showing the address of memory banks. This is
@@ -81,6 +81,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.5  2006/02/07 22:12:16  bburger
+-- Bryce:  registered data_o and ack_o to break up a large combinatorial loop
+--
 -- Revision 1.4  2005/09/14 23:48:41  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -138,6 +141,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch0_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch0_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch0_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch0_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
 
 
     adc_offset_dat_ch1_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -152,6 +156,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch1_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch1_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch1_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch1_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     
 
     adc_offset_dat_ch2_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -166,6 +171,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch2_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch2_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch2_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch2_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
 
     
     adc_offset_dat_ch3_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -180,6 +186,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch3_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch3_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch3_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch3_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     
   
     adc_offset_dat_ch4_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -194,6 +201,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch4_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch4_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch4_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch4_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
    
 
     adc_offset_dat_ch5_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -208,6 +216,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch5_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch5_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch5_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch5_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
 
     
     adc_offset_dat_ch6_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -222,6 +231,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch6_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch6_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch6_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch6_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     
 
     adc_offset_dat_ch7_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -236,6 +246,7 @@ entity wbs_fb_data is
     flux_quanta_addr_ch7_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch7_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch7_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
 
 
     -- All Flux_Loop_Ctrl Channels
@@ -249,7 +260,6 @@ entity wbs_fb_data is
     servo_mode_o            : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     ramp_step_size_o        : out std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           
-    const_val_o             : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
     flux_jumping_en_o       : out std_logic;
 
@@ -495,20 +505,28 @@ begin  -- struct
         rst_i                   => rst_i,
         sa_bias_ch0_o           => sa_bias_ch0_o,
         offset_dat_ch0_o        => offset_dat_ch0_o,
+        const_val_ch0_o         => const_val_ch0_o,
         sa_bias_ch1_o           => sa_bias_ch1_o,
         offset_dat_ch1_o        => offset_dat_ch1_o,
+        const_val_ch1_o         => const_val_ch1_o,
         sa_bias_ch2_o           => sa_bias_ch2_o,
         offset_dat_ch2_o        => offset_dat_ch2_o,
+        const_val_ch2_o         => const_val_ch2_o,
         sa_bias_ch3_o           => sa_bias_ch3_o,
         offset_dat_ch3_o        => offset_dat_ch3_o,
+        const_val_ch3_o         => const_val_ch3_o,
         sa_bias_ch4_o           => sa_bias_ch4_o,
         offset_dat_ch4_o        => offset_dat_ch4_o,
+        const_val_ch4_o         => const_val_ch4_o,
         sa_bias_ch5_o           => sa_bias_ch5_o,
         offset_dat_ch5_o        => offset_dat_ch5_o,
+        const_val_ch5_o         => const_val_ch5_o,
         sa_bias_ch6_o           => sa_bias_ch6_o,
         offset_dat_ch6_o        => offset_dat_ch6_o,
+        const_val_ch6_o         => const_val_ch6_o,
         sa_bias_ch7_o           => sa_bias_ch7_o,
         offset_dat_ch7_o        => offset_dat_ch7_o,
+        const_val_ch7_o         => const_val_ch7_o,
         filter_coeff0_o         => filter_coeff0_o,
         filter_coeff1_o         => filter_coeff1_o,
         filter_coeff2_o         => filter_coeff2_o,
@@ -519,7 +537,6 @@ begin  -- struct
         servo_mode_o            => servo_mode_o,
         ramp_step_size_o        => ramp_step_size_o,
         ramp_amp_o              => ramp_amp_o,
-        const_val_o             => const_val_o,
         num_ramp_frame_cycles_o => num_ramp_frame_cycles_o,
         flux_jumping_en_o       => flux_jumping_en_o,
         dat_i                   => dat_i,
