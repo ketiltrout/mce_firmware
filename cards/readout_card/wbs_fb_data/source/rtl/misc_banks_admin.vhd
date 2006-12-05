@@ -99,6 +99,7 @@
 -- #sa_bias_ch0_o: sa_bias Data for flux_loop_ctrl channel0.
 -- #offset_dat_ch0_o: offset_dat Data for flux_loop_ctrl channel0.
 -- #const_val_ch0_o: const_val Data for flux_loop_ctrl channel0.
+-- #servo_mode_ch0_o: servo_mode Data for flux_loop_ctrl channel0.
 -- #### Similarly for ch1 to ch7.
 -- #filter_coeff0_o: filter_coeff Data 1 for ALL flux_loop_ctrl.
 -- #filter_coeff0_o: filter_coeff Data 2 for ALL flux_loop_ctrl.
@@ -107,7 +108,6 @@
 -- #filter_coeff0_o: filter_coeff Data 5 for ALL flux_loop_ctrl.
 -- #filter_coeff0_o: filter_coeff Data 6 or ALL flux_loop_ctrl.
 -- #filter_coeff0_o: filter_coeff Data 7 for ALL flux_loop_ctrl.
--- #servo_mode_o: servo_mode Data for All flux_loop_ctrl.
 -- #ramp_step_size_o: ramp_step_size Data for All flux_loop_ctrl.
 -- #ramp_amp_o: ramp_amp Data for All flux_loop_ctrl.       
 -- #num_ramp_frame_cycles_o: num_ramp_frame_cycles Data for All flux_loop_ctrl.
@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.10  2006/12/05 14:04:34  mandana
+-- initialized fb_const to DAC_INIT_VAL for every column
+--
 -- Revision 1.9  2006/11/24 20:44:47  mandana
 -- splitted fb_const to be channel specific
 --
@@ -193,27 +196,35 @@ entity misc_banks_admin is
     sa_bias_ch0_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch0_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch0_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                  
+    servo_mode_ch0_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     sa_bias_ch1_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch1_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch1_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                  
+    servo_mode_ch1_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     sa_bias_ch2_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch2_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch2_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                  
+    servo_mode_ch2_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     sa_bias_ch3_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch3_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch3_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                  
+    servo_mode_ch3_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     sa_bias_ch4_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch4_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch4_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                  
+    servo_mode_ch4_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     sa_bias_ch5_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch5_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch5_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                  
+    servo_mode_ch5_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     sa_bias_ch6_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch6_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch6_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                  
+    servo_mode_ch6_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     sa_bias_ch7_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch7_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
+    servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
 
 
     -- All Flux_Loop_Ctrl Channels
@@ -224,7 +235,6 @@ entity misc_banks_admin is
     filter_coeff4_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     filter_coeff5_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     filter_coeff6_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    servo_mode_o            : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     
     ramp_step_size_o        : out std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
@@ -255,15 +265,15 @@ architecture rtl of misc_banks_admin is
 
   constant MAX_BIT_TAG             : integer := 3;    -- The number of bits used in tga_i to count up to the maximum number of values for each parameters
   constant SERVO_INDEX_OFFSET      : integer := 7;    -- Index of servo_mode in array register
-  constant RAMP_STEP_INDEX_OFFSET  : integer := 8;    -- Index of ramp_step_size in array register
-  constant RAMP_AMP_INDEX_OFFSET   : integer := 9;    -- Index of ramp_amp in array register
-  constant CONST_VAL_INDEX_OFFSET  : integer := 10;   -- Index of const_val in array register
-  constant NUM_RAM_INDEX_OFFSET    : integer := 18;   -- Index of num_ramp_frame_cycles in array register
-  constant SA_BIAS_INDEX_OFFSET    : integer := 19;   -- Index of sa_bias in array register
-  constant OFFSET_DAT_INDEX_OFFSET : integer := 27;   -- Index of offset_dat in array register
-  constant EN_FB_JUMP_OFFSET       : integer := 35;   -- Index of enable flag for the flux-jumping block
-  constant FILTER_INDEX_OFFSET     : integer := 36;   -- Index of filter_coeff in array register (2 values common for all channels)
-  constant MISC_BANK_MAX_RANGE     : integer := 44;   -- Maximum number of parameters in the Miscellanous bank
+  constant RAMP_STEP_INDEX_OFFSET  : integer := 15;    -- Index of ramp_step_size in array register
+  constant RAMP_AMP_INDEX_OFFSET   : integer := 16;    -- Index of ramp_amp in array register
+  constant CONST_VAL_INDEX_OFFSET  : integer := 17;   -- Index of const_val in array register
+  constant NUM_RAM_INDEX_OFFSET    : integer := 25;   -- Index of num_ramp_frame_cycles in array register
+  constant SA_BIAS_INDEX_OFFSET    : integer := 26;   -- Index of sa_bias in array register
+  constant OFFSET_DAT_INDEX_OFFSET : integer := 34;   -- Index of offset_dat in array register
+  constant EN_FB_JUMP_OFFSET       : integer := 42;   -- Index of enable flag for the flux-jumping block
+  constant FILTER_INDEX_OFFSET     : integer := 43;   -- Index of filter_coeff in array register (2 values common for all channels)
+  constant MISC_BANK_MAX_RANGE     : integer := 51;   -- Maximum number of parameters in the Miscellanous bank
  
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
 
@@ -296,8 +306,8 @@ architecture rtl of misc_banks_admin is
   signal filter_coeff : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all filter_coeff values
   signal sa_bias      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all sa_bias values
   signal offset_dat   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all offset_dat values
-  signal fb_const     : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);  -- MUX output for all fb_const_val values
-  
+  signal fb_const     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all fb_const_val values
+  signal servo_dat    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all servo_mode values
  
 begin  -- rtl
 
@@ -359,8 +369,6 @@ begin  -- rtl
           when others => null;
         end case;
 
-      when SERVO_MODE_ADDR =>
-        wren(SERVO_INDEX_OFFSET) <= we_i;
       when RAMP_STEP_ADDR =>
         wren(RAMP_STEP_INDEX_OFFSET) <= we_i;
       when RAMP_AMP_ADDR =>
@@ -406,6 +414,20 @@ begin  -- rtl
           when "101" => wren(CONST_VAL_INDEX_OFFSET+5) <= we_i;
           when "110" => wren(CONST_VAL_INDEX_OFFSET+6) <= we_i;
           when "111" => wren(CONST_VAL_INDEX_OFFSET+7) <= we_i;
+          when others => null;
+        end case;
+
+      when SERVO_MODE_ADDR =>
+        wren(SERVO_INDEX_OFFSET) <= we_i;
+        case tga_i(MAX_BIT_TAG-1 downto 0) is
+          when "000" => wren(SERVO_INDEX_OFFSET+0) <= we_i;
+          when "001" => wren(SERVO_INDEX_OFFSET+1) <= we_i;
+          when "010" => wren(SERVO_INDEX_OFFSET+2) <= we_i;
+          when "011" => wren(SERVO_INDEX_OFFSET+3) <= we_i;
+          when "100" => wren(SERVO_INDEX_OFFSET+4) <= we_i;
+          when "101" => wren(SERVO_INDEX_OFFSET+5) <= we_i;
+          when "110" => wren(SERVO_INDEX_OFFSET+6) <= we_i;
+          when "111" => wren(SERVO_INDEX_OFFSET+7) <= we_i;
           when others => null;
         end case;
       
@@ -488,12 +510,24 @@ begin  -- rtl
     reg(CONST_VAL_INDEX_OFFSET+6) when "110",
     reg(CONST_VAL_INDEX_OFFSET+7) when "111",
     reg(CONST_VAL_INDEX_OFFSET+0) when others;
+
+  with tga_i(2 downto 0) select
+    servo_dat <=
+    reg(SERVO_INDEX_OFFSET+0) when "000",
+    reg(SERVO_INDEX_OFFSET+1) when "001",
+    reg(SERVO_INDEX_OFFSET+2) when "010",
+    reg(SERVO_INDEX_OFFSET+3) when "011",
+    reg(SERVO_INDEX_OFFSET+4) when "100",
+    reg(SERVO_INDEX_OFFSET+5) when "101",
+    reg(SERVO_INDEX_OFFSET+6) when "110",
+    reg(SERVO_INDEX_OFFSET+7) when "111",
+    reg(SERVO_INDEX_OFFSET+0) when others;
  
   
   with addr_i select
     qa_misc_bank_o <=
     filter_coeff                  when FILT_COEF_ADDR,
-    reg(SERVO_INDEX_OFFSET)       when SERVO_MODE_ADDR,
+    servo_dat                     when SERVO_MODE_ADDR,
     reg(RAMP_STEP_INDEX_OFFSET)   when RAMP_STEP_ADDR,
     reg(RAMP_AMP_INDEX_OFFSET)    when RAMP_AMP_ADDR,
     reg(NUM_RAM_INDEX_OFFSET)     when RAMP_DLY_ADDR,
@@ -515,7 +549,14 @@ begin  -- rtl
   filter_coeff4_o         <= reg(FILTER_INDEX_OFFSET+4);
   filter_coeff5_o         <= reg(FILTER_INDEX_OFFSET+5);
   filter_coeff6_o         <= reg(FILTER_INDEX_OFFSET+6);
-  servo_mode_o            <= reg(SERVO_INDEX_OFFSET)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch0_o        <= reg(SERVO_INDEX_OFFSET+0)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch1_o        <= reg(SERVO_INDEX_OFFSET+1)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch2_o        <= reg(SERVO_INDEX_OFFSET+2)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch3_o        <= reg(SERVO_INDEX_OFFSET+3)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch4_o        <= reg(SERVO_INDEX_OFFSET+4)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch5_o        <= reg(SERVO_INDEX_OFFSET+5)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch6_o        <= reg(SERVO_INDEX_OFFSET+6)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  servo_mode_ch7_o        <= reg(SERVO_INDEX_OFFSET+7)(SERVO_MODE_SEL_WIDTH-1 downto 0);
   ramp_step_size_o        <= reg(RAMP_STEP_INDEX_OFFSET)(RAMP_STEP_WIDTH-1 downto 0);
   ramp_amp_o              <= reg(RAMP_AMP_INDEX_OFFSET)(RAMP_AMP_WIDTH-1 downto 0 );
   num_ramp_frame_cycles_o <= reg(NUM_RAM_INDEX_OFFSET)(RAMP_CYC_WIDTH-1 downto 0);
