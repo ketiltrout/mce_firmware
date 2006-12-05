@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.52  2006/11/24 21:08:55  mandana
+-- splitted fb_const to be channel specific, changed revision to 3.14
+--
 -- Revision 1.51  2006/09/25 23:31:06  mandana
 -- changed revision to 030000013 for changing PIDZ_DATA_WIDTH to 10b from 8b
 --
@@ -334,10 +337,12 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000014"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000015"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      -- filter 1/2^11 scaling between biquad stages 
                                                                      -- added read port for adc_offset, fb_const/channel
+                                                                     -- corrected DAC_INIT_VAL for all channels, 
+                                                                     -- ramp_mode_en =0 for sake of Quartus synthesis time!
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
