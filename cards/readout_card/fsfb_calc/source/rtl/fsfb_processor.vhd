@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.9  2006/07/05 19:28:52  mandana
+-- change default servo_mode (servo_mode=0) to constant mode in order to initialize DACs to 0 upon reset
+--
 -- Revision 1.8  2006/03/14 22:47:51  mandana
 -- interface change to accomodate 4-pole filter
 --
@@ -188,7 +191,7 @@ begin
    -- 01:  Constant
    const_mode_en <= not(servo_mode_i(1));-- and servo_mode_i(0)); 
    -- 10:  Ramp (Sawtooth)
-   ramp_mode_en  <= servo_mode_i(1) and not(servo_mode_i(0));
+   ramp_mode_en <= '0';  --<= servo_mode_i(1) and not(servo_mode_i(0));
    -- 11:  Lock 
    lock_mode_en  <= servo_mode_i(1) and servo_mode_i(0);
    
