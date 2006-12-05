@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.9  2006/11/24 20:44:47  mandana
+-- splitted fb_const to be channel specific
+--
 -- Revision 1.8  2006/07/05 19:42:12  mandana
 -- added DAC_INIT_VALUE for fb_const register init so DACs are initialized at 0V
 --
@@ -308,7 +311,7 @@ begin  -- rtl
     i_reg: process (clk_50_i, rst_i)
     begin  -- process i_reg
       if rst_i = '1' then               -- asynchronous reset (active high)
-        if(i = CONST_VAL_INDEX_OFFSET) then
+        if(i >= CONST_VAL_INDEX_OFFSET and i < (CONST_VAL_INDEX_OFFSET +7) ) then
           reg(i) <= conv_std_logic_vector(DAC_INIT_VAL,WB_DATA_WIDTH);
         else
           reg(i) <= (others => '0');
