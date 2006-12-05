@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.13  2006/11/24 21:03:57  mandana
+-- splitted fb_const to be channel specific
+--
 -- Revision 1.12  2006/02/15 21:34:23  mandana
 -- added fltr_rst_i port
 --
@@ -304,6 +307,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch0       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch0        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch0         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch0        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal adc_offset_dat_ch1    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch1   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal p_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -317,6 +321,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch1       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch1        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch1         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch1        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal adc_offset_dat_ch2    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch2   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal p_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -330,6 +335,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch2       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch2        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch2         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch2        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal adc_offset_dat_ch3    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch3   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal p_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -343,6 +349,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch3       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch3        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch3         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch3        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal adc_offset_dat_ch4    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch4   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal p_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -356,6 +363,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch4       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch4        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch4         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch4        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal adc_offset_dat_ch5    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch5   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal p_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -369,6 +377,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch5       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch5        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch5         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch5        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal adc_offset_dat_ch6    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch6   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal p_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -382,6 +391,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch6       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch6        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch6         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch6        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal adc_offset_dat_ch7    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch7   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal p_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -395,6 +405,7 @@ architecture struct of flux_loop is
   signal sa_bias_dat_ch7       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch7        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal const_val_ch7         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+  signal servo_mode_ch7        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
   signal filter_coeff0         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff1         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -402,7 +413,6 @@ architecture struct of flux_loop is
   signal filter_coeff4         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff5         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff6         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal servo_mode            : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
   signal ramp_step_size        : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
   signal ramp_amp              : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
   signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);  
@@ -510,7 +520,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch0,
         adc_offset_dat_i          => adc_offset_dat_ch0,
         adc_offset_adr_o          => adc_offset_addr_ch0,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch0,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch0,
@@ -583,7 +593,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch1,
         adc_offset_dat_i          => adc_offset_dat_ch1,
         adc_offset_adr_o          => adc_offset_addr_ch1,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch1,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch1,
@@ -657,7 +667,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch2,
         adc_offset_dat_i          => adc_offset_dat_ch2,
         adc_offset_adr_o          => adc_offset_addr_ch2,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch2,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch2,
@@ -731,7 +741,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch3,
         adc_offset_dat_i          => adc_offset_dat_ch3,
         adc_offset_adr_o          => adc_offset_addr_ch3,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch3,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch3,
@@ -805,7 +815,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch4,
         adc_offset_dat_i          => adc_offset_dat_ch4,
         adc_offset_adr_o          => adc_offset_addr_ch4,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch4,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch4,
@@ -879,7 +889,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch5,
         adc_offset_dat_i          => adc_offset_dat_ch5,
         adc_offset_adr_o          => adc_offset_addr_ch5,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch5,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch5,
@@ -953,7 +963,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch6,
         adc_offset_dat_i          => adc_offset_dat_ch6,
         adc_offset_adr_o          => adc_offset_addr_ch6,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch6,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch6,
@@ -1027,7 +1037,7 @@ begin  -- struct
         filtered_dat_o            => filtered_dat_ch7,
         adc_offset_dat_i          => adc_offset_dat_ch7,
         adc_offset_adr_o          => adc_offset_addr_ch7,
-        servo_mode_i              => servo_mode,
+        servo_mode_i              => servo_mode_ch7,
         ramp_step_size_i          => ramp_step_size,
         ramp_amp_i                => ramp_amp,
         const_val_i               => const_val_ch7,
@@ -1270,6 +1280,7 @@ begin  -- struct
         sa_bias_ch0_o           => sa_bias_dat_ch0,
         offset_dat_ch0_o        => offset_dat_ch0,
         const_val_ch0_o         => const_val_ch0,
+        servo_mode_ch0_o        => servo_mode_ch0,
         adc_offset_dat_ch1_o    => adc_offset_dat_ch1,
         adc_offset_addr_ch1_i   => adc_offset_addr_ch1,
         p_dat_ch1_o             => p_dat_ch1,
@@ -1283,6 +1294,7 @@ begin  -- struct
         sa_bias_ch1_o           => sa_bias_dat_ch1,
         offset_dat_ch1_o        => offset_dat_ch1,
         const_val_ch1_o         => const_val_ch1,
+        servo_mode_ch1_o        => servo_mode_ch1,
         adc_offset_dat_ch2_o    => adc_offset_dat_ch2,
         adc_offset_addr_ch2_i   => adc_offset_addr_ch2,
         p_dat_ch2_o             => p_dat_ch2,
@@ -1296,6 +1308,7 @@ begin  -- struct
         sa_bias_ch2_o           => sa_bias_dat_ch2,
         offset_dat_ch2_o        => offset_dat_ch2,
         const_val_ch2_o         => const_val_ch2,
+        servo_mode_ch2_o        => servo_mode_ch2,
         adc_offset_dat_ch3_o    => adc_offset_dat_ch3,
         adc_offset_addr_ch3_i   => adc_offset_addr_ch3,
         p_dat_ch3_o             => p_dat_ch3,
@@ -1309,6 +1322,7 @@ begin  -- struct
         sa_bias_ch3_o           => sa_bias_dat_ch3,
         offset_dat_ch3_o        => offset_dat_ch3,
         const_val_ch3_o         => const_val_ch3,
+        servo_mode_ch3_o        => servo_mode_ch3,
         adc_offset_dat_ch4_o    => adc_offset_dat_ch4,
         adc_offset_addr_ch4_i   => adc_offset_addr_ch4,
         p_dat_ch4_o             => p_dat_ch4,
@@ -1322,6 +1336,7 @@ begin  -- struct
         sa_bias_ch4_o           => sa_bias_dat_ch4,
         offset_dat_ch4_o        => offset_dat_ch4,
         const_val_ch4_o         => const_val_ch4,
+        servo_mode_ch4_o        => servo_mode_ch4,
         adc_offset_dat_ch5_o    => adc_offset_dat_ch5,
         adc_offset_addr_ch5_i   => adc_offset_addr_ch5,
         p_dat_ch5_o             => p_dat_ch5,
@@ -1335,6 +1350,7 @@ begin  -- struct
         sa_bias_ch5_o           => sa_bias_dat_ch5,
         offset_dat_ch5_o        => offset_dat_ch5,
         const_val_ch5_o         => const_val_ch5,
+        servo_mode_ch5_o        => servo_mode_ch5,
         adc_offset_dat_ch6_o    => adc_offset_dat_ch6,
         adc_offset_addr_ch6_i   => adc_offset_addr_ch6,
         p_dat_ch6_o             => p_dat_ch6,
@@ -1348,6 +1364,7 @@ begin  -- struct
         sa_bias_ch6_o           => sa_bias_dat_ch6,
         const_val_ch6_o         => const_val_ch6,
         offset_dat_ch6_o        => offset_dat_ch6,
+        servo_mode_ch6_o        => servo_mode_ch6,
         adc_offset_dat_ch7_o    => adc_offset_dat_ch7,
         adc_offset_addr_ch7_i   => adc_offset_addr_ch7,
         p_dat_ch7_o             => p_dat_ch7,
@@ -1361,6 +1378,7 @@ begin  -- struct
         sa_bias_ch7_o           => sa_bias_dat_ch7,
         offset_dat_ch7_o        => offset_dat_ch7,
         const_val_ch7_o         => const_val_ch7,
+        servo_mode_ch7_o        => servo_mode_ch7,
         filter_coeff0_o         => filter_coeff0,
         filter_coeff1_o         => filter_coeff1,
         filter_coeff2_o         => filter_coeff2,
@@ -1368,7 +1386,6 @@ begin  -- struct
         filter_coeff4_o         => filter_coeff4,
         filter_coeff5_o         => filter_coeff5,
         filter_coeff6_o         => filter_coeff6,
-        servo_mode_o            => servo_mode,
         ramp_step_size_o        => ramp_step_size,
         ramp_amp_o              => ramp_amp,
         num_ramp_frame_cycles_o => num_ramp_frame_cycles,
