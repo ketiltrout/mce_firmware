@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.38 2006/11/03 01:06:00 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.39 2006/11/22 01:00:16 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.39  2006/11/22 01:00:16  bburger
+-- Bryce:  Interim commital
+--
 -- Revision 1.38  2006/11/03 01:06:00  bburger
 -- Bryce:  Additional test cases.
 --
@@ -399,6 +402,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc4_flx_lp_init_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4    & x"00" & FLX_LP_INIT_ADDR;
    constant rc4_row_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4    & x"00" & ROW_DLY_ADDR;
    
+   constant cc_fpga_temp_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & FPGA_TEMP_ADDR;    
    constant cc_fw_rev_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & FW_REV_ADDR;    
    constant cc_config_fac_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & CONFIG_FAC_ADDR;    
    constant cc_config_app_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & CONFIG_APP_ADDR;    
@@ -3474,23 +3478,33 @@ begin
 ------------------------------------------------------
 --  Testing commands for which there is not Wishbone Slave
 ------------------------------------------------------
+--      command <= command_rb;
+--      address_id <= cc_box_id_cmd;
+--      data_valid <= X"00000004";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      wait for 200 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+
       command <= command_rb;
-      address_id <= cc_box_id_cmd;
-      data_valid <= X"00000004";
+      address_id <= cc_fpga_temp_cmd;
+      data_valid <= X"00000001";
       data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;      
       wait for 200 us;
 
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 200 us;
 
 
 ------------------------------------------------------
