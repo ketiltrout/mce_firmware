@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.15.2.3 2006/07/05 19:34:45 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.15.2.4 2006/07/24 23:16:34 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.15.2.4  2006/07/24 23:16:34  mandana
+-- changed multiplier and subtractor width to relax timing
+--
 -- Revision 1.15.2.3  2006/07/05 19:34:45  mandana
 -- added sign-bit correction when windowing is in effect for all channels
 -- removed sign-bit correction introduced in the earlier version (it limited DAC range to half positive range!)
@@ -114,7 +117,15 @@ entity fsfb_corr is
    (
       -- fsfb_calc interface
       flux_jumping_en_i          : in std_logic;
-      fsfb_ctrl_lock_en_i        : in std_logic;
+      
+      fsfb_ctrl_lock_en0_i       : in std_logic;
+      fsfb_ctrl_lock_en1_i       : in std_logic;
+      fsfb_ctrl_lock_en2_i       : in std_logic;
+      fsfb_ctrl_lock_en3_i       : in std_logic;
+      fsfb_ctrl_lock_en4_i       : in std_logic;
+      fsfb_ctrl_lock_en5_i       : in std_logic;
+      fsfb_ctrl_lock_en6_i       : in std_logic;
+      fsfb_ctrl_lock_en7_i       : in std_logic;
       
       flux_quanta0_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
       flux_quanta1_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
@@ -812,7 +823,7 @@ begin
             -- Currently, LSB_WINDOW_INDEX = 14, so the input is scaled down by 2^14.
             ---------------------------------------------------------------------------------------
 
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en0_i = '1') then
                pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg0         <= fsfb_ctrl_dat0_i(fsfb_ctrl_dat0_i'left) & 
@@ -826,7 +837,7 @@ begin
          elsif(fsfb_ctrl_dat_rdy1_i = '1') then
             flux_quanta_reg1      <= flux_quanta1_i;
             m_prev_reg1           <= num_flux_quanta_prev1_i;
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en1_i = '1') then
                pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg1         <= fsfb_ctrl_dat1_i(fsfb_ctrl_dat1_i'left) & 
@@ -840,7 +851,7 @@ begin
          elsif(fsfb_ctrl_dat_rdy2_i = '1') then
             flux_quanta_reg2      <= flux_quanta2_i;
             m_prev_reg2           <= num_flux_quanta_prev2_i;
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en2_i = '1') then
                pid_prev_reg2         <= fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg2         <= fsfb_ctrl_dat2_i(fsfb_ctrl_dat2_i'left) & 
@@ -854,7 +865,7 @@ begin
          elsif(fsfb_ctrl_dat_rdy3_i = '1') then
             flux_quanta_reg3      <= flux_quanta3_i;
             m_prev_reg3           <= num_flux_quanta_prev3_i;
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en3_i = '1') then
                pid_prev_reg3         <= fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg3         <= fsfb_ctrl_dat3_i(fsfb_ctrl_dat3_i'left) & 
@@ -868,7 +879,7 @@ begin
          elsif(fsfb_ctrl_dat_rdy4_i = '1') then
             flux_quanta_reg4      <= flux_quanta4_i;
             m_prev_reg4           <= num_flux_quanta_prev4_i;
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en4_i = '1') then
                pid_prev_reg4         <= fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg4         <= fsfb_ctrl_dat4_i(fsfb_ctrl_dat4_i'left) & 
@@ -882,7 +893,7 @@ begin
          elsif(fsfb_ctrl_dat_rdy5_i = '1') then
             flux_quanta_reg5      <= flux_quanta5_i;
             m_prev_reg5           <= num_flux_quanta_prev5_i;
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en5_i = '1') then
                pid_prev_reg5         <= fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg5         <= fsfb_ctrl_dat5_i(fsfb_ctrl_dat5_i'left) & 
@@ -896,7 +907,7 @@ begin
          elsif(fsfb_ctrl_dat_rdy6_i = '1') then
             flux_quanta_reg6      <= flux_quanta6_i;
             m_prev_reg6           <= num_flux_quanta_prev6_i;
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en6_i = '1') then
                pid_prev_reg6         <= fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg6         <= fsfb_ctrl_dat6_i(fsfb_ctrl_dat6_i'left) & 
@@ -910,7 +921,7 @@ begin
          elsif(fsfb_ctrl_dat_rdy7_i = '1') then
             flux_quanta_reg7      <= flux_quanta7_i;
             m_prev_reg7           <= num_flux_quanta_prev7_i;
-            if(fsfb_ctrl_lock_en_i = '1') then
+            if(fsfb_ctrl_lock_en7_i = '1') then
                pid_prev_reg7         <= fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
                pid_prev_reg7         <= fsfb_ctrl_dat7_i(fsfb_ctrl_dat7_i'left) & 
