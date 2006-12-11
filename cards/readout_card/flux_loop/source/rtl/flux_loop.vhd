@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.14  2006/12/05 22:43:57  mandana
+-- split the servo_mode to be column specific. Note that flux_jump will still get enabled based on column 0 servo_mode!
+--
 -- Revision 1.13  2006/11/24 21:03:57  mandana
 -- splitted fb_const to be channel specific
 --
@@ -420,7 +423,6 @@ architecture struct of flux_loop is
   
   -- Signals Interface between fsfb_corr and flux_loop_ctrl
   signal flux_jumping_en           : std_logic;    
-  signal fsfb_ctrl_lock_en         : std_logic;                                             
   signal num_flux_quanta_pres_rdy  : std_logic;                                             
   signal fsfb_ctrl_corr_rdy        : std_logic;                                                
   
@@ -430,6 +432,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat0_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr0           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en0        : std_logic;                                             
 
   signal flux_quanta1              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
   signal fsfb_ctrl_dat1            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
@@ -437,6 +440,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat1_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr1           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en1        : std_logic;                                             
 
   signal flux_quanta2              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
   signal fsfb_ctrl_dat2            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
@@ -444,6 +448,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat2_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr2           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en2        : std_logic;                                             
 
   signal flux_quanta3              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
   signal fsfb_ctrl_dat3            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
@@ -451,6 +456,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat3_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr3           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en3        : std_logic;                                             
 
   signal flux_quanta4              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
   signal fsfb_ctrl_dat4            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
@@ -458,6 +464,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat4_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr4           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en4        : std_logic;                                             
 
   signal flux_quanta5              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
   signal fsfb_ctrl_dat5            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
@@ -465,6 +472,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat5_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr5           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en5        : std_logic;                                             
 
   signal flux_quanta6              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
   signal fsfb_ctrl_dat6            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
@@ -472,6 +480,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat6_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr6           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en6        : std_logic;                                             
 
   signal flux_quanta7              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
   signal fsfb_ctrl_dat7            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
@@ -479,6 +488,7 @@ architecture struct of flux_loop is
   signal num_flux_quanta_pres7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
   signal fsfb_ctrl_dat7_rdy        : std_logic;                                             
   signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+  signal fsfb_ctrl_lock_en7        : std_logic;                                             
 
   
 begin  -- struct
@@ -550,7 +560,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en0,   
         flux_quanta_o               => flux_quanta0,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat0,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat0_rdy,      
@@ -623,7 +633,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => open,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en1,   
         flux_quanta_o               => flux_quanta1,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat1,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat1_rdy,      
@@ -697,7 +707,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => open,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en2,   
         flux_quanta_o               => flux_quanta2,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat2,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat2_rdy,      
@@ -771,7 +781,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => open,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en3,   
         flux_quanta_o               => flux_quanta3,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat3,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat3_rdy,      
@@ -845,7 +855,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => open,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en4,   
         flux_quanta_o               => flux_quanta4,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat4,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat4_rdy,      
@@ -919,7 +929,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => open,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en5,   
         flux_quanta_o               => flux_quanta5,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat5,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat5_rdy,      
@@ -993,7 +1003,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => open,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en6,   
         flux_quanta_o               => flux_quanta6,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat6,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat6_rdy,      
@@ -1067,7 +1077,7 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        fsfb_ctrl_lock_en_o         => open,   
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en7,   
         flux_quanta_o               => flux_quanta7,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat7,   
         fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat7_rdy,      
@@ -1087,7 +1097,15 @@ begin  -- struct
     port map (
       -- fsfb_calc interface
       flux_jumping_en_i          => flux_jumping_en,
-      fsfb_ctrl_lock_en_i        => fsfb_ctrl_lock_en,
+
+      fsfb_ctrl_lock_en0_i        => fsfb_ctrl_lock_en0,
+      fsfb_ctrl_lock_en1_i        => fsfb_ctrl_lock_en1,
+      fsfb_ctrl_lock_en2_i        => fsfb_ctrl_lock_en2,
+      fsfb_ctrl_lock_en3_i        => fsfb_ctrl_lock_en3,
+      fsfb_ctrl_lock_en4_i        => fsfb_ctrl_lock_en4,
+      fsfb_ctrl_lock_en5_i        => fsfb_ctrl_lock_en5,
+      fsfb_ctrl_lock_en6_i        => fsfb_ctrl_lock_en6,
+      fsfb_ctrl_lock_en7_i        => fsfb_ctrl_lock_en7,
       
       flux_quanta0_i             => flux_quanta0,
       flux_quanta1_i             => flux_quanta1,

@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.12  2006/12/05 22:44:33  mandana
+-- split the servo_mode to be column specific. Note that flux_jump will still get enabled based on column 0 servo_mode!
+--
 -- Revision 1.11  2006/11/24 21:04:56  mandana
 -- splitted fb_const to be channel specific
 -- undo use frame_timing_pack for num_rows constant, to be added to top level pack file later.
@@ -219,7 +222,15 @@ package flux_loop_pack is
     port (
       -- fsfb_calc interface
       flux_jumping_en_i          : in std_logic;
-      fsfb_ctrl_lock_en_i        : in std_logic;
+
+      fsfb_ctrl_lock_en0_i       : in std_logic;
+      fsfb_ctrl_lock_en1_i       : in std_logic;
+      fsfb_ctrl_lock_en2_i       : in std_logic;
+      fsfb_ctrl_lock_en3_i       : in std_logic;
+      fsfb_ctrl_lock_en4_i       : in std_logic;
+      fsfb_ctrl_lock_en5_i       : in std_logic;
+      fsfb_ctrl_lock_en6_i       : in std_logic;
+      fsfb_ctrl_lock_en7_i       : in std_logic;
       
       flux_quanta0_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
       flux_quanta1_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
