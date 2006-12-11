@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.11  2006/12/05 22:33:24  mandana
+-- split the servo_mode to be column specific
+--
 -- Revision 1.10  2006/12/05 14:04:34  mandana
 -- initialized fb_const to DAC_INIT_VAL for every column
 --
@@ -321,7 +324,7 @@ begin  -- rtl
     i_reg: process (clk_50_i, rst_i)
     begin  -- process i_reg
       if rst_i = '1' then               -- asynchronous reset (active high)
-        if(i >= CONST_VAL_INDEX_OFFSET and i < (CONST_VAL_INDEX_OFFSET +7) ) then
+        if(i >= CONST_VAL_INDEX_OFFSET and i <= (CONST_VAL_INDEX_OFFSET +7) ) then
           reg(i) <= conv_std_logic_vector(DAC_INIT_VAL,WB_DATA_WIDTH);
         else
           reg(i) <= (others => '0');
