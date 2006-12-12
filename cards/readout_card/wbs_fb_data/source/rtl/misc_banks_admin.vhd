@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.12  2006/12/11 18:07:06  mandana
+-- fixed a bug associated with fb_const initial value for column 8
+--
 -- Revision 1.11  2006/12/05 22:33:24  mandana
 -- split the servo_mode to be column specific
 --
@@ -421,7 +424,6 @@ begin  -- rtl
         end case;
 
       when SERVO_MODE_ADDR =>
-        wren(SERVO_INDEX_OFFSET) <= we_i;
         case tga_i(MAX_BIT_TAG-1 downto 0) is
           when "000" => wren(SERVO_INDEX_OFFSET+0) <= we_i;
           when "001" => wren(SERVO_INDEX_OFFSET+1) <= we_i;
