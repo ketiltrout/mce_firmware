@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.55  2006/12/11 18:10:08  mandana
+-- Changed revision to 3.17, added ports to fsfb_corr for servo_mode/column and fixed a bug with fsb_const initial value for column 8
+--
 -- Revision 1.54  2006/12/05 22:30:41  mandana
 -- changed rev. to 03000016 to split the servo_mode to be column specific instead of common for all columns.
 -- Note that flux_jump will still get enabled based on column 0 servo_mode!
@@ -345,13 +348,14 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000017"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000018"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      -- filter 1/2^11 scaling between biquad stages 
                                                                      -- added read port for adc_offset, fb_const/channel
                                                                      -- corrected DAC_INIT_VAL for all channels, 
                                                                      -- ramp_mode_en =0 for sake of Quartus synthesis time!
                                                                      -- servo_mode/column with added ports to fsfb_corr 
+                                                                     -- raw mode enabled, filter disabled
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
