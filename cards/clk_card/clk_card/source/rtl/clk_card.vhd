@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.59 2006/09/06 00:20:54 bburger Exp $
+-- $Id: clk_card.vhd,v 1.60 2006/09/07 22:30:23 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.60  2006/09/07 22:30:23  bburger
+-- Bryce:  cleaned up the file by removing code that was commented out
+--
 -- Revision 1.59  2006/09/06 00:20:54  bburger
 -- Bryce:  Changed top-level signals to match the PSUC names.  Note:  now some of the CC signals do not match the schematic.
 --
@@ -159,6 +162,26 @@ entity clk_card is
       ccssi             : in std_logic;
       misoo             : out std_logic;
       sreqo             : out std_logic;
+
+      -- SRAM bank 0 interface
+      sram0_addr : out std_logic_vector(19 downto 0);
+      sram0_data : inout std_logic_vector(15 downto 0);
+      sram0_nbhe : out std_logic;
+      sram0_nble : out std_logic;
+      sram0_noe  : out std_logic;
+      sram0_nwe  : out std_logic;
+      sram0_nce1 : out std_logic;
+      sram0_ce2  : out std_logic;
+      
+      -- SRAM bank 1 interface
+      sram1_addr : out std_logic_vector(19 downto 0);
+      sram1_data : inout std_logic_vector(15 downto 0);
+      sram1_nbhe : out std_logic;
+      sram1_nble : out std_logic;
+      sram1_noe  : out std_logic;
+      sram1_nwe  : out std_logic;
+      sram1_nce1 : out std_logic;
+      sram1_ce2  : out std_logic;
       
       -- miscellaneous ports:
       red_led           : out std_logic;
@@ -248,6 +271,16 @@ architecture top of clk_card is
    signal ret_dat_req        : std_logic;
    signal ret_dat_done       : std_logic;
    
+   -- sram_ctrl interface
+   signal sram_addr           : std_logic_vector(19 downto 0);
+   signal sram_data           : std_logic_vector(31 downto 0);
+   signal sram_nbhe           : std_logic;
+   signal sram_nble           : std_logic;
+   signal sram_noe            : std_logic;
+   signal sram_nwe            : std_logic;
+   signal sram_nce1           : std_logic;
+   signal sram_ce2            : std_logic;
+
    -- wishbone bus (from master)
    signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal addr : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -287,7 +320,9 @@ architecture top of clk_card is
    signal select_clk_ack      : std_logic;
    signal psu_ctrl_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal psu_ctrl_ack        : std_logic;
-
+   signal sram_ctrl_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal sram_ctrl_ack       : std_logic;
+   
    signal fw_rev_err              : std_logic;
    signal id_thermo_err           : std_logic;
    signal fpga_thermo_err         : std_logic;
@@ -313,6 +348,34 @@ architecture top of clk_card is
    signal sync_box_err      : std_logic;
    signal sync_box_free_run : std_logic;   
    
+   component sram_ctrl
+   generic(ADDR_WIDTH     : integer := WB_ADDR_WIDTH;
+           DATA_WIDTH     : integer := WB_DATA_WIDTH;
+           TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH);
+        
+   port(-- SRAM signals:
+        addr_o  : out std_logic_vector(19 downto 0);
+        data_bi : inout std_logic_vector(31 downto 0);
+        n_ble_o : out std_logic;
+        n_bhe_o : out std_logic;
+        n_oe_o  : out std_logic;
+        n_ce1_o : out std_logic;
+        ce2_o   : out std_logic;
+        n_we_o  : out std_logic;
+     
+        -- wishbone signals:
+        clk_i   : in std_logic;
+        rst_i   : in std_logic;     
+        dat_i   : in std_logic_vector (DATA_WIDTH-1 downto 0);
+        addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
+        we_i    : in std_logic;
+        stb_i   : in std_logic;
+        cyc_i   : in std_logic;
+        dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
+        ack_o   : out std_logic);     
+   end component;
+
    component psu_ctrl
    port(
       -- Clock and Reset:
@@ -697,6 +760,7 @@ begin
          config_fpga_data  when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_data   when SELECT_CLK_ADDR,
          psu_ctrl_data     when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
+         sram_ctrl_data    when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          (others => '0')   when others;
          
    with addr select
@@ -710,6 +774,7 @@ begin
          config_fpga_ack   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_ack    when SELECT_CLK_ADDR,
          psu_ctrl_ack      when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
+         sram_ctrl_ack     when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          '0'               when others;
          
    with addr select
@@ -722,6 +787,40 @@ begin
          id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err   when FPGA_TEMP_ADDR,
          '1'               when others;
+
+   -- SRAM interface   
+   sram_ctrl_inst: sram_ctrl        
+   port map(
+        -- SRAM signals:
+        addr_o  => sram_addr,
+        data_bi => sram_data,
+        n_ble_o => sram_nble,
+        n_bhe_o => sram_nbhe,
+        n_oe_o  => sram_noe,
+        n_ce1_o => sram_nce1,
+        ce2_o   => sram_ce2,
+        n_we_o  => sram_nwe,
+     
+        -- wishbone signals:
+        clk_i   => clk,
+        rst_i   => rst,
+        dat_i   => data,
+        addr_i  => addr,
+        tga_i   => tga,
+        we_i    => we,
+        stb_i   => stb,
+        cyc_i   => cyc,
+        dat_o   => sram_data,
+        ack_o   => sram_ctrl_ack);     
+   
+   sram0_addr <= sram_addr(19 downto 0);    sram1_addr <= sram_addr(19 downto 0); 
+   sram0_data <= sram_data(15 downto 0);    sram1_data <= sram_data(31 downto 16);
+   sram0_nbhe <= sram_nbhe;                 sram1_nbhe <= sram_nbhe;     
+   sram0_nble <= sram_nble;                 sram1_nble <= sram_nble;
+   sram0_noe  <= sram_noe;                  sram1_noe  <= sram_noe;  
+   sram0_nwe  <= sram_nwe;                  sram1_nwe  <= sram_nwe;   
+   sram0_nce1 <= sram_nce1;                 sram1_nce1 <= sram_nce1;
+   sram0_ce2  <= sram_ce2;                  sram1_ce2  <= sram_ce2;  
 
    psu_ctrl_inst: psu_ctrl 
    port map(
