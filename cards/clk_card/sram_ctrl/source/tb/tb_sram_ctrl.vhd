@@ -20,18 +20,16 @@
 
 -- tb_sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_sram_ctrl.vhd,v 1.1 2004/03/23 20:08:00 erniel Exp $>
---
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
 -- Testbench for SRAM controller
 --
 -- Revision history:
--- <date $Date: 2004/03/23 20:08:00 $>	-		<text>		- <initials $Author: erniel $>
-
+-- <date $Date: 2004/04/21 19:58:39 $> -     <text>      - <initials $Author: bburger $>
+-- <$Log$>
 --
 -----------------------------------------------------------------------------
 
@@ -49,52 +47,42 @@ end TB_SRAM_CTRL;
 
 architecture BEH of TB_SRAM_CTRL is
 
-   component SRAM_CTRL
-
-      generic(ADDR_WIDTH       : integer  := WB_ADDR_WIDTH ;
-              DATA_WIDTH       : integer  := WB_DATA_WIDTH ;
-              TAG_ADDR_WIDTH   : integer  := WB_TAG_ADDR_WIDTH );
-
-      port(ADDR_O    : out std_logic_vector ( 19 downto 0 );
-           DATA_BI   : inout std_logic_vector ( 15 downto 0 );
-           N_BLE_O   : out std_logic ;
-           N_BHE_O   : out std_logic ;
-           N_OE_O    : out std_logic ;
-           N_CE1_O   : out std_logic ;
-           CE2_O     : out std_logic ;
-           N_WE_O    : out std_logic ;
-           CLK_I     : in std_logic ;
-           RST_I     : in std_logic ;
-           DAT_I     : in std_logic_vector ( DATA_WIDTH - 1 downto 0 );
-           ADDR_I    : in std_logic_vector ( ADDR_WIDTH - 1 downto 0 );
-           TGA_I     : in std_logic_vector ( TAG_ADDR_WIDTH - 1 downto 0 );
-           WE_I      : in std_logic ;
-           STB_I     : in std_logic ;
-           CYC_I     : in std_logic ;
-           DAT_O     : out std_logic_vector ( DATA_WIDTH - 1 downto 0 );
-           RTY_O     : out std_logic ;
-           ACK_O     : out std_logic );
-
+   component sram_ctrl
+   port(-- SRAM signals:
+        addr_o  : out std_logic_vector(19 downto 0);
+        data_bi : inout std_logic_vector(31 downto 0);
+        n_ble_o : out std_logic;
+        n_bhe_o : out std_logic;
+        n_oe_o  : out std_logic;
+        n_ce1_o : out std_logic;
+        ce2_o   : out std_logic;
+        n_we_o  : out std_logic;
+     
+        -- wishbone signals:
+        clk_i   : in std_logic;
+        rst_i   : in std_logic;     
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_i    : in std_logic;
+        stb_i   : in std_logic;
+        cyc_i   : in std_logic;
+        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        ack_o   : out std_logic);     
    end component;
 
-   component SRAM
-      port(ADDRESS   : in std_logic_vector ( 19 downto 0 );
-           DATA      : inout std_logic_vector ( 15 downto 0 );
-           N_BHE     : in std_logic ;
-           N_BLE     : in std_logic ;
-           N_OE      : in std_logic ;
-           N_WE      : in std_logic ;
-           N_CE1     : in std_logic ;
-           CE2       : in std_logic ;
-           RESET     : in std_logic);
-
-   end component;
+   -- testbench timing parameters
+   constant PERIOD                : time := 20 ns;
+   constant EDGE_DEPENDENCY       : time := 2 ns;  --shows clk edge dependency
+   constant RESET_WINDOW          : time := 8*PERIOD;
+   constant FREE_RUN              : time := 19*PERIOD;
 
    -- SRAM address and data in
    constant ADDRESS0 : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
    constant ADDRESS1 : std_logic_vector(31 downto 0) := "00000000000000000000000000000001";
    constant ADDRESS2 : std_logic_vector(31 downto 0) := "00000000000000000000000000000010";
    constant ADDRESS3 : std_logic_vector(31 downto 0) := "00000000000000000000000000000011";
+   constant ADDRESS16 : std_logic_vector(31 downto 0) := "00000000000000000000000000010000";
 
 
    constant DATA0 : std_logic_vector(31 downto 0) := "00010010001101000101011001111000"; -- 0x12345678
@@ -106,515 +94,243 @@ architecture BEH of TB_SRAM_CTRL is
    constant DATA6 : std_logic_vector(31 downto 0) := "10101011101011011100101011111110"; -- 0xABADCAFE
    constant DATA7 : std_logic_vector(31 downto 0) := "00001111001111000101101010100101"; -- 0x0F3C5AA5
            
- 
-   signal W_ADDR_O    : std_logic_vector ( 19 downto 0 );
-   signal W_DATA_BI   : std_logic_vector ( 15 downto 0 );
-   signal W_N_BLE_O   : std_logic ;
-   signal W_N_BHE_O   : std_logic ;
-   signal W_N_OE_O    : std_logic ;
-   signal W_N_CE1_O   : std_logic ;
-   signal W_CE2_O     : std_logic ;
-   signal W_N_WE_O    : std_logic ;
-   signal W_CLK_I     : std_logic := '1';
-   signal W_RST_I     : std_logic ;
-   signal W_DAT_I     : std_logic_vector ( 31 downto 0 );
-   signal W_ADDR_I    : std_logic_vector ( 7 downto 0 );
-   signal W_TGA_I     : std_logic_vector ( 31 downto 0 );
-   signal W_WE_I      : std_logic ;
-   signal W_STB_I     : std_logic ;
-   signal W_CYC_I     : std_logic ;
-   signal W_DAT_O     : std_logic_vector ( 31 downto 0 );
-   signal W_RTY_O     : std_logic ;
-   signal W_ACK_O     : std_logic ;
+
+   signal addr_o    : std_logic_vector ( 19 downto 0 );
+   signal data_bi   : std_logic_vector ( 31 downto 0 );
+   signal n_ble_o   : std_logic ;
+   signal n_bhe_o   : std_logic ;
+   signal n_oe_o    : std_logic ;
+   signal n_ce1_o   : std_logic ;
+   signal ce2_o     : std_logic ;
+   signal n_we_o    : std_logic ;
+   signal clk_i     : std_logic := '1';
+   signal rst_i     : std_logic ;
+   signal dat_i     : std_logic_vector (31 downto 0 );
+   signal addr_i    : std_logic_vector (WB_ADDR_WIDTH-1 downto 0 );
+   signal tga_i     : std_logic_vector (31 downto 0 );
+   signal we_i      : std_logic ;
+   signal stb_i     : std_logic ;
+   signal cyc_i     : std_logic ;
+   signal dat_o     : std_logic_vector (31 downto 0 );
+   signal ack_o     : std_logic ;
+   
+   signal reset_window_done         : boolean := false;
+   signal finish_write_base_addr    : boolean := false;  -- asserted to end tb
+   signal finish_write_sram         : boolean := false;
+   signal finish_read_base_addr     : boolean := false;
+   signal finish_read_sram          : boolean := false;
+   signal finish_tb1                : boolean := false;
   
 begin
 
-   DUT : SRAM_CTRL
+   DUT : sram_ctrl
+      port map(addr_o    => addr_o,
+               data_bi   => data_bi,
+               n_ble_o   => n_ble_o,
+               n_bhe_o   => n_bhe_o,
+               n_oe_o    => n_oe_o,
+               n_ce1_o   => n_ce1_o,
+               ce2_o     => ce2_o,
+               n_we_o    => n_we_o,
+               clk_i     => clk_i,
+               rst_i     => rst_i,
+               dat_i     => dat_i,
+               addr_i    => addr_i,
+               tga_i     => tga_i,
+               we_i      => we_i,
+               stb_i     => stb_i,
+               cyc_i     => cyc_i,
+               dat_o     => dat_o,
+               ack_o     => ack_o);
 
-      generic map(ADDR_WIDTH       => WB_ADDR_WIDTH ,
-                  DATA_WIDTH       => WB_DATA_WIDTH ,
-                  TAG_ADDR_WIDTH   => WB_TAG_ADDR_WIDTH )
+   -----------------------------------------------------------------------------
+   -- Clocking
+   -----------------------------------------------------------------------------
 
-      port map(ADDR_O    => W_ADDR_O,
-               DATA_BI   => W_DATA_BI,
-               N_BLE_O   => W_N_BLE_O,
-               N_BHE_O   => W_N_BHE_O,
-               N_OE_O    => W_N_OE_O,
-               N_CE1_O   => W_N_CE1_O,
-               CE2_O     => W_CE2_O,
-               N_WE_O    => W_N_WE_O,
-               CLK_I     => W_CLK_I,
-               RST_I     => W_RST_I,
-               DAT_I     => W_DAT_I,
-               ADDR_I    => W_ADDR_I,
-               TGA_I     => W_TGA_I,
-               WE_I      => W_WE_I,
-               STB_I     => W_STB_I,
-               CYC_I     => W_CYC_I,
-               DAT_O     => W_DAT_O,
-               RTY_O     => W_RTY_O,
-               ACK_O     => W_ACK_O);
+   gen_clk_i: process
+   begin  
 
-   SRAM_MODEL : SRAM
-      port map(ADDRESS   => W_ADDR_O,
-               DATA      => W_DATA_BI,
-               N_BHE     => W_N_BHE_O,
-               N_BLE     => W_N_BLE_O,
-               N_OE      => W_N_OE_O,
-               N_WE      => W_N_WE_O,
-               N_CE1     => W_N_CE1_O,
-               CE2       => W_CE2_O,
-               RESET     => W_RST_I);
+      clk_i <= '1';
+      wait for PERIOD/2;
+    
+      while (not finish_tb1) loop
+         clk_i <= not clk_i;
+         wait for PERIOD/2;
+      end loop;
 
-   W_CLK_I <= not W_CLK_I after CLOCK_PERIOD/2;
-
-   STIMULI : process
+      wait;
+    
+   end process gen_clk_i;
 
 
-------------------------------------------------------------
---
--- Reset controller
---
-------------------------------------------------------------
-
-   procedure system_reset is
-   begin
-      W_RST_I     <= '1';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= (others => '0');
-      W_TGA_I     <= (others => '0');
-      W_WE_I      <= '0';
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
+   -----------------------------------------------------------------------------
+   -- Write into then Read from Banks 
+   -----------------------------------------------------------------------------
+   i_write_read_mem: process 
+   begin  
+--      data_bi <= (others => 'Z');
+      ---------------------------------------------------------------------------
+      -- Start Writing
+      dat_i  <= (others => '0');
+      addr_i <= (others => '0');
+      tga_i  <= (others => '0');
+      we_i   <= '0';
+      stb_i  <= '0';
+      cyc_i  <= '0';
+      
+      wait for RESET_WINDOW;
+      wait for FREE_RUN;
+      wait for EDGE_DEPENDENCY;
      
-   end system_reset;
-   
+      ---------------------------------------------------------------------------
+      -- Write SRAM base address
+      addr_i <= SRAM_ADDR_ADDR;
+      stb_i  <= '1';
+      cyc_i  <= '1';
+      we_i   <= '1';
+     
+      dat_i  <= ADDRESS16;
+      wait for PERIOD;
+   --   wait until falling_edge(ack_o);
+      wait for EDGE_DEPENDENCY;
+      --wait for PERIOD;
+      
+      finish_write_base_addr <= true;
+      stb_i <= '0';
+      cyc_i <= '0';
+      we_i  <= '0';
+      tga_i <= (others => '0');
 
-------------------------------------------------------------
---
--- Single write
---
-------------------------------------------------------------
-   
-   procedure write_single (addr : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                           data : in std_logic_vector(WB_DATA_WIDTH-1 downto 0)) is
-   begin
-      W_RST_I     <= '0';
-      W_DAT_I     <= data;
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr;
-      W_WE_I      <= '1';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
+      ---------------------------------------------------------------------------
+      -- Write SRAM content
+      wait for 5*PERIOD;
+      addr_i <= SRAM_DATA_ADDR;
+      stb_i  <= '1';
+      cyc_i  <= '1';
+      we_i   <= '1';
+     
+      for i in 0 to 40 loop
+        dat_i  <= dat_i +7;
+        wait until falling_edge(ack_o);
+        wait for EDGE_DEPENDENCY;
+        -- assert a wait cycle by master
+        if i=25 then
+          stb_i <= '0';
+          wait for 11*PERIOD;
+          stb_i <= '1';
+        end if;
+        tga_i  <= tga_i+1;
+      end loop;  -- i
       
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end write_single;
-   
-  
-------------------------------------------------------------
---
--- Multiple write
---
-------------------------------------------------------------
- 
-   procedure write_triple (addr1 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                           addr2 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                           addr3 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                           data1 : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-                           data2 : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-                           data3 : in std_logic_vector(WB_DATA_WIDTH-1 downto 0)) is
-   begin
-      -- cycle 1:
-      W_RST_I     <= '0';
-      W_DAT_I     <= data1;
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr1;
-      W_WE_I      <= '1';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- cycle 2:
-      W_RST_I     <= '0';
-      W_DAT_I     <= data2;
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr2;
-      W_WE_I      <= '1';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- cycle 3:
-      W_RST_I     <= '0';
-      W_DAT_I     <= data3;
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr3;
-      W_WE_I      <= '1';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end write_triple;
-   
-   
-------------------------------------------------------------
---
--- Multiple write with master wait states inserted
---
-------------------------------------------------------------
- 
-   procedure write_triple_wait_state (addr1 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                                      addr2 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                                      addr3 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                                      data1 : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-                                      data2 : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-                                      data3 : in std_logic_vector(WB_DATA_WIDTH-1 downto 0)) is
-   begin
-      -- cycle 1:
-      W_RST_I     <= '0';
-      W_DAT_I     <= data1;
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr1;
-      W_WE_I      <= '1';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- wait state:
-      
-      W_STB_I     <= '0';
-      wait for CLOCK_PERIOD * 3;
-      
-      -- cycle 2:
-      W_RST_I     <= '0';
-      W_DAT_I     <= data2;
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr2;
-      W_WE_I      <= '1';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- cycle 3:
-      W_RST_I     <= '0';
-      W_DAT_I     <= data3;
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr3;
-      W_WE_I      <= '1';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end write_triple_wait_state;
-   
-      
-------------------------------------------------------------
---
--- Single read
---
-------------------------------------------------------------
-   
-   procedure read_single (addr : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0)) is
-   begin
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end read_single;
-   
-   
-------------------------------------------------------------
---
--- Multiple read
---
-------------------------------------------------------------
-   
-   procedure read_triple (addr1 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                          addr2 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                          addr3 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0)) is
-   begin
-      -- cycle 1:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr1;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- cycle 2:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr2;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- cycle 3:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr3;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end read_triple;
+      finish_write_sram <= true;
+      stb_i <= '0';
+      cyc_i <= '0';
+      we_i  <= '0';
+      tga_i <= (others => '0');
 
 
-------------------------------------------------------------
---
--- Multiple read with master wait states inserted
---
-------------------------------------------------------------
+      ---------------------------------------------------------------------------
+      -- Start Reading
+      wait for 17*PERIOD;
+     
+      ---------------------------------------------------------------------------
+      -- Read SRAM base addr
+      addr_i <= SRAM_ADDR_ADDR;
+      stb_i  <= '1';
+      cyc_i  <= '1';
+      we_i   <= '0';
+     
+      wait until falling_edge(ack_o);
+      wait for EDGE_DEPENDENCY;
+      finish_read_base_addr <= true;
+      stb_i <= '0';
+      cyc_i <= '0';
+      we_i  <= '0';
+      tga_i    <= (others => '0');
 
-   procedure read_triple_wait_state (addr1 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                                     addr2 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-                                     addr3 : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0)) is
-   begin
-      -- cycle 1:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr1;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
+      ---------------------------------------------------------------------------
+      -- Read SRAM content
+      addr_i <= SRAM_DATA_ADDR;
+      stb_i  <= '1';
+      cyc_i  <= '1';
+      we_i   <= '0';
+     
+      for i in 0 to 40 loop
+        wait until falling_edge(ack_o);
+        wait for EDGE_DEPENDENCY;
+        -- assert a wait cycle by master
+        if i=17 then
+          stb_i <= '0';
+          wait for 23*PERIOD;
+          stb_i <= '1';
+        end if;
+        tga_i  <= tga_i+1;
+      end loop;  -- i
       
-      wait until W_ACK_O = '1';
-      
-      -- wait state:
-      
-      W_STB_I     <= '0';
-      wait for CLOCK_PERIOD * 3;
-      
-      -- cycle 2:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr2;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- cycle 3:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM1_ADDR;
-      W_TGA_I     <= addr3;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end read_triple_wait_state;
-   
-
-------------------------------------------------------------
---
--- Verify SRAM
---
-------------------------------------------------------------   
-
-   procedure verify is
-   begin
-      -- start verify:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= VRFY_SRAM1_ADDR;
-      W_TGA_I     <= (others => '0');
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_RTY_O = '1';
-      
-      -- rty_o asserted, so end cycle:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= (others => '0');
-      W_TGA_I     <= (others => '0');
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-      wait for CLOCK_PERIOD * 30;
-      
-      -- try again:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= VRFY_SRAM1_ADDR;
-      W_TGA_I     <= (others => '0');
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait for CLOCK_PERIOD;
-      
-      -- rty_o should still be asserted, so end cycle:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= (others => '0');
-      W_TGA_I     <= (others => '0');
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-      -- wait until rty_o is deasserted (signals end of verification process)
-      wait until W_RTY_O = '0';
-      
-      wait for CLOCK_PERIOD * 15;
-      
-      -- try again:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= VRFY_SRAM1_ADDR;
-      W_TGA_I     <= (others => '0');
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= (others => '0');
-      W_TGA_I     <= (others => '0');
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end verify;
- 
-   
-------------------------------------------------------------
---
--- Verify SRAM Again
---
-------------------------------------------------------------   
-
-   procedure verify_again is
-   begin
-      -- start verify:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= VRFY_SRAM1_ADDR;
-      W_TGA_I     <= (others => '0');
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_ACK_O = '1';
-      
-      -- end cycle:
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= (others => '0');
-      W_TGA_I     <= (others => '0');
-      W_STB_I     <= '0';
-      W_CYC_I     <= '0';
-      W_WE_I      <= '0';
-      
-   end verify_again;   
-   
-
-------------------------------------------------------------
---
--- No Operation
---
-------------------------------------------------------------   
-
-   procedure no_op is
-   begin
-      wait for CLOCK_PERIOD * 5;
-   end no_op;    
-
-
-   begin
-      W_DATA_BI   <= (others =>'Z');
-   
-      system_reset;
-      no_op;
-      
-      verify;
-      no_op;
-      
-      verify_again;
-      no_op;
-      
-      write_single(ADDRESS0, DATA0);
-      no_op;
-      
-      write_triple(ADDRESS1, ADDRESS2, ADDRESS3, DATA1, DATA2, DATA3);
-      no_op;
-      
-      write_triple_wait_state(ADDRESS2, ADDRESS0, ADDRESS1, DATA4, DATA5, DATA6);
-      no_op;
-      
-      read_single(ADDRESS0);
-      no_op;
-      
-      read_triple(ADDRESS1, ADDRESS2, ADDRESS3);
-      no_op;
-      
-      read_triple_wait_state(ADDRESS0, ADDRESS1, ADDRESS2);
-      no_op;
+      finish_read_sram <= true;
+      stb_i <= '0';
+      cyc_i <= '0';
+      we_i  <= '0';
+      tga_i    <= (others => '0');
       
       wait;
-   end process STIMULI;
+   end process i_write_read_mem ;
+
+  -----------------------------------------------------------------------------
+  -- Perform Test
+  -----------------------------------------------------------------------------
+  i_test: process
+
+    ---------------------------------------------------------------------------
+    -- Procedure to initialize all the inputs
+     
+    procedure do_initialize is
+    begin
+      reset_window_done      <= false;
+      rst_i                  <= '1';
+                          
+      wait for 113 ns;
+      rst_i <= '0';
+      wait for RESET_WINDOW - 113 ns;   -- alligne with clk
+
+      reset_window_done <= true;
+    end do_initialize;
+
+    ---------------------------------------------------------------------------
+    -- 
+
+
+  begin  -- process i_test
+ 
+    do_initialize;
+    
+    data_bi <= (others=> 'Z');
+    -- write base addr
+    wait until finish_write_base_addr;
+    --wait for EDGE_DEPENDENCY;
+        
+    -- write to sram    
+    wait until finish_write_sram;
+    wait for PERIOD;
+    --wait for EDGE_DEPENDENCY;
+    
+    wait for FREE_RUN;
+    for i in 0 to 40 loop
+      data_bi <= data_bi + 1;
+      wait for PERIOD;
+    end loop;  -- i
+
+    wait until finish_read_sram;
+    finish_tb1 <= true;
+
+    report "END OF TEST";
+    wait;
+    
+  end process i_test;
+
+  
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
 
 end BEH;

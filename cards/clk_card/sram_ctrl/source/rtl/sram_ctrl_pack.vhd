@@ -20,17 +20,17 @@
 
 -- sram_ctrl_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl_pack.vhd,v 1.1 2004/03/17 03:11:04 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl_pack.vhd,v 1.1 2004/04/14 21:52:55 jjacob Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
 -- package file for the SRAM controller
 --
 -- Revision history:
--- <date $Date: 2004/03/17 03:11:04 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/14 21:52:55 $> -     <text>      - <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ component sram_ctrl
         
    port(-- SRAM signals:
         addr_o  : out std_logic_vector(19 downto 0);
-        data_bi : inout std_logic_vector(15 downto 0);
+        data_bi : inout std_logic_vector(31 downto 0);
         n_ble_o : out std_logic;
         n_bhe_o : out std_logic;
         n_oe_o  : out std_logic;
@@ -60,15 +60,14 @@ component sram_ctrl
      
         -- wishbone signals:
         clk_i   : in std_logic;
-        rst_i   : in std_logic;		
-        dat_i 	 : in std_logic_vector (DATA_WIDTH-1 downto 0);
+        rst_i   : in std_logic;     
+        dat_i   : in std_logic_vector (DATA_WIDTH-1 downto 0);
         addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
         stb_i   : in std_logic;
         cyc_i   : in std_logic;
         dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
-        rty_o   : out std_logic;
         ack_o   : out std_logic);     
    end component;
    
