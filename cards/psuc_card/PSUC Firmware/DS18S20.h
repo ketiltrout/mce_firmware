@@ -3,6 +3,9 @@
 /********************************************************************************/
 // Revision history: 
 // $Log: DS18S20.h,v $
+// Revision 1.5  2006/11/20 23:22:00  stuartah
+// Cleaned code, improved commenting, implemented changes for PSUC rev. G
+//
 // Revision 1.4  2006/10/03 07:38:34  stuartah
 // Added presence detection of DS18S20s
 //
@@ -36,7 +39,7 @@ void ds_get_temperature( char, char* target);						// Reads temperature from DS 
 // The following functions are declared as 'static' to make them 'private'
 // Command Functions
 static void ds_convert_T( void );									// Starts temperature conversion 
-static bit ds_reset(void);											// Command Reset
+static bit ds_reset(void);											// Reset DS, return true if presence pulse detected
 
 // 1-Wire Bus Protocol I/O Functions
 static void ds_write_byte(unsigned char);							// Writes Byte

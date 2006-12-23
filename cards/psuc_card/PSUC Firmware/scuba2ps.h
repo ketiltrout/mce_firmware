@@ -3,6 +3,9 @@
 /************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.10  2006/11/22 00:10:08  stuartah
+// Fixed FAULT LED behavior to turn on if no CC request for over a minute (no longer flashes)
+//
 // Revision 1.9  2006/11/21 23:30:40  stuartah
 // Added soft_reset assembly code, triggered via external button (timer2 input)
 //
@@ -92,6 +95,7 @@ unsigned char data bcnt;							// Count of Timer0 interrupts
 unsigned char data num_T1_ints;						// Number of Timer1 interrupts to allow before setting timeup_T1 
 unsigned char data running_checksum;				// Running total for checksum byte
 unsigned char data cc_req_320ms;					// Count time since last request from CC - used for LED FAULT behavior
+unsigned char data watchdog_count;					// Loop count for watchdog
 
 // Software flags
 bit cc_spi;											// Indicates Service Request from CC (via SPI)
@@ -99,7 +103,6 @@ bit spi_complete; 									// Indicates SPI transaction with CC complete
 bit sio_msg_complete;								// Indicates Serial (RS232) message received
 bit poll_data;										// Set when time to update PS data block
 bit timeup_T1;										// Set on Timer1 expiration (overlow)								
-//bit blink_en;										// Set to turn on LED blink while PSUC running
 bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temperature sensors actually connected
 
 
@@ -130,7 +133,5 @@ bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temper
 
 /*******	Macros	*******/
 // General Macros/Parameters
-//#define ENABLE_BLINK			blink_en = SET;
-//#define DISABLE_BLINK   		blink_en = CLEAR;
 #define COMPLETE_CHECKSUM		*CHECK_BYTE = ~(running_checksum + ps_data_blk[ACK_BYTE_POS]) + 1;		// 2's compliment, so CHECK_BYTE + all other bytes = 0
 		

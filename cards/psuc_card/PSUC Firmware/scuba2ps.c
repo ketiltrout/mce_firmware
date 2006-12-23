@@ -5,6 +5,9 @@
 /************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.12  2006/11/22 00:10:08  stuartah
+// Fixed FAULT LED behavior to turn on if no CC request for over a minute (no longer flashes)
+//
 // Revision 1.11  2006/11/21 23:30:40  stuartah
 // Added soft_reset assembly code, triggered via external button (timer2 input)
 //
@@ -54,7 +57,7 @@ Polling and communication functionality seems to be working	*/
 #include "scuba2ps.h"
 
 // Constant Variables
-char code asc_version[] =  "\n\rPSUC v2.10\n\r\0";				// Software Version Serial Message
+char code asc_version[] =  "\n\rPSUC v2.30\n\r\0";				// Software Version Serial Message
 char code software_version_byte = 0x23;		 					// 1 byte Software Version 
 
 
@@ -72,8 +75,7 @@ main()
 
    	// Initial Power-Up
 	sequence_on();				
-//	ENABLE_BLINK;
-	//reset_MCE();						// ** This line disables initial subrack reset **
+	//reset_MCE();						// ** This line enables/disables initial subrack reset **
    	  
   	/***  Main Loop - Periodically update PSU data block, respond to Clock Card / RS232 Commands  ***/
 	while(TRUE) {								
@@ -141,9 +143,12 @@ main()
 			   		break;  
 		}
 
+		// Loop Maintenance			
 		if (cc_req_320ms > 187)	{						// if its been more than a minute since last CC request, 187*320ms = 
 				LED_FAULT = 1;							// then turn on fault LED
 		}
+
+		watchdog_count = 0;								// clear watchdog counter
 
 	}
 }
@@ -159,7 +164,7 @@ void init(void)
 /**************		Hardware Setup		**************/
 	// Set all input ports for input and output ports to default values	-- see schematic and io.h
 	// IO Port Setup  --  1=Input(or Special Function), 0=Output
-	P0 = 0x66;		//0110 0110		//****** changed to acomidate SSTRB lines in Rev G
+	P0 = 0x66;		//0110 0110		//****** changed to acomidate SSTRB lines in Rev G ******
    	//P0 = 0x60;	//0110 0000
 	P1 = 0xff;		//1111 1111
    	P2 = 0xbe;		//1011 1110	 	// Intialize PSU OFF
@@ -200,7 +205,7 @@ void init(void)
 	PCON = 0x80; 		 		// 1000 0000 Double Baud Rate all others default
 	BRL = 100;					// Baud rate reload - sets Baud rate to 9600
 
-	//PCA Counter Init	  		// not implemented
+	//PCA Counter Init	  		// not implemented	- for getFanSpeed()
 	//CKCON0 |= 0x20;			// sets to 500ns per PCA tick
 	//CMOD |= 0x81;				// 1000 0001 Set PCA to stop counting during idle mode, disable PCA interrupts, and count Fclk-periph/6 (250ns period)
 	//CCON |= 0x01;				// enable PCA interrupts 
@@ -238,7 +243,6 @@ void init(void)
 	spi_complete = CLEAR;		// SPI transmission/reception complete status bit
 	sio_msg_complete = CLEAR;
 	timeup_T1 = CLEAR;
-//	DISABLE_BLINK;		  		// Initially disable LED blink
 		
 	// Initialize other vars	
 	spi_idx = 0;				// Reset pointer for SPI data output
@@ -247,6 +251,7 @@ void init(void)
 	num_T1_ints = 0;
 	running_checksum = 0;
 	cc_req_320ms = 0;
+	watchdog_count = 0;
 	
 	// Initialize pointers
 	cc_command = NULL;
@@ -262,7 +267,7 @@ void init(void)
 	}
 	
 	// Initialize PSU data block - these aspects of data block set only once
-	ds_get_4byte_id(PSUC_DS18S20, SILICON_ID);	 // assign ID to PSU block
+	ds_get_4byte_id(PSU_DS18S20, SILICON_ID);	 // assign ID to PSU block
 	*SOFTWARE_VERSION = software_version_byte; 	 // Software Version byte
 
 
@@ -393,17 +398,21 @@ void wait_time_x2us_plus3 (unsigned char time_us_div2)		// 1.25 us to call funct
 /***************************************************************************************/
 /* Timer0 Service Routine     			*/ 
 /****************************************/
-// Interrupt occurs every 32ms when enabled	  -  used for LED blink	and polling data
+// Interrupt occurs every 32ms, always running	  -  used for LED blink	and polling data
 
 void timer0_isr (void) interrupt 1 using 3
 {
+	if(watchdog_count>16){ 						// trigger watchdog if loop hasn't completed in 5 seconds
+		soft_reset();
+	}
+	
+	
 	++bcnt;
 	if ( bcnt == BRATE320mS) {
       	bcnt = 0;
 	  	poll_data = SET;						// poll data every 320ms
 		cc_req_320ms++;							// increment count every 320ms
-//	  	if (blink_en == SET)
-//	   		LED_FAULT = ~LED_FAULT;				// toggle LED every 320ms if enabled
+		watchdog_count++;
    }
 }
 
