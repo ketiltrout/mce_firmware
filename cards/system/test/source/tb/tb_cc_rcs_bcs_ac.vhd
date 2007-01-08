@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.29 2006/09/06 19:57:34 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.30 2006/09/07 22:31:12 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.30  2006/09/07 22:31:12  bburger
+-- Bryce:  more test cases for psuc testing
+--
 -- Revision 1.29  2006/09/06 19:57:34  bburger
 -- Bryce:  PSUC communications simulation added
 --
@@ -153,6 +156,26 @@ architecture tb of tb_cc_rcs_bcs_ac is
       ccssi             : in std_logic;
       misoo             : out std_logic;
       sreqo             : out std_logic;
+
+      -- SRAM bank 0 interface
+      sram0_addr        : out std_logic_vector(19 downto 0);
+      sram0_data        : inout std_logic_vector(15 downto 0);
+      sram0_nbhe        : out std_logic;
+      sram0_nble        : out std_logic;
+      sram0_noe         : out std_logic;
+      sram0_nwe         : out std_logic;
+      sram0_nce1        : out std_logic;
+      sram0_ce2         : out std_logic;
+     
+      -- SRAM bank 1 interface
+      sram1_addr        : out std_logic_vector(19 downto 0);
+      sram1_data        : inout std_logic_vector(15 downto 0);
+      sram1_nbhe        : out std_logic;
+      sram1_nble        : out std_logic;
+      sram1_noe         : out std_logic;
+      sram1_nwe         : out std_logic;
+      sram1_nce1        : out std_logic;
+      sram1_ce2         : out std_logic;
       
       -- miscellaneous ports:
       red_led           : out std_logic;
@@ -434,6 +457,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_use_sync_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_SYNC_ADDR;
    constant cc_data_rate_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & DATA_RATE_ADDR;
    constant cc_select_clk_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SELECT_CLK_ADDR;
+   constant cc_sram_addr_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SRAM_ADDR_ADDR;
+   constant cc_sram_data_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SRAM_DATA_ADDR;
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -583,7 +608,26 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_sreqo      : std_logic;
    
    signal cc_n5vok      : std_logic := '0';
-                     
+
+   -- sram signals                  
+   signal cc_sram0_addr : std_logic_vector (19 downto 0);
+   signal cc_sram0_data : std_logic_vector (15 downto 0);
+   signal cc_sram0_nbhe : std_logic;   
+   signal cc_sram0_nble : std_logic;   
+   signal cc_sram0_noe  : std_logic;
+   signal cc_sram0_nwe  : std_logic;   
+   signal cc_sram0_nce1 : std_logic;   
+   signal cc_sram0_ce2  : std_logic;   
+
+   signal cc_sram1_addr : std_logic_vector (19 downto 0);
+   signal cc_sram1_data : std_logic_vector (15 downto 0);
+   signal cc_sram1_nbhe : std_logic;   
+   signal cc_sram1_nble : std_logic;   
+   signal cc_sram1_noe  : std_logic;
+   signal cc_sram1_nwe  : std_logic;   
+   signal cc_sram1_nce1 : std_logic;   
+   signal cc_sram1_ce2  : std_logic;   
+   
    -- miscellaneous ports:
    signal cc_red_led    : std_logic;
    signal cc_ylw_led    : std_logic;
@@ -1051,6 +1095,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc3_rs232_rx      : std_logic;
    signal bc3_rs232_tx      : std_logic;   
 
+   signal finish_tb1        : boolean := false;
+
 begin
    bclr_n <= not bclr;
    lvds_sync <= 
@@ -1079,11 +1125,56 @@ begin
    );
    
    rst          <= rst_n;
+    
+--   -- Clock generation
+--   gen_inclk: process
+--   begin  
+--
+--      inclk <= '1';
+--      wait for clk_period/2;
+--    
+--      while (not finish_tb1) loop
+--         inclk <= not inclk;
+--         wait for clk_period/2;
+--      end loop;
+--
+--      wait;
+--    
+--   end process gen_inclk;
+--   inclk15 <= inclk;
+--
+--   gen_fibreclk: process
+--   begin  
+--
+--      fibre_rx_ckr <= '1';
+--      wait for fibre_clk_period/2;
+--    
+--      while (not finish_tb1) loop
+--         fibre_rx_ckr <= not fibre_rx_ckr;
+--         wait for fibre_clk_period/2;
+--      end loop;
+--
+--      wait;
+--    
+--   end process gen_fibreclk;
    
-   -- Clock generation
    inclk        <= not inclk        after clk_period/2;
    inclk15      <= not inclk15      after clk_period/2;
    fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
+   
+   -- generate sram_data
+--   gen_sram_data: process 
+--   begin 
+--     
+--     cc_sram0_data <= x"0001";
+--     wait for clk_period;
+--     while (not finish_tb1) loop
+--        if (cc_sram0_noe = '0' and cc_sram0_nce1 = '0' and cc_sram0_nwe = '1') then 
+--           cc_sram0_data <= cc_sram0_data + 1;
+--        end if;
+--     end loop;
+--     wait;
+--   end process gen_sram_data;
    
    -- Used for simulating the loss of the crystal clock
    inclk_conditioned <= inclk_en and inclk;
@@ -1224,7 +1315,27 @@ begin
          ccssi            => cc_ccssi,
          misoo            => cc_misoo,
          sreqo            => cc_sreqo,
-                             
+         
+         -- SRAM bank 0 interface
+         sram0_addr       => cc_sram0_addr,
+         sram0_data       => cc_sram0_data,                 
+         sram0_nbhe       => cc_sram0_nbhe,                 
+         sram0_nble       => cc_sram0_nble,                 
+         sram0_noe        => cc_sram0_noe,                  
+         sram0_nwe        => cc_sram0_nwe,                  
+         sram0_nce1       => cc_sram0_nce1,                 
+         sram0_ce2        => cc_sram0_ce2,                  
+                                                            
+         -- SRAM bank 1 interface
+         sram1_addr       => cc_sram1_addr,
+         sram1_data       => cc_sram1_data,  
+         sram1_nbhe       => cc_sram1_nbhe,  
+         sram1_nble       => cc_sram1_nble,  
+         sram1_noe        => cc_sram1_noe,   
+         sram1_nwe        => cc_sram1_nwe,   
+         sram1_nce1       => cc_sram1_nce1,  
+         sram1_ce2        => cc_sram1_ce2,   
+         
          -- miscellaneous ports:
          red_led          => cc_red_led,
          ylw_led          => cc_ylw_led,
@@ -2150,6 +2261,49 @@ begin
       wait for 5 us;
 
 ------------------------------------------------------
+--  Testing SRAM write commands
+--  wb cc sram_addr 5
+--  rb cc sram_addr
+--  wb cc sram_data 1 2 3 4 5
+--  rb cc sram_data
+------------------------------------------------------
+      command <= command_wb;
+      address_id <= cc_sram_addr_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000005";
+      load_preamble;
+      load_command;
+      load_checksum;          
+      wait for 20 us;
+
+      command <= command_rb;
+      address_id <= cc_sram_addr_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;          
+      wait for 10 us;
+
+      command <= command_wb;
+      address_id <= cc_sram_data_cmd;
+      data_valid <= X"00000004";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;          
+      wait for 20 us;
+
+      command <= command_rb;
+      address_id <= cc_sram_data_cmd;
+      data_valid <= X"00000005";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;          
+      wait for 100 us;
+
+------------------------------------------------------
 --  Testing Clock Selection Commands
 ------------------------------------------------------
 
@@ -2201,33 +2355,7 @@ begin
 ------------------------------------------------------
 --  Testing New Fibre Protocol
 ------------------------------------------------------
-      command <= command_rs;
-      address_id <= psu_cycle_pow_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 300 us;
-
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;            
-      wait for 15 us;
-
-      command <= command_wb;
-      address_id <= ac_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;            
-      wait for 250 us;
-
+--
 --      command <= command_rb;
 --      address_id <= cc_led_cmd;
 --      data_valid <= X"00000001";
@@ -2255,25 +2383,7 @@ begin
 --      load_command;
 --      load_checksum;            
 --      wait for 15 us;
-
-      command <= command_rb;
-      address_id <= cc_row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 15 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 1200 us;
-
+--
 --      command <= command_go;
 --      address_id <= rc2_ret_dat_cmd;
 --      data_valid <= X"00000001";
@@ -3337,9 +3447,13 @@ begin
 --      
 --      wait for 200 us;
 
+     finish_tb1 <= true;
+     
+     report "END OF TEST";
+     wait;
 
       
-      assert false report "Simulation done." severity FAILURE;
+--      assert false report "Simulation done." severity FAILURE;
    end process stimuli;  
 
 
@@ -3646,5 +3760,5 @@ begin
 --      manchester_sync_packet;
 --      
 --   end process manchester_input;
-   
+
 end tb;
