@@ -20,18 +20,38 @@
 
 -- sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.5 2004/04/21 19:58:28 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.6 2006/12/22 23:49:30 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
--- Wishbone to asynch. SRAM chip interface
+-- Wishbone slave for asynch. SRAM chip interface 
+-- The sram controller slave controls 32-bit access to two 
+-- 1Mx16b CY7C1061AV33 on-board SRAM chips. 
+-- This slave handles 2 wishbone commands: SRAM_ADDR_ADDR and
+-- SRAM_DATA_ADDR. 
+--
+-- SRAM_ADDR_ADDR is used to specify a memory base address to
+-- read and write from.
+--
+-- SRAM_DATA_ADDR is used to read/write sequential data from 
+-- SRAM starting from base address.
+-- 
+-- The adress to access memory is generated directly from wishbone 
+-- tga_i lines added to the base address.
+-- 
+-- The on-board chips have an access of 10ns which amounts to 
+-- half clock cycle accounted for in the wishbone read cycle. 
+-- 
 --
 -- Revision history:
--- <date $Date: 2004/04/21 19:58:28 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/12/22 23:49:30 $> -     <text>      - <initials $Author: mandana $>
 -- $Log: sram_ctrl.vhd,v $
+-- Revision 1.6  2006/12/22 23:49:30  mandana
+-- access sram modules as a 32b bank
+--
 -- Revision 1.5  2004/04/21 19:58:28  bburger
 -- Changed address moniker
 --
@@ -96,27 +116,11 @@ signal sram_wdata_wren : std_logic;
 signal sram_rdata_wren : std_logic;
 signal sram_addr_wren  : std_logic;
 signal addr_reg        : std_logic_vector(19 downto 0);
-signal test_mode       : std_logic;
-
--- SRAM verification controller:
--- State encoding and state variables:
-type test_states is (TEST_IDLE, SETUP, WR0_UP, RD0_UP, WR1_UP, RD1_DN, WR0_DN, RD0_DN, DONE);
-signal present_test_state : test_states;
-signal next_test_state    : test_states;
-
--- test 
-signal test_done          : std_logic;
--- Counters:
-signal test_step          : integer range 0 to 6;
-signal test_addr          : std_logic_vector(19 downto 0);
-signal num_fault          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
 
 -- Wishbone signals (decoded):
 signal master_wait : std_logic;       -- active during master-initiated wait state
 signal read_cmd    : std_logic;       -- indicates read command received
 signal write_cmd   : std_logic;       -- indicates write command received
-signal test_cmd    : std_logic;       -- indicates test command received
 signal ack_read    : std_logic;
 signal ack_write   : std_logic;
 
@@ -128,7 +132,7 @@ begin
 
 ------------------------------------------------------------
 --
---  SRAM controller (in normal operating mode)
+--  SRAM controller
 --
 ------------------------------------------------------------   
    
@@ -187,14 +191,16 @@ begin
    begin
       -- default 
       n_we_o <= '1';
-      sram_wdata_wren <= '0';
+      sram_rdata_wren <= '0';
 
       case present_state is                
          when WRITE_DATA => 
-            sram_wdata_wren <= '1';
             n_we_o <= '0';
          
          when READ_DATA =>
+            sram_rdata_wren <= '1';
+            
+         when SEND_DATA =>
             sram_rdata_wren <= '1';
            
          when others =>
@@ -232,7 +238,7 @@ begin
 
    -------------------------------------------------------------      
    -- Driving address and data lines and corresponding registers
-   --
+   -- seperate registers for read datapath and write datapath
    -------------------------------------------------------------      
    
    addr_o  <= addr_reg;
@@ -253,17 +259,17 @@ begin
       end if;
    end process i_sram_data_reg;  
 
-   -- generate address
-   i_addr_gen: process (rst_i, clk_i)
-   begin 
-      if (rst_i = '1') then
-         addr_reg <= (others=> '0');
-      elsif (clk_i'event and clk_i = '1') then
-         if (sram_addr_wren = '1') then
+   -- generate address; MA: looks like there is no need to register address
+--   i_addr_gen: process (rst_i, clk_i)
+--   begin 
+--      if (rst_i = '1') then
+--         addr_reg <= (others=> '0');
+--      elsif (clk_i'event and clk_i = '1') then
+         --if (sram_addr_wren = '1') then
             addr_reg <= base_addr + tga_i (19 downto 0);
-         end if;
-      end if;
-   end process i_addr_gen;  
+         --end if;
+--      end if;
+--   end process i_addr_gen;  
  
 ------------------------------------------------------------
 --
@@ -271,9 +277,10 @@ begin
 --
 ------------------------------------------------------------
    
-   -- Acknowlege signals
+   -- wishbone acknowlege signals
+   -- gen_ack mechanism was copied from readout_card wb slaves (e.g. p_bamks_admin and)
    i_gen_ack: process (rst_i, clk_i)
-       variable count : integer;           -- counts number of clock cycles passed
+       variable count : integer;          -- counts number of clock cycles passed
 
    begin  -- process i_gen_ack
       if rst_i = '1' then                 -- asynchronous reset (active high)
@@ -321,10 +328,8 @@ begin
    dat_o <= sram_rdata             when SRAM_DATA_ADDR,
             (x"000" & base_addr)   when SRAM_ADDR_ADDR,
             (others => '0')        when others;
-            --addr_(present_state = SEND_DATA) else 
-            --num_fault when (present_state = SEND_RESULT) else (others => '0');
    
-   -- decoded signals for read/write sram content
+   -- decoded wishbone signals for read/write sram content
    master_wait <= '1' when (addr_i = SRAM_DATA_ADDR and stb_i = '0' and cyc_i = '1') else '0';   
    read_cmd    <= '1' when (addr_i = SRAM_DATA_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    write_cmd   <= '1' when (addr_i = SRAM_DATA_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0'; 
@@ -332,8 +337,7 @@ begin
    
    -- generate write signals for base_address and absolute address of sram acess
    i_gen_wren: process (addr_i, we_i)
-   begin  -- process i_gen_wren_signals
-    
+   begin      
       -- default states
       base_addr_wren <= '0';
       sram_addr_wren <= '0';
