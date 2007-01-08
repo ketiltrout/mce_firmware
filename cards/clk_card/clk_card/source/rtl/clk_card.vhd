@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.60 2006/09/07 22:30:23 bburger Exp $
+-- $Id: clk_card.vhd,v 1.60.2.1 2006/12/22 23:52:55 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.60.2.1  2006/12/22 23:52:55  bburger
+-- added sram_ctrl slave
+--
 -- Revision 1.60  2006/09/07 22:30:23  bburger
 -- Bryce:  cleaned up the file by removing code that was commented out
 --
@@ -239,7 +242,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000011";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"03000000";
    
    -- reset
    signal rst                : std_logic;
@@ -348,11 +351,7 @@ architecture top of clk_card is
    signal sync_box_err      : std_logic;
    signal sync_box_free_run : std_logic;   
    
-   component sram_ctrl
-   generic(ADDR_WIDTH     : integer := WB_ADDR_WIDTH;
-           DATA_WIDTH     : integer := WB_DATA_WIDTH;
-           TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH);
-        
+   component sram_ctrl 
    port(-- SRAM signals:
         addr_o  : out std_logic_vector(19 downto 0);
         data_bi : inout std_logic_vector(31 downto 0);
@@ -366,13 +365,13 @@ architecture top of clk_card is
         -- wishbone signals:
         clk_i   : in std_logic;
         rst_i   : in std_logic;     
-        dat_i   : in std_logic_vector (DATA_WIDTH-1 downto 0);
-        addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
         stb_i   : in std_logic;
         cyc_i   : in std_logic;
-        dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
+        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic);     
    end component;
 
@@ -781,7 +780,8 @@ begin
       slave_err <= 
          '0'               when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
                                 DATA_RATE_ADDR | CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
-                                SELECT_CLK_ADDR | BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR, 
+                                SELECT_CLK_ADDR | BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR|
+                                SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
                                 --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          fw_rev_err        when FW_REV_ADDR,
          id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
@@ -793,7 +793,8 @@ begin
    port map(
         -- SRAM signals:
         addr_o  => sram_addr,
-        data_bi => sram_data,
+        data_bi(15 downto 0) => sram0_data,
+        data_bi(31 downto 16) => sram1_data,
         n_ble_o => sram_nble,
         n_bhe_o => sram_nbhe,
         n_oe_o  => sram_noe,
@@ -810,11 +811,11 @@ begin
         we_i    => we,
         stb_i   => stb,
         cyc_i   => cyc,
-        dat_o   => sram_data,
+        dat_o   => sram_ctrl_data,
         ack_o   => sram_ctrl_ack);     
    
    sram0_addr <= sram_addr(19 downto 0);    sram1_addr <= sram_addr(19 downto 0); 
-   sram0_data <= sram_data(15 downto 0);    sram1_data <= sram_data(31 downto 16);
+--   sram0_data <= sram_data(15 downto 0);    sram1_data <= sram_data(31 downto 16);
    sram0_nbhe <= sram_nbhe;                 sram1_nbhe <= sram_nbhe;     
    sram0_nble <= sram_nble;                 sram1_nble <= sram_nble;
    sram0_noe  <= sram_noe;                  sram1_noe  <= sram_noe;  
