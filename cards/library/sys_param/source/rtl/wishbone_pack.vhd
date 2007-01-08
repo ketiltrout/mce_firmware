@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/11/03 23:15:58 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/11/14 22:41:12 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.35  2006/11/14 22:41:12  bburger
+-- Bryce:  updated some of the commands to the SRAM for use with the JTAG programmer
+--
 -- Revision 1.34  2006/11/03 23:15:58  bburger
 -- Bryce:  New commands for remote JTAG configuration
 --
@@ -271,7 +274,7 @@ package wishbone_pack is
    constant USE_DV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
    constant ARRAY_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"58";
    constant BOX_ID_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
-   constant SRAM_WRITE_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
+   constant SRAM_DATA_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
    constant SRAM_ADDR_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
    constant DATA_RATE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
