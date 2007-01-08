@@ -20,7 +20,7 @@
 
 -- sram_ctrl_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl_pack.vhd,v 1.1 2004/04/14 21:52:55 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl_pack.vhd,v 1.2 2006/12/22 23:49:30 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Ernie Lin
@@ -30,7 +30,7 @@
 -- package file for the SRAM controller
 --
 -- Revision history:
--- <date $Date: 2004/04/14 21:52:55 $> -     <text>      - <initials $Author: jjacob $>
+-- <date $Date: 2006/12/22 23:49:30 $> -     <text>      - <initials $Author: mandana $>
 
 --
 -----------------------------------------------------------------------------
@@ -43,11 +43,7 @@ use sys_param.wishbone_pack.all;
 
 package sram_ctrl_pack is
 
-component sram_ctrl
-   generic(ADDR_WIDTH     : integer := WB_ADDR_WIDTH;
-           DATA_WIDTH     : integer := WB_DATA_WIDTH;
-           TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH);
-        
+component sram_ctrl       
    port(-- SRAM signals:
         addr_o  : out std_logic_vector(19 downto 0);
         data_bi : inout std_logic_vector(31 downto 0);
@@ -61,13 +57,13 @@ component sram_ctrl
         -- wishbone signals:
         clk_i   : in std_logic;
         rst_i   : in std_logic;     
-        dat_i   : in std_logic_vector (DATA_WIDTH-1 downto 0);
-        addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
         stb_i   : in std_logic;
         cyc_i   : in std_logic;
-        dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
+        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic);     
    end component;
    
