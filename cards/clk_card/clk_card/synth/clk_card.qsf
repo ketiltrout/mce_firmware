@@ -34,7 +34,7 @@
 set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 6.1
 
 # Pin & Location Assignments
 # ==========================
@@ -489,6 +489,11 @@ set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
 # --------------------
 
 set_global_assignment -name SEED 2
+set_location_assignment PIN_F28 -to misoo
+set_location_assignment PIN_F27 -to sreqo
+set_location_assignment PIN_H21 -to mosii
+set_location_assignment PIN_H22 -to ccssi
+set_location_assignment PIN_E28 -to sclki
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -516,6 +521,7 @@ set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset_pack.vh
 set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs_pack.vhd
 set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx_pack.vhd
 set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover_pack.vhd
+set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_ctrl.vhd
 set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/tpram_32bit_x_64.vhd
 set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/ram_32bit_x_64.vhd
 set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/psu_ctrl.vhd
@@ -603,8 +609,3 @@ set_global_assignment -name SIGNALTAP_FILE clk_card_reply_tx_bug.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_dv_rx.stp
 set_global_assignment -name SIGNALTAP_FILE "../../../../../Documents and Settings/Bryce/Desktop/ACT Firmware/clk_card_dv_rx.stp"
 set_global_assignment -name SIGNALTAP_FILE clk_card_checksum.stp
-set_location_assignment PIN_F28 -to misoo
-set_location_assignment PIN_F27 -to sreqo
-set_location_assignment PIN_H21 -to mosii
-set_location_assignment PIN_H22 -to ccssi
-set_location_assignment PIN_E28 -to sclki
