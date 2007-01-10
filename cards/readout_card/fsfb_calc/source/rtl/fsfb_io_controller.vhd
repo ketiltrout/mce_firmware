@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.6  2005/12/12 23:53:29  mandana
+-- added filter-related interface
+-- changed fsfb_flux_cnt_queue to flux_cnt_queue for consistancy
+--
 -- Revision 1.5  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -117,6 +121,9 @@ entity fsfb_io_controller is
       fsfb_ctrl_dat_o                 : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);  -- fs feedback queue previous data to control (now correction block)
       num_flux_quanta_prev_o          : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);  -- flux quanta previous count data to correction block       
       
+      -- constant value to set inital feedback before servo is activated
+      const_val_i                     : in     std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
+ 
       -- PID coefficient queue interface
       p_addr_o                        : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); -- coefficient queue address inputs
       i_addr_o                        : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
@@ -502,7 +509,8 @@ begin
    -- Note that the z_dat_i storing flux quanta unit is ready one clk cycle before the ctrl_dat and flux_cnt as 
    -- it does not involve bank selection
    fsfb_ctrl_dat_o         <= ctrl_dat when initialize_window_i = '0' else 
-                              conv_std_logic_vector(start_val, FSFB_QUEUE_DATA_WIDTH);
+                              sxt(const_val_i, FSFB_QUEUE_DATA_WIDTH-LSB_WINDOW_INDEX ) & ext("0", LSB_WINDOW_INDEX); 
+                              --conv_std_logic_vector(start_val, FSFB_QUEUE_DATA_WIDTH);
    num_flux_quanta_prev_o  <= flux_dat when initialize_window_i = '0' else
                               (others => '0');
    
