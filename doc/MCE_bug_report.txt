@@ -54,3 +54,6 @@ Frame_timing commands can not be issued as sys commands, because they are not su
 If a read command is issued after few write commands in a row after power up, then mce crashes and is 
 recovered by issuing resetmce.
 
+-------------------------------------------------------------------------------------------------------------
+5, MA, Jan.12, 07 CC
+judging by led status, resetmce occasionally fails to reset rcs, more often rc2 or rc3.
