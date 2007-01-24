@@ -15,10 +15,10 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.2 2006/10/19 22:05:55 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.3 2006/12/22 22:07:51 bburger Exp $>
 --
 -- Project: Scuba 2
--- Author: David Atkinson
+-- Author: David Atkinson/ Bryce Burger
 -- Organisation: UK ATC
 --
 -- Title
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2006/10/19 22:05:55 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/12/22 22:07:51 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5.2.3  2006/12/22 22:07:51  bburger
+-- Bryce:  experimental development -- not for release yet!  Working on making fibre_rx more robust with timer and such
+--
 -- Revision 1.5.2.2  2006/10/19 22:05:55  bburger
 -- Bryce:  Corrected a signal naming error card_id -> card_addr
 --
@@ -122,7 +125,7 @@ architecture rtl of fibre_rx is
    END component;
 
    -- FSM's states defined
-   type states is (IDLE, RQ_BYTE, LD_BYTE, CKSM_CALC, WR_WORD, TEST_CKSM, CKSM_PASS, CKSM_FAIL, DATA_READ, DATA_SETL, DATA_TX);
+   type states is (IDLE, RQ_BYTE, LD_BYTE, CKSM_CALC, WR_WORD, TEST_CKSM, CKSM_PASS, CKSM_FAIL, DATA_READ, DATA_SETL, DATA_TX, RX_ERROR);
    signal current_state : states;
    signal next_state    : states;
 
@@ -140,6 +143,7 @@ architecture rtl of fibre_rx is
 
    constant BLOCK_SIZE : integer := 58;                                       -- total number of data words in a write_block
    constant FIBRE_PACKET_SIZE : integer := 64;
+   constant FIBRE_PACKET_TIMEOUT : integer := 128; -- in micro-seconds
 
    signal number_data  : integer;                                             -- this will be a value between 1 and 58
 
@@ -161,31 +165,22 @@ architecture rtl of fibre_rx is
    signal ld_nda        : std_logic;
    signal ld_cmd        : std_logic;
 
---   -- byte counter for byte 0 to 3 of each word
---   signal byte_count     : integer range 0 to 4;
---   signal byte_count_ena : std_logic;
---   signal byte_count_clr : std_logic;
---
---   -- word counter for the incoming packet
---   signal word_count     : integer range 0 to 64;
---   signal word_count_ena : std_logic;
---   signal word_count_clr : std_logic;
+   -- byte counter for byte 0 to 3 of each word
+   signal byte_count     : integer range 0 to 4;
+   signal byte_count_ena : std_logic;
+   signal byte_count_clr : std_logic;
+
+   -- word counter for the incoming packet
+   signal word_count     : integer range 0 to 64;
+   signal word_count_ena : std_logic;
+   signal word_count_clr : std_logic;
 
    -- negative clock for the memory
    signal n_clk : std_logic;
 
-   signal timeout_clr     : std_logic;
-   signal timeout_count   : integer;
-
-   signal ena_word_count  : std_logic;
-   signal load_word_count : std_logic;
-   signal word_count      : integer;
-   signal word_count_new  : integer;
-
-   signal ena_byte_count  : std_logic;
-   signal load_byte_count : std_logic;
-   signal byte_count      : integer;
-   signal byte_count_new  : integer;
+   signal timeout_clr    : std_logic;
+   signal timeout_count  : integer;
+   signal timeout        : std_logic;
 
 begin
 
@@ -217,55 +212,28 @@ begin
       timer_count_o => timeout_count
    );
 
---   byte_counter: counter
---   generic map(MAX => 4)
---   port map(
---      clk_i   => clk_i,
---      rst_i   => rst_i,
---      ena_i   => byte_count_ena,
---      load_i  => byte_count_clr,
---      count_i => 0,
---      count_o => byte_count
---   );
+   byte_counter: counter
+   generic map(MAX => 4)
+   port map(
+      clk_i   => clk_i,
+      rst_i   => rst_i,
+      ena_i   => byte_count_ena,
+      load_i  => byte_count_clr,
+      count_i => 0,
+      count_o => byte_count
+   );
 
-   byte_count_new <= byte_count + 1;
-   byte_cntr: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         byte_count <= 0;
-      elsif(clk_i'event and clk_i = '1') then
-         if(load_byte_count = '1') then
-            byte_count <= 0;
-         elsif(ena_byte_count = '1') then
-            byte_count <= byte_count_new;
-         end if;
-      end if;
-   end process byte_cntr;
-
---   word_counter: counter
---   generic map(MAX => 64)
---   port map(
---      clk_i   => clk_i,
---      rst_i   => rst_i,
---      ena_i   => word_count_ena,
---      load_i  => word_count_clr,
---      count_i => 0,
---      count_o => word_count
---   );
-
-   word_count_new <= word_count + 1;
-   word_cntr: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         word_count <= 0;
-      elsif(clk_i'event and clk_i = '1') then
-         if(load_word_count = '1') then
-            word_count <= 0;
-         elsif(ena_word_count = '1') then
-            word_count <= word_count_new;
-         end if;
-      end if;
-   end process word_cntr;
+   timeout <= '1' when timeout_count > FIBRE_PACKET_TIMEOUT else '0';
+   word_counter: counter
+   generic map(MAX => 64)
+   port map(
+      clk_i   => clk_i,
+      rst_i   => rst_i,
+      ena_i   => word_count_ena,
+      load_i  => word_count_clr,
+      count_i => 0,
+      count_o => word_count
+   );
 
    ----------------------------------------------------------------------------
    -- state machine
@@ -280,7 +248,7 @@ begin
    end process FSM_state;
 
 
-   FSM_ns : process(current_state, rx_fe, word_count, byte_count, rxd, cmd_ack_i, cmd_code, cksum_calc, cksum_rcvd, number_data, read_pointer)
+   FSM_ns : process(current_state, rx_fe, word_count, byte_count, rxd, cmd_ack_i, cmd_code, cksum_calc, cksum_rcvd, number_data, read_pointer, timeout)
    begin
       next_state <= current_state;
 
@@ -291,12 +259,26 @@ begin
                next_state <= RQ_BYTE;
             end if;
 
+         --------------------------------------------------
+         -- The code demarkated by these dotted lines is part of the loop that receives a 64-word packet.
+         -- If the timer times out in here, it's because there a packet is incomplete, or a spurrious byte was received.
+         -- If a timeout occurs, the FSM should clear the bytes and go back to IDLE (not TEST_CKSM) in either case.
+         -- This is to ensure that no responses are sent back to the PC for incomplete packets or spurrious words.
+         -- As far as the MCE is concerned, it is difficult to tell the difference between these two cases.
+         -- So trying to do something different for one or the other is out.
+         -- In either case, the PC will just time out and recover.
+         -- The only two states that the FSM can freeze in are the LD_BYTE adnd WR_WORD states, because the others transition immediately.
+         -- In these states only, we check for timeouts.
+         --------------------------------------------------
          when RQ_BYTE =>
+            -- Clear timeout counter
+            -- Request a byte
             next_state <= LD_BYTE;
 
--- This FSM should check the entire contents of the first two words cumulatively
          when LD_BYTE =>
-            if(rx_fe = '0') then
+            if(timeout = '1') then
+               next_state <= RX_ERROR;
+            elsif(rx_fe = '0') then
                -- If the FIFO is not empty
                if((word_count = 0 and rxd /= FIBRE_PREAMBLE1(7 downto 0)) or (word_count = 1 and rxd /= FIBRE_PREAMBLE2(7 downto 0))) then
                   -- Check each byte of the first two words in succession
@@ -324,9 +306,14 @@ begin
             end if;
 
          when WR_WORD =>
-            if(rx_fe = '0') then
+            if(timeout = '1') then
+               next_state <= RX_ERROR;
+            elsif(rx_fe = '0') then
                next_state <= RQ_BYTE;
             end if;
+         -------------------------------------------------
+         -- End of section
+         -------------------------------------------------
 
          when TEST_CKSM =>
             if(cmd_ack_i = '1') then
@@ -347,6 +334,9 @@ begin
             end if;
 
          when CKSM_FAIL =>
+            next_state <= IDLE;
+
+         when RX_ERROR =>
             next_state <= IDLE;
 
          when DATA_READ =>
@@ -370,14 +360,10 @@ begin
 
    FSM_out : process(current_state, rx_fe, byte_count, word_count)
    begin
---      byte_count_ena <= '0';
---      byte_count_clr <= '0';
---      word_count_ena <= '0';
---      word_count_clr <= '0';
-      ena_word_count  <= '0';
-      load_word_count <= '0';
-      ena_word_count  <= '0';
-      load_word_count <= '0';
+      byte_count_ena <= '0';
+      byte_count_clr <= '0';
+      word_count_ena <= '0';
+      word_count_clr <= '0';
 
       ld_cmd         <= '0';
       ld_id          <= '0';
@@ -399,21 +385,17 @@ begin
 
       case current_state is
          when IDLE =>
---            byte_count_ena <= '1';
---            byte_count_clr <= '1';
---            word_count_ena <= '1';
---            word_count_clr <= '1';
-            ena_byte_count  <= '1';
-            load_byte_count <= '1';
-            ena_word_count  <= '1';
-            load_word_count <= '1';
+            byte_count_ena <= '1';
+            byte_count_clr <= '1';
+            word_count_ena <= '1';
+            word_count_clr <= '1';
 
             reset_mem      <= '1';
             cksum_calc_clr <= '1';
 
          when RQ_BYTE =>
             timeout_clr    <= '0';
-            rx_fr <= '1';
+            rx_fr          <= '1';
 
          when LD_BYTE =>
             timeout_clr    <= '0';
@@ -443,17 +425,15 @@ begin
             end case;
 
             if(rx_fe = '0') then
---               byte_count_ena <= '1';
-               ena_byte_count  <= '1';
+               byte_count_ena <= '1';
                if(byte_count = 3) then
---                  byte_count_clr <= '1';
-                  load_byte_count <= '1';
---                  word_count_ena <= '1';
-                  ena_word_count  <= '1';
+                  byte_count_clr <= '1';
+                  word_count_ena <= '1';
                end if;
             end if;
 
          when CKSM_CALC =>
+            timeout_clr    <= '0';
             case word_count is
                when 0 => null;
                when 1 => null;
@@ -461,6 +441,7 @@ begin
             end case;
 
          when WR_WORD =>
+            timeout_clr    <= '0';
             if(rx_fe = '0') then
                write_mem <= '1';
             end if;
@@ -469,6 +450,9 @@ begin
             cmd_rdy_o <= '1';
 
          when CKSM_FAIL =>
+            cmd_err_o <= '1';
+
+         when RX_ERROR =>
             cmd_err_o <= '1';
 
          when DATA_READ =>
