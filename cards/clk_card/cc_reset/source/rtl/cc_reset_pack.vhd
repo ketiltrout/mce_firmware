@@ -21,15 +21,18 @@
 --
 -- Project:       SCUBA-2
 -- Author:        David Atkinson
---               
+--
 -- Organisation:  UK ATC
 --
--- Description: package for cc_reset 
--- 
+-- Description: package for cc_reset
+--
 -- Revision history:
--- <date $Date: 2005/01/13 16:32:29 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2005/03/09 18:08:23 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: cc_reset_pack.vhd,v $
+-- Revision 1.2  2005/03/09 18:08:23  bburger
+-- mohsen:  registered and widened TTL reset pulse (BClr)
+--
 -- Revision 1.1  2005/01/13 16:32:29  dca
 -- Initial Versions
 --
@@ -41,23 +44,7 @@ use ieee.std_logic_1164.all;
 
 package cc_reset_pack is
 
-constant SPEC_CHAR_RESET : std_logic_vector (7 downto 0) := x"0B";
-
-------------------
-component cc_reset
------------------- 
-   port( 
-      clk_i      : in     std_logic;
-      rst_n_i    : in     std_logic;
-      nRx_rdy_i  : in     std_logic;                       -- hotlink receiver data ready (active low)
-      rsc_nRd_i  : in     std_logic;                       -- hotlink receiver special character/(not) Data 
-      rso_i      : in     std_logic;                       -- hotlink receiver status out
-      rvs_i      : in     std_logic;                       -- hotlink receiver violation symbol detected
-      rx_data_i  : in     std_logic_vector (7 downto 0);   -- hotlink receiver data byte
-      reset_o    : out    std_logic                        -- cc firmware reset      
-   );
-
-end component;
+   constant SPEC_CHAR_RESET    : std_logic_vector (7 downto 0) := x"0B";
+   constant RESET_HOLD_TIME_US : integer := 100;
 
 end cc_reset_pack;
- 
