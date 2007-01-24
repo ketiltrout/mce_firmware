@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.40 2006/12/06 02:18:26 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.41 2006/12/22 22:05:44 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.41  2006/12/22 22:05:44  bburger
+-- Bryce:  Added a few more test cases
+--
 -- Revision 1.40  2006/12/06 02:18:26  bburger
 -- Bryce:  Interim committal for v02000013d.  :)
 --
@@ -474,6 +477,10 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal ctr_count_o     : integer;
    signal ctr_count_slv_o : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
 
+   signal skip_byte       : std_logic := '0';
+   signal add_byte        : std_logic := '0';
+   signal wrong_checksum  : std_logic := '0';
+
    ------------------------------------------------
    -- Counter Signals
    ------------------------------------------------
@@ -588,12 +595,16 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_rs232_tx    : std_logic;
 
    -- interface to HOTLINK fibre receiver
-   signal fibre_rx_data      : std_logic_vector (7 downto 0);
-   signal fibre_rx_rdy       : std_logic;
-   signal fibre_rx_rvs       : std_logic;
-   signal fibre_rx_status    : std_logic;
-   signal fibre_rx_sc_nd     : std_logic;
+   signal fibre_rx_data      : std_logic_vector (7 downto 0) := (others => '0');
+   signal fibre_rx_nrdy       : std_logic := '1';
+   signal fibre_rx_rvs       : std_logic := '0';
+   signal fibre_rx_status    : std_logic := '1';
+   signal fibre_rx_sc_nd     : std_logic := '0';
    signal fibre_rx_ckr       : std_logic := '0';
+
+--      fibre_rx_sc_nd  <= '0';
+--      fibre_rx_status <= '1';
+--      fibre_rx_rvs    <= '0';
 
    -- interface to hotlink fibre transmitter
    signal fibre_tx_data      : std_logic_vector (7 downto 0);
@@ -1226,7 +1237,7 @@ begin
          -- interface to HOTLINK fibre receiver
          fibre_rx_refclk  => open,
          fibre_rx_data    => fibre_rx_data,
-         fibre_rx_rdy     => fibre_rx_rdy,
+         fibre_rx_rdy     => fibre_rx_nrdy,
          fibre_rx_rvs     => fibre_rx_rvs,
          fibre_rx_status  => fibre_rx_status,
          fibre_rx_sc_nd   => fibre_rx_sc_nd,
@@ -1813,7 +1824,41 @@ begin
 
    stimuli : process
 
-   procedure do_reset is
+--   procedure do_reset is
+--   begin
+--      -- setup the hotlink receiver to receive the special character
+--      fibre_rx_sc_nd  <= '1';
+--      fibre_rx_status <= '1';
+--      fibre_rx_rvs    <= '0';
+--
+--      -- special case for the reset character
+--      fibre_rx_nrdy    <= '0';  -- data not ready (active low)
+--      fibre_rx_data   <= SPEC_CHAR_RESET;
+--
+--      wait for fibre_clkr_prd * 0.4;
+--
+--      -- set up hotlink receiver signals
+--      fibre_rx_sc_nd  <= '0';
+--      fibre_rx_status <= '1';
+--      fibre_rx_rvs    <= '0';
+--
+--      -- set default values for input
+--      fibre_rx_nrdy    <= '0';  -- data not ready (active low)
+--      fibre_rx_data   <= x"00";
+--
+--      wait for fibre_clkr_prd * 0.6;
+--
+--
+--
+--      rst_n <= '0';
+--      wait for clk_period*5 ;
+--      rst_n <= '1';
+--      wait for clk_period*5 ;
+--      assert false report " Resetting the DUT." severity NOTE;
+--
+--   end do_reset;
+
+   procedure do_bclr is
    begin
       -- setup the hotlink receiver to receive the special character
       fibre_rx_sc_nd  <= '1';
@@ -1821,7 +1866,7 @@ begin
       fibre_rx_rvs    <= '0';
 
       -- special case for the reset character
-      fibre_rx_rdy    <= '0';  -- data not ready (active low)
+      fibre_rx_nrdy    <= '0';  -- data not ready (active low)
       fibre_rx_data   <= SPEC_CHAR_RESET;
 
       wait for fibre_clkr_prd * 0.4;
@@ -1832,42 +1877,46 @@ begin
       fibre_rx_rvs    <= '0';
 
       -- set default values for input
-      fibre_rx_rdy    <= '0';  -- data not ready (active low)
+      fibre_rx_nrdy    <= '1';  -- data not ready (active low)
       fibre_rx_data   <= x"00";
 
       wait for fibre_clkr_prd * 0.6;
 
 
 
+      assert false report " BClr." severity NOTE;
+   end do_bclr;
+
+   procedure do_push_button_reset is
+   begin
       rst_n <= '0';
       wait for clk_period*5 ;
       rst_n <= '1';
       wait for clk_period*5 ;
-      assert false report " Resetting the DUT." severity NOTE;
-
-   end do_reset;
+      assert false report " Push Button Reset." severity NOTE;
+   end do_push_button_reset;
    --------------------------------------------------
 
    procedure load_preamble is
    begin
 
    for I in 0 to 3 loop
-      fibre_rx_rdy    <= '1';  -- data not ready (active low)
+      fibre_rx_nrdy    <= '1';  -- data not ready (active low)
       fibre_rx_data  <= preamble1;
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy    <= '0';
+      fibre_rx_nrdy    <= '0';
       wait for fibre_clkr_prd * 0.6;
    end loop;
 
    for I in 0 to 3 loop
-      fibre_rx_rdy    <= '1';  -- data not ready (active low)
+      fibre_rx_nrdy    <= '1';  -- data not ready (active low)
       fibre_rx_data  <= preamble2;
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy    <= '0';
+      fibre_rx_nrdy    <= '0';
       wait for fibre_clkr_prd * 0.6;
    end loop;
 
-   fibre_rx_rdy <= '1';
+   fibre_rx_nrdy <= '1';
    wait for pci_dsp_dly;
 
    assert false report "preamble OK" severity NOTE;
@@ -1879,95 +1928,96 @@ begin
    begin
       checksum  <= command;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= command(7 downto 0);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= command(15 downto 8);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= command(23 downto 16);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= command(31 downto 24);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
 
       assert false report "command code loaded" severity NOTE;
-      fibre_rx_rdy <= '1';
+      fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
       -- load up address_id
       checksum <= checksum XOR address_id;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= address_id(7 downto 0);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= address_id(15 downto 8);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= address_id(23 downto 16);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data   <= address_id(31 downto 24);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
       assert false report "address id loaded" severity NOTE;
-      fibre_rx_rdy <= '1';
+      fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
       -- load up data valid
       checksum <= checksum XOR data_valid;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data <= data_valid(7 downto 0);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data <= data_valid(15 downto 8);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data <= data_valid(23 downto 16);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data <= data_valid(31 downto 24);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
       assert false report "data valid loaded" severity NOTE;
-      fibre_rx_rdy <= '1';
+      fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
       -- load up data block
@@ -1975,36 +2025,36 @@ begin
       for I in 0 to (conv_integer(data_valid)-1) loop
       --for I in 0 to (data_valid-1) loop
 
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
 
          fibre_rx_data <= data(7 downto 0);
          checksum (7 downto 0) <= checksum (7 downto 0) XOR data(7 downto 0);
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
 
          fibre_rx_data <= data(15 downto 8);
          checksum (15 downto 8) <= checksum (15 downto 8) XOR data(15 downto 8);
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
 
          fibre_rx_data <= data(23 downto 16);
          checksum (23 downto 16) <= checksum (23 downto 16) XOR data(23 downto 16);
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
 
          fibre_rx_data <= data(31 downto 24);
          checksum (31 downto 24) <= checksum (31 downto 24) XOR data(31 downto 24);
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
 
          case address_id is
             when cc_ret_dat_s_cmd => data <= ret_dat_s_stop;
@@ -2018,36 +2068,36 @@ begin
 
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy <= '1';
+         fibre_rx_nrdy <= '1';
          wait for pci_dsp_dly;
       end loop;
 
       for J in (conv_integer(data_valid)) to data_block-1 loop
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
          fibre_rx_data <= X"00";
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
          fibre_rx_data <= X"00";
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
          fibre_rx_data <= X"00";
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy   <= '1';
+         fibre_rx_nrdy   <= '1';
          fibre_rx_data <= X"00";
          wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+         fibre_rx_nrdy   <= '0';
          wait for fibre_clkr_prd * 0.6;
 
-         fibre_rx_rdy <= '1';
+         fibre_rx_nrdy <= '1';
          wait for pci_dsp_dly;
       end loop;
 
@@ -2060,33 +2110,85 @@ begin
 
       begin
 
-      fibre_rx_rdy   <= '1';
+      ------------------------------------------------------------------------------------------
+      -- This logic is for testing the ability of fibre_rx to recover from errors over the fibre
+      ------------------------------------------------------------------------------------------
+--      if(skip_byte = '0') then
+--         fibre_rx_nrdy   <= '1';
+--         fibre_rx_data <= data_valid(31 downto 24);
+--         wait for fibre_clkr_prd * 0.4;
+--         fibre_rx_nrdy   <= '0';
+--         wait for fibre_clkr_prd * 0.6;
+--      elsif(skip_byte = '1') then
+--         fibre_rx_nrdy   <= '1';
+--         fibre_rx_data <= not data_valid(31 downto 24);
+--         wait for fibre_clkr_prd * 0.4;
+--         fibre_rx_nrdy   <= '0';
+--         wait for fibre_clkr_prd * 0.6;
+--      end if;
+      ------------------------------------------------------------------------------------------
+
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data <= checksum(7 downto 0);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data <= checksum(15 downto 8);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
+      fibre_rx_nrdy   <= '1';
       fibre_rx_data <= checksum(23 downto 16);
       wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
+      fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= checksum(31 downto 24);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--      fibre_rx_nrdy   <= '1';
+--      fibre_rx_data <= checksum(31 downto 24);
+--      wait for fibre_clkr_prd * 0.4;
+--      fibre_rx_nrdy   <= '0';
+--      wait for fibre_clkr_prd * 0.6;
+
+      if(skip_byte = '1') then
+         -- Don't output the last byte
+
+      elsif(add_byte = '1') then
+         -- Output the last byte plus an extra one
+         fibre_rx_nrdy   <= '1';
+         fibre_rx_data <= checksum(31 downto 24);
+         wait for fibre_clkr_prd * 0.4;
+         fibre_rx_nrdy   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+
+         fibre_rx_nrdy   <= '1';
+         fibre_rx_data <= checksum(7 downto 0);
+         wait for fibre_clkr_prd * 0.4;
+         fibre_rx_nrdy   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+
+      elsif(wrong_checksum = '1') then
+         -- Modify the checksum
+         fibre_rx_nrdy   <= '1';
+         fibre_rx_data <= not data_valid(31 downto 24);
+         wait for fibre_clkr_prd * 0.4;
+         fibre_rx_nrdy   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+
+      else
+         -- Do the standard thing
+         fibre_rx_nrdy   <= '1';
+         fibre_rx_data <= checksum(31 downto 24);
+         wait for fibre_clkr_prd * 0.4;
+         fibre_rx_nrdy   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+      end if;
 
       assert false report "checksum loaded...." severity NOTE;
 
-      fibre_rx_rdy <= '1';
+      fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
    end load_checksum;
@@ -2121,14 +2223,49 @@ begin
    end noisy_sync_proc;
 
 
---------------------------------------------------------
+------------------------------------------------------
 -- Begin Test
 ------------------------------------------------------
 
    begin
 
-      do_reset;
-      wait for 5 us;
+      -- Wait for the BRst to finish, which takes 100us
+      wait for 120 us;
+--      do_bclr;
+--      wait for 200 us;
+
+------------------------------------------------------
+-- Testing Resets
+------------------------------------------------------
+
+------------------------------------------------------
+--  7:  Testing Fibre Rx.
+--  This case tests what happens to the fibre_rx block
+--  When a byte is missing or extra.
+------------------------------------------------------
+--      skip_byte      <= '0';
+--      add_byte       <= '0';
+--      wrong_checksum <= '0';
+
+      command    <= command_wb;
+      address_id <= cc_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000007";
+      load_preamble;
+      load_command;
+      skip_byte      <= '1';
+      load_checksum;
+      skip_byte      <= '0';
+      wait for 200 us;
+
+      command    <= command_wb;
+      address_id <= cc_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000007";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 200 us;
 
 ------------------------------------------------------
 --  Test Case xx: For testing bias card commands
@@ -2669,70 +2806,70 @@ begin
 --      wait for 125 us;
 
 ------------------------------------------------------
---  Testing New Fibre Protocol
+--  Testing New Fibre Protocol, and it's ability to recover from errors
 ------------------------------------------------------
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"0000003A";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_rb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 15 us;
-
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 15 us;
-
-      command <= command_rb;
-      address_id <= cc_row_len_cmd;
-      data_valid <= X"0000003A";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 1200 us;
-
-      command <= command_go;
-      address_id <= rc2_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 1200 us;
+--      command    <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"0000003A";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_row_len_cmd;
+--      data_valid <= X"0000003A";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 1200 us;
+--
+--      command <= command_go;
+--      address_id <= rc2_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 1200 us;
 
 ------------------------------------------------------
 --  PSU Testing
@@ -3087,7 +3224,7 @@ begin
 --      load_checksum;
 --      wait for 53 us;
 --
---      do_reset;
+--      do_bclr;
 --      wait for 5 us;
 --
 --      command <= command_rs;
