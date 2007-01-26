@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.3 2006/12/22 22:07:51 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.4 2007/01/24 01:20:40 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson/ Bryce Burger
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2006/12/22 22:07:51 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/01/24 01:20:40 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5.2.4  2007/01/24 01:20:40  bburger
+-- Bryce:  added a us-timer to allow fibre_rx to recover if there is an extra or missing byte in a packet
+--
 -- Revision 1.5.2.3  2006/12/22 22:07:51  bburger
 -- Bryce:  experimental development -- not for release yet!  Working on making fibre_rx more robust with timer and such
 --
@@ -167,11 +170,13 @@ architecture rtl of fibre_rx is
 
    -- byte counter for byte 0 to 3 of each word
    signal byte_count     : integer range 0 to 4;
+   signal byte_count_new : integer range 0 to 5;
    signal byte_count_ena : std_logic;
    signal byte_count_clr : std_logic;
 
    -- word counter for the incoming packet
    signal word_count     : integer range 0 to 64;
+   signal word_count_new : integer range 0 to 65;
    signal word_count_ena : std_logic;
    signal word_count_clr : std_logic;
 
@@ -212,28 +217,52 @@ begin
       timer_count_o => timeout_count
    );
 
-   byte_counter: counter
-   generic map(MAX => 4)
-   port map(
-      clk_i   => clk_i,
-      rst_i   => rst_i,
-      ena_i   => byte_count_ena,
-      load_i  => byte_count_clr,
-      count_i => 0,
-      count_o => byte_count
-   );
+   byte_count_new <= byte_count + 1;
+   word_count_new <= word_count + 1;
+   process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         byte_count <= 0;
+         word_count <= 0;
 
-   timeout <= '1' when timeout_count > FIBRE_PACKET_TIMEOUT else '0';
-   word_counter: counter
-   generic map(MAX => 64)
-   port map(
-      clk_i   => clk_i,
-      rst_i   => rst_i,
-      ena_i   => word_count_ena,
-      load_i  => word_count_clr,
-      count_i => 0,
-      count_o => word_count
-   );
+      elsif(clk_i'event and clk_i = '1') then
+         if(byte_count_clr = '1') then
+            byte_count <= 0;
+         elsif(byte_count_ena = '1') then
+            byte_count <= byte_count_new;
+         end if;
+
+         if(word_count_clr = '1') then
+            word_count <= 0;
+         elsif(word_count_ena = '1') then
+            word_count <= word_count_new;
+         end if;
+
+      end if;
+   end process;
+
+--   byte_counter: counter
+--   generic map(MAX => 4)
+--   port map(
+--      clk_i   => clk_i,
+--      rst_i   => rst_i,
+--      ena_i   => byte_count_ena,
+--      load_i  => byte_count_clr,
+--      count_i => 0,
+--      count_o => byte_count
+--   );
+--
+--   timeout <= '1' when timeout_count > FIBRE_PACKET_TIMEOUT else '0';
+--   word_counter: counter
+--   generic map(MAX => 64)
+--   port map(
+--      clk_i   => clk_i,
+--      rst_i   => rst_i,
+--      ena_i   => word_count_ena,
+--      load_i  => word_count_clr,
+--      count_i => 0,
+--      count_o => word_count
+--   );
 
    ----------------------------------------------------------------------------
    -- state machine
