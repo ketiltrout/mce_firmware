@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.4 2007/01/24 01:20:40 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.5 2007/01/26 06:21:52 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson/ Bryce Burger
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2007/01/24 01:20:40 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/01/26 06:21:52 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5.2.5  2007/01/26 06:21:52  bburger
+-- Bryce: added custom counters to fibre_rx to make it more responsive.
+--
 -- Revision 1.5.2.4  2007/01/24 01:20:40  bburger
 -- Bryce:  added a us-timer to allow fibre_rx to recover if there is an extra or missing byte in a packet
 --
@@ -163,10 +166,6 @@ architecture rtl of fibre_rx is
    signal ld_cmd_data   : std_logic;
    signal ld_cksum_in   : std_logic;
    signal ld_cksum_rcvd : std_logic;
-   signal ld_data       : std_logic;
-   signal ld_id         : std_logic;
-   signal ld_nda        : std_logic;
-   signal ld_cmd        : std_logic;
 
    -- byte counter for byte 0 to 3 of each word
    signal byte_count     : integer range 0 to 4;
@@ -210,6 +209,7 @@ begin
    ----------------------------------------------------------------------------
    -- byte and word counters
    ----------------------------------------------------------------------------
+   timeout <= '1' when timeout_count >= FIBRE_PACKET_TIMEOUT else '0';
    timeout_timer : us_timer
    port map(
       clk => clk_i,
@@ -226,12 +226,15 @@ begin
          word_count <= 0;
 
       elsif(clk_i'event and clk_i = '1') then
+
+         -- Byte counter
          if(byte_count_clr = '1') then
             byte_count <= 0;
          elsif(byte_count_ena = '1') then
             byte_count <= byte_count_new;
          end if;
 
+         -- Word counter
          if(word_count_clr = '1') then
             word_count <= 0;
          elsif(word_count_ena = '1') then
@@ -240,29 +243,6 @@ begin
 
       end if;
    end process;
-
---   byte_counter: counter
---   generic map(MAX => 4)
---   port map(
---      clk_i   => clk_i,
---      rst_i   => rst_i,
---      ena_i   => byte_count_ena,
---      load_i  => byte_count_clr,
---      count_i => 0,
---      count_o => byte_count
---   );
---
---   timeout <= '1' when timeout_count > FIBRE_PACKET_TIMEOUT else '0';
---   word_counter: counter
---   generic map(MAX => 64)
---   port map(
---      clk_i   => clk_i,
---      rst_i   => rst_i,
---      ena_i   => word_count_ena,
---      load_i  => word_count_clr,
---      count_i => 0,
---      count_o => word_count
---   );
 
    ----------------------------------------------------------------------------
    -- state machine
@@ -305,36 +285,41 @@ begin
             next_state <= LD_BYTE;
 
          when LD_BYTE =>
+
             if(timeout = '1') then
                next_state <= RX_ERROR;
-            elsif(rx_fe = '0') then
-               -- If the FIFO is not empty
-               if((word_count = 0 and rxd /= FIBRE_PREAMBLE1(7 downto 0)) or (word_count = 1 and rxd /= FIBRE_PREAMBLE2(7 downto 0))) then
-                  -- Check each byte of the first two words in succession
-                  -- If any of the bytes don't match the expected preamble then discard them and go back to the IDLE state
-                  next_state <= IDLE;
-               elsif(byte_count = 3 and word_count > 1 and word_count < FIBRE_PACKET_SIZE-1) then
-                  -- If we have passed the first two words of preample then start calculating the checksum.
-                  -- Note that indexing starts at 0, which is why the count goes to FIBRE_PACKET_SIZE-1
-                  next_state <= CKSM_CALC;
-               else
-                  -- Otherwise request another byte
-                  next_state <= RQ_BYTE;
-               end if;
-            elsif(byte_count = 3 and word_count = FIBRE_PACKET_SIZE-1) then
+            elsif(word_count = 0 and rxd /= FIBRE_PREAMBLE1(7 downto 0)) then
+               -- Check each byte of the first two words in succession
+               -- If any of the bytes don't match the expected preamble then discard them and go back to the IDLE state
+               next_state <= IDLE;
+            elsif(word_count = 1 and rxd /= FIBRE_PREAMBLE2(7 downto 0)) then
+               -- Check each byte of the first two words in succession
+               -- If any of the bytes don't match the expected preamble then discard them and go back to the IDLE state
+               next_state <= IDLE;
+            elsif(word_count >= 2 and word_count <= FIBRE_PACKET_SIZE-2 and byte_count = 4) then
+               -- If we have passed the first two words of preample then start calculating the checksum.
+               -- Note that indexing starts at 0, which is why the count goes to FIBRE_PACKET_SIZE-1
+               next_state <= CKSM_CALC;
+            elsif(word_count >= FIBRE_PACKET_SIZE-1 and byte_count = 4) then
                -- If the FIFO is empty and we've received an entire packet then test the checksum
                -- Note that indexing starts at 0, which is why the count goes to FIBRE_PACKET_SIZE-1
                next_state <= TEST_CKSM;
-            end if;
-
-         when CKSM_CALC =>
-            if(word_count > 5 and word_count < FIBRE_PACKET_SIZE) then
-               next_state <= WR_WORD;
-            else
+            -- If were not at the pre-amble, or at the end of a 32-bit word, then we wait for the next byte.
+            elsif(rx_fe = '0') then
+               -- As soon as the fifo is not empty, we request the next byte.
                next_state <= RQ_BYTE;
             end if;
 
+         when CKSM_CALC =>
+--            if(word_count > 5 and word_count < FIBRE_PACKET_SIZE) then
+               next_state <= WR_WORD;
+--            else
+--               next_state <= RQ_BYTE;
+--            end if;
+
          when WR_WORD =>
+            -- We get into this state only after having checked the checksum
+            -- Before returning to the byte acquisition process, we wait for the fifo to contain a byte
             if(timeout = '1') then
                next_state <= RX_ERROR;
             elsif(rx_fe = '0') then
@@ -346,6 +331,7 @@ begin
 
          when TEST_CKSM =>
             if(cmd_ack_i = '1') then
+               -- Wait for the previous command to finish
                next_state <= TEST_CKSM;
             elsif(cksum_calc = cksum_rcvd) then
                next_state <= CKSM_PASS;
@@ -375,6 +361,7 @@ begin
             next_state <= DATA_TX;
 
          when DATA_TX =>
+            -- What if a new command has come in before a previous one was done? then read pointer may be greater than number_data.
             if(read_pointer < number_data) then
                next_state <= DATA_READ;
             else
@@ -387,19 +374,14 @@ begin
       end case;
    end process FSM_ns;
 
-   FSM_out : process(current_state, rx_fe, byte_count, word_count)
+   FSM_out : process(current_state, rx_fe, byte_count, word_count, timeout)
    begin
       byte_count_ena <= '0';
       byte_count_clr <= '0';
       word_count_ena <= '0';
       word_count_clr <= '0';
-
-      ld_cmd         <= '0';
-      ld_id          <= '0';
-      ld_nda         <= '0';
       ld_cksum_in    <= '0';
       ld_cksum_rcvd  <= '0';
-      ld_data        <= '0';
       ld_cmd_data    <= '0';
       reset_mem      <= '0';
       read_mem       <= '0';
@@ -425,55 +407,47 @@ begin
          when RQ_BYTE =>
             timeout_clr    <= '0';
             rx_fr          <= '1';
+            byte_count_ena <= '1';
 
          when LD_BYTE =>
             timeout_clr    <= '0';
 
-            case word_count is
-               when 0 => null;
-               when 1 => null;
-               when 2 =>
-                  ld_cmd <= '1';
-                  ld_cksum_in <= '1';
+            -- The checksum is currently calculated based on words 2..62
+            -- This is stupid
+            if(word_count >= 2 and word_count <= FIBRE_PACKET_SIZE-2) then
+               ld_cksum_in <= '1';
+            elsif(word_count = FIBRE_PACKET_SIZE-1) then
+               ld_cksum_rcvd <= '1';
+            end if;
 
-               when 3 =>
-                  ld_id <= '1';
-                  ld_cksum_in <= '1';
-
-               when 4 =>
-                  ld_nda <= '1';
-                  ld_cksum_in <= '1';
-
-               when 63 =>
-                  ld_cksum_rcvd <= '1';
-
-               -- this covers cases 5 to 62:
-               when others =>
-                  ld_data <= '1';
-                  ld_cksum_in <= '1';
-            end case;
-
-            if(rx_fe = '0') then
-               byte_count_ena <= '1';
-               if(byte_count = 3) then
-                  byte_count_clr <= '1';
-                  word_count_ena <= '1';
-               end if;
+            if(byte_count = 4) then
+               byte_count_clr <= '1';
+               word_count_ena <= '1';
             end if;
 
          when CKSM_CALC =>
             timeout_clr    <= '0';
-            case word_count is
-               when 0 => null;
-               when 1 => null;
-               when others => cksum_calc_ena <= '1';
-            end case;
+
+            if(word_count >= 2 and word_count <= FIBRE_PACKET_SIZE-2) then
+               cksum_calc_ena <= '1';
+            end if;
 
          when WR_WORD =>
             timeout_clr    <= '0';
-            if(rx_fe = '0') then
-               write_mem <= '1';
+
+            if(timeout = '1') then
+               null;
+            elsif(rx_fe = '0') then
+               if(word_count > 5 and word_count < FIBRE_PACKET_SIZE) then
+                  write_mem <= '1';
+               end if;
             end if;
+
+--            -- only write data..starting at word 5
+----            if(word_count > 5 and word_count < FIBRE_PACKET_SIZE) then
+--            if(rx_fe = '0') then
+--               write_mem <= '1';
+--            end if;
 
          when CKSM_PASS =>
             cmd_rdy_o <= '1';
@@ -485,20 +459,60 @@ begin
             cmd_err_o <= '1';
 
          when DATA_READ =>
-            read_mem    <= '1';
-            cmd_rdy_o     <= '1';
+            read_mem <= '1';
+            cmd_rdy_o <= '1';
             ld_cmd_data <= '1';
 
          when DATA_SETL =>
             cmd_rdy_o <= '1';
 
          when DATA_TX =>
-            cmd_rdy_o  <= '1' ;
+            cmd_rdy_o <= '1' ;
             dat_clk_o <= '1' ;
 
-         when others =>    null;
+         when others => null;
       end case;
    end process FSM_out;
+
+   ----------------------------------------------------------------------------
+   -- checksum in register (holds most recently acquired word)
+   ----------------------------------------------------------------------------
+   dff_ckin: process(clk_i, rst_i)
+   begin
+      if (rst_i = '1') then
+         cksum_in <= (others => '0');
+      elsif (clk_i'EVENT and clk_i = '1') then
+         if(ld_cksum_in = '1') then
+            case byte_count is
+               when 1 => cksum_in(7 downto 0)   <= rxd;
+               when 2 => cksum_in(15 downto 8)  <= rxd;
+               when 3 => cksum_in(23 downto 16) <= rxd;
+               when 4 => cksum_in(31 downto 24) <= rxd;
+               when others => null;
+            end case;
+         end if;
+      end if;
+   end process dff_ckin;
+
+   ----------------------------------------------------------------------------
+   -- checksum received register (holds checksum in fibre packet)
+   ----------------------------------------------------------------------------
+   dff_ckrx: process(clk_i, rst_i)
+   begin
+      if (rst_i = '1') then
+         cksum_rcvd <= (others => '0');
+      elsif (clk_i'EVENT and clk_i = '1') then
+         if(ld_cksum_rcvd = '1') then
+            case byte_count is
+               when 1 => cksum_rcvd(7 downto 0)   <= rxd;
+               when 2 => cksum_rcvd(15 downto 8)  <= rxd;
+               when 3 => cksum_rcvd(23 downto 16) <= rxd;
+               when 4 => cksum_rcvd(31 downto 24) <= rxd;
+               when others => null;
+            end case;
+         end if;
+      end if;
+   end process dff_ckrx;
 
    ----------------------------------------------------------------------------
    -- cmd_code register
@@ -508,12 +522,12 @@ begin
       if (rst_i = '1') then
          cmd_code <= (others => '0');
       elsif (clk_i'EVENT and clk_i = '1') then
-         if(ld_cmd = '1') then
+         if(word_count = 2) then
             case byte_count is
-               when 0 =>      cmd_code(7 downto 0)  <= rxd;
-               when 1 =>      cmd_code(15 downto 8) <= rxd;
-               when 2 =>      cmd_code(23 downto 16) <= rxd;
-               when 3 =>      cmd_code(31 downto 24) <= rxd;
+               when 1 => cmd_code(7 downto 0)  <= rxd;
+               when 2 => cmd_code(15 downto 8) <= rxd;
+               when 3 => cmd_code(23 downto 16) <= rxd;
+               when 4 => cmd_code(31 downto 24) <= rxd;
                when others => null;
             end case;
          end if;
@@ -531,12 +545,13 @@ begin
          param_id_o <= (others => '0');
          card_addr_o <= (others => '0');
       elsif (clk_i'EVENT and clk_i = '1') then
-         if(ld_id = '1') then
+         if(word_count = 3) then
             case byte_count is
-               when 0 =>      param_id_o(7 downto 0)  <= rxd;
-               when 1 =>      param_id_o(15 downto 8) <= rxd;
-               when 2 =>      card_addr_o(7 downto 0) <= rxd;
-               when others => card_addr_o(15 downto 8) <= rxd;
+               when 1 => param_id_o(7 downto 0)   <= rxd;
+               when 2 => param_id_o(15 downto 8)  <= rxd;
+               when 3 => card_addr_o(7 downto 0)  <= rxd;
+               when 4 => card_addr_o(15 downto 8) <= rxd;
+               when others => null;
             end case;
          end if;
       end if;
@@ -550,12 +565,13 @@ begin
       if (rst_i = '1') then
          num_data <= (others => '0');
       elsif (clk_i'EVENT and clk_i = '1') then
-         if(ld_nda = '1') then
+         if(word_count = 4) then
             case byte_count is
-               when 0 =>      num_data(7 downto 0)   <= rxd;
-               when 1 =>      num_data(15 downto 8)  <= rxd;
-               when 2 =>      num_data(23 downto 16) <= rxd;
-               when others => num_data(31 downto 24) <= rxd;
+               when 1 => num_data(7 downto 0)   <= rxd;
+               when 2 => num_data(15 downto 8)  <= rxd;
+               when 3 => num_data(23 downto 16) <= rxd;
+               when 4 => num_data(31 downto 24) <= rxd;
+               when others => null;
             end case;
          end if;
       end if;
@@ -565,42 +581,24 @@ begin
    number_data <= conv_integer(num_data);
 
    ----------------------------------------------------------------------------
-   -- checksum in register (holds most recently acquired word)
+   -- memory data in register
    ----------------------------------------------------------------------------
-   dff_ckin: process(clk_i, rst_i)
+   dff_data: process(clk_i, rst_i)
    begin
       if (rst_i = '1') then
-         cksum_in <= (others => '0');
+         data_in <= (others => '0');
       elsif (clk_i'EVENT and clk_i = '1') then
-         if(ld_cksum_in = '1') then
+         if(word_count >= 5 and word_count <= FIBRE_PACKET_SIZE-2) then
             case byte_count is
-               when 0 =>      cksum_in(7 downto 0)   <= rxd;
-               when 1 =>      cksum_in(15 downto 8)  <= rxd;
-               when 2 =>      cksum_in(23 downto 16) <= rxd;
-               when others => cksum_in(31 downto 24) <= rxd;
+               when 1 => data_in(7 downto 0)   <= rxd;
+               when 2 => data_in(15 downto 8)  <= rxd;
+               when 3 => data_in(23 downto 16) <= rxd;
+               when 4 => data_in(31 downto 24) <= rxd;
+               when others => null;
             end case;
          end if;
       end if;
-   end process dff_ckin;
-
-   ----------------------------------------------------------------------------
-   -- checksum received register (holds checksum in fibre packet)
-   ----------------------------------------------------------------------------
-   dff_ckrx: process(clk_i, rst_i)
-   begin
-      if (rst_i = '1') then
-         cksum_rcvd <= (others => '0');
-      elsif (clk_i'EVENT and clk_i = '1') then
-         if(ld_cksum_rcvd = '1') then
-            case byte_count is
-               when 0 =>      cksum_rcvd(7 downto 0)   <= rxd;
-               when 1 =>      cksum_rcvd(15 downto 8)  <= rxd;
-               when 2 =>      cksum_rcvd(23 downto 16) <= rxd;
-               when others => cksum_rcvd(31 downto 24) <= rxd;
-            end case;
-         end if;
-      end if;
-   end process dff_ckrx;
+   end process dff_data;
 
    ----------------------------------------------------------------------------
    -- calculated checksum register (holds chceksum calculated so far)
@@ -636,25 +634,6 @@ begin
       end if;
 
    end process read_write_memory;
-
-   ----------------------------------------------------------------------------
-   -- memory data in register
-   ----------------------------------------------------------------------------
-   dff_data: process(clk_i, rst_i)
-   begin
-      if (rst_i = '1') then
-         data_in <= (others => '0');
-      elsif (clk_i'EVENT and clk_i = '1') then
-         if(ld_data = '1') then
-            case byte_count is
-               when 0 =>      data_in(7 downto 0)   <= rxd;
-               when 1 =>      data_in(15 downto 8)  <= rxd;
-               when 2 =>      data_in(23 downto 16) <= rxd;
-               when others => data_in(31 downto 24) <= rxd;
-            end case;
-         end if;
-      end if;
-   end process dff_data;
 
    ----------------------------------------------------------------------------
    -- memory data out register
