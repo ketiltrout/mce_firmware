@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.34 2006/02/20 23:41:28 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.35 2006/10/19 22:12:32 bburger Exp $>
 --
 -- Project:    SCUBA-2
 -- Author:     Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.35  2006/10/19 22:12:32  bburger
+-- Modified generic interface to one_wire_master to support external pull-ups on its data_in interface
+--
 -- Revision 1.34  2006/02/20 23:41:28  bburger
 -- Bryce:  re-instated component declarations for crc, sync_fifo_rx and sync_fifo_tx for backwards compatibility with previous versions of issue_reply and dispatch
 --
@@ -170,142 +173,94 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
---library sys_param;
---use sys_param.general_pack.all;
---use sys_param.wishbone_pack.all;
-
 package component_pack is
 
-------------------------------------------------------------
---
--- clock domain crossing modules
---
-------------------------------------------------------------  
-
+   ------------------------------------------------------------
+   --
+   -- clock domain crossing modules
+   --
+   ------------------------------------------------------------
    component clock_domain_interface
    generic(DATA_WIDTH : integer := 32);
-   port(rst_i : in std_logic;
+   port(
+      rst_i : in std_logic;
 
-        src_clk_i : in std_logic;
-        src_dat_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
-        src_rdy_i : in std_logic;
-        src_ack_o : out std_logic;
-     
-        dst_clk_i : in std_logic;
-        dst_dat_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
-        dst_rdy_o : out std_logic;
-        dst_ack_i : in std_logic);
+      src_clk_i : in std_logic;
+      src_dat_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      src_rdy_i : in std_logic;
+      src_ack_o : out std_logic;
+
+      dst_clk_i : in std_logic;
+      dst_dat_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
+      dst_rdy_o : out std_logic;
+      dst_ack_i : in std_logic
+   );
    end component;
 
    component fast2slow_clk_domain_crosser
-      generic (
-         NUM_TIMES_FASTER : integer := 2                                               -- divided ratio of fast clock to slow clock
-         );
-   
-      port ( 
-      
-         -- global signals
-         rst_i                     : in      std_logic;                                -- global reset
-         clk_slow                  : in      std_logic;                                -- global slow clock
-         clk_fast                  : in      std_logic;                                -- global fast clock
-         -- input/output 
-         input_fast                : in      std_logic;                                -- fast input
-         output_slow               : out     std_logic                                 -- slow output 
-      
-      );
-   end component;  
+   generic (
+      NUM_TIMES_FASTER : integer := 2                                               -- divided ratio of fast clock to slow clock
+   );
+   port (
+      -- global signals
+      rst_i                     : in      std_logic;                                -- global reset
+      clk_slow                  : in      std_logic;                                -- global slow clock
+      clk_fast                  : in      std_logic;                                -- global fast clock
+      -- input/output
+      input_fast                : in      std_logic;                                -- fast input
+      output_slow               : out     std_logic                                 -- slow output
+   );
+   end component;
 
    component slow2fast_clk_domain_crosser
-      generic (
-         NUM_TIMES_FASTER : integer := 2                                               -- divided ratio of fast clock to slow clock
-         );
-   
-      port (       
-         -- global signals
-         rst_i                     : in      std_logic;                                -- global reset
-         clk_slow                  : in      std_logic;                                -- global slow clock
-         clk_fast                  : in      std_logic;                                -- global fast clock
-         -- input/output 
-         input_slow                : in      std_logic;                                -- slow input
-         output_fast               : out     std_logic                                 -- fast output 
-   
+   generic (
+      NUM_TIMES_FASTER : integer := 2                                               -- divided ratio of fast clock to slow clock
       );
+   port (
+      -- global signals
+      rst_i                     : in      std_logic;                                -- global reset
+      clk_slow                  : in      std_logic;                                -- global slow clock
+      clk_fast                  : in      std_logic;                                -- global fast clock
+      -- input/output
+      input_slow                : in      std_logic;                                -- slow input
+      output_fast               : out     std_logic                                 -- fast output
+   );
    end component;
 
 
-------------------------------------------------------------
---
--- async_fifo 
---
-------------------------------------------------------------  
-   
---   component async_fifo
---      generic(addr_size : Positive);
---      port( 
---         rst_i     : in     std_logic;
---         read_i    : in     std_logic;
---         write_i   : in     std_logic;
---         d_i       : in     std_logic_vector (7 DOWNTO 0);
---         empty_o   : out    std_logic;
---         full_o    : out    std_logic;
---         q_o       : out    std_logic_vector (7 DOWNTO 0)
---      );
---   end component;
-
-
-------------------------------------------------------------
---
--- tristate buffers (_vec is a vector buffer)
---
-------------------------------------------------------------  
-   
---   component tri_state_buf
---      port(data_i  : in std_logic;
---           buf_en_i  : in std_logic;
---           data_o  : out std_logic);
---   end component; 
---   
---   component tri_state_buf_vec
---      generic(WIDTH : integer range 2 to 512 := 2);
---      
---      port(data_i  : in std_logic_vector(WIDTH-1 downto 0);
---           buf_en_i  : in std_logic;
---           data_o  : out std_logic_vector(WIDTH-1 downto 0));
---   end component; 
-   
-   
-------------------------------------------------------------
---
--- microsecond timer
---
-------------------------------------------------------------  
-
+   ------------------------------------------------------------
+   --
+   -- microsecond timer
+   --
+   ------------------------------------------------------------
    component us_timer
-      port(clk           : in std_logic;
-           timer_reset_i : in std_logic;
-           timer_count_o : out integer);
+   port(
+      clk           : in std_logic;
+      timer_reset_i : in std_logic;
+      timer_count_o : out integer
+   );
    end component;
-   
 
-------------------------------------------------------------
---
--- nanosecond timer
---
-------------------------------------------------------------  
 
+   ------------------------------------------------------------
+   --
+   -- nanosecond timer
+   --
+   ------------------------------------------------------------
    component ns_timer
-      port(clk           : in std_logic;
-           timer_reset_i : in std_logic;
-           timer_count_o : out integer  );
+   port(
+      clk           : in std_logic;
+      timer_reset_i : in std_logic;
+      timer_count_o : out integer
+   );
    end component;
 
 
-------------------------------------------------------------
---
--- generic shift register
---
-------------------------------------------------------------  
-
+   ------------------------------------------------------------
+   --
+   -- generic shift register
+   --
+   ------------------------------------------------------------
    component shift_reg
       generic(WIDTH : in integer range 2 to 512 := 8);
 
@@ -322,289 +277,278 @@ package component_pack is
    end component;
 
 
-------------------------------------------------------------
---
--- generic register (no shift)
---
-------------------------------------------------------------  
-
+   ------------------------------------------------------------
+   --
+   -- generic register (no shift)
+   --
+   ------------------------------------------------------------
    component reg
-      generic(WIDTH : in integer range 1 to 512 := 8);
-      
-      port(clk_i  : in std_logic;
-           rst_i  : in std_logic;
-           ena_i  : in std_logic;
-
-           reg_i  : in std_logic_vector(WIDTH-1 downto 0);
-           reg_o  : out std_logic_vector(WIDTH-1 downto 0));
+   generic(WIDTH : in integer range 1 to 512 := 8);
+   port(
+      clk_i  : in std_logic;
+      rst_i  : in std_logic;
+      ena_i  : in std_logic;
+      reg_i  : in std_logic_vector(WIDTH-1 downto 0);
+      reg_o  : out std_logic_vector(WIDTH-1 downto 0)
+   );
    end component;
- 
 
-------------------------------------------------------------
---
--- generic counters
---
------------------------------------------------------------- 
 
+   ------------------------------------------------------------
+   --
+   -- generic counters
+   --
+   ------------------------------------------------------------
    component counter
-   generic(MAX         : integer := 255;
-           STEP_SIZE   : integer := 1;
-           WRAP_AROUND : std_logic := '1';
-           UP_COUNTER  : std_logic := '1');
-   port(clk_i   : in std_logic;
-        rst_i   : in std_logic;
-        ena_i   : in std_logic;
-        load_i  : in std_logic;
-        count_i : in integer range 0 to MAX;
-        count_o : out integer range 0 to MAX);
+   generic(
+      MAX         : integer := 255;
+      STEP_SIZE   : integer := 1;
+      WRAP_AROUND : std_logic := '1';
+      UP_COUNTER  : std_logic := '1'
+   );
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
+      ena_i   : in std_logic;
+      load_i  : in std_logic;
+      count_i : in integer range 0 to MAX;
+      count_o : out integer range 0 to MAX
+   );
    end component;
 
    component binary_counter
    generic(WIDTH : integer range 2 to 64 := 8);
-   port(clk_i   : in std_logic;
-        rst_i   : in std_logic;
-        ena_i   : in std_logic;
-        up_i    : in std_logic;
-        load_i  : in std_logic;
-        clear_i : in std_logic;
-        count_i : in std_logic_vector(WIDTH-1 downto 0);
-        count_o : out std_logic_vector(WIDTH-1 downto 0));
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
+      ena_i   : in std_logic;
+      up_i    : in std_logic;
+      load_i  : in std_logic;
+      clear_i : in std_logic;
+      count_i : in std_logic_vector(WIDTH-1 downto 0);
+      count_o : out std_logic_vector(WIDTH-1 downto 0)
+   );
    end component;
 
    component ring_counter
-   generic(WIDTH : integer range 2 to 64 := 8;
-           MODE  : std_logic := '1');
-   port(clk_i   : in std_logic;
-        rst_i   : in std_logic;
-        ena_i   : in std_logic;
-        up_i    : in std_logic;
-        load_i  : in std_logic;
-        clear_i : in std_logic;
-        count_i : in std_logic_vector(WIDTH-1 downto 0);
-        count_o : out std_logic_vector(WIDTH-1 downto 0));
-   end component;     
-   
+   generic(
+      WIDTH : integer range 2 to 64 := 8;
+      MODE  : std_logic := '1'
+   );
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
+      ena_i   : in std_logic;
+      up_i    : in std_logic;
+      load_i  : in std_logic;
+      clear_i : in std_logic;
+      count_i : in std_logic_vector(WIDTH-1 downto 0);
+      count_o : out std_logic_vector(WIDTH-1 downto 0)
+   );
+   end component;
+
    component grey_counter
    generic(WIDTH : integer range 2 to 64 := 8);
-   port(clk_i   : in std_logic;
-        rst_i   : in std_logic;
-        ena_i   : in std_logic;
-        up_i    : in std_logic;
-        load_i  : in std_logic;
-        clear_i : in std_logic;
-        count_i : in std_logic_vector(WIDTH-1 downto 0);
-        count_o : out std_logic_vector(WIDTH-1 downto 0));
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
+      ena_i   : in std_logic;
+      up_i    : in std_logic;
+      load_i  : in std_logic;
+      clear_i : in std_logic;
+      count_i : in std_logic_vector(WIDTH-1 downto 0);
+      count_o : out std_logic_vector(WIDTH-1 downto 0)
+   );
    end component;
 
 
-------------------------------------------------------------
---
--- generic step counter
---
------------------------------------------------------------- 
- 
-   component counter_xstep 
-      generic(MAX : integer := 255);
-      port(clk_i   : in std_logic;
-           rst_i   : in std_logic;
-           ena_i   : in std_logic;
-           step_i  : in integer;
-           count_o : out integer);
+   ------------------------------------------------------------
+   --
+   -- generic step counter
+   --
+   ------------------------------------------------------------
+   component counter_xstep
+   generic(MAX : integer := 255);
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
+      ena_i   : in std_logic;
+      step_i  : in integer;
+      count_o : out integer
+   );
    end component;
 
-------------------------------------------------------------
---
--- generic CRC generators (uses arbitrary CRC polynomial)
---
------------------------------------------------------------- 
 
+   ------------------------------------------------------------
+   --
+   -- generic CRC generators (uses arbitrary CRC polynomial)
+   --
+   ------------------------------------------------------------
    component crc
-      generic(POLY_WIDTH : integer := 8);
-      port(clk_i  : in std_logic;
-           rst_i  : in std_logic;
-           clr_i  : in std_logic;
-           ena_i  : in std_logic;
-           
-           poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
-           data_i     : in std_logic;
-           num_bits_i : in integer;
-           done_o     : out std_logic;
-           valid_o    : out std_logic;
-           checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
+   generic(POLY_WIDTH : integer := 8);
+   port(
+      clk_i  : in std_logic;
+      rst_i  : in std_logic;
+      clr_i  : in std_logic;
+      ena_i  : in std_logic;
+
+      poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
+      data_i     : in std_logic;
+      num_bits_i : in integer;
+      done_o     : out std_logic;
+      valid_o    : out std_logic;
+      checksum_o : out std_logic_vector(POLY_WIDTH downto 1)
+   );
    end component;
 
    component serial_crc
-      generic(POLY_WIDTH : integer := 8);
-      port(clk_i  : in std_logic;
-           rst_i  : in std_logic;
-           clr_i  : in std_logic;
-           ena_i  : in std_logic;
-           
-           poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
-           data_i     : in std_logic;
-           num_bits_i : in integer;
-           done_o     : out std_logic;
-           valid_o    : out std_logic;
-           checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
+   generic(POLY_WIDTH : integer := 8);
+   port(
+      clk_i  : in std_logic;
+      rst_i  : in std_logic;
+      clr_i  : in std_logic;
+      ena_i  : in std_logic;
+
+      poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
+      data_i     : in std_logic;
+      num_bits_i : in integer;
+      done_o     : out std_logic;
+      valid_o    : out std_logic;
+      checksum_o : out std_logic_vector(POLY_WIDTH downto 1)
+   );
    end component;
 
    component parallel_crc
-      generic(POLY_WIDTH : integer := 8;
-              DATA_WIDTH : integer := 8);
-      port(clk_i  : in std_logic;
-           rst_i  : in std_logic;
-           clr_i  : in std_logic;
-           ena_i  : in std_logic;
-           
-           poly_i      : in std_logic_vector(POLY_WIDTH downto 1);
-           data_i      : in std_logic_vector(DATA_WIDTH downto 1);
-           num_words_i : in integer;
-           done_o      : out std_logic;
-           valid_o     : out std_logic;
-           checksum_o  : out std_logic_vector(POLY_WIDTH downto 1));
+   generic(
+      POLY_WIDTH : integer := 8;
+      DATA_WIDTH : integer := 8
+   );
+   port(
+      clk_i  : in std_logic;
+      rst_i  : in std_logic;
+      clr_i  : in std_logic;
+      ena_i  : in std_logic;
+
+      poly_i      : in std_logic_vector(POLY_WIDTH downto 1);
+      data_i      : in std_logic_vector(DATA_WIDTH downto 1);
+      num_words_i : in integer;
+      done_o      : out std_logic;
+      valid_o     : out std_logic;
+      checksum_o  : out std_logic_vector(POLY_WIDTH downto 1)
+   );
    end component;
 
 
-------------------------------------------------------------
---
--- generic FIFO with showahead
---
-------------------------------------------------------------  
-
+   ------------------------------------------------------------
+   --
+   -- generic FIFO with showahead
+   --
+   ------------------------------------------------------------
    component fifo
-   generic(DATA_WIDTH : integer := 32;
-           ADDR_WIDTH : integer := 8);
-   port(clk_i     : in std_logic;
-        rst_i     : in std_logic;
+   generic(
+      DATA_WIDTH : integer := 32;
+      ADDR_WIDTH : integer := 8
+   );
+   port(
+      clk_i     : in std_logic;
+      rst_i     : in std_logic;
 
-        data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
-        data_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
+      data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      data_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
 
-        read_i  : in std_logic;
-        write_i : in std_logic;
-        clear_i : in std_logic;
-        
-        empty_o : out std_logic;
-        full_o  : out std_logic;
-        error_o : out std_logic;
-        used_o  : out integer);
+      read_i  : in std_logic;
+      write_i : in std_logic;
+      clear_i : in std_logic;
+
+      empty_o : out std_logic;
+      full_o  : out std_logic;
+      error_o : out std_logic;
+      used_o  : out integer
+   );
    end component;
 
-   
-------------------------------------------------------------
---
--- 1-wire protocol components
---
------------------------------------------------------------- 
+
+   ------------------------------------------------------------
+   --
+   -- 1-wire protocol components
+   --
+   ------------------------------------------------------------
 
    component one_wire_master
    generic(tristate : string := "INTERNAL");  -- valid values are "INTERNAL" and "EXTERNAL".
-   port(clk_i         : in std_logic;
-        rst_i         : in std_logic;
-     
-        -- host-side signals
-        master_data_i : in std_logic_vector(7 downto 0);
-        master_data_o : out std_logic_vector(7 downto 0);
+   port(
+      clk_i         : in std_logic;
+      rst_i         : in std_logic;
 
-        init_i        : in std_logic;      -- initialization
-        read_i        : in std_logic;      -- read a byte
-        write_i       : in std_logic;      -- write a byte
+      -- host-side signals
+      master_data_i : in std_logic_vector(7 downto 0);
+      master_data_o : out std_logic_vector(7 downto 0);
 
-        done_o        : out std_logic;     -- operation completed
-        ready_o       : out std_logic;     -- slave is ready
-        ndetect_o     : out std_logic;     -- slave is detected
+      init_i        : in std_logic;      -- initialization
+      read_i        : in std_logic;      -- read a byte
+      write_i       : in std_logic;      -- write a byte
 
-        -- slave-side signals
-        slave_data_io : inout std_logic;   -- when using internal tristate, only connect slave_data_io, leave others open.
-        slave_data_o  : out std_logic;     -- when using external tristate, use slave_data_io as data input.
-        slave_wren_o  : out std_logic);
+      done_o        : out std_logic;     -- operation completed
+      ready_o       : out std_logic;     -- slave is ready
+      ndetect_o     : out std_logic;     -- slave is detected
+
+      -- slave-side signals
+      slave_data_io : inout std_logic;   -- when using internal tristate, only connect slave_data_io, leave others open.
+      slave_data_o  : out std_logic;     -- when using external tristate, use slave_data_io as data input.
+      slave_wren_o  : out std_logic
+   );
    end component;
 
-   
-------------------------------------------------------------
---
--- SMBus protocol components
---
------------------------------------------------------------- 
 
+   ------------------------------------------------------------
+   --
+   -- SMBus protocol components
+   --
+   ------------------------------------------------------------
    component smb_master
-   port(clk_i         : in std_logic;
-        rst_i         : in std_logic;
+   port(
+      clk_i         : in std_logic;
+      rst_i         : in std_logic;
 
-        -- host-side signals
-        master_data_i : in std_logic_vector(7 downto 0);
-        master_data_o : out std_logic_vector(7 downto 0);
+      -- host-side signals
+      master_data_i : in std_logic_vector(7 downto 0);
+      master_data_o : out std_logic_vector(7 downto 0);
 
-        start_i       : in std_logic;         -- request a start condition
-        stop_i        : in std_logic;         -- request a stop condition
-        write_i       : in std_logic;         -- write a byte
-        read_i        : in std_logic;         -- read a byte
+      start_i       : in std_logic;         -- request a start condition
+      stop_i        : in std_logic;         -- request a stop condition
+      write_i       : in std_logic;         -- write a byte
+      read_i        : in std_logic;         -- read a byte
 
-        done_o        : out std_logic;        -- operation completed
-        error_o       : out std_logic;        -- slave returned an error
+      done_o        : out std_logic;        -- operation completed
+      error_o       : out std_logic;        -- slave returned an error
 
-        -- slave-side signals
-        slave_clk_o   : out std_logic;        -- SMBus clock
-        slave_data_io : inout std_logic);     -- SMBus data
+      -- slave-side signals
+      slave_clk_o   : out std_logic;        -- SMBus clock
+      slave_data_io : inout std_logic       -- SMBus data
+   );
    end component;
-   
-   
-------------------------------------------------------------
---
--- Wishbone protocol components
---
------------------------------------------------------------- 
---   
---   component slave_ctrl
---      generic(SLAVE_SEL      : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0) := (others => '0');
---              ADDR_WIDTH     : integer := WB_ADDR_WIDTH;
---              DATA_WIDTH     : integer := WB_DATA_WIDTH;
---              TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH);
---      
---      port(slave_wr_ready           : in std_logic;
---           master_wr_data_valid     : out std_logic;
---           slave_rd_data_valid      : in std_logic;
---           slave_retry              : in std_logic;
---           slave_ctrl_dat_i         : in std_logic_vector (DATA_WIDTH-1 downto 0);
---           slave_ctrl_dat_o         : out std_logic_vector (DATA_WIDTH-1 downto 0);
---           slave_ctrl_tga_o         : out std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
---      
---           -- wishbone signals
---           clk_i  : in std_logic;
---           rst_i  : in std_logic;    
---           dat_i   : in std_logic_vector (DATA_WIDTH-1 downto 0);
---           addr_i : in std_logic_vector (ADDR_WIDTH-1 downto 0);
---           tga_i  : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
---           we_i   : in std_logic;
---           stb_i  : in std_logic;
---           cyc_i  : in std_logic;
---           dat_o  : out std_logic_vector (DATA_WIDTH-1 downto 0);
---           rty_o  : out std_logic;
---           ack_o  : out std_logic);
---   end component;
-   
-     
-------------------------------------------------------------
---
--- Serial Peripheral Interface (SPI) blocks
---
-------------------------------------------------------------    
 
+
+   ------------------------------------------------------------
+   --
+   -- Serial Peripheral Interface (SPI) blocks
+   --
+   ------------------------------------------------------------
    component read_spi
    generic(DATA_LENGTH : integer := 32);
-   
+
    port(--inputs
       spi_clk_i        : in std_logic;
       rst_i            : in std_logic;
       start_i          : in std_logic;
       serial_rd_data_i : in std_logic;
-       
+
       --outputs
       spi_clk_o        : out std_logic;
       done_o           : out std_logic;
       parallel_data_o  : out std_logic_vector(DATA_LENGTH-1 downto 0)
       );
-     
+
    end component;
 
 
@@ -616,12 +560,12 @@ package component_pack is
       rst_i            : in std_logic;
       start_i          : in std_logic;
       parallel_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
-     
+
       --outputs
       spi_clk_o        : out std_logic;
       done_o           : out std_logic;
       serial_wr_data_o : out std_logic);
-     
+
    end component;
 
    component write_spi_with_cs
@@ -632,123 +576,123 @@ package component_pack is
       rst_i            : in std_logic;
       start_i          : in std_logic;
       parallel_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
-     
+
       --outputs
       spi_clk_o        : out std_logic;
       done_o           : out std_logic;
       spi_ncs_o            : out std_logic;
       serial_wr_data_o : out std_logic);
-     
+
    end component;
 
-------------------------------------------------------------
---
--- Pusedo random number generator
---
------------------------------------------------------------- 
---
---component prand
---   generic (
---      size : integer := 8     -- how many output bits do we want
---                              -- (8, 16, 24 or 32)
---   );
---   port (
---      clr_i : in std_logic;   -- asynchoronous clear input
---      clk_i : in std_logic;   -- calculation clock
---      en_i : in std_logic;    -- calculation enable line
---      out_o : out std_logic_vector (size - 1 downto 0)   -- random output
---   );
---end component;
 
-------------------------------------------------------------
---
--- RS232 data transmit controller
---
------------------------------------------------------------- 
+   ------------------------------------------------------------
+   --
+   -- Pusedo random number generator
+   --
+   ------------------------------------------------------------
+   --
+   --component prand
+   --   generic (
+   --      size : integer := 8     -- how many output bits do we want
+   --                              -- (8, 16, 24 or 32)
+   --   );
+   --   port (
+   --      clr_i : in std_logic;   -- asynchoronous clear input
+   --      clk_i : in std_logic;   -- calculation clock
+   --      en_i : in std_logic;    -- calculation enable line
+   --      out_o : out std_logic_vector (size - 1 downto 0)   -- random output
+   --   );
+   --end component;
 
---component rs232_data_tx
---generic(WIDTH : in integer range 1 to 1024 := 8);
---port(clk_i   : in std_logic;
---     rst_i   : in std_logic;
---     data_i  : in std_logic_vector(WIDTH-1 downto 0);
---     start_i : in std_logic;
---     done_o  : out std_logic;
---
---     tx_busy_i : in std_logic;
---     tx_ack_i  : in std_logic;
---     tx_data_o : out std_logic_vector(7 downto 0);
---     tx_we_o   : out std_logic;
---     tx_stb_o  : out std_logic);
---end component;
+   ------------------------------------------------------------
+   --
+   -- RS232 data transmit controller
+   --
+   ------------------------------------------------------------
 
-------------------------------------------------------------
---
--- Hex to ASCII decoder
---
-------------------------------------------------------------
+   --component rs232_data_tx
+   --generic(WIDTH : in integer range 1 to 1024 := 8);
+   --port(clk_i   : in std_logic;
+   --     rst_i   : in std_logic;
+   --     data_i  : in std_logic_vector(WIDTH-1 downto 0);
+   --     start_i : in std_logic;
+   --     done_o  : out std_logic;
+   --
+   --     tx_busy_i : in std_logic;
+   --     tx_ack_i  : in std_logic;
+   --     tx_data_o : out std_logic_vector(7 downto 0);
+   --     tx_we_o   : out std_logic;
+   --     tx_stb_o  : out std_logic);
+   --end component;
 
-component hex2ascii
-port(hex_i   : in std_logic_vector(3 downto 0);
-     ascii_o : out std_logic_vector(7 downto 0));
-end component;
+   ------------------------------------------------------------
+   --
+   -- Hex to ASCII decoder
+   --
+   ------------------------------------------------------------
+   component hex2ascii
+   port(
+      hex_i   : in std_logic_vector(3 downto 0);
+      ascii_o : out std_logic_vector(7 downto 0)
+   );
+   end component;
 
-------------------------------------------------------------
---
--- Generic LFSR
---
-------------------------------------------------------------
+   ------------------------------------------------------------
+   --
+   -- Generic LFSR
+   --
+   ------------------------------------------------------------
+   component lfsr
+   generic(WIDTH : in integer range 3 to 168 := 8);
+   port(
+      clk_i  : in std_logic;
+      rst_i  : in std_logic;
+      ena_i  : in std_logic;
+      load_i : in std_logic;
+      clr_i  : in std_logic;
+      lfsr_i : in std_logic_vector(WIDTH-1 downto 0);
+      lfsr_o : out std_logic_vector(WIDTH-1 downto 0)
+   );
+   end component;
 
-component lfsr
-generic(WIDTH : in integer range 3 to 168 := 8);
-port(clk_i  : in std_logic;
-     rst_i  : in std_logic;
-     ena_i  : in std_logic;
-     load_i : in std_logic;
-     clr_i  : in std_logic;
-     lfsr_i : in std_logic_vector(WIDTH-1 downto 0);
-     lfsr_o : out std_logic_vector(WIDTH-1 downto 0));
-end component;
+   ------------------------------------------------------------
+   --
+   -- Synchronous FIFO for fibre_rx
+   --
+   ------------------------------------------------------------
+   component sync_fifo_rx
+   port(
+      data    : in std_logic_vector (7 downto 0);
+      wrreq      : in std_logic ;
+      rdreq      : in std_logic ;
+      rdclk      : in std_logic ;
+      wrclk      : in std_logic ;
+      aclr    : in std_logic ;
+      q    : out std_logic_vector (7 downto 0);
+      rdempty    : out std_logic ;
+      wrfull     : out std_logic
+   );
+   end component;
 
-
-------------------------------------------------------------
---
--- Synchronous FIFO for fibre_rx
---
-------------------------------------------------------------
-component sync_fifo_rx
-port(data    : in std_logic_vector (7 downto 0);      -- input data
-     wrreq      : in std_logic ;                         -- write request
-     rdreq      : in std_logic ;                         -- read request
-     rdclk      : in std_logic ;                         -- read clock
-     wrclk      : in std_logic ;                         -- write clock
-     aclr    : in std_logic ;                         -- asynchrouous clear
-     q    : out std_logic_vector (7 downto 0);     -- output data 
-     rdempty    : out std_logic ;                        -- empty flag (read)
-     wrfull     : out std_logic                          -- write flad (full)
-);
-end component;
-
-
-
-------------------------------------------------------------
---
--- Synchronous FIFO for fibre_tx
---
--- rdreq acts are read acknowledge
-------------------------------------------------------------
-component sync_fifo_tx
-port(data    : in std_logic_vector (7 downto 0);      -- input data
-     wrreq      : in std_logic ;                         -- write request
-     rdreq      : in std_logic ;                         -- read request (acknowledge)
-     rdclk      : in std_logic ;                         -- read clock
-     wrclk      : in std_logic ;                         -- write clock
-     aclr    : in std_logic ;                         -- asynchrouous clear
-     q         : out std_logic_vector (7 downto 0);     -- output data 
-     rdempty : out std_logic ;                        -- empty flag (read)
-     wrfull     : out std_logic                          -- write flad (full)
-);
-end component;
-
-
+   ------------------------------------------------------------
+   --
+   -- Synchronous Look-Ahead FIFO for fibre_tx
+   --
+   -- rdreq acts are read acknowledge
+   ------------------------------------------------------------
+   component sync_fifo_tx
+   port(
+      aclr     : IN STD_LOGIC  := '0';
+      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+      rdclk    : IN STD_LOGIC ;
+      rdreq    : IN STD_LOGIC ;
+      wrclk    : IN STD_LOGIC ;
+      wrreq    : IN STD_LOGIC ;
+      q        : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+      rdempty  : OUT STD_LOGIC ;
+      wrfull   : OUT STD_LOGIC
+   );
+   end component;
 
 end component_pack;
