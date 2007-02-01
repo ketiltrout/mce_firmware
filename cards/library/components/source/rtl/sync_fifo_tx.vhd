@@ -98,7 +98,7 @@ BEGIN
 		clocks_are_synchronized => "FALSE",
 		intended_device_family => "Stratix",
 		lpm_numwords => 64,
-		lpm_showahead => "ON",
+		lpm_showahead => "OFF",
 		lpm_type => "dcfifo",
 		lpm_width => 32,
 		lpm_widthu => 6,
@@ -136,7 +136,7 @@ END SYN;
 -- Retrieval info: PRIVATE: Full NUMERIC "1"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: PRIVATE: LE_BasedFIFO NUMERIC "0"
--- Retrieval info: PRIVATE: LegacyRREQ NUMERIC "0"
+-- Retrieval info: PRIVATE: LegacyRREQ NUMERIC "1"
 -- Retrieval info: PRIVATE: MAX_DEPTH_BY_9 NUMERIC "0"
 -- Retrieval info: PRIVATE: OVERFLOW_CHECKING NUMERIC "1"
 -- Retrieval info: PRIVATE: Optimize NUMERIC "2"
@@ -157,7 +157,7 @@ END SYN;
 -- Retrieval info: CONSTANT: CLOCKS_ARE_SYNCHRONIZED STRING "FALSE"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: CONSTANT: LPM_NUMWORDS NUMERIC "64"
--- Retrieval info: CONSTANT: LPM_SHOWAHEAD STRING "ON"
+-- Retrieval info: CONSTANT: LPM_SHOWAHEAD STRING "OFF"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "dcfifo"
 -- Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "32"
 -- Retrieval info: CONSTANT: LPM_WIDTHU NUMERIC "6"
