@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.5 2007/01/26 06:21:52 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.6 2007/01/31 01:44:39 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson/ Bryce Burger
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2007/01/26 06:21:52 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/01/31 01:44:39 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5.2.6  2007/01/31 01:44:39  bburger
+-- Bryce:  replaced counters, and updated all supporting circuitry
+--
 -- Revision 1.5.2.5  2007/01/26 06:21:52  bburger
 -- Bryce: added custom counters to fibre_rx to make it more responsive.
 --
@@ -288,11 +291,11 @@ begin
 
             if(timeout = '1') then
                next_state <= RX_ERROR;
-            elsif(word_count = 0 and rxd /= FIBRE_PREAMBLE1(7 downto 0)) then
+            elsif(word_count = 0 and rxd /= FIBRE_PREAMBLE1(7 downto 0) and byte_count >= 1 and byte_count <= 4) then
                -- Check each byte of the first two words in succession
                -- If any of the bytes don't match the expected preamble then discard them and go back to the IDLE state
                next_state <= IDLE;
-            elsif(word_count = 1 and rxd /= FIBRE_PREAMBLE2(7 downto 0)) then
+            elsif(word_count = 1 and rxd /= FIBRE_PREAMBLE2(7 downto 0) and byte_count >= 1 and byte_count <= 4) then
                -- Check each byte of the first two words in succession
                -- If any of the bytes don't match the expected preamble then discard them and go back to the IDLE state
                next_state <= IDLE;
