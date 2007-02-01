@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.6  2007/02/01 01:53:14  bburger
+-- Bryce:  completely re-wrote fibre_tx in an effort to track down a timing bug in the firmware that produces CRC errors
+--
 -- Revision 1.5  2005/09/22 19:53:08  erniel
 -- modified FSM to transmit data at full speed (no idle between words)
 --
@@ -98,8 +101,8 @@ end fibre_tx;
 
 architecture rtl of fibre_tx is
 
-   type states is (IDLE, SEND_BYTE0, SEND_BYTE1, SEND_BYTE2, SEND_BYTE3,
-      WAIT0, WAIT1, WAIT2, WAIT3, WAIT0B, WAIT1B, WAIT2B, WAIT3B);
+   type states is (IDLE, SEND_BYTE0, SEND_BYTE1, SEND_BYTE2, SEND_BYTE3);
+--      WAIT0, WAIT1, WAIT2, WAIT3, WAIT0B, WAIT1B, WAIT2B, WAIT3B);
    signal pres_state : states;
    signal next_state : states;
 
