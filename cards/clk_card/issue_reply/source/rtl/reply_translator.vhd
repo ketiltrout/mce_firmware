@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.50 2007/01/26 06:20:59 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.51 2007/01/31 01:46:06 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/01/26 06:20:59 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/01/31 01:46:06 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.51  2007/01/31 01:46:06  bburger
+-- Bryce:  added a fifo to fix timing problems causing CRC errors
+--
 -- Revision 1.50  2007/01/26 06:20:59  bburger
 -- Bryce: changed the errno word to 0x00000000 for xxER packets, because all the bits are already used for other things
 --
@@ -102,7 +105,7 @@ port(
    -- input from the cmd_queue
    busy_i            : in std_logic;
 
-   -- signals to / from fibre_tx
+   -- signals to/ from fibre_tx (interface to a FIFO)
    fibre_tx_rdy_o    : out std_logic;                                               -- transmit fifo full
    fibre_tx_busy_i   : in std_logic;                                                -- transmit fifo write request
    fibre_tx_dat_o    : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)          -- transmit fifo data input
@@ -130,19 +133,19 @@ architecture rtl of reply_translator is
    -- handles the writting off all packets (replies and data) to the
    -- fibre transmit FIFO (fibre_tx_fifo)
 
-   type fibre_state is
-      (FIBRE_IDLE, CMD_ERROR_REPLY, QUICK_REPLY, STANDARD_REPLY, DATA_PACKET, LD_PREAMBLE1,  LD_PREAMBLE2,
+   type translator_state is
+      (TRANSLATOR_IDLE, CMD_ERROR_REPLY, QUICK_REPLY, STANDARD_REPLY, DATA_PACKET, LD_PREAMBLE1,  LD_PREAMBLE2,
        LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, WAIT_Q_WORD2,
        WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, SKIP_COMMAND, SKIP_REPLY);
 
-   signal fibre_current_state : fibre_state;
-   signal fibre_next_state    : fibre_state;
+   signal translator_current_state : translator_state;
+   signal translator_next_state    : translator_state;
 
    signal packet_size       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- this value is written to the packet header word 4
    signal packet_type       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- indicates reply or data packet - written to header word 3
    signal checksum_clr      : std_logic;                                      -- signal asserted to reset packet checksum
    signal checksum_ld       : std_logic;                                      -- signal assertd to update packet checksum with checksum_in value
-   signal fibre_tx_dat      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- transmit fifo data input
+   signal fibre_tx_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
    signal rb_packet_size    : integer;
    signal data_packet_size  : integer;
@@ -168,12 +171,6 @@ architecture rtl of reply_translator is
 
    signal c_or_r            : std_logic;
 
-   -- tx_fifo signals
-   signal fibre_word_rdy    : std_logic;
-   signal fifo_wr_full      : std_logic;
-   signal fifo_rd_empty     : std_logic;
-
-
 begin
 
    ----------------------------------------------------------------------------
@@ -187,39 +184,6 @@ begin
    frame_status(31 downto 2) <= (others => '0');
    frame_status(1)           <= cmd_stop_i;
    frame_status(0)           <= last_frame_i;
-
-   ----------------------------------------------------------------------------
-   -- Look ahead fifo for seperating the timing characteristics of the fibre from the rest of the issue_reply chain
-   -- The fibre requires one clock cycle of setup time on fibre_tx_dat_o before fibre_tx_rdy_o is asserted
-   ----------------------------------------------------------------------------
---   -- signals to / from fibre_tx
---   fibre_tx_rdy_o    : out std_logic;                                               -- transmit fifo full
---   fibre_tx_busy_i   : in std_logic;                                                -- transmit fifo write request
---   fibre_tx_dat_o    : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)          -- transmit fifo data input
-
--- Write an fsm that interfaces between the fifo and the signals above, asserting data one cycle ahead of the fibre_tx_rdy signal.
-
-   tx_fifo: sync_fifo_tx
-   port map(
-      aclr    => rst_i,
-      data    => fibre_tx_dat,
-      rdclk   => clk_i,
-      rdreq   => '0',
-      wrclk   => clk_i,
-      wrreq   => fibre_word_rdy,
-      q       => fibre_tx_dat_o,
-      rdempty => open,
-      wrfull  => fifo_wr_full
---      aclr     : IN STD_LOGIC  := '0';
---      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
---      rdclk    : IN STD_LOGIC ;
---      rdreq    : IN STD_LOGIC ;
---      wrclk    : IN STD_LOGIC ;
---      wrreq    : IN STD_LOGIC ;
---      q        : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
---      rdempty  : OUT STD_LOGIC ;
---      wrfull   : OUT STD_LOGIC
-   );
 
    ----------------------------------------------------------------------------
    -- register inputs from cmd_translator
@@ -312,7 +276,8 @@ begin
    ----------------------------------------------------------------------------
    -- Data Pipeline MUX
    ----------------------------------------------------------------------------
-   with fibre_current_state select
+   fibre_tx_dat_o <= fibre_tx_dat;
+   with translator_current_state select
       fibre_tx_dat <=
          FIBRE_PREAMBLE1 when LD_PREAMBLE1,
          FIBRE_PREAMBLE2 when LD_PREAMBLE2,
@@ -329,24 +294,25 @@ begin
    -- FIBRE FSM - writes fibre packets to transmit FIFO
    -- and writes header info to RAM (local command)
    ----------------------------------------------------------------------------
-   fibre_fsm_clocked : process(clk_i, rst_i)
+   fsm_state_forwarder : process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         fibre_current_state <= FIBRE_IDLE;
+         translator_current_state <= TRANSLATOR_IDLE;
+--         fibre_current_state <= FIBRE_IDLE;
       elsif(clk_i'EVENT AND clk_i = '1') then
-         fibre_current_state <= fibre_next_state;
+         translator_current_state <= translator_next_state;
+--         fibre_current_state <= fibre_next_state;
       end if;
-   end process fibre_fsm_clocked;
+   end process fsm_state_forwarder;
 
-
-   fibre_fsm_nextstate : process (fibre_current_state, c_cmd_rdy, c_cmd_err, busy_i,
-      r_cmd_code, c_cmd_code, fifo_wr_full, fibre_word_rdy_i, r_cmd_rdy, cmd_stop_i)
+   translator_fsm_nextstate : process (translator_current_state, c_cmd_rdy, c_cmd_err, busy_i,
+      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy, cmd_stop_i)
    begin
       -- Default Assignments
-      fibre_next_state <= fibre_current_state;
+      translator_next_state <= translator_current_state;
 
-      case fibre_current_state is
-      when FIBRE_IDLE =>
+      case translator_current_state is
+      when TRANSLATOR_IDLE =>
          -- The problem here is that the stop command changes the command code
          -- and now the reply_translator doesn't know what its getting from the reply_queue so it doesn't ack anymore
          -- The reply_translator needs to ignore new command codes during data taking.  The best way to do this is probably to register command code,
@@ -356,49 +322,49 @@ begin
 
          if(c_cmd_err = '1') then
            -- Error in received command packet
-            fibre_next_state <= CMD_ERROR_REPLY;
+            translator_next_state <= CMD_ERROR_REPLY;
          -- Commands received by fibre_rx will always be service first because they may require immediate response
          elsif(c_cmd_rdy = '1' and (c_cmd_code = GO or c_cmd_code = RESET)) then
             -- Quick response required for GO and RS commands
-            fibre_next_state <= QUICK_REPLY;
+            translator_next_state <= QUICK_REPLY;
          elsif(c_cmd_rdy = '1' and c_cmd_code = STOP and busy_i = '0' and cmd_stop_i = '1') then
             -- Delayed response required for STOP commands, after last data frame
             -- Wait until the cmd_queue busy signal is deasserted after a data packet that has the stop bit set.
-            fibre_next_state <= QUICK_REPLY;
+            translator_next_state <= QUICK_REPLY;
          elsif(c_cmd_rdy = '1' and (c_cmd_code = WRITE_BLOCK or c_cmd_code = READ_BLOCK)) then
             -- Acknowledge all other commands (WB, RB) and stay in this state because no quick response is required.
-            fibre_next_state <= SKIP_COMMAND;
+            translator_next_state <= SKIP_COMMAND;
          -- Then replies from the reply_queue are serviced.
          elsif(r_cmd_rdy = '1' and (r_cmd_code = WRITE_BLOCK or r_cmd_code = READ_BLOCK)) then
             -- No housekeeping header required
             -- Note that it doesn't matter what the Errno word is, we return xxOK.
-            fibre_next_state <= STANDARD_REPLY;
+            translator_next_state <= STANDARD_REPLY;
          elsif(r_cmd_rdy = '1' and r_cmd_code = DATA) then
             -- Housekeeping header required
             -- Note that it doesn't matter what the Errno word is, we return xxOK.
-            fibre_next_state <= DATA_PACKET;
+            translator_next_state <= DATA_PACKET;
          elsif(r_cmd_rdy = '1') then
             -- Clear other possible commands (like STOP, RS) and stay in this state
             -- STOP and RS commands should never make to the reply_translator through this route, but just to be safe.
-            fibre_next_state <= SKIP_REPLY;
+            translator_next_state <= SKIP_REPLY;
          end if;
 
       when SKIP_COMMAND =>
-         fibre_next_state <= FIBRE_IDLE;
+         translator_next_state <= TRANSLATOR_IDLE;
 
       when SKIP_REPLY =>
-         fibre_next_state <= FIBRE_IDLE;
+         translator_next_state <= TRANSLATOR_IDLE;
 
       when CMD_ERROR_REPLY | QUICK_REPLY | STANDARD_REPLY | DATA_PACKET =>
-         fibre_next_state <= LD_PREAMBLE1;
+         translator_next_state <= LD_PREAMBLE1;
 
       ----------------------------------------
       -- Preamble 1
       -- 0xA5A5A5A5
       ----------------------------------------
       when LD_PREAMBLE1 =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= LD_PREAMBLE2;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_PREAMBLE2;
          end if;
 
       ----------------------------------------
@@ -406,8 +372,8 @@ begin
       -- 0x5A5A5A5A
       ----------------------------------------
       when LD_PREAMBLE2 =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= LD_xxRP;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_xxRP;
          end if;
 
       ----------------------------------------
@@ -416,16 +382,16 @@ begin
       -- "  DA" = 0x20204441
       ----------------------------------------
       when LD_xxRP =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= LD_PACKET_SIZE;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_PACKET_SIZE;
          end if;
 
       ----------------------------------------
       -- Packet Size
       ----------------------------------------
       when LD_PACKET_SIZE =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= LD_OKorER;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_OKorER;
          end if;
 
       ----------------------------------------
@@ -442,65 +408,65 @@ begin
       -- Frame Status Block
       ----------------------------------------
       when LD_OKorER =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= LD_CARD_PARAM;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_CARD_PARAM;
          end if;
 
       ----------------------------------------
       -- Card Address & Parameter ID
       ----------------------------------------
       when LD_CARD_PARAM =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= LD_STATUS;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_STATUS;
          end if;
 
       ----------------------------------------
       -- Status word
       ----------------------------------------
       when LD_STATUS =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= WAIT_Q_WORD1;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= WAIT_Q_WORD1;
          end if;
 
       ----------------------------------------
       --
       ----------------------------------------
       when WAIT_Q_WORD1 =>
-         fibre_next_state <= WAIT_Q_WORD4;
+         translator_next_state <= WAIT_Q_WORD4;
 
       when WAIT_Q_WORD4 =>
-         -- and fifo_wr_full = '0' Don't check for busy here, because its done in all other states.
+         -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
          if (fibre_word_rdy_i  = '1') then
-            fibre_next_state <= LD_DATA;
+            translator_next_state <= LD_DATA;
          else
-            fibre_next_state <= LD_CKSUM;
+            translator_next_state <= LD_CKSUM;
          end if;
 
       ----------------------------------------
       -- Data words
       ----------------------------------------
       when LD_DATA =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= WAIT_Q_WORD1;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= WAIT_Q_WORD1;
          end if;
 
       ----------------------------------------
       -- Checksum word
       ----------------------------------------
       when LD_CKSUM =>
-         if(fifo_wr_full = '0') then
-            fibre_next_state <= DONE;
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= DONE;
          end if;
 
       when DONE =>
-         fibre_next_state <= FIBRE_IDLE;
+         translator_next_state <= TRANSLATOR_IDLE;
 
       when OTHERS =>
-        fibre_next_state <= FIBRE_IDLE;
+        translator_next_state <= TRANSLATOR_IDLE;
 
       end case;
 
-   end process fibre_fsm_nextstate;
+   end process translator_fsm_nextstate;
 
    ----------------------------------------------------------------------------
    -- process to register the correct packet information
@@ -515,7 +481,7 @@ begin
          ok_or_er       <= (others => '0');
 
       elsif(clk_i'event and clk_i = '1') then
-         if(fibre_current_state = CMD_ERROR_REPLY) then
+         if(translator_current_state = CMD_ERROR_REPLY) then
             packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             packet_type    <= REPLY;
             -- Card address and param id cannot be assumed to be valid.
@@ -527,14 +493,14 @@ begin
             -- All the bits are spoken for (see the document called "Monitoring MCE Status")
             ok_or_er       <= (others => '0');
 
-         elsif(fibre_current_state = QUICK_REPLY) then
+         elsif(translator_current_state = QUICK_REPLY) then
             packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             packet_type    <= REPLY;
             crd_add_par_id <= c_card_addr & c_param_id;
             status         <= c_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             ok_or_er       <= (others => '0');
 
-         elsif(fibre_current_state = STANDARD_REPLY) then
+         elsif(translator_current_state = STANDARD_REPLY) then
             if (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
                packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);
             else
@@ -546,7 +512,7 @@ begin
             status         <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             ok_or_er       <= mop_error_code_i;
 
-         elsif(fibre_current_state = DATA_PACKET) then
+         elsif(translator_current_state = DATA_PACKET) then
             packet_size    <= conv_std_logic_vector(data_packet_size,PACKET_WORD_WIDTH);
             packet_type    <= DATA;
             crd_add_par_id <= frame_seq_num_i;
@@ -563,9 +529,9 @@ begin
       end if;
    end process register_packet;
 
-   reply_fsm_output : process (fibre_current_state, mop_error_code_i, fifo_wr_full, c_or_r, r_cmd_code)
+   translator_fsm_output : process (translator_current_state, mop_error_code_i, fibre_tx_busy_i, c_or_r, r_cmd_code)
    begin
-      fibre_word_rdy   <= '0';
+      fibre_tx_rdy_o   <= '0';
       fibre_word_ack_o <= '0';
       checksum_ld      <= '0';
       checksum_clr     <= '0';
@@ -574,10 +540,10 @@ begin
       r_cmd_ack        <= '0'; -- For commands from cmd_translator
       c_or_r           <= c_or_r;
 
-      case fibre_current_state is
+      case translator_current_state is
 
       -- Idle state - no packets to process
-      when FIBRE_IDLE =>
+      when TRANSLATOR_IDLE =>
          checksum_clr   <= '1';
          c_or_r         <= SERVICING_COMMAND;
 
@@ -614,8 +580,8 @@ begin
       -- 0xA5A5A5A5
       ----------------------------------------
       when LD_PREAMBLE1 =>
-         if(fifo_wr_full = '0') then
-            fibre_word_rdy <= '1';
+         if(fibre_tx_busy_i = '0') then
+            fibre_tx_rdy_o <= '1';
          end if;
 
       ----------------------------------------
@@ -623,8 +589,8 @@ begin
       -- 0x5A5A5A5A
       ----------------------------------------
       when LD_PREAMBLE2 =>
-         if(fifo_wr_full = '0') then
-            fibre_word_rdy <= '1';
+         if(fibre_tx_busy_i = '0') then
+            fibre_tx_rdy_o <= '1';
          end if;
 
       ----------------------------------------
@@ -633,16 +599,16 @@ begin
       -- "  DA" = 0x20204441
       ----------------------------------------
       when LD_xxRP =>
-         if(fifo_wr_full = '0') then
-            fibre_word_rdy <= '1';
+         if(fibre_tx_busy_i = '0') then
+            fibre_tx_rdy_o <= '1';
          end if;
 
       ----------------------------------------
       -- Packet Size
       ----------------------------------------
       when LD_PACKET_SIZE =>
-         if(fifo_wr_full = '0') then
-            fibre_word_rdy <= '1';
+         if(fibre_tx_busy_i = '0') then
+            fibre_tx_rdy_o <= '1';
          end if;
 
       ----------------------------------------
@@ -659,33 +625,33 @@ begin
       -- Frame Status Block
       ----------------------------------------
       when LD_OKorER =>
-         if(fifo_wr_full = '0') then
+         if(fibre_tx_busy_i = '0') then
             checksum_ld    <= '1';
-            fibre_word_rdy <= '1';
+            fibre_tx_rdy_o <= '1';
          end if;
 
       ----------------------------------------
       -- Card Address & Parameter ID
       ----------------------------------------
       when LD_CARD_PARAM =>
-         if(fifo_wr_full = '0') then
+         if(fibre_tx_busy_i = '0') then
             checksum_ld    <= '1';
-            fibre_word_rdy <= '1';
+            fibre_tx_rdy_o <= '1';
          end if;
 
       ----------------------------------------
       -- Status word
       ----------------------------------------
       when LD_STATUS =>
-         if(fifo_wr_full = '0') then
+         if(fibre_tx_busy_i = '0') then
             fibre_word_ack_o <= '1';
             checksum_ld      <= '1';
             -- Do not transmit a status word if an RB was successful or if returning DATA
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
             if(c_or_r = SERVICING_REPLY and ((r_cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (r_cmd_code = GO))) then
-               fibre_word_rdy <= '0';
+               fibre_tx_rdy_o <= '0';
             else
-               fibre_word_rdy <= '1';
+               fibre_tx_rdy_o <= '1';
             end if;
          end if;
 
@@ -693,15 +659,15 @@ begin
       -- Data words
       ----------------------------------------
       when LD_DATA =>
-         if(fifo_wr_full = '0') then
+         if(fibre_tx_busy_i = '0') then
             fibre_word_ack_o <= '1';
             checksum_ld      <= '1';
             -- Do not transmit a data word if an RB was unsuccessful
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
             if(c_or_r = SERVICING_REPLY and r_cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
-               fibre_word_rdy <= '0';
+               fibre_tx_rdy_o <= '0';
             else
-               fibre_word_rdy <= '1';
+               fibre_tx_rdy_o <= '1';
             end if;
          end if;
 
@@ -709,8 +675,8 @@ begin
       -- Checksum word
       ----------------------------------------
       when LD_CKSUM =>
-         if(fifo_wr_full = '0') then
-            fibre_word_rdy <= '1';
+         if(fibre_tx_busy_i = '0') then
+            fibre_tx_rdy_o <= '1';
          end if;
 
       when WAIT_Q_WORD1  =>
@@ -724,6 +690,6 @@ begin
 
       end case;
 
-   end process reply_fsm_output;
+   end process translator_fsm_output;
 
 end rtl;
