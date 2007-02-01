@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.42 2007/01/24 01:36:58 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.43 2007/01/31 01:48:46 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.43  2007/01/31 01:48:46  bburger
+-- Bryce: added some more tiest cases
+--
 -- Revision 1.42  2007/01/24 01:36:58  bburger
 -- Bryce:  More test cases
 --
@@ -1977,6 +1980,9 @@ begin
       fibre_rx_nrdy    <= '0';
       wait for fibre_clkr_prd * 0.6;
    end loop;
+
+   fibre_rx_nrdy <= '1';
+   wait for pci_dsp_dly;
 
    for I in 0 to 3 loop
       fibre_rx_nrdy    <= '1';  -- data not ready (active low)
