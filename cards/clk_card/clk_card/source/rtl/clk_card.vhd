@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.65 2006/12/22 21:58:41 bburger Exp $
+-- $Id: clk_card.vhd,v 1.66 2007/01/24 01:24:08 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.66  2007/01/24 01:24:08  bburger
+-- Bryce:  Integrated SRAM controller from branch v03000000
+--
 -- Revision 1.65  2006/12/22 21:58:41  bburger
 -- Bryce:  removed unused port
 --
@@ -687,7 +690,6 @@ architecture top of clk_card is
 
       -- 25MHz clock for fibre_tx_control
       fibre_clkw_i           : in std_logic;                           -- in phase with 25MHz hotlink clock
---      fibre_refclk_o         : out std_logic;
 
       -- lvds_tx interface
       lvds_cmd_o             : out std_logic;                          -- transmitter output pin
@@ -862,6 +864,9 @@ begin
       sreq_o  => sreqo
    );
 
+   -- E0 is 180 degrees out of phase with C3 to ensure that the rising edge of fibre_tx_ena occurs at least 5ns before the rising edge of fibre_tx_clkw.
+   -- That is a spec-sheet requirement.
+   -- This should ensure that there is no metastability.
    clk_switchover_inst: clk_switchover
    port map(
       -- wishbone interface:
@@ -882,7 +887,7 @@ begin
       c1_o                => clk_n,
       c2_o                => comm_clk,
       c3_o                => fibre_clk,
-      e0_o                => fibre_tx_clkw,
+      e0_o                => fibre_tx_clkw,  -- 180 degrees out of phase with fibre_clk
       e1_o                => fibre_rx_refclk,
       e2_o                => lvds_clk
    );
@@ -1160,7 +1165,6 @@ begin
 
       -- 25MHz clock for fibre_tx_control
       fibre_clkw_i      => fibre_clk,
---      fibre_refclk_o    => fibre_rx_refclk,
 
       -- lvds_tx interface
       lvds_cmd_o        => cmd,
