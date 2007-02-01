@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.62 2006/11/03 23:02:43 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.63 2006/12/22 22:04:28 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2006/11/03 23:02:43 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/12/22 22:04:28 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.63  2006/12/22 22:04:28  bburger
+-- Bryce:  renamed a ton of interfaces to more suitable names!
+--
 -- Revision 1.62  2006/11/03 23:02:43  bburger
 -- Bryce:  issue_reply now waits until the after the last data packet to send the reply to a stop command.
 --
@@ -130,7 +133,6 @@ entity issue_reply is
 
       -- 25MHz clock for fibre_tx_control
       fibre_clkw_i           : in std_logic;                           -- in phase with 25MHz hotlink clock
---      fibre_refclk_o         : out std_logic;
 
       -- lvds_tx interface
       lvds_cmd_o             : out std_logic;                          -- transmitter output pin
@@ -189,7 +191,6 @@ architecture rtl of issue_reply is
       dat_clk_o      : out std_logic;
       dat_o          : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
---      fibre_refclk_o : out std_logic;
       fibre_clkr_i   : in std_logic;
       fibre_data_i   : in std_logic_vector (7 downto 0);
       fibre_nrdy_i   : in std_logic;
@@ -434,7 +435,6 @@ architecture rtl of issue_reply is
       busy_o : out std_logic;
 
       fibre_clk_i   : in std_logic;
-      fibre_clkw_o  : out std_logic;
       fibre_data_o  : out std_logic_vector(7 downto 0);
       fibre_sc_nd_o : out std_logic;
       fibre_nena_o  : out std_logic
@@ -543,31 +543,6 @@ begin
       fibre_rvs_i    => rvs_i,
       fibre_rso_i    => rso_i,
       fibre_sc_nd_i  => rsc_nrd_i
-
---      rst_i        => rst_i,
---      clk_i        => clk_i,
---
---      -- inputs from the fibre
---      fibre_clkr_i => fibre_clkr_i,
---      nrx_rdy_i    => nrx_rdy_i,
---      rvs_i        => rvs_i,
---      rso_i        => rso_i,
---      rsc_nrd_i    => rsc_nrd_i,
---      rx_data_i    => rx_data_i,
---
---      -- input from cmd_translator
---      cmd_ack_i    => cmd_ack,
---
---      -- outputs to cmd_translator
---      cmd_code_o   => c_cmd_code,
---      card_addr_o  => c_card_addr,
---      param_id_o   => c_param_id,
---      num_data_o   => num_data,
---      cmd_data_o   => cmd_data,
---      cmd_rdy_o    => cmd_rdy,
---      data_clk_o   => data_clk,
---
---      cksum_err_o  => cmd_err
    );
 
    ------------------------------------------------------------------------
@@ -805,7 +780,6 @@ begin
       busy_o        => fibre_tx_busy,
 
       fibre_clk_i   => fibre_clkw_i,
-      fibre_clkw_o  => open,
       fibre_data_o  => tx_data_o,
       fibre_sc_nd_o => tsc_nTd_o,
       fibre_nena_o  => nFena_o
