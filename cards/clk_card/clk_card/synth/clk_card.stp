@@ -1,339 +1,494 @@
-<session jtag_chain="" jtag_device="" sof_file="../../../../../Documents and Settings/Bryce/Desktop/ACT Firmware/clk_card.sof" top_level_entity="clk_card">
+<session sof_file="">
   <display_tree gui_logging_enabled="0">
     <display_branch instance="auto_signaltap_0" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
   </display_tree>
   <instance compilation_mode="full" entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
-    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="5"/>
-    <position_info>
-      <single attribute="active tab" value="1"/>
-      <single attribute="data horizontal scroll position" value="115"/>
-      <single attribute="data vertical scroll position" value="0"/>
-      <single attribute="setup horizontal scroll position" value="0"/>
-      <single attribute="setup vertical scroll position" value="0"/>
-      <single attribute="zoom level denominator" value="1"/>
-      <single attribute="zoom level numerator" value="2048"/>
-      <single attribute="zoom offset denominator" value="1"/>
-      <single attribute="zoom offset numerator" value="24"/>
-    </position_info>
-    <signal_set global_temp="1" name="signal_set: 2007/01/08 10:26:12  #0">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="4"/>
+    <signal_set global_temp="1" is_expanded="true" name="signal_set: 2007/02/01 11:35:10  #0">
       <clock name="clk_switchover:clk_switchover_inst|cc_pll:pll0|c0" polarity="posedge"/>
-      <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="1024" trigger_in_enable="no" trigger_out_enable="no"/>
+      <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="8192" trigger_in_enable="no" trigger_out_enable="no"/>
       <top_entity/>
       <signal_vec>
         <trigger_input_vec>
-          <wire name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram0_addr[0]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[10]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[11]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[12]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[13]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[14]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[15]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[16]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[17]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[18]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[19]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[1]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[2]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[3]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[4]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[5]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[6]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[7]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[8]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[9]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_data[0]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[1]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[2]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[3]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[4]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[5]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[6]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[7]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_nce1" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_nwe" tap_mode="classic" type="output pin"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|ack_o" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[0]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[16]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[17]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[18]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[19]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[1]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[20]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[21]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[22]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[23]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[2]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[3]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[4]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[5]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[6]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[7]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.idle" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.read_data" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.read_done" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.send_data" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.write_data" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.write_done" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[0]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[16]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[17]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[18]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[19]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[1]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[20]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[21]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[22]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[23]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[2]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[3]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[4]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[5]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[6]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[7]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata_wren~0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.assert_bclr" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.bclr" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.brst" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.brst_wait" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.timer_expired" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.wait_for_reset" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_calc" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_fail" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_pass" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_read" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_setl" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_tx" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.ld_byte" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rq_byte" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rx_error" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.test_cksm" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.wr_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_nrdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rso_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rvs_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_sc_nd_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|rdempty" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrfull" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrreq" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|busy_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[10]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[11]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[12]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[13]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[14]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[15]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[16]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[17]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[18]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[19]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[20]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[21]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[22]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[23]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[24]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[25]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[26]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[27]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[28]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[29]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[30]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[31]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[8]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[9]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|rdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|lvds_reply_cc_a" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ack_q_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.cmd_error_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.data_packet" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.done" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_card_param" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_cksum" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_data" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_okorer" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_packet_size" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_status" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_xxrp" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.quick_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_command" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.standard_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.translator_idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word4" tap_mode="classic" type="combinatorial"/>
         </trigger_input_vec>
         <data_input_vec>
-          <wire name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram0_addr[0]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[10]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[11]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[12]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[13]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[14]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[15]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[16]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[17]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[18]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[19]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[1]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[2]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[3]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[4]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[5]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[6]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[7]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[8]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_addr[9]" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_data[0]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[1]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[2]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[3]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[4]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[5]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[6]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_data[7]" tap_mode="classic" type="bidir pin"/>
-          <wire name="sram0_nce1" tap_mode="classic" type="output pin"/>
-          <wire name="sram0_nwe" tap_mode="classic" type="output pin"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|ack_o" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[0]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[16]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[17]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[18]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[19]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[1]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[20]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[21]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[22]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[23]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[2]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[3]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[4]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[5]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[6]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|data_bi[7]" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.idle" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.read_data" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.read_done" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.send_data" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.write_data" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|present_state.write_done" tap_mode="classic" type="combinatorial"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[0]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[16]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[17]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[18]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[19]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[1]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[20]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[21]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[22]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[23]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[2]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[3]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[4]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[5]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[6]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata[7]" tap_mode="classic" type="register"/>
-          <wire name="sram_ctrl:sram_ctrl_inst|sram_rdata_wren~0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.assert_bclr" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.bclr" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.brst" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.brst_wait" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.timer_expired" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="cc_reset:cc_reset0|current_state.wait_for_reset" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_calc" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_fail" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_pass" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_read" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_setl" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_tx" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.ld_byte" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rq_byte" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rx_error" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.test_cksm" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.wr_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_nrdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rso_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rvs_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_sc_nd_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|rdempty" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrfull" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrreq" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|busy_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[10]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[11]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[12]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[13]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[14]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[15]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[16]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[17]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[18]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[19]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[20]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[21]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[22]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[23]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[24]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[25]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[26]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[27]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[28]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[29]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[30]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[31]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[8]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[9]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|rdy_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|lvds_reply_cc_a" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ack_q_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.cmd_error_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.data_packet" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.done" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_card_param" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_cksum" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_data" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_okorer" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_packet_size" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_status" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_xxrp" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.quick_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_command" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.standard_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.translator_idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word4" tap_mode="classic" type="combinatorial"/>
         </data_input_vec>
       </signal_vec>
       <presentation>
         <data_view>
-          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i"/>
-          <bus is_signal_inverted="no" link="all" name="sram0_addr" order="lsb_to_msb" radix="hex" state="collapse" type="output pin">
-            <net is_signal_inverted="no" name="sram0_addr[0]"/>
-            <net is_signal_inverted="no" name="sram0_addr[1]"/>
-            <net is_signal_inverted="no" name="sram0_addr[2]"/>
-            <net is_signal_inverted="no" name="sram0_addr[3]"/>
-            <net is_signal_inverted="no" name="sram0_addr[4]"/>
-            <net is_signal_inverted="no" name="sram0_addr[5]"/>
-            <net is_signal_inverted="no" name="sram0_addr[6]"/>
-            <net is_signal_inverted="no" name="sram0_addr[7]"/>
-            <net is_signal_inverted="no" name="sram0_addr[8]"/>
-            <net is_signal_inverted="no" name="sram0_addr[9]"/>
-            <net is_signal_inverted="no" name="sram0_addr[10]"/>
-            <net is_signal_inverted="no" name="sram0_addr[11]"/>
-            <net is_signal_inverted="no" name="sram0_addr[12]"/>
-            <net is_signal_inverted="no" name="sram0_addr[13]"/>
-            <net is_signal_inverted="no" name="sram0_addr[14]"/>
-            <net is_signal_inverted="no" name="sram0_addr[15]"/>
-            <net is_signal_inverted="no" name="sram0_addr[16]"/>
-            <net is_signal_inverted="no" name="sram0_addr[17]"/>
-            <net is_signal_inverted="no" name="sram0_addr[18]"/>
-            <net is_signal_inverted="no" name="sram0_addr[19]"/>
+          <bus is_signal_inverted="no" link="all" name="cc_reset_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.assert_bclr"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.bclr"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.brst"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.brst_wait"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.timer_expired"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.wait_for_reset"/>
           </bus>
-          <net is_signal_inverted="no" name="sram0_nwe"/>
-          <net is_signal_inverted="no" name="sram0_nce1"/>
-          <bus is_signal_inverted="no" link="all" name="sram0_data" order="lsb_to_msb" radix="hex" state="collapse" type="bidir pin">
-            <net is_signal_inverted="no" name="sram0_data[0]"/>
-            <net is_signal_inverted="no" name="sram0_data[1]"/>
-            <net is_signal_inverted="no" name="sram0_data[2]"/>
-            <net is_signal_inverted="no" name="sram0_data[3]"/>
-            <net is_signal_inverted="no" name="sram0_data[4]"/>
-            <net is_signal_inverted="no" name="sram0_data[5]"/>
-            <net is_signal_inverted="no" name="sram0_data[6]"/>
-            <net is_signal_inverted="no" name="sram0_data[7]"/>
+          <bus is_signal_inverted="no" link="all" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[7]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[6]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[5]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[4]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[3]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[2]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[1]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[0]"/>
           </bus>
-          <bus is_signal_inverted="no" link="all" name="sram_ctrl:sram_ctrl_inst|sram_rdata" order="lsb_to_msb" radix="hex" state="collapse" type="register">
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[0]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[1]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[2]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[3]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[4]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[5]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[6]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[7]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[16]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[17]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[18]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[19]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[20]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[21]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[22]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[23]"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_nrdy_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_sc_nd_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rvs_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rso_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrreq"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|rdempty"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrfull"/>
+          <bus is_signal_inverted="no" link="all" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[7]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[6]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[5]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[4]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[3]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[2]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[1]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[0]"/>
           </bus>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata_wren~0"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.idle"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.read_data"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.read_done"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.send_data"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.write_data"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.write_done"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|ack_o"/>
-          <bus is_signal_inverted="no" link="all" name="sram_ctrl:sram_ctrl_inst|data_bi" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[0]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[1]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[2]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[3]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[4]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[5]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[6]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[7]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[16]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[17]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[18]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[19]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[20]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[21]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[22]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[23]"/>
+          <bus is_signal_inverted="no" link="all" name="fibre_rx_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_calc"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_fail"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_pass"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_read"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_setl"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_tx"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.idle"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.ld_byte"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rq_byte"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rx_error"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.test_cksm"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.wr_word"/>
+          </bus>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|lvds_reply_cc_a"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o"/>
+          <bus is_signal_inverted="no" link="all" name="reply_translator_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ack_q_word"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.cmd_error_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.data_packet"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.done"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_card_param"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_cksum"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_data"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_okorer"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_packet_size"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble1"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble2"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_status"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_xxrp"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.quick_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_command"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.standard_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.translator_idle"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word1"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word2"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word3"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word4"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[31]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[30]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[29]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[28]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[27]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[26]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[25]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[24]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[23]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[22]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[21]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[20]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[19]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[18]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[17]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[16]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[15]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[14]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[13]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[12]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[11]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[10]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[9]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[8]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[7]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[6]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[5]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[4]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[3]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[2]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[1]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|busy_o"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|rdy_i"/>
+          <bus is_signal_inverted="no" link="all" name="fibre_tx_states" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.idle"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte0"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte1"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte2"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte3"/>
           </bus>
         </data_view>
         <setup_view>
-          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i"/>
-          <bus is_signal_inverted="no" link="all" name="sram0_addr" order="lsb_to_msb" radix="hex" state="collapse" type="output pin">
-            <net is_signal_inverted="no" name="sram0_addr[0]"/>
-            <net is_signal_inverted="no" name="sram0_addr[1]"/>
-            <net is_signal_inverted="no" name="sram0_addr[2]"/>
-            <net is_signal_inverted="no" name="sram0_addr[3]"/>
-            <net is_signal_inverted="no" name="sram0_addr[4]"/>
-            <net is_signal_inverted="no" name="sram0_addr[5]"/>
-            <net is_signal_inverted="no" name="sram0_addr[6]"/>
-            <net is_signal_inverted="no" name="sram0_addr[7]"/>
-            <net is_signal_inverted="no" name="sram0_addr[8]"/>
-            <net is_signal_inverted="no" name="sram0_addr[9]"/>
-            <net is_signal_inverted="no" name="sram0_addr[10]"/>
-            <net is_signal_inverted="no" name="sram0_addr[11]"/>
-            <net is_signal_inverted="no" name="sram0_addr[12]"/>
-            <net is_signal_inverted="no" name="sram0_addr[13]"/>
-            <net is_signal_inverted="no" name="sram0_addr[14]"/>
-            <net is_signal_inverted="no" name="sram0_addr[15]"/>
-            <net is_signal_inverted="no" name="sram0_addr[16]"/>
-            <net is_signal_inverted="no" name="sram0_addr[17]"/>
-            <net is_signal_inverted="no" name="sram0_addr[18]"/>
-            <net is_signal_inverted="no" name="sram0_addr[19]"/>
+          <bus is_signal_inverted="no" link="all" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[7]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[6]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[5]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[4]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[3]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[2]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[1]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_data_i[0]"/>
           </bus>
-          <net is_signal_inverted="no" name="sram0_nwe"/>
-          <net is_signal_inverted="no" name="sram0_nce1"/>
-          <bus is_signal_inverted="no" link="all" name="sram0_data" order="lsb_to_msb" radix="hex" state="collapse" type="bidir pin">
-            <net is_signal_inverted="no" name="sram0_data[0]"/>
-            <net is_signal_inverted="no" name="sram0_data[1]"/>
-            <net is_signal_inverted="no" name="sram0_data[2]"/>
-            <net is_signal_inverted="no" name="sram0_data[3]"/>
-            <net is_signal_inverted="no" name="sram0_data[4]"/>
-            <net is_signal_inverted="no" name="sram0_data[5]"/>
-            <net is_signal_inverted="no" name="sram0_data[6]"/>
-            <net is_signal_inverted="no" name="sram0_data[7]"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_nrdy_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|lvds_reply_cc_a"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i"/>
+          <bus is_signal_inverted="no" link="all" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[31]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[30]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[29]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[28]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[27]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[26]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[25]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[24]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[23]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[22]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[21]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[20]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[19]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[18]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[17]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[16]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[15]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[14]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[13]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[12]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[11]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[10]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[9]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[8]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[7]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[6]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[5]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[4]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[3]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[2]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[1]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[0]"/>
           </bus>
-          <bus is_signal_inverted="no" link="all" name="sram_ctrl:sram_ctrl_inst|data_bi" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[0]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[1]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[2]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[3]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[4]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[5]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[6]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[7]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[16]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[17]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[18]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[19]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[20]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[21]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[22]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|data_bi[23]"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|busy_o"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|rdy_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o"/>
+          <bus is_signal_inverted="no" link="all" name="cc_reset_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.assert_bclr"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.bclr"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.brst"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.brst_wait"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.timer_expired"/>
+            <net is_signal_inverted="no" name="cc_reset:cc_reset0|current_state.wait_for_reset"/>
           </bus>
-          <bus is_signal_inverted="no" link="all" name="sram_ctrl:sram_ctrl_inst|sram_rdata" order="lsb_to_msb" radix="hex" state="collapse" type="register">
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[0]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[1]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[2]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[3]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[4]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[5]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[6]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[7]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[16]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[17]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[18]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[19]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[20]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[21]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[22]"/>
-            <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata[23]"/>
+          <bus is_signal_inverted="no" link="all" name="fibre_rx_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_calc"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_fail"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.cksm_pass"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_read"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_setl"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.data_tx"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.idle"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.ld_byte"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rq_byte"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.rx_error"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.test_cksm"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|current_state.wr_word"/>
           </bus>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|sram_rdata_wren~0"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.idle"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.read_data"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.read_done"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.send_data"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.write_data"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|present_state.write_done"/>
-          <net is_signal_inverted="no" name="sram_ctrl:sram_ctrl_inst|ack_o"/>
+          <bus is_signal_inverted="no" link="all" name="reply_translator_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ack_q_word"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.cmd_error_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.data_packet"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.done"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_card_param"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_cksum"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_data"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_okorer"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_packet_size"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble1"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_preamble2"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_status"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.ld_xxrp"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.quick_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_command"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.skip_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.standard_reply"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.translator_idle"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word1"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word2"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word3"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|translator_current_state.wait_q_word4"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="fibre_tx_states" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.idle"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte0"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte1"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte2"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|pres_state.send_byte3"/>
+          </bus>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrreq"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|rdempty"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|wrfull"/>
+          <bus is_signal_inverted="no" link="all" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[7]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[6]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[5]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[4]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[3]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[2]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[1]"/>
+            <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|q[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_sc_nd_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rvs_i"/>
+          <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rso_i"/>
         </setup_view>
       </presentation>
-      <trigger global_temp="1" name="trigger: 2007/01/08 10:26:12  #1" position="pre" power_up_trigger_mode="false" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
-        <power_up_trigger position="pre" segment_size="1" trigger_in="disable" trigger_out="disable" trigger_type="circular"/>
+      <trigger global_temp="1" is_expanded="true" name="trigger: 2007/02/01 11:35:10  #1" position="pre" power_up_trigger_mode="false" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+        <power_up_trigger position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular"/>
         <events>
+          <level enabled="yes" type="basic">
+            <power_up enabled="yes">
+            </power_up>
+            <op_node/>
+          </level>
+          <level enabled="yes" type="basic">
+            <power_up enabled="yes">
+            </power_up>
+            <op_node/>
+          </level>
           <level enabled="yes" type="basic">
             <power_up enabled="yes">
             </power_up>
@@ -342,13 +497,22 @@
         </events>
       </trigger>
     </signal_set>
+    <position_info>
+      <single attribute="active tab" value="0"/>
+      <single attribute="data horizontal scroll position" value="0"/>
+      <single attribute="data vertical scroll position" value="0"/>
+      <single attribute="setup horizontal scroll position" value="0"/>
+      <single attribute="setup vertical scroll position" value="6"/>
+      <single attribute="zoom level denominator" value="1"/>
+      <single attribute="zoom level numerator" value="1"/>
+      <single attribute="zoom offset denominator" value="1"/>
+      <single attribute="zoom offset numerator" value="122880"/>
+    </position_info>
   </instance>
   <mnemonics/>
-  <static_plugin_mnemonics/>
   <global_info>
     <single attribute="active instance" value="0"/>
-    <single attribute="lock mode" value="36110"/>
-    <multi attribute="column width" size="18" value="34,34,413,74,68,70,88,100,101,101,101,101,101,101,101,101,107,10"/>
-    <multi attribute="window position" size="9" value="997,677,398,104,360,99,0,0,0"/>
+    <multi attribute="column width" size="18" value="34,34,365,74,68,70,88,100,101,101,101,101,101,101,101,101,107,78"/>
+    <multi attribute="window position" size="9" value="803,627,398,124,0,50,0,0,0"/>
   </global_info>
 </session>
