@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.51 2007/01/31 01:46:06 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.52 2007/02/01 01:50:34 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/01/31 01:46:06 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/01 01:50:34 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.52  2007/02/01 01:50:34  bburger
+-- Bryce: Changed some variable names
+--
 -- Revision 1.51  2007/01/31 01:46:06  bburger
 -- Bryce:  added a fifo to fix timing problems causing CRC errors
 --
@@ -486,9 +489,9 @@ begin
             packet_type    <= REPLY;
             -- Card address and param id cannot be assumed to be valid.
             crd_add_par_id <= (others => '0');
---            status         <= c_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
+            status         <= c_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
             -- The command code from the initial fiber cannot be trusted.
-            status         <= (others => '0');
+--            status         <= (others => '0');
             -- No error encodings available for fibre errors :(.  All spaces taken.
             -- All the bits are spoken for (see the document called "Monitoring MCE Status")
             ok_or_er       <= (others => '0');
