@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.43 2007/01/31 01:48:46 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.44 2007/02/01 21:06:13 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.44  2007/02/01 21:06:13  bburger
+-- Bryce:  Added a delay between the two preamble words
+--
 -- Revision 1.43  2007/01/31 01:48:46  bburger
 -- Bryce: added some more tiest cases
 --
@@ -1826,70 +1829,70 @@ begin
 --         rx            => bc1_rs232_rx,
 --         tx            => bc1_rs232_tx
 --      );
-
-   i_addr_card : addr_card
-      port map
-      (
-         -- PLL input:
-         inclk            => lvds_clk,
-         rst_n            => rst_n,
-
-         -- LVDS interface:
-         lvds_cmd         => lvds_cmd,
-         lvds_sync        => lvds_sync,
-         lvds_spare       => lvds_spare,
-         lvds_txa         => lvds_reply_ac_a,
-         lvds_txb         => lvds_reply_ac_b,
-
-         -- TTL interface:
-         ttl_nrx1         => bclr_n,
-         ttl_tx1          => open,
-         ttl_txena1       => ac_ttl_txena1,
-
-         ttl_nrx2         => ac_ttl_nrx2,
-         ttl_tx2          => open,
-         ttl_txena2       => ac_ttl_txena2,
-
-         ttl_nrx3         => ac_ttl_nrx3,
-         ttl_tx3          => open,
-         ttl_txena3       => ac_ttl_txena3,
-
-         -- eeprom interface:
-         eeprom_si        => ac_eeprom_si,
-         eeprom_so        => ac_eeprom_so,
-         eeprom_sck       => ac_eeprom_sck,
-         eeprom_cs        => ac_eeprom_cs,
-
-         -- dac interface:
-         dac_data0        => ac_dac_data0,
-         dac_data1        => ac_dac_data1,
-         dac_data2        => ac_dac_data2,
-         dac_data3        => ac_dac_data3,
-         dac_data4        => ac_dac_data4,
-         dac_data5        => ac_dac_data5,
-         dac_data6        => ac_dac_data6,
-         dac_data7        => ac_dac_data7,
-         dac_data8        => ac_dac_data8,
-         dac_data9        => ac_dac_data9,
-         dac_data10       => ac_dac_data10,
-         dac_clk          => ac_dac_clk,
-
-         -- miscellaneous ports:
-         red_led          => ac_red_led,
-         ylw_led          => ac_ylw_led,
-         grn_led          => ac_grn_led,
-         dip_sw3          => ac_dip_sw3,
-         dip_sw4          => ac_dip_sw4,
-         wdog             => ac_wdog,
-         slot_id          => ac_slot_id,
-
-         -- debug ports:
-         test             => ac_test,
-         mictor           => ac_mictor,
-         mictorclk        => ac_mictorclk,
-         rx               => ac_rs232_rx,
-         tx               => ac_rs232_tx
-      );
+--
+--   i_addr_card : addr_card
+--      port map
+--      (
+--         -- PLL input:
+--         inclk            => lvds_clk,
+--         rst_n            => rst_n,
+--
+--         -- LVDS interface:
+--         lvds_cmd         => lvds_cmd,
+--         lvds_sync        => lvds_sync,
+--         lvds_spare       => lvds_spare,
+--         lvds_txa         => lvds_reply_ac_a,
+--         lvds_txb         => lvds_reply_ac_b,
+--
+--         -- TTL interface:
+--         ttl_nrx1         => bclr_n,
+--         ttl_tx1          => open,
+--         ttl_txena1       => ac_ttl_txena1,
+--
+--         ttl_nrx2         => ac_ttl_nrx2,
+--         ttl_tx2          => open,
+--         ttl_txena2       => ac_ttl_txena2,
+--
+--         ttl_nrx3         => ac_ttl_nrx3,
+--         ttl_tx3          => open,
+--         ttl_txena3       => ac_ttl_txena3,
+--
+--         -- eeprom interface:
+--         eeprom_si        => ac_eeprom_si,
+--         eeprom_so        => ac_eeprom_so,
+--         eeprom_sck       => ac_eeprom_sck,
+--         eeprom_cs        => ac_eeprom_cs,
+--
+--         -- dac interface:
+--         dac_data0        => ac_dac_data0,
+--         dac_data1        => ac_dac_data1,
+--         dac_data2        => ac_dac_data2,
+--         dac_data3        => ac_dac_data3,
+--         dac_data4        => ac_dac_data4,
+--         dac_data5        => ac_dac_data5,
+--         dac_data6        => ac_dac_data6,
+--         dac_data7        => ac_dac_data7,
+--         dac_data8        => ac_dac_data8,
+--         dac_data9        => ac_dac_data9,
+--         dac_data10       => ac_dac_data10,
+--         dac_clk          => ac_dac_clk,
+--
+--         -- miscellaneous ports:
+--         red_led          => ac_red_led,
+--         ylw_led          => ac_ylw_led,
+--         grn_led          => ac_grn_led,
+--         dip_sw3          => ac_dip_sw3,
+--         dip_sw4          => ac_dip_sw4,
+--         wdog             => ac_wdog,
+--         slot_id          => ac_slot_id,
+--
+--         -- debug ports:
+--         test             => ac_test,
+--         mictor           => ac_mictor,
+--         mictorclk        => ac_mictorclk,
+--         rx               => ac_rs232_rx,
+--         tx               => ac_rs232_tx
+--      );
 
    ------------------------------------------------
    -- Create test bench stimuli
@@ -2313,50 +2316,99 @@ begin
 --      wait for 200 us;
 
 ------------------------------------------------------
--- Testing Resets
+-- Tracking down an RC bug
 ------------------------------------------------------
-
-------------------------------------------------------
---  7:  Testing Fibre Rx.
---  This case tests what happens to the fibre_rx block
---  When a byte is missing or extra.
-------------------------------------------------------
---      skip_byte      <= '0';
---      add_byte       <= '0';
---      wrong_checksum <= '0';
-
-      command    <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
---      add_byte   <= '1';
---      skip_byte      <= '1';
---      wrong_checksum <= '1';
-      load_checksum;
---      add_byte   <= '0';
---      skip_byte      <= '0';
---      wrong_checksum <= '0';
-      wait for 200 us;
-
-      command <= command_wb;
-      address_id <= ac_row_order_cmd;
-      data_valid <= X"00000004";
-      data       <= X"0000000A";
+      command <= command_rb;
+      address_id <= rc1_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
       wait for 200 us;
 
       command <= command_rb;
-      address_id <= ac_row_order_cmd;
-      data_valid <= X"00000004";
-      data       <= X"0000000A";
+      address_id <= cc_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
       wait for 200 us;
+
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"0000000F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 800 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
+
+------------------------------------------------------
+--  7:  Testing Fibre Rx.
+--  This case tests what happens to the fibre_rx block
+--  When a byte is missing or extra.
+------------------------------------------------------
+--      command    <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+----      add_byte   <= '1';
+----      skip_byte      <= '1';
+----      wrong_checksum <= '1';
+--      load_checksum;
+----      add_byte   <= '0';
+----      skip_byte      <= '0';
+----      wrong_checksum <= '0';
+--      wait for 200 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_row_order_cmd;
+--      data_valid <= X"00000004";
+--      data       <= X"0000000A";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+--
+--      command <= command_rb;
+--      address_id <= ac_row_order_cmd;
+--      data_valid <= X"00000004";
+--      data       <= X"0000000A";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
 
 
 ------------------------------------------------------

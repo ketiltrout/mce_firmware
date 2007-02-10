@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.66 2007/01/24 01:24:08 bburger Exp $
+-- $Id: clk_card.vhd,v 1.67 2007/02/01 01:48:41 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.67  2007/02/01 01:48:41  bburger
+-- Bryce:  removed some unused signals
+--
 -- Revision 1.66  2007/01/24 01:24:08  bburger
 -- Bryce:  Integrated SRAM controller from branch v03000000
 --
@@ -202,7 +205,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"03000001";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"03000002";
 
    -- reset
    signal rst                : std_logic;
