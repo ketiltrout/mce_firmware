@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.52 2007/02/01 01:50:34 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.53 2007/02/02 00:01:43 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/02/01 01:50:34 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/02 00:01:43 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.53  2007/02/02 00:01:43  bburger
+-- Bryce:  CC now reports back xxER again, but only for fibre errors
+--
 -- Revision 1.52  2007/02/01 01:50:34  bburger
 -- Bryce: Changed some variable names
 --
@@ -532,7 +535,8 @@ begin
       end if;
    end process register_packet;
 
-   translator_fsm_output : process (translator_current_state, mop_error_code_i, fibre_tx_busy_i, c_or_r, r_cmd_code)
+   translator_fsm_output : process (translator_current_state, status, fibre_tx_busy_i, c_or_r)
+--   translator_fsm_output : process (translator_current_state, mop_error_code_i, fibre_tx_busy_i, c_or_r, r_cmd_code)
    begin
       fibre_tx_rdy_o   <= '0';
       fibre_word_ack_o <= '0';
@@ -648,13 +652,16 @@ begin
       when LD_STATUS =>
          if(fibre_tx_busy_i = '0') then
             fibre_word_ack_o <= '1';
-            checksum_ld      <= '1';
             -- Do not transmit a status word if an RB was successful or if returning DATA
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
-            if(c_or_r = SERVICING_REPLY and ((r_cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (r_cmd_code = GO))) then
+            if(c_or_r = SERVICING_REPLY and (status = x"52424F4B" or status = x"474F4F4B")) then
+--            if(c_or_r = SERVICING_REPLY and ((status = (READ_BLOCK & ASCII_O & ASCII_K)) or (status = (GO & ASCII_O & ASCII_K)))) then
+--            if(c_or_r = SERVICING_REPLY and ((r_cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (r_cmd_code = GO))) then
                fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
             else
                fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
             end if;
          end if;
 
@@ -664,13 +671,16 @@ begin
       when LD_DATA =>
          if(fibre_tx_busy_i = '0') then
             fibre_word_ack_o <= '1';
-            checksum_ld      <= '1';
             -- Do not transmit a data word if an RB was unsuccessful
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
-            if(c_or_r = SERVICING_REPLY and r_cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
+            if(c_or_r = SERVICING_REPLY and status = x"52424552") then
+--            if(c_or_r = SERVICING_REPLY and (status = (READ_BLOCK & ASCII_E & ASCII_R))) then
+--            if(c_or_r = SERVICING_REPLY and r_cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
                fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
             else
                fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
             end if;
          end if;
 
