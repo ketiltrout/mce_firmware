@@ -22,9 +22,6 @@
 -- Revision History:
 -- Feb 29, 2004: Initial version - NRG
 -- $Log: s_watchdog.vhd,v $
--- Revision 1.1  2004/05/20 23:51:14  erniel
--- relocated old cc_test files
---
 -- Revision 1.2  2004/04/21 19:58:50  bburger
 -- Changed address moniker
 --
