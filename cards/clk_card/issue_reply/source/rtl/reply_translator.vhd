@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.53 2007/02/02 00:01:43 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.54 2007/02/10 05:10:45 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/02/02 00:01:43 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/10 05:10:45 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.54  2007/02/10 05:10:45  bburger
+-- Bryce:  fixed a bug.  A reply with a non-zero error code is not necessarily an error.
+--
 -- Revision 1.53  2007/02/02 00:01:43  bburger
 -- Bryce:  CC now reports back xxER again, but only for fibre errors
 --
@@ -128,10 +131,12 @@ architecture rtl of reply_translator is
    constant SERVICING_REPLY   : std_logic := '0';
 
    -- reply word registers
-   signal status                 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
-   signal crd_add_par_id         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 2 byte 0
-   signal ok_or_er               : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 3 byte 0
-   signal checksum               : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- checksum word (output from checksum calculator)
+   signal frame_status   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
+   signal frame_seq_num  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
+   signal ok_or_er         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
+   signal crd_add_par_id : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 2 byte 0
+   signal status       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 3 byte 0
+   signal checksum       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- checksum word (output from checksum calculator)
 
    ----------------------------------------------------------------------------------------------------------------
    --                             FIBRE PACKET FSM
@@ -141,7 +146,7 @@ architecture rtl of reply_translator is
 
    type translator_state is
       (TRANSLATOR_IDLE, CMD_ERROR_REPLY, QUICK_REPLY, STANDARD_REPLY, DATA_PACKET, LD_PREAMBLE1,  LD_PREAMBLE2,
-       LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, WAIT_Q_WORD2,
+       LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, LD_FRAME_STATUS, LD_FRAME_SEQ_NUM, WAIT_Q_WORD1, WAIT_Q_WORD2,
        WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, SKIP_COMMAND, SKIP_REPLY);
 
    signal translator_current_state : translator_state;
@@ -157,7 +162,6 @@ architecture rtl of reply_translator is
    signal data_packet_size  : integer;
 
    -- fibre fsm uses this to acknowledge that it will package up a reply to checksum error stop
-   signal frame_status      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal fibre_word        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- packet word read from reply queue
 
    signal c_cmd_rdy         : std_logic;
@@ -183,13 +187,6 @@ begin
    -- Logic Analyzer Signals
    ----------------------------------------------------------------------------
    debug_o                   <= (others => '0');
-
-   ----------------------------------------------------------------------------
-   -- Frame Status Word.  This will be removed when this is incorporated in the housekeeping header from reply_queue
-   ----------------------------------------------------------------------------
-   frame_status(31 downto 2) <= (others => '0');
-   frame_status(1)           <= cmd_stop_i;
-   frame_status(0)           <= last_frame_i;
 
    ----------------------------------------------------------------------------
    -- register inputs from cmd_translator
@@ -289,9 +286,11 @@ begin
          FIBRE_PREAMBLE2 when LD_PREAMBLE2,
          packet_type     when LD_xxRP,
          packet_size     when LD_PACKET_SIZE,
-         status          when LD_OKorER,
+         ok_or_er        when LD_OKorER,
          crd_add_par_id  when LD_CARD_PARAM,
-         ok_or_er        when LD_STATUS,
+         status          when LD_STATUS,
+         frame_status    when LD_FRAME_STATUS,
+         frame_seq_num   when LD_FRAME_SEQ_NUM,
          fibre_word      when LD_DATA,
          checksum        when LD_CKSUM,
          (others => '0') when others;
@@ -304,10 +303,8 @@ begin
    begin
       if(rst_i = '1') then
          translator_current_state <= TRANSLATOR_IDLE;
---         fibre_current_state <= FIBRE_IDLE;
       elsif(clk_i'EVENT AND clk_i = '1') then
          translator_current_state <= translator_next_state;
---         fibre_current_state <= fibre_next_state;
       end if;
    end process fsm_state_forwarder;
 
@@ -431,11 +428,27 @@ begin
       ----------------------------------------
       when LD_STATUS =>
          if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_FRAME_STATUS;
+         end if;
+
+      ----------------------------------------
+      -- Frame ok_or_er word (stop bit, last frame bit)
+      ----------------------------------------
+      when LD_FRAME_STATUS =>
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= LD_FRAME_SEQ_NUM;
+         end if;
+
+      ----------------------------------------
+      -- Frame sequence number
+      ----------------------------------------
+      when LD_FRAME_SEQ_NUM =>
+         if(fibre_tx_busy_i = '0') then
             translator_next_state <= WAIT_Q_WORD1;
          end if;
 
       ----------------------------------------
-      --
+      -- Wait states for allowing the reply_queue to respond
       ----------------------------------------
       when WAIT_Q_WORD1 =>
          translator_next_state <= WAIT_Q_WORD4;
@@ -482,9 +495,11 @@ begin
       if(rst_i = '1') then
          packet_size    <= (others => '0');
          packet_type    <= (others => '0');
-         status         <= (others => '0');
+         ok_or_er         <= (others => '0');
          crd_add_par_id <= (others => '0');
-         ok_or_er       <= (others => '0');
+         status       <= (others => '0');
+         frame_status   <= (others => '0');
+         frame_seq_num  <= (others => '0');
 
       elsif(clk_i'event and clk_i = '1') then
          if(translator_current_state = CMD_ERROR_REPLY) then
@@ -492,19 +507,17 @@ begin
             packet_type    <= REPLY;
             -- Card address and param id cannot be assumed to be valid.
             crd_add_par_id <= (others => '0');
-            status         <= c_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
-            -- The command code from the initial fiber cannot be trusted.
---            status         <= (others => '0');
+            ok_or_er       <= c_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
             -- No error encodings available for fibre errors :(.  All spaces taken.
             -- All the bits are spoken for (see the document called "Monitoring MCE Status")
-            ok_or_er       <= (others => '0');
+            status         <= (others => '0');
 
          elsif(translator_current_state = QUICK_REPLY) then
             packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             packet_type    <= REPLY;
             crd_add_par_id <= c_card_addr & c_param_id;
-            status         <= c_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
-            ok_or_er       <= (others => '0');
+            ok_or_er       <= c_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
+            status         <= (others => '0');
 
          elsif(translator_current_state = STANDARD_REPLY) then
             if (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
@@ -514,29 +527,30 @@ begin
             end if;
             packet_type    <= REPLY;
             crd_add_par_id <= "00000000" & r_card_addr & "00000000" & r_param_id;
+            ok_or_er       <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             -- this will be error code x"00" - i.e. success.
-            status         <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
-            ok_or_er       <= mop_error_code_i;
+            status         <= mop_error_code_i;
 
          elsif(translator_current_state = DATA_PACKET) then
             packet_size    <= conv_std_logic_vector(data_packet_size,PACKET_WORD_WIDTH);
             packet_type    <= DATA;
             crd_add_par_id <= frame_seq_num_i;
-            status         <= frame_status;
-            ok_or_er       <= ok_or_er;
+            ok_or_er       <= (others => '0');
+            status         <= (others => '0');
+            frame_status   <= "000000000000000000000000000000" & cmd_stop_i & last_frame_i;
+            frame_seq_num  <= frame_seq_num_i;
 
          else
             packet_size    <= packet_size;
             packet_type    <= packet_type;
-            status         <= status;
-            crd_add_par_id <= crd_add_par_id;
             ok_or_er       <= ok_or_er;
+            crd_add_par_id <= crd_add_par_id;
+            status         <= status;
          end if;
       end if;
    end process register_packet;
 
-   translator_fsm_output : process (translator_current_state, status, fibre_tx_busy_i, c_or_r)
---   translator_fsm_output : process (translator_current_state, mop_error_code_i, fibre_tx_busy_i, c_or_r, r_cmd_code)
+   translator_fsm_output : process (translator_current_state, ok_or_er, fibre_tx_busy_i, c_or_r, packet_type)
    begin
       fibre_tx_rdy_o   <= '0';
       fibre_word_ack_o <= '0';
@@ -633,30 +647,8 @@ begin
       ----------------------------------------
       when LD_OKorER =>
          if(fibre_tx_busy_i = '0') then
-            checksum_ld    <= '1';
-            fibre_tx_rdy_o <= '1';
-         end if;
-
-      ----------------------------------------
-      -- Card Address & Parameter ID
-      ----------------------------------------
-      when LD_CARD_PARAM =>
-         if(fibre_tx_busy_i = '0') then
-            checksum_ld    <= '1';
-            fibre_tx_rdy_o <= '1';
-         end if;
-
-      ----------------------------------------
-      -- Status word
-      ----------------------------------------
-      when LD_STATUS =>
-         if(fibre_tx_busy_i = '0') then
-            fibre_word_ack_o <= '1';
-            -- Do not transmit a status word if an RB was successful or if returning DATA
-            -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
-            if(c_or_r = SERVICING_REPLY and (status = x"52424F4B" or status = x"474F4F4B")) then
---            if(c_or_r = SERVICING_REPLY and ((status = (READ_BLOCK & ASCII_O & ASCII_K)) or (status = (GO & ASCII_O & ASCII_K)))) then
---            if(c_or_r = SERVICING_REPLY and ((r_cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (r_cmd_code = GO))) then
+            -- Not transmitted in data packets
+            if(c_or_r = SERVICING_REPLY and packet_type = DATA) then
                fibre_tx_rdy_o <= '0';
                checksum_ld    <= '0';
             else
@@ -666,16 +658,76 @@ begin
          end if;
 
       ----------------------------------------
+      -- Card Address & Parameter ID
+      ----------------------------------------
+      when LD_CARD_PARAM =>
+         if(fibre_tx_busy_i = '0') then
+            -- Not transmitted in data packets
+            if(c_or_r = SERVICING_REPLY and packet_type = DATA) then
+               fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
+            else
+               fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
+            end if;
+         end if;
+
+      ----------------------------------------
+      -- Status word
+      ----------------------------------------
+      when LD_STATUS =>
+         if(fibre_tx_busy_i = '0') then
+            fibre_word_ack_o <= '1';
+            -- Not transmitted in RBOK packets or data packets
+            if(c_or_r = SERVICING_REPLY and (ok_or_er = x"52424F4B" or packet_type = DATA)) then
+               fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
+            else
+               fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
+            end if;
+         end if;
+
+      ----------------------------------------
+      -- Frame ok_or_er word (stop bit, last frame bit)
+      ----------------------------------------
+      when LD_FRAME_STATUS =>
+         if(fibre_tx_busy_i = '0') then
+            -- Transmitted only in data packets
+            if(c_or_r = SERVICING_REPLY and packet_type = DATA) then
+               fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
+            else
+               fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
+            end if;
+         end if;
+
+      ----------------------------------------
+      -- Frame sequence number
+      ----------------------------------------
+      when LD_FRAME_SEQ_NUM =>
+         if(fibre_tx_busy_i = '0') then
+            -- Transmitted only in data packets
+            if(c_or_r = SERVICING_REPLY and packet_type = DATA) then
+               fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
+            else
+               fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
+            end if;
+         end if;
+
+      ----------------------------------------
       -- Data words
       ----------------------------------------
       when LD_DATA =>
          if(fibre_tx_busy_i = '0') then
             fibre_word_ack_o <= '1';
-            -- Do not transmit a data word if an RB was unsuccessful
-            -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
-            if(c_or_r = SERVICING_REPLY and status = x"52424552") then
---            if(c_or_r = SERVICING_REPLY and (status = (READ_BLOCK & ASCII_E & ASCII_R))) then
---            if(c_or_r = SERVICING_REPLY and r_cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
+            -- Do not transmit a data word if an "RB" was unsuccessful
+            -- The only time an "xxER" occurs is when there is a checksum error over the fibre
+            -- Otherwise, replies will always indicate "xxOK" and an error flag will be set is any errors have occurred in the MCE
+            if(c_or_r = SERVICING_REPLY and ok_or_er = x"52424552") then
                fibre_tx_rdy_o <= '0';
                checksum_ld    <= '0';
             else
