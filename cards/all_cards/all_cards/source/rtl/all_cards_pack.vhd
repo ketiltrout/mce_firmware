@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$
+-- <date $Date: 2006/05/05 19:17:43 $>    - <initials $Author: mandana $>
+-- $Log: all_cards_pack.vhd,v $
+-- Revision 1.1  2006/05/05 19:17:43  mandana
+-- initial release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -59,10 +62,10 @@ package all_cards_pack is
 
    component leds
    port(clk_i   : in std_logic;
-        rst_i   : in std_logic;		
+        rst_i   : in std_logic;     
         
         -- Wishbone signals
-        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
@@ -84,10 +87,10 @@ package all_cards_pack is
    component fw_rev
    generic ( REVISION: std_logic_vector (31 downto 0) := X"01010000");
    port(clk_i   : in std_logic;
-        rst_i   : in std_logic;		
+        rst_i   : in std_logic;     
         
         -- Wishbone signals
-        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
@@ -110,7 +113,7 @@ package all_cards_pack is
       slot_id_i : in std_logic_vector (SLOT_ID_BITS-1 downto 0);
       -- wishbone signals
       clk_i   : in std_logic;
-      rst_i   : in std_logic;		
+      rst_i   : in std_logic;    
       dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
       addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
       tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
@@ -202,7 +205,7 @@ package all_cards_pack is
         rst_i : in std_logic;
 
         -- wishbone signals
-        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
@@ -220,26 +223,31 @@ package all_cards_pack is
   -----------------------------------------------------------------------------
   -- Thermometer Component
   -----------------------------------------------------------------------------
-  component id_thermo
-     port(
-        clk_i : in std_logic;
-        rst_i : in std_logic;
-        
-        -- Wishbone signals
-        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
-        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-        we_i    : in std_logic;
-        stb_i   : in std_logic;
-        cyc_i   : in std_logic;
-        err_o   : out std_logic;
-        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        ack_o   : out std_logic;
-           
-        -- silicon id/temperature chip signals
-        data_io : inout std_logic
-     );
-  end component;
+   component id_thermo
+   generic(
+      tristate    : string := "INTERNAL";  -- valid values are "INTERNAL" and "EXTERNAL".
+      card_or_box : string := "CARD");     -- valid values are "CARD" and "BOX".
+   port(
+      clk_i : in std_logic;
+      rst_i : in std_logic;
+
+      -- Wishbone signals
+      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i    : in std_logic;
+      stb_i   : in std_logic;
+      cyc_i   : in std_logic;
+      err_o   : out std_logic;
+      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      ack_o   : out std_logic;
+
+      -- silicon id/temperature chip signals
+      data_io : inout std_logic;
+      data_o  : out std_logic;
+      wren_o  : out std_logic
+   );
+   end component;
     
 end all_cards_pack;
 
