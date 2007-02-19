@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2005/12/13 00:51:08 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2006/06/09 22:25:10 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.9  2006/06/09 22:25:10  bburger
+-- Bryce:  Moved the no_channels constant from wbs_frame_data_pack to command_pack so that the clock card could use it.  I also modified flux_loop_pack to use no_channels instead of a literal value of 8.
+--
 -- Revision 1.8  2005/12/13 00:51:08  mandana
 -- reorganized the data modes, added data mode for filtering and for mixed feedback and flux-count
 --
@@ -76,11 +79,9 @@ use sys_param.wishbone_pack.all;
 package wbs_frame_data_pack is
 
 constant CH_MUX_SEL_WIDTH  :  integer := 3;
-constant NO_ROWS           :  integer := NUM_OF_ROWS;
-constant PIXEL_ADDR_MAX    :  integer := NO_CHANNELS * NO_ROWS;
---constant PIXEL_ADDR_MAX    :  integer := (NO_CHANNELS * (2**ROW_ADDR_WIDTH)) - 1;
 
---constant RAW_ADDR_MAX      :  integer := 2 * NO_CHANNELS * NO_ROWS * 64 ;
+constant PIXEL_ADDR_MAX    :  integer := NO_CHANNELS * NUM_OF_ROWS;
+
 constant RAW_ADDR_MAX      :  integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
 
 constant MODE0_ERROR       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
