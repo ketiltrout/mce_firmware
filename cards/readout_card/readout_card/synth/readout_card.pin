@@ -437,7 +437,7 @@ ttl_in3                      : F9        : input  : 3.3-V LVTTL       :         
 RESERVED_INPUT               : F10       :        :                   :         : 4         :                
 ttl_out1                     : F11       : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
-altera_reserved_tms          : F13       : input  : 3.3-V LVTTL       :         : 4         : N              
+TMS                          : F13       : input  :                   :         : 4         :                
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    :           :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
 DCLK                         : F16       :        :                   :         : 3         :                
@@ -465,7 +465,7 @@ ttl_dir2                     : G9        : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : G10       :        :                   :         : 4         :                
 RESERVED_INPUT               : G11       :        :                   :         : 4         :                
 ttl_out3                     : G12       : output : 3.3-V LVTTL       :         : 4         : Y              
-altera_reserved_tdi          : G13       : input  : 3.3-V LVTTL       :         : 4         : N              
+TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         :           :                
 GND                          : G15       : gnd    :                   :         :           :                
 VCC_PLL5_OUTB                : G16       : power  :                   : 3.3V    : 10        :                
@@ -493,7 +493,7 @@ ttl_dir3                     : H9        : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : H10       :        :                   :         : 4         :                
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : 3.3-V LVTTL       :         : 4         : N              
-altera_reserved_tdo          : H13       : output : 3.3-V LVTTL       :         : 4         : N              
+TDO                          : H13       : output :                   :         : 4         :                
 RESERVED_INPUT               : H14       :        :                   :         : 9         :                
 RESERVED_INPUT               : H15       :        :                   :         : 9         :                
 GND                          : H16       : gnd    :                   :         :           :                
@@ -548,7 +548,7 @@ dac_FB3_dat[5]               : K8        : output : 3.3-V LVTTL       :         
 GND                          : K9        : gnd    :                   :         :           :                
 dip_sw3                      : K10       : input  : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : K11       :        :                   :         : 4         :                
-altera_reserved_tck          : K12       : input  : 3.3-V LVTTL       :         : 4         : N              
+TCK                          : K12       : input  :                   :         : 4         :                
 GND+                         : K13       :        :                   :         : 4         :                
 RESERVED_INPUT               : K14       :        :                   :         : 9         :                
 RESERVED_INPUT               : K15       :        :                   :         : 9         :                
@@ -576,7 +576,7 @@ dac_FB3_dat[10]              : L8        : output : 3.3-V LVTTL       :         
 dac_FB4_dat[12]              : L9        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB4_dat[11]              : L10       : output : 3.3-V LVTTL       :         : 5         : Y              
 dip_sw4                      : L11       : input  : 3.3-V LVTTL       :         : 4         : Y              
-altera_reserved_ntrst        : L12       : input  : 3.3-V LVTTL       :         : 4         : N              
+TRST                         : L12       : input  :                   :         : 4         :                
 RESERVED_INPUT               : L13       :        :                   :         : 4         :                
 GND                          : L14       : gnd    :                   :         :           :                
 GND                          : L15       : gnd    :                   :         :           :                
