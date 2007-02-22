@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.57  2007/02/19 20:13:54  mandana
+-- properly sign-extend raw-data both in adc_sample_coadd and wbs_frame_data
+-- rewrote wbs_frame_data FSM
+-- changed ram40x64 init file to hex file
+-- changed revision to 3.000019
+--
 -- Revision 1.56  2006/12/13 18:26:26  mandana
 -- changed rev. to 03000018 to enable raw_mode, disable filter with servo_mode/column control
 --
@@ -351,7 +357,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000019"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001a"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      -- filter 1/2^11 scaling between biquad stages 
                                                                      -- added read port for adc_offset, fb_const/channel
