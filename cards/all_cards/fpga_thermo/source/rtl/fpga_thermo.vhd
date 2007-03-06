@@ -22,7 +22,7 @@
 -- fpga_thermo.vhd
 --
 -- Project:       SCUBA-2
--- Author:        Ernie Lin
+-- Author:        Bryce Burger/ Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fpga_thermo.vhd,v $
+-- Revision 1.4  2007/03/06 00:31:30  bburger
+-- Bryce:  added the smbalert_i signal to the fpga_thermo interface
+--
 -- Revision 1.3  2006/09/28 00:29:33  bburger
 -- Bryce:  data_o was not sign-extended
 --
