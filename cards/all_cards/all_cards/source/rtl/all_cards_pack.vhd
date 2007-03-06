@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/05/05 19:17:43 $>    - <initials $Author: mandana $>
+-- <date $Date: 2007/02/19 23:30:18 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.2  2007/02/19 23:30:18  mandana
+-- modified id_thermo interface
+--
 -- Revision 1.1  2006/05/05 19:17:43  mandana
 -- initial release
 --
@@ -55,7 +58,7 @@ use sys_param.wishbone_pack.all;
 library work;
 
 package all_cards_pack is
-  
+
   -----------------------------------------------------------------------------
   -- LED Component
   -----------------------------------------------------------------------------
@@ -73,12 +76,12 @@ package all_cards_pack is
         cyc_i   : in std_logic;
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic;
-      
+
         -- LED outputs
         power   : out std_logic;
         status  : out std_logic;
         fault   : out std_logic);
-   end component;      
+   end component;
 
   -----------------------------------------------------------------------------
   -- Firmware Revision Component
@@ -100,16 +103,16 @@ package all_cards_pack is
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic
       );
-   end component;      
+   end component;
 
     -----------------------------------------------------------------------------
   -- slot_id component
   -----------------------------------------------------------------------------
-  
+
   component bp_slot_id
     generic (SLOT_ID_BITS: integer := 4);
 
-    port (   
+    port (
       slot_id_i : in std_logic_vector (SLOT_ID_BITS-1 downto 0);
       -- wishbone signals
       clk_i   : in std_logic;
@@ -132,12 +135,12 @@ package all_cards_pack is
   component dispatch
     port(clk_i      : in std_logic;
       comm_clk_i : in std_logic;
-      rst_i      : in std_logic;     
-      
+      rst_i      : in std_logic;
+
       -- bus backplane interface (LVDS)
       lvds_cmd_i   : in std_logic;
       lvds_reply_o : out std_logic;
-      
+
       -- wishbone slave interface
       dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -148,7 +151,7 @@ package all_cards_pack is
       dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_i  : in std_logic;
       err_i  : in std_logic;
-      
+
       -- misc. external interface
       wdt_rst_o : out std_logic;
       slot_i    : in std_logic_vector(3 downto 0);
@@ -160,25 +163,25 @@ package all_cards_pack is
   -----------------------------------------------------------------------------
   -- frame_timing component
   -----------------------------------------------------------------------------
-  
+
   component frame_timing is
     port(
       -- Readout Card interface
       dac_dat_en_o               : out std_logic;
       adc_coadd_en_o             : out std_logic;
       restart_frame_1row_prev_o  : out std_logic;
-      restart_frame_aligned_o    : out std_logic; 
+      restart_frame_aligned_o    : out std_logic;
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
-      
+
       -- Address Card interface
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
-         
+
       -- Bias Card interface
       update_bias_o              : out std_logic;
-      
+
       -- Wishbone interface
       dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -187,15 +190,15 @@ package all_cards_pack is
       stb_i                      : in std_logic;
       cyc_i                      : in std_logic;
       dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                      : out std_logic;      
-      
+      ack_o                      : out std_logic;
+
       -- Global signals
       clk_i                      : in std_logic;
       clk_n_i                    : in std_logic;
       rst_i                      : in std_logic;
       sync_i                     : in std_logic);
   end component;
-  
+
   -----------------------------------------------------------------------------
   -- FPGA_thermo component
   -----------------------------------------------------------------------------
@@ -214,12 +217,13 @@ package all_cards_pack is
         err_o   : out std_logic;
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic;
-        
+
         -- SMBus temperature sensor signals
         smbclk_o : out std_logic;
+        smbalert_i : in std_logic;
         smbdat_io : inout std_logic);
   end component;
-  
+
   -----------------------------------------------------------------------------
   -- Thermometer Component
   -----------------------------------------------------------------------------
