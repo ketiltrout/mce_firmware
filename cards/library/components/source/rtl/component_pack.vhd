@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.35 2006/10/19 22:12:32 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.36 2007/01/31 01:47:26 bburger Exp $>
 --
 -- Project:    SCUBA-2
 -- Author:     Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.36  2007/01/31 01:47:26  bburger
+-- Bryce: added sync_fifo_tx
+--
 -- Revision 1.35  2006/10/19 22:12:32  bburger
 -- Modified generic interface to one_wire_master to support external pull-ups on its data_in interface
 --
@@ -505,26 +508,27 @@ package component_pack is
    -- SMBus protocol components
    --
    ------------------------------------------------------------
+   constant SMB_DATA_WIDTH : integer := 8;
+   constant SMB_ADDR_WIDTH : integer := 7;
+
    component smb_master
    port(
       clk_i         : in std_logic;
       rst_i         : in std_logic;
 
-      -- host-side signals
-      master_data_i : in std_logic_vector(7 downto 0);
-      master_data_o : out std_logic_vector(7 downto 0);
+      -- master-side signals
+      r_nw_i        : in std_logic;                    -- read/not_write
+      start_i       : in std_logic;                    -- read/write request
+      addr_i        : in std_logic_vector(SMB_ADDR_WIDTH-1 downto 0); -- smb-slave register address
+      data_i        : in std_logic_vector(SMB_DATA_WIDTH-1 downto 0); -- smb-slave data
 
-      start_i       : in std_logic;         -- request a start condition
-      stop_i        : in std_logic;         -- request a stop condition
-      write_i       : in std_logic;         -- write a byte
-      read_i        : in std_logic;         -- read a byte
-
-      done_o        : out std_logic;        -- operation completed
-      error_o       : out std_logic;        -- slave returned an error
+      done_o        : out std_logic;                   -- read/write done
+      error_o       : out std_logic;                   -- error
+      data_o        : out std_logic_vector(SMB_DATA_WIDTH-1 downto 0); -- smb-slave data
 
       -- slave-side signals
-      slave_clk_o   : out std_logic;        -- SMBus clock
-      slave_data_io : inout std_logic       -- SMBus data
+      slave_clk_o   : out std_logic;                   -- SMBus clock
+      slave_data_io : inout std_logic                  -- SMBus data
    );
    end component;
 
