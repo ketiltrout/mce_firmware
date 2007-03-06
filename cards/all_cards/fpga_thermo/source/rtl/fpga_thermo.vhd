@@ -29,8 +29,11 @@
 -- Implements the controller for the SMBus temperature sensor
 --
 -- Revision history:
--- 
+--
 -- $Log: fpga_thermo.vhd,v $
+-- Revision 1.3  2006/09/28 00:29:33  bburger
+-- Bryce:  data_o was not sign-extended
+--
 -- Revision 1.2  2006/05/05 19:19:08  mandana
 -- added err_o to the interface to issue a wishbone error for write commands
 --
@@ -51,234 +54,287 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 entity fpga_thermo is
-port(clk_i : in std_logic;
-     rst_i : in std_logic;
+port(
+   clk_i : in std_logic;
+   rst_i : in std_logic;
 
-     -- wishbone signals
-     dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
-     addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-     tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_i    : in std_logic;
-     stb_i   : in std_logic;
-     cyc_i   : in std_logic;
-     err_o   : out std_logic;
-     dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-     ack_o   : out std_logic;
-     
-     -- SMBus temperature sensor signals
-     smbclk_o : out std_logic;
-     smbdat_io : inout std_logic);
+   -- wishbone signals
+   dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+   addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+   tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+   we_i    : in std_logic;
+   stb_i   : in std_logic;
+   cyc_i   : in std_logic;
+   err_o   : out std_logic;
+   dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+   ack_o   : out std_logic;
+
+   -- SMBus temperature sensor signals
+   smbclk_o   : out std_logic;
+   smbalert_i : in std_logic;
+   smbdat_io  : inout std_logic
+);
 end fpga_thermo;
 
 architecture rtl of fpga_thermo is
 
--- smbus master interface:
-signal slave_data_in  : std_logic_vector(7 downto 0);
-signal slave_data_out : std_logic_vector(7 downto 0);
-signal slave_start    : std_logic;
-signal slave_stop     : std_logic;
-signal slave_write    : std_logic;
-signal slave_read     : std_logic;
-signal slave_done     : std_logic;
-signal slave_err      : std_logic;
+   -- FSM inputs
+   signal wr_cmd : std_logic;
+   signal rd_cmd : std_logic;
 
--- controller FSM states:
-type states is (CTRL_IDLE, SEND_START, SEND_ADDR, GET_TEMP, SEND_STOP, SET_VALID_FLAG);
-signal ctrl_ps : states;
-signal ctrl_ns : states;
+   -- Various signals used for writing to the temperature register
+   signal wbs_wren   : std_logic;
+   signal smb_wren   : std_logic;
+   signal reg_wren   : std_logic;
+   signal wbs_data_o : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal smb_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal reg_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
--- wishbone FSM states:
-type wb_states is (WB_IDLE, SEND_TEMP, WB_ERROR);
-signal wb_ps : wb_states;
-signal wb_ns : wb_states;
+   -- WBS states:
+   type wbs_states is (IDLE, WR, RD);
+   signal current_state : wbs_states;
+   signal next_state    : wbs_states;
 
-signal read_temp_cmd  : std_logic;
-signal write_temp_cmd : std_logic;
+   -- SMB master interface:
+   signal slave_data_out : std_logic_vector(7 downto 0);
+   signal slave_start    : std_logic;
+   signal slave_done     : std_logic;
+   signal slave_err      : std_logic;
 
--- temperature data register and valid flag:
-signal thermo    : std_logic_vector(7 downto 0);
-signal valid     : std_logic;
+   -- Timer signals
+   signal timeout_clr   : std_logic;
+   signal timeout_count : integer;
+   signal update_temp   : std_logic;
 
-signal thermo_ld : std_logic;
-signal valid_ld  : std_logic;
+   -- SMB controller FSM states:
+   type states is (IDLE, START_SMB_MASTER, REGISTER_TEMP);
+   signal ctrl_ps : states;
+   signal ctrl_ns : states;
 
 begin
 
-   master : smb_master
-   port map(clk_i         => clk_i,
-            rst_i         => rst_i,
-            master_data_i => slave_data_in,
-            master_data_o => slave_data_out,
-            start_i       => slave_start,
-            stop_i        => slave_stop,
-            write_i       => slave_write,
-            read_i        => slave_read,
-            done_o        => slave_done,
-            error_o       => slave_err,
-            slave_clk_o   => smbclk_o,
-            slave_data_io => smbdat_io);
+   ---------------------------------------------------------
+   -- Temperature Update Timer
+   ---------------------------------------------------------
+   timeout_timer : us_timer
+   port map(
+      clk => clk_i,
+      timer_reset_i => timeout_clr,
+      timer_count_o => timeout_count
+   );
 
-   -- Temperature register
-   
-   thermo_data : reg
-   generic map(WIDTH => 8)
-   port map(clk_i => clk_i,
-            rst_i => rst_i,
-            ena_i => thermo_ld,
-            reg_i => slave_data_out,
-            reg_o => thermo);
-   
-   -- Valid flag
-   
-   valid_flag: process(clk_i, rst_i)
+   process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
-         valid <= '0';
+         update_temp <= '0';
       elsif(clk_i'event and clk_i = '1') then
-         if(valid_ld = '1') then
-            valid <= '1';
+         if(timeout_clr = '1') then
+            update_temp <= '0';
+--         elsif(timeout_count >= 350) then
+         elsif(timeout_count >= 2000000) then
+            update_temp <= '1';
+         else
+            update_temp <= update_temp;
          end if;
       end if;
-   end process valid_flag;
-   
-   
-   -- Controller FSM
-   
+   end process;
+
+
+   ------------------------------------------------------------
+   --  Temperature Chip Interface
+   ------------------------------------------------------------
+   master2 : smb_master
+   port map(
+      clk_i         => clk_i,
+      rst_i         => rst_i,
+
+      -- master-side signals
+      r_nw_i        => '1',
+      start_i       => slave_start,
+      addr_i        => "0011000", -- default smb sensor address is 0011000
+      data_i        => "11111111",
+
+      done_o        => slave_done,
+      error_o       => slave_err,
+      data_o        => slave_data_out,
+
+      -- slave-side signals
+      slave_clk_o   => smbclk_o,
+      slave_data_io => smbdat_io
+   );
+
+
+   ------------------------------------------------------------
+   --  Temperature Register
+   ------------------------------------------------------------
+   -- Allows us to write a temporary value to the register to see if the smb_master
+   -- overwrites the value the next time it queries for temperature.
+   -- Essentially, this allows us to test whether the smb portion is working or not.
+   smb_data <= sxt(slave_data_out, 32);
+
+   reg_data <= dat_i when (wbs_wren = '1') else smb_data;
+   reg_wren <= '1'   when (wbs_wren = '1') else smb_wren;
+
+   thermo_data : reg
+   generic map(WIDTH => 32)
+   port map(
+      clk_i => clk_i,
+      rst_i => rst_i,
+      ena_i => reg_wren,
+      reg_i => reg_data,
+      reg_o => wbs_data_o
+   );
+
+
+   ------------------------------------------------------------
+   --  SMB FSM
+   ------------------------------------------------------------
    control_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         ctrl_ps <= CTRL_IDLE;
+         ctrl_ps <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
          ctrl_ps <= ctrl_ns;
       end if;
    end process control_FF;
 
-   control_NS: process(ctrl_ps, slave_done, slave_err)
+   control_NS: process(ctrl_ps, slave_done, update_temp)
    begin
+      -- Default assignment
+      ctrl_ns <= ctrl_ps;
+
       case ctrl_ps is
-         when CTRL_IDLE =>      ctrl_ns <= SEND_START;
+         when IDLE =>
+            if(update_temp = '1') then
+               ctrl_ns <= START_SMB_MASTER;
+            end if;
 
-         when SEND_START =>     if(slave_done = '1') then
-                                   ctrl_ns <= SEND_ADDR;
-                                else
-                                   ctrl_ns <= SEND_START;
-                                end if;
+         when START_SMB_MASTER =>
+            if(slave_done = '1') then
+               ctrl_ns <= REGISTER_TEMP;
+            end if;
 
-         when SEND_ADDR =>      if(slave_done = '1' and slave_err = '0') then
-                                   ctrl_ns <= GET_TEMP;
-                                elsif(slave_done = '1' and slave_err = '1') then
-                                   ctrl_ns <= SEND_STOP;
-                                else
-                                   ctrl_ns <= SEND_ADDR;
-                                end if;
+         when REGISTER_TEMP =>
+            -- What if there's an error??
+            ctrl_ns <= IDLE;
 
-         when GET_TEMP =>       if(slave_done = '1') then
-                                   ctrl_ns <= SEND_STOP;
-                                else
-                                   ctrl_ns <= GET_TEMP;
-                                end if;
+         when others =>
+            ctrl_ns <= IDLE;
 
-         when SEND_STOP =>      if(slave_done = '1') then
-                                   ctrl_ns <= SET_VALID_FLAG;
-                                else
-                                   ctrl_ns <= SEND_STOP;
-                                end if;
-
-         when SET_VALID_FLAG => ctrl_ns <= CTRL_IDLE;
-
-         when others =>         ctrl_ns <= CTRL_IDLE;
       end case;
    end process control_NS;
 
-   control_out: process(ctrl_ps, slave_done)
+   control_out: process(ctrl_ps, update_temp)
    begin
-      slave_start   <= '0';
-      slave_stop    <= '0';
-      slave_write   <= '0';
-      slave_read    <= '0';
-      slave_data_in <= (others => '0');
-      
-      thermo_ld <= '0';
-      valid_ld  <= '0';
-      
+      smb_wren    <= '0';
+      slave_start <= '0';
+      timeout_clr <= '0';
+
       case ctrl_ps is
-         when CTRL_IDLE =>      null;
 
-         when SEND_START =>     slave_start <= '1';
+         when IDLE =>
+            if(update_temp = '1') then
+               slave_start <= '1';
+            end if;
 
-         when SEND_ADDR =>      slave_write   <= '1';
-                                slave_data_in <= "00110001";    -- default smb sensor address is 0011000, and read flag (1)
+         when START_SMB_MASTER =>
+            NULL;
 
-         when GET_TEMP =>       slave_read <= '1';
-                                if(slave_done = '1') then
-                                   thermo_ld <= '1';
-                                end if;
+         when REGISTER_TEMP =>
+            smb_wren    <= '1';
+            timeout_clr <= '1';
 
-         when SEND_STOP =>      slave_stop <= '1';
+         when others =>
+            NULL;
 
-         when SET_VALID_FLAG => valid_ld <= '1';
-
-         when others =>         null;
       end case;
    end process control_out;
 
 
-   -- Wishbone FSM
-   
-   wishbone_FF: process(clk_i, rst_i)
+   ------------------------------------------------------------
+   --  WB FSM
+   ------------------------------------------------------------
+   -- clocked FSMs, advance the state for both FSMs
+   state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         wb_ps <= WB_IDLE;
+         current_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
-         wb_ps <= wb_ns;
+         current_state <= next_state;
       end if;
-   end process wishbone_FF;
+   end process state_FF;
 
-   wishbone_NS: process(wb_ps, read_temp_cmd, write_temp_cmd, valid)
+   -- Transition table for DAC controller
+   state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin
-      case wb_ps is
-         when WB_IDLE =>   if(read_temp_cmd = '1') then
-                              wb_ns <= SEND_TEMP;
-                           elsif (write_temp_cmd = '1') then
-                              wb_ns <= WB_ERROR;
-                           else
-                              wb_ns <= WB_IDLE;
-                           end if;
-                           
-         when SEND_TEMP => if(valid = '1') then
-                              wb_ns <= WB_IDLE;
-                           else
-                              wb_ns <= SEND_TEMP;
-                           end if;
-         
-         when WB_ERROR => wb_ns <= WB_IDLE;
-         
-         when others =>    wb_ns <= WB_IDLE;
+      -- Default assignments
+      next_state <= current_state;
+
+      case current_state is
+         when IDLE =>
+            if(wr_cmd = '1') then
+               next_state <= WR;
+            elsif(rd_cmd = '1') then
+               next_state <= RD;
+            end if;
+
+         when WR =>
+            if(cyc_i = '0') then
+               next_state <= IDLE;
+            end if;
+
+         when RD =>
+            if(cyc_i = '0') then
+               next_state <= IDLE;
+            end if;
+
+         when others =>
+            next_state <= IDLE;
+
       end case;
-   end process wishbone_NS;
-   
-   read_temp_cmd <= '1' when (addr_i = FPGA_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   write_temp_cmd <= '1' when (addr_i = FPGA_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
-      
-   wishbone_out: process(wb_ps, thermo, valid)
+   end process state_NS;
+
+   -- Output states for DAC controller
+   state_out: process(current_state, stb_i, addr_i)
    begin
-      ack_o <= '0';
-      dat_o <= (others => '0');
-      err_o <= '0';
-      
-      case wb_ps is         
-         when SEND_TEMP => if(valid = '1') then
-                              ack_o <= '1';
-                              dat_o <= thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & 
-                                       thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & 
-                                       thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & 
-                                       thermo(7 downto 0);   -- upper bits set to '0' by default assignment
-                           end if;
-         
-         when WB_ERROR  => err_o <= '1';
-         
-         when others =>    null;
+      -- Default assignments
+      ack_o    <= '0';
+      wbs_wren <= '0';
+
+      case current_state is
+         when IDLE  =>
+            ack_o <= '0';
+
+         when WR =>
+            ack_o <= '1';
+            if(stb_i = '1') then
+               if(addr_i = FPGA_TEMP_ADDR) then
+                  wbs_wren <= '1';
+               end if;
+            end if;
+
+         when RD =>
+            ack_o <= '1';
+
+         when others =>
+
       end case;
-   end process wishbone_out;
-   
+   end process state_out;
+
+
+   ------------------------------------------------------------
+   --  Wishbone interface:
+   ------------------------------------------------------------
+   with addr_i select dat_o <=
+      wbs_data_o when FPGA_TEMP_ADDR,
+      (others => '0') when others;
+
+   rd_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '0') and
+      (addr_i = FPGA_TEMP_ADDR) else '0';
+
+   wr_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '1') and
+      (addr_i = FPGA_TEMP_ADDR) else '0';
+
 end rtl;
