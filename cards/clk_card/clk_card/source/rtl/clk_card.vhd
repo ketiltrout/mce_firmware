@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.67 2007/02/01 01:48:41 bburger Exp $
+-- $Id: clk_card.vhd,v 1.68 2007/02/10 05:17:26 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.68  2007/02/10 05:17:26  bburger
+-- Bryce:  v03000002
+--
 -- Revision 1.67  2007/02/01 01:48:41  bburger
 -- Bryce:  removed some unused signals
 --
@@ -155,6 +158,7 @@ entity clk_card is
       card_id           : inout std_logic;
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
+      smb_nalert        : in std_logic;
 
       box_id_in         : inout std_logic;
       box_id_out        : out std_logic;
@@ -205,7 +209,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"03000002";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"03000003";
 
    -- reset
    signal rst                : std_logic;
@@ -323,29 +327,29 @@ architecture top of clk_card is
    signal sync_box_err      : std_logic;
    signal sync_box_free_run : std_logic;
 
-   component sram_ctrl
-   port(-- SRAM signals:
-        addr_o  : out std_logic_vector(19 downto 0);
-        data_bi : inout std_logic_vector(31 downto 0);
-        n_ble_o : out std_logic;
-        n_bhe_o : out std_logic;
-        n_oe_o  : out std_logic;
-        n_ce1_o : out std_logic;
-        ce2_o   : out std_logic;
-        n_we_o  : out std_logic;
-
-        -- wishbone signals:
-        clk_i   : in std_logic;
-        rst_i   : in std_logic;
-        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-        we_i    : in std_logic;
-        stb_i   : in std_logic;
-        cyc_i   : in std_logic;
-        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        ack_o   : out std_logic);
-   end component;
+--   component sram_ctrl
+--   port(-- SRAM signals:
+--        addr_o  : out std_logic_vector(19 downto 0);
+--        data_bi : inout std_logic_vector(31 downto 0);
+--        n_ble_o : out std_logic;
+--        n_bhe_o : out std_logic;
+--        n_oe_o  : out std_logic;
+--        n_ce1_o : out std_logic;
+--        ce2_o   : out std_logic;
+--        n_we_o  : out std_logic;
+--
+--        -- wishbone signals:
+--        clk_i   : in std_logic;
+--        rst_i   : in std_logic;
+--        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+--        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+--        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+--        we_i    : in std_logic;
+--        stb_i   : in std_logic;
+--        cyc_i   : in std_logic;
+--        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+--        ack_o   : out std_logic);
+--   end component;
 
    component psu_ctrl
    port(
@@ -488,8 +492,9 @@ architecture top of clk_card is
       ack_o   : out std_logic;
 
       -- SMBus temperature sensor signals
-      smbclk_o : out std_logic;
-      smbdat_io : inout std_logic
+      smbclk_o   : out std_logic;
+      smbalert_i : in std_logic;
+      smbdat_io  : inout std_logic
    );
    end component;
 
@@ -805,31 +810,31 @@ begin
          fpga_thermo_err    when FPGA_TEMP_ADDR,
          '1'                when others;
 
-   -- SRAM interface
-   sram_ctrl_inst: sram_ctrl
-   port map(
-        -- SRAM signals:
-        addr_o  => sram_addr,
-        data_bi(15 downto 0) => sram0_data,
-        data_bi(31 downto 16) => sram1_data,
-        n_ble_o => sram_nble,
-        n_bhe_o => sram_nbhe,
-        n_oe_o  => sram_noe,
-        n_ce1_o => sram_nce1,
-        ce2_o   => sram_ce2,
-        n_we_o  => sram_nwe,
-
-        -- wishbone signals:
-        clk_i   => clk,
-        rst_i   => rst,
-        dat_i   => data,
-        addr_i  => addr,
-        tga_i   => tga,
-        we_i    => we,
-        stb_i   => stb,
-        cyc_i   => cyc,
-        dat_o   => sram_ctrl_data,
-        ack_o   => sram_ctrl_ack);
+--   -- SRAM interface
+--   sram_ctrl_inst: sram_ctrl
+--   port map(
+--        -- SRAM signals:
+--        addr_o  => sram_addr,
+--        data_bi(15 downto 0) => sram0_data,
+--        data_bi(31 downto 16) => sram1_data,
+--        n_ble_o => sram_nble,
+--        n_bhe_o => sram_nbhe,
+--        n_oe_o  => sram_noe,
+--        n_ce1_o => sram_nce1,
+--        ce2_o   => sram_ce2,
+--        n_we_o  => sram_nwe,
+--
+--        -- wishbone signals:
+--        clk_i   => clk,
+--        rst_i   => rst,
+--        dat_i   => data,
+--        addr_i  => addr,
+--        tga_i   => tga,
+--        we_i    => we,
+--        stb_i   => stb,
+--        cyc_i   => cyc,
+--        dat_o   => sram_ctrl_data,
+--        ack_o   => sram_ctrl_ack);
 
    sram0_addr <= sram_addr(19 downto 0);    sram1_addr <= sram_addr(19 downto 0);
 --   sram0_data <= sram_data(15 downto 0);    sram1_data <= sram_data(31 downto 16);
@@ -1047,8 +1052,9 @@ begin
       ack_o   => fpga_thermo_ack,
 
       -- FPGA temperature chip signals
-      smbclk_o  => smb_clk,
-      smbdat_io => smb_data
+      smbclk_o   => smb_clk,
+      smbalert_i => smb_nalert,
+      smbdat_io  => smb_data
    );
 
    lvds_sync <= encoded_sync;
