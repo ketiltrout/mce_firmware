@@ -35,7 +35,7 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 6.1
 
 # Pin & Location Assignments
 # ==========================
@@ -1130,7 +1130,6 @@ set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fif
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
@@ -1192,7 +1191,6 @@ set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_14x64.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/pid_ram_admin.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_10x64.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/misc_banks_admin.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.vhd
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
