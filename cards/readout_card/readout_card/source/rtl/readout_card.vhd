@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.59  2007/03/01 18:18:09  mandana
+-- rev. 0300001b for 10b ram for pid coeffs
+--
 -- Revision 1.58  2007/02/22 00:21:51  mandana
 -- Revision 0300001a same as 3.19 but filter included, raw mode excluded
 --
@@ -360,14 +363,15 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001b"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001c"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      -- filter 1/2^11 scaling between biquad stages 
                                                                      -- added read port for adc_offset, fb_const/channel
                                                                      -- corrected DAC_INIT_VAL for all channels,                                                                      
                                                                      -- servo_mode/column with added ports to fsfb_corr 
                                                                      -- rewrote wbs_frame_data
-                                                                     -- pid 10b
+                                                                     -- debug filter dynamic range
+
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
