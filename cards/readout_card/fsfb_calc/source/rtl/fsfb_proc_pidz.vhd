@@ -21,7 +21,7 @@
 --
 -- fsfb_proc_pidz.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko/Mandana Amiri
 -- Organisation:  UBC
 --
@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.9  2006/08/10 21:30:42  mandana
+-- *** empty log message ***
+--
 -- Revision 1.8  2006/07/28 17:42:13  mandana
 -- introduced FILTER_GAIN_WIDTH parameter to divide by 32 between 2 filter biquads
 --
@@ -162,10 +165,10 @@ architecture rtl of fsfb_proc_pidz is
    signal p_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn (64 + 1 bits)
    signal i_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered I*In (64 + 1 bits)
    signal d_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered D*Dn (64 + 1 bits)
-   signal b11_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b11*Wn11 (15 + 29 bits)
-   signal b12_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b12*Wn12 (15 + 29 bits)
-   signal b21_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b21*Wn21 (15 + 29 bits)
-   signal b22_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b22*Wn22 (15 + 29 bits)
+   signal b11_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b11*Wn11 (15 + 29 + 1 bits)
+   signal b12_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b12*Wn12 (15 + 29 + 1 bits)
+   signal b21_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b21*Wn21 (15 + 29 + 1 bits)
+   signal b22_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b22*Wn22 (15 + 29 + 1 bits)
 
    signal z_dat_65                 : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- Z input extended to 65 bits
    
@@ -190,7 +193,7 @@ architecture rtl of fsfb_proc_pidz is
    signal fltr2_sum                : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);          -- wn + 2*wn1 + wn2 adder output (filter biquad2)
    signal fltr2_sum_reg            : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);          -- registered wn + 2*wn1 + wn2 (filter biquad2)
    
-   signal operand_a		   : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation 
+   signal operand_a        : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation 
    signal operand_b                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation
    signal wtemp                    : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- stores results for b1*wn1+b2*wn2
    signal wtemp_reg                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- stores results for b1*wn1+b2*wn2
@@ -281,28 +284,28 @@ begin
          
          -- B11*Wn11
          when "0001000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B11_COEF;
-                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); --FILTER_B1_COEF(FILTER_B1_COEF'left));
+                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); --FILTER_B11_COEF(FILTER_B11_COEF'left));
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn11_dat_i;
                            multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn11_dat_i(wn11_dat_i'left));         
          
          -- B12*Wn12
          when "0010000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B12_COEF;
-                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); -- FILTER_B2_COEF(FILTER_B2_COEF'left));
+                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); --FILTER_B12_COEF(FILTER_B12_COEF'left));
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn12_dat_i;
                            multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn12_dat_i(wn12_dat_i'left));
 
          -- B21*Wn21
          when "0100000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B21_COEF;
-                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); --FILTER_B1_COEF(FILTER_B1_COEF'left));
+                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); --FILTER_B21_COEF(FILTER_B21_COEF'left));
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn21_dat_i;
                            multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn21_dat_i(wn21_dat_i'left));         
          
          -- B22*Wn22
          when "1000000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B22_COEF;
-                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); -- FILTER_B2_COEF(FILTER_B2_COEF'left));
+                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); --FILTER_B22_COEF(FILTER_B22_COEF'left));
                            
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn22_dat_i;
                            multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn22_dat_i(wn22_dat_i'left));
@@ -406,8 +409,7 @@ begin
       );
    
    -- Sign extended z_dat_i to 64 bits 
-   z_dat_65 <= '0' & ZEROES & z_dat_i when z_dat_i(z_dat_i'left)='0' else
-               '1' & ONES & z_dat_i;
+   z_dat_65 <= sxt(z_dat_i, z_dat_65'length);               
    
    i_dz_add : fsfb_calc_adder65
       port map (
@@ -483,8 +485,14 @@ begin
 
    -- filter wn stage addition  (1st biquad)
    -- wn <= pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(FILTER_DLY_WIDTH-2 downto 0) - wtemp;
-   pidz_sum_reg_shift <= pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) 
-                         & pidz_sum_reg(filter_lock_dat_lsb + FILTER_DLY_WIDTH-3 downto filter_lock_dat_lsb);
+   -- extend sign bit for (input_width - delay_width +1)
+   pidz_sum_reg_shift <= pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
+                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
+                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
+                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
+                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
+                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-2 downto filter_lock_dat_lsb);
    i_wn10_sub : fsfb_calc_sub29
       port map (
          dataa                              => pidz_sum_reg_shift,
@@ -544,7 +552,7 @@ begin
       port map (
          dataa                              => wn21_shift,
          datab                              => wn22_shift,
-         result                             => fltr2_tmp
+         result                             => fltr2_tmp  
       );
 
    -- filter second stage addition  (1st biquad)

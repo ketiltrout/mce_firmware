@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.14  2006/08/10 21:30:42  mandana
+-- *** empty log message ***
+--
 -- Revision 1.13  2006/07/28 17:41:52  mandana
 -- introduced FILTER_GAIN_WIDTH parameter to divide by 32 between 2 filter biquads
 --
@@ -117,7 +120,7 @@ package fsfb_calc_pack is
    constant FILTER_SCALE_LSB       : integer := 1;
    constant FILTER_GAIN_WIDTH      : integer := 11;            -- 1/2^11 is the gain scaling between two filter stages.
  
-   constant FILTER_INPUT_WIDTH     : integer := 29;            -- number of bits in the input NOT USED 
+   constant FILTER_INPUT_WIDTH     : integer := 18;            -- number of bits in the input NOT USED 
    constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
    constant FILTER_DLY_WIDTH       : integer := 29;            -- number of bits for wn terms (refer to IIR direct form II)
    constant FILTER_OUTPUT_WIDTH    : integer := 32;            -- number of bits in the output
