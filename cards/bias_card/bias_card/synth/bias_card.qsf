@@ -517,6 +517,19 @@ set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
 
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_location_assignment PIN_T3 -to sa_htr1p
+set_location_assignment PIN_T4 -to sa_htr1n
+set_location_assignment PIN_T1 -to sa_htr2p
+set_location_assignment PIN_U2 -to sa_htr2n
+set_location_assignment PIN_AE11 -to test[1]
+set_location_assignment PIN_AD8 -to test[2]
+set_location_assignment PIN_AH9 -to rx
+set_location_assignment PIN_AE10 -to tx
+set_global_assignment -name ENABLE_CLOCK_LATENCY ON
+set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING ON
+set_global_assignment -name DO_COMBINED_ANALYSIS ON
+set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
@@ -534,7 +547,6 @@ set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/par
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter_xstep.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slow2fast_clk_domain_crosser.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fast2slow_clk_domain_crosser.vhd
@@ -587,16 +599,3 @@ set_global_assignment -name VHDL_FILE ../source/rtl/bias_card.vhd
 set_global_assignment -name HEX_FILE ../source/tb/bias_card_wb.hex
 set_global_assignment -name SIGNALTAP_FILE bias.stp
 set_global_assignment -name SIGNALTAP_FILE bias_card.stp
-set_location_assignment PIN_T3 -to sa_htr1p
-set_location_assignment PIN_T4 -to sa_htr1n
-set_location_assignment PIN_T1 -to sa_htr2p
-set_location_assignment PIN_U2 -to sa_htr2n
-set_location_assignment PIN_AE11 -to test[1]
-set_location_assignment PIN_AD8 -to test[2]
-set_location_assignment PIN_AH9 -to rx
-set_location_assignment PIN_AE10 -to tx
-set_global_assignment -name ENABLE_CLOCK_LATENCY ON
-set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
-set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING ON
-set_global_assignment -name DO_COMBINED_ANALYSIS ON
-set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON

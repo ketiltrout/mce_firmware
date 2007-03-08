@@ -1,5 +1,5 @@
 Flow report for bias_card
-Wed Oct 04 11:47:49 2006
+Wed Mar 07 14:29:35 2007
 Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 
 
@@ -37,7 +37,7 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------+
 ; Flow Summary                                                             ;
 +--------------------------+-----------------------------------------------+
-; Flow Status              ; Analyzed - Wed Oct 04 11:47:49 2006           ;
+; Flow Status              ; Analyzed - Wed Mar 07 14:29:35 2007           ;
 ; Quartus II Version       ; 6.0 Build 202 06/20/2006 SP 1 SJ Full Version ;
 ; Revision Name            ; bias_card                                     ;
 ; Top-level Entity Name    ; bias_card                                     ;
@@ -45,8 +45,8 @@ applicable agreement for further details.
 ; Device                   ; EP1S10F780C5                                  ;
 ; Timing Models            ; Final                                         ;
 ; Met timing requirements  ; Yes                                           ;
-; Total logic elements     ; 2,240 / 10,570 ( 21 % )                       ;
-; Total pins               ; 186 / 427 ( 44 % )                            ;
+; Total logic elements     ; 2,391 / 10,570 ( 23 % )                       ;
+; Total pins               ; 187 / 427 ( 44 % )                            ;
 ; Total virtual pins       ; 0                                             ;
 ; Total memory bits        ; 69,632 / 920,448 ( 8 % )                      ;
 ; DSP block 9-bit elements ; 0 / 48 ( 0 % )                                ;
@@ -60,7 +60,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 10/04/2006 11:45:03 ;
+; Start date & time ; 03/07/2007 14:25:46 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -94,12 +94,12 @@ applicable agreement for further details.
 +----------------------+--------------+
 ; Module Name          ; Elapsed Time ;
 +----------------------+--------------+
-; Analysis & Synthesis ; 00:01:03     ;
-; Fitter               ; 00:01:10     ;
+; Analysis & Synthesis ; 00:01:25     ;
+; Fitter               ; 00:01:33     ;
 ; Assembler            ; 00:00:05     ;
 ; Timing Analyzer      ; 00:00:08     ;
-; Design Assistant     ; 00:00:10     ;
-; Total                ; 00:02:36     ;
+; Design Assistant     ; 00:00:11     ;
+; Total                ; 00:03:22     ;
 +----------------------+--------------+
 
 

@@ -1,5 +1,5 @@
 Assembler report for bias_card
-Wed Oct 04 11:47:26 2006
+Wed Mar 07 14:29:13 2007
 Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 
 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Wed Oct 04 11:47:26 2006 ;
+; Assembler Status      ; Successful - Wed Mar 07 14:29:12 2007 ;
 ; Revision Name         ; bias_card                             ;
 ; Top-level Entity Name ; bias_card                             ;
 ; Family                ; Stratix                               ;
@@ -95,7 +95,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------------+
 ; Device         ; EP1S10F780C5                                                                ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                                  ;
-; Checksum       ; 0x0031C9EC                                                                  ;
+; Checksum       ; 0x0033BC38                                                                  ;
 +----------------+-----------------------------------------------------------------------------+
 
 
@@ -106,7 +106,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------------+
 ; Device         ; EPC4                                                                        ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                                  ;
-; Checksum       ; 0x060FAE03                                                                  ;
+; Checksum       ; 0x0609E3FF                                                                  ;
 +----------------+-----------------------------------------------------------------------------+
 
 
@@ -116,11 +116,11 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
     Info: Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
-    Info: Processing started: Wed Oct 04 11:47:22 2006
+    Info: Processing started: Wed Mar 07 14:29:08 2007
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 Info: Assembler is generating device programming files
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-    Info: Processing ended: Wed Oct 04 11:47:26 2006
+    Info: Processing ended: Wed Mar 07 14:29:12 2007
     Info: Elapsed time: 00:00:05
 
 
