@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.27 2006/08/03 19:06:31 mandana Exp $
+-- $Id: bias_card.vhd,v 1.28 2006/10/04 18:49:26 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.28  2006/10/04 18:49:26  mandana
+-- updated revision to x1030006 for seperating update_bias and update_flux_fb
+-- updated top-level interface according to latest bias-card tcl
+--
 -- Revision 1.27  2006/08/03 19:06:31  mandana
 -- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
 --
@@ -186,6 +190,7 @@ entity bias_card is
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
       smb_clk    : out std_logic;
+      smb_nalert : in std_logic;
       smb_data   : inout std_logic;      
       
       -- debug ports:
@@ -203,7 +208,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030006"; -- 03 signifies backplane Rev. C slot IDs
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030007"; -- 03 signifies backplane Rev. C slot IDs
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -343,6 +348,7 @@ begin
             
          -- FPGA temperature chip signals
          smbclk_o                   => smb_clk,
+         smbalert_i                 => smb_nalert,
          smbdat_io                  => smb_data);
        
 
