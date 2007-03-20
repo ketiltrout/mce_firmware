@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fpga_thermo.vhd,v $
+-- Revision 1.5  2007/03/06 00:34:02  bburger
+-- Bryce:  What I meant to say for the v1.4 release notes is that this file has been complete revamped, with all of the smb-specific funtionality moved to the smb_master.vhd file
+--
 -- Revision 1.4  2007/03/06 00:31:30  bburger
 -- Bryce:  added the smbalert_i signal to the fpga_thermo interface
 --
@@ -94,7 +97,7 @@ architecture rtl of fpga_thermo is
    signal reg_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- WBS states:
-   type wbs_states is (IDLE, WR, RD);
+   type wbs_states is (IDLE, WR, RD, WB_ERROR);
    signal current_state : wbs_states;
    signal next_state    : wbs_states;
 
@@ -283,7 +286,7 @@ begin
 
          when WR =>
             if(cyc_i = '0') then
-               next_state <= IDLE;
+               next_state <= WB_ERROR;
             end if;
 
          when RD =>
@@ -291,6 +294,9 @@ begin
                next_state <= IDLE;
             end if;
 
+         when WB_ERROR =>
+            next_state <= IDLE;
+            
          when others =>
             next_state <= IDLE;
 
@@ -303,6 +309,7 @@ begin
       -- Default assignments
       ack_o    <= '0';
       wbs_wren <= '0';
+      err_o    <= '0';
 
       case current_state is
          when IDLE  =>
@@ -319,7 +326,11 @@ begin
          when RD =>
             ack_o <= '1';
 
+         when WB_ERROR =>
+            err_o <= '1';
+            
          when others =>
+            null;
 
       end case;
    end process state_out;
