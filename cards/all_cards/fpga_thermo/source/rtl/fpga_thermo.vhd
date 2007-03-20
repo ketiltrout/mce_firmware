@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fpga_thermo.vhd,v $
+-- Revision 1.6  2007/03/20 20:25:21  mandana
+-- assert err_o when a wishbone write is attempted
+--
 -- Revision 1.5  2007/03/06 00:34:02  bburger
 -- Bryce:  What I meant to say for the v1.4 release notes is that this file has been complete revamped, with all of the smb-specific funtionality moved to the smb_master.vhd file
 --
@@ -97,7 +100,7 @@ architecture rtl of fpga_thermo is
    signal reg_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- WBS states:
-   type wbs_states is (IDLE, WR, RD, WB_ERROR);
+   type wbs_states is (IDLE, WR, RD);
    signal current_state : wbs_states;
    signal next_state    : wbs_states;
 
@@ -119,6 +122,8 @@ architecture rtl of fpga_thermo is
 
 begin
 
+   err_o    <= '0';
+   
    ---------------------------------------------------------
    -- Temperature Update Timer
    ---------------------------------------------------------
@@ -286,17 +291,14 @@ begin
 
          when WR =>
             if(cyc_i = '0') then
-               next_state <= WB_ERROR;
+               next_state <= IDLE;
             end if;
 
          when RD =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-
-         when WB_ERROR =>
-            next_state <= IDLE;
-            
+         
          when others =>
             next_state <= IDLE;
 
@@ -309,7 +311,6 @@ begin
       -- Default assignments
       ack_o    <= '0';
       wbs_wren <= '0';
-      err_o    <= '0';
 
       case current_state is
          when IDLE  =>
@@ -325,10 +326,7 @@ begin
 
          when RD =>
             ack_o <= '1';
-
-         when WB_ERROR =>
-            err_o <= '1';
-            
+           
          when others =>
             null;
 
