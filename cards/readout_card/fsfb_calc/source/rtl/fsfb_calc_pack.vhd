@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.15  2007/03/07 21:09:57  mandana
+-- filter_input_width is now used to determine how many bits of pid calc results are passed to the filter
+--
 -- Revision 1.14  2006/08/10 21:30:42  mandana
 -- *** empty log message ***
 --
@@ -320,7 +323,7 @@ package fsfb_calc_pack is
          ramp_step_size_i            : in            std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);         
          ramp_amp_i                  : in            std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);          
          fsfb_proc_ramp_update_o     : out           std_logic;                                            
-         fsfb_proc_ramp_dat_o        : out           std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0)
+         fsfb_proc_ramp_dat_o        : out           std_logic_vector(RAMP_AMP_WIDTH downto 0)
       );
    end component fsfb_proc_ramp;
 
