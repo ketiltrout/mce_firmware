@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.60  2007/03/07 18:25:35  mandana
+-- Revision 0300001c filter_input_width set to 18 instead of 28
+--
 -- Revision 1.59  2007/03/01 18:18:09  mandana
 -- rev. 0300001b for 10b ram for pid coeffs
 --
@@ -345,6 +348,7 @@ port(
   
   -- fpga_thermo serial interface
   smb_clk         : out std_logic;
+  smb_nalert      : in std_logic;
   smb_data        : inout std_logic;      
 
   -- Debug ports
@@ -363,7 +367,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001c"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001d"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      -- filter 1/2^11 scaling between biquad stages 
                                                                      -- added read port for adc_offset, fb_const/channel
@@ -935,6 +939,7 @@ begin
             
          -- FPGA temperature chip signals
          smbclk_o  => smb_clk,
+         smbalert_i => smb_nalert,
          smbdat_io => smb_data
    );
 
