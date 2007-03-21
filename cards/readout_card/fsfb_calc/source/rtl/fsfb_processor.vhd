@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.9  2006/07/05 19:28:52  mandana
+-- change default servo_mode (servo_mode=0) to constant mode in order to initialize DACs to 0 upon reset
+--
 -- Revision 1.8  2006/03/14 22:47:51  mandana
 -- interface change to accomodate 4-pole filter
 --
@@ -158,9 +161,6 @@ use work.flux_loop_pack.all;
 
 architecture rtl of fsfb_processor is
 
-   -- constant declarations
-   constant CONST_VAL_ZERO     : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto CONST_VAL_WIDTH) := (others => '0'); 
-
    -- internal signal declarations
    signal const_mode_en        : std_logic;                                                    -- constant mode enable
    signal ramp_mode_en         : std_logic;                                                    -- ramp mode enable
@@ -172,9 +172,9 @@ architecture rtl of fsfb_processor is
    signal pidz_sum             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);        -- PIDZ sum
    signal ramp_update          : std_logic;                                                    -- Ramp mode result update from ramp processor block
    signal ramp_update_1d       : std_logic;                                                    -- Actual ramp mode result update from fsfb processor
-   signal ramp_dat             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Ramp mode processor result
-   signal ramp_dat_ltch        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Latched ramp mode processor result (fixed for configurable number of frame cycles)
-   signal const_dat_ltch       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Latched constant mode result (to created consistent timing behaviour with ramp mode result)
+   signal ramp_dat             : std_logic_vector(RAMP_AMP_WIDTH downto 0);                    -- Ramp mode processor result
+   signal ramp_dat_ltch        : std_logic_vector(RAMP_AMP_WIDTH downto 0);                    -- Latched ramp mode processor result (fixed for configurable number of frame cycles)
+   signal const_dat_ltch       : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                   -- Latched constant mode result (to created consistent timing behaviour with ramp mode result)
 
    signal max_range_fsfb       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
    signal min_range_fsfb       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
@@ -236,7 +236,7 @@ begin
          if (initialize_window_ext_i = '1') then
             const_dat_ltch <= (others => '0');
          else
-            const_dat_ltch <= CONST_VAL_ZERO & const_val_i;
+            const_dat_ltch <= const_val_i;
          end if;
       end if;
    end process const_dat_ltch_proc;
@@ -255,13 +255,13 @@ begin
       update_dat : case servo_mode_i is
          
          -- constant mode setting
-         when "00"   => fsfb_proc_dat_o <= const_dat_ltch;
+         when "00"   => fsfb_proc_dat_o <= ext(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- constant mode setting
-         when "01"   => fsfb_proc_dat_o <= const_dat_ltch;
+         when "01"   => fsfb_proc_dat_o <= ext(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- ramp mode setting
-         when "10"   => fsfb_proc_dat_o <= ramp_dat_ltch;
+         when "10"   => fsfb_proc_dat_o <= sxt(ramp_dat_ltch, fsfb_proc_dat_o'length);
         
          -- lock mode setting      
 
