@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.10  2007/03/07 21:09:57  mandana
+-- filter_input_width is now used to determine how many bits of pid calc results are passed to the filter
+--
 -- Revision 1.9  2006/08/10 21:30:42  mandana
 -- *** empty log message ***
 --
@@ -196,7 +199,6 @@ architecture rtl of fsfb_proc_pidz is
    signal operand_a        : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation 
    signal operand_b                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation
    signal wtemp                    : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- stores results for b1*wn1+b2*wn2
-   signal wtemp_reg                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- stores results for b1*wn1+b2*wn2
    signal wtemp_reg_shift          : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);                -- scaled down version with sign preserved of wtemp
    signal wtemp_reg_shift_corrected: std_logic_vector(FILTER_DLY_WIDTH-1 downto 0); 
    
@@ -572,7 +574,6 @@ begin
          pi_sum_reg    <= (others => '0');
          dz_sum_reg    <= (others => '0');
          pidz_sum_reg  <= (others => '0');
-         wtemp_reg     <= (others => '0');
          wn10_reg      <= (others => '0');
          wn20_reg      <= (others => '0');         
          fltr1_tmp_reg <= (others => '0');
@@ -594,13 +595,11 @@ begin
 
          -- wtemp sum biquad 1
          if (store_1st_wtemp = '1') then
-            wtemp_reg <= wtemp;
             wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT-1 downto FILTER_FB_L_BIT);
          end if;
 
          -- wtemp sum biquad 2
          if (store_2nd_wtemp = '1') then
-            wtemp_reg <= wtemp;
             wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT-1 downto FILTER_FB_L_BIT);
          end if;
 
