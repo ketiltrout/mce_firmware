@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.15.2.4 2006/07/24 23:16:34 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.15.2.5 2006/12/08 19:30:58 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.15.2.5  2006/12/08 19:30:58  bburger
+-- Bryce:  Added fsfb_ctrl_lock_en signals for all 8 channels so that the flux-jumping block can be controlled on a channel by channel basis.
+--
 -- Revision 1.15.2.4  2006/07/24 23:16:34  mandana
 -- changed multiplier and subtractor width to relax timing
 --
@@ -203,10 +206,9 @@ constant COL5 : std_logic_vector(2 downto 0) := "101";
 constant COL6 : std_logic_vector(2 downto 0) := "110";
 constant COL7 : std_logic_vector(2 downto 0) := "111";
 
-constant ZERO_QUANTA : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');
+constant ZERO_QUANTA : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0) := (others => '0');
+constant ZERO_PID    : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX -1 downto 0) := (others=>'0');
 
-constant DATA_PATH0 : std_logic := '0';
-constant DATA_PATH1 : std_logic := '1';
 
 -- Control signals
 signal start_corr            : std_logic;
@@ -215,18 +217,13 @@ signal column_switch1        : std_logic_vector(2 downto 0);
 signal column_switch2        : std_logic_vector(2 downto 0);
 signal pid_corr_rdy          : std_logic;
 signal m_pres_rdy            : std_logic;
---signal enable_feedthrough    : std_logic;
 
 -- Data-path signals
-signal flux_quanta1          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-signal flux_quanta2          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+signal flux_quanta1          : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+signal flux_quanta2          : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
 
 signal m_prev                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_pres                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_prev_sign_xtnd      : std_logic_vector(MULT_WIDTH-1 downto 0);
-signal m_pres_sign_xtnd      : std_logic_vector(MULT_WIDTH-1 downto 0);
-signal pid_prev_sign_xtnd1   : std_logic_vector(SUB_WIDTH-1 downto 0);
-signal pid_prev_sign_xtnd2   : std_logic_vector(SUB_WIDTH-1 downto 0);
 signal m_pres0               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_pres1               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_pres2               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
@@ -240,18 +237,20 @@ signal pid_prev1             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WIND
 signal pid_prev2             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
 signal mult_res1             : std_logic_vector(PROD_WIDTH-1 downto 0);
 signal mult_res2             : std_logic_vector(PROD_WIDTH-1 downto 0);
+signal mult_res1_xtnd        : std_logic_vector(SUB_WIDTH-1 downto 0);
+signal mult_res2_xtnd        : std_logic_vector(SUB_WIDTH-1 downto 0);
 signal sub_res1              : std_logic_vector(SUB_WIDTH-1 downto 0);
 signal sub_res2              : std_logic_vector(SUB_WIDTH-1 downto 0);
 
 -- Registers for inputs
-signal flux_quanta_reg0      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
-signal flux_quanta_reg1      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
-signal flux_quanta_reg2      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
-signal flux_quanta_reg3      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
-signal flux_quanta_reg4      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
-signal flux_quanta_reg5      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
-signal flux_quanta_reg6      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
-signal flux_quanta_reg7      : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg0      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg1      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg2      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg3      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg4      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg5      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg6      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
+signal flux_quanta_reg7      : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0); 
 
 signal m_prev_reg0           : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal m_prev_reg1           : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
@@ -270,7 +269,6 @@ signal pid_prev_reg4         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WIND
 signal pid_prev_reg5         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0); 
 signal pid_prev_reg6         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0); 
 signal pid_prev_reg7         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0); 
-signal ZERO_PID              : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0) := (others => '0'); 
 
 signal fsfb_ctrl_dat_rdy0    : std_logic;
 signal fsfb_ctrl_dat_rdy1    : std_logic;
@@ -318,6 +316,15 @@ signal res_b_en5             : std_logic;
 signal res_b_en6             : std_logic; 
 signal res_b_en7             : std_logic; 
 
+signal res_b0                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b1                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b2                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b3                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b4                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b5                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b6                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b7                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+
 signal m_pres_reg0            : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_pres_reg1            : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_pres_reg2            : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
@@ -351,11 +358,13 @@ begin
          datab  => m_prev,
          result => mult_res1
       );
-      
+   
+   mult_res1_xtnd <= sxt(mult_res1, SUB_WIDTH);
+   
    sub1 : fsfb_corr_subtractor
       port map (
-         dataa  => pid_prev_sign_xtnd1,
-         datab  => mult_res1,
+         dataa  => pid_prev1,
+         datab  => mult_res1_xtnd,
          result => sub_res1
       );
 
@@ -365,14 +374,15 @@ begin
          datab  => m_pres,
          result => mult_res2
       );
-      
+   mult_res2_xtnd <= sxt(mult_res2, SUB_WIDTH);   
+   
    sub2 : fsfb_corr_subtractor
       port map (
-         dataa  => pid_prev_sign_xtnd2,
-         datab  => mult_res2,
+         dataa  => pid_prev2,
+         datab  => mult_res2_xtnd,
          result => sub_res2
       );
-
+           
    -------------------------------
    -- State machine
    -------------------------------
@@ -539,33 +549,11 @@ begin
          when others =>
       end case;
    end process;
+---------------------------------------------
 
-   -------------------------------
-   -- Registered aritmetic outputs
-   -------------------------------
-   register_result: process(clk_i, rst_i)
+   m_regs: process(clk_i, rst_i)
    begin
-      
-      if(rst_i = '1') then
-         
-         res_a_reg0 <= (others => '0'); 
-         res_a_reg1 <= (others => '0'); 
-         res_a_reg2 <= (others => '0'); 
-         res_a_reg3 <= (others => '0'); 
-         res_a_reg4 <= (others => '0'); 
-         res_a_reg5 <= (others => '0'); 
-         res_a_reg6 <= (others => '0'); 
-         res_a_reg7 <= (others => '0'); 
-
-         res_b_reg0 <= (others => '0'); 
-         res_b_reg1 <= (others => '0'); 
-         res_b_reg2 <= (others => '0'); 
-         res_b_reg3 <= (others => '0'); 
-         res_b_reg4 <= (others => '0'); 
-         res_b_reg5 <= (others => '0'); 
-         res_b_reg6 <= (others => '0'); 
-         res_b_reg7 <= (others => '0');
-      
+      if rst_i = '1' then
          m_pres_reg0 <= (others => '0');   
          m_pres_reg1 <= (others => '0');    
          m_pres_reg2 <= (others => '0');    
@@ -574,121 +562,19 @@ begin
          m_pres_reg5 <= (others => '0');     
          m_pres_reg6 <= (others => '0');    
          m_pres_reg7 <= (others => '0');    
-
-      elsif(clk_i'event and clk_i = '1') then
          
----------------------------------------------
-         if(res_a_en0 = '1') then
-            res_a_reg0 <= sub_res1; 
-         end if;
-         if(res_a_en1 = '1') then
-            res_a_reg1 <= sub_res1; 
-         end if;
-         if(res_a_en2 = '1') then
-            res_a_reg2 <= sub_res1; 
-         end if;
-         if(res_a_en3 = '1') then
-            res_a_reg3 <= sub_res1; 
-         end if;
-         if(res_a_en4 = '1') then
-            res_a_reg4 <= sub_res1; 
-         end if;
-         if(res_a_en5 = '1') then
-            res_a_reg5 <= sub_res1; 
-         end if;
-         if(res_a_en6 = '1') then
-            res_a_reg6 <= sub_res1; 
-         end if;
-         if(res_a_en7 = '1') then
-            res_a_reg7 <= sub_res1; 
-         end if;
-
----------------------------------------------
-         if(res_b_en0 = '1') then
-            -- If we've maxed out the number of flux jumps allowed, clamp the value
-            if(m_pres_reg0 = M_MIN) then
-               res_b_reg0 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg0 = M_MAX) then
-               res_b_reg0 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg0 <= sub_res2; 
-            end if;
-         end if;
-         if(res_b_en1 = '1') then
-            if(m_pres_reg1 = M_MIN) then
-               res_b_reg1 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg1 = M_MAX) then
-               res_b_reg1 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg1 <= sub_res2; 
-            end if;
-         end if;
-         if(res_b_en2 = '1') then
-            if(m_pres_reg2 = M_MIN) then
-               res_b_reg2 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg2 = M_MAX) then
-               res_b_reg2 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg2 <= sub_res2; 
-            end if;
-         end if;
-         if(res_b_en3 = '1') then
-            if(m_pres_reg3 = M_MIN) then
-               res_b_reg3 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg3 = M_MAX) then
-               res_b_reg3 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg3 <= sub_res2; 
-            end if;
-         end if;
-         if(res_b_en4 = '1') then
-            if(m_pres_reg4 = M_MIN) then
-               res_b_reg4 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg4 = M_MAX) then
-               res_b_reg4 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg4 <= sub_res2; 
-            end if;
-         end if;
-         if(res_b_en5 = '1') then
-            if(m_pres_reg5 = M_MIN) then
-               res_b_reg5 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg5 = M_MAX) then
-               res_b_reg5 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg5 <= sub_res2; 
-            end if;
-         end if;
-         if(res_b_en6 = '1') then
-            if(m_pres_reg6 = M_MIN) then
-               res_b_reg6 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg6 = M_MAX) then
-               res_b_reg6 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg6 <= sub_res2; 
-            end if;
-         end if;
-         if(res_b_en7 = '1') then
-            if(m_pres_reg7 = M_MIN) then
-               res_b_reg7 <= FSFB_CLAMP_MIN;
-            elsif(m_pres_reg7 = M_MAX) then
-               res_b_reg7 <= FSFB_CLAMP_MAX;
-            else
-               res_b_reg7 <= sub_res2; 
-            end if;
-         end if;
-         
+      elsif (clk_i'event and clk_i = '1') then   
          -- When flux jumping is disabled, we set all the m_pres values back to 0
          -- This is what they should be if we were to re-enable the flux jumping
-
+         
          if(m_pres_en0 = '1') then
             -- If we don't return to 0 after a very large pid_prev, then m_pres is not reset accordingly
             if(flux_jumping_en_i = '1' and pid_prev_reg0 /= ZERO_PID) then
                m_pres_reg0 <= m_pres0; 
             else
-               m_pres_reg0 <= (others => '0'); 
+               m_pres_reg0 <= (others => '0');                
             end if;
-         end if;
+         end if;         
          if(m_pres_en1 = '1') then
             if(flux_jumping_en_i = '1' and pid_prev_reg1 /= ZERO_PID) then
                m_pres_reg1 <= m_pres1; 
@@ -738,10 +624,156 @@ begin
                m_pres_reg7 <= (others => '0'); 
             end if;
          end if;
+      end if;   
+   end process;      
+--------------------------------------------- 
+-- If we've maxed out the number of flux jumps allowed, clamp the value
+   res_b0 <= FSFB_CLAMP_MIN when m_pres_reg0 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg0 = M_MAX else
+             sub_res2;
+   
+   res_b1 <= FSFB_CLAMP_MIN when m_pres_reg1 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg1 = M_MAX else
+             sub_res2;
+
+   res_b2 <= FSFB_CLAMP_MIN when m_pres_reg2 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg2 = M_MAX else
+             sub_res2;
+
+   res_b3 <= FSFB_CLAMP_MIN when m_pres_reg3 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg3 = M_MAX else
+             sub_res2;
+
+   res_b4 <= FSFB_CLAMP_MIN when m_pres_reg4 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg4 = M_MAX else
+             sub_res2;
+
+   res_b5 <= FSFB_CLAMP_MIN when m_pres_reg5 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg5 = M_MAX else
+             sub_res2;
+
+   res_b6 <= FSFB_CLAMP_MIN when m_pres_reg6 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg6 = M_MAX else
+             sub_res2;
+
+   res_b7 <= FSFB_CLAMP_MIN when m_pres_reg7 = M_MIN else
+             FSFB_CLAMP_MAX when m_pres_reg7 = M_MAX else
+             sub_res2;
+
+--------------------------------------------------------
+   register_result: process(clk_i, rst_i)
+   begin
+      
+      if(rst_i = '1') then         
+         res_a_reg0 <= (others => '0'); 
+         res_a_reg1 <= (others => '0'); 
+         res_a_reg2 <= (others => '0'); 
+         res_a_reg3 <= (others => '0'); 
+         res_a_reg4 <= (others => '0'); 
+         res_a_reg5 <= (others => '0'); 
+         res_a_reg6 <= (others => '0'); 
+         res_a_reg7 <= (others => '0'); 
+
+         res_b_reg0 <= (others => '0'); 
+         res_b_reg1 <= (others => '0'); 
+         res_b_reg2 <= (others => '0'); 
+         res_b_reg3 <= (others => '0'); 
+         res_b_reg4 <= (others => '0'); 
+         res_b_reg5 <= (others => '0'); 
+         res_b_reg6 <= (others => '0'); 
+         res_b_reg7 <= (others => '0');      
+
+      elsif(clk_i'event and clk_i = '1') then         
+---------------------------------------------
+         if(res_a_en0 = '1') then
+            res_a_reg0 <= sub_res1; 
+         end if;
+         if(res_a_en1 = '1') then
+            res_a_reg1 <= sub_res1; 
+         end if;
+         if(res_a_en2 = '1') then
+            res_a_reg2 <= sub_res1; 
+         end if;
+         if(res_a_en3 = '1') then
+            res_a_reg3 <= sub_res1; 
+         end if;
+         if(res_a_en4 = '1') then
+            res_a_reg4 <= sub_res1; 
+         end if;
+         if(res_a_en5 = '1') then
+            res_a_reg5 <= sub_res1; 
+         end if;
+         if(res_a_en6 = '1') then
+            res_a_reg6 <= sub_res1; 
+         end if;
+         if(res_a_en7 = '1') then
+            res_a_reg7 <= sub_res1; 
+         end if;
+---------------------------------------------
+         if(res_b_en0 = '1') then
+            res_b_reg0 <= res_b0;
+         end if;
+
+         if(res_b_en1 = '1') then
+            res_b_reg1 <= res_b1;         
+         end if;
          
+         if(res_b_en2 = '1') then
+            res_b_reg2 <= res_b2;         
+         end if;
+         if(res_b_en3 = '1') then
+            res_b_reg3 <= res_b3;                  
+         end if;
+         if(res_b_en4 = '1') then
+            res_b_reg4 <= res_b4;                  
+         end if;
+         if(res_b_en5 = '1') then
+            res_b_reg5 <= res_b5;                  
+         end if;
+         if(res_b_en6 = '1') then
+            res_b_reg6 <= res_b6;                  
+         end if;
+         if(res_b_en7 = '1') then
+            res_b_reg7 <= res_b7;                  
+         end if;                  
       end if;
    end process;
-
+-------------------------------------------------------------------   
+   rdy_reg: process (clk_i, rst_i)
+   begin
+      if rst_i = '1' then
+         fsfb_ctrl_dat_rdy0 <= '0';
+         fsfb_ctrl_dat_rdy1 <= '0';
+         fsfb_ctrl_dat_rdy2 <= '0';
+         fsfb_ctrl_dat_rdy3 <= '0';
+         fsfb_ctrl_dat_rdy4 <= '0';
+         fsfb_ctrl_dat_rdy5 <= '0';
+         fsfb_ctrl_dat_rdy6 <= '0';
+         fsfb_ctrl_dat_rdy7 <= '0';
+      
+      elsif clk_i'event and clk_i = '1' then
+         if(rdy_clr = '1') then
+            fsfb_ctrl_dat_rdy0 <= '0';
+            fsfb_ctrl_dat_rdy1 <= '0';
+            fsfb_ctrl_dat_rdy2 <= '0';
+            fsfb_ctrl_dat_rdy3 <= '0';
+            fsfb_ctrl_dat_rdy4 <= '0';
+            fsfb_ctrl_dat_rdy5 <= '0';
+            fsfb_ctrl_dat_rdy6 <= '0';
+            fsfb_ctrl_dat_rdy7 <= '0';
+         else   
+            fsfb_ctrl_dat_rdy0 <= fsfb_ctrl_dat_rdy0_i;
+            fsfb_ctrl_dat_rdy1 <= fsfb_ctrl_dat_rdy1_i;
+            fsfb_ctrl_dat_rdy2 <= fsfb_ctrl_dat_rdy2_i;
+            fsfb_ctrl_dat_rdy3 <= fsfb_ctrl_dat_rdy3_i;
+            fsfb_ctrl_dat_rdy4 <= fsfb_ctrl_dat_rdy4_i;
+            fsfb_ctrl_dat_rdy5 <= fsfb_ctrl_dat_rdy5_i;
+            fsfb_ctrl_dat_rdy6 <= fsfb_ctrl_dat_rdy6_i;
+            fsfb_ctrl_dat_rdy7 <= fsfb_ctrl_dat_rdy7_i;
+         end if;   
+      end if;
+   end process; -- rdy_reg   
+      
    -------------------------------
    -- Registered inputs
    -------------------------------
@@ -752,245 +784,247 @@ begin
          flux_quanta_reg0      <= (others => '0');
          m_prev_reg0           <= (others => '0');
          pid_prev_reg0         <= (others => '0');
-         fsfb_ctrl_dat_rdy0    <= '0';
          
          flux_quanta_reg1      <= (others => '0');
          m_prev_reg1           <= (others => '0');
          pid_prev_reg1         <= (others => '0');
-         fsfb_ctrl_dat_rdy1    <= '0';
 
          flux_quanta_reg2      <= (others => '0');
          m_prev_reg2           <= (others => '0');
          pid_prev_reg2         <= (others => '0');
-         fsfb_ctrl_dat_rdy2    <= '0';
 
          flux_quanta_reg3      <= (others => '0');
          m_prev_reg3           <= (others => '0');
          pid_prev_reg3         <= (others => '0');
-         fsfb_ctrl_dat_rdy3    <= '0';
 
          flux_quanta_reg4      <= (others => '0');
          m_prev_reg4           <= (others => '0');
          pid_prev_reg4         <= (others => '0');
-         fsfb_ctrl_dat_rdy4    <= '0';
 
          flux_quanta_reg5      <= (others => '0');
          m_prev_reg5           <= (others => '0');
          pid_prev_reg5         <= (others => '0');
-         fsfb_ctrl_dat_rdy5    <= '0';
 
          flux_quanta_reg6      <= (others => '0');
          m_prev_reg6           <= (others => '0');
          pid_prev_reg6         <= (others => '0');
-         fsfb_ctrl_dat_rdy6    <= '0';
 
          flux_quanta_reg7      <= (others => '0');
          m_prev_reg7           <= (others => '0');
          pid_prev_reg7         <= (others => '0');
-         fsfb_ctrl_dat_rdy7    <= '0';
       
       elsif(clk_i'event and clk_i = '1') then
+         if rdy_clr = '0' then
+            if (fsfb_ctrl_dat_rdy0_i = '1') then
+               flux_quanta_reg0      <= flux_quanta0_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg0           <= num_flux_quanta_prev0_i;
+               ---------------------------------------------------------------------------------------
+               -- In fsfb_corr, fsfb_ctrl_lock_en_i = '1' means that the servo is running, 
+               -- and that scaling on fsfb_ctrl_dat0_i input data bus
+               -- must occur at the input so that the servo is only as sensitive as it needs to be.
+               --
+               -- Case 1:
+               -- If fsfb_ctrl_lock_en_i = '1' and flux_jumping_en_i = '1' then 
+               -- the scaled pidz calculation input is used to determine whether a jump needs to occur
+               -- and the corrected value is passed through to the DACs
+               --
+               -- Case 2:
+               -- If fsfb_ctrl_lock_en_i = '1' and flux_jumping_en_i = '0' then
+               -- the scaled pidz calculation input is passed straight through to the DACs
+               --
+               -- Case 3:
+               -- If fsfb_ctrl_lock_en_i = '0' and flux_jumping_en_i = '1' then 
+               -- the un-scaled constant value input is used to determine whether a jump needs to occur
+               -- and the corrected value is passed through to the DACs
+               --
+               -- Case 4:
+               -- If fsfb_ctrl_lock_en_i = '0' and flux_jumping_en_i = '0' then 
+               -- the un-scaled constant value input is passed straight through to the DACs
+               --            
+               ---------------------------------------------------------------------------------------
 
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy0    <= '0';
-         elsif(fsfb_ctrl_dat_rdy0_i = '1') then
-            flux_quanta_reg0      <= flux_quanta0_i;
-            m_prev_reg0           <= num_flux_quanta_prev0_i;
-
-            ---------------------------------------------------------------------------------------
-            -- In fsfb_corr, fsfb_ctrl_lock_en_i = '1' means that the servo is running, 
-            -- and that scaling on fsfb_ctrl_dat0_i input data bus
-            -- must occur at the input so that the servo is only as sensitive as it needs to be.
-            --
-            -- Case 1:
-            -- If fsfb_ctrl_lock_en_i = '1' and flux_jumping_en_i = '1' then 
-            -- the scaled pidz calculation input is used to determine whether a jump needs to occur
-            -- and the corrected value is passed through to the DACs
-            --
-            -- Case 2:
-            -- If fsfb_ctrl_lock_en_i = '1' and flux_jumping_en_i = '0' then
-            -- the scaled pidz calculation input is passed straight through to the DACs
-            --
-            -- Case 3:
-            -- If fsfb_ctrl_lock_en_i = '0' and flux_jumping_en_i = '1' then 
-            -- the un-scaled constant value input is used to determine whether a jump needs to occur
-            -- and the corrected value is passed through to the DACs
-            --
-            -- Case 4:
-            -- If fsfb_ctrl_lock_en_i = '0' and flux_jumping_en_i = '0' then 
-            -- the un-scaled constant value input is passed straight through to the DACs
-            --            
-            -- Currently, LSB_WINDOW_INDEX = 14, so the input is scaled down by 2^14.
-            ---------------------------------------------------------------------------------------
-
-            if(fsfb_ctrl_lock_en0_i = '1') then
-               pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg0         <= fsfb_ctrl_dat0_i(fsfb_ctrl_dat0_i'left) & 
-                                        fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy0    <= fsfb_ctrl_dat_rdy0_i;
-         end if;
+               if(fsfb_ctrl_lock_en0_i = '1') then
+                  pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg0         <= fsfb_ctrl_dat0_i(fsfb_ctrl_dat0_i'left) & 
+                                           fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;
+            end if; -- rdy0
          
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy1    <= '0';
-         elsif(fsfb_ctrl_dat_rdy1_i = '1') then
-            flux_quanta_reg1      <= flux_quanta1_i;
-            m_prev_reg1           <= num_flux_quanta_prev1_i;
-            if(fsfb_ctrl_lock_en1_i = '1') then
-               pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg1         <= fsfb_ctrl_dat1_i(fsfb_ctrl_dat1_i'left) & 
-                                        fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy1    <= fsfb_ctrl_dat_rdy1_i;
-         end if;
-
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy2    <= '0';
-         elsif(fsfb_ctrl_dat_rdy2_i = '1') then
-            flux_quanta_reg2      <= flux_quanta2_i;
-            m_prev_reg2           <= num_flux_quanta_prev2_i;
-            if(fsfb_ctrl_lock_en2_i = '1') then
-               pid_prev_reg2         <= fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg2         <= fsfb_ctrl_dat2_i(fsfb_ctrl_dat2_i'left) & 
-                                        fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy2    <= fsfb_ctrl_dat_rdy2_i;
-         end if;
-
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy3    <= '0';
-         elsif(fsfb_ctrl_dat_rdy3_i = '1') then
-            flux_quanta_reg3      <= flux_quanta3_i;
-            m_prev_reg3           <= num_flux_quanta_prev3_i;
-            if(fsfb_ctrl_lock_en3_i = '1') then
-               pid_prev_reg3         <= fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg3         <= fsfb_ctrl_dat3_i(fsfb_ctrl_dat3_i'left) & 
-                                        fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy3    <= fsfb_ctrl_dat_rdy3_i;
-         end if;
-
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy4    <= '0';
-         elsif(fsfb_ctrl_dat_rdy4_i = '1') then
-            flux_quanta_reg4      <= flux_quanta4_i;
-            m_prev_reg4           <= num_flux_quanta_prev4_i;
-            if(fsfb_ctrl_lock_en4_i = '1') then
-               pid_prev_reg4         <= fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg4         <= fsfb_ctrl_dat4_i(fsfb_ctrl_dat4_i'left) & 
-                                        fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy4    <= fsfb_ctrl_dat_rdy4_i;
-         end if;
-
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy5    <= '0';
-         elsif(fsfb_ctrl_dat_rdy5_i = '1') then
-            flux_quanta_reg5      <= flux_quanta5_i;
-            m_prev_reg5           <= num_flux_quanta_prev5_i;
-            if(fsfb_ctrl_lock_en5_i = '1') then
-               pid_prev_reg5         <= fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg5         <= fsfb_ctrl_dat5_i(fsfb_ctrl_dat5_i'left) & 
-                                        fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy5    <= fsfb_ctrl_dat_rdy5_i;
-         end if;
-
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy6    <= '0';
-         elsif(fsfb_ctrl_dat_rdy6_i = '1') then
-            flux_quanta_reg6      <= flux_quanta6_i;
-            m_prev_reg6           <= num_flux_quanta_prev6_i;
-            if(fsfb_ctrl_lock_en6_i = '1') then
-               pid_prev_reg6         <= fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg6         <= fsfb_ctrl_dat6_i(fsfb_ctrl_dat6_i'left) & 
-                                        fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy6    <= fsfb_ctrl_dat_rdy6_i;
-         end if;
-
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy7    <= '0';
-         elsif(fsfb_ctrl_dat_rdy7_i = '1') then
-            flux_quanta_reg7      <= flux_quanta7_i;
-            m_prev_reg7           <= num_flux_quanta_prev7_i;
-            if(fsfb_ctrl_lock_en7_i = '1') then
-               pid_prev_reg7         <= fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
-            else
-               pid_prev_reg7         <= fsfb_ctrl_dat7_i(fsfb_ctrl_dat7_i'left) & 
-                                        fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
-            end if;
-            fsfb_ctrl_dat_rdy7    <= fsfb_ctrl_dat_rdy7_i;
-         end if;
+            if(fsfb_ctrl_dat_rdy1_i = '1') then
+               flux_quanta_reg1      <= flux_quanta1_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg1           <= num_flux_quanta_prev1_i;
+               if(fsfb_ctrl_lock_en1_i = '1') then
+                  pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg1         <= fsfb_ctrl_dat1_i(fsfb_ctrl_dat1_i'left) & 
+                                           fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;            
+            end if; -- rdy1
          
-      end if;
+            if(fsfb_ctrl_dat_rdy2_i = '1') then
+               flux_quanta_reg2      <= flux_quanta2_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg2           <= num_flux_quanta_prev2_i;
+               if(fsfb_ctrl_lock_en2_i = '1') then
+                  pid_prev_reg2         <= fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg2         <= fsfb_ctrl_dat2_i(fsfb_ctrl_dat2_i'left) & 
+                                           fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;
+            end if; -- rdy2
+
+            if(fsfb_ctrl_dat_rdy3_i = '1') then
+               flux_quanta_reg3      <= flux_quanta3_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg3           <= num_flux_quanta_prev3_i;
+               if(fsfb_ctrl_lock_en3_i = '1') then
+                  pid_prev_reg3         <= fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg3         <= fsfb_ctrl_dat3_i(fsfb_ctrl_dat3_i'left) & 
+                                           fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;
+            end if; -- rdy3
+
+            if(fsfb_ctrl_dat_rdy4_i = '1') then
+               flux_quanta_reg4      <= flux_quanta4_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg4           <= num_flux_quanta_prev4_i;
+               if(fsfb_ctrl_lock_en4_i = '1') then
+                  pid_prev_reg4         <= fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg4         <= fsfb_ctrl_dat4_i(fsfb_ctrl_dat4_i'left) & 
+                                           fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;
+            end if; -- rdy4
+
+            if(fsfb_ctrl_dat_rdy5_i = '1') then
+               flux_quanta_reg5      <= flux_quanta5_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg5           <= num_flux_quanta_prev5_i;
+               if(fsfb_ctrl_lock_en5_i = '1') then
+                  pid_prev_reg5         <= fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg5         <= fsfb_ctrl_dat5_i(fsfb_ctrl_dat5_i'left) & 
+                                           fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;
+            end if; -- rdy5
+
+            if(fsfb_ctrl_dat_rdy6_i = '1') then
+               flux_quanta_reg6      <= flux_quanta6_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg6           <= num_flux_quanta_prev6_i;
+               if(fsfb_ctrl_lock_en6_i = '1') then
+                  pid_prev_reg6         <= fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg6         <= fsfb_ctrl_dat6_i(fsfb_ctrl_dat6_i'left) & 
+                                           fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;
+            end if; -- rdy6
+
+            if(fsfb_ctrl_dat_rdy7_i = '1') then
+               flux_quanta_reg7      <= flux_quanta7_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+               m_prev_reg7           <= num_flux_quanta_prev7_i;
+               if(fsfb_ctrl_lock_en7_i = '1') then
+                  pid_prev_reg7         <= fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               else
+                  pid_prev_reg7         <= fsfb_ctrl_dat7_i(fsfb_ctrl_dat7_i'left) & 
+                                           fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               end if;
+            end if; -- rdy7        
+         end if; -- rdy_clr  
+      end if; 
    end process;
 
-   -------------------------------
-   --  Combinatorial Logic (MUXes, etc)
-   -------------------------------
-   flux_quanta1 <=
-      flux_quanta_reg0 when column_switch1 = COL0 else
-      flux_quanta_reg1 when column_switch1 = COL1 else
-      flux_quanta_reg2 when column_switch1 = COL2 else
-      flux_quanta_reg3 when column_switch1 = COL3 else
-      flux_quanta_reg4 when column_switch1 = COL4 else
-      flux_quanta_reg5 when column_switch1 = COL5 else
-      flux_quanta_reg6 when column_switch1 = COL6 else
-      flux_quanta_reg7 when column_switch1 = COL7 else
-      (others => '0');
+   column_mux1 : process (column_switch1, 
+                 flux_quanta_reg0, flux_quanta_reg1, flux_quanta_reg2, flux_quanta_reg3, 
+                 flux_quanta_reg4, flux_quanta_reg5, flux_quanta_reg6, flux_quanta_reg7,
+                 m_prev_reg0, m_prev_reg1, m_prev_reg2, m_prev_reg3, 
+                 m_prev_reg4, m_prev_reg5, m_prev_reg6, m_prev_reg7,
+                 pid_prev_reg0, pid_prev_reg1, pid_prev_reg2, pid_prev_reg3, 
+                 pid_prev_reg4, pid_prev_reg5, pid_prev_reg6, pid_prev_reg7)
+   begin
+      col_mux1: case column_switch1 is
+         when COL0 => flux_quanta1 <= flux_quanta_reg0;
+                      m_prev       <= m_prev_reg0;
+                      pid_prev1    <= pid_prev_reg0;            
+                      
+         when COL1 => flux_quanta1 <= flux_quanta_reg1;
+                      m_prev       <= m_prev_reg1;
+                      pid_prev1    <= pid_prev_reg1;
+         
+         when COL2 => flux_quanta1 <= flux_quanta_reg2;
+                      m_prev       <= m_prev_reg2;
+                      pid_prev1    <= pid_prev_reg2;
+         
+         when COL3 => flux_quanta1 <= flux_quanta_reg3;
+                      m_prev       <= m_prev_reg3;
+                      pid_prev1    <= pid_prev_reg3;
+         
+         when COL4 => flux_quanta1 <= flux_quanta_reg4;
+                      m_prev       <= m_prev_reg4;
+                      pid_prev1    <= pid_prev_reg4;
+         
+         when COL5 => flux_quanta1 <= flux_quanta_reg5;
+                      m_prev       <= m_prev_reg5;
+                      pid_prev1    <= pid_prev_reg5;
+         
+         when COL6 => flux_quanta1 <= flux_quanta_reg6;
+                      m_prev       <= m_prev_reg6;
+                      pid_prev1    <= pid_prev_reg6;
+         
+         when COL7 => flux_quanta1 <= flux_quanta_reg7;
+                      m_prev       <= m_prev_reg7;
+                      pid_prev1    <= pid_prev_reg7;
+         
+         when others => flux_quanta1 <= (others => '0');
+                        m_prev       <= (others => '0');
+                        pid_prev1    <= (others => '0');
+         
+      end case;
+   end process;
    
-   flux_quanta2 <=
-      flux_quanta_reg0 when column_switch2 = COL0 else
-      flux_quanta_reg1 when column_switch2 = COL1 else
-      flux_quanta_reg2 when column_switch2 = COL2 else
-      flux_quanta_reg3 when column_switch2 = COL3 else
-      flux_quanta_reg4 when column_switch2 = COL4 else
-      flux_quanta_reg5 when column_switch2 = COL5 else
-      flux_quanta_reg6 when column_switch2 = COL6 else
-      flux_quanta_reg7 when column_switch2 = COL7 else
-      (others => '0');
-
-   m_prev <=
-      m_prev_reg0 when column_switch1 = COL0 else
-      m_prev_reg1 when column_switch1 = COL1 else
-      m_prev_reg2 when column_switch1 = COL2 else
-      m_prev_reg3 when column_switch1 = COL3 else
-      m_prev_reg4 when column_switch1 = COL4 else
-      m_prev_reg5 when column_switch1 = COL5 else
-      m_prev_reg6 when column_switch1 = COL6 else
-      m_prev_reg7 when column_switch1 = COL7 else
-      (others => '0');
+   column_mux2 : process (column_switch2,
+                 flux_quanta_reg0, flux_quanta_reg1, flux_quanta_reg2, flux_quanta_reg3, 
+                 flux_quanta_reg4, flux_quanta_reg5, flux_quanta_reg6, flux_quanta_reg7,
+                 m_prev_reg0, m_prev_reg1, m_prev_reg2, m_prev_reg3, m_prev_reg4, m_prev_reg5, m_prev_reg6, m_prev_reg7,
+                 pid_prev_reg0, pid_prev_reg1, pid_prev_reg2, pid_prev_reg3, 
+                 pid_prev_reg4, pid_prev_reg5, pid_prev_reg6, pid_prev_reg7)
+   begin
+      col_mux2: case column_switch2 is
+         when COL0 => flux_quanta2 <= flux_quanta_reg0;
+                      m_pres       <= m_prev_reg0;
+                      pid_prev2    <= pid_prev_reg0;
+                      
+         when COL1 => flux_quanta2 <= flux_quanta_reg1;
+                      m_pres       <= m_prev_reg1;
+                      pid_prev2    <= pid_prev_reg1;
+                              
+         when COL2 => flux_quanta2 <= flux_quanta_reg2;
+                      m_pres       <= m_prev_reg2;
+                      pid_prev2    <= pid_prev_reg2;
+                              
+         when COL3 => flux_quanta2 <= flux_quanta_reg3;
+                      m_pres       <= m_prev_reg3;
+                      pid_prev2    <= pid_prev_reg3;
+                               
+         when COL4 => flux_quanta2 <= flux_quanta_reg4;
+                      m_pres       <= m_prev_reg4;
+                      pid_prev2    <= pid_prev_reg4;
+                              
+         when COL5 => flux_quanta2 <= flux_quanta_reg5;
+                      m_pres       <= m_prev_reg5;
+                      pid_prev2    <= pid_prev_reg5;
+                              
+         when COL6 => flux_quanta2 <= flux_quanta_reg6;
+                      m_pres       <= m_prev_reg6;
+                      pid_prev2    <= pid_prev_reg6;
+                              
+         when COL7 => flux_quanta2 <= flux_quanta_reg7;
+                      m_pres       <= m_prev_reg7;
+                      pid_prev2    <= pid_prev_reg7;     
+                      
+         when others => flux_quanta2 <= (others => '0');
+                        m_pres       <= (others => '0');
+                        pid_prev2    <= (others => '0');          
+      end case;
+   end process;
       
-   pid_prev1 <=
-      pid_prev_reg0 when column_switch1 = COL0 else
-      pid_prev_reg1 when column_switch1 = COL1 else
-      pid_prev_reg2 when column_switch1 = COL2 else
-      pid_prev_reg3 when column_switch1 = COL3 else
-      pid_prev_reg4 when column_switch1 = COL4 else
-      pid_prev_reg5 when column_switch1 = COL5 else
-      pid_prev_reg6 when column_switch1 = COL6 else
-      pid_prev_reg7 when column_switch1 = COL7 else
-      (others => '0');
-      
-   pid_prev2 <=
-      pid_prev_reg0 when column_switch2 = COL0 else
-      pid_prev_reg1 when column_switch2 = COL1 else
-      pid_prev_reg2 when column_switch2 = COL2 else
-      pid_prev_reg3 when column_switch2 = COL3 else
-      pid_prev_reg4 when column_switch2 = COL4 else
-      pid_prev_reg5 when column_switch2 = COL5 else
-      pid_prev_reg6 when column_switch2 = COL6 else
-      pid_prev_reg7 when column_switch2 = COL7 else
-      (others => '0');
-
    num_flux_quanta_pres0_o <= m_pres_reg0;
    num_flux_quanta_pres1_o <= m_pres_reg1;
    num_flux_quanta_pres2_o <= m_pres_reg2;
@@ -999,18 +1033,7 @@ begin
    num_flux_quanta_pres5_o <= m_pres_reg5;
    num_flux_quanta_pres6_o <= m_pres_reg6;
    num_flux_quanta_pres7_o <= m_pres_reg7;
-   num_flux_quanta_pres_rdy_o <= m_pres_rdy;
-   
-   m_pres <=
-      m_pres_reg0 when column_switch2 = COL0 else
-      m_pres_reg1 when column_switch2 = COL1 else
-      m_pres_reg2 when column_switch2 = COL2 else
-      m_pres_reg3 when column_switch2 = COL3 else
-      m_pres_reg4 when column_switch2 = COL4 else
-      m_pres_reg5 when column_switch2 = COL5 else
-      m_pres_reg6 when column_switch2 = COL6 else
-      m_pres_reg7 when column_switch2 = COL7 else
-      (others => '0');
+   num_flux_quanta_pres_rdy_o <= m_pres_rdy;   
       
    -- start_corr relies on the fact that all 8 fsfb_io_controllers assert their rdy signal at the same time, otherwise this statement will not work
    start_corr <= 
@@ -1021,16 +1044,9 @@ begin
       fsfb_ctrl_dat_rdy4 and
       fsfb_ctrl_dat_rdy5 and
       fsfb_ctrl_dat_rdy6 and
-      fsfb_ctrl_dat_rdy7;
+      fsfb_ctrl_dat_rdy7;   
+  
    
-   --enable_feedthrough <= '1' when flux_jumping_en_i = '0' else '0'; --and fsfb_ctrl_lock_en_i = '1' 
-      
-   --m_prev_sign_xtnd <= sign_xtnd_m(m_prev);
-   --m_pres_sign_xtnd <= sign_xtnd_m(m_pres);
-   
-   pid_prev_sign_xtnd1 <= sign_xtnd_pid_prev(pid_prev1);
-   pid_prev_sign_xtnd2 <= sign_xtnd_pid_prev(pid_prev2);
-      
    fsfb_ctrl_dat0_o <=
       pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg0(DAC_DAT_WIDTH-1 downto 0);        
@@ -1059,43 +1075,43 @@ begin
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
 
    m_pres0 <=
-      m_prev_reg0 - 1 when (signed(res_a_reg0(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg0 /= M_MIN) and (flux_quanta_reg0 /= ZERO_QUANTA) else
-      m_prev_reg0 + 1 when (signed(res_a_reg0(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg0 /= M_MAX) and (flux_quanta_reg0 /= ZERO_QUANTA) else
+      m_prev_reg0 - 1 when (signed(res_a_reg0) < signed(FSFB_MIN)) and (m_prev_reg0 /= M_MIN) and (flux_quanta_reg0 /= ZERO_QUANTA) else
+      m_prev_reg0 + 1 when (signed(res_a_reg0) > signed(FSFB_MAX)) and (m_prev_reg0 /= M_MAX) and (flux_quanta_reg0 /= ZERO_QUANTA) else
       m_prev_reg0;
 
    m_pres1 <=
-      m_prev_reg1 - 1 when (signed(res_a_reg1(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg1 /= M_MIN) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
-      m_prev_reg1 + 1 when (signed(res_a_reg1(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg1 /= M_MAX) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
+      m_prev_reg1 - 1 when (signed(res_a_reg1) < signed(FSFB_MIN)) and (m_prev_reg1 /= M_MIN) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
+      m_prev_reg1 + 1 when (signed(res_a_reg1) > signed(FSFB_MAX)) and (m_prev_reg1 /= M_MAX) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
       m_prev_reg1;
 
    m_pres2 <=
-      m_prev_reg2 - 1 when (signed(res_a_reg2(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg2 /= M_MIN) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
-      m_prev_reg2 + 1 when (signed(res_a_reg2(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg2 /= M_MAX) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
+      m_prev_reg2 - 1 when (signed(res_a_reg2) < signed(FSFB_MIN)) and (m_prev_reg2 /= M_MIN) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
+      m_prev_reg2 + 1 when (signed(res_a_reg2) > signed(FSFB_MAX)) and (m_prev_reg2 /= M_MAX) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
       m_prev_reg2;
 
    m_pres3 <=
-      m_prev_reg3 - 1 when (signed(res_a_reg3(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg3 /= M_MIN) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
-      m_prev_reg3 + 1 when (signed(res_a_reg3(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg3 /= M_MAX) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
+      m_prev_reg3 - 1 when (signed(res_a_reg3) < signed(FSFB_MIN)) and (m_prev_reg3 /= M_MIN) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
+      m_prev_reg3 + 1 when (signed(res_a_reg3) > signed(FSFB_MAX)) and (m_prev_reg3 /= M_MAX) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
       m_prev_reg3;
 
    m_pres4 <=
-      m_prev_reg4 - 1 when (signed(res_a_reg4(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg4 /= M_MIN) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
-      m_prev_reg4 + 1 when (signed(res_a_reg4(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg4 /= M_MAX) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
+      m_prev_reg4 - 1 when (signed(res_a_reg4) < signed(FSFB_MIN)) and (m_prev_reg4 /= M_MIN) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
+      m_prev_reg4 + 1 when (signed(res_a_reg4) > signed(FSFB_MAX)) and (m_prev_reg4 /= M_MAX) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
       m_prev_reg4;
 
    m_pres5 <=
-      m_prev_reg5 - 1 when (signed(res_a_reg5(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg5 /= M_MIN) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
-      m_prev_reg5 + 1 when (signed(res_a_reg5(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg5 /= M_MAX) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
+      m_prev_reg5 - 1 when (signed(res_a_reg5) < signed(FSFB_MIN)) and (m_prev_reg5 /= M_MIN) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
+      m_prev_reg5 + 1 when (signed(res_a_reg5) > signed(FSFB_MAX)) and (m_prev_reg5 /= M_MAX) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
       m_prev_reg5;
 
    m_pres6 <=
-      m_prev_reg6 - 1 when (signed(res_a_reg6(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg6 /= M_MIN) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
-      m_prev_reg6 + 1 when (signed(res_a_reg6(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg6 /= M_MAX) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
+      m_prev_reg6 - 1 when (signed(res_a_reg6) < signed(FSFB_MIN)) and (m_prev_reg6 /= M_MIN) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
+      m_prev_reg6 + 1 when (signed(res_a_reg6) > signed(FSFB_MAX)) and (m_prev_reg6 /= M_MAX) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
       m_prev_reg6;
 
    m_pres7 <=
-      m_prev_reg7 - 1 when (signed(res_a_reg7(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg7 /= M_MIN) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
-      m_prev_reg7 + 1 when (signed(res_a_reg7(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg7 /= M_MAX) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
+      m_prev_reg7 - 1 when (signed(res_a_reg7) < signed(FSFB_MIN)) and (m_prev_reg7 /= M_MIN) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
+      m_prev_reg7 + 1 when (signed(res_a_reg7) > signed(FSFB_MAX)) and (m_prev_reg7 /= M_MAX) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
       m_prev_reg7;
       
 end rtl;
