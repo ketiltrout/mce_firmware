@@ -29,8 +29,11 @@
 -- Address card top-level file
 --
 -- Revision history:
--- 
+--
 -- $Log: addr_card.vhd,v $
+-- Revision 1.23  2006/10/12 20:12:17  bburger
+-- Bryce:  updated the fw_rev and leds blocks.  Added fpga_thermo and id_thermo slaves.
+--
 -- Revision 1.22  2006/08/01 18:20:51  bburger
 -- Bryce:  removed component declarations from header files and moved them to source files
 --
@@ -126,33 +129,33 @@ entity addr_card is
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
-      
+
       -- LVDS interface:
       lvds_cmd   : in std_logic;
       lvds_sync  : in std_logic;
       lvds_spare : in std_logic;
       lvds_txa   : out std_logic;
       lvds_txb   : out std_logic;
-      
+
       -- TTL interface:
       ttl_nrx1   : in std_logic;
       ttl_tx1    : out std_logic;
       ttl_txena1 : out std_logic;
-      
+
       ttl_nrx2   : in std_logic;
       ttl_tx2    : out std_logic;
       ttl_txena2 : out std_logic;
-      
+
       ttl_nrx3   : in std_logic;
       ttl_tx3    : out std_logic;
       ttl_txena3 : out std_logic;
-      
+
       -- eeprom interface:
       eeprom_si  : in std_logic;
       eeprom_so  : out std_logic;
       eeprom_sck : out std_logic;
       eeprom_cs  : out std_logic;
-      
+
       -- dac interface:
       dac_data0  : out std_logic_vector(13 downto 0);
       dac_data1  : out std_logic_vector(13 downto 0);
@@ -166,7 +169,7 @@ entity addr_card is
       dac_data9  : out std_logic_vector(13 downto 0);
       dac_data10 : out std_logic_vector(13 downto 0);
       dac_clk    : out std_logic_vector(40 downto 0);
-      
+
       -- miscellaneous ports:
       red_led    : out std_logic;
       ylw_led    : out std_logic;
@@ -177,33 +180,34 @@ entity addr_card is
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
       smb_clk    : out std_logic;
+      smb_nalert : in std_logic;
       smb_data   : inout std_logic;
-      
+
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
       mictor     : out std_logic_vector(32 downto 1);
       mictorclk  : out std_logic_vector(2 downto 1);
       rx         : in std_logic;
-      tx         : out std_logic    
+      tx         : out std_logic
    );
 end addr_card;
 
 architecture top of addr_card is
 
-   -- The REVISION format is RRrrBBBB where 
+   -- The REVISION format is RRrrBBBB where
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000002";
-   
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000003";
+
    -- clocks
    signal clk      : std_logic;
    signal mem_clk  : std_logic;
    signal comm_clk : std_logic;
    signal clk_n    : std_logic;
-   
+
    signal rst      : std_logic;
-   
+
    -- wishbone bus (from master)
    signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal addr : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -232,15 +236,15 @@ architecture top of addr_card is
    signal fw_rev_err              : std_logic;
    signal id_thermo_err           : std_logic;
    signal fpga_thermo_err         : std_logic;
-   
+
    -- frame_timing interface
-   signal restart_frame_aligned : std_logic; 
+   signal restart_frame_aligned : std_logic;
    signal row_switch            : std_logic;
    signal row_en                : std_logic;
-   
+
    -- DAC hardware interface:
-   signal dac_data : w14_array11;   
-   
+   signal dac_data : w14_array11;
+
    component ac_pll
    port(inclk0 : in std_logic;
      c0 : out std_logic;
@@ -248,16 +252,16 @@ architecture top of addr_card is
         c2 : out std_logic;
      c3 : out std_logic);
    end component;
-   
+
    component dispatch
    port(clk_i      : in std_logic;
         comm_clk_i : in std_logic;
-        rst_i      : in std_logic;     
-        
+        rst_i      : in std_logic;
+
         -- bus backplane interface (LVDS)
         lvds_cmd_i   : in std_logic;
         lvds_reply_o : out std_logic;
-        
+
         -- wishbone slave interface
         dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
         addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -268,7 +272,7 @@ architecture top of addr_card is
         dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
         ack_i  : in std_logic;
         err_i  : in std_logic;
-     
+
         -- misc. external interface
         wdt_rst_o : out std_logic;
      slot_i    : in std_logic_vector(3 downto 0);
@@ -276,25 +280,25 @@ architecture top of addr_card is
      dip_sw3 : in std_logic;
      dip_sw4 : in std_logic);
    end component;
-   
+
    component frame_timing is
    port(
       -- Readout Card interface
       dac_dat_en_o               : out std_logic;
       adc_coadd_en_o             : out std_logic;
       restart_frame_1row_prev_o  : out std_logic;
-      restart_frame_aligned_o    : out std_logic; 
+      restart_frame_aligned_o    : out std_logic;
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
-      
+
       -- Address Card interface
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
-         
+
       -- Bias Card interface
       update_bias_o              : out std_logic;
-      
+
       -- Wishbone interface
       dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -303,8 +307,8 @@ architecture top of addr_card is
       stb_i                      : in std_logic;
       cyc_i                      : in std_logic;
       dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                      : out std_logic;      
-      
+      ack_o                      : out std_logic;
+
       -- Global signals
       clk_i                      : in std_logic;
       clk_n_i                    : in std_logic;
@@ -312,14 +316,14 @@ architecture top of addr_card is
       sync_i                     : in std_logic
    );
    end component;
-   
-   component ac_dac_ctrl is        
+
+   component ac_dac_ctrl is
    port
    (
       -- DAC hardware interface:
-      dac_data_o              : out w14_array11;   
+      dac_data_o              : out w14_array11;
       dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
-   
+
       -- wishbone interface:
       dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -334,21 +338,21 @@ architecture top of addr_card is
       row_switch_i            : in std_logic;
       restart_frame_aligned_i : in std_logic;
       row_en_i                : in std_logic;
-      
-      -- Global Signals      
+
+      -- Global Signals
       clk_i                   : in std_logic;
-      rst_i                   : in std_logic     
-   );     
+      rst_i                   : in std_logic
+   );
    end component;
 
    component fw_rev
    generic(REVISION :std_logic_vector (31 downto 0) := X"01010001");
    port(
       clk_i   : in std_logic;
-      rst_i   : in std_logic;     
-      
+      rst_i   : in std_logic;
+
       -- Wishbone signals
-      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
       tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
@@ -364,9 +368,9 @@ architecture top of addr_card is
    port(
       clk_i : in std_logic;
       rst_i : in std_logic;
-   
+
       -- wishbone signals
-      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
       tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
@@ -375,20 +379,21 @@ architecture top of addr_card is
       err_o   : out std_logic;
       dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic;
-      
+
       -- SMBus temperature sensor signals
-      smbclk_o : out std_logic;
-      smbdat_io : inout std_logic
+      smbclk_o   : out std_logic;
+      smbalert_i : in std_logic;
+      smbdat_io  : inout std_logic
    );
    end component;
-   
+
    component id_thermo
    port(
       clk_i : in std_logic;
       rst_i : in std_logic;
-         
+
       -- Wishbone signals
-      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
       tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
@@ -397,7 +402,7 @@ architecture top of addr_card is
       err_o   : out std_logic;
       dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic;
-            
+
       -- silicon id/temperature chip signals
       data_io : inout std_logic
    );
@@ -406,10 +411,10 @@ architecture top of addr_card is
    component leds
    port(
       clk_i   : in std_logic;
-      rst_i   : in std_logic;     
-      
+      rst_i   : in std_logic;
+
       -- Wishbone signals
-      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
       tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
@@ -417,7 +422,7 @@ architecture top of addr_card is
       cyc_i   : in std_logic;
       dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic;
-      
+
       -- LED outputs
       power   : out std_logic;
       status  : out std_logic;
@@ -426,29 +431,29 @@ architecture top of addr_card is
    end component;
 
 begin
-   
+
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_txena1 <= '1';
    -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_nrx1);
-   
+
    pll0: ac_pll
    port map(inclk0 => inclk,
             c0 => clk,
             c1 => mem_clk,
             c2 => comm_clk,
             c3 => clk_n);
-            
+
    cmd0: dispatch
       port map(
          clk_i                      => clk,
          comm_clk_i                 => comm_clk,
          rst_i                      => rst,
-        
+
          lvds_cmd_i                 => lvds_cmd,
          lvds_reply_o               => lvds_txa,
-     
+
          dat_o                      => data,
          addr_o                     => addr,
          tga_o                      => tga,
@@ -457,15 +462,15 @@ begin
          cyc_o                      => cyc,
          dat_i                      => slave_data,
          ack_i                      => slave_ack,
-         err_i                      => slave_err, 
-     
+         err_i                      => slave_err,
+
          wdt_rst_o                  => wdog,
          slot_i                     => slot_id,
-         
+
          dip_sw3                    => '1',
          dip_sw4                    => '1'
       );
-            
+
    leds_slave: leds
       port map(
          clk_i                      => clk,
@@ -479,12 +484,12 @@ begin
          cyc_i                      => cyc,
          dat_o                      => led_data,
          ack_o                      => led_ack,
-         
+
          power                      => grn_led,
          status                     => ylw_led,
          fault                      => red_led
       );
-            
+
    fw_rev_slave: fw_rev
    generic map( REVISION => AC_REVISION)
    port map(
@@ -501,12 +506,12 @@ begin
       dat_o  => fw_rev_data,
       ack_o  => fw_rev_ack
    );
-            
+
    ac_dac_ctrl_slave: ac_dac_ctrl
       port map(
          dac_data_o                 => dac_data,
          dac_clks_o                 => dac_clk,
-      
+
          dat_i                      => data,
          addr_i                     => addr,
          tga_i                      => tga,
@@ -519,11 +524,11 @@ begin
          row_switch_i               => row_switch,
          restart_frame_aligned_i    => restart_frame_aligned,
          row_en_i                   => row_en,
-                                    
+
          clk_i                      => clk,
          rst_i                      => rst
-      );                         
-                                 
+      );
+
    frame_timing_slave: frame_timing
       port map(
          dac_dat_en_o               => open,
@@ -532,12 +537,12 @@ begin
          restart_frame_aligned_o    => restart_frame_aligned,
          restart_frame_1row_post_o  => open,
          initialize_window_o        => open,
-         
+
          row_switch_o               => row_switch,
          row_en_o                   => row_en,
-            
+
          update_bias_o              => open,
-         
+
          dat_i                      => data,
          addr_i                     => addr,
          tga_i                      => tga,
@@ -546,7 +551,7 @@ begin
          cyc_i                      => cyc,
          dat_o                      => frame_timing_data,
          ack_o                      => frame_timing_ack,
-         
+
          clk_i                      => clk,
          clk_n_i                    => clk_n,
          rst_i                      => rst,
@@ -556,10 +561,10 @@ begin
    id_thermo0: id_thermo
    port map(
       clk_i   => clk,
-      rst_i   => rst,  
-      
+      rst_i   => rst,
+
       -- Wishbone signals
-      dat_i   => data, 
+      dat_i   => data,
       addr_i  => addr,
       tga_i   => tga,
       we_i    => we,
@@ -568,18 +573,18 @@ begin
       err_o   => id_thermo_err,
       dat_o   => id_thermo_data,
       ack_o   => id_thermo_ack,
-         
+
       -- silicon id/temperature chip signals
       data_io => card_id
    );
-         
+
    fpga_thermo0: fpga_thermo
    port map(
       clk_i   => clk,
-      rst_i   => rst,  
-      
+      rst_i   => rst,
+
       -- Wishbone signals
-      dat_i   => data, 
+      dat_i   => data,
       addr_i  => addr,
       tga_i   => tga,
       we_i    => we,
@@ -588,12 +593,13 @@ begin
       err_o   => fpga_thermo_err,
       dat_o   => fpga_thermo_data,
       ack_o   => fpga_thermo_ack,
-         
+
       -- FPGA temperature chip signals
       smbclk_o  => smb_clk,
+      smbalert_i => smb_nalert,
       smbdat_io => smb_data
    );
-   
+
    dac_data0  <= dac_data(0);
    dac_data1  <= dac_data(1);
    dac_data2  <= dac_data(2);
@@ -605,10 +611,10 @@ begin
    dac_data8  <= dac_data(8);
    dac_data9  <= dac_data(9);
    dac_data10 <= dac_data(10);
-   
+
    with addr select
-      slave_data <= 
-         fw_rev_data       when FW_REV_ADDR,     
+      slave_data <=
+         fw_rev_data       when FW_REV_ADDR,
          led_data          when LED_ADDR,
          ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
@@ -617,22 +623,22 @@ begin
          (others => '0')   when others;
 
    with addr select
-      slave_ack <=  
-         fw_rev_ack        when FW_REV_ADDR,         
+      slave_ack <=
+         fw_rev_ack        when FW_REV_ADDR,
          led_ack           when LED_ADDR,
          ac_dac_ack        when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
          frame_timing_ack  when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
          '0'               when others;
-         
+
    with addr select
-      slave_err <= 
-         '0'               when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | 
+      slave_err <=
+         '0'               when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                                 SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          fw_rev_err        when FW_REV_ADDR,
          id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err   when FPGA_TEMP_ADDR,
          '1'               when others;
-         
+
 end top;

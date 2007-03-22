@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.47 2007/02/19 22:01:35 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.48 2007/03/06 01:00:42 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.48  2007/03/06 01:00:42  bburger
+-- Bryce:  For fpga_temp testing
+--
 -- Revision 1.47  2007/02/19 22:01:35  mandana
 -- added test case for rewrite of wbs_frame_data and capture_raw bugs in rc_v03000019 and on
 --
@@ -398,6 +401,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
       smb_clk    : out std_logic;
+      smb_nalert : in std_logic;
       smb_data   : inout std_logic;
 
       -- debug ports:
@@ -500,7 +504,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_row_len_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_LEN_ADDR;
    constant cc_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & NUM_ROWS_ADDR;
    constant cc_ret_dat_s_cmd        : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"0000000F";
+   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000004";
    constant cc_led_cmd              : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & LED_ADDR;
    constant cc_array_id_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ARRAY_ID_ADDR;
    constant cc_use_dv_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_DV_ADDR;
@@ -1899,6 +1903,7 @@ begin
 --         dip_sw4          => ac_dip_sw4,
 --         wdog             => ac_wdog,
 --         slot_id          => ac_slot_id,
+--         smb_nalert       => '1',
 --
 --         -- debug ports:
 --         test             => ac_test,
@@ -2326,93 +2331,94 @@ begin
 
       -- Wait for the BRst to finish, which takes 100us
       wait for 120 us;
+
 --      do_bclr;
 --      wait for 200 us;
 
 ------------------------------------------------------
 -- Test case for RC raw-data bugs and rewrite of wbs_frame_data
 ------------------------------------------------------
-      command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-     
-      command <= command_wb;
-      address_id <= rc1_captr_raw_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 150 us;      
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_captr_raw_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 150 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"0000000F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
 
-      command <= command_wb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-
-      command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"0000000F";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 600 us;
-
-      command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 600 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 600 us;
-      
 ------------------------------------------------------
 --  7:  Testing Fibre Rx.
 --  This case tests what happens to the fibre_rx block
@@ -2512,33 +2518,51 @@ begin
 ------------------------------------------------------
 --  1:  A Normal Data Run
 ------------------------------------------------------
---      command <= command_wb;
---      address_id <= all_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000080";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 125 us;
---
---      command <= command_wb;
---      address_id <= all_num_rows_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 125 us;
---
---      command <= command_wb;
---      address_id <= cc_ret_dat_s_cmd;
---      data_valid <= X"00000002";
---      data       <= X"00000002";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;
---
+      command <= command_wb;
+      address_id <= all_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000080";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
+      command <= command_wb;
+      address_id <= all_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
+      command <= command_wb;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
+      command <= command_rb;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
+      command <= command_rb;
+      address_id <= all_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000080";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
 --      command <= command_wb;
 --      address_id <= cc_data_rate_cmd;
 --      data_valid <= X"00000001";
@@ -2581,7 +2605,7 @@ begin
 --      command <= command_wb;
 --      address_id <= cc_ret_dat_s_cmd;
 --      data_valid <= X"00000002";
---      data       <= X"0000000F";
+--      data       <= X"00000004";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
@@ -2759,11 +2783,11 @@ begin
 --  5:  Internal commands cause the first ret_dat command
 --  to slide when the data run starts.
 ------------------------------------------------------
---   constant cc_tes_tgl_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_EN_ADDR;
---   constant cc_tes_tgl_max_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MAX_ADDR;
---   constant cc_tes_tgl_min_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MIN_ADDR;
---   constant cc_tes_tgl_rate_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_RATE_ADDR;
---   constant cc_int_cmd_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & INT_CMD_EN_ADDR;
+----   constant cc_tes_tgl_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_EN_ADDR;
+----   constant cc_tes_tgl_max_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MAX_ADDR;
+----   constant cc_tes_tgl_min_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MIN_ADDR;
+----   constant cc_tes_tgl_rate_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_RATE_ADDR;
+----   constant cc_int_cmd_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & INT_CMD_EN_ADDR;
 --
 --      command <= command_wb;
 --      address_id <= all_row_len_cmd;
@@ -2773,6 +2797,15 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 125 us;
+--
+----      command <= command_rb;
+----      address_id <= all_row_len_cmd;
+----      data_valid <= X"00000001";
+----      data       <= X"00000080";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 125 us;
 --
 --      command <= command_wb;
 --      address_id <= all_num_rows_cmd;
@@ -2818,16 +2851,16 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 20 us;
---
---      command    <= command_wb;
---      address_id <= cc_crc_err_en_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;
---
+----
+----      command    <= command_wb;
+----      address_id <= cc_crc_err_en_cmd;
+----      data_valid <= X"00000001";
+----      data       <= X"00000001";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 20 us;
+----
 --      command <= command_wb;
 --      address_id <= cc_ret_dat_s_cmd;
 --      data_valid <= X"00000002";
@@ -2844,7 +2877,19 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 183 us;
+--      wait for 20 us;
+--
+--      -----------------------------
+--      command <= command_wb;
+--      address_id <= cc_use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--      ------------------------------
+--      wait for 200 us;
 --
 --      command <= command_go;
 --      address_id <= rc1_ret_dat_cmd;
@@ -2853,7 +2898,29 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 1000 us;
+--      wait for 150 us;
+--
+--      -- DV pulse is inverted by the receiver
+--      -- Length of DV packet is 1600ns, 40ns per bit
+--      manchester_data <= '0';
+--      wait for 320 ns;
+--      wait for 1240 ns; -- dv sequence # 1
+--      manchester_data <= '1';
+--      wait for 326120 ns;
+--
+--      manchester_data <= '0';
+--      wait for 320 ns;
+--      wait for 1200 ns; -- dv sequence # 2
+--      manchester_data <= '1';
+--      wait for 326160 ns;
+--
+--      manchester_data <= '0';
+--      wait for 320 ns;
+--      wait for 1200 ns; -- dv sequence # 2
+--      manchester_data <= '1';
+--      wait for 326160 ns;
+--
+--      wait for 900 us;
 
 ------------------------------------------------------
 --  6:  Testing Stop Commands.
@@ -3111,10 +3178,7 @@ begin
 --      wait for 300 us;
 
 ------------------------------------------------------
---  Testing Manchester Data Packets
---  constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
---  constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
---  constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
+--  Testing Servo Loop
 ------------------------------------------------------
 --      command <= command_wb;
 --      address_id <= rc1_gainp0_cmd;
@@ -3819,15 +3883,15 @@ begin
 --      load_checksum;
 --      wait for 200 us;
 --
-      command <= command_rb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 200 us;
-
+--      command <= command_rb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+--
 --      command <= command_rb;
 --      address_id <= rc1_fpga_temp_cmd;
 --      data_valid <= X"00000001";
@@ -3836,24 +3900,24 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 150 us;
-
-      command <= command_wb;
-      address_id <= cc_fpga_temp_cmd;
-      data_valid <= X"00000001";
-      data       <= X"0000000F";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 150 us;
-
-      command <= command_rb;
-      address_id <= cc_fpga_temp_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_fpga_temp_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000000F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 150 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_fpga_temp_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
 
 
 
@@ -3913,7 +3977,7 @@ begin
 --      load_checksum;
 --
 --      wait for 100 us;
---
+
 ------------------------------------------------------
 
       assert false report "Simulation done." severity FAILURE;
@@ -3939,282 +4003,5 @@ begin
       loop wait_for_sreq;
       end loop;
    end process psuc;
-
---   manchester_input : process
---
---      procedure manchester_sync_packet is
---      begin
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '1';
---         wait for 40 ns;
---         manchester_data <= '1';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '1';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '1';
---         wait for 50880 ns; -- Based on 41 rows, 64 cycles per row, 20 ns per cycle, minus 40 bits at 25 MHz
---
---      end manchester_sync_packet;
---
---      procedure manchester_data_packet is
---      begin
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '1';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '1';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---         manchester_data <= '0';
---         wait for 40 ns;
---
---         manchester_data <= '1';
---         wait for 50880 ns; -- Based on 41 rows, 64 cycles per row, 20 ns per cycle, minus 40 bits at 25 MHz
---
---      end manchester_data_packet;
---
---   begin
---
---      manchester_sigdet <= '1';
---
---      manchester_data_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---
---      manchester_data_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---
---      manchester_data_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---
---      manchester_data_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---
---      manchester_data_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---      manchester_sync_packet;
---
---   end process manchester_input;
 
 end tb;
