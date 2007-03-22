@@ -654,8 +654,6 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[7] -section_i
 
 	# Pin & Location Assignments
 	# ==========================
-set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o"
-set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o*"
 
 	# Timing Assignments
 	# ==================
@@ -668,14 +666,13 @@ set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7 ns" -from "rc_pll:i_rc_pll|
 	# Analysis & Synthesis Assignments
 	# ================================
 set_instance_assignment -name MAX_FANOUT 100 -to *
-set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o"
 set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o*"
 
 # end ENTITY(readout_card)
 # ------------------------
 
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
-set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 set_global_assignment -name EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ON -section_id eda_simulation
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
@@ -1200,3 +1197,11 @@ set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
 set_global_assignment -name SIGNALTAP_FILE ../../fsfb_calc/source/rtl/raw.stp
 set_global_assignment -name SIGNALTAP_FILE raw.stp
+set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o[0]*"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o[1]*"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o[2]*"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o[3]*"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o[4]*"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o[5]*"
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN "1 ns"

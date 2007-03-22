@@ -473,7 +473,7 @@ CONF_DONE                    : G17       :        :                   :         
 RESERVED_INPUT               : G18       :        :                   :         : 3         :                
 RESERVED_INPUT               : G19       :        :                   :         : 3         :                
 GND                          : G20       : gnd    :                   :         :           :                
-RESERVED_INPUT               : G21       :        :                   :         : 3         :                
+smb_nalert                   : G21       : input  : 3.3-V LVTTL       :         : 3         : Y              
 smb_data                     : G22       : bidir  : 3.3-V LVTTL       :         : 3         : Y              
 RESERVED_INPUT               : G23       :        :                   :         : 2         :                
 RESERVED_INPUT               : G24       :        :                   :         : 2         :                
