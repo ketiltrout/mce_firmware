@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.54 2007/02/10 05:10:45 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.55 2007/02/13 02:35:34 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/02/10 05:10:45 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/13 02:35:34 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.55  2007/02/13 02:35:34  bburger
+-- Bryce:  Alterered the code in reply_translator to be more readable
+--
 -- Revision 1.54  2007/02/10 05:10:45  bburger
 -- Bryce:  fixed a bug.  A reply with a non-zero error code is not necessarily an error.
 --
@@ -527,7 +530,14 @@ begin
             end if;
             packet_type    <= REPLY;
             crd_add_par_id <= "00000000" & r_card_addr & "00000000" & r_param_id;
-            ok_or_er       <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
+            
+            if(mop_error_code_i = x"00000000") then
+               ok_or_er <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
+            else
+               ok_or_er <= r_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
+            end if;
+            
+--            ok_or_er       <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             -- this will be error code x"00" - i.e. success.
             status         <= mop_error_code_i;
 
