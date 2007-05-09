@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.6 2007/01/31 01:44:39 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.7 2007/02/01 21:07:28 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson/ Bryce Burger
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2007/01/31 01:44:39 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/01 21:07:28 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5.2.7  2007/02/01 21:07:28  bburger
+-- Bryce:  big fix to allow the fibre_rx block to handle spaces between the frist two 32-bit pre-amble words
+--
 -- Revision 1.5.2.6  2007/01/31 01:44:39  bburger
 -- Bryce:  replaced counters, and updated all supporting circuitry
 --
@@ -152,7 +155,7 @@ architecture rtl of fibre_rx is
 
    constant BLOCK_SIZE : integer := 58;                                       -- total number of data words in a write_block
    constant FIBRE_PACKET_SIZE : integer := 64;
-   constant FIBRE_PACKET_TIMEOUT : integer := 128; -- in micro-seconds
+   constant FIBRE_PACKET_TIMEOUT : integer := 512; -- in micro-seconds
 
    signal number_data  : integer;                                             -- this will be a value between 1 and 58
 
