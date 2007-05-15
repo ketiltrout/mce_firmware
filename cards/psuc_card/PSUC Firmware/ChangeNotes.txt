@@ -1,7 +1,8 @@
-Change Notes for PSUC Firmware
-For Version 3.1 15March2007 RHJ
-
 See also: PSC RS232 User Guide
+
+--------------------------------------------------------------------------
+Change Notes for PSUC Firmware Version 3.1 15March2007 RHJ
+--------------------------------------------------------------------------
 
 1. Fixed the RS232 serial IO. 
 
@@ -18,5 +19,56 @@ See also: PSC RS232 User Guide
 
 5. added commands 'v' and 'i' to output the re-scaled ADC values of
    the PSU voltages and currents from the data_block.
+	From data_blk: 03.16 04.84 10.07 06.48 -06.52
+	     Measured:  3.15  4.85 10.11  6.48  -6.51
 
 6. added commands 'f' and 'n' to turn_off or turn_on the PSU outputs.
+
+7. changed version command to '?'.
+
+8. Several changes and tests were done to try and get soft_reset
+   to work consistently. 
+	- LED_STATUS on P1-pin3 was used as a test o/p to check for switch
+	bounce and the timing and functioning of soft_reset, while also 
+	watching the reset-switch input on P4;
+	- interrupt priorities and register sets were varied.
+
+--------------------------------------------------------------------------
+Change Notes for PSUC Firmware v3.2 22March2007 RHJ
+--------------------------------------------------------------------------
+
+1. fixed the value for CF_nIVa which was missing a 0.
+
+2. for Cycle_Power, changed the off time to 2 seconds from 100 mS.
+
+3. changed the Reset command BRST time to 2 second from 100 mS.
+
+4. disabled reset-button and watch_dog soft_resets; 
+	disabled Timer2 interrupts.
+
+5. commented out the ADC_OFFSET conversion.
+
+6. changed the version command, '?' to a version + help command.
+	Note: at first this was implemented as two separate routines,
+	snd_msg(asc_version), and snd_msg(helpmsg); this worked when 
+	called one after the other at startup, but would hang when 
+	called as a command response.  No obvious fault was found to
+	explain the program hanging problem, and a possible stack
+	overflow was suspected.  Adding the version text to the beginning
+	of the help string and removing any separate call to
+ 	snd_msg(asc_version) seems to have fixed the problem.
+
+---------------
+26March2007 RHJ
+---------------
+7. changed wait_time(unsigned char loops) 
+	to wait_time(unsigned int loops).
+
+8. changed Cycle_Power off time to 4 seconds from 2 seconds.
+
+9. changed the Reset command BRST time to 4 second from 2 seconds.
+
+10. changed ACK_NAK bit in data_blk to DATABLK_UPDATED; 
+	this bit is set after the data_blk is updated, and cleared after
+    the data_blk has been sent to the CC. 
+	[done in the program main loop]
