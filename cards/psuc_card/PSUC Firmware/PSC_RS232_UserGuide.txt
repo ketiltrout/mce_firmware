@@ -1,6 +1,6 @@
-PSC RS232 User Guide v0.1
-For PSC Firmware Version 3.1
-19 March 2007 RHJ
+PSC RS232 User Guide v0.2
+For PSC Firmware Version 3.2
+22 March 2007 RHJ
 
 
 Command		'c':
@@ -12,8 +12,8 @@ Command		'r':
 			Function called:  reset_MCE();
 
 Command		'?':
-			// Respond with Software Version
-			Function called:  snd_msg(asc_version);
+			// Respond with Software Version and Command Help list.
+			Function called:  snd_msg(helpmsg);
 
 Command		'd':
 			// Respond with PSU data block 		

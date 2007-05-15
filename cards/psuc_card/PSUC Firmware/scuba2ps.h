@@ -39,8 +39,8 @@
 
 /***** 	Compiler Directives / File Inclusions *****/
 #pragma db
-#pragma small
-#pragma rom (compact)
+//#pragma small
+//#pragma rom (compact)
 #pragma symbols
 #include <at89c5131.h>
 #include <stdio.h>
@@ -66,8 +66,14 @@ void cycle_power(void);								// cycle MCE power
 void send_psu_data_block (void);					// send PSU datablock to CC via SPI
 
 // Timing Functions
-void wait_time (unsigned char);						// waits input*5ms
+void wait_time (unsigned int);						// waits input*5ms
 void wait_time_x2us_plus3(unsigned char);			// waits input*2us + 3us
+
+// protos for datablk RS232 output functions
+void sio_prt_datablk_hex(void);		
+void sio_prt_temps_hex(void);
+void sio_prt_currents(void);
+void sio_prt_volts(void);
 
 // Send Serial Message
 void snd_msg (char *);								// sends message over serial port (RS232)
@@ -95,7 +101,7 @@ unsigned char data spi_idx;							// SPI Data Block Index
 char data sio_rx_idx;								// Serial Received Message Pointer
 char *msg_ptr;									   	// Serial Message to Send Pointer
 unsigned char data bcnt;							// Count of Timer0 interrupts
-unsigned char data num_T1_ints;						// Number of Timer1 interrupts to allow before setting timeup_T1 
+unsigned int data num_T1_ints;						// Number of Timer1 interrupts to allow before setting timeup_T1 
 unsigned char data running_checksum;				// Running total for checksum byte
 unsigned char data cc_req_320ms;					// Count time since last request from CC - used for LED FAULT behavior
 unsigned char data watchdog_count;					// Loop count for watchdog
@@ -130,7 +136,8 @@ bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temper
 #define I_VA_PLUS			(ps_data_blk+28)		// Current +Va supply scaled
 #define I_VA_MINUS			(ps_data_blk+30)		// Current -Va supply scaled
 #define STATUS_WORD			(ps_data_blk+32)		// undefined place for status word
-#define ACK_NAK				(ps_data_blk+34)		// either ACK or NAK
+//#define ACK_NAK				(ps_data_blk+34)		// either ACK or NAK
+#define DATABLK_UPDATED		(ps_data_blk+34)		// set on  update, cleared after tx to CC
 #define CHECK_BYTE			(ps_data_blk+35)		// checksum byte
 
 
