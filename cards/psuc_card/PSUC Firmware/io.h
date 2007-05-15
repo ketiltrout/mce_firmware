@@ -1,17 +1,10 @@
 /*************************************************************************************/
 /*      I/O Assignments           */
 /**********************************/
-// Revision history: 
+// Revision history:
 // $Log: io.h,v $
-// Revision 1.3  2006/11/20 23:22:00  stuartah
-// Cleaned code, improved commenting, implemented changes for PSUC rev. G
-//
-// Revision 1.2  2006/08/30 19:54:19  stuartah
-// Implemented checksum
-//
-// Revision 1.1  2006/08/29 21:06:06  stuartah
-// Initial CVS Build - Most Basic Functionality Implemented
-//	
+// Revision 1.5  2007/05/15 21:08:22  bburger
+// Bryce:  firmware rev. 3.2
 /************************************************************************************/
 
 // AT89 I/O Pin Assignments
@@ -41,7 +34,7 @@ sbit FAN1_SPD =     P3^4;		// Fan 1 Tacho - Input
 sbit LED_FAULT =	P3^5;		// LED1 - Output	0 = off 1 = on
 sbit LED_OUTON =	P3^6;		// LED3 - Output	0 = on  1 = off
 sbit LED_STATUS =	P3^7;		// LED2 - Output	0 = on  1 = off	     ->currently not used
-   
+
 sbit SPARE2 =		P4^0;		// Bus Spare 1
 sbit SPARE1 =		P4^1;		// Bus Spare 2
 
@@ -58,7 +51,7 @@ sbit SPARE1 =		P4^1;		// Bus Spare 2
 #define PSU_DS18S20		0x20
 
 
-// SPI Interface			
+// SPI Interface
 #define ADC_SPI_BLEN	1				// Bytes in SPI Block to ADC
 #define SPI_MSTR		0x10			// SPCON Bit Set for Master
 #define SPI_CPOL0		~0x08			// SPCON Bit Set for Clock Polarity - Active low
@@ -79,18 +72,18 @@ sbit SPARE1 =		P4^1;		// Bus Spare 2
 #define ENABLE		0
 #define DISABLE		1
 #define VOID		0x0
-#define CR			0x0d					
+#define CR			0x0d
 #define LF			0x0a
 #define ACK			0x06
 #define NAK			0x15
-#ifndef NULL 	
-	#define NULL	0x00 				// NULL usually defined	
-#endif	 
+#ifndef NULL
+	#define NULL	0x00 				// NULL usually defined
+#endif
 
 
 // Timing Parameters
 #define MS_RELOAD_5mS	216  			// timing confirmed with 24MHz Clock
-#define LS_RELOAD_5mS	239	 			// Timing register loaded with 0xFFFF - (216)(239) = 0xD8FF = 10000, implies 500ns delay per click 
+#define LS_RELOAD_5mS	239	 			// Timing register loaded with 0xFFFF - (216)(239) = 0xD8FF = 10000, implies 500ns delay per click
 #define T5mS			1
 #define T15mS			3
 #define T25mS			5
@@ -98,9 +91,9 @@ sbit SPARE1 =		P4^1;		// Bus Spare 2
 #define BRATE320mS		10
 #define BRATE1S			31
 
-		
+
 // ADC Control Channel/Mode Select
-#define ADC_CH0		0x80            
+#define ADC_CH0		0x80
 #define ADC_CH1		0x90
 #define ADC_CH2		0xA0
 #define ADC_CH3		0xB0
