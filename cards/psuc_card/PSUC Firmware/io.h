@@ -3,6 +3,9 @@
 /**********************************/
 // Revision history: 
 // $Log: io.h,v $
+// Revision 1.3  2006/11/20 23:22:00  stuartah
+// Cleaned code, improved commenting, implemented changes for PSUC rev. G
+//
 // Revision 1.2  2006/08/30 19:54:19  stuartah
 // Implemented checksum
 //
@@ -93,6 +96,7 @@ sbit SPARE1 =		P4^1;		// Bus Spare 2
 #define T25mS			5
 #define T100mS			20
 #define BRATE320mS		10
+#define BRATE1S			31
 
 		
 // ADC Control Channel/Mode Select

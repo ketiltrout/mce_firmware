@@ -5,6 +5,9 @@
 /************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.13  2006/12/23 00:39:00  stuartah
+// Version 2.3 Release
+//
 // Revision 1.12  2006/11/22 00:10:08  stuartah
 // Fixed FAULT LED behavior to turn on if no CC request for over a minute (no longer flashes)
 //
@@ -57,9 +60,15 @@ Polling and communication functionality seems to be working	*/
 #include "scuba2ps.h"
 
 // Constant Variables
-char code asc_version[] =  "\n\rPSUC v2.30\n\r\0";				// Software Version Serial Message
-char code software_version_byte = 0x23;		 					// 1 byte Software Version 
+char code asc_version[] =  "\r\rPSUC v3.1\r";				// Software Version Serial Message
+char code software_version_byte = 0x31;		 				// 1 byte Software Version 
+char code prompt[] =  "\rPSC> ";							// RS232 IO prompt
 
+// proto for datablk RS232 output functions
+void sio_prt_datablk_hex(void);		
+void sio_prt_temps_hex(void);
+void sio_prt_currents(void);
+void sio_prt_volts(void);
 
 /****************************************************************************************
  *  Main Program		   	   *
@@ -70,36 +79,76 @@ main()
    	// Initialize Hardware and Software Variables
 	init();											
 	
-	// Output Version on Serial Port
-	snd_msg(asc_version);	
-
-   	// Initial Power-Up
+  	// Output Version on Serial Port
+	snd_msg(asc_version);
+	
+  	// Initial Power-Up
 	sequence_on();				
 	//reset_MCE();						// ** This line enables/disables initial subrack reset **
-   	  
-  	/***  Main Loop - Periodically update PSU data block, respond to Clock Card / RS232 Commands  ***/
+	
+	_nop_();	// << THIS IS THE SOFT_RESET JUMP-TO POINT	
+	if( ET2 == 0) snd_msg("\rRestarting\r");	
+//	watchdog_count = 0;								// clear watchdog counter
+	snd_msg(prompt);
+	
+	LED_STATUS = OFF;
+//	wait_time( 600 );			// wait 3 seconds for button release and any bounces
+ 	TF2 = 0;					// clear any interrupt
+	ET2 = 1;					// Enable Timer2 soft_reset Interrupts
+ 	  
+	/***  Main Loop - Periodically update PSU data block, respond to Clock Card / RS232 Commands  ***/
 	while(TRUE) {								
+//		ES = 1;			 			// Enable SIO Interrupts
 
 	  	// Serial I/O message ready to parse
-	  	if ( sio_msg_complete == SET ) {					
+	  	if ( sio_msg_complete == SET ) {
+			ES = 0;			 							// Disable SIO Interrupts					
 	     	sio_msg_complete = CLEAR;
 		 	sio_rx_idx = 0;								// reset message pointer
 	  	 	switch ( sio_rxbuf[0] ) {					// parse message
-				case 'R':								// Reset MCE Command
+				case 'c':								// Cycle Power Command
+					cycle_power();
+					break;
+					
+				case 'r':								// Reset MCE Command
 			   		reset_MCE();
 			   		break;
 
-				case 'V':								// Respond with Software Version
+				case '?':								// Respond with Software Version
 			   		snd_msg(asc_version);
 			   		break;
 
-		/*		case 'D':								// Respond with PSU data block -- not yet implemented
-					snd_msg(ps_data_block);				// **** problem with this is NULL in datablock will terminate transmission 
-					break;		*/			
-		    
+				case 'd':			// Respond with PSU data block 		
+					sio_prt_datablk_hex();
+					break;					
+		  
+				case 't':			// Respond with PSU data block temperatures		
+					sio_prt_temps_hex();
+					break;
+										
+				case 'f':								// Turn Off Command
+					sequence_off();
+					break;
+					
+				case 'n':								// Turn On Command
+					sequence_on();
+					break;
+					
+				case 'i':			// output PSU voltages		
+					sio_prt_currents() ;
+					break;					
+
+				case 'v':			// output PSU voltages		
+					sio_prt_volts() ;
+					break;					
+
 				default:
+			   		snd_msg("\tWHAT?");
 			   		break;
 		 	}
+			sio_rxbuf[0] = 0;
+			ES = 1;			 			// Enable SIO Interrupts
+			snd_msg(prompt);
 	  	}
 
 		// Listen for data request from clock card
@@ -213,7 +262,8 @@ void init(void)
 	// LED Setup
 	LEDCON = 0xfC;				// LED1-3 10mA Current Source
 	LED_FAULT = 0;				// Off
-	LED_STATUS = 1;				// Off
+//	LED_STATUS = 1;				// Off
+	LED_STATUS = 0;				// Used as test o/p
 	LED_OUTON = 1;				// Off
 
 	// SPI Setup - Sets up spi in master mode with Fclk Periph/16 as baud rate and without slave select pin.
@@ -235,6 +285,9 @@ void init(void)
     EA = 1; 					// Enable Global Interrupts
 	//EC = 1;					// Enable all PCA Interrupts
 
+	// Interrupt Priority Setup
+	PT0L = 1;					// give Timer0 a higher priority
+	
 
 /**************** 	Initialize Variables 	********************/		// Some of this is redundant							
 	// Initialize flags
@@ -402,13 +455,12 @@ void wait_time_x2us_plus3 (unsigned char time_us_div2)		// 1.25 us to call funct
 
 void timer0_isr (void) interrupt 1 using 3
 {
-	if(watchdog_count>16){ 						// trigger watchdog if loop hasn't completed in 5 seconds
-		soft_reset();
-	}
-	
-	
+	if(watchdog_count>16) 						// trigger watchdog if loop hasn't completed in 5 seconds
+		{ soft_reset();}
+		
 	++bcnt;
 	if ( bcnt == BRATE320mS) {
+//	if ( bcnt >= BRATE1S) {
       	bcnt = 0;
 	  	poll_data = SET;						// poll data every 320ms
 		cc_req_320ms++;							// increment count every 320ms
@@ -441,9 +493,189 @@ void timer1_isr (void) interrupt 3 using 3
 
 void timer2_isr (void) interrupt 5 using 0
 {
-	TF2=0;										// clear interrupt
-	soft_reset();								// reset program counter to jump point ( past init() )
+	LED_STATUS = ON;
+	TF2=0;								// clear interrupt
+	ET2 = OFF;							// Disable Timer2 Interrupts until back in main loop
+	soft_reset();						// reset program counter to jump point ( past init() )
 }
+
+
+/***************************************************************************************/
+// RS232 Serial IO stuff
+
+#include <ctype.h>
+char echo[2] = "\000\000";
+
+unsigned char idata prt_data_blk[(CC_SPI_BLEN*2)+15];		// ps_data_blk printf output buffer
+
+/*----->convert a char value to 2 ascii hex char, store results at char *p */
+void ByteToHex( unsigned char idata b, char *p)
+{
+	unsigned char mask = 0x0f;
+	unsigned char idata c;
+	
+    c = (b>>4) & mask;			// most signif char first for endian
+	if (c<10) *p++ = ('0'+c);
+  	else      *p++ = ('A'+c-10);
+	c = b & mask;
+	if (c<10) *p++ = ('0'+c);
+  	else      *p++ = ('A'+c-10);
+}
+
+/*-----> print the ps_data_blk[] in hex */
+void
+sio_prt_datablk_hex(void)
+{
+ 	unsigned char i, n;
+		
+	n=0;
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = ' ';
+	prt_data_blk[n++] = ' ';
+			
+		for( i=0 ; i<(CC_SPI_BLEN) ; i++)
+			{
+			ByteToHex( ps_data_blk[i], prt_data_blk+n );
+			n += 2;
+			}
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n] = '\000';
+	
+	snd_msg(prt_data_blk);		// 
+}
+
+/*-----> print the ps_data_blk[] Temperatures in hex */
+void
+sio_prt_temps_hex(void)
+{
+ 	unsigned char n;
+		
+	n=0;
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = '\t';
+			
+	ByteToHex( *PSU_TEMP_1, prt_data_blk+n ); n += 2;	// 
+	prt_data_blk[n++] = ' ';
+	ByteToHex( *PSU_TEMP_2, prt_data_blk+n ); n += 2;
+	prt_data_blk[n++] = ' ';
+	ByteToHex( *PSU_TEMP_3, prt_data_blk+n ); n += 2;
+		
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n] = '\000';
+	
+	snd_msg(prt_data_blk);		// 
+}
+
+// PSU volts and current measurments calibration factors, V/ADU, A/ADU
+/**/
+#define CF_pVha		(float)0.00335
+#define CF_pVa		(float)0.0020723
+#define CF_pVlvd	(float)0.001504
+#define CF_pVcore	(float)0.0010012
+#define CF_nVa		(float)0.002078
+// Amp/ADU
+#define CF_pIVha	(float)0.00006008
+#define CF_pIVa		(float)0.006011
+#define CF_pIVlvd	(float)0.0015985
+#define CF_pIVcore	(float)0.005203
+#define CF_nIVa		(float)0.007993
+#define ushort unsigned short
+
+/*----->  ItoA   */ 
+unsigned char ItoA(unsigned short n, unsigned char *buf)
+{
+unsigned char i;
+ 
+     buf[5]=0;			// only/always 4 digits, a '.' plus a terminating NULL
+     for(i=0; i<5; i++){
+	 	if( i == 2) buf[4-i] = '.';
+		else {
+ 			buf[4-i] = (n%10)+48;
+ 			n/=10;
+		}
+    }
+	return 5;
+ }
+
+/*----->     */
+void sio_prt_currents(void)
+{
+	ushort i;
+	unsigned char n;
+		
+	n=0;
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = '\t';
+	
+	i = *(ushort*)I_VCORE;				// +3.0
+	i = (ushort)((float)i * CF_pIVcore * 100);		// convert to 'real' value, * 100 for 2 decimal places
+	n += ItoA( i, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	i = *(ushort*)I_VLVD;				// +4.5
+	i = (ushort)((float)i * CF_pIVlvd * 100);	
+	n += ItoA( i, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	i = *(ushort*)I_VAH;				// +10.0
+	i = (ushort)((float)i * CF_pIVha * 100);
+	n += ItoA( i, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	i = *(ushort*)I_VA_PLUS;			// +6.2
+	i = (ushort)((float)i * CF_pIVa * 100);	
+	n += ItoA( i, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	prt_data_blk[n++] = '-';
+	i = *(ushort*)I_VA_MINUS;			// -6.2
+	i = (ushort)((float)i * CF_nIVa * 100);	
+	n += ItoA( i, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n] = '\000';
+	snd_msg(prt_data_blk);		// 
+}
+
+
+/*----->     */
+void sio_prt_volts(void)
+{
+	ushort v;
+	unsigned char n;
+		
+	n=0;
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n++] = '\t';
+	
+	v = *(ushort*)V_VCORE;				// +3.0
+	v = (ushort)((float)v * CF_pVcore * 100);		// convert to 'real' value, * 100 for 2 decimal places
+	n += ItoA( v, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	v = *(ushort*)V_VLVD;				// +4.5
+	v = (ushort)((float)v * CF_pVlvd * 100);	
+	n += ItoA( v, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	v = *(ushort*)V_VAH;				// +10.0
+	v = (ushort)((float)v * CF_pVha * 100);
+	n += ItoA( v, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	v = *(ushort*)V_VA_PLUS;			// +6.2
+	v = (ushort)((float)v * CF_pVa * 100);	
+	n += ItoA( v, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+	prt_data_blk[n++] = '-';
+	v = *(ushort*)V_VA_MINUS;			// -6.2
+	v = (ushort)((float)v * CF_nVa * 100);	
+	n += ItoA( v, prt_data_blk+n );		
+	prt_data_blk[n++] = ' ';
+
+	prt_data_blk[n++] = '\r';
+	prt_data_blk[n] = '\000';
+	snd_msg(prt_data_blk);		// 
+}
+
 
 
 /***************************************************************************************/
@@ -452,8 +684,10 @@ void timer2_isr (void) interrupt 5 using 0
 
 void snd_msg (char *message)
 {
-   msg_ptr = message;
-   TI = SET;									// Generates SIO interrupt
+
+	while( msg_ptr != 0 ) { _nop_(); _nop_(); _nop_(); _nop_(); _nop_();}  //if currently sending wait for it to end.
+	msg_ptr = message;
+	TI = SET;									// Generates SIO interrupt
 }
 
 /***************************************************************************************/
@@ -461,29 +695,37 @@ void snd_msg (char *message)
 /****************************************/
 // Interrupt driven serial I/O
 
-void serial_isr (void) interrupt 4 using 2
+//void serial_isr (void) interrupt 4 using 2
+void serial_isr (void) interrupt 4 using 1	// changed to 'using 1' RHJ
 {
-	char msg;
+	char c;
    	
 	// Transmitted Data Interrupt
 	if ( TI == SET ) {                     		
-      	TI = CLEAR;								// Clears TI Interrupt
-	  	msg = *msg_ptr;
-	  	if (msg != NULL) {						// If message not NULL, load into transmission buffer 
+     	TI = CLEAR;								// Clears TI Interrupt
+	  	c = *msg_ptr;
+	  	if (c != NULL) {						// If message not NULL, load into transmission buffer 
 	     	++msg_ptr;
-			SBUF = msg;	
+			SBUF = c;	
 	  	}
 	  	else msg_ptr = 0;
   	}	
    
    	// Received Data Interrupt
    	if ( RI == SET ) {                			
-      	RI = CLEAR;								// Clears RI Interrupt
-	  	msg = SBUF;
-		sio_rxbuf[sio_rx_idx++] = msg;			// *****these three lines are suspect, need to fix
-	  	if (sio_rx_idx >= (BUF_SIZE-1))
+      	RI = CLEAR;							// Clears RI Interrupt
+	  	c = SBUF;
+		if(isprint(c))
+			{
+ 			echo[0]  = c;
+			msg_ptr = echo;    		
+			TI = SET;								//  TI Interrupt
+			sio_rxbuf[sio_rx_idx++] = c;
+			}
+	  	if (sio_rx_idx >= (BUF_SIZE-1))			// *****these three lines are suspect, need to fix
 	     	--sio_rx_idx;
-	  	if (msg == LF) {	  					// LineFeed indicates end of message
+			
+	  	if (c == '\r') {	  					// CR indicates end of message
 	     	sio_rx_idx = 0;
 	     	sio_msg_complete = SET;				// Indicate entire message received
 	  	}
@@ -491,11 +733,13 @@ void serial_isr (void) interrupt 4 using 2
 }
 
 /***************************************************************************************/
+
+/***************************************************************************************/
 /* SPI Interrupt Service Routine     */ 
 /*************************************/
 // read and clear spi status register
 
-void spi_isr (void) interrupt 9
+void spi_isr (void) interrupt 9	using 2		// added 'using 2' RHJ
 {
 	switch( SPSTA )         			
 	{
@@ -533,14 +777,11 @@ void update_data_block (void)
 	// get_fan_speeds();										// not implemented
 
 	// DS18S20 - Temperatures - read only if present
-	if (temp1_present){
-		ds_get_temperature(PSU_DS18S20, PSU_TEMP_1);  			// temperature 1 
-	}
-	else														// for now read PSU DS if connected else read PSUC DS
-		ds_get_temperature(PSUC_DS18S20, PSU_TEMP_1);
-			
-	if (temp2_present)
-		ds_get_temperature(DTEMP1_ID, PSU_TEMP_2);				// temperature 2 
+	ds_get_temperature(PSUC_DS18S20, PSU_TEMP_1);				// always read PSUC DS = temperature 1
+	
+	if (temp1_present)
+		ds_get_temperature(PSU_DS18S20, PSU_TEMP_2);  			// temperature 2 
+	
 	if (temp3_present)
 		ds_get_temperature(DTEMP2_ID, PSU_TEMP_3);				// temperature 3
 

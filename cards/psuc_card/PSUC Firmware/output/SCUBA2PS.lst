@@ -1,0 +1,1157 @@
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 1   
+
+
+C51 COMPILER V8.04, COMPILATION OF MODULE SCUBA2PS
+OBJECT MODULE PLACED IN .\output\SCUBA2PS.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE SCUBA2PS.C ROM(COMPACT) DEBUG OBJECTEXTEND PRINT(.\output\SCUBA2PS.lst) OBJ
+                    -ECT(.\output\SCUBA2PS.obj)
+
+line level    source
+
+   1          /************************************************************************************/
+   2          /*      Scuba 2 Power Supply Controller - SC2_ELE_S565_102D
+   3                          Tom Felton - Feb 22, 2006
+   4                          Stuart Hadfield - July/August 2006               
+   5          /************************************************************************************/
+   6          // Revision history: 
+   7          // $Log: scuba2ps.c,v $
+   8          // Revision 1.13  2006/12/23 00:39:00  stuartah
+   9          // Version 2.3 Release
+  10          //
+  11          // Revision 1.12  2006/11/22 00:10:08  stuartah
+  12          // Fixed FAULT LED behavior to turn on if no CC request for over a minute (no longer flashes)
+  13          //
+  14          // Revision 1.11  2006/11/21 23:30:40  stuartah
+  15          // Added soft_reset assembly code, triggered via external button (timer2 input)
+  16          //
+  17          // Revision 1.10  2006/11/21 21:25:41  stuartah
+  18          // Implemented Timer2 as external interrupt
+  19          //
+  20          // Revision 1.9  2006/11/20 23:22:00  stuartah
+  21          // Cleaned code, improved commenting, implemented changes for PSUC rev. G
+  22          //
+  23          // Revision 1.8  2006/10/03 07:38:34  stuartah
+  24          // Added presence detection of DS18S20s
+  25          //
+  26          // Revision 1.7  2006/10/03 05:59:12  stuartah
+  27          // Tested in Subrack, Basic Command working
+  28          //
+  29          // Revision 1.6  2006/09/07 20:37:01  stuartah
+  30          // Cleaned up init() and re-organized main loop structure
+  31          //
+  32          // Revision 1.5  2006/09/05 20:06:20  stuartah
+  33          // Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
+  34          //
+  35          // Revision 1.4  2006/08/31 19:30:38  stuartah
+  36          // Added functionality for measuring fan speeds
+  37          //
+  38          // Revision 1.3  2006/08/30 19:54:19  stuartah
+  39          // Implemented checksum
+  40          //
+  41          // Revision 1.2  2006/08/29 21:06:06  stuartah
+  42          // Initial CVS Build - Most Basic Functionality Implemented
+  43          //      
+  44          /********************************************************************************       
+  45          Refer to the following Data Sheets:
+  46                          Processor - Atmel AT89C5131AM
+  47                          Temperature Monitoring & Silicon ID - Dallas DS18S20-PAR
+  48                          ADC for Power Supply Voltage Monitoring - Maxim MAX1270ACAI
+  49                          EEPROM non-volatile memory - Atmel AT25128A
+  50          
+  51                  NOTE: THIS PROGRAM IS NO WHERE NEAR COMPLETE OR TESTED
+  52                  The I/O pins are set correctly for this version (revF).
+  53          *********************************************************************************/
+  54          
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 2   
+
+  55          /**********     Version 2.2     *****************
+  56          Polling and communication functionality seems to be working     */
+  57          
+  58          
+  59          // Header File containing function prototypes and global variable declarations
+  60          #include "scuba2ps.h"
+*** WARNING C182 IN LINE 112 OF MAX1271.C: pointer to different objects
+  61          
+  62          // Constant Variables
+  63          char code asc_version[] =  "\r\rPSUC v3.1\r";                           // Software Version Serial Message
+  64          char code software_version_byte = 0x31;                                         // 1 byte Software Version 
+  65          char code prompt[] =  "\rPSC> ";                                                        // RS232 IO prompt
+  66          
+  67          // proto for datablk RS232 output functions
+  68          void sio_prt_datablk_hex(void);         
+  69          void sio_prt_temps_hex(void);
+  70          void sio_prt_currents(void);
+  71          void sio_prt_volts(void);
+  72          
+  73          /****************************************************************************************
+  74           *  Main Program                           *
+  75           *************************** */
+  76          
+  77          main() 
+  78          { 
+  79   1              // Initialize Hardware and Software Variables
+  80   1              init();                                                                                 
+  81   1              
+  82   1              // Output Version on Serial Port
+  83   1              snd_msg(asc_version);
+  84   1              
+  85   1              // Initial Power-Up
+  86   1              sequence_on();                          
+  87   1              //reset_MCE();                                          // ** This line enables/disables initial subrack reset **
+  88   1              
+  89   1              _nop_();        // << THIS IS THE SOFT_RESET JUMP-TO POINT      
+  90   1              if( ET2 == 0) snd_msg("\rRestarting\r");        
+  91   1      //      watchdog_count = 0;                                                             // clear watchdog counter
+  92   1              snd_msg(prompt);
+  93   1              
+  94   1              LED_STATUS = OFF;
+  95   1      //      wait_time( 600 );                       // wait 3 seconds for button release and any bounces
+  96   1              TF2 = 0;                                        // clear any interrupt
+  97   1              ET2 = 1;                                        // Enable Timer2 soft_reset Interrupts
+  98   1                
+  99   1              /***  Main Loop - Periodically update PSU data block, respond to Clock Card / RS232 Commands  ***/
+ 100   1              while(TRUE) {                                                           
+ 101   2      //              ES = 1;                                         // Enable SIO Interrupts
+ 102   2      
+ 103   2                      // Serial I/O message ready to parse
+ 104   2                      if ( sio_msg_complete == SET ) {
+ 105   3                              ES = 0;                                                                         // Disable SIO Interrupts                                       
+ 106   3                      sio_msg_complete = CLEAR;
+ 107   3                              sio_rx_idx = 0;                                                         // reset message pointer
+ 108   3                              switch ( sio_rxbuf[0] ) {                                       // parse message
+ 109   4                                      case 'c':                                                               // Cycle Power Command
+ 110   4                                              cycle_power();
+ 111   4                                              break;
+ 112   4                                              
+ 113   4                                      case 'r':                                                               // Reset MCE Command
+ 114   4                                              reset_MCE();
+ 115   4                                              break;
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 3   
+
+ 116   4      
+ 117   4                                      case '?':                                                               // Respond with Software Version
+ 118   4                                              snd_msg(asc_version);
+ 119   4                                              break;
+ 120   4      
+ 121   4                                      case 'd':                       // Respond with PSU data block          
+ 122   4                                              sio_prt_datablk_hex();
+ 123   4                                              break;                                  
+ 124   4                        
+ 125   4                                      case 't':                       // Respond with PSU data block temperatures             
+ 126   4                                              sio_prt_temps_hex();
+ 127   4                                              break;
+ 128   4                                                                                      
+ 129   4                                      case 'f':                                                               // Turn Off Command
+ 130   4                                              sequence_off();
+ 131   4                                              break;
+ 132   4                                              
+ 133   4                                      case 'n':                                                               // Turn On Command
+ 134   4                                              sequence_on();
+ 135   4                                              break;
+ 136   4                                              
+ 137   4                                      case 'i':                       // output PSU voltages          
+ 138   4                                              sio_prt_currents() ;
+ 139   4                                              break;                                  
+ 140   4      
+ 141   4                                      case 'v':                       // output PSU voltages          
+ 142   4                                              sio_prt_volts() ;
+ 143   4                                              break;                                  
+ 144   4      
+ 145   4                                      default:
+ 146   4                                              snd_msg("\tWHAT?");
+ 147   4                                              break;
+ 148   4                              }
+ 149   3                              sio_rxbuf[0] = 0;
+ 150   3                              ES = 1;                                         // Enable SIO Interrupts
+ 151   3                              snd_msg(prompt);
+ 152   3                      }
+ 153   2      
+ 154   2                      // Listen for data request from clock card
+ 155   2                      cc_spi = ~SREQ;                                                                 // SREQ active low
+ 156   2      
+ 157   2                      // Time to re-poll data
+ 158   2                      if ( poll_data == SET ) {                                               // polling rate ~ 3Hz, CC Request Rate ~ 0.5Hz                  
+ 159   3                              update_data_block();
+ 160   3                              poll_data = CLEAR;                                                      // Data Poll Complete
+ 161   3                      }
+ 162   2                      
+ 163   2                      // Send data block if it has been requested
+ 164   2                      if ( cc_spi == TRUE) {                                     
+ 165   3                              cc_req_320ms = 0;                                                       // Reset count since last CC request
+ 166   3                              LED_FAULT = 0;                                                          // Turn Off LED if on
+ 167   3                              send_psu_data_block();                                          // Time to send SPI Data to Clock Card
+ 168   3                              cc_spi = FALSE;                                                         // Data Block Transmission Complete                     
+ 169   3                      }
+ 170   2              
+ 171   2                      // Act on command from Clock Card
+ 172   2                      if ( cc_command != NULL )               
+ 173   2                              switch ( *cc_command ) {                                        // parse received command       
+ 174   3                                      
+ 175   3                                      case 'C':                                                               // Cycle Power Command
+ 176   3                                              cycle_power();
+ 177   3                                              cc_command = NULL;
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 4   
+
+ 178   3                                              break;
+ 179   3                                      
+ 180   3                                      case 'R':                                                               // Reset MCE Command
+ 181   3                                              reset_MCE();
+ 182   3                                              cc_command = NULL;
+ 183   3                                              break;
+ 184   3      
+ 185   3                                      case 'T':                                                               // Turn Off Command
+ 186   3                                              sequence_off();
+ 187   3                                              cc_command = NULL;
+ 188   3                                              break;
+ 189   3      
+ 190   3                              default:                                                                // Status Request or erroneous command.  Difference is ACK/NAK.
+ 191   3                                              cc_command = NULL;
+ 192   3                                              break;  
+ 193   3                      }
+ 194   2      
+ 195   2                      // Loop Maintenance                     
+ 196   2                      if (cc_req_320ms > 187) {                                               // if its been more than a minute since last CC request, 187*320ms = 
+ 197   3                                      LED_FAULT = 1;                                                  // then turn on fault LED
+ 198   3                      }
+ 199   2      
+ 200   2                      watchdog_count = 0;                                                             // clear watchdog counter
+ 201   2      
+ 202   2              }
+ 203   1      }
+ 204          
+ 205          /****************************************************************************************
+ 206           *  Initialize                     *
+ 207           *************************** */
+ 208          
+ 209          void init(void)
+ 210          {
+ 211   1              int i = 0;                                      // temporary index variable
+ 212   1      
+ 213   1      /**************         Hardware Setup          **************/
+ 214   1              // Set all input ports for input and output ports to default values     -- see schematic and io.h
+ 215   1              // IO Port Setup  --  1=Input(or Special Function), 0=Output
+ 216   1              P0 = 0x66;              //0110 0110             //****** changed to acomidate SSTRB lines in Rev G ******
+ 217   1              //P0 = 0x60;    //0110 0000
+ 218   1              P1 = 0xff;              //1111 1111
+ 219   1              P2 = 0xbe;              //1011 1110             // Intialize PSU OFF
+ 220   1              P3 = 0xdf;              //1101 1111
+ 221   1      
+ 222   1              /* SPI setup                            -- these declarations are redundant.  done in port settings above                               
+ 223   1              CS_EEPROM = 1;                          // CableSelect lines active low 
+ 224   1              CS_VADC = 1;
+ 225   1              CS_IADC = 1;
+ 226   1              CCSS=1;
+ 227   1              //SREQ = 0;                                     // SREQ active low but this is needed to not overload buffer U5 - PROTOTYPE PSUC REV F ON
+             -LY
+ 228   1              SREQ = 1;                                       // Port bit set for input -- REV G ONLY
+ 229   1              MISO = 1;                                       // Set for input
+ 230   1              MOSI = 1;         */
+ 231   1              
+ 232   1              // Counter/Timer 0 used as a Timer in Mode 1.  Interrupt Rate: 32mS     
+ 233   1              TH0 = 0;
+ 234   1              TL0 = 135;
+ 235   1              TR0 = ON;                                       // start timer 0
+ 236   1      
+ 237   1              // Counter/Timer 1 used as a Timer in Mode 1.  Interrupt Rate: 5e-3 Sec
+ 238   1              TL1 = LS_RELOAD_5mS;
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 5   
+
+ 239   1              TH1 = MS_RELOAD_5mS;
+ 240   1              TMOD = 0x11;
+ 241   1      
+ 242   1              // Timer 2 used as count up counter for soft reset function, triggered when external reset button pushed
+ 243   1              T2CON = 0x02;                   // 0b00000010 -- set for counter operation, external trigger on T2 pin
+ 244   1              TH2 = 0xFF;                                     // set counter so single external trigger causes interrupt -> soft reset
+ 245   1              TL2 = 0xFF;
+ 246   1              RCAP2H = 0xFF;                          // same auto-reload values                              
+ 247   1              RCAP2L = 0xFF;
+ 248   1              TR2 = 1;                                        // start timer 2
+ 249   1      
+ 250   1              // Serial I/O Setup:  Using Internal Baud Rate Generator on 89C5131A.  Set to Serial Mode 1 at 9600 Baud 
+             -using 24MHz Clock
+ 251   1          SCON = 0x50;                                // 0101 0000
+ 252   1              BDRCON = 0x1e;                          // 0001 1110
+ 253   1              CKCON0 = 0x7f;                          // X2 set but 12 clocks per peripheral cycle -> 500ns pert tick
+ 254   1              PCON = 0x80;                            // 1000 0000 Double Baud Rate all others default
+ 255   1              BRL = 100;                                      // Baud rate reload - sets Baud rate to 9600
+ 256   1      
+ 257   1              //PCA Counter Init                      // not implemented      - for getFanSpeed()
+ 258   1              //CKCON0 |= 0x20;                       // sets to 500ns per PCA tick
+ 259   1              //CMOD |= 0x81;                         // 1000 0001 Set PCA to stop counting during idle mode, disable PCA interrupts, and co
+             -unt Fclk-periph/6 (250ns period)
+ 260   1              //CCON |= 0x01;                         // enable PCA interrupts 
+ 261   1      
+ 262   1              // LED Setup
+ 263   1              LEDCON = 0xfC;                          // LED1-3 10mA Current Source
+ 264   1              LED_FAULT = 0;                          // Off
+ 265   1      //      LED_STATUS = 1;                         // Off
+ 266   1              LED_STATUS = 0;                         // Used as test o/p
+ 267   1              LED_OUTON = 1;                          // Off
+ 268   1      
+ 269   1              // SPI Setup - Sets up spi in master mode with Fclk Periph/16 as baud rate and without slave select pin.
+ 270   1              // SPCON = SPI_MSTR | SPI_EN | SPI_SSDIS | SPI_CPOL1 | SPI_1M5Hz;       CPHA = 0, transfer on falling SCLK
+ 271   1          SPCON |= SPI_MSTR;          // Master mode    
+ 272   1              //SPCON |= SPI_6MHz;            // Fclk Periph/4 (6MHz)
+ 273   1          SPCON |= SPI_1M5Hz;                 // Fclk Periph/16 (1.5Mhz)
+ 274   1              SPCON &= SPI_CPOL0;             // CPOL = 0, Clk idle state 0
+ 275   1          SPCON &= SPI_CPHA0;         // CPHA = 0, sample data on Clk rising edge
+ 276   1          SPCON |= SPI_SSDIS;                 // Disable SS
+ 277   1          SPCON |= SPI_EN;            // Run SPI
+ 278   1          
+ 279   1              // Interrupt Setup
+ 280   1              ES = 1;                                         // Enable SIO Interrupts
+ 281   1              IEN1 |= 0x04;               // Enable SPI Interrupts
+ 282   1              ET0 = 1;                                // Enable Timer0 Interrupts
+ 283   1          ET1 = 1;                                    // Enable Timer1 Interrupts
+ 284   1              ET2 = 1;                                        // Enable Timer2 Interrupts
+ 285   1          EA = 1;                                     // Enable Global Interrupts
+ 286   1              //EC = 1;                                       // Enable all PCA Interrupts
+ 287   1      
+ 288   1              // Interrupt Priority Setup
+ 289   1              PT0L = 1;                                       // give Timer0 a higher priority
+ 290   1              
+ 291   1      
+ 292   1      /****************       Initialize Variables    ********************/           // Some of this is redundant                                                    
+ 293   1              // Initialize flags
+ 294   1              poll_data = SET;                        // Initial data poll
+ 295   1              cc_spi = CLEAR;                         // Clear remaining flags
+ 296   1              spi_complete = CLEAR;           // SPI transmission/reception complete status bit
+ 297   1              sio_msg_complete = CLEAR;
+ 298   1              timeup_T1 = CLEAR;
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 6   
+
+ 299   1                      
+ 300   1              // Initialize other vars        
+ 301   1              spi_idx = 0;                            // Reset pointer for SPI data output
+ 302   1              sio_rx_idx = 0;                         // reset serial message pointer
+ 303   1              bcnt = 0;
+ 304   1              num_T1_ints = 0;
+ 305   1              running_checksum = 0;
+ 306   1              cc_req_320ms = 0;
+ 307   1              watchdog_count = 0;
+ 308   1              
+ 309   1              // Initialize pointers
+ 310   1              cc_command = NULL;
+ 311   1              msg_ptr = NULL;
+ 312   1                      
+ 313   1              // Initialize data blocks to all zeros
+ 314   1              for(i=0; i < CC_SPI_BLEN; i++) {                                
+ 315   2                              ps_data_blk[i] = 0;                                     
+ 316   2                              rcv_spi_blk[i] = 0;
+ 317   2              }
+ 318   1              for(i=0; i < BUF_SIZE; i++) {                           
+ 319   2                              sio_rxbuf[i] = 0;       
+ 320   2              }
+ 321   1              
+ 322   1              // Initialize PSU data block - these aspects of data block set only once
+ 323   1              ds_get_4byte_id(PSU_DS18S20, SILICON_ID);        // assign ID to PSU block
+ 324   1              *SOFTWARE_VERSION = software_version_byte;       // Software Version byte
+ 325   1      
+ 326   1      
+ 327   1      /*****************              Initialize Devices              ***************/        
+ 328   1              // check for presence of DS18S20 temperature sensors    
+ 329   1              temp1_present = ds_initialize(PSU_DS18S20);             
+ 330   1              temp2_present = ds_initialize(DTEMP1_ID);
+ 331   1              temp3_present = ds_initialize(DTEMP2_ID);       
+ 332   1      }
+ 333          
+ 334          /****************************************************************************************
+ 335           *  Turn-On (Startup) Sequence             *
+ 336           ***************************/
+ 337          
+ 338          void sequence_on (void)
+ 339          {
+ 340   1              //wait_time( T100mS );
+ 341   1              nPSU_ON = 0;
+ 342   1              wait_time( T100mS );
+ 343   1              nCORE_ON = 0;
+ 344   1              LED_OUTON = 0;                                                          // 0 = LED on
+ 345   1      }
+ 346          
+ 347          /****************************************************************************************
+ 348           *  Turn-Off Sequence              *
+ 349           *******************************/
+ 350          
+ 351          void sequence_off (void)
+ 352          {
+ 353   1              nCORE_ON = 1;
+ 354   1              wait_time( T100mS );
+ 355   1              nPSU_ON = 1;
+ 356   1          wait_time( T100mS );
+ 357   1              LED_OUTON = 1;                                                          // LED off
+ 358   1      }
+ 359          
+ 360          /****************************************************************************************
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 7   
+
+ 361           *  Reset MCE      *
+ 362           *******************/
+ 363          
+ 364          void reset_MCE (void)
+ 365          {
+ 366   1              BRST = 1;                                                                       // Pulse Reset Line for 100mS
+ 367   1              wait_time( T100mS );
+ 368   1              BRST = 0;
+ 369   1      }
+ 370          
+ 371          /****************************************************************************************
+ 372           *  Cycle Power            *
+ 373           ***********************/
+ 374          
+ 375          void cycle_power (void)
+ 376          {
+ 377   1              sequence_off();
+ 378   1              wait_time( T100mS );
+ 379   1              sequence_on();
+ 380   1      }
+ 381          
+ 382          /****************************************************************************************
+ 383          /*      Send PSU Data Block to CC via SPI          *
+ 384          /*******************************************/
+ 385          // Sends the 36 byte PSU Status Block to the CC via SPI interface while simultaneously 
+ 386          // receiving a command from the CC.  ACK/NAK byte near end of datablock indicates whether
+ 387          // a valid command was received during the SAME datablock transmission.
+ 388          
+ 389          void send_psu_data_block (void)
+ 390          {                               
+ 391   1              // Begin Transaction
+ 392   1              spi_idx = 0;                                                            // Start at beginning of data block
+ 393   1              CCSS = 0;                                                                       // Select Clock Card (as slave) to listen on SPI bus            
+ 394   1                              
+ 395   1              // Send first 34 of 36 bytes (need to calculate checksum based on ACK/NAK byte after CC command recv'd)
+ 396   1              while(spi_idx < ACK_BYTE_POS) {                         
+ 397   2                      SPDAT = ps_data_blk[spi_idx];                   // send byte #spi_idx
+ 398   2                      while(!spi_complete);                                   // wait for end of byte transmission
+ 399   2                      spi_complete = 0;                                               // clear software flag
+ 400   2                      spi_idx++;                                                              // increment data block index
+ 401   2              }
+ 402   1              
+ 403   1              // Update ACK/NAK byte and send
+ 404   1              parse_command();                                                        // Check if command received and set ACK/NAK byte
+ 405   1      
+ 406   1              // Send ACK/NAK byte
+ 407   1              SPDAT = ps_data_blk[ACK_BYTE_POS];              
+ 408   1              while(!spi_complete);                                           // wait for end of byte transmission
+ 409   1              spi_complete = 0;                                                       // clear software flag
+ 410   1              
+ 411   1              // Update Checkbyte and send            
+ 412   1              COMPLETE_CHECKSUM;                                                      // 2's compliment, so CHECKSUM_BYTE + all other bytes = 0       
+ 413   1              SPDAT = ps_data_blk[ACK_BYTE_POS + 1];          // Send Check byte
+ 414   1              while(!spi_complete);                                           // wait for end of byte transmission
+ 415   1              spi_complete = 0;                                                       // clear software flag
+ 416   1                      
+ 417   1              // Finish Transaction
+ 418   1              CCSS = 1;                                                                       // De-select Clock Card                                 
+ 419   1      }
+ 420          
+ 421          /****************************************************************************************
+ 422          /*  Wait Timer - 5ms Multiples             */
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 8   
+
+ 423          /***************************************/
+ 424          //Sets up T1 interrupt to loops x 5mS, waits specified time then returns
+ 425           
+ 426          void wait_time (unsigned char loops)
+ 427          {
+ 428   1              timeup_T1 = CLEAR;
+ 429   1              TL1 = LS_RELOAD_5mS;                                            // Interrupt interval set to 5mS
+ 430   1              TH1 = MS_RELOAD_5mS;
+ 431   1              num_T1_ints = loops;                                            // time expires after 1 interrupt
+ 432   1              TR1 = ON;
+ 433   1              while ( timeup_T1 != SET );                                     // wait here for specified time to expire
+ 434   1      }
+ 435          
+ 436          /****************************************************************************************
+ 437          /*  Microsecond Wait Timer         */
+ 438          /***********************************/
+ 439          // returns 2*time_us_div2 + 3 (in uS)....tested and verified
+ 440          // therefore works for a minimum of 3us (time_us_div2 = 0) or maximum of 513us (time_us_div2 = 0xFF)
+ 441          // from numbers below, delay = time_us_div2 * (1.25+ 0.25 + 0.5) + 1.25+ 0.25 + 1 + 0.5 = 2*time_us_div2 +
+             - 3 (in uS)
+ 442          
+ 443          void wait_time_x2us_plus3 (unsigned char time_us_div2)          // 1.25 us to call function
+ 444          {       
+ 445   1              while(time_us_div2>0) {                                         // each comparison takes 1.25 uS
+ 446   2                      time_us_div2--;                                                 // 250ns operation
+ 447   2              }                                                                                       // 500ns delay to begining of loop
+ 448   1              _nop_();                                                                        // 250 ns delay to make total delay an integer
+ 449   1      }                                                                                               // 500 ns to return from function
+ 450          
+ 451          /***************************************************************************************/
+ 452          /* Timer0 Service Routine                       */ 
+ 453          /****************************************/
+ 454          // Interrupt occurs every 32ms, always running    -  used for LED blink and polling data
+ 455          
+ 456          void timer0_isr (void) interrupt 1 using 3
+ 457          {
+ 458   1              if(watchdog_count>16)                                           // trigger watchdog if loop hasn't completed in 5 seconds
+ 459   1                      { soft_reset();}
+ 460   1                      
+ 461   1              ++bcnt;
+ 462   1              if ( bcnt == BRATE320mS) {
+ 463   2      //      if ( bcnt >= BRATE1S) {
+ 464   2              bcnt = 0;
+ 465   2                      poll_data = SET;                                                // poll data every 320ms
+ 466   2                      cc_req_320ms++;                                                 // increment count every 320ms
+ 467   2                      watchdog_count++;
+ 468   2         }
+ 469   1      }
+ 470          
+ 471          /***************************************************************************************/
+ 472          /* Timer1 Service Routine                       */ 
+ 473          /****************************************/
+ 474          // Interrupt occurs every 5ms when enabled       - used for wait_time()
+ 475          
+ 476          void timer1_isr (void) interrupt 3 using 3
+ 477          {
+ 478   1         --num_T1_ints;                                                               // count the number of interupts
+ 479   1         if (num_T1_ints == 0) {                                              // check if interrupt time is up
+ 480   2            TR1=OFF;                                                                  // Stop the timer
+ 481   2                timeup_T1 = SET;                                                      // Indicate time is up
+ 482   2         }
+ 483   1         else {                                                                               // reload timer
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 9   
+
+ 484   2            TL1 = LS_RELOAD_5mS;                                              // interrupts always occur every 5mS
+ 485   2                TH1 = MS_RELOAD_5mS;
+ 486   2         }
+ 487   1      }
+ 488          
+ 489          /***************************************************************************************/
+ 490          /* Timer2 Service Routine                       */ 
+ 491          /****************************************/
+ 492          // Interrupt occurs ONLY when external SOFT RESET button pushed
+ 493          
+ 494          void timer2_isr (void) interrupt 5 using 0
+ 495          {
+ 496   1              LED_STATUS = ON;
+ 497   1              TF2=0;                                                          // clear interrupt
+ 498   1              ET2 = OFF;                                                      // Disable Timer2 Interrupts until back in main loop
+ 499   1              soft_reset();                                           // reset program counter to jump point ( past init() )
+ 500   1      }
+ 501          
+ 502          
+ 503          /***************************************************************************************/
+ 504          // RS232 Serial IO stuff
+ 505          
+ 506          #include <ctype.h>
+ 507          char echo[2] = "\000\000";
+ 508          
+ 509          unsigned char idata prt_data_blk[(CC_SPI_BLEN*2)+15];           // ps_data_blk printf output buffer
+ 510          
+ 511          /*----->convert a char value to 2 ascii hex char, store results at char *p */
+ 512          void ByteToHex( unsigned char idata b, char *p)
+ 513          {
+ 514   1              unsigned char mask = 0x0f;
+ 515   1              unsigned char idata c;
+ 516   1              
+ 517   1          c = (b>>4) & mask;                  // most signif char first for endian
+ 518   1              if (c<10) *p++ = ('0'+c);
+ 519   1              else      *p++ = ('A'+c-10);
+ 520   1              c = b & mask;
+ 521   1              if (c<10) *p++ = ('0'+c);
+ 522   1              else      *p++ = ('A'+c-10);
+ 523   1      }
+ 524          
+ 525          /*-----> print the ps_data_blk[] in hex */
+ 526          void
+ 527          sio_prt_datablk_hex(void)
+ 528          {
+ 529   1              unsigned char i, n;
+ 530   1                      
+ 531   1              n=0;
+ 532   1              prt_data_blk[n++] = '\r';
+ 533   1              prt_data_blk[n++] = '\r';
+ 534   1              prt_data_blk[n++] = ' ';
+ 535   1              prt_data_blk[n++] = ' ';
+ 536   1                              
+ 537   1                      for( i=0 ; i<(CC_SPI_BLEN) ; i++)
+ 538   1                              {
+ 539   2                              ByteToHex( ps_data_blk[i], prt_data_blk+n );
+ 540   2                              n += 2;
+ 541   2                              }
+ 542   1              prt_data_blk[n++] = '\r';
+ 543   1              prt_data_blk[n] = '\000';
+ 544   1              
+ 545   1              snd_msg(prt_data_blk);          // 
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 10  
+
+ 546   1      }
+ 547          
+ 548          /*-----> print the ps_data_blk[] Temperatures in hex */
+ 549          void
+ 550          sio_prt_temps_hex(void)
+ 551          {
+ 552   1              unsigned char n;
+ 553   1                      
+ 554   1              n=0;
+ 555   1              prt_data_blk[n++] = '\r';
+ 556   1              prt_data_blk[n++] = '\r';
+ 557   1              prt_data_blk[n++] = '\t';
+ 558   1                              
+ 559   1              ByteToHex( *PSU_TEMP_1, prt_data_blk+n ); n += 2;       // 
+ 560   1              prt_data_blk[n++] = ' ';
+ 561   1              ByteToHex( *PSU_TEMP_2, prt_data_blk+n ); n += 2;
+ 562   1              prt_data_blk[n++] = ' ';
+ 563   1              ByteToHex( *PSU_TEMP_3, prt_data_blk+n ); n += 2;
+ 564   1                      
+ 565   1              prt_data_blk[n++] = '\r';
+ 566   1              prt_data_blk[n] = '\000';
+ 567   1              
+ 568   1              snd_msg(prt_data_blk);          // 
+ 569   1      }
+ 570          
+ 571          // PSU volts and current measurments calibration factors, V/ADU, A/ADU
+ 572          /**/
+ 573          #define CF_pVha         (float)0.00335
+ 574          #define CF_pVa          (float)0.0020723
+ 575          #define CF_pVlvd        (float)0.001504
+ 576          #define CF_pVcore       (float)0.0010012
+ 577          #define CF_nVa          (float)0.002078
+ 578          // Amp/ADU
+ 579          #define CF_pIVha        (float)0.00006008
+ 580          #define CF_pIVa         (float)0.006011
+ 581          #define CF_pIVlvd       (float)0.0015985
+ 582          #define CF_pIVcore      (float)0.005203
+ 583          #define CF_nIVa         (float)0.007993
+ 584          #define ushort unsigned short
+ 585          
+ 586          /*----->  ItoA   */ 
+ 587          unsigned char ItoA(unsigned short n, unsigned char *buf)
+ 588          {
+ 589   1      unsigned char i;
+ 590   1       
+ 591   1           buf[5]=0;                  // only/always 4 digits, a '.' plus a terminating NULL
+ 592   1           for(i=0; i<5; i++){
+ 593   2                      if( i == 2) buf[4-i] = '.';
+ 594   2                      else {
+ 595   3                              buf[4-i] = (n%10)+48;
+ 596   3                              n/=10;
+ 597   3                      }
+ 598   2          }
+ 599   1              return 5;
+ 600   1       }
+ 601          
+ 602          /*----->     */
+ 603          void sio_prt_currents(void)
+ 604          {
+ 605   1              ushort i;
+ 606   1              unsigned char n;
+ 607   1                      
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 11  
+
+ 608   1              n=0;
+ 609   1              prt_data_blk[n++] = '\r';
+ 610   1              prt_data_blk[n++] = '\r';
+ 611   1              prt_data_blk[n++] = '\t';
+ 612   1              
+ 613   1              i = *(ushort*)I_VCORE;                          // +3.0
+ 614   1              i = (ushort)((float)i * CF_pIVcore * 100);              // convert to 'real' value, * 100 for 2 decimal places
+ 615   1              n += ItoA( i, prt_data_blk+n );         
+ 616   1              prt_data_blk[n++] = ' ';
+ 617   1              i = *(ushort*)I_VLVD;                           // +4.5
+ 618   1              i = (ushort)((float)i * CF_pIVlvd * 100);       
+ 619   1              n += ItoA( i, prt_data_blk+n );         
+ 620   1              prt_data_blk[n++] = ' ';
+ 621   1              i = *(ushort*)I_VAH;                            // +10.0
+ 622   1              i = (ushort)((float)i * CF_pIVha * 100);
+ 623   1              n += ItoA( i, prt_data_blk+n );         
+ 624   1              prt_data_blk[n++] = ' ';
+ 625   1              i = *(ushort*)I_VA_PLUS;                        // +6.2
+ 626   1              i = (ushort)((float)i * CF_pIVa * 100); 
+ 627   1              n += ItoA( i, prt_data_blk+n );         
+ 628   1              prt_data_blk[n++] = ' ';
+ 629   1              prt_data_blk[n++] = '-';
+ 630   1              i = *(ushort*)I_VA_MINUS;                       // -6.2
+ 631   1              i = (ushort)((float)i * CF_nIVa * 100); 
+ 632   1              n += ItoA( i, prt_data_blk+n );         
+ 633   1              prt_data_blk[n++] = ' ';
+ 634   1      
+ 635   1              prt_data_blk[n++] = '\r';
+ 636   1              prt_data_blk[n] = '\000';
+ 637   1              snd_msg(prt_data_blk);          // 
+ 638   1      }
+ 639          
+ 640          
+ 641          /*----->     */
+ 642          void sio_prt_volts(void)
+ 643          {
+ 644   1              ushort v;
+ 645   1              unsigned char n;
+ 646   1                      
+ 647   1              n=0;
+ 648   1              prt_data_blk[n++] = '\r';
+ 649   1              prt_data_blk[n++] = '\r';
+ 650   1              prt_data_blk[n++] = '\t';
+ 651   1              
+ 652   1              v = *(ushort*)V_VCORE;                          // +3.0
+ 653   1              v = (ushort)((float)v * CF_pVcore * 100);               // convert to 'real' value, * 100 for 2 decimal places
+ 654   1              n += ItoA( v, prt_data_blk+n );         
+ 655   1              prt_data_blk[n++] = ' ';
+ 656   1              v = *(ushort*)V_VLVD;                           // +4.5
+ 657   1              v = (ushort)((float)v * CF_pVlvd * 100);        
+ 658   1              n += ItoA( v, prt_data_blk+n );         
+ 659   1              prt_data_blk[n++] = ' ';
+ 660   1              v = *(ushort*)V_VAH;                            // +10.0
+ 661   1              v = (ushort)((float)v * CF_pVha * 100);
+ 662   1              n += ItoA( v, prt_data_blk+n );         
+ 663   1              prt_data_blk[n++] = ' ';
+ 664   1              v = *(ushort*)V_VA_PLUS;                        // +6.2
+ 665   1              v = (ushort)((float)v * CF_pVa * 100);  
+ 666   1              n += ItoA( v, prt_data_blk+n );         
+ 667   1              prt_data_blk[n++] = ' ';
+ 668   1              prt_data_blk[n++] = '-';
+ 669   1              v = *(ushort*)V_VA_MINUS;                       // -6.2
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 12  
+
+ 670   1              v = (ushort)((float)v * CF_nVa * 100);  
+ 671   1              n += ItoA( v, prt_data_blk+n );         
+ 672   1              prt_data_blk[n++] = ' ';
+ 673   1      
+ 674   1              prt_data_blk[n++] = '\r';
+ 675   1              prt_data_blk[n] = '\000';
+ 676   1              snd_msg(prt_data_blk);          // 
+ 677   1      }
+ 678          
+ 679          
+ 680          
+ 681          /***************************************************************************************/
+ 682          /* Send Serial Message     */ 
+ 683          /***************************/
+ 684          
+ 685          void snd_msg (char *message)
+ 686          {
+ 687   1      
+ 688   1              while( msg_ptr != 0 ) { _nop_(); _nop_(); _nop_(); _nop_(); _nop_();}  //if currently sending wait for it
+             - to end.
+ 689   1              msg_ptr = message;
+ 690   1              TI = SET;                                                                       // Generates SIO interrupt
+ 691   1      }
+ 692          
+ 693          /***************************************************************************************/
+ 694          /* Serial Interrupt Service Routine     */ 
+ 695          /****************************************/
+ 696          // Interrupt driven serial I/O
+ 697          
+ 698          //void serial_isr (void) interrupt 4 using 2
+ 699          void serial_isr (void) interrupt 4 using 1      // changed to 'using 1' RHJ
+ 700          {
+ 701   1              char c;
+ 702   1              
+ 703   1              // Transmitted Data Interrupt
+ 704   1              if ( TI == SET ) {                              
+ 705   2              TI = CLEAR;                                                             // Clears TI Interrupt
+ 706   2                      c = *msg_ptr;
+ 707   2                      if (c != NULL) {                                                // If message not NULL, load into transmission buffer 
+ 708   3                      ++msg_ptr;
+ 709   3                              SBUF = c;       
+ 710   3                      }
+ 711   2                      else msg_ptr = 0;
+ 712   2              }       
+ 713   1         
+ 714   1              // Received Data Interrupt
+ 715   1              if ( RI == SET ) {                                      
+ 716   2              RI = CLEAR;                                                     // Clears RI Interrupt
+ 717   2                      c = SBUF;
+ 718   2                      if(isprint(c))
+ 719   2                              {
+ 720   3                              echo[0]  = c;
+ 721   3                              msg_ptr = echo;                 
+ 722   3                              TI = SET;                                                               //  TI Interrupt
+ 723   3                              sio_rxbuf[sio_rx_idx++] = c;
+ 724   3                              }
+ 725   2                      if (sio_rx_idx >= (BUF_SIZE-1))                 // *****these three lines are suspect, need to fix
+ 726   2                      --sio_rx_idx;
+ 727   2                              
+ 728   2                      if (c == '\r') {                                                // CR indicates end of message
+ 729   3                      sio_rx_idx = 0;
+ 730   3                      sio_msg_complete = SET;                         // Indicate entire message received
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 13  
+
+ 731   3                      }
+ 732   2              }   
+ 733   1      }
+ 734          
+ 735          /***************************************************************************************/
+ 736          
+ 737          /***************************************************************************************/
+ 738          /* SPI Interrupt Service Routine     */ 
+ 739          /*************************************/
+ 740          // read and clear spi status register
+ 741          
+ 742          void spi_isr (void) interrupt 9 using 2         // added 'using 2' RHJ
+ 743          {
+ 744   1              switch( SPSTA )                                 
+ 745   1              {
+ 746   2                      // SPIF flag set --> transmission complete
+ 747   2                      case 0x80:                                                              
+ 748   2                      rcv_spi_blk[spi_idx] = SPDAT;           // read receive data
+ 749   2                              spi_complete = 1;                                       // indicate transaction finished
+ 750   2                              break;
+ 751   2      
+ 752   2                      /* error cases -> refer to pg. 96 in AT89 datasheet */
+ 753   2                      // mode fault
+ 754   2                      case 0x10:                                                      
+ 755   2                      // this does not apply as single master on SPI bus and SSDisable bit set in SPSTA register                                      
+             -                                                                                                                                
+ 756   2                              break;
+ 757   2              
+ 758   2                      // write collision
+ 759   2                      case 0x40:                                                      
+ 760   2                      // write collision does NOT cause an interrupt therefore this should be elsewhere if needed
+ 761   2                              // currently ONLY the function send_psu_data_block() ever writes to SPDAT so write collision not possib
+             -le                                                                                                         
+ 762   2                              break;
+ 763   2      
+ 764   2                      default:
+ 765   2                              break;
+ 766   2              }
+ 767   1      }
+ 768                          
+ 769          /***************************************************************************************/
+ 770          /* Retrieve Data Block       */ 
+ 771          /*****************************/  
+ 772          //Updates PSU Data Block with Current Values
+ 773          
+ 774          void update_data_block (void)
+ 775          {
+ 776   1              // Fan Speeds
+ 777   1              // get_fan_speeds();                                                                            // not implemented
+ 778   1      
+ 779   1              // DS18S20 - Temperatures - read only if present
+ 780   1              ds_get_temperature(PSUC_DS18S20, PSU_TEMP_1);                           // always read PSUC DS = temperature 1
+ 781   1              
+ 782   1              if (temp1_present)
+ 783   1                      ds_get_temperature(PSU_DS18S20, PSU_TEMP_2);                    // temperature 2 
+ 784   1              
+ 785   1              if (temp3_present)
+ 786   1                      ds_get_temperature(DTEMP2_ID, PSU_TEMP_3);                              // temperature 3
+ 787   1      
+ 788   1              /*** ADC - Voltage and Current Readings - refer to documentation ***/
+ 789   1              // Ground reading scaled to 2mV per division (+/- 2.047V range)
+ 790   1              read_adc(ADC_CH5, ADC_BI_5V, VOLTAGE, ADC_OFFSET);                      // Grounded ADC input channel reading (bipolar)
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 14  
+
+ 791   1              
+ 792   1              // Voltages scaled to ~61% of nominal values, unipolar
+ 793   1              read_adc(ADC_CH0, ADC_UNI_10V, VOLTAGE, V_VCORE);                       // +Vcore supply scaled
+ 794   1              read_adc(ADC_CH1, ADC_UNI_10V, VOLTAGE, V_VLVD);                        // +Vlvd supply scaled
+ 795   1              read_adc(ADC_CH2, ADC_UNI_10V, VOLTAGE, V_VAH);                         // +Vah supply scaled
+ 796   1              read_adc(ADC_CH3, ADC_UNI_10V, VOLTAGE, V_VA_PLUS);                     // +Va supply scaled
+ 797   1              read_adc(ADC_CH4, ADC_UNI_10V, VOLTAGE, V_VA_MINUS);            // -Va supply scaled
+ 798   1      
+ 799   1              // Currents scaled to ~73% of nominal values, unipolar
+ 800   1              read_adc(ADC_CH0, ADC_UNI_10V, CURRENT, I_VCORE);                       // Current +Vcore supply
+ 801   1              read_adc(ADC_CH1, ADC_UNI_10V, CURRENT, I_VLVD);                        // Current +Vlvd supply
+ 802   1              read_adc(ADC_CH2, ADC_UNI_10V, CURRENT, I_VAH);                         // Current +Vah supply
+ 803   1              read_adc(ADC_CH3, ADC_UNI_10V, CURRENT, I_VA_PLUS);                     // Current +Va supply
+ 804   1              read_adc(ADC_CH4, ADC_UNI_10V, CURRENT, I_VA_MINUS);            // Current -Va supply    
+ 805   1              
+ 806   1              // release SCLK
+ 807   1              SCLK = 1;                                                                                                        //**needed for SPI in send_psu_data_block to work**                                                                                                                                                                            
+ 808   1              
+ 809   1              // Bookkeeping 
+ 810   1                      //Status Word currently not used (initialized to 0)
+ 811   1              // *STATUS_WORD = 0;                                                                            // undefined status word - higher byte
+ 812   1              // *(STATUS_WORD+1) = 0;                                                                        // undefined status word - lower byte
+ 813   1              *ACK_NAK = 0;                                                                                           // Clear any ACK/NAK                                                                                                                    
+ 814   1              
+ 815   1              // Check Digit pre-Calculation
+ 816   1              check_digit();                                                                                          // updates running checksum total - done here for quick response in send_data_b
+             -lock()
+ 817   1      }
+ 818          
+ 819          /***************************************************************************************/
+ 820          /* Generate Check Digit    */ 
+ 821          /***************************/
+ 822          // Implemented as checksum for now to optimize calculation speed (tradeoff for sub-optimal error detection
+             -)
+ 823          // Checksum byte totals 0 when summed with the other 35 bytes in the PSU data block  (ignoring addition ov
+             -erflow)
+ 824          // *** This function calculated total of first 34 bytes in checksum
+ 825          // *** Finish checksum calculation and set in data block using COMPLETE_CHECKSUM macro (**AFTER** ACK/NAK 
+             -byte has been set)
+ 826           
+ 827          void check_digit (void)
+ 828          {
+ 829   1              int j;
+ 830   1              running_checksum = 0;                                                                           // reset checksum
+ 831   1              for(j = 0; j < ACK_BYTE_POS; j++) {                                                     // sum PSU data block up to ACK/NAK byte
+ 832   2                      running_checksum += ps_data_blk[j];
+ 833   2              }
+ 834   1      }
+ 835          
+ 836          /***************************************************************************************/
+ 837          /* Parse Command Received from CC    */ 
+ 838          /*************************************/
+ 839          // could to make this more robust - varying degrees of complexity in how to implement this
+ 840          // current protocol receives 3 2-byte command in first 6 bytes of PSU Data Block transaction
+ 841          
+ 842          void parse_command(void)                 
+ 843          {
+ 844   1              //assume commands are in first 6 bytes of received SPI block, ordered and repeated thrice
+ 845   1              if ( commands_match(rcv_spi_blk, rcv_spi_blk+2,rcv_spi_blk+4) && command_valid(rcv_spi_blk) ) { 
+ 846   2                      cc_command = rcv_spi_blk;       
+ 847   2                      *ACK_NAK = ACK;                                                                                 // ACK command if valid command received in triplicate  
+ 848   2              }       
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 15  
+
+ 849   1              
+ 850   1              else {
+ 851   2                      cc_command = NULL;                                                                              // else NAK command
+ 852   2                      *ACK_NAK = NAK;
+ 853   2              }
+ 854   1      }
+ 855          
+ 856          /***************************************************************************************/
+ 857          /* Matching Commands Check    */ 
+ 858          /******************************/
+ 859          // returns true if three matching commands sent else false
+ 860          
+ 861          bit commands_match (char *com_ptr_1, char *com_ptr_2, char *com_ptr_3)
+ 862          {
+ 863   1              if( (*com_ptr_1 == *com_ptr_2) && (*(com_ptr_1 + 1) == *(com_ptr_2 + 1)) ) {    // first two commands match
+ 864   2                      
+ 865   2                      if( (*com_ptr_1 == *com_ptr_3) && (*(com_ptr_1 + 1) == *(com_ptr_3 + 1)) )      // third command matches
+ 866   2                              return TRUE;
+ 867   2                      else
+ 868   2                              return FALSE;
+ 869   2              }
+ 870   1              
+ 871   1              else
+ 872   1                      return FALSE;
+ 873   1      }
+ 874          
+ 875          /***************************************************************************************/
+ 876          /* Valid Command Check    */ 
+ 877          /****************************************/
+ 878          // returns true if command received is valid
+ 879          
+ 880          bit command_valid (char *com_ptr)
+ 881          {
+ 882   1              // If command is valid return TRUE
+ 883   1              if( (*com_ptr == 0) && (*(com_ptr+1) == 0) )                            // Request Status Command (default)
+ 884   1                      return TRUE;
+ 885   1              else if( (*com_ptr == 'C') && (*(com_ptr+1) == 'P') )           // Cycle Power Command
+ 886   1                      return TRUE;
+ 887   1              else if( (*com_ptr == 'R') && (*(com_ptr+1) == 'M') )           // Reset MCE Command
+ 888   1                      return TRUE;
+ 889   1              else if( (*com_ptr == 'T') && (*(com_ptr+1) == 'O') )           // Turn Off Command
+ 890   1                      return TRUE;    
+ 891   1              else
+ 892   1                      return FALSE;
+ 893   1      }
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 16  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+P0 . . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0080H  1
+msg_ptr. . . . . . . . . . . . . . . .  PUBLIC   DATA   PTR      0000H  3
+P1 . . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0090H  1
+_ByteToHex . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0009H  -----
+  b. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  p. . . . . . . . . . . . . . . . . .  AUTO     DATA   PTR      0000H  3
+  mask . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0006H  1
+  c. . . . . . . . . . . . . . . . . .  AUTO     IDATA  U_CHAR   0000H  1
+P2 . . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A0H  1
+P3 . . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B0H  1
+P4 . . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C0H  1
+timer0_isr . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+SPCON. . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C3H  1
+timer1_isr . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+EA . . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00AFH  1
+timer2_isr . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+command_lsb. . . . . . . . . . . . . .  ABSBIT   -----  BIT      0000H  1
+ds_write_bit . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  com_bit. . . . . . . . . . . . . . .  AUTO     DATA   BIT      0000H  1
+CS_IADC. . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0091H  1
+cc_command . . . . . . . . . . . . . .  PUBLIC   DATA   PTR      0003H  3
+spi_complete . . . . . . . . . . . . .  PUBLIC   DATA   BIT      0000H  1
+SPSTA. . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C4H  1
+IEN0 . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A8H  1
+_isprint . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+IEN1 . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B1H  1
+_ds_get_temperature. . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  mask . . . . . . . . . . . . . . . .  * REG *  DATA   CHAR     0007H  1
+  target . . . . . . . . . . . . . . .  AUTO     DATA   PTR      0000H  3
+  value. . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0003H  1
+  sign . . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0004H  1
+size_t . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+rcv_spi_blk. . . . . . . . . . . . . .  PUBLIC   IDATA  ARRAY    0000H  36
+CS_VADC. . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00B2H  1
+IPL0 . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B8H  1
+nCORE_ON . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00A7H  1
+ES . . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00ACH  1
+_wait_time_x2us_plus3. . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  time_us_div2 . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+RI . . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0098H  1
+sequence_on. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+LED_STATUS . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00B7H  1
+TI . . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0099H  1
+command_bit_adr. . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   0000H  1
+CKCON0 . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008FH  1
+echo . . . . . . . . . . . . . . . . .  PUBLIC   DATA   ARRAY    0006H  2
+sio_prt_volts. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  v. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+  n. . . . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0000H  1
+PT0L . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00B9H  1
+RCAP2H . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CBH  1
+asc_version. . . . . . . . . . . . . .  PUBLIC   CODE   ARRAY    0014H  13
+cycle_power. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+CCON . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D8H  1
+prompt . . . . . . . . . . . . . . . .  PUBLIC   CODE   ARRAY    0022H  7
+adc_data . . . . . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   0001H  1
+RCAP2L . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CAH  1
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 17  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+main . . . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+_read_adc. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  chan . . . . . . . . . . . . . . . .  AUTO     DATA   CHAR     0007H  1
+  mode . . . . . . . . . . . . . . . .  AUTO     DATA   CHAR     0005H  1
+  adc_sel. . . . . . . . . . . . . . .  AUTO     DATA   BIT      0000H  1
+  target . . . . . . . . . . . . . . .  AUTO     DATA   PTR      0002H  3
+  bit_cnt. . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  temp_char_ptr. . . . . . . . . . . .  AUTO     DATA   PTR      0005H  3
+  adc_reading. . . . . . . . . . . . .  AUTO     DATA   U_INT    0008H  2
+bcnt . . . . . . . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   0008H  1
+CCSS . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0094H  1
+SCLK . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0096H  1
+PCON . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0087H  1
+SBUF . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0099H  1
+serial_isr . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  c. . . . . . . . . . . . . . . . . .  AUTO     DATA   CHAR     0000H  1
+LED_FAULT. . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00B5H  1
+SCON . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0098H  1
+sio_msg_complete . . . . . . . . . . .  PUBLIC   DATA   BIT      0001H  1
+TMOD . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0089H  1
+TCON . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0088H  1
+poll_data. . . . . . . . . . . . . . .  PUBLIC   DATA   BIT      0002H  1
+init . . . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   INT      0006H  2
+LEDCON . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F1H  1
+sio_prt_temps_hex. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  n. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+MOSI . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0097H  1
+MISO . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0095H  1
+BDRCON . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009BH  1
+BRST . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00A0H  1
+SREQ . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0093H  1
+running_checksum . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   0009H  1
+sio_rx_idx . . . . . . . . . . . . . .  PUBLIC   DATA   CHAR     000AH  1
+soft_reset . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+adr_mask . . . . . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   000BH  1
+cc_req_320ms . . . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   000CH  1
+_commands_match. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  com_ptr_1. . . . . . . . . . . . . .  AUTO     DATA   PTR      0000H  3
+  com_ptr_2. . . . . . . . . . . . . .  AUTO     DATA   PTR      0003H  3
+  com_ptr_3. . . . . . . . . . . . . .  AUTO     DATA   PTR      0006H  3
+_wait_time . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  loops. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+ET0. . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00A9H  1
+read_bus . . . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+ET1. . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00ABH  1
+ET2. . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00ADH  1
+TF2. . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00CFH  1
+TH0. . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008CH  1
+LED_OUTON. . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00B6H  1
+TH1. . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008DH  1
+ADC_MS_DBIT. . . . . . . . . . . . . .  ABSBIT   -----  BIT      000FH  1
+TH2. . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CDH  1
+temp1_present. . . . . . . . . . . . .  PUBLIC   DATA   BIT      0003H  1
+TL0. . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008AH  1
+temp2_present. . . . . . . . . . . . .  PUBLIC   DATA   BIT      0004H  1
+TL1. . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008BH  1
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 18  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+temp3_present. . . . . . . . . . . . .  PUBLIC   DATA   BIT      0005H  1
+send_psu_data_block. . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+TL2. . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CCH  1
+TR0. . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      008CH  1
+sio_rxbuf. . . . . . . . . . . . . . .  PUBLIC   IDATA  ARRAY    0024H  10
+_command_valid . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  com_ptr. . . . . . . . . . . . . . .  * REG *  DATA   PTR      0001H  3
+UEPINT . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F8H  1
+TR1. . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      008EH  1
+num_T1_ints. . . . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   000DH  1
+TR2. . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00CAH  1
+reset_MCE. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+ds_reset . . . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  presence . . . . . . . . . . . . . .  AUTO     DATA   BIT      0000H  1
+BRL. . . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009AH  1
+sio_prt_currents . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+  n. . . . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0000H  1
+parse_command. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+watchdog_count . . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   000EH  1
+sio_prt_datablk_hex. . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+  n. . . . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0000H  1
+nPSU_ON. . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00A1H  1
+T2CON. . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C8H  1
+ds_read_byte . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  b. . . . . . . . . . . . . . . . . .  AUTO     DATA   INT      0000H  2
+  read_temp. . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0002H  1
+_ItoA. . . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0012H  -----
+  n. . . . . . . . . . . . . . . . . .  AUTO     DATA   U_INT    0000H  2
+  buf. . . . . . . . . . . . . . . . .  AUTO     DATA   PTR      0002H  3
+  i. . . . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0005H  1
+prt_data_blk . . . . . . . . . . . . .  PUBLIC   IDATA  ARRAY    002EH  87
+_snd_msg . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0006H  -----
+  message. . . . . . . . . . . . . . .  AUTO     DATA   PTR      0000H  3
+_ds_initialize . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  mask . . . . . . . . . . . . . . . .  * REG *  DATA   CHAR     0007H  1
+  present. . . . . . . . . . . . . . .  AUTO     DATA   BIT      0000H  1
+update_data_block. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+ds_convert_T . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+software_version_byte. . . . . . . . .  PUBLIC   CODE   CHAR     0021H  1
+_ds_get_4byte_id . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  mask . . . . . . . . . . . . . . . .  * REG *  DATA   CHAR     0007H  1
+  target . . . . . . . . . . . . . . .  AUTO     DATA   PTR      0000H  3
+  presence_detect. . . . . . . . . . .  AUTO     DATA   BIT      0000H  1
+  family_code. . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0003H  1
+  serial_number. . . . . . . . . . . .  AUTO     DATA   ARRAY    0004H  6
+  crc_code . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   000AH  1
+cc_spi . . . . . . . . . . . . . . . .  PUBLIC   DATA   BIT      0006H  1
+spi_idx. . . . . . . . . . . . . . . .  PUBLIC   DATA   U_CHAR   000FH  1
+check_digit. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  j. . . . . . . . . . . . . . . . . .  * REG *  DATA   INT      0006H  2
+ds_read_bit. . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  temp_bit . . . . . . . . . . . . . .  AUTO     DATA   BIT      0000H  1
+ps_data_blk. . . . . . . . . . . . . .  PUBLIC   IDATA  ARRAY    0085H  36
+sequence_off . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+spi_isr. . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+C51 COMPILER V8.04   SCUBA2PS                                                              03/19/2007 11:14:38 PAGE 19  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+timeup_T1. . . . . . . . . . . . . . .  PUBLIC   DATA   BIT      0007H  1
+_ds_write_byte . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  command. . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  a. . . . . . . . . . . . . . . . . .  AUTO     DATA   INT      0000H  2
+SPDAT. . . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C5H  1
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2978    ----
+   CONSTANT SIZE    =     41    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     18      56
+   IDATA SIZE       =    169       1
+   BIT SIZE         =      8       6
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

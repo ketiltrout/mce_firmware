@@ -1,0 +1,42 @@
+PSC RS232 User Guide v0.1
+For PSC Firmware Version 3.1
+19 March 2007 RHJ
+
+
+Command		'c':
+			// Cycle Power Command
+			Function called:  cycle_power();
+				
+Command		'r':
+			// Reset MCE Command
+			Function called:  reset_MCE();
+
+Command		'?':
+			// Respond with Software Version
+			Function called:  snd_msg(asc_version);
+
+Command		'd':
+			// Respond with PSU data block 		
+			Function called:  sio_prt_datablk_hex();
+		  
+Command		't':
+			// Respond with PSU data block temperatures		
+			Function called:  sio_prt_temps_hex();
+										
+Command		'f':
+			// Turn Off Command
+			Function called:  sequence_off();
+					
+Command		'n':
+			// Turn On Command
+			Function called:  sequence_on();
+					
+Command		'i':
+			// output PSU currents		
+			Function called:  sio_prt_currents();
+
+Command		'v':
+			// output PSU voltages		
+			Function called:  sio_prt_volts();
+
+

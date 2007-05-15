@@ -8,6 +8,9 @@ MAX1271 ADC Interfacing Function
 *************************************************************************************************/
 // Revision history: 
 // $Log: MAX1271.c,v $
+// Revision 1.5  2006/11/20 23:22:00  stuartah
+// Cleaned code, improved commenting, implemented changes for PSUC rev. G
+//
 // Revision 1.4  2006/10/03 05:58:49  stuartah
 // Tested in Subrack, Basic Command working
 //
@@ -110,3 +113,5 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)
   	*target = *temp_char_ptr;						// higher order byte
   	*(target+1) = *(temp_char_ptr+1);				// lower order byte
 }
+
+

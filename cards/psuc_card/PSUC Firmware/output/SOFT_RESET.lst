@@ -1,0 +1,54 @@
+A51 MACRO ASSEMBLER  SOFT_RESET                                                           03/19/2007 11:14:39 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.00
+OBJECT MODULE PLACED IN .\output\SOFT_RESET.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE SOFT_RESET.a SET(SMALL) DEBUG PRINT(.\output\SOFT_RESET.lst) OBJECT(.\outp
+                      ut\SOFT_RESET.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;************************************************************************************/
+                       2     ;*      Scuba 2 Power Supply Controller - SC2_ELE_S565_102D              
+                       3     ;************************************************************************************/
+                       4     ; Revision history:     
+                       5     ; $Log: scuba2ps.h,v $
+                       6     ;
+                       7     
+                       8     
+                       9     ?PR?SOFT_RESET  SEGMENT CODE
+----                  10     RSEG ?PR?SOFT_RESET
+                      11     USING 0
+                      12     
+                      13     ; C prototype:  void soft_reset (void);
+                      14     
+                      15     PUBLIC soft_reset
+0000 D0E0             16     soft_reset: POP  ACC            ; pop return address
+0002 D0E0             17            POP  ACC
+0004 E4               18            CLR  A                           ; push 0 as new
+0005 244F             19                ADD A, #0x4F         ; lower order adress byte [for nop preceding snd_msg(restar
+                             ting);]
+0007 C0E0             20            PUSH ACC                         ; return address to stack
+0009 E4               21                CLR A          
+000A 2406             22                ADD A, #0x06         ; higher order adress byte
+000C C0E0             23            PUSH ACC
+000E 32               24            RETI                             ; execute return of interrupt
+                      25     
+                      26            END
+A51 MACRO ASSEMBLER  SOFT_RESET                                                           03/19/2007 11:14:39 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+?PR?SOFT_RESET . .  C SEG    000FH       REL=UNIT
+ACC. . . . . . . .  D ADDR   00E0H   A   
+SOFT_RESET . . . .  C ADDR   0000H   R   SEG=?PR?SOFT_RESET
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

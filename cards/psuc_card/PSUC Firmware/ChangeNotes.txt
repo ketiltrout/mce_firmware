@@ -1,0 +1,22 @@
+Change Notes for PSUC Firmware
+For Version 3.1 15March2007 RHJ
+
+See also: PSC RS232 User Guide
+
+1. Fixed the RS232 serial IO. 
+
+2. Added a command function 'd', to convert the ps_data_blk to 
+   an ascii hex string, and output it on RS232.
+
+3. Changed the temperature sense and save order, so the the PSUC
+   temerature is always TEMP1.  TEMP2 and TEMP3 are PSU and PSU
+   heatsink temperatures.
+
+4. Added a command function 't', to convert the ps_data_blk
+   temperatures to an ascii hex string, and output them on RS232.
+
+
+5. added commands 'v' and 'i' to output the re-scaled ADC values of
+   the PSU voltages and currents from the data_block.
+
+6. added commands 'f' and 'n' to turn_off or turn_on the PSU outputs.

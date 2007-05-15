@@ -34,7 +34,7 @@ Options 1,0,0  // Target 'Target 1'
  EnvLib (C:\Program Files\Archimedes\C51\LIB\)
  EnvReg (ÿAtmel\)
  OrgReg (ÿAtmel\)
- TgStat=16
+ TgStat=25
  OutDir (.\output\)
  OutName (PSC_3p1)
  GenApp=1

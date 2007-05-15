@@ -3,6 +3,9 @@
 /************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.11  2006/12/23 00:39:00  stuartah
+// Version 2.3 Release
+//
 // Revision 1.10  2006/11/22 00:10:08  stuartah
 // Fixed FAULT LED behavior to turn on if no CC request for over a minute (no longer flashes)
 //
@@ -112,7 +115,7 @@ bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temper
 #define SOFTWARE_VERSION 	(ps_data_blk+4)			// Software Version
 #define FAN1_TACH			(ps_data_blk+5)			// Fan 1 speed /16	
 #define FAN2_TACH  			(ps_data_blk+6)			// Fan 2 speed /16
-#define PSU_TEMP_1			(ps_data_blk+7)			// temperature 1 from DS18S20
+#define PSU_TEMP_1			(ps_data_blk+7)			// temperature 1 from DS18S20 // V3.1 = PSUC temperature
 #define PSU_TEMP_2			(ps_data_blk+8)			// temperature 2 from DS18S20
 #define PSU_TEMP_3			(ps_data_blk+9)			// temperature 3 from DS18S20
 #define ADC_OFFSET			(ps_data_blk+10)		// Grounded ADC input channel reading
