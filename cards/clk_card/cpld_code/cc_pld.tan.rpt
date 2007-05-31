@@ -1,0 +1,335 @@
+Timing Analyzer report for cc_pld compilation.
+Mon Mar 15 16:31:00 2004
+Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
+
+Command: quartus_tan --import_settings_files=off --export_settings_files=off cc_pld -c cc_pld
+
+
+
+---------------------
+; Table of Contents ;
+---------------------
+   1. Legal Notice
+   2. Flow Summary
+   3. Flow Settings
+   4. Flow Elapsed Time
+   5. Timing Analyzer Settings
+   6. Timing Analyzer Summary
+   7. Clock Setup: 'CLK100'
+   8. tsu
+   9. tco
+  10. tpd
+  11. th
+  12. Minimum tco
+  13. Minimum tpd
+  14. Timing Analyzer Messages
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2003 Altera Corporation
+Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+support information,  device programming or simulation file,  and any other
+associated  documentation or information  provided by  Altera  or a partner
+under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+other  use  of such  megafunction  design,  netlist,  support  information,
+device programming or simulation file,  or any other  related documentation
+or information  is prohibited  for  any  other purpose,  including, but not
+limited to  modification,  reverse engineering,  de-compiling, or use  with
+any other  silicon devices,  unless such use is  explicitly  licensed under
+a separate agreement with  Altera  or a megafunction partner.  Title to the
+intellectual property,  including patents,  copyrights,  trademarks,  trade
+secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+support  information,  device programming or simulation file,  or any other
+related documentation or information provided by  Altera  or a megafunction
+partner, remains with Altera, the megafunction partner, or their respective
+licensors. No other licenses, including any licenses needed under any third
+party's intellectual property, are provided herein.
+
+
+
+-----------------------------------------------------------------
+; Flow Summary                                                  ;
+-----------------------------------------------------------------
+; Flow Status           ; Successful - Mon Mar 15 16:30:56 2004 ;
+; Compiler Setting Name ; cc_pld                                ;
+; Top-level Entity Name ; cc_pld                                ;
+; Family                ; MAX3000A                              ;
+; Device                ; EPM3128ATC100-10                      ;
+; Total macrocells      ; 17 / 128 ( 13 % )                     ;
+; Total pins            ; 46 / 80 ( 57 % )                      ;
+-----------------------------------------------------------------
+
+
+-----------------------------------------------
+; Flow Settings                               ;
+-----------------------------------------------
+; Option                ; Setting             ;
+-----------------------------------------------
+; Start date & time     ; 03/15/2004 16:30:47 ;
+; Main task             ; Compilation         ;
+; Compiler Setting Name ; cc_pld              ;
+-----------------------------------------------
+
+
+---------------------------------------
+; Flow Elapsed Time                   ;
+---------------------------------------
+; Module Name          ; Elapsed Time ;
+---------------------------------------
+; Analysis & Synthesis ; 00:00:02     ;
+; Fitter               ; 00:00:01     ;
+; Assembler            ; 00:00:01     ;
+; Timing Analyzer      ; 00:00:02     ;
+; Total                ; 00:00:06     ;
+---------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+; Timing Analyzer Settings                                                                                                                 ;
+--------------------------------------------------------------------------------------------------------------------------------------------
+; Assignment File ; Source Name ; Destination Name ; Option                                                           ; Setting            ;
+--------------------------------------------------------------------------------------------------------------------------------------------
+; cc_pld.psf      ;             ;                  ; Include external delays to/from device pins in fmax calculations ; Off                ;
+; cc_pld.psf      ;             ;                  ; Run All Timing Analyses                                          ; Off                ;
+; cc_pld.psf      ;             ;                  ; Ignore user-defined clock settings                               ; Off                ;
+; cc_pld.psf      ;             ;                  ; Default hold multicycle                                          ; Same As Multicycle ;
+; cc_pld.psf      ;             ;                  ; Cut off feedback from I/O pins                                   ; On                 ;
+; cc_pld.psf      ;             ;                  ; Cut off clear and preset signal paths                            ; On                 ;
+; cc_pld.psf      ;             ;                  ; Cut off read during write signal paths                           ; Off                ;
+; cc_pld.psf      ;             ;                  ; Cut paths between unrelated clock domains                        ; On                 ;
+; cc_pld.psf      ;             ;                  ; Run Minimum Analysis                                             ; On                 ;
+; cc_pld.psf      ;             ;                  ; Use Minimum Timing Models                                        ; Off                ;
+; cc_pld.psf      ;             ;                  ; Minimum tpd to report                                            ; 0.0NS              ;
+; cc_pld.psf      ;             ;                  ; Maximum fmax to report                                           ; 10MHZ              ;
+; cc_pld.psf      ;             ;                  ; Number of paths to report                                        ; 200                ;
+; cc_pld.psf      ;             ;                  ; Number of destination nodes to report                            ; 10                 ;
+; cc_pld.psf      ;             ;                  ; Number of source nodes to report per destination node            ; 10                 ;
+; cc_pld.psf      ;             ;                  ; Maximum Strongly Connected Component loop size                   ; 50                 ;
+;                 ;             ;                  ; Device name                                                      ; EPM3128ATC100-10   ;
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------------------------------------------------------
+; Timing Analyzer Summary                                                                                            ;
+----------------------------------------------------------------------------------------------------------------------
+; Type                   ; Slack ; Required Time ; Actual Time                      ; Source Name ; Destination Name ;
+----------------------------------------------------------------------------------------------------------------------
+; Clock Setup: 'CLK100'  ; N/A   ; None          ; 98.04 MHz ( period = 10.200 ns ) ; 5           ; 1                ;
+; Worst-case tsu         ; N/A   ; None          ; 3.700 ns                         ; nEPC_SEL    ; 24               ;
+; Worst-case tco         ; N/A   ; None          ; 16.600 ns                        ; 24          ; CF_SEL           ;
+; Worst-case tpd         ; N/A   ; None          ; 10.100 ns                        ; nRECONF     ; nC_CONF          ;
+; Worst-case th          ; N/A   ; None          ; 0.500 ns                         ; nEPC_SEL    ; 24               ;
+; Worst-case minimum tco ; N/A   ; None          ; 6.600 ns                         ; 5           ; CLK              ;
+; Worst-case minimum tpd ; N/A   ; None          ; 10.000 ns                        ; CF_DCLK     ; C_DCLK           ;
+----------------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Clock Setup: 'CLK100'                                                                                                                                                                                                                                                         ;
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Slack                                          ; Actual fmax (period)                                       ; Source Name ; Destination Name ; Source Clock Name ; Destination Clock Name ; Required Setup Relationship ; Required Longest P2P Time ; Actual Longest P2P Time ;
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Timing analysis restricted to fmax < 10.0 MHz. ; To change the limit use Timing Settings (Assignments menu) ;             ;                  ;                   ;                        ;                             ;                           ;                         ;
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------
+; tsu                                                                                         ;
+-----------------------------------------------------------------------------------------------
+; Slack ; Required tsu ; Actual tsu ; Source Name ; Destination Name ; Destination Clock Name ;
+-----------------------------------------------------------------------------------------------
+; N/A   ; None         ; 3.700 ns   ; nEPC_SEL    ; 24               ; nRECONF                ;
+-----------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------
+; tco                                                                                    ;
+------------------------------------------------------------------------------------------
+; Slack ; Required tco ; Actual tco ; Source Name ; Destination Name ; Source Clock Name ;
+------------------------------------------------------------------------------------------
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[0]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[1]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[2]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[3]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[4]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[5]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[6]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; C_D[7]           ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; CF_OE            ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; CA_OE            ; nRECONF           ;
+; N/A   ; None         ; 16.600 ns  ; 24          ; CF_SEL           ; nRECONF           ;
+; N/A   ; None         ; 9.600 ns   ; 24          ; CA_SEL           ; nRECONF           ;
+; N/A   ; None         ; 6.600 ns   ; 5           ; CLK              ; CLK100            ;
+------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+; tpd                                                                          ;
+--------------------------------------------------------------------------------
+; Slack ; Required P2P Time ; Actual P2P Time ; Source Name ; Destination Name ;
+--------------------------------------------------------------------------------
+; N/A   ; None              ; 10.100 ns       ; nRESET      ; nC_CONF          ;
+; N/A   ; None              ; 10.100 ns       ; nCF_CONF    ; nC_CONF          ;
+; N/A   ; None              ; 10.100 ns       ; nCA_CONF    ; nC_CONF          ;
+; N/A   ; None              ; 10.100 ns       ; nRECONF     ; nC_CONF          ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[0]     ; C_D[0]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[0]     ; C_D[0]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[1]     ; C_D[1]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[1]     ; C_D[1]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[2]     ; C_D[2]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[2]     ; C_D[2]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[3]     ; C_D[3]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[3]     ; C_D[3]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[4]     ; C_D[4]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[4]     ; C_D[4]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[5]     ; C_D[5]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[5]     ; C_D[5]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[6]     ; C_D[6]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[6]     ; C_D[6]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_D[7]     ; C_D[7]           ;
+; N/A   ; None              ; 10.000 ns       ; CF_D[7]     ; C_D[7]           ;
+; N/A   ; None              ; 10.000 ns       ; CA_DCLK     ; C_DCLK           ;
+; N/A   ; None              ; 10.000 ns       ; CF_DCLK     ; C_DCLK           ;
+--------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------------
+; th                                                                                                ;
+-----------------------------------------------------------------------------------------------------
+; Minimum Slack ; Required th ; Actual th ; Source Name ; Destination Name ; Destination Clock Name ;
+-----------------------------------------------------------------------------------------------------
+; N/A           ; None        ; 0.500 ns  ; nEPC_SEL    ; 24               ; nRECONF                ;
+-----------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------------------------------------------
+; Minimum tco                                                                                            ;
+----------------------------------------------------------------------------------------------------------
+; Minimum Slack ; Required Min tco ; Actual Min tco ; Source Name ; Destination Name ; Source Clock Name ;
+----------------------------------------------------------------------------------------------------------
+; N/A           ; None             ; 6.600 ns       ; 5           ; CLK              ; CLK100            ;
+; N/A           ; None             ; 9.600 ns       ; 24          ; CA_SEL           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; CF_SEL           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; CA_OE            ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; CF_OE            ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[7]           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[6]           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[5]           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[4]           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[3]           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[2]           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[1]           ; nRECONF           ;
+; N/A           ; None             ; 16.600 ns      ; 24          ; C_D[0]           ; nRECONF           ;
+----------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------------------------
+; Minimum tpd                                                                          ;
+----------------------------------------------------------------------------------------
+; Minimum Slack ; Required P2P Time ; Actual P2P Time ; Source Name ; Destination Name ;
+----------------------------------------------------------------------------------------
+; N/A           ; None              ; 10.000 ns       ; CF_DCLK     ; C_DCLK           ;
+; N/A           ; None              ; 10.000 ns       ; CA_DCLK     ; C_DCLK           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[7]     ; C_D[7]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[7]     ; C_D[7]           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[6]     ; C_D[6]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[6]     ; C_D[6]           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[5]     ; C_D[5]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[5]     ; C_D[5]           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[4]     ; C_D[4]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[4]     ; C_D[4]           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[3]     ; C_D[3]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[3]     ; C_D[3]           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[2]     ; C_D[2]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[2]     ; C_D[2]           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[1]     ; C_D[1]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[1]     ; C_D[1]           ;
+; N/A           ; None              ; 10.000 ns       ; CF_D[0]     ; C_D[0]           ;
+; N/A           ; None              ; 10.000 ns       ; CA_D[0]     ; C_D[0]           ;
+; N/A           ; None              ; 10.100 ns       ; nRECONF     ; nC_CONF          ;
+; N/A           ; None              ; 10.100 ns       ; nCA_CONF    ; nC_CONF          ;
+; N/A           ; None              ; 10.100 ns       ; nCF_CONF    ; nC_CONF          ;
+; N/A           ; None              ; 10.100 ns       ; nRESET      ; nC_CONF          ;
+----------------------------------------------------------------------------------------
+
+
+-----------------------------
+; Timing Analyzer Messages  ;
+-----------------------------
+Info: *******************************************************************
+Info: Running Quartus II Timing Analyzer
+  Info: Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
+  Info: Processing started: Mon Mar 15 16:30:58 2004
+Info: Command: quartus_tan --import_settings_files=off --export_settings_files=off cc_pld -c cc_pld
+Warning: Found pins functioning as undefined clocks and/or memory enables
+  Info: Assuming node CLK100 is an undefined clock
+  Info: Assuming node nRECONF is an undefined clock
+Info: No valid register-to-register paths exist for clock nRECONF
+Info: tsu for register 24 (data pin = nEPC_SEL, clock pin = nRECONF) is 3.700 ns
+  Info: + Longest pin to register delay is 7.100 ns
+    Info: 1: + IC(0.000 ns) + CELL(1.400 ns) = 1.400 ns; Loc. = Pin_97; PIN Node = 'nEPC_SEL'
+    Info: 2: + IC(2.600 ns) + CELL(3.100 ns) = 7.100 ns; Loc. = LC45; REG Node = '24'
+    Info: Total cell delay = 4.500 ns
+    Info: Total interconnect delay = 2.600 ns
+  Info: + Micro setup delay of destination is 2.900 ns
+  Info: - Shortest clock path from clock nRECONF to destination register is 6.300 ns
+    Info: 1: + IC(0.000 ns) + CELL(1.400 ns) = 1.400 ns; Loc. = Pin_96; CLK Node = 'nRECONF'
+    Info: 2: + IC(2.700 ns) + CELL(2.200 ns) = 6.300 ns; Loc. = LC45; REG Node = '24'
+    Info: Total cell delay = 3.600 ns
+    Info: Total interconnect delay = 2.700 ns
+Info: tco from clock nRECONF to destination pin C_D[0] through register 24 is 16.600 ns
+  Info: + Longest clock path from clock nRECONF to source register is 6.300 ns
+    Info: 1: + IC(0.000 ns) + CELL(1.400 ns) = 1.400 ns; Loc. = Pin_96; CLK Node = 'nRECONF'
+    Info: 2: + IC(2.700 ns) + CELL(2.200 ns) = 6.300 ns; Loc. = LC45; REG Node = '24'
+    Info: Total cell delay = 3.600 ns
+    Info: Total interconnect delay = 2.700 ns
+  Info: + Micro clock to output delay of source is 1.600 ns
+  Info: + Longest register to pin delay is 8.700 ns
+    Info: 1: + IC(0.000 ns) + CELL(0.000 ns) = 0.000 ns; Loc. = LC45; REG Node = '24'
+    Info: 2: + IC(2.700 ns) + CELL(4.400 ns) = 7.100 ns; Loc. = LC128; COMB Node = '8mux:13|lpm_mux:lpm_mux_component|muxlut:$00009|result_node~8'
+    Info: 3: + IC(0.000 ns) + CELL(1.600 ns) = 8.700 ns; Loc. = Pin_85; PIN Node = 'C_D[0]'
+    Info: Total cell delay = 6.000 ns
+    Info: Total interconnect delay = 2.700 ns
+Info: Longest tpd from source pin nRESET to destination pin nC_CONF is 10.100 ns
+  Info: 1: + IC(0.000 ns) + CELL(2.500 ns) = 2.500 ns; Loc. = Pin_89; PIN Node = 'nRESET'
+  Info: 2: + IC(1.600 ns) + CELL(4.400 ns) = 8.500 ns; Loc. = LC5; COMB Node = 'inst~11'
+  Info: 3: + IC(0.000 ns) + CELL(1.600 ns) = 10.100 ns; Loc. = Pin_100; PIN Node = 'nC_CONF'
+  Info: Total cell delay = 8.500 ns
+  Info: Total interconnect delay = 1.600 ns
+Info: th for register 24 (data pin = nEPC_SEL, clock pin = nRECONF) is 0.500 ns
+  Info: + Longest clock path from clock nRECONF to destination register is 6.300 ns
+    Info: 1: + IC(0.000 ns) + CELL(1.400 ns) = 1.400 ns; Loc. = Pin_96; CLK Node = 'nRECONF'
+    Info: 2: + IC(2.700 ns) + CELL(2.200 ns) = 6.300 ns; Loc. = LC45; REG Node = '24'
+    Info: Total cell delay = 3.600 ns
+    Info: Total interconnect delay = 2.700 ns
+  Info: + Micro hold delay of destination is 1.300 ns
+  Info: - Shortest pin to register delay is 7.100 ns
+    Info: 1: + IC(0.000 ns) + CELL(1.400 ns) = 1.400 ns; Loc. = Pin_97; PIN Node = 'nEPC_SEL'
+    Info: 2: + IC(2.600 ns) + CELL(3.100 ns) = 7.100 ns; Loc. = LC45; REG Node = '24'
+    Info: Total cell delay = 4.500 ns
+    Info: Total interconnect delay = 2.600 ns
+Info: Minimum tco from clock CLK100 to destination pin CLK through register 5 is 6.600 ns
+  Info: + Shortest clock path from clock CLK100 to source register is 3.400 ns
+    Info: 1: + IC(0.000 ns) + CELL(2.500 ns) = 2.500 ns; Loc. = Pin_87; CLK Node = 'CLK100'
+    Info: 2: + IC(0.000 ns) + CELL(0.900 ns) = 3.400 ns; Loc. = LC14; REG Node = '5'
+    Info: Total cell delay = 3.400 ns
+  Info: + Micro clock to output delay of source is 1.600 ns
+  Info: + Shortest register to pin delay is 1.600 ns
+    Info: 1: + IC(0.000 ns) + CELL(0.000 ns) = 0.000 ns; Loc. = LC14; REG Node = '5'
+    Info: 2: + IC(0.000 ns) + CELL(1.600 ns) = 1.600 ns; Loc. = Pin_93; PIN Node = 'CLK'
+    Info: Total cell delay = 1.600 ns
+Info: Shortest tpd from source pin CF_DCLK to destination pin C_DCLK is 10.000 ns
+  Info: 1: + IC(0.000 ns) + CELL(1.400 ns) = 1.400 ns; Loc. = Pin_21; PIN Node = 'CF_DCLK'
+  Info: 2: + IC(2.600 ns) + CELL(4.400 ns) = 8.400 ns; Loc. = LC13; COMB Node = '29~0'
+  Info: 3: + IC(0.000 ns) + CELL(1.600 ns) = 10.000 ns; Loc. = Pin_94; PIN Node = 'C_DCLK'
+  Info: Total cell delay = 7.400 ns
+  Info: Total interconnect delay = 2.600 ns
+Info: Quartus II Timing Analyzer was successful. 0 errors, 1 warning
+  Info: Processing ended: Mon Mar 15 16:31:00 2004
+  Info: Elapsed time: 00:00:02
+Info: Writing report file cc_pld.tan.rpt
+
+

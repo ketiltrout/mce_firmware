@@ -1,0 +1,364 @@
+--A1L7 is 29~0
+A1L7_p1_out = !CA_DCLK & !CF_DCLK;
+A1L7_or_out = A1L7_p1_out;
+A1L7 = !(A1L7_or_out);
+
+
+--1 is 1
+1_or_out = 5;
+1_reg_input = 1_or_out;
+1 = DFFE(1_reg_input, GLOBAL(CLK100), GLOBAL(nRESET), , );
+
+
+--5 is 5
+5_or_out = !1;
+5_reg_input = 5_or_out;
+5 = DFFE(5_reg_input, GLOBAL(CLK100), GLOBAL(nRESET), , );
+
+
+--24 is 24
+24_or_out = !nEPC_SEL;
+24_reg_input = 24_or_out;
+24 = DFFE(24_reg_input, !nRECONF, !A1L44, nCA_CONF, );
+
+
+--A1L44 is inst~9
+A1L44 = EXP(GLOBAL(nRESET) & nCF_CONF);
+
+
+--A1L54 is inst~11
+A1L54_p1_out = nRECONF & nCA_CONF & GLOBAL(nRESET) & nCF_CONF;
+A1L54_or_out = A1L54_p1_out;
+A1L54 = A1L54_or_out;
+
+
+--A1L4 is 24~3
+A1L4_or_out = 24;
+A1L4 = A1L4_or_out;
+
+
+--A1L5 is 24~5
+A1L5_or_out = 24;
+A1L5 = !(A1L5_or_out);
+
+
+--A1L6 is 24~8
+A1L6_or_out = 24;
+A1L6 = !(A1L6_or_out);
+
+
+--D8L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00023|result_node~8
+D8L1_p1_out = 24 & CA_D[7];
+D8L1_p2_out = !24 & CF_D[7];
+D8L1_or_out = D8L1_p1_out # D8L1_p2_out;
+D8L1 = D8L1_or_out;
+
+
+--D7L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00021|result_node~8
+D7L1_p1_out = 24 & CA_D[6];
+D7L1_p2_out = !24 & CF_D[6];
+D7L1_or_out = D7L1_p1_out # D7L1_p2_out;
+D7L1 = D7L1_or_out;
+
+
+--D6L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00019|result_node~8
+D6L1_p1_out = 24 & CA_D[5];
+D6L1_p2_out = !24 & CF_D[5];
+D6L1_or_out = D6L1_p1_out # D6L1_p2_out;
+D6L1 = D6L1_or_out;
+
+
+--D5L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00017|result_node~8
+D5L1_p1_out = 24 & CA_D[4];
+D5L1_p2_out = !24 & CF_D[4];
+D5L1_or_out = D5L1_p1_out # D5L1_p2_out;
+D5L1 = D5L1_or_out;
+
+
+--D4L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00015|result_node~8
+D4L1_p1_out = 24 & CA_D[3];
+D4L1_p2_out = !24 & CF_D[3];
+D4L1_or_out = D4L1_p1_out # D4L1_p2_out;
+D4L1 = D4L1_or_out;
+
+
+--D3L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00013|result_node~8
+D3L1_p1_out = 24 & CA_D[2];
+D3L1_p2_out = !24 & CF_D[2];
+D3L1_or_out = D3L1_p1_out # D3L1_p2_out;
+D3L1 = D3L1_or_out;
+
+
+--D2L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00011|result_node~8
+D2L1_p1_out = 24 & CA_D[1];
+D2L1_p2_out = !24 & CF_D[1];
+D2L1_or_out = D2L1_p1_out # D2L1_p2_out;
+D2L1 = D2L1_or_out;
+
+
+--D1L1 is 8mux:13|lpm_mux:lpm_mux_component|muxlut:$00009|result_node~8
+D1L1_p1_out = 24 & CA_D[0];
+D1L1_p2_out = !24 & CF_D[0];
+D1L1_or_out = D1L1_p1_out # D1L1_p2_out;
+D1L1 = D1L1_or_out;
+
+
+--~VCC~0 is ~VCC~0
+~VCC~0_or_out = GND;
+~VCC~0 = !(~VCC~0_or_out);
+
+
+--nRESET is nRESET
+--operation mode is input
+
+nRESET = INPUT();
+
+
+--CLK100 is CLK100
+--operation mode is input
+
+CLK100 = INPUT();
+
+
+--CA_DCLK is CA_DCLK
+--operation mode is input
+
+CA_DCLK = INPUT();
+
+
+--CF_DCLK is CF_DCLK
+--operation mode is input
+
+CF_DCLK = INPUT();
+
+
+--nCF_CONF is nCF_CONF
+--operation mode is input
+
+nCF_CONF = INPUT();
+
+
+--nRECONF is nRECONF
+--operation mode is input
+
+nRECONF = INPUT();
+
+
+--nEPC_SEL is nEPC_SEL
+--operation mode is input
+
+nEPC_SEL = INPUT();
+
+
+--nCA_CONF is nCA_CONF
+--operation mode is input
+
+nCA_CONF = INPUT();
+
+
+--CF_D[7] is CF_D[7]
+--operation mode is input
+
+CF_D[7] = INPUT();
+
+
+--CF_D[6] is CF_D[6]
+--operation mode is input
+
+CF_D[6] = INPUT();
+
+
+--CF_D[5] is CF_D[5]
+--operation mode is input
+
+CF_D[5] = INPUT();
+
+
+--CF_D[4] is CF_D[4]
+--operation mode is input
+
+CF_D[4] = INPUT();
+
+
+--CF_D[3] is CF_D[3]
+--operation mode is input
+
+CF_D[3] = INPUT();
+
+
+--CF_D[2] is CF_D[2]
+--operation mode is input
+
+CF_D[2] = INPUT();
+
+
+--CF_D[1] is CF_D[1]
+--operation mode is input
+
+CF_D[1] = INPUT();
+
+
+--CF_D[0] is CF_D[0]
+--operation mode is input
+
+CF_D[0] = INPUT();
+
+
+--CA_D[7] is CA_D[7]
+--operation mode is input
+
+CA_D[7] = INPUT();
+
+
+--CA_D[6] is CA_D[6]
+--operation mode is input
+
+CA_D[6] = INPUT();
+
+
+--CA_D[5] is CA_D[5]
+--operation mode is input
+
+CA_D[5] = INPUT();
+
+
+--CA_D[4] is CA_D[4]
+--operation mode is input
+
+CA_D[4] = INPUT();
+
+
+--CA_D[3] is CA_D[3]
+--operation mode is input
+
+CA_D[3] = INPUT();
+
+
+--CA_D[2] is CA_D[2]
+--operation mode is input
+
+CA_D[2] = INPUT();
+
+
+--CA_D[1] is CA_D[1]
+--operation mode is input
+
+CA_D[1] = INPUT();
+
+
+--CA_D[0] is CA_D[0]
+--operation mode is input
+
+CA_D[0] = INPUT();
+
+
+--OE1 is OE1
+--operation mode is input
+
+OE1 = INPUT();
+
+
+--OE2_IN is OE2_IN
+--operation mode is input
+
+OE2_IN = INPUT();
+
+
+--OE2_OUT is OE2_OUT
+--operation mode is output
+
+OE2_OUT = OUTPUT(~VCC~0);
+
+
+--C_DCLK is C_DCLK
+--operation mode is output
+
+C_DCLK = OUTPUT(A1L7);
+
+
+--CLK is CLK
+--operation mode is output
+
+CLK = OUTPUT(5);
+
+
+--CA_SEL is CA_SEL
+--operation mode is output
+
+CA_SEL = OUTPUT(24);
+
+
+--nC_CONF is nC_CONF
+--operation mode is output
+
+nC_CONF = OUTPUT(A1L54);
+
+
+--CF_SEL is CF_SEL
+--operation mode is output
+
+CF_SEL = OUTPUT(A1L5);
+
+
+--CA_OE is CA_OE
+--operation mode is output
+
+CA_OE_open_drain_out = OPNDRN(A1L4);
+CA_OE = OUTPUT(CA_OE_open_drain_out);
+
+
+--CF_OE is CF_OE
+--operation mode is output
+
+CF_OE_open_drain_out = OPNDRN(A1L6);
+CF_OE = OUTPUT(CF_OE_open_drain_out);
+
+
+--C_D[7] is C_D[7]
+--operation mode is output
+
+C_D[7] = OUTPUT(D8L1);
+
+
+--C_D[6] is C_D[6]
+--operation mode is output
+
+C_D[6] = OUTPUT(D7L1);
+
+
+--C_D[5] is C_D[5]
+--operation mode is output
+
+C_D[5] = OUTPUT(D6L1);
+
+
+--C_D[4] is C_D[4]
+--operation mode is output
+
+C_D[4] = OUTPUT(D5L1);
+
+
+--C_D[3] is C_D[3]
+--operation mode is output
+
+C_D[3] = OUTPUT(D4L1);
+
+
+--C_D[2] is C_D[2]
+--operation mode is output
+
+C_D[2] = OUTPUT(D3L1);
+
+
+--C_D[1] is C_D[1]
+--operation mode is output
+
+C_D[1] = OUTPUT(D2L1);
+
+
+--C_D[0] is C_D[0]
+--operation mode is output
+
+C_D[0] = OUTPUT(D1L1);
+
+
