@@ -416,7 +416,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP ON
-set_global_assignment -name USE_SIGNALTAP_FILE clk_card_fpga_temp2.stp
+set_global_assignment -name USE_SIGNALTAP_FILE clk_card_rc_probb.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -618,129 +618,5 @@ set_global_assignment -name SIGNALTAP_FILE "../../../../../Documents and Setting
 set_global_assignment -name SIGNALTAP_FILE clk_card_checksum.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_psc.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_fibre_rx.stp
-set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|c0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=536899072" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
 set_global_assignment -name SIGNALTAP_FILE clk_card_rc_prob.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_rc_probb.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_fpga_temp.stp
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=2" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1,basic,1," -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BIT_CNTR_BITS=6" -section_id auto_signaltap_0
-set_global_assignment -name SIGNALTAP_FILE clk_card_fpga_temp2.stp
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=32768" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_MEM_ADDRESS_BITS=15" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "fpga_thermo:fpga_thermo0|ctrl_ps.idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "fpga_thermo:fpga_thermo0|ctrl_ps.register_temp" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "fpga_thermo:fpga_thermo0|ctrl_ps.start_smb_master" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "fpga_thermo:fpga_thermo0|ctrl_ps.idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "fpga_thermo:fpga_thermo0|ctrl_ps.register_temp" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "fpga_thermo:fpga_thermo0|ctrl_ps.start_smb_master" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count_en~0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.acknowledge" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.address" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.data" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.nwrite" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.start_condition" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[14] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.stop_condition" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[15] -to "fpga_thermo:fpga_thermo0|smb_master:master2|slave_clk_o" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[16] -to "fpga_thermo:fpga_thermo0|smb_master:master2|slave_data_io" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[17] -to "fpga_thermo:fpga_thermo0|smb_master:master2|timer_clr~0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "fpga_thermo:fpga_thermo0|smb_master:master2|bit_count_en~0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.acknowledge" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.address" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.data" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.nwrite" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.start_condition" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "fpga_thermo:fpga_thermo0|smb_master:master2|pres_state.stop_condition" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "fpga_thermo:fpga_thermo0|smb_master:master2|slave_clk_o" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "fpga_thermo:fpga_thermo0|smb_master:master2|slave_data_io" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "fpga_thermo:fpga_thermo0|smb_master:master2|timer_clr~0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=51" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=51" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=331" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=54070" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[18] -to "fpga_thermo:fpga_thermo0|update_temp" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[19] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[20] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[21] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[22] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[23] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[24] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[25] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[26] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[27] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[28] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[29] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[30] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[31] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[32] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[33] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[34] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[35] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[37] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[38] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[39] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[40] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[41] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[42] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[43] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[44] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[45] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[46] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[47] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[48] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[49] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[50] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "fpga_thermo:fpga_thermo0|update_temp" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[37] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[38] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[39] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[40] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[41] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[42] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[43] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[44] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[45] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[46] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[47] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[48] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[49] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[50] -to "fpga_thermo:fpga_thermo0|us_timer:timeout_timer|timer_count_o[9]" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=25166" -section_id auto_signaltap_0
