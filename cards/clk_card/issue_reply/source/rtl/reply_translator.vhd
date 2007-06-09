@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.55 2007/02/13 02:35:34 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.55.2.1 2007/05/03 17:28:52 mandana Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/02/13 02:35:34 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/05/03 17:28:52 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.55.2.1  2007/05/03 17:28:52  mandana
+-- Bryce:  v03000005
+--
 -- Revision 1.55  2007/02/13 02:35:34  bburger
 -- Bryce:  Alterered the code in reply_translator to be more readable
 --
@@ -150,7 +153,8 @@ architecture rtl of reply_translator is
    type translator_state is
       (TRANSLATOR_IDLE, CMD_ERROR_REPLY, QUICK_REPLY, STANDARD_REPLY, DATA_PACKET, LD_PREAMBLE1,  LD_PREAMBLE2,
        LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, LD_FRAME_STATUS, LD_FRAME_SEQ_NUM, WAIT_Q_WORD1, WAIT_Q_WORD2,
-       WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, SKIP_COMMAND, SKIP_REPLY);
+       WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, SKIP_COMMAND, SKIP_REPLY, 
+       EXTRA_WORD1, EXTRA_WORD2);
 
    signal translator_current_state : translator_state;
    signal translator_next_state    : translator_state;
@@ -294,6 +298,8 @@ begin
          status          when LD_STATUS,
          frame_status    when LD_FRAME_STATUS,
          frame_seq_num   when LD_FRAME_SEQ_NUM,
+         x"FFFFFFFF"     when EXTRA_WORD1, --BB
+         x"FFFFFFFF"     when EXTRA_WORD2, --BB
          fibre_word      when LD_DATA,
          checksum        when LD_CKSUM,
          (others => '0') when others;
@@ -445,7 +451,21 @@ begin
       ----------------------------------------
       -- Frame sequence number
       ----------------------------------------
+      -- BB
       when LD_FRAME_SEQ_NUM =>
+         if(fibre_tx_busy_i = '0') then
+--            translator_next_state <= WAIT_Q_WORD1;
+            translator_next_state <= EXTRA_WORD1;
+         end if;
+
+		-- BB
+		when EXTRA_WORD1 =>
+         if(fibre_tx_busy_i = '0') then
+            translator_next_state <= EXTRA_WORD2;
+         end if;
+		
+		-- BB
+		when EXTRA_WORD2 =>
          if(fibre_tx_busy_i = '0') then
             translator_next_state <= WAIT_Q_WORD1;
          end if;
@@ -720,6 +740,32 @@ begin
          if(fibre_tx_busy_i = '0') then
             -- Transmitted only in data packets
             if(c_or_r = SERVICING_REPLY and packet_type = DATA) then
+               fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
+            else
+               fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
+            end if;
+         end if;
+
+		-- BB
+		when EXTRA_WORD1 =>
+         if(fibre_tx_busy_i = '0') then
+            -- Transmitted only in data packets
+            if(c_or_r = SERVICING_REPLY and packet_type = DATA and frame_seq_num = x"0000000A") then
+               fibre_tx_rdy_o <= '1';
+               checksum_ld    <= '1';
+            else
+               fibre_tx_rdy_o <= '0';
+               checksum_ld    <= '0';
+            end if;
+         end if;
+		
+		-- BB
+		when EXTRA_WORD2 =>
+         if(fibre_tx_busy_i = '0') then
+            -- Transmitted only in data packets
+            if(c_or_r = SERVICING_REPLY and packet_type = DATA and frame_seq_num = x"0000000A") then
                fibre_tx_rdy_o <= '1';
                checksum_ld    <= '1';
             else
