@@ -1,17 +1,42 @@
 This folder contains all the required files to 
-generate SCUBA2's PCI bootcode release A (version 1.4)
+generate SCUBA2's PCI bootcode release A (version 1.5)
 
 
-updated 07/03/06
+updated 25/05/07
 
 ---------------------------------------
 When downloading via dataman to EEPROM
-Checksum = $73475F
+Checksum = $732134
 ---------------------------------------
 
 'build_pci_once' is run to generate .lod and .cld files which can be downloaded to the PCI DSP via the on-chip emulator OnCe.
 
 'build_pci_rom' is run to generate a motorola .s file which is burned to E2PROM, from which the PCI code is bootstraped.
+
+
+
+Change from RevA_1.4 --> RevA1.5
+--------------------------------
+
+1. Changed the way we handel fibre data.  Now an entire packet is buffered to Y memory prior to DMA transfer (Y:$0 -->Y:7FF on-chip, Y:$800 --> beyond off-chip).
+  
+	1.1 Get Header
+	1.2 Notify host: NFY and INTA
+	1.3 Immediately start to buffer fibre data
+	1.4 once buffered to Y check HST has been issued (or fatal error)
+	1.5 DMA packet to host
+	1.6 reply to HST.
+
+Data packet is about 5K (~220us to arrive up fibre).  Frame rate is 200Hz.  Therefore, ~4.8ms to do do DMA once data buffered  (800us if running at 1Khz).
+
+2. ** Make interrupt handshaking visible to host.  Closes window on shared IRQ problem (which occurs with some motherboards).  Driver should now check "host flag 3" to ensure INTA is from the DSP.
+
+3. change to initialisation code for compatibility with new pci card (5d), which fails to boot on certain older PCs.
+
+4. include save of last MCE command retrieved via con command
+
+5. fibre dump (fatal error) moved to Y:$1000
+
 
 
 Change from RevA_1.3 --> RevA1.4
