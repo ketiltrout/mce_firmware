@@ -12,5 +12,6 @@ cldlod PCI_SCUBA_BOOT_CODE.cld > PCI_SCUBA_BOOT_CODE.lod
 srec -bs PCI_SCUBA_BOOT_CODE.lod
 
 rm PCI_SCUBA_build.cln
+rm *.cln
 
 exit 0
