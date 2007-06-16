@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.61  2007/03/21 19:17:02  mandana
+-- added new fpga_thermo module for reliable readings
+-- major rewrite of fsfb_corr
+--
 -- Revision 1.60  2007/03/07 18:25:35  mandana
 -- Revision 0300001c filter_input_width set to 18 instead of 28
 --
@@ -367,7 +371,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001d"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001e"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      -- filter 1/2^11 scaling between biquad stages 
                                                                      -- added read port for adc_offset, fb_const/channel
@@ -375,6 +379,7 @@ constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001d"; -- filter c
                                                                      -- servo_mode/column with added ports to fsfb_corr 
                                                                      -- rewrote wbs_frame_data
                                                                      -- debug filter dynamic range
+                                                                     -- added data_mode 6 for mixed filter+err mode
 
 -- Global signals
 signal clk                     : std_logic;  -- system clk
