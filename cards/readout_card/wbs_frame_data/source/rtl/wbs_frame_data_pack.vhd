@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2006/06/09 22:25:10 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/19 20:20:01 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.10  2007/02/19 20:20:01  mandana
+-- clean up, removed redundant no_rows constant
+--
 -- Revision 1.9  2006/06/09 22:25:10  bburger
 -- Bryce:  Moved the no_channels constant from wbs_frame_data_pack to command_pack so that the clock card could use it.  I also modified flux_loop_pack to use no_channels instead of a literal value of 8.
 --
@@ -90,5 +93,6 @@ constant MODE2_FILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := 
 constant MODE3_RAW         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000003";
 constant MODE4_FB_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000004";
 constant MODE5_FB_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
+constant MODE6_FILT_ERROR  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
 
 end package;

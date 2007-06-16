@@ -49,9 +49,15 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/06/07 18:59:04 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/19 20:30:58 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.28  2007/02/19 20:30:58  mandana
+-- rewrote FSM to fix bugs associated with raw-mode
+-- sign-extend raw-data
+-- removed recirculation muxes and added proper register for data_mdoe
+-- for capture_raw command, issue an ack to dispatch right away
+--
 -- Revision 1.27  2006/06/07 18:59:04  bburger
 -- Bryce:  fixed a bug that prevented the address point from being reset to zero after a read during normal data readout (not raw)
 --
@@ -314,6 +320,7 @@ signal unfiltered_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtered_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal fb_error_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal fb_flx_cnt_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
 -- signals for data output multiplexer
@@ -640,6 +647,7 @@ begin
                        raw_dat        when "011",
                        fb_error_dat   when "100",
                        fb_flx_cnt_dat when "101",
+                       filtfb_error_dat when "110",
                        raw_dat        when others;
                  
  
@@ -712,6 +720,31 @@ begin
                         fsfb_dat_ch5_i (31 downto 8) & flux_cnt_dat_ch5_i when "101",
                         fsfb_dat_ch6_i (31 downto 8) & flux_cnt_dat_ch6_i when "110",
                         fsfb_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
+
+   with ch_mux_sel select
+      filtfb_error_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & 
+                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
+                        
+                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 11) & 
+                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
+                        
+                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 11) & 
+                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
+                        
+                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 11) & 
+                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
+                        
+                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 11) & 
+                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
+                        
+                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 11) & 
+                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
+                        
+                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 11) & 
+                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
+                        
+                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & 
+                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
 
    with raw_ch_mux_sel select
       raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
