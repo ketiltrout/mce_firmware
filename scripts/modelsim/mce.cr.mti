@@ -1,4 +1,23 @@
-C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd
+C:/scuba2_repository/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd {1 {vcom -work work -93 -explicit -cover s C:/scuba2_repository/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package numeric_std
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package bc_dac_ctrl_pack
+-- Loading package addr_card_pack
+-- Loading package bias_card_pack
+-- Loading package readout_card_pack
+-- Loading package cc_reset_pack
+-- Loading package component_pack
+-- Loading package data_types_pack
+-- Compiling entity tb_cc_rcs_bcs_ac
+-- Compiling architecture tb of tb_cc_rcs_bcs_ac
+
+} {} {}} C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -18,25 +37,6 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package component_pack
 -- Compiling entity fibre_tx_fifo
 -- Compiling architecture behav of fibre_tx_fifo
-
-} {} {}} C:/scuba2_repository/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd {1 {vcom -work work -93 -explicit -cover s C:/scuba2_repository/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package numeric_std
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package bc_dac_ctrl_pack
--- Loading package addr_card_pack
--- Loading package bias_card_pack
--- Loading package readout_card_pack
--- Loading package cc_reset_pack
--- Loading package component_pack
--- Loading package data_types_pack
--- Compiling entity tb_cc_rcs_bcs_ac
--- Compiling architecture tb of tb_cc_rcs_bcs_ac
 
 } {} {}} C:/scuba2_repository/cards/all_cards/slot_id/source/rtl/slot_id_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/all_cards/slot_id/source/rtl/slot_id_pack.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005

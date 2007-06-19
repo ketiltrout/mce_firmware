@@ -246,7 +246,7 @@ vlog95compat = 0
 
 ; Simulator resolution
 ; Set to fs, ps, ns, us, ms, or sec with optional prefix of 1, 10, or 100.
-resolution = 10ps
+resolution = 1ps
 
 ; User time unit for run commands
 ; Set to default, fs, ps, ns, us, ms, or sec. The default is to use the
@@ -627,7 +627,7 @@ Project_DefaultLib = work
 Project_SortMethod = unused
 Project_Files_Count = 208
 Project_File_0 = C:/scuba2_repository/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd
-Project_File_P_0 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vlog_1995compat 0 vhdl_synth 0 vhdl_enable0In 0 folder system last_compile 1182200861 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_warn2 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_0InOptions {} vhdl_warn3 1 vlog_vopt {} vhdl_options {} vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 185 dont_compile 0 cover_nosub 0 vhdl_use93 93 cover_stmt 1
+Project_File_P_0 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vlog_1995compat 0 vhdl_synth 0 vhdl_enable0In 0 folder system last_compile 1182282166 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_showsource 0 vhdl_explicit 1 vhdl_warn2 1 vlog_vopt {} vhdl_warn3 1 vhdl_0InOptions {} vhdl_warn4 1 vhdl_options {} vhdl_warn5 1 ood 0 compile_to work compile_order 185 cover_nosub 0 dont_compile 0 cover_stmt 1 vhdl_use93 93
 Project_File_1 = C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd
 Project_File_P_1 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vlog_1995compat 0 vhdl_synth 1 vhdl_enable0In 0 folder readout_card last_compile 1166562436 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_warn2 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_0InOptions {} vhdl_warn3 1 vlog_vopt {} vhdl_options {} vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 127 dont_compile 0 cover_nosub 0 vhdl_use93 93 cover_stmt 1
 Project_File_2 = C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd
@@ -861,7 +861,7 @@ Project_File_P_115 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 
 Project_File_116 = C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch.vhd
 Project_File_P_116 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vlog_1995compat 0 vhdl_synth 1 vhdl_enable0In 0 folder all_cards last_compile 1177360146 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_warn2 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_0InOptions {} vhdl_warn3 1 vlog_vopt {} vhdl_options {} vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 180 dont_compile 0 cover_nosub 0 vhdl_use93 93 cover_stmt 1
 Project_File_117 = C:/scuba2_repository/cards/all_cards/async/source/rtl/lvds_rx.vhd
-Project_File_P_117 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vlog_1995compat 0 vhdl_synth 1 vhdl_enable0In 0 folder all_cards last_compile 1182210259 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_warn2 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_0InOptions {} vhdl_warn3 1 vlog_vopt {} vhdl_options {} vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 153 dont_compile 0 cover_nosub 0 vhdl_use93 93 cover_stmt 1
+Project_File_P_117 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vlog_1995compat 0 vhdl_synth 1 vhdl_enable0In 0 folder all_cards last_compile 1182284014 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_warn2 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_0InOptions {} vhdl_warn3 1 vlog_vopt {} vhdl_options {} vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 153 dont_compile 0 cover_nosub 0 vhdl_use93 93 cover_stmt 1
 Project_File_118 = C:/scuba2_repository/cards/library/components/source/rtl/obs/crc.vhd
 Project_File_P_118 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vlog_1995compat 0 vhdl_synth 1 vhdl_enable0In 0 folder library last_compile 1125530520 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_warn2 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_0InOptions {} vhdl_warn3 1 vlog_vopt {} vhdl_options {} vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 66 dont_compile 0 cover_nosub 0 vhdl_use93 93
 Project_File_119 = C:/scuba2_repository/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_spi_if.vhd
@@ -1044,7 +1044,7 @@ Project_File_207 = C:/Modeltech_6.1c/vhdl_src/std/standard.vhd
 Project_File_P_207 = vhdl_novitalcheck 0 file_type vhdl group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 vhdl_enable0In 0 folder {Top Level} last_compile 1132284928 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_warn2 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_0InOptions {} vhdl_warn3 1 vlog_vopt {} vhdl_options {} vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to std compile_order -1 dont_compile 1 cover_nosub 0 vhdl_use93 2002
 Project_Sim_Count = 1
 Project_Sim_0 = MCE
-Project_Sim_P_0 = Generics {} timing default -std_output {} -nopsl 0 +notimingchecks 0 -L {} selected_du {} -hazards 0 -sdf {} ok 1 -0in 0 -nosva 0 folder {Top Level} +pulse_r {} -absentisempty 0 OtherArgs {} -multisource_delay {} +pulse_e {} vopt_env 0 -coverage 0 -sdfnoerror 0 +plusarg {} -vital2.2b 0 -t 10ps -memprof 0 is_vopt_flow 0 additional_dus work.tb_cc_rcs_bcs_ac -noglitch 0 -nofileshare 0 -wlf {} -assertdebug 0 +no_pulse_msg 0 -0in_options {} -assertfile {} -sdfnowarn 0 -Lf {} -std_input {}
+Project_Sim_P_0 = Generics {} timing default -std_output {} -nopsl 0 +notimingchecks 0 -L {} selected_du {} -sclib {} -hazards 0 -sdf {} ok 1 -0in 0 -nosva 0 folder {Top Level} -absentisempty 0 +pulse_r {} is_vopt_opt_used 2 -dpiexportobj {} -multisource_delay {} OtherArgs {} +pulse_e {} -t ps -vital2.2b 0 +plusarg {} -sdfnoerror 1 -coverage 0 vopt_env 0 -dpiheader {} is_vopt_flow 0 -memprof 0 -sc_arg {} additional_dus work.tb_cc_rcs_bcs_ac -nofileshare 0 -noglitch 0 +no_pulse_msg 0 -assertdebug 0 -wlf {} -std_input {} -Lf {} -sdfnowarn 1 -assertfile {} -0in_options {}
 Project_Folder_Count = 12
 Project_Folder_0 = bias_card
 Project_Folder_P_0 = folder cards
@@ -1097,6 +1097,6 @@ XML_DoubleClick = Edit
 XML_CustomDoubleClick = 
 LOGFILE_DoubleClick = Edit
 LOGFILE_CustomDoubleClick = 
-EditorState = 
+EditorState = {tabbed horizontal 1} {C:/altera/61/quartus/eda/sim_lib/altera_mf.vhd 0 1}
 Project_Major_Version = 6
 Project_Minor_Version = 1
