@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.44 2007/02/01 21:06:13 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.47 2007/02/19 22:01:35 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.47  2007/02/19 22:01:35  mandana
+-- added test case for rewrite of wbs_frame_data and capture_raw bugs in rc_v03000019 and on
+--
 -- Revision 1.44  2007/02/01 21:06:13  bburger
 -- Bryce:  Added a delay between the two preamble words
 --
@@ -147,6 +150,26 @@ architecture tb of tb_cc_rcs_bcs_ac is
       misoo             : out std_logic;
       sreqo             : out std_logic;
 
+      -- SRAM bank 0 interface
+      sram0_addr : out std_logic_vector(19 downto 0);
+      sram0_data : inout std_logic_vector(15 downto 0);
+      sram0_nbhe : out std_logic;
+      sram0_nble : out std_logic;
+      sram0_noe  : out std_logic;
+      sram0_nwe  : out std_logic;
+      sram0_nce1 : out std_logic;
+      sram0_ce2  : out std_logic;
+
+      -- SRAM bank 1 interface
+      sram1_addr : out std_logic_vector(19 downto 0);
+      sram1_data : inout std_logic_vector(15 downto 0);
+      sram1_nbhe : out std_logic;
+      sram1_nble : out std_logic;
+      sram1_noe  : out std_logic;
+      sram1_nwe  : out std_logic;
+      sram1_nce1 : out std_logic;
+      sram1_ce2  : out std_logic;
+
       -- miscellaneous ports:
       red_led           : out std_logic;
       ylw_led           : out std_logic;
@@ -155,6 +178,11 @@ architecture tb of tb_cc_rcs_bcs_ac is
       dip_sw4           : in std_logic;
       wdog              : out std_logic;
       slot_id           : in std_logic_vector(3 downto 0);
+      card_id           : inout std_logic;
+      smb_clk           : out std_logic;
+      smb_data          : inout std_logic;
+      smb_nalert        : in std_logic;
+
       box_id_in         : inout std_logic;
       box_id_out        : out std_logic;
       box_id_ena        : out std_logic;
@@ -267,6 +295,10 @@ architecture tb of tb_cc_rcs_bcs_ac is
          wdog           : out std_logic;
          slot_id        : in  std_logic_vector(3 downto 0);
          card_id        : inout  std_logic;
+         smb_clk        : out std_logic;
+         smb_nalert     : in std_logic;
+         smb_data       : inout std_logic;      
+
          mictor         : out std_logic_vector(31 downto 0)
       );
    end component;
@@ -661,7 +693,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_dip_sw3    : std_logic := '1';
    signal cc_dip_sw4    : std_logic := '1';
    signal cc_wdog       : std_logic;
-
+   signal cc_smb_nalert : std_logic;
    -- debug ports:
    signal cc_mictor_o    : std_logic_vector(15 downto 0);
    signal cc_mictorclk_o : std_logic;
@@ -952,6 +984,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc1_dip_sw4        : std_logic := '1';
    signal rc1_wdog           : std_logic;
    signal rc1_card_id        : std_logic;
+   signal rc1_smb_nalert     : std_logic;
    signal rc1_mictor         : std_logic_vector(31 downto 0);
 
 
@@ -1298,6 +1331,11 @@ begin
          dip_sw4          => cc_dip_sw4,
          wdog             => cc_wdog,
          slot_id          => cc_slot_id,
+         card_id          => open,
+         smb_clk          => open,
+         smb_data         => open,
+         smb_nalert       => cc_smb_nalert,
+
          box_id_in        => open,
          box_id_out       => open,
          box_id_ena       => open,
@@ -1650,6 +1688,10 @@ begin
          wdog           => rc1_wdog,
          slot_id        => rc1_slot_id,
          card_id        => rc1_card_id,
+         smb_clk        => open,
+         smb_nalert     => rc1_smb_nalert,
+         smb_data       => open,      
+         
          mictor         => rc1_mictor
       );
 --
