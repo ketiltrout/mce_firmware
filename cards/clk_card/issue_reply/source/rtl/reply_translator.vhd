@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.55 2007/02/13 02:35:34 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.55.2.1 2007/05/03 17:28:52 mandana Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/02/13 02:35:34 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/05/03 17:28:52 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.55.2.1  2007/05/03 17:28:52  mandana
+-- Bryce:  v03000005
+--
 -- Revision 1.55  2007/02/13 02:35:34  bburger
 -- Bryce:  Alterered the code in reply_translator to be more readable
 --
@@ -522,12 +525,26 @@ begin
             ok_or_er       <= c_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             status         <= (others => '0');
 
+-- When we implement RB replies so that they follow the standard protocol for Data packets, we will use this logic
+-- Until then, if there is any error flag raise, we must not return data in RB packets.
+--         elsif(translator_current_state = STANDARD_REPLY) then
+--            if (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
+--               packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);
+--            else
+--               packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
+--            end if;
          elsif(translator_current_state = STANDARD_REPLY) then
-            if (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
+            -- If there is an error in the RB
+            if (r_cmd_code = READ_BLOCK and mop_error_code_i /= x"00000000") then
+               packet_size <= conv_std_logic_vector(4,PACKET_WORD_WIDTH);
+            -- Else if it is a non-error RB, or any DA reply
+            elsif (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
                packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);
+            -- Else for any other packet.
             else
                packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             end if;
+
             packet_type    <= REPLY;
             crd_add_par_id <= "00000000" & r_card_addr & "00000000" & r_param_id;
             
