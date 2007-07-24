@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.40 2006/11/07 23:52:51 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.41 2007/02/13 02:34:53 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,36 +30,8 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
--- Revision 1.40  2006/11/07 23:52:51  bburger
--- Bryce: Modified some of the header logic in preparation for the new housekeeping header format.
---
--- Revision 1.39  2006/11/03 01:10:53  bburger
--- Bryce:  Added support for the DATA cmd_code
---
--- Revision 1.38  2006/10/02 18:45:28  bburger
--- Bryce:  explicity cased the "WAIT_FOR_ACK" state
---
--- Revision 1.37  2006/09/28 00:34:18  bburger
--- Bryce:  now asserts cmd_sent_o/ mop_ack_o only when there is no data left in the queues.  This prevents short responses interfering with long ones.
---
--- Revision 1.36  2006/09/21 16:16:59  bburger
--- Bryce:
--- - parameterized some literals
--- - added support for WB internal commands (TES Bias Step)
--- - added a TES Bias Level bit to the data packet status header
---
--- Revision 1.35  2006/09/15 00:48:36  bburger
--- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
---
--- Revision 1.34  2006/09/07 22:25:22  bburger
--- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
---
--- Revision 1.33  2006/09/06 00:27:11  bburger
--- Bryce:  added support for reset commands.  their replies are now discarded when they arrive from the backplane because the clock card has already sent a generic reply.
---
--- Revision 1.32  2006/08/17 01:45:36  bburger
--- Bryce:  Changed the data_o signal from being a clocked mux to a combinatorial mux to get rid of timing violations
---
+-- Revision 1.41  2007/02/13 02:34:53  bburger
+-- Bryce:  fixed a counter bug in reply_queue that was preventing all header words from being read out
 --
 ------------------------------------------------------------------------
 
@@ -102,6 +74,9 @@ entity reply_queue is
       issue_sync_i        : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       cmd_code_i          : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
 
+      -- cmd_translator interface
+      over_temperature_o  : out std_logic;
+
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o              : out integer;
       data_o              : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -117,10 +92,15 @@ entity reply_queue is
       card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
       stop_bit_o          : out std_logic;
       last_frame_bit_o    : out std_logic;
+      frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
+
+      -- cc_reset interface
+      reset_event_i       : in std_logic;
+      reset_ack_o         : out std_logic;
 
       -- dv_rx interface
       sync_box_err_i      : in std_logic;
@@ -137,9 +117,11 @@ entity reply_queue is
       lvds_reply_rc3_a    : in std_logic;
       lvds_reply_rc4_a    : in std_logic;
       lvds_reply_cc_a     : in std_logic;
+      lvds_reply_psu_a    : in std_logic;
 
       -- Global signals
       clk_i               : in std_logic;
+      clk_n_i             : in std_logic;
       comm_clk_i          : in std_logic;
       rst_i               : in std_logic
    );
@@ -149,42 +131,103 @@ architecture behav of reply_queue is
 
    component reply_queue_sequencer
    port(
-        -- for debugging
-        timer_trigger_o   : out std_logic;
+      -- for debugging
+      timer_trigger_o   : out std_logic;
 
-        comm_clk_i        : in std_logic;
-        clk_i             : in std_logic;
-        rst_i             : in std_logic;
+      comm_clk_i        : in std_logic;
+      clk_i             : in std_logic;
+      rst_i             : in std_logic;
 
-        card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-        -- cmd_translator interface
-        cmd_code_i        : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
-        par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      -- cmd_translator interface
+      cmd_code_i        : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
+      par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
-        -- Bus Backplane interface
-        lvds_reply_ac_a   : in std_logic;
-        lvds_reply_bc1_a  : in std_logic;
-        lvds_reply_bc2_a  : in std_logic;
-        lvds_reply_bc3_a  : in std_logic;
-        lvds_reply_rc1_a  : in std_logic;
-        lvds_reply_rc2_a  : in std_logic;
-        lvds_reply_rc3_a  : in std_logic;
-        lvds_reply_rc4_a  : in std_logic;
-        lvds_reply_cc_a   : in std_logic;
+      -- Bus Backplane interface
+      lvds_reply_ac_a   : in std_logic;
+      lvds_reply_bc1_a  : in std_logic;
+      lvds_reply_bc2_a  : in std_logic;
+      lvds_reply_bc3_a  : in std_logic;
+      lvds_reply_rc1_a  : in std_logic;
+      lvds_reply_rc2_a  : in std_logic;
+      lvds_reply_rc3_a  : in std_logic;
+      lvds_reply_rc4_a  : in std_logic;
+      lvds_reply_cc_a   : in std_logic;
+      lvds_reply_psu_a  : in std_logic;
 
-        -- fibre interface:
-        size_o            : out integer;
-        error_o           : out std_logic_vector(30 downto 0);
-        data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-        rdy_o             : out std_logic;
-        ack_i             : in std_logic;
+      -- fibre interface:
+--      size_o            : out integer;
+      error_o           : out std_logic_vector(29 downto 0);
+      data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rdy_o             : out std_logic;
+      ack_i             : in std_logic;
 
-        -- cmd_queue interface:
-        card_addr_i       : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-        cmd_valid_i       : in std_logic;
-        matched_o         : out std_logic
-        );
+      -- cmd_queue interface:
+      card_addr_i       : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      cmd_valid_i       : in std_logic;
+      matched_o         : out std_logic
+   );
    end component;
+
+   component reply_translator_frame_head_ram
+   port(
+      address  : in  std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
+      clock    : in  std_logic ;
+      data     : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      wren     : in  std_logic ;
+      q        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)
+   );
+   end component;
+
+   -- RAM Address Constants
+   constant FPGA_TEMP_OFFSET   : integer := 0;
+   constant CARD_TEMP_OFFSET   : integer := FPGA_TEMP_SIZE;
+   constant PSC_STATUS_OFFSET  : integer := FPGA_TEMP_SIZE + CARD_TEMP_SIZE;
+   constant BOX_TEMP_OFFSET    : integer := FPGA_TEMP_SIZE + CARD_TEMP_SIZE + PSC_STATUS_SIZE;
+
+   constant FPGA_TEMP_ADDR_AC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000001";
+   constant FPGA_TEMP_ADDR_BC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000010";
+   constant FPGA_TEMP_ADDR_BC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000011";
+   constant FPGA_TEMP_ADDR_BC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000100";
+   constant FPGA_TEMP_ADDR_RC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000101";
+   constant FPGA_TEMP_ADDR_RC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000110";
+   constant FPGA_TEMP_ADDR_RC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000111";
+   constant FPGA_TEMP_ADDR_RC4 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001000";
+   constant FPGA_TEMP_ADDR_CC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001001";
+
+   constant CARD_TEMP_ADDR_AC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001011";
+   constant CARD_TEMP_ADDR_BC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001100";
+   constant CARD_TEMP_ADDR_BC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001101";
+   constant CARD_TEMP_ADDR_BC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001110";
+   constant CARD_TEMP_ADDR_RC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001111";
+   constant CARD_TEMP_ADDR_RC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010000";
+   constant CARD_TEMP_ADDR_RC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010001";
+   constant CARD_TEMP_ADDR_RC4 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010010";
+   constant CARD_TEMP_ADDR_CC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010011";
+
+   -- Max temperature is 100 degrees Celcius.
+   constant MAX_NUM_OVERTEMPERATURES : integer := 10;
+   constant MAX_TEMP  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+   constant BIT_STATUS_SIZE : integer := 7;
+--   constant MAX_FPGA_TEMP_AC  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_BC1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_BC2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_BC3 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_RC1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_RC2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_RC3 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_RC4 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_FPGA_TEMP_CC  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--
+--   constant MAX_CARD_TEMP_AC  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_BC1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_BC2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_BC3 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_RC1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_RC2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_RC3 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_RC4 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
+--   constant MAX_CARD_TEMP_CC  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
 
    -- Internal signals
    signal active_clk           : std_logic;
@@ -199,7 +242,8 @@ architecture behav of reply_queue is
    signal data_size            : integer;
    signal data_bus             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal header_data_bus      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal error_code           : std_logic_vector(30 downto 0);
+   signal error_code           : std_logic_vector(29 downto 0);
+   signal reset_and_error_code : std_logic_vector(30 downto 0);
    signal word_rdy             : std_logic; -- word is valid
    signal word_ack             : std_logic;
 
@@ -208,33 +252,43 @@ architecture behav of reply_queue is
    signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
    signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
    signal data_size_t          : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-   signal bit_status           : std_logic_vector(6 downto 0);
-   signal bit_status_i         : std_logic_vector(6 downto 0);
+   signal bit_status           : std_logic_vector(BIT_STATUS_SIZE-1 downto 0);
+   signal bit_status_i         : std_logic_vector(BIT_STATUS_SIZE-1 downto 0);
    signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal frame_status         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal issue_sync_num       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
 
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
-   type retire_states is (IDLE, LATCH_CMD, RECEIVED, WAIT_FOR_MATCH, REPLY, STORE_ERRNO_HEADER_WORD,
-      STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR,
-      TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL);
+   type retire_states is (IDLE, LATCH_CMD1, LATCH_CMD2, RECEIVED, WAIT_FOR_MATCH, REPLY, STORE_ERRNO_HEADER_WORD,
+      STORE_HEADER_WORD, PAUSE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_FRAME_STATUS,
+      TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM,
+      TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;
 
    -- signals for header RAM
-   signal head_address         : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
-   signal head_offset          : integer;
+   signal head_address           : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
+   signal header_storage_address : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
+   signal header_tx_address      : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
+   -- Specifies the starting index at which to store internal command information
+   signal internal_cmd_offset  : integer;
+   -- Specifies the header offset at which we insert the first word from the header queue
+   constant TX_OFFSET          : integer := 4;
+
+   signal inc_ot_count         : std_logic;
+   signal dec_ot_count         : std_logic;
+   signal clr_ot_count         : std_logic;
+   signal ot_count             : integer;
+   signal ot_count_plus_1      : integer;
+   signal ot_count_minus_1     : integer;
 
    signal head_q               : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal head_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal head_wren            : std_logic;
 
-   -- signals for recirculation MUX to register RAM output.
-   signal head_q_reg           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);    -- register RAM output
-   signal head_q_mux           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal head_q_mux_sel       : std_logic;
-
    signal ena_word_count       : std_logic;
-   signal load_word_count      : std_logic;
+   signal clr_word_count       : std_logic;
    signal word_count           : integer;
    signal word_count_new       : integer;
 
@@ -246,57 +300,70 @@ architecture behav of reply_queue is
    signal psu_status_stale     : std_logic;
    signal box_temp_stale       : std_logic;
 
-   component reply_translator_frame_head_ram
-   port(
-      address  : in  std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
-      clock    : in  std_logic ;
-      data     : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      wren     : in  std_logic ;
-      q        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)
-   );
-   end component;
+   signal num_cards        : std_logic_vector(3 downto 0);
+   signal datasize_reg_en  : std_logic;
+   signal datasize_reg_q   : std_logic_vector(BB_DATA_SIZE_WIDTH +4 -1 downto 0);
+   signal num_cards_reg_en : std_logic;
+
+   signal timer_rst           : std_logic;
+   signal time                : integer;
+
+   signal reset_event         : std_logic;
+   signal clr_reset           : std_logic;
 
 begin
 
    --------------------------------------------------------------------
    -- RAM to save frame header info
-   -------------------------------------------------------------------
-
+   --------------------------------------------------------------------
    i_reply_translator_frame_head_ram : reply_translator_frame_head_ram
    port map(
       address  => head_address,
-      clock    => clk_i,
+      clock    => clk_n_i,
       data     => header_data_bus,
       wren     => head_wren,
       q        => head_q
    );
 
-   head_offset <=
-      0                                                  when par_id = FPGA_TEMP_ADDR else
-      FPGA_TEMP_SIZE                                     when par_id = CARD_TEMP_ADDR else
-      FPGA_TEMP_SIZE + CARD_TEMP_SIZE                    when par_id = PSC_STATUS_ADDR else
-      FPGA_TEMP_SIZE + CARD_TEMP_SIZE + PSC_STATUS_SIZE  when par_id = BOX_TEMP_ADDR else 0;
+   -- Header access address for RX and TX
+   header_storage_address <= conv_std_logic_vector(word_count + internal_cmd_offset, 6);
+   header_tx_address      <= conv_std_logic_vector(word_count - TX_OFFSET, 6);
 
-   head_address <= conv_std_logic_vector(word_count + head_offset, 6);
+   -- Errno word for each internal command
+   head_data <=
+      fpga_temp_stale  & head_q(30 downto 0) when (word_count - TX_OFFSET = FPGA_TEMP_OFFSET)  else
+      card_temp_stale  & head_q(30 downto 0) when (word_count - TX_OFFSET = CARD_TEMP_OFFSET)  else
+      psu_status_stale & head_q(30 downto 0) when (word_count - TX_OFFSET = PSC_STATUS_OFFSET) else
+      box_temp_stale   & head_q(30 downto 0) when (word_count - TX_OFFSET = BOX_TEMP_OFFSET)   else head_q;
 
-   -- register RAM output with recirculation mux
-   head_q_mux_sel <= '0';
-   head_q_mux     <= head_q when head_q_mux_sel = '1' else head_q_reg;
+   -- Internal command RAM storage offset
+   internal_cmd_offset <=
+      FPGA_TEMP_OFFSET  when par_id = FPGA_TEMP_ADDR else
+      CARD_TEMP_OFFSET  when par_id = CARD_TEMP_ADDR else
+      PSC_STATUS_OFFSET when par_id = PSC_STATUS_ADDR else
+      BOX_TEMP_OFFSET   when par_id = BOX_TEMP_ADDR else 0;
 
+   -------------------------------------------------------------------------------------------
+   -- timer for decrementing the warning counter
+   -------------------------------------------------------------------------------------------
+   timer : us_timer
+   port map(
+      clk           => clk_i,
+      timer_reset_i => timer_rst,
+      timer_count_o => time);
 
+   -------------------------------------------------------------------------------------------
+   --
+   -------------------------------------------------------------------------------------------
    register_0 : process (rst_i, clk_i)
    begin
       if(rst_i = '1') then
-         head_q_reg       <= (others => '0');
-
          fpga_temp_stale  <= '1';
          card_temp_stale  <= '1';
          psu_status_stale <= '1';
          box_temp_stale   <= '1';
 
       elsif (clk_i'EVENT and clk_i = '1') then
-         head_q_reg <= head_q_mux;
-
          -- Keep track of what fields have been updated since the last data packet.
          if(internal_cmd = '1') then
             if(par_id = FPGA_TEMP_ADDR) then
@@ -324,13 +391,43 @@ begin
       if(rst_i = '1') then
          word_count <= 0;
       elsif(clk_i'event and clk_i = '1') then
-         if(load_word_count = '1') then
+         if(clr_word_count = '1') then
             word_count <= 0;
          elsif(ena_word_count = '1') then
             word_count <= word_count_new;
          end if;
       end if;
    end process word_cntr;
+
+   over_temperature_o <= '1' when (ot_count >= MAX_NUM_OVERTEMPERATURES) else '0';
+   ot_count_minus_1 <= ot_count - 1 when (ot_count /= 0) else 0;
+   ot_count_plus_1 <= ot_count + 1;
+   over_temperature_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         ot_count <= 0;
+         dec_ot_count <= '0';
+         timer_rst <= '0';
+
+      elsif(clk_i'event and clk_i = '1') then
+
+         if(time >= 4*INTERNAL_COMMAND_PERIOD) then
+            dec_ot_count <= '1';
+            timer_rst <= '1';
+         else
+            dec_ot_count <= '0';
+            timer_rst <= '0';
+         end if;
+
+         if(clr_ot_count = '1') then
+            ot_count <= 0;
+         elsif(inc_ot_count = '1' and dec_ot_count = '0') then
+            ot_count <= ot_count_plus_1;
+         elsif(dec_ot_count = '1' and inc_ot_count = '0') then
+            ot_count <= ot_count_minus_1;
+         end if;
+      end if;
+   end process over_temperature_cntr;
 
    cmd_code_reg: reg
       generic map(
@@ -380,30 +477,101 @@ begin
          reg_o      => data_size_t
       );
 
+   -------------------------------------------------------------------
+   -- New Logic
+   -------------------------------------------------------------------
+   num_cards_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         num_cards <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(num_cards_reg_en = '1') then
+            if(card_addr = NO_CARDS) then
+               num_cards <= x"0";
+            elsif((card_addr = POWER_SUPPLY_CARD) or
+                  (card_addr = CLOCK_CARD) or
+                  (card_addr = READOUT_CARD_1) or
+                  (card_addr = READOUT_CARD_2) or
+                  (card_addr = READOUT_CARD_3) or
+                  (card_addr = READOUT_CARD_4) or
+                  (card_addr = BIAS_CARD_1) or
+                  (card_addr = BIAS_CARD_2) or
+                  (card_addr = BIAS_CARD_3) or
+                  (card_addr = ADDRESS_CARD)) then
+               num_cards <= x"1";
+            elsif(card_addr = ALL_BIAS_CARDS) then
+               num_cards <= x"3";
+            elsif(card_addr = ALL_READOUT_CARDS) then
+               num_cards <= x"4";
+            elsif(card_addr = ALL_FPGA_CARDS) then
+               num_cards <= x"9";
+            else
+               num_cards <= x"0";
+            end if;
+         end if;
+      end if;
+   end process num_cards_reg;
+
+   data_size <= conv_integer(datasize_reg_q);
+   datasize_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         datasize_reg_q <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(datasize_reg_en = '1') then
+            datasize_reg_q <= num_cards * data_size_t;
+         end if;
+      end if;
+   end process datasize_reg;
 
    -------------------------------------------------------------------
    -- Bit Status Logic and Registers
    -------------------------------------------------------------------
+   error_saver: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         reset_event  <= '0';
+         sync_box_err <= '0';
+
+      elsif(clk_i'event and clk_i = '1') then
+         if(clr_reset = '1') then
+            reset_event  <= '0';
+            sync_box_err <= '0';
+         elsif(reg_en = '1') then
+            reset_event  <= reset_event  or reset_event_i;
+            sync_box_err <= sync_box_err or sync_box_err_i;
+         end if;
+      end if;
+   end process error_saver;
+
+   frame_status_word_o <= "00000000000000000000000000" & bit_status(5 downto 0);
+   frame_status        <= "00000000000000000000000000" & bit_status(5 downto 0);
+
+   -- This status bits are monitored in snapshots.
+   -- They are included in the status header of every data frame
+   -- What happens in between each frame is of no consequence, except for the errors.
    bit_status_i <=
+--      reset_event_i &
       internal_cmd_i &
       tes_bias_step_level_i &
       active_clk_i &
-      sync_box_err_i &
+      '0' & --sync_box_err_i &
       sync_box_free_run_i &
       cmd_stop_i &
       last_frame_i;
 
+--   reset_event         <= bit_status(7);
    internal_cmd        <= bit_status(6);
    tes_bias_step_level <= bit_status(5);
    active_clk          <= bit_status(4);
-   sync_box_err        <= bit_status(3);
+   --sync_box_err        <= bit_status(3);
    sync_box_free_run   <= bit_status(2);
    stop_bit_o          <= bit_status(1);
    last_frame_bit_o    <= bit_status(0);
 
    bit_status_reg: reg
       generic map(
-         WIDTH      => 7
+         WIDTH      => BIT_STATUS_SIZE
       )
       port map(
          clk_i      => clk_i,
@@ -438,7 +606,11 @@ begin
       );
 
    -- No need to register the error code here because it is registered in reply_queue_sequencer
-   error_code_o <= "0" & status_q;
+   reset_and_error_code <= reset_event & error_code;
+
+   -- In the new protocol, error_code will be include in every packet, and does not have to be duplicated from the header RAM
+   -- When this is the case, we can get rid of the status_reg
+   error_code_o <= '0' & status_q;
    status_reg : reg
       generic map(
          WIDTH => 31
@@ -447,7 +619,7 @@ begin
          clk_i => clk_i,
          rst_i => rst_i,
          ena_i => status_en,
-         reg_i => error_code,
+         reg_i => reset_and_error_code,
          reg_o => status_q
       );
 
@@ -478,12 +650,13 @@ begin
       case present_retire_state is
          when IDLE =>
             if (cmd_to_retire_i = '1') then
-               next_retire_state <= LATCH_CMD;
-            else
-               next_retire_state <= IDLE;
+               next_retire_state <= LATCH_CMD1;
             end if;
 
-         when LATCH_CMD =>
+         when LATCH_CMD1 =>
+            next_retire_state <= LATCH_CMD2;
+
+         when LATCH_CMD2 =>
             next_retire_state <= RECEIVED;
 
          when RECEIVED =>
@@ -514,7 +687,7 @@ begin
             if (ack_i = '1') then
                -- If is a data frame
                if(cmd_code = DATA) then
-                  next_retire_state <= TX_ROW_LEN;
+                  next_retire_state <= TX_FRAME_STATUS;
                -- If this is a RB
                elsif(cmd_code = READ_BLOCK) then
                   next_retire_state <= REPLY;
@@ -525,10 +698,11 @@ begin
             end if;
 
          when WAIT_FOR_ACK =>
+            -- Should I be waiting here?
             next_retire_state <= IDLE;
 
          when STORE_ERRNO_HEADER_WORD =>
-            next_retire_state <= STORE_HEADER_WORD;
+            next_retire_state <= NEXT_HEADER_WORD;
 
          when STORE_HEADER_WORD =>
             next_retire_state <= NEXT_HEADER_WORD;
@@ -537,61 +711,34 @@ begin
             -- data_size + 1 compensates for the errno word we store for every internal command
             -- it's doubtful whether i need both of these conditions here..
             if(word_rdy = '1') and (word_count < data_size + 1) then
-               next_retire_state <= STORE_HEADER_WORD;
+               next_retire_state <= PAUSE_HEADER_WORD;
             else
                next_retire_state <= DONE_HEADER_STORE;
             end if;
 
+         when PAUSE_HEADER_WORD =>
+            next_retire_state <= STORE_HEADER_WORD;
+
          when DONE_HEADER_STORE =>
             next_retire_state <= IDLE;
 
-         when TX_ROW_LEN =>
+         when TX_FRAME_STATUS =>
             if(word_count >= 1) then
-               next_retire_state <= TX_NUM_ROWS;
-            end if;
-
-         when TX_NUM_ROWS =>
-            if(word_count >= 2) then
-               next_retire_state <= TX_DATA_RATE;
-            end if;
-
-         when TX_DATA_RATE =>
-            if(word_count >= 3) then
-               next_retire_state <= TX_SYNC_NUM;
-            end if;
-
-         when TX_SYNC_NUM =>
-            if(word_count >= 4) then
                next_retire_state <= TX_FRAME_SEQUENCE_NUM;
             end if;
 
          when TX_FRAME_SEQUENCE_NUM =>
-            if(word_count >= 5) then
-               next_retire_state <= TX_ACTIVE_CLK;
+            if(word_count >= 2) then
+               next_retire_state <= TX_SYNC_NUM;
             end if;
 
-         when TX_ACTIVE_CLK =>
-            if(word_count >= 6) then
-               next_retire_state <= TX_SYNC_BOX_ERR;
-            end if;
-
-         when TX_SYNC_BOX_ERR =>
-            if(word_count >= 7) then
-               next_retire_state <= TX_SYNC_BOX_FR;
-            end if;
-
-         when TX_SYNC_BOX_FR =>
-            if(word_count >= 8) then
+         when TX_SYNC_NUM =>
+            if(word_count >= 3) then
                next_retire_state <= TX_DV_NUM;
             end if;
 
          when TX_DV_NUM =>
-            if(word_count >= 9) then
-               next_retire_state <= TX_TES_BIAS_LEVEL;
-            end if;
-
-         when TX_TES_BIAS_LEVEL =>
-            if(word_count >= 10) then
+            if(word_count >= 4) then
                next_retire_state <= TX_HEADER;
             end if;
 
@@ -623,29 +770,28 @@ begin
    with present_retire_state select
       data_o <=
          data_bus                                 when TX_STATUS | TX_SEND_DATA | REPLY,
-         data_rate_i                              when TX_DATA_RATE,
-         conv_std_logic_vector(row_len_i,32)      when TX_ROW_LEN,
-         conv_std_logic_vector(num_rows_i,32)     when TX_NUM_ROWS,
          issue_sync_num                           when TX_SYNC_NUM,
          frame_seq_num                            when TX_FRAME_SEQUENCE_NUM,
-         x"0000000" & "000" & active_clk          when TX_ACTIVE_CLK,
-         x"0000000" & "000" & sync_box_err        when TX_SYNC_BOX_ERR,
-         x"0000000" & "000" & sync_box_free_run   when TX_SYNC_BOX_FR,
+         frame_status                             when TX_FRAME_STATUS,
          external_dv_num_i                        when TX_DV_NUM,
-         x"0000000" & "000" & tes_bias_step_level when TX_TES_BIAS_LEVEL,
+         head_data                                when TX_HEADER,
          (others => '0')                          when others;
 
-   retire_state_out: process(present_retire_state, ack_i, data_size, word_rdy, cmd_code, matched, data_bus, error_code)
+   retire_state_out: process(present_retire_state, ack_i, data_size, word_rdy, cmd_code, matched,
+      data_bus, reset_and_error_code, header_storage_address, header_tx_address, cmd_to_retire_i, word_count)
    begin
       -- Default values
       reg_en          <= '0';
+      reset_ack_o     <= '0';
       cmd_rdy         <= '0';
       cmd_valid_o     <= '0';
+      clr_reset       <= '0';
 
       head_wren       <= '0';
       word_ack        <= '0';
+
       ena_word_count  <= '0';
-      load_word_count <= '0';
+      clr_word_count <= '0';
 
       size_o          <=  0 ;
       rdy_o           <= '0';
@@ -653,19 +799,37 @@ begin
       status_en       <= '0';
       cmd_sent_o      <= '0';
 
+      head_address    <= (others => '0');
       header_data_bus <= (others => '0');
+
+      num_cards_reg_en <= '0';
+      datasize_reg_en <= '0';
+
+      inc_ot_count <= '0';
+      clr_ot_count <= '0';
 
       case present_retire_state is
          when IDLE =>
-            load_word_count <= '1';
+            clr_word_count <= '1';
 
-         when LATCH_CMD =>
-            reg_en          <= '1';
+            if (cmd_to_retire_i = '1') then
+               reg_en          <= '1';
+            end if;
+
+         when LATCH_CMD1 =>
+            num_cards_reg_en <= '1';
+
+         when LATCH_CMD2 =>
+            datasize_reg_en <= '1';
 
          when RECEIVED =>
             cmd_rdy         <= '1';
 
          when WAIT_FOR_MATCH =>
+            -- The reset event bit is stored for every command including internal commands
+            -- However it is only cleared once a reply is returned to the RTL PC, in TX_STATUS
+            -- Thus, the flag may be set in the errno words for some internal command, but not others.
+            -- Using this information, we determine when an internal reset occurred.
             status_en       <= '1';
 
             if(matched = '1') then
@@ -681,9 +845,30 @@ begin
                size_o       <= data_size;
             end if;
 
+            if (ack_i = '1') then
+               reset_ack_o     <= '1';
+            end if;
+
             rdy_o           <= '1';
+            -- By acking 'work_ack' we clear the front of the queue
             word_ack        <= ack_i;
             cmd_valid_o     <= '1';
+--            ena_word_count  <= ack_i;
+--            head_address    <= header_tx_address;
+
+            if (ack_i = '1') then
+               -- If is a data frame
+               if(cmd_code = DATA) then
+                  clr_reset       <= '1';
+               -- If this is a RB
+               elsif(cmd_code = READ_BLOCK) then
+                  clr_reset       <= '1';
+               -- If this is a WB
+               else
+                  clr_reset       <= '1';
+               end if;
+            end if;
+
 
          when WAIT_FOR_ACK =>
             cmd_sent_o <= '1';
@@ -692,64 +877,132 @@ begin
             word_ack        <= '1';
 
          when STORE_ERRNO_HEADER_WORD =>
-            header_data_bus <= '0' & error_code;
+            header_data_bus <= '0' & reset_and_error_code;
             head_wren       <= '1';
             ena_word_count  <= '1';
+            head_address    <= header_storage_address;
 
          when STORE_HEADER_WORD =>
             header_data_bus <= data_bus;
             head_wren       <= '1';
             ena_word_count  <= '1';
+            head_address    <= header_storage_address;
 
          when NEXT_HEADER_WORD =>
+            -- Use this condition to determine if there is an over-temperature.
+            if(word_rdy = '1') and (word_count < data_size + 1) then
+               if(header_storage_address = FPGA_TEMP_ADDR_AC) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_BC1) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_BC2) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_BC3) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_RC1) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_RC2) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_RC3) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_RC4) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = FPGA_TEMP_ADDR_CC) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               -------------------------------------------------------
+               elsif(header_storage_address = CARD_TEMP_ADDR_AC) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_BC1) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_BC2) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_BC3) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_RC1) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_RC2) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_RC3) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_RC4) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               elsif(header_storage_address = CARD_TEMP_ADDR_CC) then
+                  if(data_bus > MAX_TEMP) then
+                     inc_ot_count <= '1';
+                  end if;
+               end if;
+            end if;
+
+            header_data_bus <= data_bus;
             word_ack        <= '1';
+            head_address    <= header_storage_address;
+
+         when PAUSE_HEADER_WORD =>
+            header_data_bus <= data_bus;
+            head_address    <= header_storage_address;
 
          when DONE_HEADER_STORE =>
             cmd_sent_o <= '1';
+            head_address    <= header_storage_address;
 
-         when TX_HEADER =>
+         when TX_FRAME_STATUS =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
-
-         when TX_DATA_RATE =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-
-         when TX_ROW_LEN =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-
-         when TX_NUM_ROWS =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-
-         when TX_SYNC_NUM =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
 
          when TX_FRAME_SEQUENCE_NUM =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
 
-         when TX_ACTIVE_CLK =>
+         when TX_SYNC_NUM =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
-
-         when TX_SYNC_BOX_ERR =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-
-         when TX_SYNC_BOX_FR =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
 
          when TX_DV_NUM =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
 
-         when TX_TES_BIAS_LEVEL =>
+         when TX_HEADER =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
 
          when TX_SEND_DATA =>
             rdy_o           <= word_rdy;
@@ -793,6 +1046,7 @@ begin
          lvds_reply_rc3_a  => lvds_reply_rc3_a,
          lvds_reply_rc4_a  => lvds_reply_rc4_a,
          lvds_reply_cc_a   => lvds_reply_cc_a,
+         lvds_reply_psu_a  => lvds_reply_psu_a,
 
          card_data_size_i  => data_size_t,  -- Add this to the pack file
          -- cmd_translator interface
@@ -800,7 +1054,6 @@ begin
          par_id_i          => par_id,
 
          -- fibre interface:
-         size_o            => data_size,
          error_o           => error_code,
          data_o            => data_bus,
          rdy_o             => word_rdy,
