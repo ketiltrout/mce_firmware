@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.54 2007/02/10 05:10:45 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.55 2007/02/13 02:35:34 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/02/10 05:10:45 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/13 02:35:34 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.55  2007/02/13 02:35:34  bburger
+-- Bryce:  Alterered the code in reply_translator to be more readable
+--
 -- Revision 1.54  2007/02/10 05:10:45  bburger
 -- Bryce:  fixed a bug.  A reply with a non-zero error code is not necessarily an error.
 --
@@ -82,42 +85,43 @@ use components.component_pack.all;
 entity reply_translator is
 port(
    -- for testing
-   debug_o           : out std_logic_vector (31 downto 0);
+   debug_o             : out std_logic_vector (31 downto 0);
 
    -- global inputs
-   rst_i             : in std_logic;                                               -- global reset
-   clk_i             : in std_logic;                                               -- global clock
-   crc_err_en_i      : in std_logic;
+   rst_i               : in std_logic;                                               -- global reset
+   clk_i               : in std_logic;                                               -- global clock
+   crc_err_en_i        : in std_logic;
 
    -- signals to/from cmd_translator
-   cmd_rcvd_er_i     : in std_logic;                                               -- command received on fibre with checksum error
-   cmd_rcvd_ok_i     : in std_logic;                                               -- command received on fibre - no checksum error
-   c_cmd_code_i      : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   c_card_addr_i     : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-   c_param_id_i      : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   cmd_rcvd_er_i       : in std_logic;                                               -- command received on fibre with checksum error
+   cmd_rcvd_ok_i       : in std_logic;                                               -- command received on fibre - no checksum error
+   c_cmd_code_i        : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   c_card_addr_i       : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   c_param_id_i        : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
 
    -- signals to/from reply queue
-   r_cmd_code_i      : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   r_card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-   r_param_id_i      : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-   r_cmd_rdy_i       : in std_logic;                                               -- macro op response ready to be processed
-   mop_error_code_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);    -- macro op success (others => '0') else error code
-   fibre_word_i      : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- packet word read from reply queue
-   num_fibre_words_i : in integer;                                                -- indicate number of packet words to be read from reply queue
-   fibre_word_ack_o  : out std_logic;                                               -- asserted to requeset next fibre word
-   fibre_word_rdy_i  : in std_logic;
-   mop_ack_o         : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
-   cmd_stop_i        : in std_logic;
-   last_frame_i      : in std_logic;
-   frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   r_cmd_code_i        : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   r_card_addr_i       : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+   r_param_id_i        : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+   r_cmd_rdy_i         : in std_logic;                                               -- macro op response ready to be processed
+   mop_error_code_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);    -- macro op success (others => '0') else error code
+   fibre_word_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- packet word read from reply queue
+   num_fibre_words_i   : in integer;                                                -- indicate number of packet words to be read from reply queue
+   fibre_word_ack_o    : out std_logic;                                               -- asserted to requeset next fibre word
+   fibre_word_rdy_i    : in std_logic;
+   mop_ack_o           : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
+   cmd_stop_i          : in std_logic;
+   last_frame_i        : in std_logic;
+   frame_status_word_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
    -- input from the cmd_queue
-   busy_i            : in std_logic;
+   busy_i              : in std_logic;
 
    -- signals to/ from fibre_tx (interface to a FIFO)
-   fibre_tx_rdy_o    : out std_logic;                                               -- transmit fifo full
-   fibre_tx_busy_i   : in std_logic;                                                -- transmit fifo write request
-   fibre_tx_dat_o    : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)          -- transmit fifo data input
+   fibre_tx_rdy_o      : out std_logic;                                               -- transmit fifo full
+   fibre_tx_busy_i     : in std_logic;                                                -- transmit fifo write request
+   fibre_tx_dat_o      : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)          -- transmit fifo data input
 );
 end reply_translator;
 
@@ -126,16 +130,15 @@ architecture rtl of reply_translator is
 
    constant NUM_REPLY_WORDS      : integer := 4;
    constant NUM_FRAME_HEAD_WORDS : integer := 41;
-
-   constant SERVICING_COMMAND : std_logic := '0';
-   constant SERVICING_REPLY   : std_logic := '0';
+   constant SERVICING_COMMAND    : std_logic := '0';
+   constant SERVICING_REPLY      : std_logic := '0';
 
    -- reply word registers
    signal frame_status   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
    signal frame_seq_num  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
-   signal ok_or_er         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
+   signal ok_or_er       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
    signal crd_add_par_id : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 2 byte 0
-   signal status       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 3 byte 0
+   signal status         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 3 byte 0
    signal checksum       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- checksum word (output from checksum calculator)
 
    ----------------------------------------------------------------------------------------------------------------
@@ -164,6 +167,8 @@ architecture rtl of reply_translator is
    -- fibre fsm uses this to acknowledge that it will package up a reply to checksum error stop
    signal fibre_word        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- packet word read from reply queue
 
+   signal error_flags_only  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- packet word read from reply queue
+
    signal c_cmd_rdy         : std_logic;
    signal c_cmd_err         : std_logic;
    signal c_cmd_rdy_tmp     : std_logic;
@@ -186,7 +191,9 @@ begin
    ----------------------------------------------------------------------------
    -- Logic Analyzer Signals
    ----------------------------------------------------------------------------
-   debug_o                   <= (others => '0');
+   debug_o <= (others => '0');
+
+   error_flags_only <= mop_error_code_i and STATUS_WORD_WARNING_MASK;
 
    ----------------------------------------------------------------------------
    -- register inputs from cmd_translator
@@ -250,8 +257,10 @@ begin
             r_cmd_code        <= r_cmd_code_i;
             r_card_addr       <= r_card_addr_i;
             r_param_id        <= r_param_id_i;
+            -- The three extra words are for "RBOK", "card_addr & param_id" and checksum
             rb_packet_size    <= num_fibre_words_i + 3;
-            data_packet_size  <= num_fibre_words_i + 3 ;
+            -- The extra word is for the checksum
+            data_packet_size  <= num_fibre_words_i + 1 ;
          end if;
       end if;
    end process register_reply_queue;
@@ -428,24 +437,26 @@ begin
       ----------------------------------------
       when LD_STATUS =>
          if(fibre_tx_busy_i = '0') then
-            translator_next_state <= LD_FRAME_STATUS;
+            translator_next_state <= WAIT_Q_WORD1;
+--            translator_next_state <= LD_FRAME_STATUS;
          end if;
 
       ----------------------------------------
       -- Frame ok_or_er word (stop bit, last frame bit)
       ----------------------------------------
-      when LD_FRAME_STATUS =>
-         if(fibre_tx_busy_i = '0') then
-            translator_next_state <= LD_FRAME_SEQ_NUM;
-         end if;
+--      when LD_FRAME_STATUS =>
+--         if(fibre_tx_busy_i = '0') then
+--            translator_next_state <= WAIT_Q_WORD1;
+----            translator_next_state <= LD_FRAME_SEQ_NUM;
+--         end if;
 
       ----------------------------------------
       -- Frame sequence number
       ----------------------------------------
-      when LD_FRAME_SEQ_NUM =>
-         if(fibre_tx_busy_i = '0') then
-            translator_next_state <= WAIT_Q_WORD1;
-         end if;
+--      when LD_FRAME_SEQ_NUM =>
+--         if(fibre_tx_busy_i = '0') then
+--            translator_next_state <= WAIT_Q_WORD1;
+--         end if;
 
       ----------------------------------------
       -- Wait states for allowing the reply_queue to respond
@@ -495,9 +506,9 @@ begin
       if(rst_i = '1') then
          packet_size    <= (others => '0');
          packet_type    <= (others => '0');
-         ok_or_er         <= (others => '0');
+         ok_or_er       <= (others => '0');
          crd_add_par_id <= (others => '0');
-         status       <= (others => '0');
+         status         <= (others => '0');
          frame_status   <= (others => '0');
          frame_seq_num  <= (others => '0');
 
@@ -520,15 +531,36 @@ begin
             status         <= (others => '0');
 
          elsif(translator_current_state = STANDARD_REPLY) then
-            if (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
+-- When we implement RB replies so that they follow the standard protocol for Data packets, we will use this logic
+-- Until then, if there is any error flag raise, we must not return data in RB packets.
+--            if (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
+--               packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);
+--            else
+--               packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
+--            end if;
+
+            -- If there is an error in the RB
+            if (r_cmd_code = READ_BLOCK and error_flags_only /= x"00000000") then
+               packet_size <= conv_std_logic_vector(4,PACKET_WORD_WIDTH);
+            -- Else if it is a non-error RB, or any DA reply
+            elsif (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
                packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);
+            -- Else for any other packet.
             else
                packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             end if;
+
             packet_type    <= REPLY;
             crd_add_par_id <= "00000000" & r_card_addr & "00000000" & r_param_id;
-            ok_or_er       <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
+
+            if(error_flags_only = x"00000000") then
+               ok_or_er <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
+            else
+               ok_or_er <= r_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
+            end if;
+--            ok_or_er       <= (r_cmd_code(15 downto 0) & ASCII_O & ASCII_K);
             -- this will be error code x"00" - i.e. success.
+
             status         <= mop_error_code_i;
 
          elsif(translator_current_state = DATA_PACKET) then
@@ -537,7 +569,8 @@ begin
             crd_add_par_id <= frame_seq_num_i;
             ok_or_er       <= (others => '0');
             status         <= (others => '0');
-            frame_status   <= "000000000000000000000000000000" & cmd_stop_i & last_frame_i;
+--            frame_status   <= "000000000000000000000000000000" & cmd_stop_i & last_frame_i;
+            frame_status   <= frame_status_word_i;
             frame_seq_num  <= frame_seq_num_i;
 
          else
