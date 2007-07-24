@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.51 2006/10/28 00:06:46 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.52 2006/11/07 23:50:18 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.52  2006/11/07 23:50:18  bburger
+-- Bryce:  modified some of the constants
+--
 -- Revision 1.51  2006/10/28 00:06:46  bburger
 -- Bryce:  Changed the command timeout limits
 --
@@ -106,26 +109,38 @@ package issue_reply_pack is
    -- Measured in clock cycles, CMD_TIMEOUT_LIMIT is slightly more than the amount of cycles necessary for an internal/ simple command to execute
    -- For a 58-word WB command, 100 us are required from receiving the last word of the command to sending the last word of the reply
    -- For a 58-word RB command, 105 us are required from receiving the last word of the command to sending the last word of the reply.
-   constant CMD_TIMEOUT_LIMIT : integer := 110; --us
-   constant DATA_TIMEOUT_LIMIT : integer := 650; --us
+--   constant CMD_TIMEOUT_LIMIT : integer := 110; --us
+   constant CMD_TIMEOUT_LIMIT : integer := 150; --us
+
+   -- This should be dependent on row_len and num_rows!
+--   constant DATA_TIMEOUT_LIMIT : integer := 650; --us
+   constant DATA_TIMEOUT_LIMIT : integer := 1000; --us
 
    -- The minimum window for transmitting an internal command needs to be slightly more than CMD_TIMEOUT_LIMIT
    -- To account for the time needed to prime the cmd_translator
-   constant MIN_WINDOW : integer := (CMD_TIMEOUT_LIMIT+5)*1000/20; -- # clock cycles = 110us*1000/20ns;
+   constant MIN_WINDOW : integer := (CMD_TIMEOUT_LIMIT+5)*1000/20; -- # clock cycles = (110us+5us)*1000/20ns = 5750;
+
+   -- Period of internal commands
+   constant INTERNAL_COMMAND_PERIOD : integer := 1000000;
 
    -- Data sizes for internal commands
-   constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word 
-   constant FPGA_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word  
-   constant CARD_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word  
+   constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
+   constant FPGA_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
+   constant CARD_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
    constant PSC_STATUS_DATA_SIZE : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000001001"; --  9 words
+   constant BOX_TEMP_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
 
    -- number of frame header words stored in RAM
-   constant NUM_RAM_HEAD_WORDS  : integer := 41;
+   constant NUM_RAM_HEAD_WORDS  : integer := 43;
    constant RAM_HEAD_ADDR_WIDTH : integer :=  6;
 
    constant FPGA_TEMP_SIZE  : integer := 10; -- Includes space for fpga_temp errno word
    constant CARD_TEMP_SIZE  : integer := 10; -- Includes space for fpga_temp errno word
    constant PSC_STATUS_SIZE : integer :=  8; -- Includes space for card_temp errno word
    constant BOX_TEMP_SIZE   : integer :=  2; -- Includes space for fpga_temp errno word
-   
+
+   -- The logical AND of this word with the status word filters out the warnings from the status word,
+   -- leaving only the errors.
+   constant STATUS_WORD_WARNING_MASK : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := "00111111111111111111111111111111"; --"00010010010010010010010010010010";
+
 end issue_reply_pack;
