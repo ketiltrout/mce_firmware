@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.6 2007/01/31 01:44:39 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.7 2007/02/01 21:07:28 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson/ Bryce Burger
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2007/01/31 01:44:39 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/02/01 21:07:28 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5.2.7  2007/02/01 21:07:28  bburger
+-- Bryce:  big fix to allow the fibre_rx block to handle spaces between the frist two 32-bit pre-amble words
+--
 -- Revision 1.5.2.6  2007/01/31 01:44:39  bburger
 -- Bryce:  replaced counters, and updated all supporting circuitry
 --
@@ -86,12 +89,16 @@ use altera_mf.altera_mf_components.all;
 
 entity fibre_rx is
 port(
+      sbr_o          : out std_logic;
+
       clk_i          : in std_logic;
       rst_i          : in std_logic;
 
       cmd_err_o      : out std_logic;
       cmd_rdy_o      : out std_logic;
       cmd_ack_i      : in std_logic;
+      rt_cmd_rdy_o   : out std_logic;
+      rdy_for_data_i : in std_logic;
 
       cmd_code_o     : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       card_addr_o    : out std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -118,23 +125,23 @@ architecture rtl of fibre_rx is
    signal rx_ff       : std_logic;                                        -- receive fifo full
    signal rxd         : std_logic_vector(RX_FIFO_DATA_WIDTH-1 DOWNTO 0);  -- data ouput of fifo
 
-   component sync_fifo_rx
-   PORT
-   (
-      data     : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-      wrreq    : IN STD_LOGIC ;
-      rdreq    : IN STD_LOGIC ;
-      rdclk    : IN STD_LOGIC ;
-      wrclk    : IN STD_LOGIC ;
-      aclr     : IN STD_LOGIC  := '0';
-      q     : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-      rdempty     : OUT STD_LOGIC ;
-      wrfull      : OUT STD_LOGIC
-   );
-   END component;
+--   component sync_fifo_rx
+--   PORT
+--   (
+--      data     : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+--      wrreq    : IN STD_LOGIC ;
+--      rdreq    : IN STD_LOGIC ;
+--      rdclk    : IN STD_LOGIC ;
+--      wrclk    : IN STD_LOGIC ;
+--      aclr     : IN STD_LOGIC  := '0';
+--      q     : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+--      rdempty     : OUT STD_LOGIC ;
+--      wrfull      : OUT STD_LOGIC
+--   );
+--   END component;
 
    -- FSM's states defined
-   type states is (IDLE, RQ_BYTE, LD_BYTE, CKSM_CALC, WR_WORD, TEST_CKSM, CKSM_PASS, CKSM_FAIL, DATA_READ, DATA_SETL, DATA_TX, RX_ERROR);
+   type states is (IDLE, RQ_BYTE, LD_BYTE, CKSM_CALC, WR_WORD, TEST_CKSM, CKSM_PASS, CKSM_FAIL, DATA_READ, DATA_SETL, DATA_TX, RX_ERROR, WAIT_FOR_ACK);
    signal current_state : states;
    signal next_state    : states;
 
@@ -152,7 +159,7 @@ architecture rtl of fibre_rx is
 
    constant BLOCK_SIZE : integer := 58;                                       -- total number of data words in a write_block
    constant FIBRE_PACKET_SIZE : integer := 64;
-   constant FIBRE_PACKET_TIMEOUT : integer := 128; -- in micro-seconds
+   constant FIBRE_PACKET_TIMEOUT : integer := 512; -- in micro-seconds
 
    signal number_data  : integer;                                             -- this will be a value between 1 and 58
 
@@ -177,8 +184,8 @@ architecture rtl of fibre_rx is
    signal byte_count_clr : std_logic;
 
    -- word counter for the incoming packet
-   signal word_count     : integer range 0 to 64;
-   signal word_count_new : integer range 0 to 65;
+   signal word_count     : integer range 0 to 130;
+   signal word_count_new : integer range 0 to 130;
    signal word_count_ena : std_logic;
    signal word_count_clr : std_logic;
 
@@ -188,6 +195,8 @@ architecture rtl of fibre_rx is
    signal timeout_clr    : std_logic;
    signal timeout_count  : integer;
    signal timeout        : std_logic;
+
+   signal spurrious_byte_received : std_logic;
 
 begin
 
@@ -207,7 +216,7 @@ begin
       q        => rxd,
       rdempty  => rx_fe,
       wrfull   => rx_ff
-      );
+   );
 
    ----------------------------------------------------------------------------
    -- byte and word counters
@@ -260,9 +269,11 @@ begin
    end process FSM_state;
 
 
-   FSM_ns : process(current_state, rx_fe, word_count, byte_count, rxd, cmd_ack_i, cmd_code, cksum_calc, cksum_rcvd, number_data, read_pointer, timeout)
+   FSM_ns : process(current_state, rx_fe, word_count, byte_count, rxd, cmd_ack_i,
+      rdy_for_data_i, cksum_calc, cksum_rcvd, number_data, read_pointer, timeout)
    begin
       next_state <= current_state;
+      sbr_o <= '0';
 
       case current_state is
          when IDLE =>
@@ -294,6 +305,7 @@ begin
             elsif(word_count = 0 and rxd /= FIBRE_PREAMBLE1(7 downto 0) and byte_count >= 1 and byte_count <= 4) then
                -- Check each byte of the first two words in succession
                -- If any of the bytes don't match the expected preamble then discard them and go back to the IDLE state
+               sbr_o <= '1';
                next_state <= IDLE;
             elsif(word_count = 1 and rxd /= FIBRE_PREAMBLE2(7 downto 0) and byte_count >= 1 and byte_count <= 4) then
                -- Check each byte of the first two words in succession
@@ -314,11 +326,7 @@ begin
             end if;
 
          when CKSM_CALC =>
---            if(word_count > 5 and word_count < FIBRE_PACKET_SIZE) then
-               next_state <= WR_WORD;
---            else
---               next_state <= RQ_BYTE;
---            end if;
+            next_state <= WR_WORD;
 
          when WR_WORD =>
             -- We get into this state only after having checked the checksum
@@ -333,22 +341,17 @@ begin
          -------------------------------------------------
 
          when TEST_CKSM =>
-            if(cmd_ack_i = '1') then
-               -- Wait for the previous command to finish
-               next_state <= TEST_CKSM;
-            elsif(cksum_calc = cksum_rcvd) then
+            if(cksum_calc = cksum_rcvd) then
                next_state <= CKSM_PASS;
             else
                next_state <= CKSM_FAIL;
             end if;
 
          when CKSM_PASS =>
-            if(cmd_ack_i = '1') then
-               if(number_data = 0 or cmd_code = ASCII_R & ASCII_B) then
-                  next_state <= IDLE;
-               else
-                  next_state <= DATA_READ;
-               end if;
+            if(rdy_for_data_i = '1') then
+               next_state <= DATA_READ;
+            elsif(cmd_ack_i = '1') then
+               next_state <= IDLE;
             end if;
 
          when CKSM_FAIL =>
@@ -368,6 +371,11 @@ begin
             if(read_pointer < number_data) then
                next_state <= DATA_READ;
             else
+               next_state <= WAIT_FOR_ACK;
+            end if;
+
+         when WAIT_FOR_ACK =>
+            if(cmd_ack_i = '1') then
                next_state <= IDLE;
             end if;
 
@@ -377,7 +385,7 @@ begin
       end case;
    end process FSM_ns;
 
-   FSM_out : process(current_state, rx_fe, byte_count, word_count, timeout)
+   FSM_out : process(current_state, rx_fe, byte_count, word_count, timeout, cksum_calc, cksum_rcvd)
    begin
       byte_count_ena <= '0';
       byte_count_clr <= '0';
@@ -396,6 +404,7 @@ begin
       rx_fr          <= '0';
       dat_clk_o      <= '0';
       timeout_clr    <= '1';
+      rt_cmd_rdy_o   <= '0';
 
       case current_state is
          when IDLE =>
@@ -446,11 +455,12 @@ begin
                end if;
             end if;
 
---            -- only write data..starting at word 5
-----            if(word_count > 5 and word_count < FIBRE_PACKET_SIZE) then
---            if(rx_fe = '0') then
---               write_mem <= '1';
---            end if;
+         when TEST_CKSM =>
+            if(cksum_calc = cksum_rcvd) then
+               -- The rt_cmd_rdy_o signal is asserted here to ensure that it is only asserted for one clock cycle.
+               rt_cmd_rdy_o <= '1';
+               cmd_rdy_o <= '1';
+            end if;
 
          when CKSM_PASS =>
             cmd_rdy_o <= '1';
@@ -472,6 +482,9 @@ begin
          when DATA_TX =>
             cmd_rdy_o <= '1' ;
             dat_clk_o <= '1' ;
+
+         when WAIT_FOR_ACK =>
+            cmd_rdy_o <= '1' ;
 
          when others => null;
       end case;
