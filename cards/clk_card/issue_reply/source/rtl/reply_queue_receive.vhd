@@ -29,77 +29,10 @@
 -- Implements a single receiver module for reply queue.
 --
 -- Revision history:
--- 
+--
 -- $Log: reply_queue_receive.vhd,v $
--- Revision 1.16  2006/07/05 14:42:01  bburger
--- Bryce:  Adjusted the encoding for the error bits to suit the new protocol
---
--- Revision 1.15  2006/01/16 19:03:02  bburger
--- Bryce:
--- minor bug fixes for handling crc errors and timeouts
--- moved reply_queue_receive instantiations from reply_queue to reply_queue_sequencer
---
--- Revision 1.14  2005/11/10 23:47:16  erniel
--- replaced serial CRC datapath with parallel CRC
--- replaced two-level buffering with single-level buffer
--- removed transfer FSMs associated with two-level buffer
--- reworked buffer interface FSM for single-level buffer
--- replaced references to reply_queue_pack parameters with command_pack
--- abolished "short headers", and header info not forwarded to downstream blocks
--- added error/status output
--- added queue clear input
---
--- Revision 1.13  2005/09/28 23:50:07  bburger
--- Bryce:
--- replaced obsolete crc block with serial_crc block
---
--- Revision 1.12  2005/02/16 03:16:44  erniel
--- added integer range declaration to wr_count, rd_count
--- modified read FSM next state and output logic
--- removed extra state from CRC FSM
---
--- Revision 1.11  2005/02/10 03:04:11  erniel
--- added data output register for pipelined performance
---
--- Revision 1.10  2005/02/09 21:01:02  erniel
--- removed separate header fifo (consolidated data and header fifos)
--- added another fifo stage for temporary storage during CRC verify
--- reworked fifo read and write FSMs to support new architecture
--- removed header_o from interface
--- removed done_o from interface (deassert rdy to indicate done)
---
--- WARNING: Interim version.  May contain bugs.
---
--- Revision 1.9  2005/01/12 23:24:02  erniel
--- updated lvds_rx component
---
--- Revision 1.8  2005/01/11 22:44:58  erniel
--- removed mem_clk_i from ports
--- updated fifo component
---
--- Revision 1.7  2004/12/03 20:37:22  erniel
--- added extra state in write FSM to deal with CRC word
---
--- Revision 1.6  2004/12/01 18:42:10  erniel
--- renamed READ_DONE state to DISCARD_HEADER
---
--- Revision 1.5  2004/12/01 04:28:55  erniel
--- reworked read FSM state transitions to handle reply packets with size=0
---
--- Revision 1.4  2004/11/30 03:08:24  erniel
--- deleted remaining status fifo-related signals
---
--- Revision 1.3  2004/11/30 03:01:36  erniel
--- eliminated separate status fifo (combined with header fifo)
--- eliminated WRITE_STATUS state
--- moved WRITE_HEADER state to after WRITE_DATA state
---
--- Revision 1.2  2004/11/12 19:45:57  erniel
--- added nack_i (negative ack) port
--- implemented discard current packet on nack_i
---
--- Revision 1.1  2004/11/08 19:56:47  erniel
--- initial version
+-- Revision 1.17  2006/07/07 00:42:08  bburger
+-- Bryce: changed the meaning of bit 2 of the error code to indicate whether the state machine has left idle.  This is used to determine if unexpected packets have been received by this block in reply_queue_sequencer
 --
 --
 -----------------------------------------------------------------------------
@@ -119,9 +52,9 @@ entity reply_queue_receive is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
-     
-     lvds_reply_i : in std_logic;     
-     
+
+     lvds_reply_i : in std_logic;
+
      error_o : out std_logic_vector(2 downto 0);   -- 3 error bits: Tx CRC error, Rx CRC error, Execute Error
      data_o  : out std_logic_vector(31 downto 0);
      rdy_o   : out std_logic;
@@ -140,7 +73,7 @@ port(clk_i      : in std_logic;
      ack_i      : in std_logic;
      lvds_i     : in std_logic);
 end component;
-   
+
 signal lvds_rx_data : std_logic_vector(31 downto 0);
 signal lvds_rx_rdy  : std_logic;
 signal lvds_rx_ack  : std_logic;
@@ -176,7 +109,7 @@ begin
    ---------------------------------------------------------
    -- LVDS receiver
    ---------------------------------------------------------
-   
+
    lvds_receiver : lvds_rx
       port map(clk_i      => clk_i,
                comm_clk_i => comm_clk_i,
@@ -190,7 +123,7 @@ begin
    ---------------------------------------------------------
    -- CRC validation
    ---------------------------------------------------------
-   
+
    crc_calc : parallel_crc
       generic map(POLY_WIDTH => 32,
                   DATA_WIDTH => 32)
@@ -211,7 +144,7 @@ begin
    ---------------------------------------------------------
    -- Packet storage
    ---------------------------------------------------------
-                          
+
    packet_buffer : fifo
       generic map(DATA_WIDTH => 32,
                   ADDR_WIDTH => BB_DATA_SIZE_WIDTH)
@@ -225,8 +158,8 @@ begin
                empty_o => buf_empty,
                full_o  => open,
                error_o => open,
-               used_o  => open); 
-   
+               used_o  => open);
+
    header0_reg : reg
       generic map(WIDTH => 32)
       port map(clk_i => clk_i,
@@ -234,7 +167,7 @@ begin
                ena_i => header0_ld,
                reg_i => lvds_rx_data,
                reg_o => header0);
-               
+
    header1_reg : reg
       generic map(WIDTH => 32)
       port map(clk_i => clk_i,
@@ -247,11 +180,11 @@ begin
    ---------------------------------------------------------
    -- Error (Status) register
    ---------------------------------------------------------
-      
+
    error_reg : process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         error_o <= (others => '0'); 
+         error_o <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(error_clr = '1') then
             error_o <= (others => '0');
@@ -263,7 +196,7 @@ begin
                else
                   error_o(2) <= '1';
                end if;
-               
+
 --               error_o(2) <= '0' when (pres_state = RX_HEADER0) else '1'; -- Used to determine if the wrong card is replying
 --            if(crc_valid = '0') then
 --               error_o(0) <= '0';           -- if receive CRC failed, flag Rx CRC error condition
@@ -273,17 +206,17 @@ begin
 --               error_o(0) <= header1(0);    -- otherwise show error conditions received from dispatch
 --               error_o(1) <= header1(1);
 --               error_o(2) <= '0';
---            end if;               
+--            end if;
 
          end if;
       end if;
    end process error_reg;
-   
-   
-   ---------------------------------------------------------               
+
+
+   ---------------------------------------------------------
    -- Counter for received words
-   --------------------------------------------------------- 
-      
+   ---------------------------------------------------------
+
    word_counter : binary_counter
       generic map(WIDTH => BB_DATA_SIZE_WIDTH)
       port map(clk_i   => clk_i,
@@ -299,7 +232,7 @@ begin
    ---------------------------------------------------------
    -- Receive controller FSM
    ---------------------------------------------------------
-      
+
    state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -317,34 +250,34 @@ begin
    begin
       -- Default Assignment
       next_state <= pres_state;
-      
+
       case pres_state is
          when RX_INIT =>      next_state <= RX_HEADER0;
-                             
+
          when RX_HEADER0 =>   if(lvds_rx_rdy = '1' and lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
                                  next_state <= RX_HEADER1;
                               else
                                  next_state <= RX_HEADER0;
                               end if;
-                             
+
          when RX_HEADER1 =>   if(lvds_rx_rdy = '1') then
                                  next_state <= RX_DATA;
                               else
                                  next_state <= RX_HEADER1;
                               end if;
-                             
+
          when RX_DATA =>      if(word_count = header0(BB_DATA_SIZE'range)) then
                                  next_state <= RX_CRC;
                               else
                                  next_state <= RX_DATA;
                               end if;
-         
+
          when RX_CRC =>       if(lvds_rx_rdy = '1') then
                                  next_state <= RX_DONE;
                               else
                                  next_state <= RX_CRC;
                               end if;
-                             
+
          when RX_DONE =>      if(crc_valid = '0' or header0(BB_COMMAND_TYPE'range) = WRITE_CMD) then
                                  next_state <= STATUS_READY;
                               else
@@ -356,17 +289,17 @@ begin
                               else
                                  next_state <= STATUS_READY;
                               end if;
-                                                          
+
          when DATA_READY =>   if(buf_empty = '1') then
                                  next_state <= RX_INIT;
                               else
                                  next_state <= DATA_READY;
                               end if;
-                             
+
          when others =>       next_state <= RX_INIT;
       end case;
    end process state_NS;
-   
+
    state_Out: process(pres_state, lvds_rx_rdy, lvds_rx_data, word_count, header0, crc_valid, buf_empty, ack_i)
    begin
       lvds_rx_ack    <= '0';
@@ -382,13 +315,13 @@ begin
       word_count_ena <= '0';
       word_count_clr <= '0';
       rdy_o          <= '0';
-   
+
       case pres_state is
          when RX_INIT =>      crc_clr           <= '1';
                               buf_clear         <= '1';
                               error_clr         <= '1';
                               word_count_clr    <= '1';
-                             
+
          when RX_HEADER0 =>   if(lvds_rx_rdy = '1') then
                                  if(lvds_rx_data(BB_PREAMBLE'range) /= BB_PREAMBLE) then
                                     crc_clr     <= '1';         -- reset CRC calculation during resynchronization
@@ -397,40 +330,40 @@ begin
                                  crc_ena        <= '1';
                                  header0_ld     <= '1';
                               end if;
-                             
+
          when RX_HEADER1 =>   if(lvds_rx_rdy = '1') then
                                  lvds_rx_ack    <= '1';
                                  crc_ena        <= '1';
                                  header1_ld     <= '1';
                               end if;
-                             
+
          when RX_DATA =>      if(word_count /= header0(BB_DATA_SIZE'range) and lvds_rx_rdy = '1') then
                                  lvds_rx_ack    <= '1';
                                  crc_ena        <= '1';
                                  buf_write      <= '1';
                                  word_count_ena <= '1';
                               end if;
-                             
+
          when RX_CRC =>       if(lvds_rx_rdy = '1') then
                                  lvds_rx_ack    <= '1';
                                  crc_ena        <= '1';
                               end if;
-         
-         when RX_DONE =>      error_ld          <= '1'; 
+
+         when RX_DONE =>      error_ld          <= '1';
                               if(crc_valid = '0') then
                                  buf_clear      <= '1';
-                              end if;            
-                             
-         when STATUS_READY => rdy_o             <= '1';       
-         
-         when DATA_READY =>   if(buf_empty = '0') then 
+                              end if;
+
+         when STATUS_READY => rdy_o             <= '1';
+
+         when DATA_READY =>   if(buf_empty = '0') then
                                  rdy_o          <= '1';
                               end if;
                               if(ack_i = '1') then
                                  buf_read       <= '1';
                               end if;
-         
+
          when others =>       null;
       end case;
-   end process state_Out;   
-end rtl; 
+   end process state_Out;
+end rtl;
