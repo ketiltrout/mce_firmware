@@ -18,48 +18,35 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.47 2006/10/19 21:59:55 bburger Exp $>
+--
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.48 2006/11/03 23:02:43 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
 --
 -- Organisation:  UBC
 --
--- Description:  This module is the fibre command translator. 
--- 
--- 
+-- Description:  This module is the fibre command translator.
 --
 -- Revision history:
--- 
--- <date $Date: 2006/10/19 21:59:55 $> -     <text>      - <initials $Author: bburger $>
+--
+-- <date $Date: 2006/11/03 23:02:43 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
--- Revision 1.47  2006/10/19 21:59:55  bburger
--- Bryce: added support for the crc_err_en command,  and for the stop ret_dat command
+-- Revision 1.48  2006/11/03 23:02:43  bburger
+-- Bryce:  issue_reply now waits until the after the last data packet to send the reply to a stop command.
 --
--- Revision 1.46  2006/09/26 02:16:05  bburger
--- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
---
--- Revision 1.45  2006/09/21 16:09:14  bburger
--- Bryce:  Added support for the TES Bias Step internal commands
---
--- Revision 1.44  2006/09/15 00:36:11  bburger
--- Bryce:  Added internal_cmd_window between ret_dat_fsm and arbiter_fsm
---
--- Revision 1.43  2006/09/07 22:25:22  bburger
--- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
---
--- Revision 1.42  2006/08/02 16:24:41  bburger
--- Bryce:  trying to fixed occasional wb bugs in issue_reply
---
--- 
 -----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+library sys_param;
+use sys_param.wishbone_pack.all;
+use sys_param.command_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -67,10 +54,7 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
-
-library sys_param;
-use sys_param.wishbone_pack.all;
-use sys_param.command_pack.all;
+use work.issue_reply_pack.all;
 
 entity cmd_translator is
 
@@ -80,28 +64,27 @@ port(
    clk_i                 : in  std_logic;
 
    -- inputs from fibre_rx
-   card_id_i             : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);       -- specifies which card the command is targetting
-   cmd_code_i            : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
-   cmd_data_i            : in  std_logic_vector(       PACKET_WORD_WIDTH-1 downto 0);       -- the data
---   cksum_err_i           : in  std_logic;
-   cmd_rdy_i             : in  std_logic;                                                    -- indicates the fibre_rx outputs are valid
-   data_clk_i            : in  std_logic;                                                    -- used to clock the data out
-   num_data_i            : in  std_logic_vector(    FIBRE_DATA_SIZE_WIDTH-1 downto 0);      -- number of 16-bit data words to be clocked out, possibly number of bytes
-   param_id_i            : in  std_logic_vector( FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- the parameter ID
- 
+   card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   cmd_data_i            : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   cmd_rdy_i             : in  std_logic;
+   data_clk_i            : in  std_logic;
+   num_data_i            : in  std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+   param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+
    -- output to fibre_rx
    ack_o                 : out std_logic;
-   
-   -- ret_dat_wbs interface:
-   start_seq_num_i       : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
-   stop_seq_num_i        : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
-   data_rate_i           : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
-   ret_dat_req_i         : in std_logic;
-   ret_dat_ack_o         : out std_logic;
 
+   -- ret_dat_wbs interface:
+   start_seq_num_i       : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   stop_seq_num_i        : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   data_rate_i           : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+   -- sync_gen interface
    dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+
+   -- dv_rx interface
    external_dv_i         : in std_logic;
-   external_dv_num_i     : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
    -- ret_dat_wbs interface
    tes_bias_toggle_en_i   : in std_logic;
@@ -110,463 +93,672 @@ port(
    tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    status_cmd_en_i        : in std_logic;
 
-   -- other inputs 
-   sync_pulse_i          : in  std_logic;
-   sync_number_i         : in  std_logic_vector(          SYNC_NUM_WIDTH-1 downto 0);
-   
-   -- signals from the arbiter to cmd_queue
-   cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);        -- this is a re-mapping of the cmd_code into a 3-bit number
-   card_addr_o           : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);        -- specifies which card the command is targetting
-   parameter_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);        -- comes from param_id_i, indicates which device(s) the command is targetting
-   data_size_o           : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);        -- num_data_i, indicates number of 16-bit words of data
-   data_o                : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);        -- data will be passed straight thru
+   -- other inputs
+   sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+   -- signals to cmd_queue
+   cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   card_addr_o           : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+   param_id_o            : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+   data_size_o           : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   data_o                : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    data_clk_o            : out std_logic;
    instr_rdy_o           : out std_logic;
-   cmd_stop_o            : out std_logic;                                                     -- indicates a STOP command was recieved
-   last_frame_o          : out std_logic;                                                     -- indicates the last frame of data for a ret_dat command
-   internal_cmd_o        : out std_logic;                                       
-   row_len_i             : in integer;
+   cmd_stop_o            : out std_logic;
+   last_frame_o          : out std_logic;
+   internal_cmd_o        : out std_logic;
    num_rows_i            : in integer;
    tes_bias_step_level_o : out std_logic;
-   
-   -- input from the cmd_queue
-   ack_i                 : in  std_logic;                                                     -- acknowledge signal from the micro-instruction sequence generator
-   busy_i                : in std_logic;
 
+   -- input from the cmd_queue
+   ack_i                 : in  std_logic;
+   busy_i                : in std_logic; -- Not used here
+   rdy_for_data_i        : in std_logic;
 
    -- outputs to the cmd_queue
-   frame_seq_num_o       : out std_logic_vector(       PACKET_WORD_WIDTH-1 downto 0);
-   frame_sync_num_o      : out std_logic_vector(          SYNC_NUM_WIDTH-1 downto 0)--;
-
-   -- outputs to reply_translator for commands that require quick acknowldgements
---   reply_cmd_rcvd_er_o   : out std_logic;
---   reply_cmd_rcvd_ok_o   : out std_logic;
---   reply_cmd_code_o      : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
---   reply_param_id_o      : out std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);        -- the parameter ID
---   reply_card_id_o       : out std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)
-);         
+   frame_seq_num_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   frame_sync_num_o      : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
+);
 end cmd_translator;
 
 
 architecture rtl of cmd_translator is
 
    -------------------------------------------------------------------------------------------
-   -- 'return data' (ret_dat) state machine signals
+   -- data command control signals
    -------------------------------------------------------------------------------------------
---   signal ret_dat_start                : std_logic;
---   signal ret_dat_stop                 : std_logic;
-   signal arbiter_ret_dat_ack          : std_logic;
-   signal ret_dat_ack                  : std_logic;
-   signal ret_dat_cmd_stop             : std_logic;
-   signal ret_dat_last_frame           : std_logic;
-   
-   -------------------------------------------------------------------------------------------   
-   -- signals to state machine controlling simple commands
-   -------------------------------------------------------------------------------------------
-   signal cmd_start                    : std_logic;
---   signal cmd_stop                     : std_logic;
+   constant INPUT_NUM_SEL          : std_logic := '1';
+   constant CURRENT_NUM_PLUS_1_SEL : std_logic := '0';
+
+   type state is (IDLE, SIMPLE, FPGA_TEMP, CARD_TEMP, PSC_STATUS, BOX_TEMP, TES_BIAS, LATCH_TES_BIAS_DATA, DONE, UPDATE_FOR_NEXT, WAIT_FOR_ACK, ONE_MORE, STOP);
+   signal current_state : state;
+   signal next_state    : state;
+
+   -- For tracking requests
+   signal ret_dat_req         : std_logic;
+   -- For acknowledging requests
+   signal ret_dat_ack         : std_logic;
+
+   -- If a ret_dat command comes in during an internal command, the cmd_translator messes up in the DONE state.
+   -- For indicating the start of a data run
+   signal ret_dat_start       : std_logic;
+   signal ret_dat_done        : std_logic;
+   -- For indicating a continuous data run
+   signal ret_dat_in_progress : std_logic;
+
+   -- Fibre_rx will be ack'd immediately upon starting a data run in the cmd_translator.
+   -- This is to avoid tying it up during a data run -- it will thus be responsive to simple commands during a data run.
+   signal f_rx_ret_dat_ack : std_logic;
+   signal f_rx_card_addr   : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal f_rx_param_id    : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+   signal f_rx_data        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal f_rx_cmd_code    : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal f_rx_num_data    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal external_dv_num  : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+
+   signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal seq_num          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal load_sync_num    : std_logic;
+   signal next_sync_num    : std_logic;
+   signal load_seq_num     : std_logic;
+   signal next_seq_num     : std_logic;
+
+   signal data_size        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal data_size_int    : integer range 0 to (2**BB_DATA_SIZE_WIDTH)-1;
 
    -------------------------------------------------------------------------------------------
-   -- 'return data' signals to the arbiter
+   -- Internal command control signals
    -------------------------------------------------------------------------------------------
-   component cmd_translator_ret_dat_fsm
-   port(
-      rst_i                   : in  std_logic;
-      clk_i                   : in  std_logic;
-      card_addr_i             : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-      parameter_id_i          : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
-      data_i                  : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_i              : in  std_logic;
-      start_seq_num_i         : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_i          : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
-      data_rate_i             : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
-      dv_mode_i               : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      external_dv_i           : in std_logic;
-      external_dv_num_i       : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
---      ret_dat_req_i           : in std_logic;
---      ret_dat_ack_o           : out std_logic;
-      sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
-      internal_cmd_window_o   : out integer;
-      cmd_code_i              : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      cmd_rdy_i               : in  std_logic;                                            
---      ret_dat_start_i         : in  std_logic;
---      ret_dat_stop_i          : in  std_logic;
-      row_len_i               : in integer;
-      num_rows_i              : in integer;
---      ret_dat_cmd_valid_o     : out std_logic;
-      frame_seq_num_o         : out std_logic_vector (                        31 downto 0);
-      frame_sync_num_o        : out std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
-      card_addr_o             : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      parameter_id_o          : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      data_size_o             : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      data_o                  : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_o              : out std_logic;
-      instr_rdy_o             : out std_logic;
-      cmd_code_o              : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      cmd_stop_o              : out std_logic;                      
-      last_frame_o            : out std_logic;
-      ret_dat_fsm_working_o   : out std_logic;
-      ack_i                   : in  std_logic;
-      ack_o                   : out std_logic);
-   end component;
+   constant NUM_INTERNAL_CMD_TYPES : integer := 4;
+   constant FPGA_TEMPERATURE       : integer := 0;
+   constant CARD_TEMPERATURE       : integer := 1;
+   constant PSUC_STATUS            : integer := 2;
+   constant BOX_TEMPERATURE        : integer := 3;
 
-   signal ret_dat_cmd_card_addr        : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-   signal ret_dat_cmd_parameter_id     : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from param_id_i, indicates which device(s) the command is targetting
-   signal ret_dat_cmd_data_size        : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-   signal ret_dat_cmd_data             : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru
-   signal ret_dat_cmd_data_clk         : std_logic;
-   signal ret_dat_cmd_instr_rdy        : std_logic; 
-   signal ret_dat_cmd_code             : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   signal ret_dat_fsm_working          : std_logic;
-   signal ret_dat_frame_seq_num        : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-   signal ret_dat_frame_sync_num       : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);
-   signal ret_dat_internal_cmd_window  : integer;    
+   signal internal_status_req : std_logic;
+   signal internal_status_ack : std_logic;
+   signal tes_bias_toggle_req : std_logic;
+   signal tes_bias_toggle_ack : std_logic;
+   signal toggle_which_way    : std_logic;
+   signal toggle_en_delayed   : std_logic;
+
+   signal next_toggle_sync    : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal update_nts          : std_logic;
+
+   signal timer_rst           : std_logic;
+   signal time                : integer;
+
+   signal internal_cmd_id     : integer range 0 to NUM_INTERNAL_CMD_TYPES;
+   signal internal_cmd_ack    : std_logic;
 
    -------------------------------------------------------------------------------------------
-   -- 'simple command' signals to the arbiter
+   -- simple command control signals
    -------------------------------------------------------------------------------------------
-   signal simple_cmd_ack               : std_logic;                                               -- ready signal
-
-   -------------------------------------------------------------------------------------------
-   -- 'internal command' signals to the arbiter
-   -------------------------------------------------------------------------------------------
-   
-   component cmd_translator_internal_cmd_fsm
-   port(
-      rst_i                  : in  std_logic;
-      clk_i                  : in  std_logic;
-
-      sync_number_i          : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
-
-      -- ret_dat_wbs interface
-      tes_bias_toggle_en_i   : in std_logic;
-      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      status_cmd_en_i        : in std_logic;
-
-      card_addr_o            : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      parameter_id_o         : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      data_size_o            : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      data_o                 : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_o             : out std_logic;
-      instr_rdy_o            : out std_logic;
-      cmd_code_o             : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      tes_bias_step_level_o  : out std_logic;
-      ack_i                  : in  std_logic); 
-   end component;
-
-   signal internal_cmd_card_addr       : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-   signal internal_cmd_parameter_id    : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-   signal internal_cmd_data_size       : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-   signal internal_cmd_data            : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  
-   signal internal_cmd_data_clk        : std_logic; 
-   signal internal_cmd_instr_rdy       : std_logic; 
-   signal internal_cmd_code            : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   signal internal_cmd_ack             : std_logic;   
-   
-   -------------------------------------------------------------------------------------------
-   -- arbiter signals
-   -------------------------------------------------------------------------------------------
-   component cmd_translator_arbiter
-   port(
-      rst_i                          : in  std_logic;
-      clk_i                          : in  std_logic;
-      internal_cmd_window_i          : in  integer;
-      ret_dat_frame_seq_num_i        : in  std_logic_vector (                     31 downto 0);
-      ret_dat_frame_sync_num_i       : in  std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);
-      ret_dat_card_addr_i            : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      ret_dat_parameter_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      ret_dat_data_size_i            : in  std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      ret_dat_data_i                 : in  std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      ret_dat_data_clk_i             : in  std_logic; 
-      ret_dat_instr_rdy_i            : in  std_logic; 
-      ret_dat_fsm_working_i          : in  std_logic;
-      ret_dat_cmd_code_i             : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      ret_dat_cmd_stop_i             : in  std_logic;
-      ret_dat_last_frame_i           : in  std_logic;
-      ret_dat_ack_o                  : out std_logic;
-      simple_cmd_card_addr_i         : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      simple_cmd_parameter_id_i      : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      simple_cmd_data_size_i         : in  std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      simple_cmd_data_i              : in  std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      simple_cmd_data_clk_i          : in  std_logic;
-      simple_cmd_instr_rdy_i         : in  std_logic;
-      simple_cmd_code_i              : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      simple_cmd_ack_o               : out std_logic;  
-      internal_cmd_card_addr_i       : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      internal_cmd_parameter_id_i    : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      internal_cmd_data_size_i       : in  std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      internal_cmd_data_i            : in  std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      internal_cmd_data_clk_i        : in  std_logic; 
-      internal_cmd_instr_rdy_i       : in  std_logic; 
-      internal_cmd_code_i            : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      internal_cmd_ack_o             : out std_logic;  
-      sync_number_i                  : in  std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);
-      frame_seq_num_o                : out std_logic_vector (                     31 downto 0);
-      frame_sync_num_o               : out std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);
-      card_addr_o                    : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      parameter_id_o                 : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      data_size_o                    : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      data_o                         : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_o                     : out std_logic; 
-      instr_rdy_o                    : out std_logic; 
-      cmd_code_o                     : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      cmd_stop_o                     : out std_logic; 
-      last_frame_o                   : out std_logic;  
-      internal_cmd_o                 : out std_logic;  
-      tes_bias_step_level_i          : in std_logic;
-      tes_bias_step_level_o          : out std_logic;
-      busy_i                         : in std_logic;
-      ack_i                          : in  std_logic);      
-   end component;
-
-   signal card_addr                    : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-   signal parameter_id                 : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-   signal data_size                    : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-   signal data                         : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);       
-   signal data_clk                     : std_logic;
-   signal instr_rdy                    : std_logic;
-   signal cmd_code                     : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   signal cmd_stop_cmd_queue           : std_logic; 
-   signal last_frame                   : std_logic; 
-   signal internal_cmd                 : std_logic;                                       
-   signal frame_seq_num                : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-   signal frame_sync_num               : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);   
-   signal tes_bias_step_level          : std_logic;
-   signal tes_bias_step_level2         : std_logic;
-   signal tes_bias_step_level_reg      : std_logic;
-   
-   -------------------------------------------------------------------------------------------
-   -- registered arbiter output signals
-   -------------------------------------------------------------------------------------------   
-   signal card_addr_reg                : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-   signal parameter_id_reg             : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-   signal data_size_reg                : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-   signal data_reg                     : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);       
-   signal data_clk_reg                 : std_logic;
-   signal instr_rdy_reg                : std_logic;
-   signal cmd_code_reg                 : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0); 
-   signal cmd_stop_reg                 : std_logic; 
-   signal last_frame_reg               : std_logic; 
-   signal internal_cmd_reg             : std_logic;                                       
-   signal frame_seq_num_reg            : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-   signal frame_sync_num_reg           : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0); 
+   signal simple_cmd_ack : std_logic;
+   signal simple_cmd_req : std_logic;
 
 begin
 
    -------------------------------------------------------------------------------------------
-   -- RETURN DATA command state machine
-   ------------------------------------------------------------------------------------------- 
-   i_return_data_cmd : cmd_translator_ret_dat_fsm
-   port map(
-      -- global inputs
-      rst_i                  => rst_i,
-      clk_i                  => clk_i,
+   -- Combinatorial Logic
+   -------------------------------------------------------------------------------------------
+   -- Acknowledgement signal to fibre_rx
+   ack_o <= f_rx_ret_dat_ack or simple_cmd_ack;
 
-      -- inputs from fibre_rx      
-      card_addr_i            => card_id_i,                   -- specifies which card the command is targetting
-      parameter_id_i         => param_id_i,                  -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_i                 => cmd_data_i,                  -- data will be passed straight thru in 16-bit words
-      data_clk_i             => data_clk_i,                  -- for clocking out the data
-      
-      -- ret_dat_wbs interface
-      start_seq_num_i        => start_seq_num_i,
-      stop_seq_num_i         => stop_seq_num_i, 
-      data_rate_i            => data_rate_i,
-      dv_mode_i              => dv_mode_i,        
-      external_dv_i          => external_dv_i,    
-      external_dv_num_i      => external_dv_num_i,
+   -- Registered outputs to cmd_queue
+   tes_bias_step_level_o  <= not toggle_which_way;
 
-      -- other inputs
-      sync_number_i          => sync_number_i,               -- a counter of synch pulses 
-      internal_cmd_window_o  => ret_dat_internal_cmd_window,
-      cmd_code_i             => cmd_code_i,
-      cmd_rdy_i              => cmd_rdy_i,
-      row_len_i              => row_len_i,
-      num_rows_i             => num_rows_i,
+   frame_seq_num_o <= seq_num;
+   frame_sync_num_o <= sync_num;
 
-      -- outputs to arbiter
-      card_addr_o            => ret_dat_cmd_card_addr,       -- specifies which card the command is targetting
-      parameter_id_o         => ret_dat_cmd_parameter_id,    -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o            => ret_dat_cmd_data_size,       -- num_data_i, indicates number of 16-bit words of data
-      data_o                 => ret_dat_cmd_data,            -- data will be passed straight thru in 16-bit words
-      data_clk_o             => ret_dat_cmd_data_clk,        -- for clocking out the data
-      instr_rdy_o            => ret_dat_cmd_instr_rdy,       -- ='1' when the data is valid, else it's '0'
-      ret_dat_fsm_working_o  => ret_dat_fsm_working,    
-      cmd_code_o             => ret_dat_cmd_code,            -- this is a re-mapping of the cmd_code into a 3-bit number
-      cmd_stop_o             => ret_dat_cmd_stop,                    
-      last_frame_o           => ret_dat_last_frame,
-      frame_seq_num_o        => ret_dat_frame_seq_num,
-      frame_sync_num_o       => ret_dat_frame_sync_num,    
-      
-      -- input from the arbiter
-      ack_i                  => arbiter_ret_dat_ack,         -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
-      ack_o                  => ret_dat_ack
-   ); 
+   -- Size calculation logic for data packets
+   data_size_int          <= NO_CHANNELS * num_rows_i;
+   data_size              <= conv_std_logic_vector(data_size_int,BB_DATA_SIZE_WIDTH);
 
    -------------------------------------------------------------------------------------------
-   -- INTERNAL commands state machine
-   ------------------------------------------------------------------------------------------- 
-   i_internal_cmd : cmd_translator_internal_cmd_fsm
-   port map(
-      -- global inputs
-      rst_i                  => rst_i,
-      clk_i                  => clk_i,
+   -- Registers
+   -------------------------------------------------------------------------------------------
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         timer_rst            <= '1';
+         internal_status_req  <= '0';
+         tes_bias_toggle_req  <= '0';
+         next_toggle_sync     <= (others => '0');
+         toggle_which_way     <= '1';
+         toggle_en_delayed    <= '0';
+         f_rx_data            <= (others=>'0');
+         f_rx_param_id        <= (others=>'0');
+         f_rx_card_addr       <= (others=>'0');
+         f_rx_cmd_code        <= (others=>'0');
+         f_rx_num_data        <= (others=>'0');
+         external_dv_num      <= (others=>'0');
+         sync_num             <= (others=>'0');
+         seq_num              <= (others=>'0');
+         ret_dat_req          <= '0';
+         internal_cmd_id      <=  0;
+         simple_cmd_req       <= '0';
+         ret_dat_in_progress  <= '0';
 
-      sync_number_i          => sync_number_i,
+      elsif(clk_i'event and clk_i = '1') then
 
-      -- ret_dat_wbs interface
-      tes_bias_toggle_en_i   => tes_bias_toggle_en_i,
-      tes_bias_high_i        => tes_bias_high_i,
-      tes_bias_low_i         => tes_bias_low_i,
-      tes_bias_toggle_rate_i => tes_bias_toggle_rate_i,
-      status_cmd_en_i        => status_cmd_en_i,
+         toggle_en_delayed <= tes_bias_toggle_en_i;
+         timer_rst         <= '0';
 
-      -- outputs to the macro-instruction arbiter
-      card_addr_o            => internal_cmd_card_addr,
-      parameter_id_o         => internal_cmd_parameter_id, 
-      data_size_o            => internal_cmd_data_size,
-      data_o                 => internal_cmd_data,
-      data_clk_o             => internal_cmd_data_clk,
-      instr_rdy_o            => internal_cmd_instr_rdy,
-      cmd_code_o             => internal_cmd_code,
-      tes_bias_step_level_o  => tes_bias_step_level,
-      
-      -- input from the macro-instruction arbiter
-      ack_i                  => internal_cmd_ack
-   ); 
+         -- internal_status_ack is asserted for two consecutive cycles to make sure that both timer and internal_status_req are cleared.
+         if(internal_status_ack = '1') then
+            internal_status_req  <= '0';
+            timer_rst            <= '1';
+         elsif(status_cmd_en_i = '1' and time >= INTERNAL_COMMAND_PERIOD) then
+--         elsif(status_cmd_en_i = '1' and time >= 1000) then
+            internal_status_req  <= '1';
+         end if;
+
+         -- Manage the TES toggling control signals
+         if(tes_bias_toggle_en_i = '1' and next_toggle_sync = sync_number_i) then
+            tes_bias_toggle_req <= '1';
+         elsif(tes_bias_toggle_ack = '1') then
+            tes_bias_toggle_req <= '0';
+            toggle_which_way <= not toggle_which_way;
+         end if;
+
+         -- If it's time to toggle, or we detect a rising edge on the toggle enable line we update the TES toggle sync number.
+         if(update_nts = '1' or (toggle_en_delayed = '0' and tes_bias_toggle_en_i = '1')) then
+            next_toggle_sync <= sync_number_i + tes_bias_toggle_rate_i;
+         end if;
+
+         -- Latch important command information
+         if(cmd_rdy_i = '1') then
+            f_rx_param_id  <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
+            f_rx_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+            -- I'm not sure why I need this here
+            f_rx_data      <= cmd_data_i;
+            f_rx_cmd_code  <= cmd_code_i;
+            f_rx_num_data  <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
+         end if;
+
+         -- Track ret_dat commands
+         if(ret_dat_ack = '1') then
+            -- Data run is done
+            ret_dat_req <= '0';
+         elsif(cmd_rdy_i = '1') then
+            if(param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
+               -- Acknowledge the GO/ST command from fibre_rx, to clear it for a new command.
+               if(cmd_code_i = GO) then
+                  ret_dat_req <= '1';
+               else
+                  -- Assume it's a stop command
+                  ret_dat_req <= '0';
+               end if;
+            end if;
+         end if;
+
+         if(ret_dat_done = '1') then
+            ret_dat_in_progress <= '0';
+         elsif(ret_dat_start = '1') then
+            ret_dat_in_progress <= '1';
+         end if;
+
+         -- Track simple commands
+         if(simple_cmd_ack = '1') then
+            -- Simple command is done
+            simple_cmd_req <= '0';
+         elsif(cmd_rdy_i = '1') then
+            if(param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) /= RET_DAT_ADDR) then
+               simple_cmd_req <= '1';
+            end if;
+         end if;
+
+         -- Manage sync number
+         if(load_sync_num = '1') then
+            -- issue ret_dat on the following frame period
+            sync_num <= sync_number_i + 1;
+         elsif(next_sync_num = '1') then
+            sync_num <= sync_num + data_rate_i;
+         end if;
+
+         -- Manage sequence number
+         if(load_seq_num = '1') then
+            -- issue ret_dat on the following frame period
+            seq_num <= start_seq_num_i;
+         elsif(next_seq_num = '1') then
+            seq_num <= seq_num + 1;
+         end if;
+
+         -- internal_cmd_ack is asserted for one cycle after an internal command is complete.
+         if(internal_cmd_ack = '1') then
+            if(internal_cmd_id = 0) then
+               internal_cmd_id <= 1;
+            elsif(internal_cmd_id = 1) then
+               internal_cmd_id <= 2;
+            elsif(internal_cmd_id = 2) then
+               internal_cmd_id <= 3;
+            elsif(internal_cmd_id = 3) then
+               internal_cmd_id <= 0;
+            end if;
+         else
+            internal_cmd_id <= internal_cmd_id;
+         end if;
+
+      end if;
+   end process;
 
    -------------------------------------------------------------------------------------------
-   -- arbiter
-   ------------------------------------------------------------------------------------------- 
-   i_arbiter : cmd_translator_arbiter
+   -- timer for issuing internal status commands
+   -------------------------------------------------------------------------------------------
+   timer : us_timer
    port map(
-      -- global inputs
-      rst_i                          => rst_i,
-      clk_i                          => clk_i,
-      sync_number_i                  => sync_number_i,
-
-      -- i/o with the 'return data' state machine
-      internal_cmd_window_i          => ret_dat_internal_cmd_window,
-      ret_dat_frame_seq_num_i        => ret_dat_frame_seq_num,
-      ret_dat_frame_sync_num_i       => ret_dat_frame_sync_num,
-      ret_dat_card_addr_i            => ret_dat_cmd_card_addr,      -- specifies which card the command is targetting
-      ret_dat_parameter_id_i         => ret_dat_cmd_parameter_id,   -- comes from param_id_i, indicates which device(s) the command is targett_ig
-      ret_dat_data_size_i            => ret_dat_cmd_data_size,      -- num_data_i, indicates number of 16-bit words of data
-      ret_dat_data_i                 => ret_dat_cmd_data ,          -- data will be passed straight thru in 16-bit words
-      ret_dat_data_clk_i             => ret_dat_cmd_data_clk ,      -- for clocking out the data
-      ret_dat_instr_rdy_i            => ret_dat_cmd_instr_rdy,      -- ='1' when the data is valid, else it's '0'
-      ret_dat_fsm_working_i          => ret_dat_fsm_working, 
-      ret_dat_cmd_code_i             => ret_dat_cmd_code,
-      ret_dat_cmd_stop_i             => ret_dat_cmd_stop,                    
-      ret_dat_last_frame_i           => ret_dat_last_frame,
-      ret_dat_ack_o                  => arbiter_ret_dat_ack,       -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-      
-      -- i/o with the fibre_rx block for simple commands
-      simple_cmd_card_addr_i         => card_id_i(BB_CARD_ADDRESS_WIDTH-1 downto 0),        -- specifies which card the command is targetting
-      simple_cmd_parameter_id_i      => param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0),       -- comes from param_id_i, indicates which device(s) the command is targetting
-      simple_cmd_data_size_i         => num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0),       -- data_size_i, indicates number of 16-bit words of data
-      simple_cmd_data_i              => cmd_data_i,       -- data will be passed straight thru in 16-bit words
-      simple_cmd_data_clk_i          => data_clk_i,       -- for clocking out the data
-      simple_cmd_instr_rdy_i         => cmd_rdy_i,        
-      simple_cmd_code_i              => cmd_code_i, 
-      simple_cmd_ack_o               => simple_cmd_ack, 
-      
-      -- i/o with the internal commands state machine
-      internal_cmd_card_addr_i       => internal_cmd_card_addr,
-      internal_cmd_parameter_id_i    => internal_cmd_parameter_id,
-      internal_cmd_data_size_i       => internal_cmd_data_size,
-      internal_cmd_data_i            => internal_cmd_data,
-      internal_cmd_data_clk_i        => internal_cmd_data_clk,
-      internal_cmd_instr_rdy_i       => internal_cmd_instr_rdy,
-      internal_cmd_code_i            => internal_cmd_code,
-      internal_cmd_ack_o             => internal_cmd_ack,
- 
-      -- i/o with the cmd_queue 
-      frame_seq_num_o                => frame_seq_num,
-      frame_sync_num_o               => frame_sync_num,
-      card_addr_o                    => card_addr,                  -- specifies which card the command is targetting
-      parameter_id_o                 => parameter_id,               -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o                    => data_size,                  -- num_data_i, indicates number of 16-bit words of data
-      data_o                         => data,                       -- data will be passed straight thru in 16-bit words
-      data_clk_o                     => data_clk,                   -- for clocking out the data
-      instr_rdy_o                    => instr_rdy,                  -- ='1' when the data is valid, else it's '0'
-      cmd_code_o                     => cmd_code,
-      cmd_stop_o                     => cmd_stop_cmd_queue,                    
-      last_frame_o                   => last_frame,
-      internal_cmd_o                 => internal_cmd,
-      tes_bias_step_level_i          => tes_bias_step_level,
-      tes_bias_step_level_o          => tes_bias_step_level2,
-      busy_i                         => busy_i,
-      ack_i                          => ack_i                       -- acknowledgment from the cmd_queue that it is ready and has grabbed the data
-   ); 
+      clk           => clk_i,
+      timer_reset_i => timer_rst,
+      timer_count_o => time);
 
    -------------------------------------------------------------------------------------------
-   -- register arbiter outputs
-   ------------------------------------------------------------------------------------------- 
-   process(clk_i, rst_i)
+   -- sequencer for ret_dat state machine
+   -------------------------------------------------------------------------------------------
+   process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         card_addr_reg               <= (others => '0');
-         parameter_id_reg            <= (others => '0');
-         data_size_reg               <= (others => '0');
-         data_reg                    <= (others => '0');
-         data_clk_reg                <= '0';
-         instr_rdy_reg               <= '0';
-         cmd_code_reg                <= (others => '0');
-         cmd_stop_reg                <= '0';
-         last_frame_reg              <= '0';
-         internal_cmd_reg            <= '0'; 
-         frame_seq_num_reg           <= (others => '0');   
-         frame_sync_num_reg          <= (others => '0'); 
-         tes_bias_step_level_reg     <= '0';
+         current_state      <= IDLE;
       elsif clk_i'event and clk_i = '1' then
-         card_addr_reg               <= card_addr;
-         parameter_id_reg            <= parameter_id;
-         data_size_reg               <= data_size;
-         data_reg                    <= data;
-         data_clk_reg                <= data_clk;
-         instr_rdy_reg               <= instr_rdy;
-         cmd_code_reg                <= cmd_code;
-         cmd_stop_reg                <= cmd_stop_cmd_queue;
-         last_frame_reg              <= last_frame;
-         internal_cmd_reg            <= internal_cmd;
-         frame_seq_num_reg           <= frame_seq_num;
-         frame_sync_num_reg          <= frame_sync_num;
-         tes_bias_step_level_reg     <= tes_bias_step_level2;
+         current_state      <= next_state;
       end if;
-    end process;
-
-   -- outputs to cmd_queue
-   card_addr_o                       <= card_addr_reg;      
-   parameter_id_o                    <= parameter_id_reg;   
-   data_size_o                       <= data_size_reg;      
-   data_o                            <= data_reg;           
-   data_clk_o                        <= data_clk_reg;      
-   instr_rdy_o                       <= instr_rdy_reg;
-   cmd_code_o                        <= cmd_code_reg;
-   cmd_stop_o                        <= cmd_stop_reg;
-   last_frame_o                      <= last_frame_reg;
-   internal_cmd_o                    <= internal_cmd_reg;
-   frame_seq_num_o                   <= frame_seq_num_reg;
-   frame_sync_num_o                  <= frame_sync_num_reg;
-   tes_bias_step_level_o             <= tes_bias_step_level_reg;
+   end process;
 
    -------------------------------------------------------------------------------------------
-   -- assign outputs
-   ------------------------------------------------------------------------------------------- 
-   ret_dat_ack_o                     <= '0';
-   
-   -- outputs to the reply_translator
-   -- this should be from the arbiter?
---   reply_cmd_rcvd_ok_o               <= cmd_rdy_i;
---   reply_cmd_rcvd_er_o               <= cksum_err_i;
---   reply_cmd_code_o                  <= cmd_code_i;
---   reply_param_id_o                  <= param_id_i;
---   reply_card_id_o                   <= card_id_i;   
- 
-   -- acknowledge signal back to fibre_rx indicating receipt of command
-   ack_o                             <= ret_dat_ack or simple_cmd_ack;
+   -- State machine for issuing ret_dat macro-ops.
+   -- Next State logic
+   -------------------------------------------------------------------------------------------
+   process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
+      tes_bias_toggle_en_i, internal_status_req, internal_cmd_id, tes_bias_toggle_req,
+      simple_cmd_req, rdy_for_data_i)
+   begin
+      next_state    <= current_state;
+      ret_dat_start <= '0';
+      ret_dat_done  <= '0';
 
-end rtl; 
+      case current_state is
+         when IDLE =>
+            -- If there is a data command
+            if(ret_dat_req = '1') then
+               ret_dat_start <= '1';
+               if(dv_mode_i = DV_INTERNAL) then
+                  next_state <= WAIT_FOR_ACK;
+               -- Issue the first ret_dat command on the next DV pulse
+               elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+                  next_state <= WAIT_FOR_ACK;
+               end if;
+            -- If there is a simple command
+            elsif(simple_cmd_req = '1') then
+               next_state <= SIMPLE;
+            -- If it is time to toggle the bias
+            elsif(tes_bias_toggle_en_i = '1' and tes_bias_toggle_req = '1') then
+               next_state <= TES_BIAS;
+            -- If toggling is disabled and it is time to issue an internal command
+            elsif(tes_bias_toggle_en_i = '0' and internal_status_req = '1') then
+               if(internal_cmd_id = FPGA_TEMPERATURE) then
+                  next_state <= FPGA_TEMP;
+               elsif(internal_cmd_id = CARD_TEMPERATURE) then
+                  next_state <= CARD_TEMP;
+               elsif(internal_cmd_id = PSUC_STATUS) then
+                  next_state <= PSC_STATUS;
+               elsif(internal_cmd_id = BOX_TEMPERATURE) then
+                  next_state <= BOX_TEMP;
+               end if;
+            end if;
+
+         when WAIT_FOR_ACK =>
+            -- If there are more data frames to go:
+            if(ack_i = '1' and seq_num /= stop_seq_num_i) then
+               -- Before moving on to UPDATE_FOR_NEXT, let's check for pending internal commands
+               if(tes_bias_toggle_en_i = '1' and tes_bias_toggle_req = '1') then
+                  next_state <= TES_BIAS;
+               -- If toggling is enabled, internal commands are disabled to preserve the timing of the toggle commands
+               elsif(tes_bias_toggle_en_i = '0' and internal_status_req = '1') then
+                  if(internal_cmd_id = FPGA_TEMPERATURE) then
+                     next_state <= FPGA_TEMP;
+                  elsif(internal_cmd_id = CARD_TEMPERATURE) then
+                     next_state <= CARD_TEMP;
+                  elsif(internal_cmd_id = PSUC_STATUS) then
+                     next_state <= PSC_STATUS;
+                  elsif(internal_cmd_id = BOX_TEMPERATURE) then
+                     next_state <= BOX_TEMP;
+                  end if;
+               -- If there are no pending internal commands, then we move on
+               else
+                  next_state <= UPDATE_FOR_NEXT;
+               end if;
+            -- There are no more data frames to be returned, so we return to IDLE
+            elsif(ack_i = '1' and seq_num = stop_seq_num_i) then
+               next_state <= IDLE;
+               ret_dat_done <= '1';
+            end if;
+
+         when UPDATE_FOR_NEXT =>
+            -- We stay in this state for one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
+            if(dv_mode_i = DV_INTERNAL) then
+               if(ret_dat_req = '1') then
+                  next_state <= WAIT_FOR_ACK;
+               else
+                  next_state <= STOP;
+               end if;
+            elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+               if(ret_dat_req = '1') then
+                  next_state <= WAIT_FOR_ACK;
+               else
+                  next_state <= STOP;
+               end if;
+            end if;
+
+         when STOP =>
+            if(ack_i = '1') then
+               next_state <= IDLE;
+            end if;
+
+         when SIMPLE =>
+            if(ack_i = '1') then
+               next_state <= IDLE;
+            end if;
+
+         when TES_BIAS =>
+            if(rdy_for_data_i = '1') then
+               next_state <= LATCH_TES_BIAS_DATA;
+            end if;
+
+         when LATCH_TES_BIAS_DATA =>
+            if(ack_i = '1') then
+               -- Directly to IDLE, no cleanup needed
+               if(ret_dat_req = '1') then
+                  next_state <= UPDATE_FOR_NEXT;
+               else
+                  next_state <= IDLE;
+               end if;
+            end if;
+
+         when FPGA_TEMP =>
+            if(ack_i = '1') then
+               next_state <= DONE;
+            end if;
+
+         when CARD_TEMP =>
+            if(ack_i = '1') then
+               next_state <= DONE;
+            end if;
+
+         when PSC_STATUS =>
+            if(ack_i = '1') then
+               next_state <= DONE;
+            end if;
+
+         when BOX_TEMP =>
+            if(ack_i = '1') then
+               next_state <= DONE;
+            end if;
+
+         when DONE =>
+            -- The DONE state is used to advance the index for which internal command to execute next
+            if(ret_dat_req = '1') then
+               next_state <= UPDATE_FOR_NEXT;
+            else
+               next_state <= IDLE;
+            end if;
+
+         when others =>
+            next_state <= IDLE;
+      end case;
+   end process;
+
+   -------------------------------------------------------------------------------------------
+   -- Output logic:  signals that go to cmd_queue
+   -------------------------------------------------------------------------------------------
+   process(current_state, f_rx_card_addr, f_rx_param_id, data_size, f_rx_data, cmd_data_i,
+      tes_bias_low_i, tes_bias_high_i, toggle_which_way, tes_bias_toggle_req, internal_status_req,
+      f_rx_cmd_code, f_rx_num_data, data_clk_i)
+   begin
+      -- Default assignments for signals that are common for all commands
+      card_addr_o      <= (others => '0');
+      param_id_o       <= (others => '0');
+      cmd_code_o       <= (others => '0');
+      data_size_o      <= (others => '0');
+      data_clk_o       <= '0';
+      internal_cmd_o   <= '0';
+      data_o           <= (others => '0');
+
+      case current_state is
+         when UPDATE_FOR_NEXT | WAIT_FOR_ACK =>
+            card_addr_o          <= f_rx_card_addr;
+            param_id_o           <= f_rx_param_id;
+            cmd_code_o           <= DATA;
+            data_size_o          <= data_size;
+            data_clk_o           <= '0';
+            internal_cmd_o       <= '0';
+            data_o               <= f_rx_data;
+
+         when SIMPLE =>
+            card_addr_o          <= f_rx_card_addr;
+            param_id_o           <= f_rx_param_id;
+            cmd_code_o           <= f_rx_cmd_code;
+            data_size_o          <= f_rx_num_data;
+            data_clk_o           <= data_clk_i;
+            internal_cmd_o       <= '0';
+            data_o               <= cmd_data_i;
+
+         when TES_BIAS =>
+            if(tes_bias_toggle_req = '1') then
+               card_addr_o       <= BIAS_CARD_2;
+               param_id_o        <= BIAS_ADDR;
+               cmd_code_o        <= WRITE_BLOCK;
+               data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
+               data_clk_o        <= '0';
+               internal_cmd_o    <= '1';
+
+               if(toggle_which_way = '0') then
+                  data_o         <= tes_bias_low_i;
+               else
+                  data_o         <= tes_bias_high_i;
+               end if;
+            end if;
+
+         when LATCH_TES_BIAS_DATA =>
+            if(tes_bias_toggle_req = '1') then
+               card_addr_o       <= BIAS_CARD_2;
+               param_id_o        <= BIAS_ADDR;
+               cmd_code_o        <= WRITE_BLOCK;
+               data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
+               -- cmd_queue is level-sensitive, not edge-sensitive.
+               data_clk_o        <= '1';
+               internal_cmd_o    <= '1';
+
+               if(toggle_which_way = '0') then
+                  data_o         <= tes_bias_low_i;
+               else
+                  data_o         <= tes_bias_high_i;
+               end if;
+            end if;
+
+         when FPGA_TEMP =>
+            if(internal_status_req = '1') then
+               card_addr_o       <= ALL_FPGA_CARDS;
+               param_id_o        <= FPGA_TEMP_ADDR;
+               cmd_code_o        <= READ_BLOCK;
+               data_size_o       <= FPGA_TEMP_DATA_SIZE;
+               data_clk_o        <= '0';
+               internal_cmd_o    <= '1';
+               data_o            <= (others => '0');
+            end if;
+
+         when CARD_TEMP =>
+            if(internal_status_req = '1') then
+               card_addr_o       <= ALL_FPGA_CARDS;
+               param_id_o        <= CARD_TEMP_ADDR;
+               cmd_code_o        <= READ_BLOCK;
+               data_size_o       <= CARD_TEMP_DATA_SIZE;
+               data_clk_o        <= '0';
+               internal_cmd_o    <= '1';
+               data_o            <= (others => '0');
+            end if;
+
+         when PSC_STATUS =>
+            if(internal_status_req = '1') then
+               card_addr_o       <= POWER_SUPPLY_CARD;
+               param_id_o        <= PSC_STATUS_ADDR;
+               cmd_code_o        <= READ_BLOCK;
+               data_size_o       <= PSC_STATUS_DATA_SIZE; -- 9 words
+               data_clk_o        <= '0';
+               internal_cmd_o    <= '1';
+               data_o            <= (others => '0');
+            end if;
+
+         when BOX_TEMP =>
+            if(internal_status_req = '1') then
+               card_addr_o       <= CLOCK_CARD;
+               param_id_o        <= BOX_TEMP_ADDR;
+               cmd_code_o        <= READ_BLOCK;
+               data_size_o       <= BOX_TEMP_DATA_SIZE;
+               data_clk_o        <= '0';
+               internal_cmd_o    <= '1';
+               data_o            <= (others => '0');
+            end if;
+
+         when others =>
+      end case;
+   end process;
+
+   -------------------------------------------------------------------------------------------
+   -- Control logic:  control signals used internally for book-keeping
+   -------------------------------------------------------------------------------------------
+   process(current_state, ret_dat_req, stop_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
+      tes_bias_toggle_req, cmd_rdy_i, tes_bias_toggle_en_i)
+   begin
+      -- default assignments
+      load_sync_num        <= '0';
+      next_sync_num        <= '0';
+      load_seq_num         <= '0';
+      next_seq_num         <= '0';
+
+      instr_rdy_o          <= '0';
+      ret_dat_ack          <= '0';
+
+      last_frame_o         <= '0';
+      cmd_stop_o           <= '0';
+
+      tes_bias_toggle_ack  <= '0';
+      internal_status_ack  <= '0';
+      update_nts           <= '0';
+
+      internal_cmd_ack     <= '0';
+      simple_cmd_ack       <= '0';
+      f_rx_ret_dat_ack     <= '0';
+
+      case current_state is
+         when IDLE =>
+            -- ret_dat_req may be asserted for some time before the cmd_queue is ready for the first ret_dat command
+            -- Thus slide the sync number until the cmd_queue accepts the ret_dat command
+            if(ret_dat_req = '1') then
+               load_sync_num <= '1';
+               load_seq_num  <= '1';
+
+               -- Ack fibre_rx one cycle before entering the data process.
+               -- This frees up fibre_rx for internal commands.
+               if(dv_mode_i = DV_INTERNAL) then
+                  f_rx_ret_dat_ack <= '1';
+               elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+                  f_rx_ret_dat_ack <= '1';
+               end if;
+
+            -- If we aren't waiting to send the cmd_queue a ret_dat command, and if tes_bias_toggle_req is asserted
+            -- then update the next toggle sync number.
+            elsif(tes_bias_toggle_req = '1') then
+               update_nts <= '1';
+            end if;
+
+         when WAIT_FOR_ACK =>
+            instr_rdy_o <= '1';
+
+            if(seq_num = stop_seq_num_i) then
+               last_frame_o <= '1';
+            end if;
+
+            if(ack_i = '1' and seq_num /= stop_seq_num_i) then
+               if(tes_bias_toggle_en_i = '1' and tes_bias_toggle_req = '1') then
+                  update_nts <= '1';
+               end if;
+            elsif(ack_i = '1' and seq_num = stop_seq_num_i) then
+               -- Ack the data run.
+               ret_dat_ack <= '1';
+               -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
+               instr_rdy_o <= '0';
+            end if;
+
+         when UPDATE_FOR_NEXT =>
+            -- Either of these conditions are only met on the last clock period in this state.
+            if(dv_mode_i = DV_INTERNAL) then
+               next_sync_num <= '1';
+               next_seq_num  <= '1';
+            elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+               -- Since the timing of the DV pulse dictates the next data packet,
+               -- we issue a ret_dat on the frame period immediately following a DV packet/pulse.
+               -- Until the DV packet/pulse arrives, we slide the sync number
+               load_sync_num <= '1';
+               next_seq_num  <= '1';
+            end if;
+
+         when STOP =>
+            instr_rdy_o  <= '1';
+            last_frame_o <= '1';
+            cmd_stop_o   <= '1';
+            if(ack_i = '1') then
+               -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to stop command
+               -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
+               instr_rdy_o <= '0';
+            end if;
+
+         when SIMPLE =>
+            instr_rdy_o <= cmd_rdy_i;
+
+            if(ack_i = '1') then
+               simple_cmd_ack <= '1';
+            end if;
+
+         when LATCH_TES_BIAS_DATA =>
+            instr_rdy_o       <= '1';
+
+            if(ack_i = '1') then
+               tes_bias_toggle_ack <= '1';
+            end if;
+
+         when TES_BIAS =>
+            instr_rdy_o <= '1';
+
+         when FPGA_TEMP =>
+            instr_rdy_o <= '1';
+            if(ack_i = '1') then
+               internal_status_ack <= '1';
+            end if;
+
+         when CARD_TEMP =>
+            instr_rdy_o <= '1';
+            if(ack_i = '1') then
+               internal_status_ack <= '1';
+            end if;
+
+         when PSC_STATUS =>
+            instr_rdy_o <= '1';
+            if(ack_i = '1') then
+               internal_status_ack <= '1';
+            end if;
+
+         when BOX_TEMP =>
+            instr_rdy_o <= '1';
+            if(ack_i = '1') then
+               internal_status_ack <= '1';
+            end if;
+
+         when DONE =>
+            internal_status_ack <= '1';
+            internal_cmd_ack <= '1';
+
+         when others =>
+      end case;
+   end process;
+
+end rtl;
