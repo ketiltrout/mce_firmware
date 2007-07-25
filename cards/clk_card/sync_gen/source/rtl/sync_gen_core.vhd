@@ -28,8 +28,8 @@
 -- This implements the sync pulse generation on the Clock Card.
 -- This block outputs a sync pulse one clock cycle wide whenever clk_ctr wraps to zero
 -- The clk_ctr wraps to zero after counting to the last clock cycle in a frame:  END_OF_FRAME
--- If the output of sync pulse is to be regulated by the DV pulse, then: 
--- 1- assert dv_en_i high, and 
+-- If the output of sync pulse is to be regulated by the DV pulse, then:
+-- 1- assert dv_en_i high, and
 -- 2- connect the DV pulse input to dv_i
 --
 -- As long as a DV pulse is detected once per frame, the sync_gen will generate a sync pulse
@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.14  2006/05/25 05:41:26  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.13  2006/05/24 07:07:29  bburger
 -- Bryce:  Intermediate committal
 --
@@ -129,7 +132,6 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
-use work.sync_gen_core_pack.all;
 
 entity sync_gen_core is
    port(
@@ -138,7 +140,7 @@ entity sync_gen_core is
       sync_mode_i          : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       row_len_i            : in integer;
       num_rows_i           : in integer;
-      
+
       -- Inputs/Outputs
       external_sync_i      : in std_logic;
       encoded_sync_o       : out std_logic;
@@ -151,16 +153,16 @@ end sync_gen_core;
 
 architecture beh of sync_gen_core is
 
-   type states is (SYNC_LOW, SYNC_HIGH, DV_RECEIVED, RESET, SEND_BIT0, SEND_BIT1, SEND_BIT2, SEND_BIT3);   
+   type states is (SYNC_LOW, SYNC_HIGH, DV_RECEIVED, RESET, SEND_BIT0, SEND_BIT1, SEND_BIT2, SEND_BIT3);
    signal current_state, next_state : states;
-   
-   signal new_frame_period : std_logic;   
+
+   signal new_frame_period : std_logic;
    signal clk_count        : integer;
    signal clk_count_new    : integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal frame_end        : integer;
 
-begin      
+begin
 
    new_frame_period <= '1' when clk_count = frame_end else '0';
    frame_end <= (num_rows_i*row_len_i)-1;
@@ -173,7 +175,7 @@ begin
          clk_count <= clk_count_new;
       end if;
    end process clk_cntr;
-  
+
    sync_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -186,7 +188,7 @@ begin
    sync_state_NS: process(current_state, new_frame_period, sync_mode_i, external_sync_i)
    begin
       next_state <= current_state;
-      
+
       case current_state is
          when SYNC_LOW =>
             if(sync_mode_i = SYNC_INTERNAL) then
@@ -197,46 +199,46 @@ begin
                if(external_sync_i = '1') then
                   next_state <= SEND_BIT0;
                end if;
-            end if;         
-         
+            end if;
+
          when SEND_BIT0 =>
             next_state <= SEND_BIT1;
-         
+
          when SEND_BIT1 =>
             next_state <= SEND_BIT2;
-         
+
          when SEND_BIT2 =>
             next_state <= SEND_BIT3;
-         
+
          when SEND_BIT3 =>
             next_state <= SYNC_HIGH;
-         
+
          when others =>
             next_state <= SYNC_LOW;
       end case;
-   end process;    
-   
+   end process;
+
    sync_state_out: process(current_state)
    begin
       encoded_sync_o <= '0';
-      
+
       case current_state is
          when SYNC_LOW =>
-         
+
          when SEND_BIT0 =>
             encoded_sync_o <= SYNC_PULSE_BIT0;
-         
+
          when SEND_BIT1 =>
             encoded_sync_o <= SYNC_PULSE_BIT1;
-         
+
          when SEND_BIT2 =>
             encoded_sync_o <= SYNC_PULSE_BIT2;
-         
+
          when SEND_BIT3 =>
             encoded_sync_o <= SYNC_PULSE_BIT3;
-            
+
          when others =>
       end case;
    end process;
-   
+
 end beh;

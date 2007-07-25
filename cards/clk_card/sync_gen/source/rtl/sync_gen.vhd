@@ -28,8 +28,8 @@
 -- This implements the sync pulse generation on the Clock Card.
 -- This block outputs a sync pulse one clock cycle wide whenever clk_ctr wraps to zero
 -- The clk_ctr wraps to zero after counting to the last clock cycle in a frame:  END_OF_FRAME
--- If the output of sync pulse is to be regulated by the DV pulse, then: 
--- 1- assert dv_en_i high, and 
+-- If the output of sync pulse is to be regulated by the DV pulse, then:
+-- 1- assert dv_en_i high, and
 -- 2- connect the DV pulse input to dv_i
 --
 -- As long as a DV pulse is detected once per frame, the sync_gen will generate a sync pulse
@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.16  2006/03/17 17:06:18  bburger
+-- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
+--
 -- Revision 1.15  2006/03/09 00:41:02  bburger
 -- Bryce:  Added the following signal interfaces:  dv_mode_o, sync_mode_o, encoded_sync_o, external_sync_i
 --
@@ -106,8 +109,6 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
-use work.sync_gen_wbs_pack.all;
-use work.sync_gen_core_pack.all;
 
 entity sync_gen is
    port(
@@ -137,9 +138,9 @@ end sync_gen;
 
 architecture beh of sync_gen is
 
-   type states is (SYNC_LOW, SYNC_HIGH, DV_RECEIVED, RESET);   
+   type states is (SYNC_LOW, SYNC_HIGH, DV_RECEIVED, RESET);
    signal current_state, next_state : states;
-   
+
    signal clk_count        : integer;
    signal sync_count       : integer;
    signal dv_mode          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
@@ -154,7 +155,7 @@ architecture beh of sync_gen is
       sync_mode_i          : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       row_len_i            : in integer;
       num_rows_i           : in integer;
-      
+
       -- Inputs/Outputs
       external_sync_i      : in std_logic;
       encoded_sync_o       : out std_logic;
@@ -165,7 +166,7 @@ architecture beh of sync_gen is
    );
    end component;
 
-   component sync_gen_wbs        
+   component sync_gen_wbs
    port(
       -- sync_gen interface:
       dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
@@ -185,37 +186,37 @@ architecture beh of sync_gen is
 
       -- global interface
       clk_i               : in std_logic;
-      rst_i               : in std_logic 
-   );     
+      rst_i               : in std_logic
+   );
    end component;
 
-begin      
-   
+begin
+
    dv_mode_o <= dv_mode;
    sync_mode_o <= sync_mode;
    row_len_o <= row_len;
-   num_rows_o <= num_rows;   
-   
-   wbi: sync_gen_wbs        
+   num_rows_o <= num_rows;
+
+   wbi: sync_gen_wbs
       port map(
          dv_mode_o   => dv_mode,
          sync_mode_o => sync_mode,
          row_len_o   => row_len,
          num_rows_o  => num_rows,
 
-         dat_i       => dat_i, 
+         dat_i       => dat_i,
          addr_i      => addr_i,
-         tga_i       => tga_i, 
-         we_i        => we_i,  
-         stb_i       => stb_i, 
-         cyc_i       => cyc_i, 
-         dat_o       => dat_o, 
-         ack_o       => ack_o, 
+         tga_i       => tga_i,
+         we_i        => we_i,
+         stb_i       => stb_i,
+         cyc_i       => cyc_i,
+         dat_o       => dat_o,
+         ack_o       => ack_o,
 
-         clk_i       => clk_i,           
-         rst_i       => rst_i           
+         clk_i       => clk_i,
+         rst_i       => rst_i
       );
-   
+
    sgc: sync_gen_core
       port map(
          -- Wishbone Interface
@@ -229,8 +230,8 @@ begin
          encoded_sync_o       => encoded_sync_o,
 
          -- Global Signals
-         clk_i                => clk_i,    
-         rst_i                => rst_i     
-      );            
-      
+         clk_i                => clk_i,
+         rst_i                => rst_i
+      );
+
 end beh;
