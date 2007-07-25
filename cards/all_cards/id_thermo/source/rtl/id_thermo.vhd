@@ -29,8 +29,11 @@
 -- Implements the controller for the silicon id/temperature chip
 --
 -- Revision history:
--- 
+--
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.8  2006/10/19 21:55:05  bburger
+-- Bryce:  alterations made for the sake of BOX_ID which has a three-wire interface compared to CARD_ID's one-wire interface
+--
 -- Revision 1.7  2006/09/28 00:30:59  bburger
 -- Bryce:  Reduced the resolution of data_o from 0.5 degrees C to 1 degree C to match the output of other slaves.
 --
@@ -67,15 +70,12 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 entity id_thermo is
-generic(
-   tristate    : string := "INTERNAL";  -- valid values are "INTERNAL" and "EXTERNAL".
-   card_or_box : string := "CARD");     -- valid values are "CARD" and "BOX".
-port( 
+port(
    clk_i : in std_logic;
    rst_i : in std_logic;
-   
+
    -- Wishbone signals
-   dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+   dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
    addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
    tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
    we_i    : in std_logic;
@@ -84,67 +84,67 @@ port(
    err_o   : out std_logic;
    dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
    ack_o   : out std_logic;
-      
-   -- silicon id/temperature chip signals
-   data_io : inout std_logic;
-   data_o  : out std_logic;
-   wren_o  : out std_logic);
+
+   data_io : inout std_logic
+);
 end id_thermo;
 
 architecture behav of id_thermo is
 
--- one-wire master interface:
-signal slave_cmd     : std_logic_vector(7 downto 0);
-signal slave_data    : std_logic_vector(7 downto 0);
-signal slave_init    : std_logic;
-signal slave_read    : std_logic;
-signal slave_write   : std_logic;
-signal slave_done    : std_logic;
-signal slave_ready   : std_logic;
-signal slave_ndetect : std_logic;
+   -- one-wire master interface:
+   signal slave_cmd     : std_logic_vector(7 downto 0);
+   signal slave_data    : std_logic_vector(7 downto 0);
+   signal slave_init    : std_logic;
+   signal slave_read    : std_logic;
+   signal slave_write   : std_logic;
+   signal slave_done    : std_logic;
+   signal slave_ready   : std_logic;
+   signal slave_ndetect : std_logic;
 
--- byte counter:
-signal byte_count_ena : std_logic;
-signal byte_count_clr : std_logic;
-signal byte_count     : integer range 0 to 10;
+   -- byte counter:
+   signal byte_count_ena : std_logic;
+   signal byte_count_clr : std_logic;
+   signal byte_count     : integer range 0 to 10;
 
--- controller FSM states:
-type states is (CTRL_IDLE, 
-                PHASE1_INIT, PHASE1_READ_ROM, GET_ID,
-                PHASE2_INIT, PHASE2_SKIP_ROM, PHASE2_CONVERT_T, GET_STATUS, 
-                PHASE3_INIT, PHASE3_SKIP_ROM, PHASE3_READ_SCRATCH, GET_TEMP,
-                SET_VALID_FLAG);
-signal ctrl_ps : states;
-signal ctrl_ns : states;
+   -- controller FSM states:
+   type states is (CTRL_IDLE,
+                   PHASE1_INIT, PHASE1_READ_ROM, GET_ID,
+                   PHASE2_INIT, PHASE2_SKIP_ROM, PHASE2_CONVERT_T, GET_STATUS,
+                   PHASE3_INIT, PHASE3_SKIP_ROM, PHASE3_READ_SCRATCH, GET_TEMP,
+                   SET_VALID_FLAG);
+   signal ctrl_ps : states;
+   signal ctrl_ns : states;
 
--- wishbone FSM states:
-type wb_states is (WB_IDLE, SEND_ID, SEND_TEMP, WB_ERROR);  -- only sending back 32-bits of 48-bit silicon id code (can be modified later)
-signal wb_ps : wb_states;
-signal wb_ns : wb_states;
+   -- wishbone FSM states:
+   type wb_states is (WB_IDLE, SEND_ID, SEND_TEMP, WB_ERROR);  -- only sending back 32-bits of 48-bit silicon id code (can be modified later)
+   signal wb_ps : wb_states;
+   signal wb_ns : wb_states;
 
-signal read_id_cmd   : std_logic;
-signal read_temp_cmd : std_logic;
-signal write_cmd     : std_logic;
+   signal read_id_cmd   : std_logic;
+   signal read_temp_cmd : std_logic;
+   signal write_cmd     : std_logic;
 
--- data registers:
-signal id         : std_logic_vector(47 downto 0);
-signal thermo     : std_logic_vector(15 downto 0);
-signal valid      : std_logic;
+   -- data registers:
+   signal id         : std_logic_vector(47 downto 0);
+   signal thermo     : std_logic_vector(15 downto 0);
 
-signal id0_ld     : std_logic;
-signal id1_ld     : std_logic;
-signal id2_ld     : std_logic;
-signal id3_ld     : std_logic;
-signal id4_ld     : std_logic;
-signal id5_ld     : std_logic;
-signal thermo0_ld : std_logic;
-signal thermo1_ld : std_logic;
-signal valid_ld   : std_logic;
+   signal id0_ld     : std_logic;
+   signal id1_ld     : std_logic;
+   signal id2_ld     : std_logic;
+   signal id3_ld     : std_logic;
+   signal id4_ld     : std_logic;
+   signal id5_ld     : std_logic;
+   signal thermo0_ld : std_logic;
+   signal thermo1_ld : std_logic;
+
+   signal stale      : std_logic;
+   signal stale_set  : std_logic;
+   signal stale_rst  : std_logic;
 
 begin
 
    master : one_wire_master
-   generic map(tristate => tristate)
+   generic map(tristate => "INTERNAL")
    port map(clk_i         => clk_i,
             rst_i         => rst_i,
             master_data_i => slave_cmd,
@@ -156,8 +156,8 @@ begin
             ready_o       => slave_ready,
             ndetect_o     => slave_ndetect,
             slave_data_io => data_io,
-            slave_data_o  => data_o,
-            slave_wren_o  => wren_o);
+            slave_data_o  => open,
+            slave_wren_o  => open);
 
    byte_counter : counter
    generic map(MAX => 9)
@@ -223,7 +223,7 @@ begin
 
             reg_i => slave_data,
             reg_o => id(47 downto 40));
-   
+
 
    -- Temperature registers (2 x 1 byte registers)
 
@@ -246,22 +246,22 @@ begin
             reg_o => thermo(15 downto 8));
 
 
-   -- Valid flag
-
-   valid_flag: process(clk_i, rst_i)
+   -- Stale flag
+   stale_flag: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         valid <= '0';
+         stale <= '0';
       elsif(clk_i'event and clk_i = '1') then
-         if(valid_ld = '1') then
-            valid <= '1';
+         if(stale_set = '1') then
+            stale <= '1';
+         elsif(stale_rst = '1') then
+            stale <= '0';
          end if;
       end if;
-   end process valid_flag;
+   end process stale_flag;
 
 
    -- Controller FSM
-
    control_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -325,7 +325,7 @@ begin
                                      else
                                         ctrl_ns <= GET_STATUS;
                                      end if;
- 
+
          -- Phase 3: Retrieve Temperature -----------------------------------------------
 
          when PHASE3_INIT =>         if(slave_done = '1' and slave_ndetect = '1') then
@@ -380,16 +380,16 @@ begin
       id5_ld     <= '0';
       thermo0_ld <= '0';
       thermo1_ld <= '0';
-      valid_ld   <= '0';
+      stale_rst   <= '0';
 
       case ctrl_ps is
-         when PHASE1_INIT | 
-              PHASE2_INIT | 
+         when PHASE1_INIT |
+              PHASE2_INIT |
               PHASE3_INIT =>         slave_init     <= '1';
                                      byte_count_ena <= '1';
                                      byte_count_clr <= '1';
 
-         when PHASE2_SKIP_ROM | 
+         when PHASE2_SKIP_ROM |
               PHASE3_SKIP_ROM =>     slave_write <= '1';
                                      slave_cmd   <= "11001100";
 
@@ -426,7 +426,7 @@ begin
                                         end case;
                                      end if;
 
-         when SET_VALID_FLAG =>      valid_ld <= '1';
+         when SET_VALID_FLAG =>      stale_rst <= '1';
 
          when others =>              null;
       end case;
@@ -434,7 +434,7 @@ begin
 
 
    -- Wishbone FSM
-   
+
    wishbone_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -444,66 +444,65 @@ begin
       end if;
    end process wishbone_FF;
 
-   wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd, write_cmd, valid)
+   wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd, write_cmd)
    begin
       case wb_ps is
-         when WB_IDLE =>   if(read_id_cmd = '1') then
-                              wb_ns <= SEND_ID;
-                           elsif(read_temp_cmd = '1') then
-                              wb_ns <= SEND_TEMP;
-                           elsif(write_cmd = '1') then
-                              wb_ns <= WB_ERROR;
-                           else
-                              wb_ns <= WB_IDLE;
-                           end if;
-         
-         when SEND_ID =>   if(valid = '1') then
-                              wb_ns <= WB_IDLE;
-                           else
-                              wb_ns <= SEND_ID;
-                           end if;
-                           
-         when SEND_TEMP => if(valid = '1') then
-                              wb_ns <= WB_IDLE;
-                           else
-                              wb_ns <= SEND_TEMP;
-                           end if;
-         
-         when WB_ERROR  => wb_ns <= WB_IDLE;
-                                       
-         when others =>    wb_ns <= WB_IDLE;
+         when WB_IDLE =>
+            if(read_id_cmd = '1') then
+               wb_ns <= SEND_ID;
+            elsif(read_temp_cmd = '1') then
+               wb_ns <= SEND_TEMP;
+            elsif(write_cmd = '1') then
+               wb_ns <= WB_ERROR;
+            else
+               wb_ns <= WB_IDLE;
+            end if;
+
+         when SEND_ID =>
+            wb_ns <= WB_IDLE;
+
+         when SEND_TEMP =>
+            wb_ns <= WB_IDLE;
+
+         when WB_ERROR =>
+            wb_ns <= WB_IDLE;
+
+         when others =>
+            wb_ns <= WB_IDLE;
       end case;
    end process wishbone_NS;
-   
-   read_id_cmd   <= '1' when (((card_or_box = "CARD" and addr_i = CARD_ID_ADDR) or (card_or_box = "BOX" and addr_i = BOX_ID_ADDR)) and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   read_temp_cmd <= '1' when (((card_or_box = "CARD" and addr_i = CARD_TEMP_ADDR) or (card_or_box = "BOX" and addr_i = BOX_TEMP_ADDR)) and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   write_cmd     <= '1' when ((addr_i = CARD_TEMP_ADDR or addr_i = CARD_ID_ADDR or addr_i = BOX_ID_ADDR or addr_i = BOX_TEMP_ADDR) and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
-   
-   wishbone_out: process(wb_ps, id, thermo, valid)
+
+   read_id_cmd   <= '1' when (addr_i = CARD_ID_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   read_temp_cmd <= '1' when (addr_i = CARD_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   write_cmd     <= '1' when ((addr_i = CARD_TEMP_ADDR or addr_i = CARD_ID_ADDR) and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
+
+   wishbone_out: process(wb_ps, id, thermo, stale)
    begin
       ack_o <= '0';
       dat_o <= (others => '0');
       err_o <= '0';
-      
+      stale_set <= '0';
+
       case wb_ps is
-         when SEND_ID =>   if(valid = '1') then
-                              ack_o <= '1';
-                              dat_o <= id(31 downto 0);
-                           end if;
-         
-         when SEND_TEMP => if(valid = '1') then
-                              ack_o <= '1';
-                              -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
-                              -- Want temperature in degree-resolution (not 0.5-degree resolution)
-                              -- Range is from -55 to +85 degress Celcius.
-                              dat_o <= thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
-                                       thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
-                                       thermo(15) & thermo(15 downto 1);  
-                           end if;
-         
-         when WB_ERROR => err_o <= '1';                  
-         
-         when others =>    null;
+         when SEND_ID =>
+            ack_o <= '1';
+            dat_o <= id(31 downto 0);
+
+         when SEND_TEMP =>
+            ack_o <= '1';
+            stale_set <= '1';
+            -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
+            -- Want temperature in degree-resolution (not 0.5-degree resolution)
+            -- Range is from -55 to +85 degress Celcius.
+            dat_o <= thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) &
+                     thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) &
+                     thermo(15 downto 1) & stale;
+
+         when WB_ERROR =>
+            err_o <= '1';
+
+         when others =>
+            null;
       end case;
    end process wishbone_out;
 
