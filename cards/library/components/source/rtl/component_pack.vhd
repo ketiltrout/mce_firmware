@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.36 2007/01/31 01:47:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.37 2007/03/06 00:53:13 bburger Exp $>
 --
 -- Project:    SCUBA-2
 -- Author:     Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.37  2007/03/06 00:53:13  bburger
+-- Bryce:  re-vamped the smb_master interaface to make it more generic. The smb_master is read only, but is not far off from supporting write commands as well.
+--
 -- Revision 1.36  2007/01/31 01:47:26  bburger
 -- Bryce: added sync_fifo_tx
 --
@@ -502,6 +505,29 @@ package component_pack is
    );
    end component;
 
+   component three_wire_master
+   port(
+      clk_i         : in std_logic;
+      rst_i         : in std_logic;
+
+      -- host-side signals
+      master_data_i : in std_logic_vector(7 downto 0);
+      master_data_o : out std_logic_vector(7 downto 0);
+
+      init_i        : in std_logic;         -- request initialization
+      read_i        : in std_logic;         -- read a byte
+      write_i       : in std_logic;         -- write a byte
+
+      done_o        : out std_logic;        -- operation completed
+      ready_o       : out std_logic;        -- slave is ready
+      ndetect_o     : out std_logic;        -- slave is detected
+
+      -- slave-side signals
+      slave_data_i  : in std_logic;      -- if using external tristate, use this signal as data input
+      slave_data_o  : out std_logic;
+      slave_wren_n_o : out std_logic
+   );
+   end component;
 
    ------------------------------------------------------------
    --
