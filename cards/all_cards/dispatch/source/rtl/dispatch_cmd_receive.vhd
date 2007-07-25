@@ -22,89 +22,17 @@
 -- dispatch_cmd_receive.vhd
 --
 -- Project:       SCUBA-2
--- Author:         Ernie Lin
+-- Author:        Bryce Burger/ Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
 -- Implements the receiver and command parser for the dispatch block
 --
 -- Revision history:
--- 
+--
 -- $Log: dispatch_cmd_receive.vhd,v $
--- Revision 1.22  2006/05/04 23:11:23  mandana
--- added integer range for crc_num_words
---
--- Revision 1.21  2006/01/16 20:02:48  bburger
--- Ernie:   Added dip_sw interfaces to introduce artifical crc rx/tx errors on the busbackplan.  This feature is for testing purposes only.
---
--- Revision 1.20  2005/11/30 18:55:53  erniel
--- fixed bug: multiple assignment to buf_addr_o
---
--- Revision 1.19  2005/11/29 01:42:49  erniel
--- fixed synthesis warning in process rx_stateOut
---
--- Revision 1.18  2005/10/28 01:07:49  erniel
--- some minor name changes
--- removed special dummy error packet headers
---
--- Revision 1.17  2005/10/12 15:51:55  erniel
--- small cosmetic changes:
---      renamed counter signals
---      removed references to dispatch_pack constants
---
--- Revision 1.16  2005/10/07 21:56:00  erniel
--- replaced serial CRC datapath and control with parallel CRC module
--- simplified receiver FSM by converting to Mealy machine
--- updated lvds_rx component
--- replaced counters with binary counters
---
--- Revision 1.15  2005/03/18 23:09:34  erniel
--- updated changed buffer addr & data bus size constants
---
--- Revision 1.14  2005/02/24 20:47:04  erniel
--- removed unused state LATCH_HDR
---
--- Revision 1.13  2005/01/31 19:19:22  mandana
--- Ernie: fixed packet resync logic
---
--- Revision 1.12  2005/01/12 23:23:41  erniel
--- updated lvds_rx component
---
--- Revision 1.11  2005/01/11 20:41:41  erniel
--- replaced CARD generic with card_i port
---
--- Revision 1.10  2004/12/11 00:32:01  erniel
--- put a range on integers: hdr_word_count, data_word_count & crc_bit_count
---
--- Revision 1.9  2004/12/06 20:30:31  erniel
--- fixed handling of READ commands by receive FSM
---
--- Revision 1.8  2004/11/26 01:38:47  erniel
--- fixed handling of READ commands by CRC subblock
---
--- Revision 1.7  2004/10/18 20:48:16  erniel
--- corrected sensitivity list in processes rx_stateNS and rx_stateOut
---
--- Revision 1.6  2004/09/27 23:02:22  erniel
--- using updated constants from command_pack
---
--- Revision 1.5  2004/09/11 01:02:49  erniel
--- minor signal name changes
---
--- Revision 1.4  2004/08/28 03:12:45  erniel
--- updated constant names from dispatch_pack
--- renamed several signals to match those used in dispatch_reply_transmit
---
--- Revision 1.3  2004/08/23 20:39:10  erniel
--- removed separate parameter outputs
--- some internal signal name changes
---
--- Revision 1.2  2004/08/10 00:35:35  erniel
--- initial version
---
--- Revision 1.1  2004/08/04 19:42:55  erniel
--- WARNING: not functional, work in progress
---
+-- Revision 1.23  2006/08/11 23:55:54  bburger
+-- Bryce:  the Power Supply Card is now recognized as its own card even though the Clock Card receiver handles the replies
 --
 -----------------------------------------------------------------------------
 
@@ -122,28 +50,28 @@ use sys_param.command_pack.all;
 entity dispatch_cmd_receive is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
-     rst_i      : in std_logic;     
-     
+     rst_i      : in std_logic;
+
      lvds_cmd_i : in std_logic;
      card_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-     
+
      -- Done/error signals:
      cmd_done_o  : out std_logic;  -- indicates receive completed
      cmd_error_o : out std_logic;  -- indicates received packet is invalid (CRC error or data size error)
-     
+
      -- Command header words:
      header0_o : out std_logic_vector(31 downto 0);
      header1_o : out std_logic_vector(31 downto 0);
-     
+
      -- Buffer interface (stores data from command packet):
      buf_data_o : out std_logic_vector(31 downto 0);
      buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      buf_wren_o : out std_logic;
-     
+
      -- test interface
      dip_sw : in std_logic);
 end dispatch_cmd_receive;
-     
+
 architecture rtl of dispatch_cmd_receive is
 
 component lvds_rx
@@ -155,7 +83,7 @@ port(clk_i      : in std_logic;
      ack_i      : in std_logic;
      lvds_i     : in std_logic);
 end component;
-   
+
 type receiver_states is (IDLE, RX_HDR0, RX_HDR1, PARSE_HDR, RX_DATA, RX_CRC, DONE);
 signal pres_state : receiver_states;
 signal next_state : receiver_states;
@@ -190,7 +118,7 @@ begin
    ---------------------------------------------------------
    -- LVDS receiver
    ---------------------------------------------------------
-   
+
    cmd_rx: lvds_rx
       port map(clk_i      => clk_i,
                comm_clk_i => comm_clk_i,
@@ -199,12 +127,12 @@ begin
                rdy_o      => lvds_rx_rdy,
                ack_i      => lvds_rx_ack,
                lvds_i     => lvds_cmd_i);
-     
-                       
+
+
    ---------------------------------------------------------
    -- CRC validation
    ---------------------------------------------------------
-   
+
    crc_calc : parallel_crc
       generic map(POLY_WIDTH => 32,
                   DATA_WIDTH => 32)
@@ -218,14 +146,14 @@ begin
                done_o      => open,
                valid_o     => crc_valid,
                checksum_o  => open);
-   
+
    crc_num_words <= conv_integer(data_size + 3);
    crc_poly <= "00000100110000010001110110110111" when dip_sw = '1' else "10000100110000010001110110110111";
 
    ---------------------------------------------------------
    -- Temp registers for header words
    ---------------------------------------------------------
-   
+
    -- Notes: - Every time a new command arrives, its header words are stored regardless of whether the command is valid or not.
    --        - When the second header word is received, cmd_valid tells the receiver FSM if the command is valid.
 
@@ -236,7 +164,7 @@ begin
                ena_i  => header0_ld,
                reg_i  => lvds_rx_data,
                reg_o  => header0);
-   
+
    hdr1 : reg
       generic map(WIDTH => 32)
       port map(clk_i  => clk_i,
@@ -244,24 +172,24 @@ begin
                ena_i  => header1_ld,
                reg_i  => lvds_rx_data,
                reg_o  => header1);
-  
+
    data_size <= header0(BB_DATA_SIZE'range) when header0(BB_COMMAND_TYPE'range) = WRITE_CMD else (others => '0');
-   
+
    cmd_type  <= header0(BB_COMMAND_TYPE'range);
-      
-   cmd_valid <= '1' when (header1(BB_CARD_ADDRESS'range) = card_i) or 
-                         (header1(BB_CARD_ADDRESS'range) = ALL_CARDS) or 
-                         (header1(BB_CARD_ADDRESS'range) = ALL_FPGA_CARDS) or
+
+   cmd_valid <= '1' when (header1(BB_CARD_ADDRESS'range) = card_i) or
+                         (header1(BB_CARD_ADDRESS'range) = ALL_CARDS) or
+                         (header1(BB_CARD_ADDRESS'range) = ALL_FPGA_CARDS and card_i /= POWER_SUPPLY_CARD) or
                          (header1(BB_CARD_ADDRESS'range) = ALL_BIAS_CARDS and (card_i = BIAS_CARD_1 or card_i = BIAS_CARD_2 or card_i = BIAS_CARD_3)) or
-                         (header1(BB_CARD_ADDRESS'range) = ALL_READOUT_CARDS and (card_i = READOUT_CARD_1 or card_i = READOUT_CARD_2 or card_i = READOUT_CARD_3 or card_i = READOUT_CARD_4)) or
-                         (header1(BB_CARD_ADDRESS'range) = POWER_SUPPLY_CARD and (card_i = CLOCK_CARD))
+                         (header1(BB_CARD_ADDRESS'range) = ALL_READOUT_CARDS and (card_i = READOUT_CARD_1 or card_i = READOUT_CARD_2 or card_i = READOUT_CARD_3 or card_i = READOUT_CARD_4))
+--                         (header1(BB_CARD_ADDRESS'range) = POWER_SUPPLY_CARD and (card_i = CLOCK_CARD))
                     else '0';
 
-   
-   ---------------------------------------------------------               
+
+   ---------------------------------------------------------
    -- Counter for received words
-   ---------------------------------------------------------   
-   
+   ---------------------------------------------------------
+
    word_counter : binary_counter
    generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i   => clk_i,
@@ -287,42 +215,42 @@ begin
          pres_state <= next_state;
       end if;
    end process rx_stateFF;
-     
+
    rx_stateNS: process(pres_state, lvds_rx_rdy, lvds_rx_data, cmd_type, data_size, word_count)
    begin
       case pres_state is
          when IDLE =>      next_state <= RX_HDR0;
-         
+
          when RX_HDR0 =>   if(lvds_rx_rdy = '1' and lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
                               next_state <= RX_HDR1;
                            else
                               next_state <= RX_HDR0;
                            end if;
-                           
+
          when RX_HDR1 =>   if(lvds_rx_rdy = '1') then
                               next_state <= PARSE_HDR;
                            else
                               next_state <= RX_HDR1;
                            end if;
-                           
-         when PARSE_HDR => if(cmd_type = WRITE_CMD) then 
+
+         when PARSE_HDR => if(cmd_type = WRITE_CMD) then
                               next_state <= RX_DATA;
                            else
-                              next_state <= RX_CRC;            
+                              next_state <= RX_CRC;
                            end if;
-                          
+
          when RX_DATA =>   if(lvds_rx_rdy = '1' and word_count = data_size-1) then
-                              next_state <= RX_CRC;                                
+                              next_state <= RX_CRC;
                            else
                               next_state <= RX_DATA;
                            end if;
-         
+
          when RX_CRC =>    if(lvds_rx_rdy = '1') then
                               next_state <= DONE;
                            else
                               next_state <= RX_CRC;
                            end if;
-                           
+
          when others =>    next_state <= IDLE;
       end case;
    end process rx_stateNS;
@@ -340,41 +268,41 @@ begin
       buf_data_o     <= (others => '0');
       buf_wren_o     <= '0';
       header0_o      <= (others => '0');
-      header1_o      <= (others => '0');      
+      header1_o      <= (others => '0');
       cmd_done_o     <= '0';
       cmd_error_o    <= '0';
-      
+
       case pres_state is
          when IDLE =>      word_count_clr     <= '1';
                            crc_clr            <= '1';
-                                       
+
          when RX_HDR0 =>   if(lvds_rx_rdy = '1') then
                               lvds_rx_ack     <= '1';
                               if(lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
-                                 crc_ena      <= '1';              -- don't want to enable CRC nor load header0 
+                                 crc_ena      <= '1';              -- don't want to enable CRC nor load header0
                                  header0_ld   <= '1';              -- when we are sync'ing to the next packet!
                               end if;
                            end if;
-                           
+
          when RX_HDR1 =>   if(lvds_rx_rdy = '1') then
                               lvds_rx_ack     <= '1';
                               crc_ena         <= '1';
                               header1_ld      <= '1';
                            end if;
-         
+
          when RX_DATA =>   if(lvds_rx_rdy = '1') then
                               lvds_rx_ack     <= '1';
                               crc_ena         <= '1';
                               word_count_ena  <= '1';
                               buf_data_o      <= lvds_rx_data;
                               buf_wren_o      <= '1';
-                           end if;                            
-         
+                           end if;
+
          when RX_CRC =>    if(lvds_rx_rdy = '1') then
                               lvds_rx_ack     <= '1';
                               crc_ena         <= '1';
                            end if;
-                  
+
          when DONE =>      if(cmd_valid = '1') then
                               cmd_done_o      <= '1';
                               header0_o       <= header0;
@@ -383,9 +311,9 @@ begin
                                  cmd_error_o  <= '1';
                               end if;
                            end if;
-                                       
+
          when others =>    null;
       end case;
    end process rx_stateOut;
-   
+
 end rtl;
