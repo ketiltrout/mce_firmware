@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_switchover.vhd,v 1.4 2006/06/30 22:07:12 bburger Exp $
+-- $Id: clk_switchover.vhd,v 1.5 2006/08/16 17:52:53 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_switchover.vhd,v $
+-- Revision 1.5  2006/08/16 17:52:53  bburger
+-- Bryce:  Fixed a bug -- the clockswitch signal is now asserted until activeclk changes state
+--
 -- Revision 1.4  2006/06/30 22:07:12  bburger
 -- Bryce:  Corrected an error with the wren signal and added the active_clk status signal to the interface
 --
@@ -75,8 +78,8 @@ entity clk_switchover is
       c2_o                : out std_logic;
       c3_o                : out std_logic;
       e0_o                : out std_logic;
-      e1_o                : out std_logic 
-   );     
+      e1_o                : out std_logic
+   );
 end clk_switchover;
 
 
@@ -98,9 +101,9 @@ architecture top of clk_switchover is
          e0    : OUT STD_LOGIC ;
          clkbad0     : OUT STD_LOGIC ;
          e1    : OUT STD_LOGIC ;
-         clkbad1     : OUT STD_LOGIC 
+         clkbad1     : OUT STD_LOGIC
       );
-   end component;   
+   end component;
 
    constant XTAL_CLK               : std_logic := '0';
    constant MANCH_CLK              : std_logic := '1';
@@ -122,7 +125,7 @@ architecture top of clk_switchover is
    signal rd_cmd          : std_logic;
 
    -- WBS states:
-   type wbs_states is (IDLE, WR, RD); 
+   type wbs_states is (IDLE, WR, RD);
    signal current_state   : wbs_states;
    signal next_state      : wbs_states;
 
@@ -151,12 +154,12 @@ begin
          clkbad0     => xtal_clk_bad,
          e1          => e1_o,
          clkbad1     => manch_clk_bad
-      );  
+      );
 
    -- **Note:  make sure that the machester signal detect is double buffered.
    ------------------------------------------------------------
    --  WB FSM
-   ------------------------------------------------------------   
+   ------------------------------------------------------------
 
    -- clocked FSMs, advance the state for both FSMs
    state_FF: process(clk, rst_i)
@@ -167,81 +170,81 @@ begin
          current_state     <= next_state;
       end if;
    end process state_FF;
-   
+
    -- Transition table for DAC controller
    state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin
       -- Default assignments
       next_state <= current_state;
-      
+
       case current_state is
          when IDLE =>
             if(wr_cmd = '1') then
-               next_state <= WR;            
+               next_state <= WR;
             elsif(rd_cmd = '1') then
                next_state <= RD;
-            end if;                  
-            
-         when WR =>     
+            end if;
+
+         when WR =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
+
          when RD =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
+
          when others =>
             next_state <= IDLE;
 
       end case;
    end process state_NS;
-   
-   -- Output states for DAC controller   
+
+   -- Output states for DAC controller
    state_out: process(current_state, stb_i)
    begin
       -- Default assignments
       ack_o           <= '0';
       select_clk_wren <= '0';
-     
-      case current_state is         
-         when IDLE  =>                   
+
+      case current_state is
+         when IDLE  =>
             ack_o <= '0';
-            
+
          when WR =>
             ack_o <= '1';
             if(stb_i = '1') then
                select_clk_wren <= '1';
             end if;
-         
+
          when RD =>
             ack_o <= '1';
-         
+
          when others =>
-         
+
       end case;
    end process state_out;
 
    ------------------------------------------------------------
-   --  Wishbone interface: 
-   ------------------------------------------------------------  
+   --  Wishbone interface:
+   ------------------------------------------------------------
    input_data <= '0' when dat_i = x"00000000" else '1';
    select_clk_data <= "0000000000000000000000000000000" & activeclock;
-   
+
    with addr_i select dat_o <=
       select_clk_data when SELECT_CLK_ADDR,
       (others => '0') when others;
-   
-   rd_cmd  <= '1' when 
-      (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = SELECT_CLK_ADDR) else '0'; 
-      
-   wr_cmd  <= '1' when 
-      (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = SELECT_CLK_ADDR) else '0'; 
 
-   
+   rd_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '0') and
+      (addr_i = SELECT_CLK_ADDR) else '0';
+
+   wr_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '1') and
+      (addr_i = SELECT_CLK_ADDR) else '0';
+
+
    ------------------------------------------------------------
    -- Switchover FSM:
    ------------------------------------------------------------
@@ -258,11 +261,15 @@ begin
    begin
       -- Default Assignment
       ns <= ps;
-      
+
       case ps is
-         when CRYSTAL_CLK => 
+         when CRYSTAL_CLK =>
             if(activeclock = MANCH_CLK) then
                ns <= MANCHESTER_CLK;
+            elsif(xtal_clk_bad = '1') then
+               -- Perhaps we don't want to do anything here yet,
+               --  because I'm not sure if xtal_clk_bad = '1' momentarily just after power up.
+               --ns <= SWITCHING_2_MANCHESTER;
             elsif(select_clk_wren = '1' and input_data = MANCH_CLK) then
                if(manch_clk_bad = '0') then
                   ns <= SWITCHING_2_MANCHESTER;
@@ -273,11 +280,13 @@ begin
          when SWITCHING_2_MANCHESTER =>
             if(activeclock = MANCH_CLK) then
                ns <= MANCHESTER_CLK;
-            end if;           
+            end if;
 
-         when MANCHESTER_CLK =>   
+         when MANCHESTER_CLK =>
             if(activeclock = XTAL_CLK) then
                ns <= CRYSTAL_CLK;
+            elsif(manch_clk_bad = '1') then
+               ns <= SWITCHING_2_CRYSTAL;
             elsif(select_clk_wren = '1' and input_data = XTAL_CLK) then
                if(xtal_clk_bad = '0') then
                   ns <= SWITCHING_2_CRYSTAL;
@@ -285,14 +294,14 @@ begin
             end if;
 
          -- This state is required because it takes 2 clock cycles for clkswitch being asserted to trigger a switch
-         when SWITCHING_2_CRYSTAL =>   
+         when SWITCHING_2_CRYSTAL =>
             if(activeclock = XTAL_CLK) then
                ns <= CRYSTAL_CLK;
-            end if;           
+            end if;
 
-         when others =>      
+         when others =>
             ns <= CRYSTAL_CLK;
-            
+
       end case;
    end process;
 
@@ -300,19 +309,19 @@ begin
    begin
       clkswitch <= '0';
 
-      case ps is        
-         when CRYSTAL_CLK => 
+      case ps is
+         when CRYSTAL_CLK =>
 
          when SWITCHING_2_MANCHESTER =>
             clkswitch <= '1';
 
-         when MANCHESTER_CLK =>   
+         when MANCHESTER_CLK =>
 
-         when SWITCHING_2_CRYSTAL =>   
+         when SWITCHING_2_CRYSTAL =>
             clkswitch <= '1';
-         
+
          when others => null;
-         
+
       end case;
    end process;
 
