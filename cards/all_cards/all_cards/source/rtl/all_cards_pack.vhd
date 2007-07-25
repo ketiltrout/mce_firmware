@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/02/19 23:30:18 $>    - <initials $Author: mandana $>
+-- <date $Date: 2007/03/06 00:49:03 $>    - <initials $Author: bburger $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.3  2007/03/06 00:49:03  bburger
+-- Bryce:  added the smbalert_i signal to the fpga_thermo interface
+--
 -- Revision 1.2  2007/02/19 23:30:18  mandana
 -- modified id_thermo interface
 --
@@ -47,93 +50,91 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-
-
 library sys_param;
-
 -- System Library
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
+use work.frame_timing_pack.all;
 
 package all_cards_pack is
 
-  -----------------------------------------------------------------------------
-  -- LED Component
-  -----------------------------------------------------------------------------
-
+   -----------------------------------------------------------------------------
+   -- LED Component
+   -----------------------------------------------------------------------------
    component leds
-   port(clk_i   : in std_logic;
-        rst_i   : in std_logic;     
-        
-        -- Wishbone signals
-        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
-        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-        we_i    : in std_logic;
-        stb_i   : in std_logic;
-        cyc_i   : in std_logic;
-        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        ack_o   : out std_logic;
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
 
-        -- LED outputs
-        power   : out std_logic;
-        status  : out std_logic;
-        fault   : out std_logic);
+      -- Wishbone signals
+      dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+      addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i    : in std_logic;
+      stb_i   : in std_logic;
+      cyc_i   : in std_logic;
+      dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o   : out std_logic;
+
+      -- LED outputs
+      power   : out std_logic;
+      status  : out std_logic;
+      fault   : out std_logic);
    end component;
 
-  -----------------------------------------------------------------------------
-  -- Firmware Revision Component
-  -----------------------------------------------------------------------------
-
+   -----------------------------------------------------------------------------
+   -- Firmware Revision Component
+   -----------------------------------------------------------------------------
    component fw_rev
-   generic ( REVISION: std_logic_vector (31 downto 0) := X"01010000");
+   generic ( REVISION: std_logic_vector(31 downto 0) := X"01010000");
    port(clk_i   : in std_logic;
-        rst_i   : in std_logic;     
-        
+        rst_i   : in std_logic;
+
         -- Wishbone signals
-        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
-        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+        dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+        addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
         stb_i   : in std_logic;
         cyc_i   : in std_logic;
         err_o   : out std_logic;
-        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic
       );
    end component;
 
-    -----------------------------------------------------------------------------
-  -- slot_id component
-  -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
+   -- slot_id component
+   -----------------------------------------------------------------------------
+   constant SLOT_ID_BITS : integer := 4;
 
-  component bp_slot_id
-    generic (SLOT_ID_BITS: integer := 4);
-
-    port (
-      slot_id_i : in std_logic_vector (SLOT_ID_BITS-1 downto 0);
-      -- wishbone signals
+   component bp_slot_id
+   port (
       clk_i   : in std_logic;
-      rst_i   : in std_logic;    
-      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
-      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+      rst_i   : in std_logic;
+
+      slot_id_i : in std_logic_vector(SLOT_ID_BITS-1 downto 0);
+
+      -- wishbone signals
+      dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+      addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
       stb_i   : in std_logic;
       cyc_i   : in std_logic;
       err_o   : out std_logic;
-      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic);
-  end component;
+   end component;
 
-  -----------------------------------------------------------------------------
-  -- Dispatch component
-  -----------------------------------------------------------------------------
-
-  component dispatch
-    port(clk_i      : in std_logic;
+   -----------------------------------------------------------------------------
+   -- Dispatch component
+   -----------------------------------------------------------------------------
+   component dispatch
+   port(
+      clk_i      : in std_logic;
       comm_clk_i : in std_logic;
       rst_i      : in std_logic;
 
@@ -158,14 +159,13 @@ package all_cards_pack is
 
       dip_sw3 : in std_logic;
       dip_sw4 : in std_logic);
-  end component;
+   end component;
 
-  -----------------------------------------------------------------------------
-  -- frame_timing component
-  -----------------------------------------------------------------------------
-
-  component frame_timing is
-    port(
+   -----------------------------------------------------------------------------
+   -- frame_timing component
+   -----------------------------------------------------------------------------
+   component frame_timing is
+   port(
       -- Readout Card interface
       dac_dat_en_o               : out std_logic;
       adc_coadd_en_o             : out std_logic;
@@ -174,6 +174,7 @@ package all_cards_pack is
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
+      sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- Address Card interface
       row_switch_o               : out std_logic;
@@ -197,61 +198,54 @@ package all_cards_pack is
       clk_n_i                    : in std_logic;
       rst_i                      : in std_logic;
       sync_i                     : in std_logic);
-  end component;
+   end component;
 
-  -----------------------------------------------------------------------------
-  -- FPGA_thermo component
-  -----------------------------------------------------------------------------
-
-  component fpga_thermo
-    port(clk_i : in std_logic;
-        rst_i : in std_logic;
-
-        -- wishbone signals
-        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
-        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-        we_i    : in std_logic;
-        stb_i   : in std_logic;
-        cyc_i   : in std_logic;
-        err_o   : out std_logic;
-        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        ack_o   : out std_logic;
-
-        -- SMBus temperature sensor signals
-        smbclk_o : out std_logic;
-        smbalert_i : in std_logic;
-        smbdat_io : inout std_logic);
-  end component;
-
-  -----------------------------------------------------------------------------
-  -- Thermometer Component
-  -----------------------------------------------------------------------------
-   component id_thermo
-   generic(
-      tristate    : string := "INTERNAL";  -- valid values are "INTERNAL" and "EXTERNAL".
-      card_or_box : string := "CARD");     -- valid values are "CARD" and "BOX".
+   -----------------------------------------------------------------------------
+   -- FPGA_thermo component
+   -----------------------------------------------------------------------------
+   component fpga_thermo
    port(
-      clk_i : in std_logic;
-      rst_i : in std_logic;
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
 
-      -- Wishbone signals
-      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+      -- wishbone signals
+      dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
       stb_i   : in std_logic;
       cyc_i   : in std_logic;
       err_o   : out std_logic;
-      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic;
 
-      -- silicon id/temperature chip signals
-      data_io : inout std_logic;
-      data_o  : out std_logic;
-      wren_o  : out std_logic
-   );
+      -- SMBus temperature sensor signals
+      smbclk_o : out std_logic;
+      smbalert_i : in std_logic;
+      smbdat_io : inout std_logic);
    end component;
-    
+
+   -----------------------------------------------------------------------------
+   -- Thermometer Component
+   -----------------------------------------------------------------------------
+   component id_thermo
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;
+
+      -- Wishbone signals
+      dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i    : in std_logic;
+      stb_i   : in std_logic;
+      cyc_i   : in std_logic;
+      err_o   : out std_logic;
+      dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o   : out std_logic;
+
+      data_io : inout std_logic);
+   end component;
+
 end all_cards_pack;
 
