@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/11/14 22:41:12 $> - <initials $Author: bburger $>
+-- <date $Date: 2007/01/08 21:40:22 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.36  2007/01/08 21:40:22  mandana
+-- changed SRAM_WRITE_ADDR to SRAM_DATA_ADDR
+--
 -- Revision 1.35  2006/11/14 22:41:12  bburger
 -- Bryce:  updated some of the commands to the SRAM for use with the JTAG programmer
 --
@@ -164,13 +167,13 @@ package wishbone_pack is
    constant WB_ADDR_WIDTH     : integer := BB_PARAMETER_ID_WIDTH;
    constant WB_DATA_WIDTH     : integer := 32;
    constant WB_TAG_ADDR_WIDTH : integer := 32;
-   
+
    ---------------------------------------------------------------------------------
    -- Wishbone Parameter IDs
    ---------------------------------------------------------------------------------
    -- Null Address
    constant NULL_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"00";
-   
+
    -- Address Card Specific
    constant ROW_ORDER_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"01";
    constant ON_BIAS_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"02";
@@ -221,7 +224,7 @@ package wishbone_pack is
    constant ADC_OFFSET5_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6D";
    constant ADC_OFFSET6_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6E";
    constant ADC_OFFSET7_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6F";
-   
+
    -- All Readout Cards
    constant FLTR_RST_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"14";
    constant EN_FB_JUMP_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
@@ -263,7 +266,7 @@ package wishbone_pack is
    constant SLOT_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"95";
    constant FW_REV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"96";
    constant DIP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"97";
-   constant CYC_OO_SYC_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";   
+   constant CYC_OO_SYC_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";
    constant LED_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
 
    -- Clock Card Specific
@@ -287,14 +290,16 @@ package wishbone_pack is
    constant BOX_TEMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A8";
    constant CRC_ERR_EN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A9";
    constant CONFIG_JTAG       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AA";
+   constant MCE_BCLR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AB";
+   constant CC_BCLR_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AC";
 
    -- Power Card Specific
    constant BRST_MCE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
    constant CYCLE_POW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
    constant CUT_POW_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
    constant PSC_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
-   
-   
+
+
    ---------------------------------------------------------------------------------
    -- Instruction Parameters Default values
    constant MUX_ON           : std_logic_vector(7 downto 0) := x"FF";
