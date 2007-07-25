@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fpga_thermo.vhd,v $
+-- Revision 1.7  2007/03/20 20:37:53  mandana
+-- wb fpga_thermo is legitimate, then just drive err_o to '0'
+--
 -- Revision 1.6  2007/03/20 20:25:21  mandana
 -- assert err_o when a wishbone write is attempted
 --
@@ -120,6 +123,10 @@ architecture rtl of fpga_thermo is
    signal ctrl_ps : states;
    signal ctrl_ns : states;
 
+   signal stale      : std_logic;
+   signal stale_set  : std_logic;
+   signal stale_rst  : std_logic;
+
 begin
 
    err_o    <= '0';
@@ -150,6 +157,19 @@ begin
       end if;
    end process;
 
+   -- Stale flag
+   stale_flag: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         stale <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if(stale_set = '1') then
+            stale <= '1';
+         elsif(stale_rst = '1') then
+            stale <= '0';
+         end if;
+      end if;
+   end process stale_flag;
 
    ------------------------------------------------------------
    --  Temperature Chip Interface
@@ -240,6 +260,7 @@ begin
       smb_wren    <= '0';
       slave_start <= '0';
       timeout_clr <= '0';
+      stale_rst <= '0';
 
       case ctrl_ps is
 
@@ -254,6 +275,7 @@ begin
          when REGISTER_TEMP =>
             smb_wren    <= '1';
             timeout_clr <= '1';
+            stale_rst   <= '1';
 
          when others =>
             NULL;
@@ -306,11 +328,12 @@ begin
    end process state_NS;
 
    -- Output states for DAC controller
-   state_out: process(current_state, stb_i, addr_i)
+   state_out: process(current_state, stb_i, addr_i, cyc_i)
    begin
       -- Default assignments
       ack_o    <= '0';
       wbs_wren <= '0';
+      stale_set <= '0';
 
       case current_state is
          when IDLE  =>
@@ -327,6 +350,10 @@ begin
          when RD =>
             ack_o <= '1';
            
+            if(cyc_i = '0') then
+               stale_set <= '1';
+            end if;
+
          when others =>
             null;
 
@@ -338,7 +365,7 @@ begin
    --  Wishbone interface:
    ------------------------------------------------------------
    with addr_i select dat_o <=
-      wbs_data_o when FPGA_TEMP_ADDR,
+      wbs_data_o(30 downto 0) & stale when FPGA_TEMP_ADDR,
       (others => '0') when others;
 
    rd_cmd  <= '1' when
