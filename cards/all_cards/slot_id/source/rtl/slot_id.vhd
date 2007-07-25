@@ -21,7 +21,7 @@
 --
 -- slot_id.vhd
 --
--- Project:	      SCUBA 2
+-- Project:       SCUBA 2
 -- Author:        Jonathan Jacob
 -- Organisation:  UBC Physics and Astronomy
 --
@@ -29,8 +29,12 @@
 -- This code implements the Slot ID functionality
 --
 -- Revision history:
--- 
+--
 -- $Log: slot_id.vhd,v $
+-- Revision 1.5  2006/05/05 19:25:23  mandana
+-- added err_o to the interface to issue a wishbone error for write commands
+-- changed component name to bp_slot_id not to be confused with top level pins called slot_id
+--
 -- Revision 1.4  2005/01/06 03:10:24  erniel
 -- added comments
 -- fixed minor read cycle bug
@@ -52,64 +56,59 @@ use ieee.std_logic_arith.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 
+library work;
+use work.all_cards_pack.all;
+
 entity bp_slot_id is
-   generic ( SLOT_ID_BITS: integer := 4);
-port(clk_i   : in std_logic;
-     rst_i   : in std_logic;		
-      
-     slot_id_i : in std_logic_vector(SLOT_ID_BITS-1 downto 0);
-     
-     -- wishbone signals
-     dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);      -- not used since can't write to slot ID
-     addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-     tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);  -- not used since only reading one value
-     we_i    : in std_logic;
-     stb_i   : in std_logic;
-     cyc_i   : in std_logic;
-     err_o   : out std_logic;
-     dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-     ack_o   : out std_logic);
+port (
+   clk_i   : in std_logic;
+   rst_i   : in std_logic;
+
+   slot_id_i : in std_logic_vector (SLOT_ID_BITS-1 downto 0);
+
+   -- wishbone signals
+   dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+   addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+   tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+   we_i    : in std_logic;
+   stb_i   : in std_logic;
+   cyc_i   : in std_logic;
+   err_o   : out std_logic;
+   dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+   ack_o   : out std_logic);
 end bp_slot_id;
 
 architecture rtl of bp_slot_id is
 
-signal slot_id_data        : std_logic_vector(SLOT_ID_BITS-1 downto 0);
-signal padded_slot_id_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal slot_id : std_logic_vector(SLOT_ID_BITS-1 downto 0);
+   signal padded_slot_id : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 begin
 
-------------------------------------------------------------------------
---
--- Read slot ID
---
-------------------------------------------------------------------------
-
+   ------------------------------------------------------------------------
+   -- Read slot ID
+   ------------------------------------------------------------------------
    -- slot ID is continuously sampled
-   
    process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         slot_id_data <= (others => '0');
+         slot_id <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
-         slot_id_data <= slot_id_i;
+         slot_id <= slot_id_i;
       end if;
    end process;
-   
-   padded_slot_id_data(WB_DATA_WIDTH-1 downto SLOT_ID_BITS) <= (others => '0');
-   padded_slot_id_data(SLOT_ID_BITS-1 downto 0) <= slot_id_data;
-   
 
-------------------------------------------------------------------------
---
--- Wishbone
---
------------------------------------------------------------------------- 
-   
+   padded_slot_id(WB_DATA_WIDTH-1 downto SLOT_ID_BITS) <= (others => '0');
+   padded_slot_id(SLOT_ID_BITS-1 downto 0) <= slot_id;
+
+   ------------------------------------------------------------------------
+   -- Wishbone
+   ------------------------------------------------------------------------
    -- assert ack and data when a read cycle to slot ID slave has begun
    -- (wishbone cycle should last for only one clock period)
-   
-   ack_o <= '1'                 when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else '0';
-   dat_o <= padded_slot_id_data when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else (others => '0');
-   err_o <= '1'                 when addr_i = SLOT_ID_ADDR and we_i = '1' and stb_i = '1' and cyc_i = '1' else '0';
-   
+   ack_o <= '1' when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else '0';
+   err_o <= '1' when addr_i = SLOT_ID_ADDR and we_i = '1' and stb_i = '1' and cyc_i = '1' else '0';
+
+   dat_o <= padded_slot_id when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else (others => '0');
+
 end rtl;
