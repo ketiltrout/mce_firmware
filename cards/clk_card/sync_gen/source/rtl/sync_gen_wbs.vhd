@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.7 2006/03/09 00:44:13 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.8 2006/05/29 23:11:00 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.8  2006/05/29 23:11:00  bburger
+-- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
+--
 -- Revision 1.7  2006/03/09 00:44:13  bburger
 -- Bryce:  Added registers and logic for USE_SYNC command
 --
@@ -73,7 +76,7 @@ library work;
 use work.frame_timing_pack.all;
 use work.sync_gen_pack.all;
 
-entity sync_gen_wbs is        
+entity sync_gen_wbs is
    port(
       -- sync_gen interface:
       dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
@@ -93,8 +96,8 @@ entity sync_gen_wbs is
 
       -- global interface
       clk_i               : in std_logic;
-      rst_i               : in std_logic 
-   );     
+      rst_i               : in std_logic
+   );
 end sync_gen_wbs;
 
 architecture rtl of sync_gen_wbs is
@@ -102,7 +105,6 @@ architecture rtl of sync_gen_wbs is
    -- FSM inputs
    signal wr_cmd          : std_logic;
    signal rd_cmd          : std_logic;
---   signal master_wait     : std_logic;
 
    -- Register signals
    signal dv_mode_wren    : std_logic;
@@ -114,12 +116,12 @@ architecture rtl of sync_gen_wbs is
    signal num_rows_wren   : std_logic;
    signal num_rows_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
- 
+
    -- WBS states:
-   type states is (IDLE, WR, RD); 
+   type states is (IDLE, WR, RD);
    signal current_state   : states;
    signal next_state      : states;
-   
+
 begin
 
    dv_en_reg : reg
@@ -177,7 +179,7 @@ begin
 
    ------------------------------------------------------------
    --  WB FSM
-   ------------------------------------------------------------   
+   ------------------------------------------------------------
 
    -- clocked FSMs, advance the state for both FSMs
    state_FF: process(clk_i, rst_i)
@@ -188,38 +190,38 @@ begin
          current_state     <= next_state;
       end if;
    end process state_FF;
-   
+
    -- Transition table for DAC controller
    state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin
       -- Default assignments
       next_state <= current_state;
-      
+
       case current_state is
          when IDLE =>
             if(wr_cmd = '1') then
-               next_state <= WR;            
+               next_state <= WR;
             elsif(rd_cmd = '1') then
                next_state <= RD;
-            end if;                  
-            
-         when WR =>     
+            end if;
+
+         when WR =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
+
          when RD =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
+
          when others =>
             next_state <= IDLE;
 
       end case;
    end process state_NS;
-   
-   -- Output states for DAC controller   
+
+   -- Output states for DAC controller
    state_out: process(current_state, stb_i, addr_i)
    begin
       -- Default assignments
@@ -228,11 +230,11 @@ begin
       row_length_wren <= '0';
       num_rows_wren   <= '0';
       sync_mode_wren  <= '0';
-     
-      case current_state is         
-         when IDLE  =>                   
+
+      case current_state is
+         when IDLE  =>
             ack_o <= '0';
-            
+
          when WR =>
             ack_o <= '1';
             if(stb_i = '1') then
@@ -246,33 +248,33 @@ begin
                   sync_mode_wren <= '1';
                end if;
             end if;
-         
+
          when RD =>
             ack_o <= '1';
-         
+
          when others =>
-         
+
       end case;
    end process state_out;
 
    ------------------------------------------------------------
-   --  Wishbone interface: 
-   ------------------------------------------------------------  
+   --  Wishbone interface:
+   ------------------------------------------------------------
    with addr_i select dat_o <=
       dv_mode_data    when USE_DV_ADDR,
       row_length_data when ROW_LEN_ADDR,
       num_rows_data   when NUM_ROWS_ADDR,
       sync_mode_data  when USE_SYNC_ADDR,
       (others => '0') when others;
-   
---   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
-           
-   rd_cmd  <= '1' when 
-      (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0'; 
-      
-   wr_cmd  <= '1' when 
-      (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0'; 
-      
+
+--   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';
+
+   rd_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '0') and
+      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0';
+
+   wr_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '1') and
+      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0';
+
 end rtl;
