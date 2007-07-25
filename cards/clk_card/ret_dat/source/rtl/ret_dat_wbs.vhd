@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.10 2006/09/21 16:18:18 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.11 2006/10/19 22:11:10 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.11  2006/10/19 22:11:10  bburger
+-- Bryce:  Added support for the crc_err_en command
+--
 -- Revision 1.10  2006/09/21 16:18:18  bburger
 -- Bryce:  Added support for the TES Bias Step internal commands
 --
@@ -80,29 +83,33 @@ use work.ret_dat_wbs_pack.all;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
 
-entity ret_dat_wbs is        
+entity ret_dat_wbs is
    port
    (
       -- to ret_dat fsm (cmd_translator):
       start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      ret_dat_req_o          : out std_logic;
-      ret_dat_ack_i          : in std_logic;
-      frame_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      
+--      ret_dat_req_o          : out std_logic;
+--      ret_dat_ack_i          : in std_logic;
+--      frame_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
       -- to internal_cmd_fsm (cmd_translator):
       tes_bias_toggle_en_o   : out std_logic;
       tes_bias_high_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+      -- Enable internal commands
       status_cmd_en_o        : out std_logic;
+
+      -- Enable CRC errors in data packets
       crc_err_en_o           : out std_logic;
 
       -- global interface
       clk_i                  : in std_logic;
-      rst_i                  : in std_logic; 
-      
+      rst_i                  : in std_logic;
+
       -- wishbone interface:
       dat_i                  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                 : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -112,7 +119,7 @@ entity ret_dat_wbs is
       cyc_i                  : in std_logic;
       dat_o                  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o                  : out std_logic
-   );     
+   );
 end ret_dat_wbs;
 
 architecture rtl of ret_dat_wbs is
@@ -122,7 +129,7 @@ architecture rtl of ret_dat_wbs is
    signal rd_cmd            : std_logic;
 
    -- RAM/Register signals
-   signal start_wren        : std_logic;   
+   signal start_wren        : std_logic;
    signal stop_wren         : std_logic;
    signal data_rate_wren    : std_logic;
    signal tes_tgl_en_wren   : std_logic;
@@ -131,7 +138,7 @@ architecture rtl of ret_dat_wbs is
    signal tes_tgl_rate_wren : std_logic;
    signal int_cmd_en_wren   : std_logic;
    signal crc_err_en_wren   : std_logic;
-   
+
    signal start_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal stop_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal data_rate_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -141,12 +148,12 @@ architecture rtl of ret_dat_wbs is
    signal tes_tgl_rate_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal int_cmd_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal crc_err_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   
+
    -- WBS states:
-   type states is (IDLE, WR, RD); 
+   type states is (IDLE, WR, RD);
    signal current_state     : states;
    signal next_state        : states;
-   
+
 begin
 
    start_seq_num_o <= start_data;
@@ -213,7 +220,7 @@ begin
          reg_i             => dat_i,
          reg_o             => tes_tgl_max_data
       );
-   
+
    tes_bias_low_o <= tes_tgl_min_data;
    tes_toggle_min_reg : reg
       generic map(
@@ -226,7 +233,7 @@ begin
          reg_i             => dat_i,
          reg_o             => tes_tgl_min_data
       );
-   
+
    tes_bias_toggle_rate_o <= tes_tgl_rate_data;
    tes_toggle_rate_reg : reg
       generic map(
@@ -252,7 +259,7 @@ begin
          reg_i             => dat_i,
          reg_o             => int_cmd_en_data
       );
-      
+
    -- Custom register that gets set to DEFAULT_DATA_RATE upon reset
    data_rate_o <= data_rate_data(SYNC_NUM_WIDTH-1 downto 0);
    data_rate_reg: process(clk_i, rst_i)
@@ -266,9 +273,10 @@ begin
       end if;
    end process data_rate_reg;
 
+     -- Can't put this here because ret_dat addresses refer to readout cards!!
      -- Eventually this register will be used when the ret_dat handling is moved to this block
      -- Custom register that indicates fresh ret_dat commands
-   ret_dat_req_o <= '0';
+--   ret_dat_req_o <= '0';
 --   ret_dat_req_o <= data_req;
 --   data_req_reg: process(clk_i, rst_i)
 --   begin
@@ -284,10 +292,10 @@ begin
 --         end if;
 --      end if;
 --   end process data_req_reg;
-      
+
 ------------------------------------------------------------
 --  WB FSM
-------------------------------------------------------------   
+------------------------------------------------------------
 
    -- clocked FSMs, advance the state for both FSMs
    state_FF: process(clk_i, rst_i)
@@ -298,56 +306,56 @@ begin
          current_state     <= next_state;
       end if;
    end process state_FF;
-   
+
    -- Transition table for DAC controller
    state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin
       -- Default assignments
       next_state <= current_state;
-      
+
       case current_state is
          when IDLE =>
             if(wr_cmd = '1') then
-               next_state <= WR;            
+               next_state <= WR;
             elsif(rd_cmd = '1') then
                next_state <= RD;
-            end if;                  
-            
-         when WR =>     
+            end if;
+
+         when WR =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
+
          when RD =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
+
          when others =>
             next_state <= IDLE;
 
       end case;
    end process state_NS;
-   
-   -- Output states for DAC controller   
+
+   -- Output states for DAC controller
    state_out: process(current_state, stb_i, addr_i, tga_i, next_state)
    begin
       -- Default assignments
       start_wren        <= '0';
       stop_wren         <= '0';
       data_rate_wren    <= '0';
-      
+
       tes_tgl_en_wren   <= '0';
       tes_tgl_max_wren  <= '0';
       tes_tgl_min_wren  <= '0';
       tes_tgl_rate_wren <= '0';
       int_cmd_en_wren   <= '0';
       crc_err_en_wren   <= '0';
-      
+
       ack_o             <= '0';
-     
-      case current_state is         
-         when IDLE  =>                   
+
+      case current_state is
+         when IDLE  =>
             ack_o <= '0';
 
          when WR =>
@@ -388,18 +396,18 @@ begin
             if(next_state /= IDLE) then
                ack_o <= '1';
             end if;
-         
+
          when others =>
-         
+
       end case;
    end process state_out;
 
 
 ------------------------------------------------------------
---  Wishbone interface 
+--  Wishbone interface
 ------------------------------------------------------------
-   
-   dat_o <= 
+
+   dat_o <=
       start_data        when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
       stop_data         when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
       data_rate_data    when (addr_i = DATA_RATE_ADDR) else
@@ -411,18 +419,18 @@ begin
       crc_err_en_data   when (addr_i = CRC_ERR_EN_ADDR) else
       (others => '0');
 
-   rd_cmd  <= '1' when 
-      (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
+   rd_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '0') and
       (addr_i = RET_DAT_S_ADDR   or addr_i = DATA_RATE_ADDR    or
        addr_i = TES_TGL_EN_ADDR  or addr_i = TES_TGL_MAX_ADDR  or
        addr_i = TES_TGL_MIN_ADDR or addr_i = TES_TGL_RATE_ADDR or
-       addr_i = INT_CMD_EN_ADDR or addr_i = CRC_ERR_EN_ADDR) else '0'; 
-      
-   wr_cmd  <= '1' when 
-      (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
+       addr_i = INT_CMD_EN_ADDR or addr_i = CRC_ERR_EN_ADDR) else '0';
+
+   wr_cmd  <= '1' when
+      (stb_i = '1' and cyc_i = '1' and we_i = '1') and
       (addr_i = RET_DAT_S_ADDR   or addr_i = DATA_RATE_ADDR    or
        addr_i = TES_TGL_EN_ADDR  or addr_i = TES_TGL_MAX_ADDR  or
        addr_i = TES_TGL_MIN_ADDR or addr_i = TES_TGL_RATE_ADDR or
-       addr_i = INT_CMD_EN_ADDR or addr_i = CRC_ERR_EN_ADDR) else '0'; 
-      
+       addr_i = INT_CMD_EN_ADDR or addr_i = CRC_ERR_EN_ADDR) else '0';
+
 end rtl;
