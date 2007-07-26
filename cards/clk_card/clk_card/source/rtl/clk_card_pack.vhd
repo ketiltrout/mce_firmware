@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.3 2005/01/19 23:39:06 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.4 2007/07/25 19:00:50 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.4  2007/07/25 19:00:50  bburger
+-- BB:  Moved all the slave declarations that were in clk_card to clk_card_pack
+--
 -- Revision 1.3  2005/01/19 23:39:06  bburger
 -- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
 --
@@ -61,7 +64,7 @@ package clk_card_pack is
 
    constant ARRAY_ID_BITS : integer := 3;
 
-   component bp_array_id
+   component subarray_id
    port (
       clk_i   : in std_logic;
       rst_i   : in std_logic;
@@ -80,7 +83,7 @@ package clk_card_pack is
       ack_o   : out std_logic);
    end component;
 
-   component box_id_thermo
+   component backplane_id_thermo
    port(
       clk_i   : in std_logic;
       rst_i   : in std_logic;
