@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: mce_array_id.vhd,v 1.1.2.1 2007/07/25 01:01:45 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: subarray_id.vhd,v 1.1 2007/07/25 22:33:22 bburger Exp $>
 --
 -- Project:    Scuba 2
 -- Author:     Jonathan Jacob
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date: 2007/07/25 01:01:45 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/07/25 22:33:22 $> -     <text>      - <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.clk_card_pack.all;
 
-entity bp_array_id is
+entity subarray_id is
    port(
       clk_i   : in std_logic;
       rst_i   : in std_logic;
@@ -62,9 +62,9 @@ entity bp_array_id is
       dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic
    );
-end bp_array_id;
+end subarray_id;
 
-architecture rtl of bp_array_id is
+architecture rtl of subarray_id is
 
    -- internal signals
    signal array_id : std_logic_vector(ARRAY_ID_BITS-1 downto 0);
