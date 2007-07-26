@@ -1,0 +1,1794 @@
+m255
+13
+cModel Technology
+dC:\scuba2_repository\scripts\modelsim2
+Ea_graycounter
+w1150836508
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L32630
+V5MFb<Xm1NQiNaeY9?imTQ3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work a_graycounter 5MFb<Xm1NQiNaeY9?imTQ3
+l32661
+L32655
+V0R0D<4jA_7``ea0_24OJ01
+OE;C;6.1c;31
+32
+M3 ieee std_logic_1164
+M2 ieee std_logic_arith
+M1 ieee std_logic_unsigned
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealt3pram
+w1150836508
+DE altera_mf altsyncram d3ZOi=i7on0?[dnag7]?X3
+DP altera_mf altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L26964
+Ve331nYG^QO`L^i^aUhmmS2
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DE altera_mf altsyncram d3ZOi=i7on0?[dnag7]?X3
+DP altera_mf altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf alt3pram e331nYG^QO`L^i^aUhmmS2
+32
+M6 ieee std_logic_1164
+M5 ieee std_logic_arith
+M4 std textio
+M3 altera_mf altera_device_families
+M2 altera_mf altera_common_conversion
+M1 ieee std_logic_unsigned
+l27306
+L27015
+V^FgGWaUJ:>;?9oC@k3^HZ0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtaccumulate
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L9449
+VI^eIF301g7HRDSYo<<j960
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehaviour
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altaccumulate I^eIF301g7HRDSYo<<j960
+l9496
+L9482
+V0kIX^jPIB^c79AVc]Gh:A1
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtcam
+w1150836508
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L22775
+VdF76SV_:k6oQ_ndjb:SF_2
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altcam dF76SV_:k6oQ_ndjb:SF_2
+l23019
+L22968
+V@V:o:bBYjIUL96<N`0b^C2
+OE;C;6.1c;31
+32
+M5 ieee std_logic_1164
+M4 ieee std_logic_arith
+M3 std textio
+M2 work altera_common_conversion
+M1 ieee std_logic_unsigned
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtcdr_rx
+w1150836508
+DE work hssi_fifo 91MSki?RzOGBImOImT_kl1
+DE work hssi_rx g2GVOOVHM:;PLdZi7O6a_2
+DE work hssi_pll RU36[H;_=zaaQI>kId>BP1
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L18134
+VR18TIzg74TR9Kj_YP<EEX3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Astruct
+DE work hssi_fifo 91MSki?RzOGBImOImT_kl1
+DE work hssi_rx g2GVOOVHM:;PLdZi7O6a_2
+DE work hssi_pll RU36[H;_=zaaQI>kId>BP1
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altcdr_rx R18TIzg74TR9Kj_YP<EEX3
+l18233
+L18166
+V_zhUoY?5:5z234e7iGV;f2
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work mf_pllpack
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtcdr_tx
+w1150836508
+DE work hssi_fifo 91MSki?RzOGBImOImT_kl1
+DE work hssi_tx ]QXGQjVPH0cKADH:KjAi[0
+DE work hssi_pll RU36[H;_=zaaQI>kId>BP1
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L18356
+VB2MQKk_K;JFOVmC7Om?N82
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Astruct
+DE work hssi_fifo 91MSki?RzOGBImOImT_kl1
+DE work hssi_tx ]QXGQjVPH0cKADH:KjAi[0
+DE work hssi_pll RU36[H;_=zaaQI>kId>BP1
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altcdr_tx B2MQKk_K;JFOVmC7Om?N82
+l18443
+L18384
+V4Q>X`;DYVz3O0Bo6ATP;60
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work mf_pllpack
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtclklock
+w1150836508
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L15813
+VjOKBO?:FVFI>FlAl?:5Z:1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altclklock jOKBO?:FVFI>FlAl?:5Z:1
+l15935
+L15925
+VdmekFTmWb>ozzX3c]S8dM3
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_device_families
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtddio_bidir
+w1150836508
+DE work altddio_out 08IDA@=cCS;3nhRbPR`zK3
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DE work altddio_in <lK2ikQV1MC:F=Mz6BMAZ0
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L16881
+Vhe6g@UNdA@42Jdc7NoXdT2
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Astruct
+DE work altddio_out 08IDA@=cCS;3nhRbPR`zK3
+DE work altddio_in <lK2ikQV1MC:F=Mz6BMAZ0
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altddio_bidir he6g@UNdA@42Jdc7NoXdT2
+l16972
+L16932
+V1cC[7b661mX;2SMVIWUI>1
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_device_families
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtddio_in
+w1150836508
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L16517
+V<lK2ikQV1MC:F=Mz6BMAZ0
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altddio_in <lK2ikQV1MC:F=Mz6BMAZ0
+l16544
+L16543
+Vf_Y_dc1G9QoI3Yfz?AfP`3
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_device_families
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtddio_out
+w1150836508
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L16689
+V08IDA@=cCS;3nhRbPR`zK3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altddio_out 08IDA@=cCS;3nhRbPR`zK3
+l16734
+L16719
+VSa536l]ZC;5iaLTcV^eoi0
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_device_families
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtdpram
+w1150836508
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L24762
+V^6oYEm4hmnd;nEzII11Wm1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altdpram ^6oYEm4hmnd;nEzII11Wm1
+l24828
+L24801
+VR>FSMiW`TB;m2N@XXoQ]K3
+OE;C;6.1c;31
+32
+M6 ieee std_logic_1164
+M5 ieee std_logic_arith
+M4 std textio
+M3 work altera_device_families
+M2 work altera_common_conversion
+M1 ieee std_logic_unsigned
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Paltera_common_conversion
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+b1
+M2 ieee std_logic_1164
+M1 std textio
+w1150836508
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L46
+V>joA:<D^S:O52Soo8fR`L1
+OE;C;6.1c;31
+b1
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Bbody
+DB altera_mf altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+M2 ieee std_logic_1164
+M1 std textio
+l0
+L46
+VU]6Q6ffz?`mA`R[hhkbHY3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+nbody
+Paltera_device_families
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+b1
+M1 ieee std_logic_1164
+w1150836508
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L282
+VYWKe`V5k@4>fgQ5JO0FcK1
+OE;C;6.1c;31
+b1
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Bbody
+DB altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+M1 ieee std_logic_1164
+l0
+L282
+Va2U1ae]a=Z8Zm3>zd?gR61
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+nbody
+Paltera_mf_components
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+M1 ieee std_logic_1164
+w1150836468
+FC:/scuba2_repository/scripts/modelsim/altera_mf_components.vhd
+l0
+L25
+VQ0DQ@SlQfa1JSQfH0=l:o1
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Paltera_mf_hint_evaluation
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+b1
+M1 ieee std_logic_1164
+w1150836508
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L195
+V=]CNBb5iRdeiPHQc0V0n73
+OE;C;6.1c;31
+b1
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Bbody
+DB altera_mf altera_mf_hint_evaluation =]CNBb5iRdeiPHQc0V0n73
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+M1 ieee std_logic_1164
+l0
+L195
+VFe6Z?zKFLKf@?XCn=mRfI0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+nbody
+Ealtfp_mult
+w1150836508
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L14999
+V=mmkGX<12@iE3I855Fc=[3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altfp_mult =mmkGX<12@iE3I855Fc=[3
+l15140
+L15044
+VTX5eZoSz<f@^^8HYMJ^F=3
+OE;C;6.1c;31
+32
+M4 ieee std_logic_1164
+M3 ieee std_logic_arith
+M2 work altera_common_conversion
+M1 std textio
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtlvds_rx
+w1150836508
+DE work flexible_lvds_rx h3WHTm`LoHJCz@WFZnKiJ2
+DE work stratixii_lvds_rx LT^;Q?`deZBHO7XX]We<C3
+DE work altclklock jOKBO?:FVFI>FlAl?:5Z:1
+DE work mf_stratixii_pll @4BP`ZQZDQUAHG8m^9^021
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DE work mf_stratix_pll f9k0QO:2n>KcbbOIO9M490
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L19053
+VG[nUkNB1EMV:MSgf[z4L71
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DE work flexible_lvds_rx h3WHTm`LoHJCz@WFZnKiJ2
+DE work stratixii_lvds_rx LT^;Q?`deZBHO7XX]We<C3
+DE work altclklock jOKBO?:FVFI>FlAl?:5Z:1
+DE work mf_stratixii_pll @4BP`ZQZDQUAHG8m^9^021
+DE work mf_stratix_pll f9k0QO:2n>KcbbOIO9M490
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altlvds_rx G[nUkNB1EMV:MSgf[z4L71
+l19741
+L19121
+VA2Ja1a9^Wh6VL=mWa7MS:2
+OE;C;6.1c;31
+32
+M5 ieee std_logic_1164
+M4 ieee std_logic_arith
+M3 work altera_device_families
+M2 std textio
+M1 work mf_pllpack
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtlvds_tx
+w1150836508
+DE work flexible_lvds_tx G9l;[HC<48BO=3j@7o;c23
+DE work stratixii_tx_outclk 1_233V^6_7OGldW9z=0bY2
+DE work stratix_tx_outclk MaBa@0?UmzaRo[j0=z;EE3
+DE work mf_stratixii_pll @4BP`ZQZDQUAHG8m^9^021
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DE work mf_stratix_pll f9k0QO:2n>KcbbOIO9M490
+DE work altclklock jOKBO?:FVFI>FlAl?:5Z:1
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L21281
+VNW^BTf5CnKmoObI74<?Q83
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DE work flexible_lvds_tx G9l;[HC<48BO=3j@7o;c23
+DE work stratixii_tx_outclk 1_233V^6_7OGldW9z=0bY2
+DE work stratix_tx_outclk MaBa@0?UmzaRo[j0=z;EE3
+DE work mf_stratixii_pll @4BP`ZQZDQUAHG8m^9^021
+DE work mf_stratix_pll f9k0QO:2n>KcbbOIO9M490
+DE work altclklock jOKBO?:FVFI>FlAl?:5Z:1
+DP work mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altlvds_tx NW^BTf5CnKmoObI74<?Q83
+l22038
+L21396
+VE;^BjoLJP;fYAC_UZG_o92
+OE;C;6.1c;31
+32
+M5 ieee std_logic_1164
+M4 ieee std_logic_arith
+M3 work altera_device_families
+M2 std textio
+M1 work mf_pllpack
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtmult_accum
+w1150836508
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L9681
+V`1f73m@^M[7hRb93BHg1P0
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehaviour
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altmult_accum `1f73m@^M[7hRb93BHg1P0
+l9918
+L9804
+VE7@hgn@d@DH`NihgmDUY_1
+OE;C;6.1c;31
+32
+M3 ieee std_logic_1164
+M2 ieee std_logic_arith
+M1 work altera_device_families
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtmult_add
+w1150836508
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L12038
+VN6Ji36Bka95De9hmhcDz52
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehaviour
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altmult_add N6Ji36Bka95De9hmhcDz52
+l12422
+L12225
+VkG9Mg9=bF2oL9CLPgHcF`0
+OE;C;6.1c;31
+32
+M3 ieee std_logic_1164
+M2 ieee std_logic_arith
+M1 work altera_device_families
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtparallel_flash_loader
+w1150836508
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L34446
+V>=T?oEee<WdJbTZ=JW=LW3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Asim_altparallel_flash_loader
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altparallel_flash_loader >=T?oEee<WdJbTZ=JW=LW3
+l34482
+L34481
+VTGn5NjfBi[i2VS?UF[mSO0
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_mf_components
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtpll
+w1150836508
+DE altera_mf mf_stratixii_pll @4BP`ZQZDQUAHG8m^9^021
+DP altera_mf mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DE altera_mf mf_stratix_pll f9k0QO:2n>KcbbOIO9M490
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L7754
+VMon>_EWN8CngGUgoJ@JPZ0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DE altera_mf mf_stratixii_pll @4BP`ZQZDQUAHG8m^9^021
+DE altera_mf mf_stratix_pll f9k0QO:2n>KcbbOIO9M490
+DP altera_mf mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf altpll Mon>_EWN8CngGUgoJ@JPZ0
+32
+M4 ieee std_logic_1164
+M3 altera_mf altera_device_families
+M2 std textio
+M1 altera_mf mf_pllpack
+l8651
+L8064
+VW@33>ERgWYfX7`RLZ=1XU0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtqpram
+w1150836508
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L28002
+VN^]J4IW;RM[E4CLk]RiL;1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altqpram N^]J4IW;RM[E4CLk]RiL;1
+l28166
+L28088
+V[PZ@6:7c@I7<gTTGHRzVf0
+OE;C;6.1c;31
+32
+M5 ieee std_logic_1164
+M4 ieee std_logic_arith
+M3 std textio
+M2 work altera_common_conversion
+M1 ieee std_logic_unsigned
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtserial_flash_loader
+w1150836508
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L34490
+VCXY^D=`kzfP7WjcA9;jUn0
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Asim_altserial_flash_loader
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altserial_flash_loader CXY^D=`kzfP7WjcA9;jUn0
+l34507
+L34506
+VY15[SJb>R?J49_3DW9`3]1
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_mf_components
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtshift_taps
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L32529
+VWOoOTc?G@R33nKPMSlKRd1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavioural
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altshift_taps WOoOTc?G@R33nKPMSlKRd1
+l32573
+L32559
+VbIQ;lc>lmoJQdVm5oTlZM3
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtsqrt
+w1150836508
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L15547
+VnO5^KjeKn0UF4AQKW^]^;3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP work altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altsqrt nO5^KjeKn0UF4AQKW^]^;3
+l15606
+L15590
+VMM<iQdOh9BKBo9_VcKaQd0
+OE;C;6.1c;31
+32
+M4 ieee std_logic_1164
+M3 ieee std_logic_arith
+M2 work altera_common_conversion
+M1 std textio
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtsquare
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L32739
+Vf3_5<ZYf_6KNA;IAnY`O`3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Aaltsquare_syn
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altsquare f3_5<ZYf_6KNA;IAnY`O`3
+l32772
+L32763
+VzzN:XO]5fO979Ffa@KLdX0
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtstratixii_oct
+w1150836508
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L34425
+Vg7Sba8jB7D0=]8L7JQFGG0
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Asim_altstratixii_oct
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work altstratixii_oct g7Sba8jB7D0=]8L7JQFGG0
+l34438
+L34437
+Vj8HjRMB6fUlP;LGMjR;9T1
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_mf_components
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ealtsyncram
+w1150836508
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP altera_mf altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L25232
+Vd3ZOi=i7on0?[dnag7]?X3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Atranslated
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP altera_mf altera_common_conversion >joA:<D^S:O52Soo8fR`L1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf altsyncram d3ZOi=i7on0?[dnag7]?X3
+32
+M5 ieee std_logic_1164
+M4 ieee std_logic_arith
+M3 std textio
+M2 altera_mf altera_common_conversion
+M1 altera_mf altera_device_families
+l25708
+L25560
+V8;n1CB<figM]bBI:F>:ac2
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Earm_scale_cntr
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L4740
+V6W=?WJEMVVPZjH170KU^g3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf arm_scale_cntr 6W=?WJEMVVPZjH170KU^g3
+32
+M1 ieee std_logic_1164
+l4753
+L4752
+VRLMZ25R9cf0:h]XU>OAD@2
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edcfifo
+w1150836508
+DP altera_mf altera_mf_hint_evaluation =]CNBb5iRdeiPHQc0V0n73
+DE altera_mf dcfifo_low_latency QDiK1dV24E>N1VjjP53f71
+DE altera_mf dcfifo_sync ha7`nAB[CfDmdGh[WbbJi3
+DE altera_mf dcfifo_async SSl<QSM3TWZRd=iW[jmGk3
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L32216
+VACaaW>LLfzZGKoeZm<lUT1
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DE altera_mf dcfifo_low_latency QDiK1dV24E>N1VjjP53f71
+DE altera_mf dcfifo_sync ha7`nAB[CfDmdGh[WbbJi3
+DE altera_mf dcfifo_async SSl<QSM3TWZRd=iW[jmGk3
+DP altera_mf altera_mf_hint_evaluation =]CNBb5iRdeiPHQc0V0n73
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf dcfifo ACaaW>LLfzZGKoeZm<lUT1
+32
+M5 ieee std_logic_1164
+M4 ieee std_logic_arith
+M3 ieee std_logic_unsigned
+M2 altera_mf altera_device_families
+M1 altera_mf altera_mf_hint_evaluation
+l32396
+L32259
+VcP;?lg>bE1`RIlB7H2:ec3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edcfifo_async
+w1150836508
+DE altera_mf dcfifo_dffpipe V1:ba<PV[fFzkFCTW0RS50
+DE altera_mf dcfifo_fefifo _Tmie@AGb[[P20cGY<JS=1
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L30753
+VSSl<QSM3TWZRd=iW[jmGk3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DE altera_mf dcfifo_fefifo _Tmie@AGb[[P20cGY<JS=1
+DE altera_mf dcfifo_dffpipe V1:ba<PV[fFzkFCTW0RS50
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf dcfifo_async SSl<QSM3TWZRd=iW[jmGk3
+32
+M4 ieee std_logic_1164
+M3 ieee std_logic_arith
+M2 ieee std_logic_unsigned
+M1 altera_mf altera_device_families
+l30871
+L30793
+V4=_W5l39:_9e=UOhFXhle2
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edcfifo_dffpipe
+w1150836508
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L30473
+VV1:ba<PV[fFzkFCTW0RS50
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf dcfifo_dffpipe V1:ba<PV[fFzkFCTW0RS50
+32
+M3 ieee std_logic_1164
+M2 ieee std_logic_arith
+M1 ieee std_logic_unsigned
+l30497
+L30491
+VUcELmTb7^]RXk`<81f_lM3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edcfifo_fefifo
+w1150836508
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L30559
+V_Tmie@AGb[[P20cGY<JS=1
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf dcfifo_fefifo _Tmie@AGb[[P20cGY<JS=1
+32
+M3 ieee std_logic_1164
+M2 ieee std_logic_arith
+M1 ieee std_logic_unsigned
+l30589
+L30583
+V_F`=g^lbG^UfQLGfN0i?C3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edcfifo_low_latency
+w1150836508
+DP altera_mf altera_mf_hint_evaluation =]CNBb5iRdeiPHQc0V0n73
+DE altera_mf dcfifo_dffpipe V1:ba<PV[fFzkFCTW0RS50
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L31745
+VQDiK1dV24E>N1VjjP53f71
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DE altera_mf dcfifo_dffpipe V1:ba<PV[fFzkFCTW0RS50
+DP altera_mf altera_mf_hint_evaluation =]CNBb5iRdeiPHQc0V0n73
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf dcfifo_low_latency QDiK1dV24E>N1VjjP53f71
+32
+M5 ieee std_logic_1164
+M4 ieee std_logic_arith
+M3 ieee std_logic_unsigned
+M2 altera_mf altera_device_families
+M1 altera_mf altera_mf_hint_evaluation
+l31923
+L31784
+VOCO>S4S>jR8T4ob[5fYRV0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edcfifo_sync
+w1150836508
+DE altera_mf dcfifo_dffpipe V1:ba<PV[fFzkFCTW0RS50
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L31354
+Vha7`nAB[CfDmdGh[WbbJi3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DE altera_mf dcfifo_dffpipe V1:ba<PV[fFzkFCTW0RS50
+DP altera_mf altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf dcfifo_sync ha7`nAB[CfDmdGh[WbbJi3
+32
+M4 ieee std_logic_1164
+M3 ieee std_logic_arith
+M2 ieee std_logic_unsigned
+M1 altera_mf altera_device_families
+l31431
+L31390
+V7A^QV`O?z;RgUMl8nzknC3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edffp
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L1211
+V5Mh45UI^5?QSoZN6h72^Y0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf dffp 5Mh45UI^5?QSoZN6h72^Y0
+32
+M1 ieee std_logic_1164
+l1222
+L1221
+VN9c6?`?7_ZbTVfN[20A6<0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Edummy_hub
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP work sld_node S[?_m^C4M<B@f28YRDACH0
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L33868
+V^FXV8d2Ff=kS9U`GoTAk71
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP work sld_node S[?_m^C4M<B@f28YRDACH0
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work dummy_hub ^FXV8d2Ff=kS9U`GoTAk71
+l33939
+L33930
+V?cFele::ki>CZ;YbLh[592
+OE;C;6.1c;31
+32
+M3 ieee std_logic_1164
+M2 work sld_node
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Eflexible_lvds_rx
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L18846
+Vh3WHTm`LoHJCz@WFZnKiJ2
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work flexible_lvds_rx h3WHTm`LoHJCz@WFZnKiJ2
+l18903
+L18874
+V`j<gg8PYNVloHIGk]cW842
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Eflexible_lvds_tx
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L20996
+VG9l;[HC<48BO=3j@7o;c23
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work flexible_lvds_tx G9l;[HC<48BO=3j@7o;c23
+l21077
+L21026
+V4[B<@@zA_X:WV;znz6lT10
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ehssi_fifo
+w1150836508
+DE work mf_ram7x20_syn nGODIPEfFj2Lf:TZ4e2RR2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L17607
+V91MSki?RzOGBImOImT_kl1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Asynchronizer
+DE work mf_ram7x20_syn nGODIPEfFj2Lf:TZ4e2RR2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work hssi_fifo 91MSki?RzOGBImOImT_kl1
+l17664
+L17626
+VAVbUV`=CRACA4::?ERL>:0
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ehssi_pll
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L17052
+VRU36[H;_=zaaQI>kId>BP1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work hssi_pll RU36[H;_=zaaQI>kId>BP1
+l17084
+L17071
+VYg?j?=ojVkhPZgkOdW[UN0
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ehssi_rx
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L17829
+Vg2GVOOVHM:;PLdZi7O6a_2
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ahssi_receiver
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work hssi_rx g2GVOOVHM:;PLdZi7O6a_2
+l17853
+L17851
+VK22eVD;62^`kXf]_[X[H:0
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ehssi_tx
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L18010
+V]QXGQjVPH0cKADH:KjAi[0
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Atransmitter
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work hssi_tx ]QXGQjVPH0cKADH:KjAi[0
+l18025
+L18024
+V@RDBmz;;e3]7BcR^C[Xm91
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ejtag_tap_controller
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP work sld_node S[?_m^C4M<B@f28YRDACH0
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L33599
+VUlP2B<NLm0Kn4YK<_U=LD1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Afsm
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP work sld_node S[?_m^C4M<B@f28YRDACH0
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work jtag_tap_controller UlP2B<NLm0Kn4YK<_U=LD1
+l33655
+L33633
+Vh<dT7P4dHb<:;[z?jQ7BA2
+OE;C;6.1c;31
+32
+M3 ieee std_logic_1164
+M2 work sld_node
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Elcell
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L30
+Vf2G58Wlj0HCcB46bP;SW23
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work lcell f2G58Wlj0HCcB46bP;SW23
+l36
+L35
+VR@LJHhiR1H?gc@zVoMMNj3
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Emf_m_cntr
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L1245
+VZ?gR:@Zm]6k6:^SI[lO=`0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf mf_m_cntr Z?gR:@Zm]6k6:^SI[lO=`0
+32
+M1 ieee std_logic_1164
+l1256
+L1255
+VQOVTRbNT=f55G;eoc?E<G3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Emf_mn_cntr
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L4690
+VXC3Lk=_904mjac[01fTzL0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf mf_mn_cntr XC3Lk=_904mjac[01fTzL0
+32
+M1 ieee std_logic_1164
+l4701
+L4700
+Vl6ATYZ]n<gJ]TI`zfRf6h2
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Emf_n_cntr
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L1294
+V<4Zhg0IblZX0N?oCn555E1
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf mf_n_cntr <4Zhg0IblZX0N?oCn555E1
+32
+M1 ieee std_logic_1164
+l1303
+L1302
+V1KQ:fimNZTNHEH5h^=RhX0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Emf_pll_reg
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L1442
+VI2Jj4N:^nLk]HUSDW:_Sg0
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work mf_pll_reg I2Jj4N:^nLk]HUSDW:_Sg0
+l1452
+L1451
+V<chaM3>FBf984zfACMQ3F0
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Pmf_pllpack
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+b1
+M1 ieee std_logic_1164
+w1150836508
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L699
+VE1hZRc^H3HYf:<;?SOk3?1
+OE;C;6.1c;31
+b1
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Bbody
+DB altera_mf mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+M1 ieee std_logic_1164
+l0
+L699
+V^CchTLATNoEB?;^O4D:n@0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+nbody
+Emf_ram7x20_syn
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L17449
+VnGODIPEfFj2Lf:TZ4e2RR2
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Ahssi_ram7x20_syn
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work mf_ram7x20_syn nGODIPEfFj2Lf:TZ4e2RR2
+l17493
+L17467
+VnN5aH>:zhlKcLQld__lI^1
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Emf_stratix_pll
+w1150836508
+DE altera_mf mf_pll_reg I2Jj4N:^nLk]HUSDW:_Sg0
+DE altera_mf dffp 5Mh45UI^5?QSoZN6h72^Y0
+DE altera_mf stx_scale_cntr bSIP4YEjQ4P5:j6h?Snef0
+DE altera_mf mf_n_cntr <4Zhg0IblZX0N?oCn555E1
+DE altera_mf mf_m_cntr Z?gR:@Zm]6k6:^SI[lO=`0
+DP altera_mf mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L1495
+Vf9k0QO:2n>KcbbOIO9M490
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Avital_pll
+DE altera_mf mf_pll_reg I2Jj4N:^nLk]HUSDW:_Sg0
+DE altera_mf dffp 5Mh45UI^5?QSoZN6h72^Y0
+DE altera_mf stx_scale_cntr bSIP4YEjQ4P5:j6h?Snef0
+DE altera_mf mf_n_cntr <4Zhg0IblZX0N?oCn555E1
+DE altera_mf mf_m_cntr Z?gR:@Zm]6k6:^SI[lO=`0
+DP altera_mf mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf mf_stratix_pll f9k0QO:2n>KcbbOIO9M490
+32
+M3 ieee std_logic_1164
+M2 std textio
+M1 altera_mf mf_pllpack
+l2081
+L1745
+V0aZHWVRmM75U]FiETHmCX0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Emf_stratixii_pll
+w1150836508
+DE altera_mf mf_pll_reg I2Jj4N:^nLk]HUSDW:_Sg0
+DE altera_mf dffp 5Mh45UI^5?QSoZN6h72^Y0
+DE altera_mf arm_scale_cntr 6W=?WJEMVVPZjH170KU^g3
+DE altera_mf mf_mn_cntr XC3Lk=_904mjac[01fTzL0
+DP altera_mf mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L4829
+V@4BP`ZQZDQUAHG8m^9^021
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Avital_pll
+DE altera_mf mf_pll_reg I2Jj4N:^nLk]HUSDW:_Sg0
+DE altera_mf dffp 5Mh45UI^5?QSoZN6h72^Y0
+DE altera_mf arm_scale_cntr 6W=?WJEMVVPZjH170KU^g3
+DE altera_mf mf_mn_cntr XC3Lk=_904mjac[01fTzL0
+DP altera_mf mf_pllpack E1hZRc^H3HYf:<;?SOk3?1
+DP std textio K]Z^fghZ6B=BjnK5NomDT3
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf mf_stratixii_pll @4BP`ZQZDQUAHG8m^9^021
+32
+M3 ieee std_logic_1164
+M2 std textio
+M1 altera_mf mf_pllpack
+l5288
+L5035
+V^3g>kS8YzglIE<7>d;9ki0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Eparallel_add
+w1150836508
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L29335
+V?SIZbzWEfV1RBFBDU1S[73
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehaviour
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work parallel_add ?SIZbzWEfV1RBFBDU1S[73
+l29544
+L29365
+VYn52Q[T0_CoJ6kTQGNaY70
+OE;C;6.1c;31
+32
+M4 ieee std_logic_1164
+M3 ieee std_logic_unsigned
+M2 ieee std_logic_arith
+M1 work altera_mf_components
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Escfifo
+w1150836508
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L29667
+ViR36@<>mhe1d_zJhL?BP?1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP work altera_device_families YWKe`V5k@4>fgQ5JO0FcK1
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work scfifo iR36@<>mhe1d_zJhL?BP?1
+l29737
+L29708
+V8O1l8=jEC_ldbUYe2RDZB0
+OE;C;6.1c;31
+32
+M4 ieee std_logic_1164
+M3 ieee std_logic_arith
+M2 ieee std_logic_unsigned
+M1 work altera_device_families
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Esignal_gen
+w1150836508
+DP work sld_node S[?_m^C4M<B@f28YRDACH0
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L33358
+VS`89m17WaoH@S]JiSQHN`1
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Asimmodel
+DP work sld_node S[?_m^C4M<B@f28YRDACH0
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work signal_gen S`89m17WaoH@S]JiSQHN`1
+l33531
+L33373
+V]Y=ZLX;<Rl5Z8:bXSdzNJ2
+OE;C;6.1c;31
+32
+M4 ieee std_logic_1164
+M3 ieee std_logic_unsigned
+M2 ieee std_logic_arith
+M1 work sld_node
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Psld_node
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+w1150836508
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L32818
+VS[?_m^C4M<B@f28YRDACH0
+OE;C;6.1c;31
+32
+b1
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Bbody
+DB work sld_node S[?_m^C4M<B@f28YRDACH0
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+l0
+L32818
+VR[c[6^<M_[;[8e4E_EiTz3
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+nbody
+Esld_signaltap
+w1150836508
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L34354
+Vk_P54;6[3@MJnVnI59P3A3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Asim_sld_signaltap
+DP work altera_mf_components Q0DQ@SlQfa1JSQfH0=l:o1
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work sld_signaltap k_P54;6[3@MJnVnI59P3A3
+l34417
+L34416
+VBV=oJb>^U_d]5]l^VY23<2
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 work altera_mf_components
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Esld_virtual_jtag
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L34058
+VZakmoEIj?Yd4JN]afj5G13
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Astructural
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work sld_virtual_jtag ZakmoEIj?Yd4JN]afj5G13
+l34249
+L34113
+VM9mA?Jhkk@Y?A8RG[QanB3
+OE;C;6.1c;31
+32
+M1 ieee std_logic_1164
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Estratix_tx_outclk
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L20796
+VMaBa@0?UmzaRo[j0=z;EE3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work stratix_tx_outclk MaBa@0?UmzaRo[j0=z;EE3
+l20834
+L20821
+VUEKgfMkhJ7FEN5>D@[c0a1
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Estratixii_lvds_rx
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L18550
+VLT^;Q?`deZBHO7XX]We<C3
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work stratixii_lvds_rx LT^;Q?`deZBHO7XX]We<C3
+l18636
+L18588
+VNo5EM3FfzRiNTzQ[kz[L?1
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Estratixii_tx_outclk
+w1150836508
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L20906
+V1_233V^6_7OGldW9z=0bY2
+OE;C;6.1c;31
+32
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehavior
+DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE work stratixii_tx_outclk 1_233V^6_7OGldW9z=0bY2
+l20942
+L20931
+VgAR?Dj`1INPE@4g?dAe9b1
+OE;C;6.1c;31
+32
+M2 ieee std_logic_1164
+M1 ieee std_logic_arith
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Estx_scale_cntr
+w1150836508
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+32
+FC:/scuba2_repository/scripts/modelsim/altera_mf.vhd
+l0
+L1350
+VbSIP4YEjQ4P5:j6h?Snef0
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000
+Abehave
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+DE altera_mf stx_scale_cntr bSIP4YEjQ4P5:j6h?Snef0
+32
+M1 ieee std_logic_1164
+l1363
+L1362
+V3Tz4^<5M151==b[0__@To3
+OE;C;6.1c;31
+o-work altera_mf -2002 -explicit
+tExplicit 1 GenerateLoopIterationMax 100000

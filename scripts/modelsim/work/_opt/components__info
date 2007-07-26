@@ -1,0 +1,17 @@
+m255
+13
+cModel Technology
+dC:\scuba2_repository\scripts\modelsim2
+Pcomponent_pack
+DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
+31
+M1 ieee std_logic_1164
+w1173145993
+dC:\scuba2_repository\scripts\modelsim
+FC:/scuba2_repository/cards/library/components/source/rtl/component_pack.vhd
+l0
+L182
+VRXdVnjeGAdz[[?4oSVB5F2
+OE;C;6.1c;31
+o-work components -93 -explicit -check_synthesis -cover s
+tExplicit 1 GenerateLoopIterationMax 100000
