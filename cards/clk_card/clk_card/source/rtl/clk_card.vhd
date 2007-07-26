@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.69 2007/03/06 01:18:33 bburger Exp $
+-- $Id: clk_card.vhd,v 1.70 2007/07/25 18:59:52 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,13 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.70  2007/07/25 18:59:52  bburger
+-- BB:
+-- - added some library declarations
+-- - moved all of the component declarations to the clk_card_pack
+-- - interface changes:  array_id added, box_id_in type changed from inout to in, box_id_ena renamed to box_id_ena_n, auto_stp_trigger_out_0 added, mictor0_e signals changed from out to in.
+-- - added following slaves:  sram_ctrl, array_id, backplane id_thermo, psu dispatch and slave.
+--
 -- Revision 1.69  2007/03/06 01:18:33  bburger
 -- Bryce:  v03000003
 --
@@ -170,7 +177,7 @@ entity clk_card is
       extend_n          : in std_logic;
 
       -- debug ports:
-      auto_stp_trigger_out_0 : out std_logic;
+--      auto_stp_trigger_out_0 : out std_logic;
       mictor0_o         : out std_logic_vector(15 downto 0);
       mictor0clk_o      : out std_logic;
       mictor0_e         : in std_logic_vector(15 downto 0);
@@ -313,8 +320,8 @@ architecture top of clk_card is
    signal ret_dat_ack         : std_logic;
    signal card_id_thermo_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal card_id_thermo_ack  : std_logic;
-   signal box_id_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal box_id_thermo_ack   : std_logic;
+   signal backplane_id_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal backplane_id_thermo_ack   : std_logic;
    signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fpga_thermo_ack     : std_logic;
    signal config_fpga_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -334,7 +341,7 @@ architecture top of clk_card is
 
    signal fw_rev_err         : std_logic;
    signal card_id_thermo_err : std_logic;
-   signal box_id_thermo_err  : std_logic;
+   signal backplane_id_thermo_err  : std_logic;
    signal fpga_thermo_err    : std_logic;
    signal slot_id_err        : std_logic;
    signal array_id_err       : std_logic;
@@ -472,7 +479,7 @@ begin
          sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          ret_dat_data        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         box_id_thermo_data  when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         backplane_id_thermo_data  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
          config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_data     when SELECT_CLK_ADDR,
@@ -489,7 +496,7 @@ begin
          sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          ret_dat_ack         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         box_id_thermo_ack   when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         backplane_id_thermo_ack   when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
          config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_ack      when SELECT_CLK_ADDR,
@@ -508,7 +515,7 @@ begin
                                   SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          fw_rev_err          when FW_REV_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         box_id_thermo_err   when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         backplane_id_thermo_err   when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
          slot_id_err         when SLOT_ID_ADDR,
          array_id_err        when ARRAY_ID_ADDR,
@@ -637,7 +644,7 @@ begin
       ack_o  => slot_id_ack
    );
 
-   array_id_slave : bp_array_id
+   array_id_slave : subarray_id
    port map(
       clk_i  => clk,
       rst_i  => rst,
@@ -788,7 +795,7 @@ begin
       data_io => card_id
    );
 
-   box_id_thermo_slave : box_id_thermo
+   backplane_id_thermo_slave : backplane_id_thermo
    port map(
       clk_i   => clk,
       rst_i   => rst,
@@ -800,9 +807,9 @@ begin
       we_i    => we,
       stb_i   => stb,
       cyc_i   => cyc,
-      err_o   => box_id_thermo_err,
-      dat_o   => box_id_thermo_data,
-      ack_o   => box_id_thermo_ack,
+      err_o   => backplane_id_thermo_err,
+      dat_o   => backplane_id_thermo_data,
+      ack_o   => backplane_id_thermo_ack,
 
       -- silicon id/temperature chip signals
       data_i => box_id_in,
