@@ -633,7 +633,7 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package wishbone_pack
 -- Compiling package eeprom_ctrl_pack
 
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/three_wire_master.vhd {1 {vcom -work components -2002 -explicit C:/scuba2_repository/cards/library/components/source/rtl/three_wire_master.vhd
+} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/three_wire_master.vhd {1 {vcom -work components -2002 -explicit -cover s C:/scuba2_repository/cards/library/components/source/rtl/three_wire_master.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1471,18 +1471,6 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling package body fsfb_corr_pack
 -- Loading package fsfb_corr_pack
 
-} {} {}} C:/scuba2_repository/cards/clk_card/box_id_thermo/source/rtl/box_id_thermo.vhd {1 {vcom -work work -2002 -explicit -cover s C:/scuba2_repository/cards/clk_card/box_id_thermo/source/rtl/box_id_thermo.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package component_pack
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Compiling entity box_id_thermo
--- Compiling architecture behav of box_id_thermo
-
 } {} {}} C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
@@ -1510,25 +1498,6 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Compiling package frame_timing_pack
-
-} {} {}} C:/scuba2_repository/cards/clk_card/bp_array_id/source/rtl/bp_array_id.vhd {1 {vcom -work work -2002 -explicit -cover s C:/scuba2_repository/cards/clk_card/bp_array_id/source/rtl/bp_array_id.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package data_types_pack
--- Loading package frame_timing_pack
--- Loading package all_cards_pack
--- Loading package sync_gen_pack
--- Loading package issue_reply_pack
--- Loading package cc_reset_pack
--- Loading package ret_dat_wbs_pack
--- Loading package clk_card_pack
--- Compiling entity bp_array_id
--- Compiling architecture rtl of bp_array_id
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -1638,6 +1607,18 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package frame_timing_pack
 -- Compiling entity sync_gen_core
 -- Compiling architecture beh of sync_gen_core
+
+} {} {}} C:/scuba2_repository/cards/clk_card/backplane_id_thermo/source/rtl/backplane_id_thermo.vhd {1 {vcom -work work -2002 -explicit -cover s C:/scuba2_repository/cards/clk_card/backplane_id_thermo/source/rtl/backplane_id_thermo.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package component_pack
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Compiling entity backplane_id_thermo
+-- Compiling architecture behav of backplane_id_thermo
 
 } {} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -2335,6 +2316,25 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package wishbone_pack
 -- Loading package sync_gen_pack
 -- Compiling package reply_translator_pack
+
+} {} {}} C:/scuba2_repository/cards/clk_card/subarray_id/source/rtl/subarray_id.vhd {1 {vcom -work work -2002 -explicit -cover s C:/scuba2_repository/cards/clk_card/subarray_id/source/rtl/subarray_id.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Loading package all_cards_pack
+-- Loading package sync_gen_pack
+-- Loading package issue_reply_pack
+-- Loading package cc_reset_pack
+-- Loading package ret_dat_wbs_pack
+-- Loading package clk_card_pack
+-- Compiling entity subarray_id
+-- Compiling architecture rtl of subarray_id
 
 } {} {}} C:/scuba2_repository/cards/readout_card/offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/readout_card/offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
