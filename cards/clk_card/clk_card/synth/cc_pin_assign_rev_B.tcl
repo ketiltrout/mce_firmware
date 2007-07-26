@@ -32,6 +32,12 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.10  2007/07/25 18:52:37  bburger
+# BB:
+# - added the extend_n pin to the clk_card interface
+# - renamed box_id_ena to box_id_ena_n because the signal is active low
+# - commented out the mictor interface to use one of this pins as an external signaltap trigger
+#
 # Revision 1.9  2006/10/19 21:58:02  bburger
 # Bryce:  added nplus7vok and renamed rs232_rx/tx to rx/tx
 #
@@ -295,25 +301,25 @@ puts "   Assigned: SMB interface pins."
 
 
 # assign Mictor 0 (P10, Bank 8) test header pins
- cmp add_assignment $top_name "" "auto_stp_trigger_out_0" LOCATION "Pin_AE21"
-# cmp add_assignment $top_name "" "mictor0_o\[0\]" LOCATION "Pin_AE21"
-# cmp add_assignment $top_name "" "mictor0_o\[1\]" LOCATION "Pin_AG21"
-# cmp add_assignment $top_name "" "mictor0_o\[2\]" LOCATION "Pin_AF21"
-# cmp add_assignment $top_name "" "mictor0_o\[3\]" LOCATION "Pin_AE20"
-# cmp add_assignment $top_name "" "mictor0_o\[4\]" LOCATION "Pin_AF20"
-# cmp add_assignment $top_name "" "mictor0_o\[5\]" LOCATION "Pin_AH21"
-# cmp add_assignment $top_name "" "mictor0_o\[6\]" LOCATION "Pin_AH20"
-# cmp add_assignment $top_name "" "mictor0_o\[7\]" LOCATION "Pin_AE19"
-# cmp add_assignment $top_name "" "mictor0_o\[8\]" LOCATION "Pin_AD19"
-# cmp add_assignment $top_name "" "mictor0_o\[9\]" LOCATION "Pin_AF19"
-# cmp add_assignment $top_name "" "mictor0_o\[10\]" LOCATION "Pin_AG19"
-# cmp add_assignment $top_name "" "mictor0_o\[11\]" LOCATION "Pin_AH19"
-# cmp add_assignment $top_name "" "mictor0_o\[12\]" LOCATION "Pin_AD18"
-# cmp add_assignment $top_name "" "mictor0_o\[13\]" LOCATION "Pin_AE18"
-# cmp add_assignment $top_name "" "mictor0_o\[14\]" LOCATION "Pin_AG18"
-# cmp add_assignment $top_name "" "mictor0_o\[15\]" LOCATION "Pin_AF17"
-# cmp add_assignment $top_name "" "mictor0clk_o" LOCATION "Pin_AG17"
-# puts "   Assigned: Mictor 0 (P10, Bank 8) ODD pod."
+# cmp add_assignment $top_name "" "auto_stp_trigger_out_0" LOCATION "Pin_AE21"
+ cmp add_assignment $top_name "" "mictor0_o\[0\]" LOCATION "Pin_AE21"
+ cmp add_assignment $top_name "" "mictor0_o\[1\]" LOCATION "Pin_AG21"
+ cmp add_assignment $top_name "" "mictor0_o\[2\]" LOCATION "Pin_AF21"
+ cmp add_assignment $top_name "" "mictor0_o\[3\]" LOCATION "Pin_AE20"
+ cmp add_assignment $top_name "" "mictor0_o\[4\]" LOCATION "Pin_AF20"
+ cmp add_assignment $top_name "" "mictor0_o\[5\]" LOCATION "Pin_AH21"
+ cmp add_assignment $top_name "" "mictor0_o\[6\]" LOCATION "Pin_AH20"
+ cmp add_assignment $top_name "" "mictor0_o\[7\]" LOCATION "Pin_AE19"
+ cmp add_assignment $top_name "" "mictor0_o\[8\]" LOCATION "Pin_AD19"
+ cmp add_assignment $top_name "" "mictor0_o\[9\]" LOCATION "Pin_AF19"
+ cmp add_assignment $top_name "" "mictor0_o\[10\]" LOCATION "Pin_AG19"
+ cmp add_assignment $top_name "" "mictor0_o\[11\]" LOCATION "Pin_AH19"
+ cmp add_assignment $top_name "" "mictor0_o\[12\]" LOCATION "Pin_AD18"
+ cmp add_assignment $top_name "" "mictor0_o\[13\]" LOCATION "Pin_AE18"
+ cmp add_assignment $top_name "" "mictor0_o\[14\]" LOCATION "Pin_AG18"
+ cmp add_assignment $top_name "" "mictor0_o\[15\]" LOCATION "Pin_AF17"
+ cmp add_assignment $top_name "" "mictor0clk_o" LOCATION "Pin_AG17"
+ puts "   Assigned: Mictor 0 (P10, Bank 8) ODD pod."
 
 cmp add_assignment $top_name "" "mictor0_e\[0\]" LOCATION "Pin_AD21"
 cmp add_assignment $top_name "" "mictor0_e\[1\]" LOCATION "Pin_AG22"
