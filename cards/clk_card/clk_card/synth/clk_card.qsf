@@ -379,7 +379,7 @@ set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME ON
 set_global_assignment -name ALLOW_ANY_RAM_SIZE_FOR_RECOGNITION OFF
 set_global_assignment -name TOP_LEVEL_ENTITY clk_card
-set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
+set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
 
 # Fitter Assignments
 # ==================
@@ -415,7 +415,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name USE_SIGNALTAP_FILE clk_card_rc_probb.stp
 
 # LogicLock Region Assignments
@@ -483,7 +483,7 @@ set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk15
 
 	# Analysis & Synthesis Assignments
 	# ================================
-	set_instance_assignment -name MAX_FANOUT 100 -to *
+set_instance_assignment -name MAX_FANOUT 100 -to *
 
 # end ENTITY(clk_card)
 # --------------------
@@ -498,6 +498,9 @@ set_global_assignment -name ENABLE_CLOCK_LATENCY ON
 set_location_assignment PIN_C10 -to nplus7vok
 set_location_assignment PIN_C12 -to rx
 set_location_assignment PIN_B12 -to tx
+set_location_assignment PIN_AE21 -to auto_stp_trigger_out_0
+set_location_assignment PIN_K21 -to box_id_ena_n
+set_location_assignment PIN_D28 -to extend_n
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -526,6 +529,12 @@ set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs_pack.
 set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx_pack.vhd
 set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover_pack.vhd
 set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_ctrl_pack.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/clk_card_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/three_wire_master.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
+set_global_assignment -name VHDL_FILE ../../subarray_id/source/rtl/subarray_id.vhd
+set_global_assignment -name VHDL_FILE ../../backplane_id_thermo/source/rtl/backplane_id_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/tpram_32bit_x_64.vhd
 set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/ram_32bit_x_64.vhd
 set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/psu_ctrl.vhd
