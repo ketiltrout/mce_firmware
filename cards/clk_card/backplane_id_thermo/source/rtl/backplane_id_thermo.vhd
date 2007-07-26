@@ -30,7 +30,10 @@
 --
 -- Revision history:
 --
--- $Log: box_id_thermo.vhd,v $
+-- $Log: backplane_id_thermo.vhd,v $
+-- Revision 1.1  2007/07/25 22:38:26  bburger
+-- BB:  Initial committal
+--
 -- Revision 1.1.2.3  2007/07/25 00:41:31  bburger
 -- BB:  Initial commital
 --
@@ -75,7 +78,7 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 
-entity box_id_thermo is
+entity backplane_id_thermo is
 port(
    clk_i : in std_logic;
    rst_i : in std_logic;
@@ -94,9 +97,9 @@ port(
    data_i : in std_logic;
    data_o : out std_logic;
    wren_n_o : out std_logic);
-end box_id_thermo;
+end backplane_id_thermo;
 
-architecture behav of box_id_thermo is
+architecture behav of backplane_id_thermo is
 
    -- one-wire master interface:
    signal slave_cmd     : std_logic_vector(7 downto 0);
