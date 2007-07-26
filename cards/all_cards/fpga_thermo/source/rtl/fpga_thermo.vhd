@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: fpga_thermo.vhd,v $
+-- Revision 1.8  2007/07/25 22:18:13  bburger
+-- BB:
+-- - added a stale data bit to indicate if the temperature has been read since the last wishbone query to the fpga_thermo block.  A stale data bit has been added to the word at the LSB.
+--
 -- Revision 1.7  2007/03/20 20:37:53  mandana
 -- wb fpga_thermo is legitimate, then just drive err_o to '0'
 --
@@ -130,7 +134,7 @@ architecture rtl of fpga_thermo is
 begin
 
    err_o    <= '0';
-   
+
    ---------------------------------------------------------
    -- Temperature Update Timer
    ---------------------------------------------------------
@@ -320,7 +324,7 @@ begin
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
+
          when others =>
             next_state <= IDLE;
 
@@ -349,7 +353,7 @@ begin
 
          when RD =>
             ack_o <= '1';
-           
+
             if(cyc_i = '0') then
                stale_set <= '1';
             end if;
@@ -365,7 +369,7 @@ begin
    --  Wishbone interface:
    ------------------------------------------------------------
    with addr_i select dat_o <=
-      wbs_data_o(30 downto 0) & stale when FPGA_TEMP_ADDR,
+      wbs_data_o(31 downto 1) & stale when FPGA_TEMP_ADDR,
       (others => '0') when others;
 
    rd_cmd  <= '1' when

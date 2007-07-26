@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.9  2007/07/25 22:22:19  bburger
+-- BB:  Customized this block to what it actually is used for.  Initially it was intended to be used for both the card id_thermo and box id_thermo chips, but the interfaces between the two are different (1-wire vs. 3-wire) so I abandoned the idea of reusing this block and implemented a box_id_thermo block in the clk_card directory.
+-- - This block now incorporates a stale bit in the LSB of the data returned to the dispatch block.
+--
 -- Revision 1.8  2006/10/19 21:55:05  bburger
 -- Bryce:  alterations made for the sake of BOX_ID which has a three-wire interface compared to CARD_ID's one-wire interface
 --
@@ -496,7 +500,7 @@ begin
             -- Range is from -55 to +85 degress Celcius.
             dat_o <= thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) &
                      thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) &
-                     thermo(15 downto 1) & stale;
+                     thermo(15) & thermo(15 downto 2) & stale;
 
          when WB_ERROR =>
             err_o <= '1';
