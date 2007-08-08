@@ -129,7 +129,7 @@ INIT_PCI
 	BCLR	#INTA,X:DCTR			; $72/3 - Clear PCI interrupt
 	NOP
 
-	BCLR	#INTA_FLAG,X:<STATUS		; $74/5 - Clear PCI interrupt
+	BCLR	#DCTR_HF3,X:DCTR		; clear interrupt flag
 	NOP					; needs to be fast addressing <
 
 	BSET	#FATAL_ERROR,X:<STATUS		; $76/7 - driver informing us of PCI_MESSAGE_TO_HOST error 
@@ -226,11 +226,11 @@ START	MOVEP	#>$000001,X:DPMC
 
 	MOVEP	#%000000,X:PCRD	; Control Register (0 for GPIO, 1 for ESSI)
 	MOVEP	#%011100,X:PRRD	; Data Direction Register (0 for In, 1 for Out)
-	MOVEP	#%011000,X:PDRD	; Data Register - Pulse RS* low
+	MOVEP	#%010000,X:PDRD	; Data Register - Pulse RS* low
 	REP	#10
 	NOP
-	MOVEP	#%011100,X:PDRD ; Data Register - Pulse RS* high
-
+	MOVEP	#%010100,X:PDRD ; Data Register - Pulse RS* high
+				; was %011100
 
 ; Program the SCI port to benign values
 	MOVEP	#%000,X:PCRE	; Port Control Register = GPIO
@@ -342,6 +342,15 @@ X_WRITE
 	BCLR	#BYTE_SWAP,X:<STATUS	; flag to let host know byte swapping off
 	BCLR	#AUX1,X:PDRC		; enable disable
 
+;----------------------------------------------------------------------------
+; Initialize PCI controller again, after booting, to make sure it sticks
+        BCLR	#20,X:DCTR		; Terminate and reset mode 
+        NOP
+        JSET    #HACT,X:DSR,*		; Test for personal reset completion
+        NOP
+        BSET    #20,X:DCTR              ; HI32 mode = 1 => PCI
+        NOP
+        JSET    #12,X:DPSR,*		; Host data transfer not in progress
 ;-----------------------------------------------------------------------------
 ; Here endth the initialisation code run after power up.
 ; ----------------------------------------------------------------------------

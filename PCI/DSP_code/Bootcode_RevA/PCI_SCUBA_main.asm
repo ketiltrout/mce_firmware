@@ -7,7 +7,7 @@ Author:      DAVID ATKINSON
 Target:      250MHz SDSU PCI card - DSP56301
 Controller:  For use with SCUBA 2 Multichannel Electronics 
 
-Version:     Release Version A (1.4)
+Version:     Release Version A (1.5)
 
 
 Assembler directives:
@@ -195,55 +195,40 @@ MCE_PACKET
 		
 		JSR	<PCI_MESSAGE_TO_HOST			; notify host of packet	
 		BSET	#HST_NFYD,X:<STATUS			; flag to indicate host has been notified.
-WT_HOST		JSET	#FATAL_ERROR,X:<STATUS,START		; if fatal error - run initialisation code...
-		JCLR	#SEND_TO_HOST,X:<STATUS,WT_HOST		; wait for host to reply - which it does with 'send_packet_to_host' ISR
 
+; initialise read/write buffers 
+; AND IMMEDIATELY BEGIN TO BUFFER FIBRE DATA TO Y MEMORY.
 
-; we now have 32 bit address in accumulator B
-; from send-packet_to_host
+		MOVE	#<IMAGE_BUFFER,R1		; FO ---> Y mem
+		MOVE	#<IMAGE_BUFFER,R2		; Y mem ----->  PCI BUS	
+
 
 ; ---------------------------------------------------------------------------------------------------------
 ; Write TOTAL_BUFFS * 512 buffers to host
 ; ----------------------------------------------------------------------------------------------------				
-		DO	X:<TOTAL_BUFFS,ALL_BUFFS_END	; note that if TOTAL_BUFFS = 0 we jump to ALL_BUFFS_END
-
-		MOVE	#<IMAGE_BUFFER,R1		; FO ---> Y mem 
-		MOVE	#<IMAGE_BUFFER,R2		; Y mem ----->  PCI BUS	
-
-
+		DO	X:<TOTAL_BUFFS,READ_BUFFS_END	; note that if TOTAL_BUFFS = 0 we jump to ALL_BUFFS_END
+	
 WAIT_BUFF	JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO	; if fatal error then dump fifo and reset (i.e. if HST timeout)
 		JSET	#HF,X:PDRD,WAIT_BUFF		; Wait for FIFO to be half full + 1
 		NOP
 		NOP
 		JSET	#HF,X:PDRD,WAIT_BUFF		; Protection against metastability
 
-
 ; Copy the image block as 512 x 16bit words to DSP Y: Memory using R1 as pointer
 		DO	#512,L_BUFFER
 		MOVEP	Y:RDFIFO,Y:(R1)+
 L_BUFFER
-
-
-; R2 points to data in Y memory to be written to host
-; host address is in B - got by SEND_PACKET_TO_HOST command 
-; so we can now write this buffer to host
-
-		JSR	<WRITE_512_TO_PCI			; this subroutine will increment host address, which is in B and R2
 		NOP
-ALL_BUFFS_END							; all buffers have been writen to host	
+READ_BUFFS_END							; all buffers have been read (-->Y)	
 
 ; ---------------------------------------------------------------------------------------------------------
-; Write NUM_LEFTOVER_BLOCKS * 32 blocks to host
+; Read NUM_LEFTOVER_BLOCKS * 32 blocks
 ; ----------------------------------------------------------------------------------------------------		
 
 ; less than 512 pixels but if greater than 32 will then do bursts
 ; of 16 x 32bit in length, if less than 32 then does single read writes
 
-		DO	X:<NUM_LEFTOVER_BLOCKS,LEFTOVER_BLOCKS	 ;note that if NUM_LEFOVERS_BLOCKS = 0 we jump to LEFTOVER_BLOCKS
-
-
-		MOVE	#<IMAGE_BUFFER,R1		; FO ---> Y mem
-		MOVE	#<IMAGE_BUFFER,R2		; Y mem ----->  PCI BUS	
+		DO	X:<NUM_LEFTOVER_BLOCKS,READ_BLOCKS	 ;note that if NUM_LEFOVERS_BLOCKS = 0 we jump to LEFTOVER_BLOCKS
 
 		DO	#32,S_BUFFER
 WAIT_1		JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO ; check for fatal error (i.e. after HST timeout)
@@ -253,19 +238,14 @@ WAIT_1		JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO ; check for fatal error (i.e. afte
 		JCLR	#EF,X:PDRD,WAIT_1		; Protection against metastability
 		MOVEP	Y:RDFIFO,Y:(R1)+		; save fibre word
 S_BUFFER
-
-		JSR	<WRITE_32_TO_PCI		; write small blocks
 		NOP
-LEFTOVER_BLOCKS
+READ_BLOCKS
 
 ; -----------------------------------------------------------------------------------------------------
 ; Single write left over words to host
 ; ----------------------------------------------------------------------------------------------------	
 
 LEFT_OVERS	
-		MOVE	#<IMAGE_BUFFER,R1		; FO ---> Y mem
-		MOVE	#<IMAGE_BUFFER,R2		; Y mem ----->  PCI BUS	
-
 		DO	X:<LEFT_TO_READ,LEFT_OVERS_READ		; read in remaining words of data packet
 								; if LEFT_TO_READ = 0 then will jump to LEFT_OVERS_READ
 
@@ -277,13 +257,60 @@ WAIT_2		JSET	#FATAL_ERROR,X:<STATUS,START		; check for fatal error (i.e. after H
 		MOVEP	Y:RDFIFO,Y:(R1)+			; save fibre word	
 LEFT_OVERS_READ
 
+;---------------------------------------------------------------------------------------
+; ENTIRE PACKET NOW IN Y MEMORY
+;----------------------------------------------------------------------------------------
+; CHECK THAT HST COMMAND WAS ISSUED DURING DATA COLLECTION...
+
+
+WT_HOST		JSET	#FATAL_ERROR,X:<STATUS,START		; if fatal error - run initialisation code...
+		JCLR	#SEND_TO_HOST,X:<STATUS,WT_HOST		; wait for host to reply - which it does with 'send_packet_to_host' ISR
+
+; we now have 32 bit address in accumulator B
+; from send-packet_to_host (HST COMMAND) which should of been issued during data collection.
+
+; Write all data to host.
+
+; ---------------------------------------------------------------------------------------------------------
+; Write TOTAL_BUFFS * 512 buffers to host
+; ----------------------------------------------------------------------------------------------------				
+		DO	X:<TOTAL_BUFFS,WRITE_BUFFS_END	; note that if TOTAL_BUFFS = 0 we jump to ALL_BUFFS_END
+
+; R2 points to data in Y memory to be written to host
+; host address is in B - got by SEND_PACKET_TO_HOST command 
+; so we can now write this buffer to host
+
+		JSR	<WRITE_512_TO_PCI			; this subroutine will increment host address, which is in B and R2
+		NOP
+WRITE_BUFFS_END							; all buffers have been writen to host	
+
+; ---------------------------------------------------------------------------------------------------------
+; Write NUM_LEFTOVER_BLOCKS * 32 blocks to host
+; ----------------------------------------------------------------------------------------------------		
+
+; less than 512 pixels but if greater than 32 will then do bursts
+; of 16 x 32bit in length, if less than 32 then does single read writes
+
+		DO	X:<NUM_LEFTOVER_BLOCKS,WRITE_BLOCKS	 ;note that if NUM_LEFOVERS_BLOCKS = 0 we jump to LEFTOVER_BLOCKS
+
+		JSR	<WRITE_32_TO_PCI		; write small blocks
+		NOP
+WRITE_BLOCKS
+
+; -----------------------------------------------------------------------------------------------------
+; Single write left over words to host
+; ----------------------------------------------------------------------------------------------------	
+
 ; now write left overs to host as 32 bit words
 		
-		DO	X:LEFT_TO_WRITE,LEFT_OVERS_WRITEN	; left overs to write is half left overs read - since 32 bit writes
+		DO	X:LEFT_TO_WRITE,LEFT_OVERS_WRITE	; left overs to write is half left overs read - since 32 bit writes
 								; if LEFT_TO_WRITE = 0, will jump to LEFT_OVERS_WRITTEN
 		JSR	WRITE_TO_PCI				; uses R2 as pointer to Y memory, host address in B	
-LEFT_OVERS_WRITEN
+		NOP
 
+LEFT_OVERS_WRITE
+
+		JSET	#FATAL_ERROR,X:<STATUS,START
 
 ; ----------------------------------------------------------------------------------------------------------
 ; reply to host's send_packet_to_host command
@@ -559,10 +586,16 @@ SET_PACKET_DELAY
 ; ------------------------------------------------------------------------
 
 BLOCK_CON
+	MOVE	X:CONSTORE,R6
+
 	DO	#64,END_BLOCK_CON	; block size = 32bit x 64 (256 bytes)
 	JSR	<READ_FROM_PCI		; get next 32 bit word from HOST
 	MOVE	X0,A1			; prepare to send
 	MOVE	X1,A0			; prepare to send
+
+	MOVE	X1,Y:(R6)+		; b4, b3 (msb)		
+	MOVE	X0,Y:(R6)+		; b2, b1  (lsb)
+
 	JSR	<XMT_WD_FIBRE		; off it goes
 	NOP
 END_BLOCK_CON
@@ -685,7 +718,7 @@ FINISH_RST
 	MOVE	X0,X:<DTXS_WD4		; read data
 	JSR	<PCI_MESSAGE_TO_HOST
 
-	JSET	#INTA_FLAG,X:<STATUS,*   ; wait for host to process
+	JSET	#DCTR_HF3,X:DCTR,*
 	
 	BCLR	#APPLICATION_LOADED,X:<STATUS	; clear app flag
         BCLR	#PREAMBLE_ERROR,X:<STATUS	; clear preamble error
@@ -1041,13 +1074,8 @@ PCI_MESSAGE_TO_HOST
 ; PCI card writes here first then causes an interrupt INTA on
 ; the PCI bus to alert the host to the reply message
 
-
-
-	JSET	#INTA_FLAG,X:<STATUS,*	; make sure host ready to receive message
-					; bit will be cleared by fast interrupt 
-					; if ready
-	BSET	#INTA_FLAG,X:<STATUS	; set flag for next time round.....
-
+	JSET	#DCTR_HF3,X:DCTR,*	; make sure host ready to receive interrupt
+					; cleared via fast interrupt if host out of its ISR
 
 	JCLR	#STRQ,X:DSR,*		; Wait for transmitter to be NOT FULL
 					; i.e. if CLR then FULL so wait
@@ -1084,6 +1112,8 @@ PCI_MESSAGE_TO_HOST
 ; the Host should clear this interrupt once it is detected. 
 ; It does this by writing to HCVR to cause a fast interrupt.
 
+
+	BSET	#DCTR_HF3,X:DCTR	; set flag to handshake interrupt (INTA) with host. 
 	BSET	#INTA,X:DCTR		; Assert the interrupt
 
 	RTS
@@ -1462,11 +1492,11 @@ VAR_TBL_START	EQU	@LCV(L)
 STATUS		DC	0
 FRAME_COUNT	DC	0	; used as a check....... increments for every frame write.....must be cleared by host.
 PRE_CORRUPT	DC	0
-REV_NUMBER	DC	$410104		; byte 0 = minor revision #
+REV_NUMBER	DC	$410105		; byte 0 = minor revision #
 					; byte 1 = mayor revision #
 					; byte 2 = release Version (ascii letter)
-REV_DATA	DC	$070306		; data: day-month-year
-P_CHECKSUM	DC	$B1FE60         ;**** DO NOT CHANGE
+REV_DATA	DC	$250507		; data: day-month-year
+P_CHECKSUM	DC	$2EF490         ;**** DO NOT CHANGE
 ; -------------------------------------------------
 WORD_COUNT		DC	0	; word count.  Number of words successfully writen to host in last packet.	
 NUM_DUMPED		DC	0	; number of words (16-bit) dumped to Y memory (512) after an HST timeout.
@@ -1527,6 +1557,8 @@ ZERO			DC	0
 ONE			DC	1
 FOUR			DC	4
 
+
+
 PACKET_SIZE_LOW		DC	0
 PACKET_SIZE_HIH		DC	0
 
@@ -1541,6 +1573,7 @@ LEFT_TO_WRITE		DC	0	; number of woreds (32 bit) to write to host i.e. half of th
 NUM_LEFTOVER_BLOCKS	DC	0	; small block DMA burst transfer
 
 DATA_DLY_VAL		DC	0	; data delay value..  Delay added to first frame received after GO command 
+CONSTORE		DC	$200
 
 ;----------------------------------------------------------
 

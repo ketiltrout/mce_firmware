@@ -45,7 +45,7 @@ SEND_TO_HOST		EQU	1   ; set in HST ISR when host ready for packet (stays set unt
 FATAL_ERROR		EQU	2   ; PCI message to host error detected by driver....
 FO_WRD_RCV		EQU	3   ; set when packet detected in FIFO - stays set till packet processed
 
-INTA_FLAG		EQU	4   ; used for interupt handshaking with host
+;INTA_FLAG		EQU	4   ; used for interupt handshaking with host
 BYTE_SWAP		EQU	5   ; flag to show byte swapping enabled
 PREAMBLE_ERROR		EQU	6   ; set if preamble error detected
 DATA_DLY		EQU	7   ; set in CON ISR if MCE command is 'GO'.  USed to add delay to first returned data packet 
@@ -69,7 +69,7 @@ INTERNAL_GO		EQU	13   ; GO command received while diagnostic application still r
 ; HST timeout recovery....
 
 MAX_DUMP		EQU	512	; if HST timeout.. max number that could be in FIFO is 511..
-DUMP_BUFF		EQU	512	; store in Y memory above normal data buffer...(Y:0 --> Y:511)
+DUMP_BUFF		EQU	$1000	; store in Y memory above normal data buffer: in off-chip RAM
 
 
 
@@ -131,10 +131,10 @@ DCO0	EQU	$FFFFED		; Counter register
 DCR0	EQU	$FFFFEC		; Control register
 
 ; The DCTR host flags are written by the DSP and read by PCI host
-DCTR_RPLY  EQU	3		; Set after reply
-DCTR_BUF0  EQU	4		; Set after buffer 0 is written to
-DCTR_BUF1  EQU	5		; Set after buffer 1 is written to
-INTA	   EQU	6		; Request PCI interrupt
+DCTR_HF3	EQU	3		; used as a semiphore for INTA handshaking
+DCTR_HF4  	EQU	4		; 
+DCTR_HF5  	EQU	5		; 
+INTA	   	EQU	6		; Request PCI interrupt
 
 ; The DSR host flags are written by the PCI host and read by the DSP
 DSR_BUF0   EQU	4		; PCI host sets this when copying buffer 0
