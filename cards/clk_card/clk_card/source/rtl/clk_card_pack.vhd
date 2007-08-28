@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.4 2007/07/25 19:00:50 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.5 2007/07/26 20:28:10 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.5  2007/07/26 20:28:10  bburger
+-- BB:  entity name updates:  subarray_id and backplane_id_thermo
+--
 -- Revision 1.4  2007/07/25 19:00:50  bburger
 -- BB:  Moved all the slave declarations that were in clk_card to clk_card_pack
 --
@@ -264,12 +267,23 @@ package clk_card_pack is
       data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- to internal_cmd_fsm (cmd_translator):
-      tes_bias_toggle_en_o   : out std_logic;
-      tes_bias_high_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      status_cmd_en_o        : out std_logic;
+--      tes_bias_toggle_en_o   : out std_logic;
+--      tes_bias_high_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+      internal_cmd_mode_o    : out std_logic_vector(1 downto 0);
+      step_period_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_minimum_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_size_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_maximum_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_param_id_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_card_addr_o       : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_data_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
+--      status_cmd_en_o        : out std_logic;
       crc_err_en_o           : out std_logic;
+      num_rows_to_read_o     : out integer;
 
       -- global interface
       clk_i                  : in std_logic;
@@ -377,11 +391,21 @@ package clk_card_pack is
       external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
-      tes_bias_toggle_en_i   : in std_logic;
-      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      status_cmd_en_i        : in std_logic;
+--      tes_bias_toggle_en_i   : in std_logic;
+--      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+--      status_cmd_en_i        : in std_logic;
+
+      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
+      step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
       crc_err_en_i           : in std_logic;
 
       -- clk_switchover interface
@@ -398,6 +422,7 @@ package clk_card_pack is
       -- sync_gen interface
       row_len_i              : in integer;
       num_rows_i             : in integer;
+      num_rows_to_read_i     : in integer;
       sync_pulse_i           : in std_logic;
       sync_number_i          : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );
