@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.62  2007/06/16 03:29:00  mandana
+-- v03000001e added data_mode=6 for 18b filtered fb + 14b error
+--
 -- Revision 1.61  2007/03/21 19:17:02  mandana
 -- added new fpga_thermo module for reliable readings
 -- major rewrite of fsfb_corr
@@ -371,15 +374,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300001e"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- move to Q6.0 SP1 after using Altera's Quartus.ini file
-                                                                     -- filter 1/2^11 scaling between biquad stages 
-                                                                     -- added read port for adc_offset, fb_const/channel
-                                                                     -- corrected DAC_INIT_VAL for all channels,                                                                      
-                                                                     -- servo_mode/column with added ports to fsfb_corr 
-                                                                     -- rewrote wbs_frame_data
-                                                                     -- debug filter dynamic range
-                                                                     -- added data_mode 6 for mixed filter+err mode
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000000"; -- added data_mode 6 for mixed filter+err mode
 
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -544,7 +539,7 @@ begin
                              FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                              SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
-      dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR,
+      dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR,
       dat_led         when   LED_ADDR,
       dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
@@ -581,7 +576,7 @@ begin
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
-                            DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR |
+                            DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
                             LED_ADDR |
                             ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
@@ -952,39 +947,37 @@ begin
    -- Mictor Connection
    ----------------------------------------------------------------------------
    
-   mictor(0)  <= clk;
-   mictor(1)  <= dac_dat_en;
-   mictor(2)  <= adc_coadd_en;
-   mictor(3)  <= restart_frame_1row_prev;
-   mictor(4)  <= restart_frame_aligned;
-   mictor(5)  <= restart_frame_1row_post;
-   mictor(6)  <= row_switch;
-   mictor(7)  <= initialize_window;
-   mictor(8)  <= lvds_sync;
-   mictor(9)  <= lvds_cmd;
-   mictor(10) <= dispatch_lvds_txa;
-   mictor(11) <= dispatch_err_in;
-   mictor(12) <= dispatch_tga_out(0);
-   mictor(13) <= dispatch_tga_out(1);
-   mictor(14) <= dispatch_tga_out(2);
-   mictor(15) <= dispatch_we_out;
-   mictor(16) <= dispatch_stb_out;
-   mictor(17) <= dispatch_cyc_out;
-   mictor(18) <= dispatch_addr_out(0);
-   mictor(19) <= dispatch_addr_out(1);
-   mictor(20) <= dispatch_addr_out(2);
-   mictor(21) <= dispatch_addr_out(3);
-   mictor(22) <= dispatch_addr_out(4);
-   mictor(23) <= dispatch_addr_out(5);
-   mictor(24) <= dispatch_addr_out(6);
-   mictor(25) <= dispatch_addr_out(7);
-   mictor(26) <= ack_fb;
-   mictor(27) <= ack_frame;
-   mictor(28) <= ack_ft;
-   mictor(29) <= ack_led;
-   mictor(30) <= fw_rev_ack;
-   mictor(31) <= rst;
-
-
+--   mictor(0)  <= clk;
+--   mictor(1)  <= dac_dat_en;
+--   mictor(2)  <= adc_coadd_en;
+--   mictor(3)  <= restart_frame_1row_prev;
+--   mictor(4)  <= restart_frame_aligned;
+--   mictor(5)  <= restart_frame_1row_post;
+--   mictor(6)  <= row_switch;
+--   mictor(7)  <= initialize_window;
+--   mictor(8)  <= lvds_sync;
+--   mictor(9)  <= lvds_cmd;
+--   mictor(10) <= dispatch_lvds_txa;
+--   mictor(11) <= dispatch_err_in;
+--   mictor(12) <= dispatch_tga_out(0);
+--   mictor(13) <= dispatch_tga_out(1);
+--   mictor(14) <= dispatch_tga_out(2);
+--   mictor(15) <= dispatch_we_out;
+--   mictor(16) <= dispatch_stb_out;
+--   mictor(17) <= dispatch_cyc_out;
+--   mictor(18) <= dispatch_addr_out(0);
+--   mictor(19) <= dispatch_addr_out(1);
+--   mictor(20) <= dispatch_addr_out(2);
+--   mictor(21) <= dispatch_addr_out(3);
+--   mictor(22) <= dispatch_addr_out(4);
+--   mictor(23) <= dispatch_addr_out(5);
+--   mictor(24) <= dispatch_addr_out(6);
+--   mictor(25) <= dispatch_addr_out(7);
+--   mictor(26) <= ack_fb;
+--   mictor(27) <= ack_frame;
+--   mictor(28) <= ack_ft;
+--   mictor(29) <= ack_led;
+--   mictor(30) <= fw_rev_ack;
+--   mictor(31) <= rst;
    
 end top;
