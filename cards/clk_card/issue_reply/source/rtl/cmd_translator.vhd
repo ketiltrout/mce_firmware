@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.48 2006/11/03 23:02:43 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.49 2007/07/24 22:11:03 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -31,9 +31,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2006/11/03 23:02:43 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/07/24 22:11:03 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.49  2007/07/24 22:11:03  bburger
+-- BB:  cmd_translator is completely re-written:  arbiter, ret_dat, simple and internal have all be amalgamated to make implementing internal commands possible while conserving timing of ret_dat commands.
+--
 -- Revision 1.48  2006/11/03 23:02:43  bburger
 -- Bryce:  issue_reply now waits until the after the last data packet to send the reply to a stop command.
 --
@@ -87,11 +90,20 @@ port(
    external_dv_i         : in std_logic;
 
    -- ret_dat_wbs interface
-   tes_bias_toggle_en_i   : in std_logic;
-   tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   status_cmd_en_i        : in std_logic;
+--*   tes_bias_toggle_en_i   : in std_logic;
+--*   tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--*   tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--*   tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+--*   status_cmd_en_i        : in std_logic;
+   internal_cmd_mode_i    : in std_logic_vector(1 downto 0);               --
+   step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
+   step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
+   step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
+   step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
+   step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
+   step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
+   step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- Not right now.
+   step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- other inputs
    sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -107,8 +119,9 @@ port(
    cmd_stop_o            : out std_logic;
    last_frame_o          : out std_logic;
    internal_cmd_o        : out std_logic;
-   num_rows_i            : in integer;
-   tes_bias_step_level_o : out std_logic;
+--   num_rows_i            : in integer;
+   num_rows_to_read_i    : in integer;
+--   tes_bias_step_level_o : out std_logic;
 
    -- input from the cmd_queue
    ack_i                 : in  std_logic;
@@ -169,27 +182,39 @@ architecture rtl of cmd_translator is
    -------------------------------------------------------------------------------------------
    -- Internal command control signals
    -------------------------------------------------------------------------------------------
-   constant NUM_INTERNAL_CMD_TYPES : integer := 4;
+   constant NUM_HOUSEKEEPING_CMD_TYPES : integer := 4;
    constant FPGA_TEMPERATURE       : integer := 0;
    constant CARD_TEMPERATURE       : integer := 1;
    constant PSUC_STATUS            : integer := 2;
    constant BOX_TEMPERATURE        : integer := 3;
 
+   constant NUM_INTERNAL_CMD_MODES : integer := 3;
+   constant INTERNAL_OFF           : integer := 0;
+   constant INTERNAL_HOUSEKEEPING  : integer := 1;
+   constant INTERNAL_RAMP          : integer := 2;
+
+--   signal toggle_which_way    : std_logic;
+--   signal toggle_en_delayed   : std_logic;
    signal internal_status_req : std_logic;
    signal internal_status_ack : std_logic;
    signal tes_bias_toggle_req : std_logic;
    signal tes_bias_toggle_ack : std_logic;
-   signal toggle_which_way    : std_logic;
-   signal toggle_en_delayed   : std_logic;
-
    signal next_toggle_sync    : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+   -- Check these signals
    signal update_nts          : std_logic;
 
    signal timer_rst           : std_logic;
    signal time                : integer;
 
-   signal internal_cmd_id     : integer range 0 to NUM_INTERNAL_CMD_TYPES;
+   signal internal_cmd_id     : integer range 0 to NUM_HOUSEKEEPING_CMD_TYPES;
    signal internal_cmd_ack    : std_logic;
+
+   signal ramp_value : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_ramp_value : std_logic;
+   --signal load_ramp_value : std_logic;
+   -- For detecting changes in the mode.
+   signal internal_cmd_mode_delayed : std_logic_vector(1 downto 0);
 
    -------------------------------------------------------------------------------------------
    -- simple command control signals
@@ -206,13 +231,14 @@ begin
    ack_o <= f_rx_ret_dat_ack or simple_cmd_ack;
 
    -- Registered outputs to cmd_queue
-   tes_bias_step_level_o  <= not toggle_which_way;
-
+--   tes_bias_step_level_o  <= not toggle_which_way;
+   step_value_o <= ramp_value;
    frame_seq_num_o <= seq_num;
    frame_sync_num_o <= sync_num;
 
    -- Size calculation logic for data packets
-   data_size_int          <= NO_CHANNELS * num_rows_i;
+--   data_size_int          <= NO_CHANNELS * num_rows_i;
+   data_size_int          <= NO_CHANNELS * num_rows_to_read_i;
    data_size              <= conv_std_logic_vector(data_size_int,BB_DATA_SIZE_WIDTH);
 
    -------------------------------------------------------------------------------------------
@@ -225,8 +251,8 @@ begin
          internal_status_req  <= '0';
          tes_bias_toggle_req  <= '0';
          next_toggle_sync     <= (others => '0');
-         toggle_which_way     <= '1';
-         toggle_en_delayed    <= '0';
+--         toggle_which_way     <= '1';
+         internal_cmd_mode_delayed    <= "00";
          f_rx_data            <= (others=>'0');
          f_rx_param_id        <= (others=>'0');
          f_rx_card_addr       <= (others=>'0');
@@ -239,32 +265,46 @@ begin
          internal_cmd_id      <=  0;
          simple_cmd_req       <= '0';
          ret_dat_in_progress  <= '0';
+         ramp_value           <= (others=>'0');
 
       elsif(clk_i'event and clk_i = '1') then
 
-         toggle_en_delayed <= tes_bias_toggle_en_i;
+         internal_cmd_mode_delayed <= internal_cmd_mode_i;
          timer_rst         <= '0';
 
          -- internal_status_ack is asserted for two consecutive cycles to make sure that both timer and internal_status_req are cleared.
          if(internal_status_ack = '1') then
             internal_status_req  <= '0';
             timer_rst            <= '1';
-         elsif(status_cmd_en_i = '1' and time >= INTERNAL_COMMAND_PERIOD) then
+         elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and time >= HOUSEKEEPING_COMMAND_PERIOD) then
 --         elsif(status_cmd_en_i = '1' and time >= 1000) then
             internal_status_req  <= '1';
          end if;
 
          -- Manage the TES toggling control signals
-         if(tes_bias_toggle_en_i = '1' and next_toggle_sync = sync_number_i) then
+         -- We request a tes_bias_toggle when we start a ret_dat to immediately sync up the bias steps to follow the data frames.
+         if(internal_cmd_mode_i = INTERNAL_RAMP and (next_toggle_sync = sync_number_i or ret_dat_start = '1')) then
             tes_bias_toggle_req <= '1';
          elsif(tes_bias_toggle_ack = '1') then
             tes_bias_toggle_req <= '0';
-            toggle_which_way <= not toggle_which_way;
+--            toggle_which_way <= not toggle_which_way;
          end if;
 
          -- If it's time to toggle, or we detect a rising edge on the toggle enable line we update the TES toggle sync number.
-         if(update_nts = '1' or (toggle_en_delayed = '0' and tes_bias_toggle_en_i = '1')) then
-            next_toggle_sync <= sync_number_i + tes_bias_toggle_rate_i;
+         if(update_nts = '1' or (internal_cmd_mode_delayed /= internal_cmd_mode_i and internal_cmd_mode_i = INTERNAL_RAMP)) then
+            next_toggle_sync <= sync_number_i + step_period_i;
+         end if;
+
+         -- If we are entering INTERNAL_RAMP mode, we set the starting ramp_value to step_minimum_i.
+         if(internal_cmd_mode_delayed /= internal_cmd_mode_i and internal_cmd_mode_i = INTERNAL_RAMP) then
+            ramp_value <= step_minimum_i;
+         -- Otherwise, we increment the ramp_value by step_size, and wrap back down if it is to exceed step_maximum_i
+         elsif(step_ramp_value = '1') then
+            if(ramp_value <= (step_maximum_i - step_size_i)) then
+               ramp_value <= ramp_value + step_size_i;
+            else
+               ramp_value <= step_minimum_i;
+            end if;
          end if;
 
          -- Latch important command information
@@ -369,8 +409,8 @@ begin
    -- Next State logic
    -------------------------------------------------------------------------------------------
    process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
-      tes_bias_toggle_en_i, internal_status_req, internal_cmd_id, tes_bias_toggle_req,
-      simple_cmd_req, rdy_for_data_i)
+      internal_cmd_mode_i, internal_status_req, internal_cmd_id, tes_bias_toggle_req,
+      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress)
    begin
       next_state    <= current_state;
       ret_dat_start <= '0';
@@ -391,10 +431,10 @@ begin
             elsif(simple_cmd_req = '1') then
                next_state <= SIMPLE;
             -- If it is time to toggle the bias
-            elsif(tes_bias_toggle_en_i = '1' and tes_bias_toggle_req = '1') then
+            elsif(internal_cmd_mode_i = INTERNAL_RAMP and tes_bias_toggle_req = '1') then
                next_state <= TES_BIAS;
             -- If toggling is disabled and it is time to issue an internal command
-            elsif(tes_bias_toggle_en_i = '0' and internal_status_req = '1') then
+            elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
                if(internal_cmd_id = FPGA_TEMPERATURE) then
                   next_state <= FPGA_TEMP;
                elsif(internal_cmd_id = CARD_TEMPERATURE) then
@@ -410,10 +450,10 @@ begin
             -- If there are more data frames to go:
             if(ack_i = '1' and seq_num /= stop_seq_num_i) then
                -- Before moving on to UPDATE_FOR_NEXT, let's check for pending internal commands
-               if(tes_bias_toggle_en_i = '1' and tes_bias_toggle_req = '1') then
+               if(internal_cmd_mode_i = INTERNAL_RAMP and tes_bias_toggle_req = '1') then
                   next_state <= TES_BIAS;
                -- If toggling is enabled, internal commands are disabled to preserve the timing of the toggle commands
-               elsif(tes_bias_toggle_en_i = '0' and internal_status_req = '1') then
+               elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
                   if(internal_cmd_id = FPGA_TEMPERATURE) then
                      next_state <= FPGA_TEMP;
                   elsif(internal_cmd_id = CARD_TEMPERATURE) then
@@ -436,14 +476,18 @@ begin
          when UPDATE_FOR_NEXT =>
             -- We stay in this state for one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
             if(dv_mode_i = DV_INTERNAL) then
+               -- If there still is an outstanding ret_dat request, then issue a ret_dat command
                if(ret_dat_req = '1') then
                   next_state <= WAIT_FOR_ACK;
+               -- Otherwise stop the data process
                else
                   next_state <= STOP;
                end if;
             elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+               -- If there still is an outstanding ret_dat request, then issue a ret_dat command
                if(ret_dat_req = '1') then
                   next_state <= WAIT_FOR_ACK;
+               -- Otherwise stop the data process
                else
                   next_state <= STOP;
                end if;
@@ -466,8 +510,10 @@ begin
 
          when LATCH_TES_BIAS_DATA =>
             if(ack_i = '1') then
-               -- Directly to IDLE, no cleanup needed
-               if(ret_dat_req = '1') then
+               -- If there was no ret_dat request before issuing the internal command, then we
+               -- Bryce:
+--               if(ret_dat_req = '1') then
+               if(ret_dat_in_progress = '1') then
                   next_state <= UPDATE_FOR_NEXT;
                else
                   next_state <= IDLE;
@@ -496,7 +542,8 @@ begin
 
          when DONE =>
             -- The DONE state is used to advance the index for which internal command to execute next
-            if(ret_dat_req = '1') then
+--               if(ret_dat_req = '1') then
+            if(ret_dat_in_progress = '1') then
                next_state <= UPDATE_FOR_NEXT;
             else
                next_state <= IDLE;
@@ -510,9 +557,8 @@ begin
    -------------------------------------------------------------------------------------------
    -- Output logic:  signals that go to cmd_queue
    -------------------------------------------------------------------------------------------
-   process(current_state, f_rx_card_addr, f_rx_param_id, data_size, f_rx_data, cmd_data_i,
-      tes_bias_low_i, tes_bias_high_i, toggle_which_way, tes_bias_toggle_req, internal_status_req,
-      f_rx_cmd_code, f_rx_num_data, data_clk_i)
+   process(current_state, f_rx_card_addr, f_rx_param_id, data_size, f_rx_data, cmd_data_i, tes_bias_toggle_req,
+      internal_status_req, f_rx_cmd_code, f_rx_num_data, data_clk_i, step_card_addr_i, step_param_id_i, ramp_value)
    begin
       -- Default assignments for signals that are common for all commands
       card_addr_o      <= (others => '0');
@@ -544,35 +590,37 @@ begin
 
          when TES_BIAS =>
             if(tes_bias_toggle_req = '1') then
-               card_addr_o       <= BIAS_CARD_2;
-               param_id_o        <= BIAS_ADDR;
+               card_addr_o       <= step_card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+               param_id_o        <= step_param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
                cmd_code_o        <= WRITE_BLOCK;
                data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
                data_clk_o        <= '0';
                internal_cmd_o    <= '1';
+               data_o            <= ramp_value;
 
-               if(toggle_which_way = '0') then
-                  data_o         <= tes_bias_low_i;
-               else
-                  data_o         <= tes_bias_high_i;
-               end if;
+--               if(toggle_which_way = '0') then
+--                  data_o         <= tes_bias_low_i;
+--               else
+--                  data_o         <= tes_bias_high_i;
+--               end if;
             end if;
 
          when LATCH_TES_BIAS_DATA =>
             if(tes_bias_toggle_req = '1') then
-               card_addr_o       <= BIAS_CARD_2;
-               param_id_o        <= BIAS_ADDR;
+               card_addr_o       <= step_card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+               param_id_o        <= step_param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
                cmd_code_o        <= WRITE_BLOCK;
                data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
                -- cmd_queue is level-sensitive, not edge-sensitive.
                data_clk_o        <= '1';
                internal_cmd_o    <= '1';
+               data_o            <= ramp_value;
 
-               if(toggle_which_way = '0') then
-                  data_o         <= tes_bias_low_i;
-               else
-                  data_o         <= tes_bias_high_i;
-               end if;
+--               if(toggle_which_way = '0') then
+--                  data_o         <= tes_bias_low_i;
+--               else
+--                  data_o         <= tes_bias_high_i;
+--               end if;
             end if;
 
          when FPGA_TEMP =>
@@ -627,7 +675,7 @@ begin
    -- Control logic:  control signals used internally for book-keeping
    -------------------------------------------------------------------------------------------
    process(current_state, ret_dat_req, stop_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
-      tes_bias_toggle_req, cmd_rdy_i, tes_bias_toggle_en_i)
+      tes_bias_toggle_req, cmd_rdy_i, internal_cmd_mode_i)
    begin
       -- default assignments
       load_sync_num        <= '0';
@@ -643,7 +691,10 @@ begin
 
       tes_bias_toggle_ack  <= '0';
       internal_status_ack  <= '0';
+
+      -- Check this NTS.
       update_nts           <= '0';
+      step_ramp_value      <= '0';
 
       internal_cmd_ack     <= '0';
       simple_cmd_ack       <= '0';
@@ -679,8 +730,8 @@ begin
             end if;
 
             if(ack_i = '1' and seq_num /= stop_seq_num_i) then
-               if(tes_bias_toggle_en_i = '1' and tes_bias_toggle_req = '1') then
-                  update_nts <= '1';
+               if(internal_cmd_mode_i = INTERNAL_RAMP and tes_bias_toggle_req = '1') then
+                  update_nts      <= '1';
                end if;
             elsif(ack_i = '1' and seq_num = stop_seq_num_i) then
                -- Ack the data run.
@@ -724,7 +775,17 @@ begin
 
             if(ack_i = '1') then
                tes_bias_toggle_ack <= '1';
+               step_ramp_value <= '1';
             end if;
+
+--            if(ack_i = '1') then
+--               -- Directly to IDLE, no cleanup needed
+--               if(ret_dat_req = '1') then
+--                  next_state <= UPDATE_FOR_NEXT;
+--               else
+--                  next_state <= IDLE;
+--               end if;
+--            end if;
 
          when TES_BIAS =>
             instr_rdy_o <= '1';
