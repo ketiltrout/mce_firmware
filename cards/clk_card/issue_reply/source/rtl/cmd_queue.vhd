@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.101 2006/11/08 00:06:34 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.102 2007/07/24 22:08:19 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.102  2007/07/24 22:08:19  bburger
+-- BB:
+-- - added rdy_for_data_o to cmd_queue interface.
+-- - now rdy_for_data_o indicates that the cmd_queue is ready for data and mop_ack_o indicates that the mop transaction is done.
+--
 -- Revision 1.101  2006/11/08 00:06:34  bburger
 -- Bryce:  Cleaned up the file.
 --
@@ -118,11 +123,11 @@ entity cmd_queue is
 
       -- indicates the last frame of data for a ret_dat command
       last_frame_o    : out std_logic;
-
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
       issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      tes_bias_step_level_o : out std_logic;
+--      tes_bias_step_level_o : out std_logic;
+      step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -140,7 +145,8 @@ entity cmd_queue is
       last_frame_i    : in std_logic;
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i  : in std_logic;
-      tes_bias_step_level_i : in std_logic;
+--      tes_bias_step_level_i : in std_logic;
+      step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- lvds_tx interface
       tx_o            : out std_logic;
@@ -156,78 +162,78 @@ end cmd_queue;
 
 architecture behav of cmd_queue is
 
-constant ADDR_ZERO          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '0');
-constant ADDR_FULL_SCALE    : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '1');
-constant TIMEOUT_LEN        : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)   := x"00000001";  -- Defines the window during which an instruction can be issued
-constant HIGH               : std_logic := '1';
-constant LOW                : std_logic := '0';
-constant INT_ZERO           : integer   :=  0;
+   constant ADDR_ZERO          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '0');
+   constant ADDR_FULL_SCALE    : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '1');
+   constant TIMEOUT_LEN        : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)   := x"00000001";  -- Defines the window during which an instruction can be issued
+   constant HIGH               : std_logic := '1';
+   constant LOW                : std_logic := '0';
+   constant INT_ZERO           : integer   :=  0;
 
------------------------------------------------------
--- cmd_queue signals (_t means temporary)
------------------------------------------------------
--- Register Signals
-signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
-signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
-signal data_size            : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-signal data_size_int_t      : integer;
-signal issue_sync           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-signal cmd_code             : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+   -----------------------------------------------------
+   -- cmd_queue signals (_t means temporary)
+   -----------------------------------------------------
+   -- Register Signals
+   signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
+   signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
+   signal data_size            : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+   signal data_size_int_t      : integer;
+   signal issue_sync           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal cmd_code             : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 
 
---signal cmd_type             : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-signal bit_status           : std_logic_vector(3 downto 0);
-signal bit_status_i         : std_logic_vector(3 downto 0);
-signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal reg_en               : std_logic;
-signal sync_num_reg_en      : std_logic;
+   --signal cmd_type             : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+   signal bit_status           : std_logic_vector(3 downto 0);
+   signal bit_status_i         : std_logic_vector(3 downto 0);
+   signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal reg_en               : std_logic;
+   signal sync_num_reg_en      : std_logic;
+   signal step_value           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
--- Data Word Counter
-signal data_count_clr       : std_logic;
-signal data_count_incr      : std_logic;
-signal data_count           : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   -- Data Word Counter
+   signal data_count_clr       : std_logic;
+   signal data_count_incr      : std_logic;
+   signal data_count           : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
--- Data Queue I/O
-signal wren_sig             : std_logic;
-signal qa_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+   -- Data Queue I/O
+   signal wren_sig             : std_logic;
+   signal qa_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 
--- LVDS Tx Signals
-signal lvds_tx_word         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal lvds_tx_rdy          : std_logic;
-signal lvds_tx_busy         : std_logic;
+   -- LVDS Tx Signals
+   signal lvds_tx_word         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal lvds_tx_rdy          : std_logic;
+   signal lvds_tx_busy         : std_logic;
 
--- Bit Counter signals
-signal bit_ctr_count        : integer range 0 to QUEUE_WIDTH;
-signal bit_ctr_ena          : std_logic; -- enables the counter which controls the enable line to the CRC block.  The counter should only be functional when there is a to calculate.
-signal bit_ctr_load         : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
+   -- Bit Counter signals
+   signal bit_ctr_count        : integer range 0 to QUEUE_WIDTH;
+   signal bit_ctr_ena          : std_logic; -- enables the counter which controls the enable line to the CRC block.  The counter should only be functional when there is a to calculate.
+   signal bit_ctr_load         : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
 
--- CRC signals:
-signal crc_clr              : std_logic;
-signal crc_ena              : std_logic;
-signal crc_num_bits         : integer;
-signal crc_done             : std_logic;
-signal crc_checksum         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal crc_reg              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   -- CRC signals:
+   signal crc_clr              : std_logic;
+   signal crc_ena              : std_logic;
+   signal crc_num_bits         : integer;
+   signal crc_done             : std_logic;
+   signal crc_checksum         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal crc_reg              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
--- Shift Register signals:
-signal sh_reg_serial_o      : std_logic;
+   -- Shift Register signals:
+   signal sh_reg_serial_o      : std_logic;
 
--- Miscellaneous Signals
-signal uop_send_expired     : std_logic;
-signal timeout_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-signal update_prev_state    : std_logic;
-signal timer_clr            : std_logic;
-signal timer_count          : integer;
+   -- Miscellaneous Signals
+   signal uop_send_expired     : std_logic;
+   signal timeout_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal update_prev_state    : std_logic;
+   signal timer_clr            : std_logic;
+   signal timer_count          : integer;
 
--- Control FSM
-type states is (IDLE, STORE_CMD_PARAM, IS_THERE_DATA, STROBE_DETECT, LATCH_DATA, DONE_STORE, WAIT_TO_ISSUE,
-   WORD_PAUSE, WORD_RDY, ISSUE, HEADER_A, HEADER_B, SOME_DATA, MORE_DATA, DATA_WORD, CHECKSUM, CMD_ISSUED,
-   WAIT_TO_RETIRE, RETIRE);
-signal present_state  : states;
-signal next_state     : states;
-signal previous_state : states;
-
+   -- Control FSM
+   type states is (IDLE, STORE_CMD_PARAM, IS_THERE_DATA, STROBE_DETECT, LATCH_DATA, DONE_STORE, WAIT_TO_ISSUE,
+      WORD_PAUSE, WORD_RDY, ISSUE, HEADER_A, HEADER_B, SOME_DATA, MORE_DATA, DATA_WORD, CHECKSUM, CMD_ISSUED,
+      WAIT_TO_RETIRE, RETIRE);
+   signal present_state  : states;
+   signal next_state     : states;
+   signal previous_state : states;
 
 begin
 
@@ -252,16 +258,15 @@ begin
    last_frame_o          <= bit_status(0);
    cmd_stop_o            <= bit_status(1);
    internal_cmd_o        <= bit_status(2);
-   tes_bias_step_level_o <= bit_status(3);
+--   tes_bias_step_level_o <= bit_status(3);
    frame_seq_num_o       <= frame_seq_num;
+   step_value_o          <= step_value;
 
    -----------------------------------------------------
    -- Registers
    -----------------------------------------------------
    card_addr_reg: reg
-      generic map(
-         WIDTH      => BB_CARD_ADDRESS_WIDTH
-      )
+      generic map(WIDTH => BB_CARD_ADDRESS_WIDTH)
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
@@ -271,8 +276,7 @@ begin
       );
 
    par_id_reg: reg
-      generic map(
-         WIDTH      => BB_PARAMETER_ID_WIDTH
+      generic map(WIDTH => BB_PARAMETER_ID_WIDTH
       )
       port map(
          clk_i      => clk_i,
@@ -283,9 +287,7 @@ begin
       );
 
    data_size_reg_t: reg
-      generic map(
-         WIDTH      => BB_DATA_SIZE_WIDTH
-      )
+      generic map(WIDTH => BB_DATA_SIZE_WIDTH)
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
@@ -296,9 +298,7 @@ begin
 
    issue_sync_o <= issue_sync;
    issue_sync_reg: reg
-      generic map(
-         WIDTH      => SYNC_NUM_WIDTH
-      )
+      generic map(WIDTH => SYNC_NUM_WIDTH)
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
@@ -308,9 +308,7 @@ begin
       );
 
    cmd_code_reg: reg
-      generic map(
-         WIDTH      => FIBRE_PACKET_TYPE_WIDTH
-      )
+      generic map(WIDTH => FIBRE_PACKET_TYPE_WIDTH)
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
@@ -319,11 +317,10 @@ begin
          reg_o      => cmd_code
       );
 
-   bit_status_i <= tes_bias_step_level_i & internal_cmd_i & cmd_stop_i & last_frame_i;
+--   bit_status_i <= tes_bias_step_level_i & internal_cmd_i & cmd_stop_i & last_frame_i;
+   bit_status_i <= '0' & internal_cmd_i & cmd_stop_i & last_frame_i;
    bit_status_reg: reg
-      generic map(
-         WIDTH      => 4
-      )
+      generic map(WIDTH => 4)
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
@@ -333,15 +330,23 @@ begin
       );
 
    frame_seq_num_reg: reg
-      generic map(
-         WIDTH      => PACKET_WORD_WIDTH
-      )
+      generic map(WIDTH => PACKET_WORD_WIDTH)
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => reg_en,
          reg_i      => frame_seq_num_i,
          reg_o      => frame_seq_num
+      );
+
+   step_value_reg: reg
+      generic map(WIDTH => PACKET_WORD_WIDTH)
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => reg_en,
+         reg_i      => step_value_i,
+         reg_o      => step_value
       );
 
    -----------------------------------------------------
