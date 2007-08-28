@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.41 2007/02/13 02:34:53 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.42 2007/07/24 23:10:55 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,20 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.42  2007/07/24 23:10:55  bburger
+-- BB:
+-- - added the over_temperature_o signal to the reply_queue interface to signal the cmd_translator to shut down the MCE.
+-- - added the frame_status_word_o signal to the reply_queue interface to the reply_translator for integration into data-frame headers
+-- - added the reset_event_i and reset_ack_o signals to the reply_queue interface for integration into the frame status word in data frames
+-- - added the lvds_reply_psu_a signale to the reply_queue interface for replies from the PSUC dispatch block
+-- - added the clk_n_i signal for off-cycle signal sampling by the frame header RAM
+-- - added constants for card- and fpga- temperature absolute maximums
+-- - implemented data frame header storage
+-- - implemented stale data bit setting logic.
+-- - implemented logic that determines the number of cards expected to respond to every command
+-- - implemented logic to calculated the expected total data size of the reply
+-- - implemented error registers for saving frame status bits that are associated with errors until the next data frame
+--
 -- Revision 1.41  2007/02/13 02:34:53  bburger
 -- Bryce:  fixed a counter bug in reply_queue that was preventing all header words from being read out
 --
@@ -66,13 +80,14 @@ entity reply_queue is
       last_frame_i        : in std_logic;
       frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i      : in std_logic;
-      tes_bias_step_level_i : in std_logic;
+--      tes_bias_step_level_i : in std_logic;
 
       data_rate_i         : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       row_len_i           : in integer;
       num_rows_i          : in integer;
       issue_sync_i        : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       cmd_code_i          : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
+      step_value_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- cmd_translator interface
       over_temperature_o  : out std_logic;
@@ -237,7 +252,7 @@ architecture behav of reply_queue is
    signal matched              : std_logic;
    signal cmd_rdy              : std_logic;
    signal internal_cmd         : std_logic;
-   signal tes_bias_step_level  : std_logic;
+--   signal tes_bias_step_level  : std_logic;
 
    signal data_size            : integer;
    signal data_bus             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -261,8 +276,8 @@ architecture behav of reply_queue is
 
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD1, LATCH_CMD2, RECEIVED, WAIT_FOR_MATCH, REPLY, STORE_ERRNO_HEADER_WORD,
-      STORE_HEADER_WORD, PAUSE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_FRAME_STATUS,
-      TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM,
+      STORE_HEADER_WORD, PAUSE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_FRAME_STATUS, TX_CARD_ADDR,
+      TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_RAMP_VALUE, TX_FRAME_SEQUENCE_NUM,
       TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;
@@ -411,7 +426,7 @@ begin
 
       elsif(clk_i'event and clk_i = '1') then
 
-         if(time >= 4*INTERNAL_COMMAND_PERIOD) then
+         if(time >= 4*HOUSEKEEPING_COMMAND_PERIOD) then
             dec_ot_count <= '1';
             timer_rst <= '1';
          else
@@ -553,7 +568,7 @@ begin
    bit_status_i <=
 --      reset_event_i &
       internal_cmd_i &
-      tes_bias_step_level_i &
+      '0' & --tes_bias_step_level_i &
       active_clk_i &
       '0' & --sync_box_err_i &
       sync_box_free_run_i &
@@ -562,7 +577,7 @@ begin
 
 --   reset_event         <= bit_status(7);
    internal_cmd        <= bit_status(6);
-   tes_bias_step_level <= bit_status(5);
+   --tes_bias_step_level <= bit_status(5);
    active_clk          <= bit_status(4);
    --sync_box_err        <= bit_status(3);
    sync_box_free_run   <= bit_status(2);
@@ -745,6 +760,31 @@ begin
          when TX_HEADER =>
             -- The "- 1" is to compensate for single words sent at the end of the header
             -- i.e. sync_num (TX_SYNC_NUM)
+            if(word_count >= NUM_RAM_HEAD_WORDS-5) then
+               next_retire_state <= TX_CARD_ADDR;
+            end if;
+
+         when TX_CARD_ADDR =>
+            if(word_count >= NUM_RAM_HEAD_WORDS-4) then
+               next_retire_state <= TX_RAMP_VALUE;
+            end if;
+
+         when TX_RAMP_VALUE =>
+            if(word_count >= NUM_RAM_HEAD_WORDS-3) then
+               next_retire_state <= TX_ROW_LEN;
+            end if;
+
+         when TX_ROW_LEN =>
+            if(word_count >= NUM_RAM_HEAD_WORDS-2) then
+               next_retire_state <= TX_NUM_ROWS;
+            end if;
+
+         when TX_NUM_ROWS =>
+            if(word_count >= NUM_RAM_HEAD_WORDS-1) then
+               next_retire_state <= TX_DATA_RATE;
+            end if;
+
+         when TX_DATA_RATE =>
             if(word_count >= NUM_RAM_HEAD_WORDS) then
                next_retire_state <= TX_SEND_DATA;
             end if;
@@ -770,6 +810,11 @@ begin
    with present_retire_state select
       data_o <=
          data_bus                                 when TX_STATUS | TX_SEND_DATA | REPLY,
+         data_rate_i                              when TX_DATA_RATE,
+         conv_std_logic_vector(row_len_i,32)      when TX_ROW_LEN,
+         conv_std_logic_vector(num_rows_i,32)     when TX_NUM_ROWS,
+         x"000000" & card_addr_i                  when TX_CARD_ADDR,
+         step_value_i                             when TX_RAMP_VALUE,
          issue_sync_num                           when TX_SYNC_NUM,
          frame_seq_num                            when TX_FRAME_SEQUENCE_NUM,
          frame_status                             when TX_FRAME_STATUS,
@@ -1000,6 +1045,31 @@ begin
             head_address    <= header_tx_address;
 
          when TX_HEADER =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_CARD_ADDR =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_RAMP_VALUE =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_DATA_RATE =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_ROW_LEN =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_NUM_ROWS =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
