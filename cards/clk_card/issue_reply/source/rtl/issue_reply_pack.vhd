@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.52 2006/11/07 23:50:18 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.53 2007/07/24 22:55:44 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.53  2007/07/24 22:55:44  bburger
+-- BB:
+-- - Updated the constants in this file to be consistent with the new protocol, to fix bugs, to suport internal commands and to implement a warning mask.
+--
 -- Revision 1.52  2006/11/07 23:50:18  bburger
 -- Bryce:  modified some of the constants
 --
@@ -121,7 +125,7 @@ package issue_reply_pack is
    constant MIN_WINDOW : integer := (CMD_TIMEOUT_LIMIT+5)*1000/20; -- # clock cycles = (110us+5us)*1000/20ns = 5750;
 
    -- Period of internal commands
-   constant INTERNAL_COMMAND_PERIOD : integer := 1000000;
+   constant HOUSEKEEPING_COMMAND_PERIOD : integer := 1000000;
 
    -- Data sizes for internal commands
    constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
