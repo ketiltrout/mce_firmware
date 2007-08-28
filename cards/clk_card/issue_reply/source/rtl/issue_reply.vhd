@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.64 2007/02/01 01:53:54 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.65 2007/07/24 22:47:24 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/02/01 01:53:54 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/07/24 22:47:24 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.65  2007/07/24 22:47:24  bburger
+-- BB:
+-- - added clk_n_i signal to the issue_reply interface.  The signal is used by the reply_translator frame header buffer for sampling data.
+-- - added lvds_reply_psu_a signal for the dispatch block instantiated for the PSUC
+-- - added the reset_event_i and reset_ack_o signals from the cc_reset block for the mce_has_been_reset flag in packet error words
+--
 -- Revision 1.64  2007/02/01 01:53:54  bburger
 -- Bryce:  removed unused interfaces
 --
@@ -111,11 +117,19 @@ entity issue_reply is
       external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
-      tes_bias_toggle_en_i   : in std_logic;
-      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      status_cmd_en_i        : in std_logic;
+--      tes_bias_toggle_en_i   : in std_logic;
+--      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+--      status_cmd_en_i        : in std_logic;
+      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
+      step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
 
       -- clk_switchover interface
@@ -132,6 +146,7 @@ entity issue_reply is
       -- sync_gen interface
       row_len_i              : in integer;
       num_rows_i             : in integer;
+      num_rows_to_read_i     : in integer;
       sync_pulse_i           : in std_logic;
       sync_number_i          : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );
@@ -195,11 +210,20 @@ architecture rtl of issue_reply is
       external_dv_i         : in std_logic;
 
       -- ret_dat_wbs interface
-      tes_bias_toggle_en_i   : in std_logic;
-      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      status_cmd_en_i        : in std_logic;
+--      tes_bias_toggle_en_i   : in std_logic;
+--      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+--      status_cmd_en_i        : in std_logic;
+      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
+      step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- other inputs
       sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -215,8 +239,9 @@ architecture rtl of issue_reply is
       cmd_stop_o            : out std_logic;
       last_frame_o          : out std_logic;
       internal_cmd_o        : out std_logic;
-      num_rows_i            : in integer;
-      tes_bias_step_level_o : out std_logic;
+      --num_rows_i            : in integer;
+      num_rows_to_read_i    : in integer;
+--      tes_bias_step_level_o : out std_logic;
 
       -- input from the cmd_queue
       busy_i                : in std_logic;
@@ -252,7 +277,8 @@ architecture rtl of issue_reply is
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
       issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      tes_bias_step_level_o : out std_logic;
+--      tes_bias_step_level_o : out std_logic;
+      step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -270,7 +296,8 @@ architecture rtl of issue_reply is
       last_frame_i    : in std_logic;
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i  : in std_logic;
-      tes_bias_step_level_i : in std_logic;
+--      tes_bias_step_level_i : in std_logic;
+      step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- lvds_tx interface
       tx_o            : out std_logic;
@@ -296,12 +323,13 @@ architecture rtl of issue_reply is
       last_frame_i      : in std_logic;
       frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i    : in std_logic;
-      tes_bias_step_level_i : in std_logic;
+--      tes_bias_step_level_i : in std_logic;
 
       data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       row_len_i         : in integer;
       num_rows_i        : in integer;
       issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      step_value_i      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- cmd_translator interface
       cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
@@ -446,7 +474,9 @@ architecture rtl of issue_reply is
    signal last_frame_cr       : std_logic;
    signal frame_seq_num_cr    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal internal_cmd_cr     : std_logic;
-   signal tes_bias_step_level : std_logic;
+--   signal tes_bias_step_level : std_logic;
+   signal step_value          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_value2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- cmd_translator to cmd_queue interface
    signal card_addr2          : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -462,7 +492,7 @@ architecture rtl of issue_reply is
    signal cmd_stop            : std_logic;
    signal last_frame          : std_logic;
    signal internal_cmd_issued : std_logic;
-   signal tes_bias_step_level2 : std_logic;
+--   signal tes_bias_step_level2 : std_logic;
    signal rdy_for_data        : std_logic;
 
    -- reply_translator to reply_queue interface
@@ -550,8 +580,9 @@ begin
       cmd_stop_o          => cmd_stop,
       last_frame_o        => last_frame,
       internal_cmd_o      => internal_cmd_issued,
-      num_rows_i          => num_rows_i,
-      tes_bias_step_level_o => tes_bias_step_level,
+      --num_rows_i          => num_rows_i,
+--      tes_bias_step_level_o => tes_bias_step_level,
+      step_value_o        => step_value,
 
       --input from the u-op sequence generator
       busy_i              => busy,
@@ -565,11 +596,20 @@ begin
       external_dv_i       => external_dv_i,
 
       -- ret_dat_wbs interface
-      tes_bias_toggle_en_i   => tes_bias_toggle_en_i,
-      tes_bias_high_i        => tes_bias_high_i,
-      tes_bias_low_i         => tes_bias_low_i,
-      tes_bias_toggle_rate_i => tes_bias_toggle_rate_i,
-      status_cmd_en_i        => status_cmd_en_i,
+--      tes_bias_toggle_en_i   => tes_bias_toggle_en_i,
+--      tes_bias_high_i        => tes_bias_high_i,
+--      tes_bias_low_i         => tes_bias_low_i,
+--      tes_bias_toggle_rate_i => tes_bias_toggle_rate_i,
+--      status_cmd_en_i        => status_cmd_en_i,
+      num_rows_to_read_i  => num_rows_to_read_i,
+      internal_cmd_mode_i => internal_cmd_mode_i,
+      step_period_i       => step_period_i,
+      step_minimum_i      => step_minimum_i,
+      step_size_i         => step_size_i,
+      step_maximum_i      => step_maximum_i,
+      step_param_id_i     => step_param_id_i,
+      step_card_addr_i    => step_card_addr_i,
+      step_data_num_i     => step_data_num_i,
 
       sync_number_i       => sync_number_i
    );
@@ -595,7 +635,8 @@ begin
       internal_cmd_o  => internal_cmd_cr,
       issue_sync_o    => issue_sync,
       cmd_code_o      => reply_cmd_code_b,
-      tes_bias_step_level_o => tes_bias_step_level2,
+--      tes_bias_step_level_o => tes_bias_step_level2,
+      step_value_o    => step_value2,
 
       -- cmd_translator interface
       card_addr_i     => card_addr2,
@@ -613,7 +654,8 @@ begin
       frame_seq_num_i => frame_seq_num,
       internal_cmd_i  => internal_cmd_issued,
       cmd_code_i      => reply_cmd_code,
-      tes_bias_step_level_i  => tes_bias_step_level,
+--      tes_bias_step_level_i  => tes_bias_step_level,
+      step_value_i    => step_value,
 
       -- lvds_tx interface
       tx_o            => lvds_cmd_o,
@@ -642,12 +684,13 @@ begin
       frame_seq_num_i     => frame_seq_num_cr,
       internal_cmd_i      => internal_cmd_cr,
       cmd_code_i          => reply_cmd_code_b,
-      tes_bias_step_level_i => tes_bias_step_level2,
+--      tes_bias_step_level_i => tes_bias_step_level2,
 
       data_rate_i         => data_rate_i,
       row_len_i           => row_len_i,
       num_rows_i          => num_rows_i,
       issue_sync_i        => issue_sync,
+      step_value_i        => step_value2,
 
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o              => num_fibre_words,
