@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2007/02/19 20:20:01 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/06/16 03:31:17 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.11  2007/06/16 03:31:17  mandana
+-- added data_mode=6 for 18b filtered fb + 14b error
+--
 -- Revision 1.10  2007/02/19 20:20:01  mandana
 -- clean up, removed redundant no_rows constant
 --
@@ -71,9 +74,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- call parent library
 library work;
+use work.readout_card_pack.all;
 use work.flux_loop_pack.all;
-use work.frame_timing_pack.all;
+use work.frame_timing_pack.all; -- anomoly, just for NUM_OF_ROWS
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -81,11 +86,14 @@ use sys_param.wishbone_pack.all;
 
 package wbs_frame_data_pack is
 
-constant CH_MUX_SEL_WIDTH  :  integer := 3;
+constant CH_MUX_SEL_WIDTH  : integer := 3;
 
-constant PIXEL_ADDR_MAX    :  integer := NO_CHANNELS * NUM_OF_ROWS;
+constant PIXEL_ADDR_MAX    : integer := NO_CHANNELS * NUM_OF_ROWS;
 
-constant RAW_ADDR_MAX      :  integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
+constant RAW_ADDR_MAX      : integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
+
+constant INVALID_ROW       : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0) := (others => '1');
+constant CH_MUX_INIT       : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0) := (others => '0');
 
 constant MODE0_ERROR       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
 constant MODE1_UNFILTERED  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
