@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.70 2007/07/25 18:59:52 bburger Exp $
+-- $Id: clk_card.vhd,v 1.71 2007/07/26 20:29:28 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.71  2007/07/26 20:29:28  bburger
+-- BB:  made naming corrections for subarray_id and backplane_id_thermo
+--
 -- Revision 1.70  2007/07/25 18:59:52  bburger
 -- BB:
 -- - added some library declarations
@@ -223,7 +226,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"03000004";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000000";
 
    -- reset
    signal rst                : std_logic;
@@ -374,6 +377,16 @@ architecture top of clk_card is
    signal reset_event    : std_logic;
    signal reset_ack      : std_logic;
 
+   signal num_rows_to_read  : integer;
+   signal internal_cmd_mode : std_logic_vector(1 downto 0);
+   signal step_period       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_minimum      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_size         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_maximum      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_param_id     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_card_addr    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_data_num     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
 begin
 
    -- Debug Signals
@@ -477,7 +490,10 @@ begin
          fw_rev_data         when FW_REV_ADDR,
          led_data            when LED_ADDR,
          sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
-         ret_dat_data        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
+         ret_dat_data        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
+                                  TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
+                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR | RAMP_STEP_DATA_NUM_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_data  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
@@ -494,7 +510,10 @@ begin
          fw_rev_ack          when FW_REV_ADDR,
          led_ack             when LED_ADDR,
          sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
-         ret_dat_ack         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
+         ret_dat_ack         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
+                                  TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
+                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR | RAMP_STEP_DATA_NUM_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_ack   when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
@@ -512,6 +531,8 @@ begin
                                   DATA_RATE_ADDR | CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
                                   SELECT_CLK_ADDR |
                                   TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
+                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR | RAMP_STEP_DATA_NUM_ADDR |
                                   SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          fw_rev_err          when FW_REV_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
@@ -601,29 +622,38 @@ begin
       external_dv_num_i => external_dv_num,
 
       -- internal command signals (from ret_dat_wbs)
-      tes_bias_toggle_en_i   => tes_bias_toggle_en,
-      tes_bias_high_i        => tes_bias_high,
-      tes_bias_low_i         => tes_bias_low,
-      tes_bias_toggle_rate_i => tes_bias_toggle_rate,
-      status_cmd_en_i        => status_cmd_en,
-      crc_err_en_i           => crc_err_en,
+--      tes_bias_toggle_en_i   => tes_bias_toggle_en,
+--      tes_bias_high_i        => tes_bias_high,
+--      tes_bias_low_i         => tes_bias_low,
+--      tes_bias_toggle_rate_i => tes_bias_toggle_rate,
+--      status_cmd_en_i        => status_cmd_en,
+      internal_cmd_mode_i => internal_cmd_mode,
+      step_period_i       => step_period,
+      step_minimum_i      => step_minimum,
+      step_size_i         => step_size,
+      step_maximum_i      => step_maximum,
+      step_param_id_i     => step_param_id,
+      step_card_addr_i    => step_card_addr,
+      step_data_num_i     => step_data_num,
+      crc_err_en_i        => crc_err_en,
 
       -- cc_reset interface
       reset_event_i => reset_event,
       reset_ack_o => reset_ack,
 
       -- clk_switchover interface
-      active_clk_i      => active_clk,
+      active_clk_i        => active_clk,
 
       -- dv_rx interface
       sync_box_err_i      => sync_box_err,
       sync_box_free_run_i => sync_box_free_run,
 
       -- sync_gen interface
-      row_len_i         => row_len,
-      num_rows_i        => num_rows,
-      sync_pulse_i      => sync,
-      sync_number_i     => sync_num
+      row_len_i          => row_len,
+      num_rows_i         => num_rows,
+      num_rows_to_read_i => num_rows_to_read,
+      sync_pulse_i       => sync,
+      sync_number_i      => sync_num
    );
 
    slot_id_slave : bp_slot_id
@@ -927,11 +957,22 @@ begin
       data_rate_o            => data_rate,
 
       -- internal command signals (to cmd_translator)
-      tes_bias_toggle_en_o   => tes_bias_toggle_en,
-      tes_bias_high_o        => tes_bias_high,
-      tes_bias_low_o         => tes_bias_low,
-      tes_bias_toggle_rate_o => tes_bias_toggle_rate,
-      status_cmd_en_o        => status_cmd_en,
+--      tes_bias_toggle_en_o   => tes_bias_toggle_en,
+--      tes_bias_high_o        => tes_bias_high,
+--      tes_bias_low_o         => tes_bias_low,
+--      tes_bias_toggle_rate_o => tes_bias_toggle_rate,
+--      status_cmd_en_o        => status_cmd_en,
+
+      internal_cmd_mode_o    => internal_cmd_mode,
+      step_period_o          => step_period,
+      step_minimum_o         => step_minimum,
+      step_size_o            => step_size,
+      step_maximum_o         => step_maximum,
+      step_param_id_o        => step_param_id,
+      step_card_addr_o       => step_card_addr,
+      step_data_num_o        => step_data_num,
+      num_rows_to_read_o     => num_rows_to_read,
+
       crc_err_en_o           => crc_err_en,
 
       -- global interface
