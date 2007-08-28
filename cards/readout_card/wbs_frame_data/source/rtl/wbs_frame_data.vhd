@@ -49,9 +49,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/02/19 20:30:58 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/06/16 03:31:17 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.29  2007/06/16 03:31:17  mandana
+-- added data_mode=6 for 18b filtered fb + 14b error
+--
 -- Revision 1.28  2007/02/19 20:30:58  mandana
 -- rewrote FSM to fix bugs associated with raw-mode
 -- sign-extend raw-data
@@ -154,6 +157,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -313,6 +318,9 @@ signal read_ret_data       : std_logic;
 signal data_mode           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal data_mode_wren      : std_logic ;
 
+-- the row index for frame-rate wishbone data read 
+signal readout_row_index      : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+signal readout_row_wren       : std_logic;
 
 -- different types of data read from flux_loop_cntr blocks
 signal error_dat           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
@@ -324,8 +332,8 @@ signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
 -- signals for data output multiplexer
-signal dat_out_mux_sel : std_logic_vector (2 downto 0);
-signal wbs_data            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal dat_out_mux_sel : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);
+signal wbs_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 -- control signal for raw_addr and pix_addr counters 
 signal inc_addr        : std_logic;
@@ -335,6 +343,7 @@ signal pix_addr_cnt    : integer range 0 to 2**(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH)
 signal pix_address     : std_logic_vector (ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
 signal pix_addr_clr    : std_logic;
 signal ch_mux_sel      : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 0 --> 7
+
     
 -- channel select needs to be delayed by 2 clock cycles as that the time it take to update data
 -- so an extra register stage...
@@ -358,7 +367,7 @@ signal dat_rdy         : std_logic;  -- asserted by FSM whne data word ready for
 signal wb_ack          : std_logic;  -- acknowledge data_mode and capture_raw commands        
 
 -- slave controller FSM
-type state is (IDLE, WSS1, WSS2, READ_DATA, START_RAW, WR_DATA_MODE, RD_DATA_MODE, WB_ACK_NOW);                           
+type state is (IDLE, WSS1, WSS2, READ_DATA, START_RAW, WR_REG, RD_REG, WB_ACK_NOW, WB_ER);                           
 
 signal current_state   : state;
 signal next_state      : state;
@@ -403,7 +412,7 @@ begin
    end process clock_fsm;
    
    -----------------------------------------------------------------------------------------
-   nextstate_fsm: process (current_state, raw_ack, pix_addr_cnt, raw_addr_cnt, data_mode,
+   nextstate_fsm: process (current_state, raw_ack, pix_address, raw_addr_cnt, data_mode, readout_row_index,
                            addr_i, stb_i, cyc_i, we_i, restart_frame_1row_post_i)
    ------------------------------------------------------------------------------------------
    begin
@@ -412,11 +421,11 @@ begin
      case current_state is
        
       when IDLE =>               
-         if (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1') then
+         if ((addr_i = DATA_MODE_ADDR or addr_i = READOUT_ROW_INDEX_ADDR) and stb_i = '1' and cyc_i = '1') then
             if (we_i = '1') then
-               next_state <= WR_DATA_MODE;
+               next_state <= WR_REG;
             else
-               next_state <= RD_DATA_MODE;
+               next_state <= RD_REG;
             end if;   
          end if;
 
@@ -428,20 +437,26 @@ begin
             end if;   
          end if;
 
-         if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') then
-            if (data_mode /= MODE2_FILTERED) then         
-               next_state <= WSS1;
-         -- For filter mode data wait for the start of the frame before reading back. In that case row 0 is read before 
-         -- being overwritten by this frame data.
-            elsif (restart_frame_1row_post_i = '1') then -- filtered data mode
-              next_state <= WSS1;
-            end if;               
+         if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1') then
+            if we_i = '0' then
+              if (data_mode /= MODE2_FILTERED) then         
+                next_state <= WSS1;
+              
+              -- For filter mode data wait for the start of the frame before reading back. In that case row 0 is read before 
+              -- being overwritten by this frame data.
+              elsif (restart_frame_1row_post_i = '1') then -- filtered data mode
+                 next_state <= WSS1;
+              end if;               
+            -- write to ret_dat_addr is invalid  
+            else
+              next_state <= WB_ER;
+            end if;  
          end if;
          
-      when WR_DATA_MODE =>
+      when WR_REG =>
            next_state <= WB_ACK_NOW;
 
-      when RD_DATA_MODE =>
+      when RD_REG =>
            next_state <= WB_ACK_NOW;                      
      
       when START_RAW  =>        
@@ -456,28 +471,33 @@ begin
          next_state <= READ_DATA;                                 
        
       when READ_DATA =>
-         if (data_mode = MODE3_RAW and ((raw_addr_cnt >= RAW_ADDR_MAX-1) or (pix_addr_cnt >= PIXEL_ADDR_MAX+1)))then
+         if (data_mode = MODE3_RAW and ((raw_addr_cnt >= RAW_ADDR_MAX-1) or (pix_address >= PIXEL_ADDR_MAX+1)))then
             next_state <= WB_ACK_NOW;
          end if;
 
-         if (data_mode /= MODE3_RAW and (pix_addr_cnt >= PIXEL_ADDR_MAX+1)) then
+         if (data_mode /= MODE3_RAW and (pix_address >= PIXEL_ADDR_MAX+1 or (readout_row_index /= INVALID_ROW and pix_address > NO_CHANNELS))) then
             next_state <= WB_ACK_NOW;
          end if;
                                          
       when WB_ACK_NOW =>
          next_state <= IDLE;
+      
+      when WB_ER => 
+         next_state <= IDLE;
+         
       end case;
          
     end process nextstate_fsm;
     
-   -------------------------------------------------------------- 
-   output_fsm: process (current_state, wbs_data, data_mode, addr_i, stb_i, cyc_i)
-   ---------------------------------------------------------------
+   -------------------------------------------------------------- ------------------------------
+   output_fsm: process (current_state, wbs_data, data_mode, readout_row_index, addr_i, stb_i, cyc_i)
+   ---------------------------------------------------------------------------------------------
    begin
       -- default states
       pix_addr_clr   <= '0';
       dat_rdy        <= '0';
       data_mode_wren <= '0';
+      readout_row_wren <= '0';
       wb_ack         <= '0';
       dat_o          <= (others => '0');
       raw_req        <= '0';
@@ -508,22 +528,35 @@ begin
             wb_ack <= (stb_i and cyc_i);
          end if;           
          
-      when WR_DATA_MODE =>
-         data_mode_wren <= '1';
-         
-      when RD_DATA_MODE =>
-         dat_o <= data_mode;
+      when WR_REG =>
+         if addr_i = DATA_MODE_ADDR then
+            data_mode_wren <= '1';
+         else
+            readout_row_wren <= '1'; 
+         end if;   
+            
+      when RD_REG =>
+         if addr_i = DATA_MODE_ADDR then
+            dat_o <= data_mode;
+         else
+            dat_o <= ext(readout_row_index, WB_DATA_WIDTH);
+         end if;   
          
       when WB_ACK_NOW =>   
          if (addr_i = DATA_MODE_ADDR) then
             dat_o <= data_mode;
+         else 
+            dat_o <= ext(readout_row_index, WB_DATA_WIDTH);            
          end if;   
-         if (addr_i = DATA_MODE_ADDR or addr_i = CAPTR_RAW_ADDR ) then -- both rw for datamode, but only read for captr_raw is covered
+         
+         if (addr_i /= RET_DAT_ADDR) then -- both rw for datamode & readout_row_index, only read for captr_raw
             wb_ack <= (stb_i and cyc_i);
-         end if;           
-         if (addr_i /= DATA_MODE_ADDR and addr_i /=CAPTR_RAW_ADDR) then 
+         else        
             dec_raw_addr <= '1';
          end if;
+         
+      when WB_ER =>
+         wb_ack <= stb_i and cyc_i;
          
       end case;
     end process output_fsm;       
@@ -544,16 +577,16 @@ begin
 -- for mode 4  there are  5248 'rows' per channel (2 frames of 64 samples for each of the 41 rows).
 --  Again the addressing is such that a 'row' is read from each of the 8 channels, then the next 'row' etc...
 --
-     
    ------------------------------------- 
    address_counter: process (clk_i, rst_i) 
    -------------------------------------      
     begin
          
       if (rst_i = '1') then                         -- asynchronous reset
-         pix_addr_cnt   <= 0;
+         pix_address    <= (others => '0');
          raw_addr_cnt   <= 0;
-      elsif (clk_i'EVENT AND clk_i = '1') then         
+      elsif (clk_i'EVENT AND clk_i = '1') then        
+         -- raw-mode address counter
          if raw_addr_clr = '1' then                 -- synchronous reset 
             raw_addr_cnt   <= 0;
          elsif inc_addr = '1' and data_mode = MODE3_RAW then
@@ -565,12 +598,18 @@ begin
                raw_addr_cnt <= raw_addr_cnt-2;  -- this prevents address overrun due to dispatch delay in grabbing data, prepares raw_addr_cnt for next frame grab.
             end if;   
          end if;
-
+         --------------------------------------------------------------------------------
+         -- non-raw-mode address counter
          if pix_addr_clr = '1' then -- and data_mode /= MODE3_RAW then
-            pix_addr_cnt <= 0;  -- synchronous decrement by 3
-         elsif inc_addr = '1' then -- and data_mode /= MODE3_RAW then
-            if (pix_addr_cnt < (PIXEL_ADDR_MAX + 5)) then 
-               pix_addr_cnt <= pix_addr_cnt +1; -- synchronous increment by 1
+            if readout_row_index = INVALID_ROW then
+               pix_address <= (others => '0');  -- synchronous decrement by 3 ????
+            else 
+               pix_address <= readout_row_index & CH_MUX_INIT;  
+            end if;
+            
+         elsif inc_addr = '1' then 
+            if pix_address < (PIXEL_ADDR_MAX + 5) then 
+               pix_address <= pix_address +1; -- synchronous increment by 1
             end if;   
          end if;
 
@@ -582,8 +621,9 @@ begin
    -- assign counts to bit vectors - modes 1,2,3
    -- note that the LS 3 bits of the address determine the channel
    -- the other bits determine the row address.
+--   pix_address    <= conv_std_logic_vector(pix_addr_cnt, ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);   
    
-   pix_address    <= conv_std_logic_vector(pix_addr_cnt, ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);   
+      
  --  ch_mux_sel     <= pix_address(CH_MUX_SEL_WIDTH-1 downto 0); 
           
    filtered_addr_ch0_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
@@ -757,7 +797,7 @@ begin
                         sxt(raw_dat_ch7_i, raw_dat'length) when others;
                         
 -------------------------------------------------------------------------------------------------
---                                  Data Mode Register
+--                      Data Mode & Readout Row Index Register
 ------------------------------------------------------------------------------------------------  
    
   data_mode_reg: process(clk_i, rst_i)
@@ -765,12 +805,22 @@ begin
      if (rst_i = '1') then 
         data_mode <= (others => '0');
      elsif (clk_i'EVENT and clk_i = '1') then
-        if (data_mode_wren = '1') then 
+        if data_mode_wren = '1' then 
            data_mode <= dat_i;
         end if;   
      end if;
   end process data_mode_reg;
           
+  readout_row_reg: process(clk_i, rst_i)
+  begin
+     if (rst_i = '1') then 
+        readout_row_index <= (others => '1');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        if readout_row_wren = '1' then 
+           readout_row_index <= dat_i(readout_row_index'length -1 downto 0);
+        end if;   
+     end if;
+  end process readout_row_reg;          
 -----------------------------------------------------------------------------------------
 --                                  Channel Select Delay
 -----------------------------------------------------------------------------------------
