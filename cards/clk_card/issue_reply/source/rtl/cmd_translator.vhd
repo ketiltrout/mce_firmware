@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.49 2007/07/24 22:11:03 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.50 2007/08/28 23:19:22 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -31,9 +31,14 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/07/24 22:11:03 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/08/28 23:19:22 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.50  2007/08/28 23:19:22  bburger
+-- BB:
+-- - Added functionality to cmd_translator for issuing ramp commands to any card/parameter
+-- - Amalgamated the internal command modes into a single register
+--
 -- Revision 1.49  2007/07/24 22:11:03  bburger
 -- BB:  cmd_translator is completely re-written:  arbiter, ret_dat, simple and internal have all be amalgamated to make implementing internal commands possible while conserving timing of ret_dat commands.
 --
@@ -300,11 +305,13 @@ begin
             ramp_value <= step_minimum_i;
          -- Otherwise, we increment the ramp_value by step_size, and wrap back down if it is to exceed step_maximum_i
          elsif(step_ramp_value = '1') then
-            if(ramp_value <= (step_maximum_i - step_size_i)) then
+            if(ramp_value < (step_maximum_i + 1 - step_size_i)) then
                ramp_value <= ramp_value + step_size_i;
             else
                ramp_value <= step_minimum_i;
             end if;
+         else
+            ramp_value <= ramp_value;
          end if;
 
          -- Latch important command information
