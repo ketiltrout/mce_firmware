@@ -1,5 +1,5 @@
 Analysis & Synthesis report for clk_card
-Tue Aug 28 16:21:10 2007
+Thu Aug 30 10:26:51 2007
 Quartus II Version 6.1 Build 201 11/27/2006 SJ Full Version
 
 
@@ -445,12 +445,12 @@ applicable agreement for further details.
 +------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                           ;
 +-----------------------------+------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Tue Aug 28 16:21:09 2007    ;
+; Analysis & Synthesis Status ; Successful - Thu Aug 30 10:26:50 2007    ;
 ; Quartus II Version          ; 6.1 Build 201 11/27/2006 SJ Full Version ;
 ; Revision Name               ; clk_card                                 ;
 ; Top-level Entity Name       ; clk_card                                 ;
 ; Family                      ; Stratix                                  ;
-; Total logic elements        ; 14,048                                   ;
+; Total logic elements        ; 14,079                                   ;
 ; Total pins                  ; 252                                      ;
 ; Total virtual pins          ; 0                                        ;
 ; Total memory bits           ; 812,544                                  ;
@@ -726,36 +726,36 @@ applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------------------------------------------+
 ; Resource                                    ; Usage                                                                         ;
 +---------------------------------------------+-------------------------------------------------------------------------------+
-; Total logic elements                        ; 14048                                                                         ;
-;     -- Combinational with no register       ; 7964                                                                          ;
+; Total logic elements                        ; 14079                                                                         ;
+;     -- Combinational with no register       ; 7995                                                                          ;
 ;     -- Register only                        ; 2594                                                                          ;
 ;     -- Combinational with a register        ; 3490                                                                          ;
 ;                                             ;                                                                               ;
 ; Logic element usage by number of LUT inputs ;                                                                               ;
 ;     -- 4 input functions                    ; 6186                                                                          ;
 ;     -- 3 input functions                    ; 2420                                                                          ;
-;     -- 2 input functions                    ; 2709                                                                          ;
-;     -- 1 input functions                    ; 125                                                                           ;
+;     -- 2 input functions                    ; 2739                                                                          ;
+;     -- 1 input functions                    ; 126                                                                           ;
 ;     -- 0 input functions                    ; 14                                                                            ;
 ;                                             ;                                                                               ;
 ; Logic elements by mode                      ;                                                                               ;
-;     -- normal mode                          ; 11930                                                                         ;
-;     -- arithmetic mode                      ; 2118                                                                          ;
+;     -- normal mode                          ; 11931                                                                         ;
+;     -- arithmetic mode                      ; 2148                                                                          ;
 ;     -- qfbk mode                            ; 0                                                                             ;
 ;     -- register cascade mode                ; 0                                                                             ;
 ;     -- synchronous clear/load mode          ; 1827                                                                          ;
 ;     -- asynchronous clear/load mode         ; 5746                                                                          ;
 ;                                             ;                                                                               ;
 ; Total registers                             ; 6084                                                                          ;
-; Total logic cells in carry chains           ; 2319                                                                          ;
+; Total logic cells in carry chains           ; 2350                                                                          ;
 ; I/O pins                                    ; 252                                                                           ;
 ; Total memory bits                           ; 812544                                                                        ;
 ; DSP block 9-bit elements                    ; 8                                                                             ;
 ; Total PLLs                                  ; 1                                                                             ;
 ; Maximum fan-out node                        ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk0 ;
 ; Maximum fan-out                             ; 6926                                                                          ;
-; Total fan-out                               ; 75300                                                                         ;
-; Average fan-out                             ; 4.91                                                                          ;
+; Total fan-out                               ; 75361                                                                         ;
+; Average fan-out                             ; 4.90                                                                          ;
 +---------------------------------------------+-------------------------------------------------------------------------------+
 
 
@@ -764,7 +764,7 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ; Compilation Hierarchy Node                                                   ; Logic Cells ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                                                                                                                                                      ;
 +------------------------------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; |clk_card                                                                    ; 14048 (575) ; 6084         ; 812544      ; 8            ; 0       ; 0         ; 1         ; 252  ; 0            ; 7964 (575)   ; 2594 (0)          ; 3490 (0)         ; 2319 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                ;
+; |clk_card                                                                    ; 14079 (575) ; 6084         ; 812544      ; 8            ; 0       ; 0         ; 1         ; 252  ; 0            ; 7995 (575)   ; 2594 (0)          ; 3490 (0)         ; 2350 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                ;
 ;    |backplane_id_thermo:backplane_id_thermo_slave|                           ; 195 (46)    ; 114          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 81 (28)      ; 60 (2)            ; 54 (16)          ; 18 (0)          ; 0 (0)      ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave                                                                                                                                                                                                                  ;
 ;       |counter:byte_counter|                                                 ; 10 (10)     ; 4            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 6 (6)        ; 3 (3)             ; 1 (1)            ; 0 (0)           ; 0 (0)      ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter                                                                                                                                                                                             ;
 ;       |reg:id_data0|                                                         ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|reg:id_data0                                                                                                                                                                                                     ;
@@ -883,7 +883,7 @@ applicable agreement for further details.
 ;       |reg:id_data3|                                                         ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:id_data3                                                                                                                                                                                                                    ;
 ;       |reg:thermo_data0|                                                     ; 6 (6)       ; 6            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 6 (6)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:thermo_data0                                                                                                                                                                                                                ;
 ;       |reg:thermo_data1|                                                     ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:thermo_data1                                                                                                                                                                                                                ;
-;    |issue_reply:issue_reply_block|                                           ; 8019 (0)    ; 3622         ; 677376      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4397 (0)     ; 1169 (0)          ; 2453 (0)         ; 1567 (0)        ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block                                                                                                                                                                                                                                  ;
+;    |issue_reply:issue_reply_block|                                           ; 8050 (0)    ; 3622         ; 677376      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4428 (0)     ; 1169 (0)          ; 2453 (0)         ; 1598 (0)        ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block                                                                                                                                                                                                                                  ;
 ;       |cmd_queue:i_cmd_queue|                                                ; 776 (381)   ; 424          ; 8704        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 352 (271)    ; 143 (40)          ; 281 (70)         ; 246 (193)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue                                                                                                                                                                                                            ;
 ;          |cmd_queue_tpram:cmd_queue_ram40_inst|                              ; 0 (0)       ; 0            ; 8192        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst                                                                                                                                                                       ;
 ;             |alt3pram:alt3pram_component|                                    ; 0 (0)       ; 0            ; 8192        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component                                                                                                                                           ;
@@ -911,7 +911,7 @@ applicable agreement for further details.
 ;          |reg:step_value_reg|                                                ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:step_value_reg                                                                                                                                                                                         ;
 ;          |serial_crc:cmd_crc|                                                ; 113 (113)   ; 64           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 49 (49)      ; 0 (0)             ; 64 (64)          ; 32 (32)         ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc                                                                                                                                                                                         ;
 ;          |shift_reg:sh_reg|                                                  ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 32 (32)          ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|shift_reg:sh_reg                                                                                                                                                                                           ;
-;       |cmd_translator:i_cmd_translator|                                      ; 673 (627)   ; 277          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 396 (386)    ; 95 (92)           ; 182 (149)        ; 260 (224)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator                                                                                                                                                                                                  ;
+;       |cmd_translator:i_cmd_translator|                                      ; 704 (658)   ; 277          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 427 (417)    ; 95 (92)           ; 182 (149)        ; 291 (255)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator                                                                                                                                                                                                  ;
 ;          |us_timer:timer|                                                    ; 46 (46)     ; 36           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|us_timer:timer                                                                                                                                                                                   ;
 ;       |fibre_rx:i_fibre_rx|                                                  ; 569 (378)   ; 435          ; 4096        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 134 (107)    ; 274 (205)         ; 161 (66)         ; 110 (24)        ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx                                                                                                                                                                                                              ;
 ;          |altsyncram:mem0|                                                   ; 0 (0)       ; 0            ; 2048        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|altsyncram:mem0                                                                                                                                                                                              ;
@@ -8285,7 +8285,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 6.1 Build 201 11/27/2006 SJ Full Version
-    Info: Processing started: Tue Aug 28 16:15:02 2007
+    Info: Processing started: Thu Aug 30 10:19:23 2007
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off clk_card -c clk_card
 Info: Found 1 design units, including 0 entities, in source file ../../../library/sys_param/source/rtl/command_pack.vhd
     Info: Found design unit 1: command_pack
@@ -8598,67 +8598,67 @@ Info: Found 2 design units, including 1 entities, in source file ../source/rtl/c
     Info: Found design unit 1: clk_card-top
     Info: Found entity 1: clk_card
 Info: Elaborating entity "clk_card" for the top level hierarchy
-Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(361): object "debug" assigned a value but never read
-Warning (10034): Output port "lvds_spare" at clk_card.vhd(93) has no driver
-Warning (10034): Output port "ttl_tx2" at clk_card.vhd(123) has no driver
-Warning (10034): Output port "ttl_txena2" at clk_card.vhd(124) has no driver
-Warning (10034): Output port "ttl_tx3" at clk_card.vhd(127) has no driver
-Warning (10034): Output port "ttl_txena3" at clk_card.vhd(128) has no driver
-Warning (10034): Output port "eeprom_so" at clk_card.vhd(132) has no driver
-Warning (10034): Output port "eeprom_sck" at clk_card.vhd(133) has no driver
-Warning (10034): Output port "eeprom_cs" at clk_card.vhd(134) has no driver
-Warning (10034): Output port "mictor0_o[15]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[14]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[13]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[12]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[11]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[10]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[9]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[8]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[7]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[6]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[5]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[4]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[3]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[2]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[1]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0_o[0]" at clk_card.vhd(184) has no driver
-Warning (10034): Output port "mictor0clk_o" at clk_card.vhd(185) has no driver
-Warning (10034): Output port "mictor1_o[15]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[14]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[13]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[12]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[11]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[10]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[9]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[8]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[7]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[6]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[5]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[4]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[3]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[2]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[1]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1_o[0]" at clk_card.vhd(189) has no driver
-Warning (10034): Output port "mictor1clk_o" at clk_card.vhd(190) has no driver
-Warning (10034): Output port "mictor1_e[15]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[14]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[13]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[12]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[11]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[10]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[9]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[8]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[7]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[6]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[5]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[4]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[3]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[2]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[1]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1_e[0]" at clk_card.vhd(191) has no driver
-Warning (10034): Output port "mictor1clk_e" at clk_card.vhd(192) has no driver
-Warning (10034): Output port "tx" at clk_card.vhd(195) has no driver
+Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(373): object "debug" assigned a value but never read
+Warning (10034): Output port "lvds_spare" at clk_card.vhd(105) has no driver
+Warning (10034): Output port "ttl_tx2" at clk_card.vhd(135) has no driver
+Warning (10034): Output port "ttl_txena2" at clk_card.vhd(136) has no driver
+Warning (10034): Output port "ttl_tx3" at clk_card.vhd(139) has no driver
+Warning (10034): Output port "ttl_txena3" at clk_card.vhd(140) has no driver
+Warning (10034): Output port "eeprom_so" at clk_card.vhd(144) has no driver
+Warning (10034): Output port "eeprom_sck" at clk_card.vhd(145) has no driver
+Warning (10034): Output port "eeprom_cs" at clk_card.vhd(146) has no driver
+Warning (10034): Output port "mictor0_o[15]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[14]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[13]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[12]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[11]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[10]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[9]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[8]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[7]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[6]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[5]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[4]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[3]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[2]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[1]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0_o[0]" at clk_card.vhd(196) has no driver
+Warning (10034): Output port "mictor0clk_o" at clk_card.vhd(197) has no driver
+Warning (10034): Output port "mictor1_o[15]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[14]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[13]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[12]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[11]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[10]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[9]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[8]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[7]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[6]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[5]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[4]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[3]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[2]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[1]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1_o[0]" at clk_card.vhd(201) has no driver
+Warning (10034): Output port "mictor1clk_o" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor1_e[15]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[14]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[13]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[12]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[11]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[10]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[9]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[8]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[7]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[6]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[5]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[4]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[3]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[2]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[1]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_e[0]" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1clk_e" at clk_card.vhd(204) has no driver
+Warning (10034): Output port "tx" at clk_card.vhd(207) has no driver
 Info: Elaborating entity "cc_reset" for hierarchy "cc_reset:cc_reset_block"
 Warning (10036): Verilog HDL or VHDL warning at cc_reset.vhd(105): object "startmce_brst" assigned a value but never read
 Warning (10036): Verilog HDL or VHDL warning at cc_reset.vhd(106): object "start_cc_bclr" assigned a value but never read
@@ -8778,9 +8778,9 @@ Info: Found 1 design units, including 1 entities, in source file db/altsyncram_s
     Info: Found entity 1: altsyncram_s0g3
 Info: Elaborating entity "altsyncram_s0g3" for hierarchy "issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|altsyncram:mem0|altsyncram_s0g3:auto_generated"
 Info: Elaborating entity "cmd_translator" for hierarchy "issue_reply:issue_reply_block|cmd_translator:i_cmd_translator"
-Warning (10036): Verilog HDL or VHDL warning at cmd_translator.vhd(170): object "external_dv_num" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cmd_translator.vhd(175): object "external_dv_num" assigned a value but never read
 Info: Elaborating entity "cmd_queue" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue"
-Info (10041): Verilog HDL or VHDL info at cmd_queue.vhd(249): inferred latch for "timer_clr"
+Info (10041): Verilog HDL or VHDL info at cmd_queue.vhd(252): inferred latch for "timer_clr"
 Info: Elaborating entity "reg" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg"
 Info: Elaborating entity "reg" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:data_size_reg_t"
 Info: Elaborating entity "reg" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:bit_status_reg"
@@ -8846,8 +8846,8 @@ Info: Elaborating entity "serial_crc" for hierarchy "issue_reply:issue_reply_blo
 Info: Elaborating entity "shift_reg" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|shift_reg:sh_reg"
 Info: Elaborating entity "counter" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|counter:bit_ctr"
 Info: Elaborating entity "reply_queue" for hierarchy "issue_reply:issue_reply_block|reply_queue:i_reply_queue"
-Warning (10036): Verilog HDL or VHDL warning at reply_queue.vhd(248): object "active_clk" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at reply_queue.vhd(250): object "sync_box_free_run" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at reply_queue.vhd(253): object "active_clk" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at reply_queue.vhd(255): object "sync_box_free_run" assigned a value but never read
 Info: Elaborating entity "reply_translator_frame_head_ram" for hierarchy "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_translator_frame_head_ram:i_reply_translator_frame_head_ram"
 Info: Elaborating entity "altsyncram" for hierarchy "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_translator_frame_head_ram:i_reply_translator_frame_head_ram|altsyncram:altsyncram_component"
 Info: Elaborated megafunction instantiation "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_translator_frame_head_ram:i_reply_translator_frame_head_ram|altsyncram:altsyncram_component"
@@ -11003,17 +11003,17 @@ Warning: Design contains 34 input pin(s) that do not drive logic
     Warning: No output dependent on input pin "mictor0_e[15]"
     Warning: No output dependent on input pin "mictor0clk_e"
     Warning: No output dependent on input pin "rx"
-Info: Implemented 15341 device resources after synthesis - the final resource count might be different
+Info: Implemented 15372 device resources after synthesis - the final resource count might be different
     Info: Implemented 72 input pins
     Info: Implemented 146 output pins
     Info: Implemented 34 bidirectional pins
-    Info: Implemented 14048 logic cells
+    Info: Implemented 14079 logic cells
     Info: Implemented 1032 RAM segments
     Info: Implemented 1 ClockLock PLLs
     Info: Implemented 8 DSP elements
 Info: Quartus II Analysis & Synthesis was successful. 0 errors, 493 warnings
-    Info: Allocated 224 megabytes of memory during processing
-    Info: Processing ended: Tue Aug 28 16:21:09 2007
-    Info: Elapsed time: 00:06:07
+    Info: Allocated 222 megabytes of memory during processing
+    Info: Processing ended: Thu Aug 30 10:26:50 2007
+    Info: Elapsed time: 00:07:27
 
 
