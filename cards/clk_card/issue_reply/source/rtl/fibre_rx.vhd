@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.8 2007/07/24 22:37:11 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.10 2007/07/26 22:09:20 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson/ Bryce Burger
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2007/07/24 22:37:11 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/07/26 22:09:20 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.10  2007/07/26 22:09:20  bburger
+-- BB:  replaced the head of this file that has all of the changes that Ernie made to this block (v1.6 through v1.9) with the version that is compatible with the current issue_reply chain.  At a later date, we may incorporate some of Ernie's changes.
+--
 -- Revision 1.5.2.8  2007/07/24 22:37:11  bburger
 -- BB:
 -- - Added sbr_o, rt_cmd_rdy_o and rdy_for_data_i interfaces
@@ -204,6 +207,10 @@ architecture rtl of fibre_rx is
    signal timeout_count  : integer;
    signal timeout        : std_logic;
 
+   signal timeout_clr_b    : std_logic;
+   signal timeout_count_b  : integer;
+   signal timeout_b        : std_logic;
+
    signal spurrious_byte_received : std_logic;
 
 begin
@@ -229,6 +236,14 @@ begin
    ----------------------------------------------------------------------------
    -- byte and word counters
    ----------------------------------------------------------------------------
+--   timeout <= '1' when timeout_count >= FIBRE_PACKET_TIMEOUT else '0';
+   timeout_timer_b : us_timer
+   port map(
+      clk => clk_i,
+      timer_reset_i => timeout_clr_b,
+      timer_count_o => timeout_count_b
+   );
+
    timeout <= '1' when timeout_count >= FIBRE_PACKET_TIMEOUT else '0';
    timeout_timer : us_timer
    port map(
@@ -411,8 +426,10 @@ begin
       cmd_rdy_o      <= '0';
       rx_fr          <= '0';
       dat_clk_o      <= '0';
-      timeout_clr    <= '1';
       rt_cmd_rdy_o   <= '0';
+
+      timeout_clr    <= '1';
+      timeout_clr_b  <= '1';
 
       case current_state is
          when IDLE =>
@@ -472,6 +489,7 @@ begin
 
          when CKSM_PASS =>
             cmd_rdy_o <= '1';
+            timeout_clr_b <= '0';
 
          when CKSM_FAIL =>
             cmd_err_o <= '1';
@@ -483,16 +501,20 @@ begin
             read_mem <= '1';
             cmd_rdy_o <= '1';
             ld_cmd_data <= '1';
+            timeout_clr_b <= '0';
 
          when DATA_SETL =>
             cmd_rdy_o <= '1';
+            timeout_clr_b <= '0';
 
          when DATA_TX =>
             cmd_rdy_o <= '1' ;
             dat_clk_o <= '1' ;
+            timeout_clr_b <= '0';
 
          when WAIT_FOR_ACK =>
             cmd_rdy_o <= '1' ;
+            timeout_clr_b <= '0';
 
          when others => null;
       end case;
