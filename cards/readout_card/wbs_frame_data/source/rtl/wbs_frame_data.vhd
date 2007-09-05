@@ -49,9 +49,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/06/16 03:31:17 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/09/04 21:14:25 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.29.4.1  2007/09/04 21:14:25  bburger
+-- BB:  wbs addressing fixes to raw mode and frame data mode
+--
 -- Revision 1.29  2007/06/16 03:31:17  mandana
 -- added data_mode=6 for 18b filtered fb + 14b error
 --
@@ -362,7 +365,7 @@ architecture rtl of wbs_frame_data is
 --   signal wb_ack          : std_logic;  -- acknowledge data_mode and capture_raw commands
 
    -- slave controller FSM
-   type state is (IDLE, WSS1, WSS2, READ_DATA, START_RAW, WR_REG, RD_REG, WB_ACK_NOW, WB_ER, WR, RD1, RD2);
+   type state is (IDLE, WSS1, WSS2, READ_DATA, START_RAW, WR_REG, RD_REG, WB_ACK_NOW, WB_ER, WR, RD1, RD2, RD3);
 
    signal current_state   : state;
    signal next_state      : state;
@@ -508,6 +511,9 @@ begin
             next_state <= RD2;
 
          when RD2 =>
+            next_state <= RD3;
+
+         when RD3 =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             else
@@ -556,7 +562,7 @@ begin
 
    ---------------------------------------------------------------------------------------------
 --   output_fsm: process (current_state, wbs_data, data_mode, readout_row_index, addr_i, stb_i, cyc_i)
-   output_fsm: process (current_state, addr_i, stb_i)
+   output_fsm: process (current_state, addr_i, stb_i, cyc_i)
    ---------------------------------------------------------------------------------------------
    begin
       -- default states
@@ -595,11 +601,16 @@ begin
             end if;
 
          when RD1 =>
+         when RD2 =>
 
          -- implied that in RD1 ack_o is 0
-         when RD2 =>
-            ack_o <= '1';
-            inc_addr <= '1';
+         when RD3 =>
+            if(cyc_i = '0') then
+               null;
+            else
+               ack_o <= '1';
+               inc_addr <= '1';
+            end if;
 
 --      when IDLE =>
 --         pix_addr_clr <= '1';
