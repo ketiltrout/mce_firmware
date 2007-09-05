@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.50 2007/08/28 23:19:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.51 2007/08/30 18:31:08 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -31,9 +31,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/08/28 23:19:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/08/30 18:31:08 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.51  2007/08/30 18:31:08  bburger
+-- BB:  A default assignment to ramp_val was missing from its process.  Now added.
+--
 -- Revision 1.50  2007/08/28 23:19:22  bburger
 -- BB:
 -- - Added functionality to cmd_translator for issuing ramp commands to any card/parameter
@@ -565,7 +568,8 @@ begin
    -- Output logic:  signals that go to cmd_queue
    -------------------------------------------------------------------------------------------
    process(current_state, f_rx_card_addr, f_rx_param_id, data_size, f_rx_data, cmd_data_i, tes_bias_toggle_req,
-      internal_status_req, f_rx_cmd_code, f_rx_num_data, data_clk_i, step_card_addr_i, step_param_id_i, ramp_value)
+      internal_status_req, f_rx_cmd_code, f_rx_num_data, data_clk_i, step_card_addr_i, step_param_id_i, ramp_value,
+      step_data_num_i)
    begin
       -- Default assignments for signals that are common for all commands
       card_addr_o      <= (others => '0');
@@ -600,7 +604,7 @@ begin
                card_addr_o       <= step_card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
                param_id_o        <= step_param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
                cmd_code_o        <= WRITE_BLOCK;
-               data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
+               data_size_o       <= step_data_num_i(BB_DATA_SIZE_WIDTH-1 downto 0); -- 1 word by default
                data_clk_o        <= '0';
                internal_cmd_o    <= '1';
                data_o            <= ramp_value;
@@ -617,7 +621,7 @@ begin
                card_addr_o       <= step_card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
                param_id_o        <= step_param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
                cmd_code_o        <= WRITE_BLOCK;
-               data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
+               data_size_o       <= step_data_num_i(BB_DATA_SIZE_WIDTH-1 downto 0); -- 1 word by default
                -- cmd_queue is level-sensitive, not edge-sensitive.
                data_clk_o        <= '1';
                internal_cmd_o    <= '1';
