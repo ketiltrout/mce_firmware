@@ -416,7 +416,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE clk_card_rc_probb.stp
+set_global_assignment -name USE_SIGNALTAP_FILE "C:\\scuba2_repository\\cards\\clk_card\\clk_card\\synth\\fibre_tx_measurements.stp"
 
 # LogicLock Region Assignments
 # ============================
