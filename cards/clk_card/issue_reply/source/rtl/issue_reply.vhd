@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.65 2007/07/24 22:47:24 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.66 2007/08/28 23:20:53 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/07/24 22:47:24 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/08/28 23:20:53 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.66  2007/08/28 23:20:53  bburger
+-- BB:  added new interface signals between issue_reply and ret_dat_wbs for communicating internal ramp command parameters to the cmd_translator block.
+--
 -- Revision 1.65  2007/07/24 22:47:24  bburger
 -- BB:
 -- - added clk_n_i signal to the issue_reply interface.  The signal is used by the reply_translator frame header buffer for sampling data.
@@ -110,18 +113,6 @@ entity issue_reply is
       start_seq_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_i            : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- sync_gen interface
-      dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      external_dv_i          : in std_logic;
-      external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-
-      -- ret_dat_wbs interface
---      tes_bias_toggle_en_i   : in std_logic;
---      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
---      status_cmd_en_i        : in std_logic;
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
       step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -131,6 +122,7 @@ entity issue_reply is
       step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
+      num_rows_to_read_i     : in integer;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -144,9 +136,11 @@ entity issue_reply is
       sync_box_free_run_i    : in std_logic;
 
       -- sync_gen interface
+      dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i          : in std_logic;
+      external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
       row_len_i              : in integer;
       num_rows_i             : in integer;
-      num_rows_to_read_i     : in integer;
       sync_pulse_i           : in std_logic;
       sync_number_i          : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );
@@ -324,12 +318,12 @@ architecture rtl of issue_reply is
       frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i    : in std_logic;
 --      tes_bias_step_level_i : in std_logic;
-
       data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       row_len_i         : in integer;
-      num_rows_i        : in integer;
       issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       step_value_i      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
+      num_rows_i        : in integer;
 
       -- cmd_translator interface
       cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
@@ -351,6 +345,9 @@ architecture rtl of issue_reply is
       last_frame_bit_o  : out std_logic;
       frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+      -- ret_dat_wbs interface
+      num_rows_to_read_i : in integer;
 
       -- clk_switchover interface
       active_clk_i      : in std_logic;
@@ -709,6 +706,9 @@ begin
       last_frame_bit_o    => reply_last_frame,
       frame_seq_num_o     => reply_frame_seq_num,
       frame_status_word_o => frame_status_word,
+
+      -- ret_dat_wbs interface
+      num_rows_to_read_i  => num_rows_to_read_i,
 
       -- clk_switchover interface
       active_clk_i        => active_clk_i,
