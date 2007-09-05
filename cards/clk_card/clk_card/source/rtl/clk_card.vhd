@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.71 2007/07/26 20:29:28 bburger Exp $
+-- $Id: clk_card.vhd,v 1.72 2007/08/28 23:30:27 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,18 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.72  2007/08/28 23:30:27  bburger
+-- BB: added interface signals and wishbone signals to support the following commands:
+-- constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
+-- constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
+-- constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
+-- constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
+-- constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
+-- constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
+-- constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
+-- constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
+-- constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
+--
 -- Revision 1.71  2007/07/26 20:29:28  bburger
 -- BB:  made naming corrections for subarray_id and backplane_id_thermo
 --
@@ -226,7 +238,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000000";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000001";
 
    -- reset
    signal rst                : std_logic;
@@ -612,21 +624,9 @@ begin
       lvds_cmd_o        => cmd,
 
       -- ret_dat signals (from ret_dat_wbs)
-      start_seq_num_i   => start_seq_num,
-      stop_seq_num_i    => stop_seq_num,
-      data_rate_i       => data_rate,
-
-      -- ret_dat signals (from dv_rx)
-      dv_mode_i         => dv_mode,
-      external_dv_i     => external_dv,
-      external_dv_num_i => external_dv_num,
-
-      -- internal command signals (from ret_dat_wbs)
---      tes_bias_toggle_en_i   => tes_bias_toggle_en,
---      tes_bias_high_i        => tes_bias_high,
---      tes_bias_low_i         => tes_bias_low,
---      tes_bias_toggle_rate_i => tes_bias_toggle_rate,
---      status_cmd_en_i        => status_cmd_en,
+      start_seq_num_i     => start_seq_num,
+      stop_seq_num_i      => stop_seq_num,
+      data_rate_i         => data_rate,
       internal_cmd_mode_i => internal_cmd_mode,
       step_period_i       => step_period,
       step_minimum_i      => step_minimum,
@@ -636,6 +636,13 @@ begin
       step_card_addr_i    => step_card_addr,
       step_data_num_i     => step_data_num,
       crc_err_en_i        => crc_err_en,
+      num_rows_to_read_i  => num_rows_to_read,
+
+      -- dv_rx interface
+      external_dv_i     => external_dv,
+      external_dv_num_i => external_dv_num,
+      sync_box_err_i      => sync_box_err,
+      sync_box_free_run_i => sync_box_free_run,
 
       -- cc_reset interface
       reset_event_i => reset_event,
@@ -644,14 +651,12 @@ begin
       -- clk_switchover interface
       active_clk_i        => active_clk,
 
-      -- dv_rx interface
-      sync_box_err_i      => sync_box_err,
-      sync_box_free_run_i => sync_box_free_run,
-
       -- sync_gen interface
+      dv_mode_i          => dv_mode,
       row_len_i          => row_len,
       num_rows_i         => num_rows,
-      num_rows_to_read_i => num_rows_to_read,
+
+      -- frame_timing interface
       sync_pulse_i       => sync,
       sync_number_i      => sync_num
    );
