@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.42 2007/07/24 23:10:55 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.43 2007/08/28 23:24:54 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.43  2007/08/28 23:24:54  bburger
+-- BB:
+-- - removed tes_bias_step_level from the data header.
+-- - added card_addr, ramp_value, row_len, num_rows and data_rate to the data header.
+--
 -- Revision 1.42  2007/07/24 23:10:55  bburger
 -- BB:
 -- - added the over_temperature_o signal to the reply_queue interface to signal the cmd_translator to shut down the MCE.
@@ -81,7 +86,6 @@ entity reply_queue is
       frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i      : in std_logic;
 --      tes_bias_step_level_i : in std_logic;
-
       data_rate_i         : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       row_len_i           : in integer;
       num_rows_i          : in integer;
@@ -109,6 +113,9 @@ entity reply_queue is
       last_frame_bit_o    : out std_logic;
       frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+      -- ret_dat_wbs interface
+      num_rows_to_read_i  : in integer;
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -278,7 +285,7 @@ architecture behav of reply_queue is
    type retire_states is (IDLE, LATCH_CMD1, LATCH_CMD2, RECEIVED, WAIT_FOR_MATCH, REPLY, STORE_ERRNO_HEADER_WORD,
       STORE_HEADER_WORD, PAUSE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_FRAME_STATUS, TX_CARD_ADDR,
       TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_RAMP_VALUE, TX_FRAME_SEQUENCE_NUM,
-      TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL);
+      TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL, TX_NUM_ROWS_TO_READ, TX_SPARE);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;
 
@@ -744,50 +751,85 @@ begin
 
          when TX_FRAME_SEQUENCE_NUM =>
             if(word_count >= 2) then
+               next_retire_state <= TX_ROW_LEN;
+            end if;
+
+         when TX_ROW_LEN =>
+            if(word_count >= 3) then
+               next_retire_state <= TX_NUM_ROWS;
+            end if;
+
+         when TX_NUM_ROWS =>
+            if(word_count >= 4) then
+               next_retire_state <= TX_DATA_RATE;
+            end if;
+
+         when TX_DATA_RATE =>
+            if(word_count >= 5) then
                next_retire_state <= TX_SYNC_NUM;
             end if;
 
          when TX_SYNC_NUM =>
-            if(word_count >= 3) then
+            if(word_count >= 6) then
+               next_retire_state <= TX_CARD_ADDR;
+            end if;
+
+         when TX_CARD_ADDR =>
+            if(word_count >= 7) then
+               next_retire_state <= TX_RAMP_VALUE;
+            end if;
+
+         when TX_RAMP_VALUE =>
+            if(word_count >= 8) then
+               next_retire_state <= TX_NUM_ROWS_TO_READ;
+            end if;
+
+         when TX_NUM_ROWS_TO_READ =>
+            if(word_count >= 9) then
+               next_retire_state <= TX_SPARE;
+            end if;
+
+         when TX_SPARE =>
+            if(word_count >= 10) then
                next_retire_state <= TX_DV_NUM;
             end if;
 
          when TX_DV_NUM =>
-            if(word_count >= 4) then
+            if(word_count >= 11) then
                next_retire_state <= TX_HEADER;
             end if;
 
          when TX_HEADER =>
             -- The "- 1" is to compensate for single words sent at the end of the header
             -- i.e. sync_num (TX_SYNC_NUM)
-            if(word_count >= NUM_RAM_HEAD_WORDS-5) then
-               next_retire_state <= TX_CARD_ADDR;
-            end if;
-
-         when TX_CARD_ADDR =>
-            if(word_count >= NUM_RAM_HEAD_WORDS-4) then
-               next_retire_state <= TX_RAMP_VALUE;
-            end if;
-
-         when TX_RAMP_VALUE =>
-            if(word_count >= NUM_RAM_HEAD_WORDS-3) then
-               next_retire_state <= TX_ROW_LEN;
-            end if;
-
-         when TX_ROW_LEN =>
-            if(word_count >= NUM_RAM_HEAD_WORDS-2) then
-               next_retire_state <= TX_NUM_ROWS;
-            end if;
-
-         when TX_NUM_ROWS =>
-            if(word_count >= NUM_RAM_HEAD_WORDS-1) then
-               next_retire_state <= TX_DATA_RATE;
-            end if;
-
-         when TX_DATA_RATE =>
             if(word_count >= NUM_RAM_HEAD_WORDS) then
                next_retire_state <= TX_SEND_DATA;
             end if;
+
+--         when TX_CARD_ADDR =>
+--            if(word_count >= NUM_RAM_HEAD_WORDS-4) then
+--               next_retire_state <= TX_RAMP_VALUE;
+--            end if;
+--
+--         when TX_RAMP_VALUE =>
+--            if(word_count >= NUM_RAM_HEAD_WORDS-3) then
+--               next_retire_state <= TX_ROW_LEN;
+--            end if;
+--
+--         when TX_ROW_LEN =>
+--            if(word_count >= NUM_RAM_HEAD_WORDS-2) then
+--               next_retire_state <= TX_NUM_ROWS;
+--            end if;
+--
+--         when TX_NUM_ROWS =>
+--            if(word_count >= NUM_RAM_HEAD_WORDS-1) then
+--               next_retire_state <= TX_DATA_RATE;
+--            end if;
+--
+--         when TX_DATA_RATE =>
+--            if(word_count >= NUM_RAM_HEAD_WORDS) then
+--               next_retire_state <= TX_SEND_DATA;
+--            end if;
 
          when TX_SEND_DATA =>
             if(word_rdy = '0') then
@@ -809,18 +851,20 @@ begin
    -- In particular, external_dv_num_i should be registered by cmd_queue at the time of issue..maybe..
    with present_retire_state select
       data_o <=
-         data_bus                                 when TX_STATUS | TX_SEND_DATA | REPLY,
-         data_rate_i                              when TX_DATA_RATE,
-         conv_std_logic_vector(row_len_i,32)      when TX_ROW_LEN,
-         conv_std_logic_vector(num_rows_i,32)     when TX_NUM_ROWS,
-         x"000000" & card_addr_i                  when TX_CARD_ADDR,
-         step_value_i                             when TX_RAMP_VALUE,
-         issue_sync_num                           when TX_SYNC_NUM,
-         frame_seq_num                            when TX_FRAME_SEQUENCE_NUM,
-         frame_status                             when TX_FRAME_STATUS,
-         external_dv_num_i                        when TX_DV_NUM,
-         head_data                                when TX_HEADER,
-         (others => '0')                          when others;
+         data_bus                                      when TX_STATUS | TX_SEND_DATA | REPLY,
+         frame_status                                  when TX_FRAME_STATUS,
+         frame_seq_num                                 when TX_FRAME_SEQUENCE_NUM,
+         conv_std_logic_vector(row_len_i,32)           when TX_ROW_LEN,
+         conv_std_logic_vector(num_rows_i,32)          when TX_NUM_ROWS,
+         data_rate_i                                   when TX_DATA_RATE,
+         issue_sync_num                                when TX_SYNC_NUM,
+         x"000000" & card_addr_i                       when TX_CARD_ADDR,
+         step_value_i                                  when TX_RAMP_VALUE,
+         conv_std_logic_vector(num_rows_to_read_i, 32) when TX_NUM_ROWS_TO_READ,
+         (others => '0')                               when TX_SPARE,
+         external_dv_num_i                             when TX_DV_NUM,
+         head_data                                     when TX_HEADER,
+         (others => '0')                               when others;
 
    retire_state_out: process(present_retire_state, ack_i, data_size, word_rdy, cmd_code, matched,
       data_bus, reset_and_error_code, header_storage_address, header_tx_address, cmd_to_retire_i, word_count)
@@ -1034,17 +1078,22 @@ begin
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
 
+         when TX_ROW_LEN =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_NUM_ROWS =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_DATA_RATE =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
          when TX_SYNC_NUM =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_DV_NUM =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_HEADER =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
@@ -1059,17 +1108,22 @@ begin
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
 
-         when TX_DATA_RATE =>
+         when TX_NUM_ROWS_TO_READ =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
 
-         when TX_ROW_LEN =>
+         when TX_SPARE =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
 
-         when TX_NUM_ROWS =>
+         when TX_DV_NUM =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;
+            head_address    <= header_tx_address;
+
+         when TX_HEADER =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
