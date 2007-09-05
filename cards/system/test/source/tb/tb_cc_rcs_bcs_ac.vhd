@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.52 2007/08/30 18:35:13 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.53 2007/09/04 21:19:18 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.53  2007/09/04 21:19:18  bburger
+-- BB:  inputting unique values to readout card adc inputs
+--
 -- Revision 1.52  2007/08/30 18:35:13  bburger
 -- BB:  cc_v04000000 (with ramp_value fix)
 --
@@ -3825,7 +3828,7 @@ begin
       command <= command_wb;
       address_id <= cc_num_rows_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000021";
+      data       <= X"00000029";
       load_preamble;
       load_command;
       load_checksum;
@@ -3834,7 +3837,7 @@ begin
       command <= command_wb;
       address_id <= rc1_num_rows_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000021";
+      data       <= X"00000029";
       load_preamble;
       load_command;
       load_checksum;
@@ -3932,6 +3935,10 @@ begin
 --      load_checksum;
 --      wait for 50 us;
 
+      -- Recall to add 4 clock cycles to the ADC reading for these tests.
+      -- One row error readout starting at index 10.  num_rows=0x21.  data: 2704 through 2711.  Success.
+      -- Two row error readout starting at index 10.  num_rows=0x21.  data: 2704 through 2711 and 3504 through 3511.  Success.
+      -- Two row error readout starting at index 40.  num_rows=0x29.  data: 4292966976 through 4294966983 and 448 through 455.  Success.
       command <= command_wb;
       address_id <= rc1_flx_lp_init_cmd;
       data_valid <= X"00000001";
@@ -3945,7 +3952,7 @@ begin
       command <= command_wb;
       address_id <= rc1_readout_row_index_cmd;
       data_valid <= X"00000001";
-      data       <= X"0000000A";
+      data       <= X"00000028";
       load_preamble;
       load_command;
       load_checksum;
@@ -3955,7 +3962,7 @@ begin
       command <= command_wb;
       address_id <= cc_num_rows_to_read_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000001";
+      data       <= X"00000002";
       load_preamble;
       load_command;
       load_checksum;
@@ -3977,7 +3984,7 @@ begin
       load_preamble;
       load_command;
       load_checksum;
-      wait for 1500 us;
+      wait for 700 us;
 
 ------------------------------------------------------
 --  Command sequence for testing the flux feedback on RC1
