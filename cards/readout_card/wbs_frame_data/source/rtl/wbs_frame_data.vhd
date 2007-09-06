@@ -49,9 +49,14 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/06/16 03:31:17 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/08/28 19:38:31 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.29.2.1  2007/08/28 19:38:31  mandana
+-- added a register for readout_row_index parameter
+-- pix_addr counter now controlled to be 1 row only when readout_row_index is set
+-- pix_addr revised
+--
 -- Revision 1.29  2007/06/16 03:31:17  mandana
 -- added data_mode=6 for 18b filtered fb + 14b error
 --
@@ -339,7 +344,6 @@ signal wbs_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal inc_addr        : std_logic;
 
 -- address used for all modes except raw mode (mode 3)
-signal pix_addr_cnt    : integer range 0 to 2**(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH)-1;
 signal pix_address     : std_logic_vector (ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
 signal pix_addr_clr    : std_logic;
 signal ch_mux_sel      : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 0 --> 7
@@ -350,7 +354,6 @@ signal ch_mux_sel      : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -
 signal ch_mux_sel_dly1 : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);   
 
 -- address used for raw mode (mode 3)
-signal raw_addr_cnt    : integer range 0 to 2**(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH)-1;
 signal raw_address     : std_logic_vector (RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1    downto 0);      -- raw 'row' address
 signal raw_addr_clr    : std_logic;
 signal dec_raw_addr    : std_logic;
@@ -412,7 +415,7 @@ begin
    end process clock_fsm;
    
    -----------------------------------------------------------------------------------------
-   nextstate_fsm: process (current_state, raw_ack, pix_address, raw_addr_cnt, data_mode, readout_row_index,
+   nextstate_fsm: process (current_state, raw_ack, pix_address, raw_address, data_mode,
                            addr_i, stb_i, cyc_i, we_i, restart_frame_1row_post_i)
    ------------------------------------------------------------------------------------------
    begin
@@ -471,11 +474,11 @@ begin
          next_state <= READ_DATA;                                 
        
       when READ_DATA =>
-         if (data_mode = MODE3_RAW and ((raw_addr_cnt >= RAW_ADDR_MAX-1) or (pix_address >= PIXEL_ADDR_MAX+1)))then
+         if (data_mode = MODE3_RAW and ((raw_address >= RAW_ADDR_MAX-1) or (pix_address >= PIXEL_ADDR_MAX+1)))then
             next_state <= WB_ACK_NOW;
          end if;
 
-         if (data_mode /= MODE3_RAW and (pix_address >= PIXEL_ADDR_MAX+1 or (readout_row_index /= INVALID_ROW and pix_address > NO_CHANNELS))) then
+         if ((data_mode /= MODE3_RAW and pix_address >= PIXEL_ADDR_MAX+1) or (stb_i = '0' and cyc_i = '0')) then
             next_state <= WB_ACK_NOW;
          end if;
                                          
@@ -583,30 +586,25 @@ begin
     begin
          
       if (rst_i = '1') then                         -- asynchronous reset
-         pix_address    <= (others => '0');
-         raw_addr_cnt   <= 0;
+         pix_address  <= (others => '0');
+         raw_address  <= (others => '0');
       elsif (clk_i'EVENT AND clk_i = '1') then        
          -- raw-mode address counter
          if raw_addr_clr = '1' then                 -- synchronous reset 
-            raw_addr_cnt   <= 0;
+            raw_address <= (others => '0');
          elsif inc_addr = '1' and data_mode = MODE3_RAW then
-            if (raw_addr_cnt < RAW_ADDR_MAX) then
-               raw_addr_cnt <= raw_addr_cnt+1;  -- synchronous increment by 1
-            end if;   
+            --if (raw_address < RAW_ADDR_MAX) then
+               raw_address <= raw_address+1;  -- synchronous increment by 1
+            --end if;   
          elsif dec_raw_addr = '1' and data_mode = MODE3_RAW then
-            if (raw_addr_cnt > 2) then 
-               raw_addr_cnt <= raw_addr_cnt-2;  -- this prevents address overrun due to dispatch delay in grabbing data, prepares raw_addr_cnt for next frame grab.
+            if (raw_address > 2) then 
+               raw_address <= raw_address-2;  -- this prevents address overrun due to dispatch delay in grabbing data, prepares raw_addr_cnt for next frame grab.
             end if;   
          end if;
          --------------------------------------------------------------------------------
          -- non-raw-mode address counter
          if pix_addr_clr = '1' then -- and data_mode /= MODE3_RAW then
-            if readout_row_index = INVALID_ROW then
-               pix_address <= (others => '0');  -- synchronous decrement by 3 ????
-            else 
-               pix_address <= readout_row_index & CH_MUX_INIT;  
-            end if;
-            
+               pix_address <= readout_row_index & CH_MUX_INIT;            
          elsif inc_addr = '1' then 
             if pix_address < (PIXEL_ADDR_MAX + 5) then 
                pix_address <= pix_address +1; -- synchronous increment by 1
@@ -621,10 +619,6 @@ begin
    -- assign counts to bit vectors - modes 1,2,3
    -- note that the LS 3 bits of the address determine the channel
    -- the other bits determine the row address.
---   pix_address    <= conv_std_logic_vector(pix_addr_cnt, ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);   
-   
-      
- --  ch_mux_sel     <= pix_address(CH_MUX_SEL_WIDTH-1 downto 0); 
           
    filtered_addr_ch0_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
    fsfb_addr_ch0_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
@@ -658,12 +652,10 @@ begin
    fsfb_addr_ch7_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
    coadded_addr_ch7_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
    
-   -- assign counts to address vectors - mode 4
+   -- assign counts to address vectors - mode 3
    -- the LS  bits determine the channel
    -- the rest the 'row'.
    
-   raw_address    <= conv_std_logic_vector(raw_addr_cnt,   RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);   
- --  raw_ch_mux_sel <= raw_address(CH_MUX_SEL_WIDTH-1 downto 0);
         
    raw_addr_ch0_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
    raw_addr_ch1_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
