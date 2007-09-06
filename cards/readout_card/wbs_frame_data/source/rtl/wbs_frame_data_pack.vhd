@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2007/06/16 03:31:17 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/08/28 19:36:20 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.11.2.1  2007/08/28 19:36:20  mandana
+-- added INVALID_ROW and ch_mux_init
+--
 -- Revision 1.11  2007/06/16 03:31:17  mandana
 -- added data_mode=6 for 18b filtered fb + 14b error
 --
@@ -92,7 +95,6 @@ constant PIXEL_ADDR_MAX    : integer := NO_CHANNELS * NUM_OF_ROWS;
 
 constant RAW_ADDR_MAX      : integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
 
-constant INVALID_ROW       : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0) := (others => '1');
 constant CH_MUX_INIT       : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0) := (others => '0');
 
 constant MODE0_ERROR       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
