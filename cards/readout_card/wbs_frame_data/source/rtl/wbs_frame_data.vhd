@@ -49,9 +49,14 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/08/28 19:38:31 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/09/06 07:03:42 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.29.2.2  2007/09/06 07:03:42  mandana
+-- fixed raw-mode counter
+-- removed invalid_row check and default to 0
+-- when readout_row_index is set now, it will read as many rows as asked for up to 41 and then wraps back to row set instead of 0
+--
 -- Revision 1.29.2.1  2007/08/28 19:38:31  mandana
 -- added a register for readout_row_index parameter
 -- pix_addr counter now controlled to be 1 row only when readout_row_index is set
@@ -478,7 +483,7 @@ begin
             next_state <= WB_ACK_NOW;
          end if;
 
-         if ((data_mode /= MODE3_RAW and pix_address >= PIXEL_ADDR_MAX+1) or (stb_i = '0' and cyc_i = '0')) then
+         if ((data_mode /= MODE3_RAW and pix_address >= PIXEL_ADDR_MAX+1) or cyc_i = '0') then
             next_state <= WB_ACK_NOW;
          end if;
                                          
@@ -606,9 +611,12 @@ begin
          if pix_addr_clr = '1' then -- and data_mode /= MODE3_RAW then
                pix_address <= readout_row_index & CH_MUX_INIT;            
          elsif inc_addr = '1' then 
-            if pix_address < (PIXEL_ADDR_MAX + 5) then 
+            if pix_address < PIXEL_ADDR_MAX - 1 then 
                pix_address <= pix_address +1; -- synchronous increment by 1
+            else
+               pix_address <= (others => '0');
             end if;   
+            
          end if;
 
      end if;
@@ -806,7 +814,7 @@ begin
   readout_row_reg: process(clk_i, rst_i)
   begin
      if (rst_i = '1') then 
-        readout_row_index <= (others => '1');
+        readout_row_index <= (others => '0');
      elsif (clk_i'EVENT and clk_i = '1') then
         if readout_row_wren = '1' then 
            readout_row_index <= dat_i(readout_row_index'length -1 downto 0);
