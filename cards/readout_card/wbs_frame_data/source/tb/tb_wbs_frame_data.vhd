@@ -21,18 +21,21 @@
 -- tb_wbs_frame_data.vhd
 --
 --
--- Project: 			Scuba 2
--- Author:  			David Atkinson
--- Organisation: 			UKATC
+-- Project:          Scuba 2
+-- Author:           David Atkinson
+-- Organisation:        UKATC
 --
 -- Description:
 -- 
 -- test bed for wbs_frame_data.vhd
 --
 -- Revision history:
--- <date $Date: 2004/12/13 10:00:58 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2005/12/15 19:41:09 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: tb_wbs_frame_data.vhd,v $
+-- Revision 1.8  2005/12/15 19:41:09  mandana
+-- added test for data modes 2, 4, 5
+--
 -- Revision 1.7  2004/12/13 10:00:58  dca
 -- following instructions added:
 --
@@ -412,7 +415,7 @@ begin
 
      -- signal from frame_timing
      restart_frame_1row_post_i =>  restart_frame_1row_post,
-
+  
      -- signals to/from flux_loop_ctrl    
      filtered_addr_ch0_o       =>  filtered_addr_ch0,
      filtered_dat_ch0_i        =>  filtered_dat_ch0, 
@@ -521,7 +524,7 @@ begin
      stb_i                     =>  wbm_stb_o,
      cyc_i                     =>  wbm_cyc_o,
                   
-     dat_o 	                   =>  wbm_dat_i,
+     dat_o                     =>  wbm_dat_i,
      ack_o                     =>  wbm_ack_i
      );   
       
@@ -668,8 +671,8 @@ begin
 -- Create test bench clock
 -------------------------------------------------
   
-   dut_clk <= not dut_clk after clk_prd/2;
-
+   dut_clk <= not dut_clk after clk_prd/2;   
+ 
 ------------------------------------------------
 -- Create test bench stimuli
 -------------------------------------------------
@@ -759,6 +762,52 @@ begin
       end do_read_data_mode;
    --------------------------
    
+   ------------------------------     
+   procedure do_set_readout_row_index is 
+   ------------------------------
+      begin
+      
+         wbm_addr_o <= READOUT_ROW_INDEX_ADDR;
+         wbm_stb_o  <= '1';
+         wbm_cyc_o  <= '1';
+         wbm_we_o   <= '1';
+         
+         wait until wbm_ack_i = '1';
+         wait for clk_prd;
+         
+         wbm_addr_o <= (others => '0'); 
+         wbm_stb_o  <= '0';
+         wbm_cyc_o  <= '0';
+         wbm_we_o   <= '0';
+          
+         wait for clk_prd;
+           
+      end do_set_readout_row_index;
+   --------------------------
+   
+   
+   ------------------------------     
+   procedure do_read_readout_row_index is 
+   ------------------------------
+      begin
+      
+         wbm_addr_o <= READOUT_ROW_INDEX_ADDR;
+         wbm_stb_o  <= '1';
+         wbm_cyc_o  <= '1';
+         wbm_we_o   <= '0';
+         
+         wait until wbm_ack_i = '1';
+         wait for clk_prd;
+         
+         wbm_addr_o <= (others => '0'); 
+         wbm_stb_o  <= '0';
+         wbm_cyc_o  <= '0';
+         wbm_we_o   <= '0';
+          
+         wait for clk_prd;
+           
+      end do_read_readout_row_index;
+   --------------------------
    
     ------------------------------     
    procedure do_write_ret_data is 
@@ -909,8 +958,16 @@ begin
    assert false report " CAPTR RAW READ ....." severity NOTE;
    wait for clk_prd;
    
+   -- test writing and reading readout_row_index
+   wbm_dat_o <= conv_std_logic_vector(10, WB_DATA_WIDTH);
+   do_set_readout_row_index;
+   assert false report " READOUT_ROW SET ....." severity NOTE;
+   wait for clk_prd;
+   do_read_readout_row_index;
+   assert false report " READOUT_ROW READ ....." severity NOTE;
+   wait for clk_prd;
+   
    -- test writing ret_dat (error instruction whcih requires ack...)
-  
    do_write_ret_data;
    assert false report " WRITE RET_DATA ....." severity NOTE;
    wait for clk_prd;
@@ -927,7 +984,7 @@ begin
                   
    wait until wbm_ack_i = '1';
    
-   for i in 1 to (41*8) loop
+   for i in 1 to (1*8) loop
       wait for clk_prd;
    end loop;
             
@@ -939,7 +996,7 @@ begin
    
    wait for clk_prd;
    
-     assert (wbm_dat_reg = x"1728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+     assert (wbm_dat_reg = x"070AFFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
 --     assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;   
  
    
@@ -955,7 +1012,7 @@ begin
                   
    wait until wbm_ack_i = '1';
    
-   for i in 1 to (41*8) loop
+   for i in 1 to (31*8) loop
       wait for clk_prd;
    end loop;
             
@@ -963,7 +1020,7 @@ begin
    
    wait  for clk_prd;
    
-   assert false report "A Frame of UNFILTERED data has been read....." severity NOTE;
+   assert false report "A row-10 to 41 Frame of UNFILTERED data has been read....." severity NOTE;
    
    wait for clk_prd;
    
@@ -971,14 +1028,7 @@ begin
 --     assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
    
-   -- Get MODE 2 Filtered data
-   ------------------------------
-   wbm_dat_o <= MODE2_FILTERED;
-   do_set_data_mode;
-   assert false report " DATA MODE SET to MODE 2 (FILTERED)......" severity NOTE;
-   
-   wait for clk_prd;
-   
+   ---- check the wrapping
    do_start_ret_data; 
                   
    wait until wbm_ack_i = '1';
@@ -987,22 +1037,24 @@ begin
       wait for clk_prd;
    end loop;
             
-   do_end_ret_data;    
+   do_end_ret_data;   
    
    wait  for clk_prd;
-      
-   assert false report "A Frame of FILTERED data has been read....." severity NOTE;
    
-     assert (wbm_dat_reg = x"0728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
-     
-    -- assert (conv_integer(filtered_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+   assert false report "A Full Frame of UNFILTERED data has been read....." severity NOTE;
    
-   -- wait for clk_prd * 20;
-   -- assert false report "END OF SIMULATION....." severity FAILURE;
-
+   wait for clk_prd;
+   
+   assert (wbm_dat_reg = x"1709FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+   
  
    -- Get MODE 3 raw data
    ------------------------------
+   -- test writing and reading readout_row_index
+   wbm_dat_o <= conv_std_logic_vector(0, WB_DATA_WIDTH);
+   do_set_readout_row_index;
+   assert false report " READOUT_ROW RESET ....." severity NOTE;
+   
    wbm_dat_o <= MODE3_RAW;
    do_set_data_mode;
    assert false report " DATA MODE SET to MODE 3 (RAW)......" severity NOTE;
@@ -1020,7 +1072,7 @@ begin
          wait for clk_prd;
       end loop;
       
-      assert false report "**SET OF RAW DATA READ.........." severity NOTE;
+      assert (wbm_dat_reg = x"000037" & conv_std_logic_vector(i, 8)) report "**SET OF RAW DATA READ.........." severity NOTE;
       do_end_ret_data; 
       wait  for clk_prd;
    
@@ -1029,10 +1081,56 @@ begin
        
    assert (wbm_dat_reg = x"0000377F" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
   -- assert (conv_integer(raw_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
-   
-      
+         
    assert false report "******A FRAME OF RAW DATA HAS BEEN READ******" severity NOTE;
+   
+   -- now test for end of 8192 raw buffer check
+   for i in 1 to 72 loop 
+     
+      do_start_ret_data; 
+      wait until wbm_ack_i = '1';
+   
+      for j in 1 to (41*8) loop
+         wait for clk_prd;
+      end loop;
+      
+      assert (wbm_dat_reg = x"000037" & conv_std_logic_vector(i, 8)) report "**SET OF RAW DATA READ.........." severity NOTE;
+      do_end_ret_data; 
+      wait  for clk_prd;
+   
+   end loop;
+   
 
+   -- Get MODE 2 Filtered data -- currently not working because test bench doesn't excite restart_frame_1row_post
+   ------------------------------
+   wait for clk_prd; -- This is sort of to cover up a non-desired case that the state machine is not in idle yet and would cause ignore of the next command
+
+   wbm_dat_o <= MODE2_FILTERED;
+   do_set_data_mode;
+   assert false report " DATA MODE SET to MODE 2 (FILTERED)......" severity NOTE;
+   
+   wait for clk_prd;
+   
+   do_start_ret_data; 
+                  
+   wait until wbm_ack_i = '1';
+   
+   for i in 1 to (31*8) loop
+      wait for clk_prd;
+   end loop;
+            
+   do_end_ret_data;    
+   
+   wait  for clk_prd;
+      
+   assert false report "A Frame of FILTERED data has been read....." severity NOTE;
+   
+   assert (wbm_dat_reg = x"2728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+     
+    -- assert (conv_integer(filtered_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+   
+   -- wait for clk_prd * 20;
+   -- assert false report "END OF SIMULATION....." severity FAILURE;
 
    -- Get MODE 4 fb/error data
    ------------------------------
