@@ -21,18 +21,21 @@
 -- tb_wbs_frame_data_flc_sim.vhd
 --
 --
--- Project: 			Scuba 2
--- Author:  			David Atkinson
--- Organisation: 			UKATC
+-- Project:          Scuba 2
+-- Author:           David Atkinson
+-- Organisation:        UKATC
 --
 -- Description:
 -- 
 -- test block to mimic flux_loop_cntl behaviour for wbs_frame_data test bed.
 --
 -- Revision history:
--- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2005/12/15 19:42:16 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: tb_wbs_frame_data_flc_sim.vhd,v $
+-- Revision 1.5  2005/12/15 19:42:16  mandana
+-- updated interfaces for filter and flux_jumping
+--
 -- Revision 1.4  2004/12/07 19:37:46  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -299,11 +302,14 @@ signal raw_buff_ch7      : raw_memory := (others => raw_word'(others => '1'));
 
 -------------
 
+signal COADD_DATA    : std_logic_vector(3 downto 0):= MODE0_ERROR(3 downto 0);      
+signal FSFB_DATA     : std_logic_vector(3 downto 0):= MODE1_UNFILTERED (3 downto 0);      
+signal FILTERED_DATA : std_logic_vector(3 downto 0):= MODE2_FILTERED (3 downto 0);        
+signal RAW_DATA      : std_logic_vector(3 downto 0):= MODE3_RAW (3 downto 0);             
+signal FBER_DATA     : std_logic_vector(3 downto 0):= MODE4_FB_ERROR (3 downto 0);        
+signal FBFLX_DATA    : std_logic_vector(3 downto 0):= MODE5_FB_FLX_CNT (3 downto 0);      
+signal FILTER_DATA   : std_logic_vector(3 downto 0):= MODE6_FILT_ERROR (3 downto 0);      
 
-constant FILTERED_DATA  : std_logic_vector(3 downto 0) := "0000";
-constant FSFB_DATA      : std_logic_vector(3 downto 0) := "0001";
-constant COADD_DATA     : std_logic_vector(3 downto 0) := "0010";
-constant RAW_DATA       : std_logic_vector(3 downto 0) := "0011";
 
 constant CHANNEL_0      : std_logic_vector(3 downto 0) := "0000";
 constant CHANNEL_1      : std_logic_vector(3 downto 0) := "0001";
@@ -393,7 +399,7 @@ begin
     -- this data set is used so we can see the data change on the 328 boundary 
     -- 
     
-       for i in 0 to (NO_SAMPLES * 2)-1 loop
+       for i in 0 to (RAW_MEM_SIZE / NO_PIX_PER_CH )-1 loop
           for j in 0 to NO_PIX_PER_CH-1 loop 
              raw_buff_ch0(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_0 & conv_std_logic_vector(i,8) ;
              raw_buff_ch1(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_1 & conv_std_logic_vector(i,8) ;
