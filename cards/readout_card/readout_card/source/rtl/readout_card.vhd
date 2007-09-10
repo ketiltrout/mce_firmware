@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.63  2007/08/28 19:32:11  mandana
+-- v040000000 added readout_row_index
+--
 -- Revision 1.62  2007/06/16 03:29:00  mandana
 -- v03000001e added data_mode=6 for 18b filtered fb + 14b error
 --
@@ -374,7 +377,8 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000000"; -- added data_mode 6 for mixed filter+err mode
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000001"; -- added data_mode 6 for mixed filter+err mode
+                                                                     -- added readout_row_index 
 
 -- Global signals
 signal clk                     : std_logic;  -- system clk
