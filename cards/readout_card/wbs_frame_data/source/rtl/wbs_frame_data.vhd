@@ -34,24 +34,32 @@
 -- ret_dat   :    ParId="0x30" 
 -- data_mode :    ParId="0x31" 
 -- captr_raw :    ParId="0x1F" 
+-- readout_row_index: ParId="0x13"
 --
 -- It's main function is to collect data from the flux loop control blocks
 -- to be read by the wishbone master (dispatch)
 --
--- There are 6 data mode formats:
+-- There are 7 data mode formats:
 --
 -- data mode 0: error data (coadded value)
 -- data mode 1: unfiltered first-stage feedback data
 -- data mode 2: filtered first-stage feedback data
 -- data mode 3: Raw sampled data.
--- data mode 4: combined 16-bit/16-bit feedback data and error
+-- data mode 4: combined 18-bit/14-bit feedback data and error
 -- data mode 5: combined 24-bit/ 8-bit feedback data and flux_jump_count
---
+-- data mode 6: combined 18-bit/14-bit filtered fb and error
+-- data mode 7: combined 22-bit/10-bit filtered fb and error
+
 --
 -- Revision history:
--- <date $Date: 2007/09/06 07:03:42 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/09/07 00:14:24 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.29.2.3  2007/09/07 00:14:24  mandana
+-- readout_row_index init value is 0
+-- when readout_row_index is set, the counter goes to 41 rows and wraps to 0
+-- check for cyc_i only to stay in read mode
+--
 -- Revision 1.29.2.2  2007/09/06 07:03:42  mandana
 -- fixed raw-mode counter
 -- removed invalid_row check and default to 0
@@ -302,7 +310,7 @@ port(
      we_i                      : in std_logic;                                        -- write//read enable
      stb_i                     : in std_logic;                                        -- strobe 
      cyc_i                     : in std_logic;                                        -- cycle
-                  
+     err_o                     : out std_logic;
      dat_o                     : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- data out
      ack_o                     : out std_logic                                         -- acknowledge out
      );      
@@ -339,6 +347,7 @@ signal filtered_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal fb_error_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal fb_flx_cnt_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+signal filtfb_error_2_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
 -- signals for data output multiplexer
@@ -479,14 +488,20 @@ begin
          next_state <= READ_DATA;                                 
        
       when READ_DATA =>
-         if (data_mode = MODE3_RAW and ((raw_address >= RAW_ADDR_MAX-1) or (pix_address >= PIXEL_ADDR_MAX+1)))then
-            next_state <= WB_ACK_NOW;
+         if data_mode = MODE3_RAW then
+            if cyc_i = '0' or raw_address >= RAW_ADDR_MAX-1 or pix_address >= PIXEL_ADDR_MAX+1 then
+              next_state <= WB_ACK_NOW;
+            end if;  
+         else
+            if pix_address >= PIXEL_ADDR_MAX+1 then
+              next_state <= WB_ACK_NOW;
+            elsif  cyc_i = '0' then              
+              next_state <= IDLE;
+            else
+              next_state <= current_state;
+            end if;  
          end if;
-
-         if ((data_mode /= MODE3_RAW and pix_address >= PIXEL_ADDR_MAX+1) or cyc_i = '0') then
-            next_state <= WB_ACK_NOW;
-         end if;
-                                         
+                                                 
       when WB_ACK_NOW =>
          next_state <= IDLE;
       
@@ -565,6 +580,7 @@ begin
          
       when WB_ER =>
          wb_ack <= stb_i and cyc_i;
+         err_o  <= '1';
          
       end case;
     end process output_fsm;       
@@ -598,12 +614,12 @@ begin
          if raw_addr_clr = '1' then                 -- synchronous reset 
             raw_address <= (others => '0');
          elsif inc_addr = '1' and data_mode = MODE3_RAW then
-            --if (raw_address < RAW_ADDR_MAX) then
+            if (raw_address < RAW_ADDR_MAX -1 ) then
                raw_address <= raw_address+1;  -- synchronous increment by 1
-            --end if;   
+            end if;   
          elsif dec_raw_addr = '1' and data_mode = MODE3_RAW then
-            if (raw_address > 2) then 
-               raw_address <= raw_address-2;  -- this prevents address overrun due to dispatch delay in grabbing data, prepares raw_addr_cnt for next frame grab.
+            if (raw_address > 3) then 
+               raw_address <= raw_address-3;  -- this prevents address overrun due to dispatch delay in grabbing data, prepares raw_addr_cnt for next frame grab.
             end if;   
          end if;
          --------------------------------------------------------------------------------
@@ -687,7 +703,8 @@ begin
                        raw_dat        when "011",
                        fb_error_dat   when "100",
                        fb_flx_cnt_dat when "101",
-                       filtfb_error_dat when "110",
+                       filtfb_error_dat   when "110",
+                       filtfb_error_2_dat when "111",
                        raw_dat        when others;
                  
  
@@ -785,6 +802,31 @@ begin
                         
                         filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & 
                         coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
+
+   with ch_mux_sel select
+      filtfb_error_2_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 9) & 
+                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(10 downto 0) when "000",
+                        
+                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 9) & 
+                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(10 downto 0) when "001",
+                        
+                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 9) & 
+                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(10 downto 0) when "010",
+                        
+                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 9) & 
+                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(10 downto 0) when "011",
+                        
+                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 9) & 
+                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(10 downto 0) when "100",
+                        
+                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 9) & 
+                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(10 downto 0) when "101",
+                        
+                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 9) & 
+                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(10 downto 0) when "110",
+                        
+                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 9) & 
+                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(10 downto 0) when others;
 
    with raw_ch_mux_sel select
       raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
