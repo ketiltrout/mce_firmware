@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2007/08/28 19:36:20 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/09/06 07:01:23 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.11.2.2  2007/09/06 07:01:23  mandana
+-- removed INVALID_ROW
+--
 -- Revision 1.11.2.1  2007/08/28 19:36:20  mandana
 -- added INVALID_ROW and ch_mux_init
 --
@@ -104,5 +107,6 @@ constant MODE3_RAW         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := 
 constant MODE4_FB_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000004";
 constant MODE5_FB_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
 constant MODE6_FILT_ERROR  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
+constant MODE7_FILT_ERROR2 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000007";
 
 end package;
