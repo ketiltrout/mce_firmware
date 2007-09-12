@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.64  2007/09/10 23:33:07  mandana
+-- rev. 4.0.1 for readout_row_index default to 0 and be able to do multiple rows
+--
 -- Revision 1.63  2007/08/28 19:32:11  mandana
 -- v040000000 added readout_row_index
 --
@@ -377,8 +380,10 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000001"; -- added data_mode 6 for mixed filter+err mode
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000002"; -- added data_mode 6 for mixed filter+err mode
                                                                      -- added readout_row_index 
+                                                                     -- data mode 7 added 22b filtfb/10b err
+                                                                     -- 10b pid pars
 
 -- Global signals
 signal clk                     : std_logic;  -- system clk
