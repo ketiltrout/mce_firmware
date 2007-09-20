@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.66 2007/08/28 23:20:53 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.67 2007/09/05 03:41:50 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/08/28 23:20:53 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/09/05 03:41:50 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.67  2007/09/05 03:41:50  bburger
+-- BB:  added num_rows_to_read_i interface to reply_queue
+--
 -- Revision 1.66  2007/08/28 23:20:53  bburger
 -- BB:  added new interface signals between issue_reply and ret_dat_wbs for communicating internal ramp command parameters to the cmd_translator block.
 --
@@ -113,6 +116,8 @@ entity issue_reply is
       start_seq_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_i            : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      run_file_id_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      user_writable_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
       step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -133,14 +138,17 @@ entity issue_reply is
 
       -- dv_rx interface
       sync_box_err_i         : in std_logic;
+      sync_box_err_ack_o     : out std_logic;
       sync_box_free_run_i    : in std_logic;
+      external_dv_i          : in std_logic;
+      external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- sync_gen interface
       dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      external_dv_i          : in std_logic;
-      external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
       row_len_i              : in integer;
       num_rows_i             : in integer;
+
+      -- frame_timing interface
       sync_pulse_i           : in std_logic;
       sync_number_i          : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );
@@ -180,7 +188,8 @@ architecture rtl of issue_reply is
 
 
    component cmd_translator
-   port(-- global inputs
+   port(
+      -- global inputs
       rst_i                 : in  std_logic;
       clk_i                 : in  std_logic;
 
@@ -204,11 +213,6 @@ architecture rtl of issue_reply is
       external_dv_i         : in std_logic;
 
       -- ret_dat_wbs interface
---      tes_bias_toggle_en_i   : in std_logic;
---      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
---      status_cmd_en_i        : in std_logic;
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
       step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -233,9 +237,7 @@ architecture rtl of issue_reply is
       cmd_stop_o            : out std_logic;
       last_frame_o          : out std_logic;
       internal_cmd_o        : out std_logic;
-      --num_rows_i            : in integer;
       num_rows_to_read_i    : in integer;
---      tes_bias_step_level_o : out std_logic;
 
       -- input from the cmd_queue
       busy_i                : in std_logic;
@@ -308,76 +310,80 @@ architecture rtl of issue_reply is
    component reply_queue
    port(
       -- cmd_queue interface
-      cmd_to_retire_i   : in std_logic;
-      cmd_sent_o        : out std_logic;
-      card_addr_i       : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-      data_size_i       : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-      cmd_stop_i        : in std_logic;
-      last_frame_i      : in std_logic;
-      frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      internal_cmd_i    : in std_logic;
---      tes_bias_step_level_i : in std_logic;
-      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      row_len_i         : in integer;
-      issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      step_value_i      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
-      num_rows_i        : in integer;
+      cmd_to_retire_i     : in std_logic;
+      cmd_sent_o          : out std_logic;
+      card_addr_i         : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      par_id_i            : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      data_size_i         : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      cmd_stop_i          : in std_logic;
+      last_frame_i        : in std_logic;
+      frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_i      : in std_logic;
+      data_rate_i         : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      row_len_i           : in integer;
+      num_rows_i          : in integer;
+      issue_sync_i        : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      cmd_code_i          : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
+      step_value_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- cmd_translator interface
-      cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
+      over_temperature_o  : out std_logic;
 
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
-      size_o            : out integer;
-      data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      error_code_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      rdy_o             : out std_logic;
-      ack_i             : in std_logic;
+      size_o              : out integer;
+      data_o              : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      error_code_o        : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rdy_o               : out std_logic;
+      ack_i               : in std_logic;
 
       -- reply_translator interface (from reply_queue_retire)
-      cmd_sent_i        : in std_logic;
-      cmd_valid_o       : out std_logic;
-      cmd_code_o        : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      param_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-      card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      stop_bit_o        : out std_logic;
-      last_frame_bit_o  : out std_logic;
+      cmd_sent_i          : in std_logic;
+      cmd_valid_o         : out std_logic;
+      cmd_code_o          : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      param_id_o          : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      stop_bit_o          : out std_logic;
+      last_frame_bit_o    : out std_logic;
       frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
-      num_rows_to_read_i : in integer;
+      num_rows_to_read_i  : in integer;
+      ramp_card_addr_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- clk_switchover interface
-      active_clk_i      : in std_logic;
+      active_clk_i        : in std_logic;
 
       -- cc_reset interface
-      reset_event_i     : in std_logic;
-      reset_ack_o       : out std_logic;
+      reset_event_i       : in std_logic;
+      reset_ack_o         : out std_logic;
 
       -- dv_rx interface
       sync_box_err_i      : in std_logic;
+      sync_box_err_ack_o  : out std_logic;
       sync_box_free_run_i : in std_logic;
       external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- Bus Backplane interface
-      lvds_reply_ac_a   : in std_logic;
-      lvds_reply_bc1_a  : in std_logic;
-      lvds_reply_bc2_a  : in std_logic;
-      lvds_reply_bc3_a  : in std_logic;
-      lvds_reply_rc1_a  : in std_logic;
-      lvds_reply_rc2_a  : in std_logic;
-      lvds_reply_rc3_a  : in std_logic;
-      lvds_reply_rc4_a  : in std_logic;
-      lvds_reply_cc_a   : in std_logic;
-      lvds_reply_psu_a  : in std_logic;
+      lvds_reply_ac_a     : in std_logic;
+      lvds_reply_bc1_a    : in std_logic;
+      lvds_reply_bc2_a    : in std_logic;
+      lvds_reply_bc3_a    : in std_logic;
+      lvds_reply_rc1_a    : in std_logic;
+      lvds_reply_rc2_a    : in std_logic;
+      lvds_reply_rc3_a    : in std_logic;
+      lvds_reply_rc4_a    : in std_logic;
+      lvds_reply_cc_a     : in std_logic;
+      lvds_reply_psu_a    : in std_logic;
 
       -- Global signals
-      clk_i             : in std_logic;
-      clk_n_i           : in std_logic;
-      comm_clk_i        : in std_logic;
-      rst_i             : in std_logic
+      clk_i               : in std_logic;
+      clk_n_i             : in std_logic;
+      comm_clk_i          : in std_logic;
+      rst_i               : in std_logic
    );
    end component;
 
@@ -632,7 +638,6 @@ begin
       internal_cmd_o  => internal_cmd_cr,
       issue_sync_o    => issue_sync,
       cmd_code_o      => reply_cmd_code_b,
---      tes_bias_step_level_o => tes_bias_step_level2,
       step_value_o    => step_value2,
 
       -- cmd_translator interface
@@ -651,7 +656,6 @@ begin
       frame_seq_num_i => frame_seq_num,
       internal_cmd_i  => internal_cmd_issued,
       cmd_code_i      => reply_cmd_code,
---      tes_bias_step_level_i  => tes_bias_step_level,
       step_value_i    => step_value,
 
       -- lvds_tx interface
@@ -681,13 +685,12 @@ begin
       frame_seq_num_i     => frame_seq_num_cr,
       internal_cmd_i      => internal_cmd_cr,
       cmd_code_i          => reply_cmd_code_b,
---      tes_bias_step_level_i => tes_bias_step_level2,
+      step_value_i        => step_value2,
+      issue_sync_i        => issue_sync,
 
-      data_rate_i         => data_rate_i,
+      -- sync_gen interface
       row_len_i           => row_len_i,
       num_rows_i          => num_rows_i,
-      issue_sync_i        => issue_sync,
-      step_value_i        => step_value2,
 
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o              => num_fibre_words,
@@ -708,7 +711,12 @@ begin
       frame_status_word_o => frame_status_word,
 
       -- ret_dat_wbs interface
+      data_rate_i         => data_rate_i,
       num_rows_to_read_i  => num_rows_to_read_i,
+      ramp_card_addr_i    => step_card_addr_i,
+      ramp_param_id_i     => step_param_id_i,
+      run_file_id_i       => run_file_id_i,
+      user_writable_i     => user_writable_i,
 
       -- clk_switchover interface
       active_clk_i        => active_clk_i,
@@ -719,6 +727,7 @@ begin
 
       -- dv_rx interface
       sync_box_err_i      => sync_box_err_i,
+      sync_box_err_ack_o  => sync_box_err_ack_o,
       sync_box_free_run_i => sync_box_free_run_i,
       external_dv_num_i   => external_dv_num_i,
 
