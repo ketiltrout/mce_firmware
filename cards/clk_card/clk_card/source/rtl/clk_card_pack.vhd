@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.5 2007/07/26 20:28:10 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.6 2007/08/28 23:31:30 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,18 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.6  2007/08/28 23:31:30  bburger
+-- BB: added interface signals to support the following commands:
+-- constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
+-- constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
+-- constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
+-- constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
+-- constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
+-- constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
+-- constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
+-- constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
+-- constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
+--
 -- Revision 1.5  2007/07/26 20:28:10  bburger
 -- BB:  entity name updates:  subarray_id and backplane_id_thermo
 --
@@ -252,6 +264,7 @@ package clk_card_pack is
       dv_o                : out std_logic;
       dv_sequence_num_o   : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
       sync_box_err_o      : out std_logic;
+      sync_box_err_ack_i  : in std_logic;
       sync_box_free_run_o : out std_logic;
 
       sync_mode_i         : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
@@ -261,17 +274,10 @@ package clk_card_pack is
 
    component ret_dat_wbs is
    port(
-      -- to ret_dat fsm (cmd_translator):
+      -- to issue_reply:
       start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- to internal_cmd_fsm (cmd_translator):
---      tes_bias_toggle_en_o   : out std_logic;
---      tes_bias_high_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
       internal_cmd_mode_o    : out std_logic_vector(1 downto 0);
       step_period_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -280,8 +286,8 @@ package clk_card_pack is
       step_param_id_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_card_addr_o       : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
---      status_cmd_en_o        : out std_logic;
+      run_file_id_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
       num_rows_to_read_o     : out integer;
 
@@ -384,19 +390,8 @@ package clk_card_pack is
       start_seq_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_i            : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- sync_gen interface
-      dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      external_dv_i          : in std_logic;
-      external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-
-      -- ret_dat_wbs interface
---      tes_bias_toggle_en_i   : in std_logic;
---      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
---      status_cmd_en_i        : in std_logic;
-
+      run_file_id_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      user_writable_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
       step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -405,8 +400,8 @@ package clk_card_pack is
       step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
       crc_err_en_i           : in std_logic;
+      num_rows_to_read_i     : in integer;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -417,12 +412,17 @@ package clk_card_pack is
 
       -- dv_rx interface
       sync_box_err_i         : in std_logic;
+      sync_box_err_ack_o     : out std_logic;
       sync_box_free_run_i    : in std_logic;
+      external_dv_i          : in std_logic;
+      external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- sync_gen interface
+      dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       row_len_i              : in integer;
       num_rows_i             : in integer;
-      num_rows_to_read_i     : in integer;
+
+      -- frame_timing interface
       sync_pulse_i           : in std_logic;
       sync_number_i          : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );
