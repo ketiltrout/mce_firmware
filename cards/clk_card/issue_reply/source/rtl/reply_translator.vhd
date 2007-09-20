@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.55 2007/02/13 02:35:34 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.56 2007/07/24 23:58:34 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,16 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/02/13 02:35:34 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/07/24 23:58:34 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.56  2007/07/24 23:58:34  bburger
+-- BB:
+-- - added the frame_status_word_i signal to the reply_translator interface for reporting the word from reply_queue registers.
+-- - implemented a STATUS_WORD_WARNING_MASK for determining when to report xxOK/xxER
+-- - logic modified to compensate for a change to the the way the num_fibre_words is reported
+-- - Fixed a bug associated with SYS and RCS commands to cards that aren't present
+--
 -- Revision 1.55  2007/02/13 02:35:34  bburger
 -- Bryce:  Alterered the code in reply_translator to be more readable
 --
@@ -110,10 +117,12 @@ port(
    fibre_word_ack_o    : out std_logic;                                               -- asserted to requeset next fibre word
    fibre_word_rdy_i    : in std_logic;
    mop_ack_o           : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
+
+   -- We may choose to remove these signals once we move to the new protocol.
    cmd_stop_i          : in std_logic;
    last_frame_i        : in std_logic;
-   frame_status_word_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   frame_status_word_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
    -- input from the cmd_queue
    busy_i              : in std_logic;
