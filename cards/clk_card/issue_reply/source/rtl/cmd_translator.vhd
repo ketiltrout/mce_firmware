@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.51 2007/08/30 18:31:08 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.52 2007/09/05 03:39:53 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -31,9 +31,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/08/30 18:31:08 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/09/05 03:39:53 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.52  2007/09/05 03:39:53  bburger
+-- BB:  changed TES_BIAS_DATA_SIZE to step_data_num_i
+--
 -- Revision 1.51  2007/08/30 18:31:08  bburger
 -- BB:  A default assignment to ramp_val was missing from its process.  Now added.
 --
@@ -70,75 +73,64 @@ use work.issue_reply_pack.all;
 entity cmd_translator is
 
 port(
-   -- global inputs
-   rst_i                 : in  std_logic;
-   clk_i                 : in  std_logic;
+      -- global inputs
+      rst_i                 : in  std_logic;
+      clk_i                 : in  std_logic;
 
-   -- inputs from fibre_rx
-   card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-   cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   cmd_data_i            : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   cmd_rdy_i             : in  std_logic;
-   data_clk_i            : in  std_logic;
-   num_data_i            : in  std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0);
-   param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+      -- inputs from fibre_rx
+      card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      cmd_data_i            : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      cmd_rdy_i             : in  std_logic;
+      data_clk_i            : in  std_logic;
+      num_data_i            : in  std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+      param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
 
-   -- output to fibre_rx
-   ack_o                 : out std_logic;
+      -- output to fibre_rx
+      ack_o                 : out std_logic;
 
-   -- ret_dat_wbs interface:
-   start_seq_num_i       : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   stop_seq_num_i        : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   data_rate_i           : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      -- ret_dat_wbs interface:
+      start_seq_num_i       : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      stop_seq_num_i        : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      data_rate_i           : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i         : in std_logic;
 
-   -- sync_gen interface
-   dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      -- ret_dat_wbs interface
+      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
+      step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
-   -- dv_rx interface
-   external_dv_i         : in std_logic;
+      -- other inputs
+      sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
-   -- ret_dat_wbs interface
---*   tes_bias_toggle_en_i   : in std_logic;
---*   tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---*   tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---*   tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
---*   status_cmd_en_i        : in std_logic;
-   internal_cmd_mode_i    : in std_logic_vector(1 downto 0);               --
-   step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
-   step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
-   step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
-   step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
-   step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
-   step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); --
-   step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- Not right now.
-   step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      -- signals to cmd_queue
+      cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      card_addr_o           : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      param_id_o            : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      data_size_o           : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      data_o                : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      data_clk_o            : out std_logic;
+      instr_rdy_o           : out std_logic;
+      cmd_stop_o            : out std_logic;
+      last_frame_o          : out std_logic;
+      internal_cmd_o        : out std_logic;
+      num_rows_to_read_i    : in integer;
 
-   -- other inputs
-   sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      -- input from the cmd_queue
+      busy_i                : in std_logic;
+      ack_i                 : in std_logic;
+      rdy_for_data_i        : in std_logic;
 
-   -- signals to cmd_queue
-   cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   card_addr_o           : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-   param_id_o            : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-   data_size_o           : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-   data_o                : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   data_clk_o            : out std_logic;
-   instr_rdy_o           : out std_logic;
-   cmd_stop_o            : out std_logic;
-   last_frame_o          : out std_logic;
-   internal_cmd_o        : out std_logic;
---   num_rows_i            : in integer;
-   num_rows_to_read_i    : in integer;
---   tes_bias_step_level_o : out std_logic;
-
-   -- input from the cmd_queue
-   ack_i                 : in  std_logic;
-   busy_i                : in std_logic; -- Not used here
-   rdy_for_data_i        : in std_logic;
-
-   -- outputs to the cmd_queue
-   frame_seq_num_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   frame_sync_num_o      : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
+      -- outputs to the cmd_queue
+      frame_seq_num_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      frame_sync_num_o      : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
 );
 end cmd_translator;
 
