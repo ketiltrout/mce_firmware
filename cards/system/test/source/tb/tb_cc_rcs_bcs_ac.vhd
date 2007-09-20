@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.53 2007/09/04 21:19:18 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.54 2007/09/05 04:04:35 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.54  2007/09/05 04:04:35  bburger
+-- BB:  wbs_fb_data testing
+--
 -- Revision 1.53  2007/09/04 21:19:18  bburger
 -- BB:  inputting unique values to readout card adc inputs
 --
@@ -586,6 +589,13 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_step_param_id_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & RAMP_PARAM_ID_ADDR;
    constant cc_step_card_addr_cmd   : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & RAMP_CARD_ADDR_ADDR;
    constant cc_step_data_num_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & RAMP_STEP_DATA_NUM_ADDR;
+   constant cc_run_id_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & RUN_ID_ADDR;
+   constant cc_user_writable_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USER_WRITABLE_ADDR;
+--   constant cc_run_id_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & RUN_ID_ADDR;
+--   constant cc_user_writable_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USER_WRITABLE_ADDR;
+
+--   constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
+--   constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -3828,7 +3838,8 @@ begin
       command <= command_wb;
       address_id <= cc_num_rows_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000029";
+--      data       <= X"00000029";
+      data       <= X"00000021";
       load_preamble;
       load_command;
       load_checksum;
@@ -3837,7 +3848,8 @@ begin
       command <= command_wb;
       address_id <= rc1_num_rows_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000029";
+--      data       <= X"00000029";
+      data       <= X"00000021";
       load_preamble;
       load_command;
       load_checksum;
@@ -3846,7 +3858,8 @@ begin
       command <= command_wb;
       address_id <= cc_row_len_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000064";
+--      data       <= X"00000064";
+      data       <= X"00000021";
       load_preamble;
       load_command;
       load_checksum;
@@ -3855,7 +3868,8 @@ begin
       command <= command_wb;
       address_id <= rc1_row_len_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000064";
+--      data       <= X"00000064";
+      data       <= X"00000021";
       load_preamble;
       load_command;
       load_checksum;
@@ -3864,7 +3878,8 @@ begin
       command <= command_wb;
       address_id <= rc1_sample_dly_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000008";
+--      data       <= X"00000008";
+      data       <= X"00000020";
       load_preamble;
       load_command;
       load_checksum;
@@ -3948,21 +3963,22 @@ begin
       load_checksum;
       wait for 20 us;
 
-      present_sim_state <= READOUT_ROW_INDEX;
-      command <= command_wb;
-      address_id <= rc1_readout_row_index_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000028";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
+--      present_sim_state <= READOUT_ROW_INDEX;
+--      command <= command_wb;
+--      address_id <= rc1_readout_row_index_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000028";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
 
       present_sim_state <= NUM_ROWS_TO_READ;
       command <= command_wb;
       address_id <= cc_num_rows_to_read_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000002";
+--      data       <= X"00000002";
+      data       <= X"00000021";
       load_preamble;
       load_command;
       load_checksum;
@@ -3972,6 +3988,50 @@ begin
       address_id <= cc_ret_dat_s_cmd;
       data_valid <= X"00000002";
       data       <= X"00000004";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command <= command_wb;
+      address_id <= cc_run_id_cmd;
+      data_valid <= X"00000001";
+      data       <= X"AAAAAAAA";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command <= command_wb;
+      address_id <= cc_user_writable_cmd;
+      data_valid <= X"00000001";
+      data       <= X"BBBBBBBB";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      present_sim_state <= STEP_PARAM_ID;
+      command <= command_wb;
+      address_id <= cc_step_param_id_cmd;
+      data_valid <= X"00000001";
+-- on bias
+--      data       <= X"00000002";
+-- bias
+      data       <= X"00000021";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      present_sim_state <= STEP_CARD_ADDR;
+      command <= command_wb;
+      address_id <= cc_step_card_addr_cmd;
+      data_valid <= X"00000001";
+-- address card
+--      data       <= X"0000000A";
+-- bias card
+      data       <= X"00000008";
       load_preamble;
       load_command;
       load_checksum;
