@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.13 2006/08/16 17:55:55 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.14 2007/07/25 18:31:41 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.14  2007/07/25 18:31:41  bburger
+-- BB:
+-- - manch_clk_i signal is added to the dv_rx interace to allow the block to sample the fibre line with the manchester clock.
+-- - added extra wait states in the FSM to account for the extra delay in the manchester data pipeline due to synchronization.
+--
 -- Revision 1.13  2006/08/16 17:55:55  bburger
 -- Bryce:  Bug Fix:  dv_rx now registers the DV Sequence Number only when it receives a DV pulse
 --
@@ -101,6 +106,7 @@ entity dv_rx is
       dv_o                : out std_logic;
       dv_sequence_num_o   : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
       sync_box_err_o      : out std_logic;
+      sync_box_err_ack_i  : in std_logic;
       sync_box_free_run_o : out std_logic;
 
       sync_mode_i         : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
@@ -152,6 +158,8 @@ architecture top of dv_rx is
    signal dv_sequence_num      : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
 
+   signal sync_box_err : std_logic;
+
 begin
 
    ---------------------------------------------------------
@@ -184,15 +192,29 @@ begin
 
    -- sync_box_free_run_o, sync_box_err_o and dv_sequence_num_o bits are active high
    sync_box_free_run_o <= manch_reg_dly2(36);
-   sync_box_err_o      <= manch_reg_dly2(35);
 
    dv_sequence_num_o   <= dv_sequence_num;
 
    ---------------------------------------------------------
+   -- Error Register:
+   ---------------------------------------------------------
+   sync_box_err_o <= sync_box_err;
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         sync_box_err <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if(sync_box_err_ack_i = '1') then
+            sync_box_err <= '0';
+         elsif(manch_reg_dly2(35) = '1') then
+            sync_box_err <= '1';
+         end if;
+      end if;
+   end process;
+
+   ---------------------------------------------------------
    -- double synchronizer for manchester data:
    ---------------------------------------------------------
-
-   -- Not needed here.  Needed at the back end of the FSM and shift register.
    process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
