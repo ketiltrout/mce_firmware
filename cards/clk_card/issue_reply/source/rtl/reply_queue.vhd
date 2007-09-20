@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.43 2007/08/28 23:24:54 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.44 2007/09/05 03:43:28 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.44  2007/09/05 03:43:28  bburger
+-- BB:  Reordered the words in the data frame headers to match the original configuration at ACT.
+--
 -- Revision 1.43  2007/08/28 23:24:54  bburger
 -- BB:
 -- - removed tes_bias_step_level from the data header.
@@ -85,7 +88,6 @@ entity reply_queue is
       last_frame_i        : in std_logic;
       frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i      : in std_logic;
---      tes_bias_step_level_i : in std_logic;
       data_rate_i         : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       row_len_i           : in integer;
       num_rows_i          : in integer;
@@ -116,6 +118,10 @@ entity reply_queue is
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  : in integer;
+      ramp_card_addr_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -126,6 +132,7 @@ entity reply_queue is
 
       -- dv_rx interface
       sync_box_err_i      : in std_logic;
+      sync_box_err_ack_o  : out std_logic;
       sync_box_free_run_i : in std_logic;
       external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
@@ -201,6 +208,8 @@ architecture behav of reply_queue is
    );
    end component;
 
+   constant DATA_PACKET_HEADER_REVISION: std_logic_vector (31 downto 0) := X"00000006";
+
    -- RAM Address Constants
    constant FPGA_TEMP_OFFSET   : integer := 0;
    constant CARD_TEMP_OFFSET   : integer := FPGA_TEMP_SIZE;
@@ -230,7 +239,7 @@ architecture behav of reply_queue is
    -- Max temperature is 100 degrees Celcius.
    constant MAX_NUM_OVERTEMPERATURES : integer := 10;
    constant MAX_TEMP  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
-   constant BIT_STATUS_SIZE : integer := 7;
+   constant BIT_STATUS_SIZE : integer := PACKET_WORD_WIDTH;
 --   constant MAX_FPGA_TEMP_AC  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
 --   constant MAX_FPGA_TEMP_BC1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
 --   constant MAX_FPGA_TEMP_BC2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
@@ -254,6 +263,7 @@ architecture behav of reply_queue is
    -- Internal signals
    signal active_clk           : std_logic;
    signal sync_box_err         : std_logic;
+   signal clr_sync_box_err     : std_logic;
    signal sync_box_free_run    : std_logic;
 
    signal matched              : std_logic;
@@ -284,8 +294,9 @@ architecture behav of reply_queue is
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD1, LATCH_CMD2, RECEIVED, WAIT_FOR_MATCH, REPLY, STORE_ERRNO_HEADER_WORD,
       STORE_HEADER_WORD, PAUSE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_FRAME_STATUS, TX_CARD_ADDR,
-      TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_RAMP_VALUE, TX_FRAME_SEQUENCE_NUM,
-      TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL, TX_NUM_ROWS_TO_READ, TX_SPARE);
+      TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS_SERVOED, TX_RAMP_VALUE, TX_FRAME_SEQUENCE_NUM,
+      TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL, TX_NUM_ROWS_TO_READ, TX_SPARE,
+      TX_RUN_FILE_ID, TX_USER_WRITABLE, TX_RAMP_CA_PI, TX_HEADER_VERSION);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;
 
@@ -333,6 +344,8 @@ architecture behav of reply_queue is
    signal reset_event         : std_logic;
    signal clr_reset           : std_logic;
 
+   signal rc_bit_encoding : std_logic_vector(3 downto 0);
+
 begin
 
    --------------------------------------------------------------------
@@ -375,7 +388,7 @@ begin
       timer_count_o => time);
 
    -------------------------------------------------------------------------------------------
-   --
+   -- Registers
    -------------------------------------------------------------------------------------------
    register_0 : process (rst_i, clk_i)
    begin
@@ -500,7 +513,7 @@ begin
       );
 
    -------------------------------------------------------------------
-   -- New Logic
+   -- data size calculation logic and registers
    -------------------------------------------------------------------
    num_cards_reg: process(clk_i, rst_i)
    begin
@@ -547,50 +560,58 @@ begin
    end process datasize_reg;
 
    -------------------------------------------------------------------
-   -- Bit Status Logic and Registers
+   -- Frame Status Logic and Registers
    -------------------------------------------------------------------
+   -- The error saver is for saving error flags that are reported out in the next reply packet
+   -- This register is to make sure we don't forget them.
    error_saver: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
+
          reset_event  <= '0';
          sync_box_err <= '0';
+         internal_cmd <= '0';
 
       elsif(clk_i'event and clk_i = '1') then
+
          if(clr_reset = '1') then
             reset_event  <= '0';
-            sync_box_err <= '0';
          elsif(reg_en = '1') then
             reset_event  <= reset_event  or reset_event_i;
+         end if;
+
+         if(clr_sync_box_err = '1') then
+            sync_box_err <= '0';
+         elsif(reg_en = '1') then
             sync_box_err <= sync_box_err or sync_box_err_i;
          end if;
+
+         if(reg_en = '1') then
+            internal_cmd <= internal_cmd_i;
+         end if;
+
       end if;
    end process error_saver;
 
-   frame_status_word_o <= "00000000000000000000000000" & bit_status(5 downto 0);
-   frame_status        <= "00000000000000000000000000" & bit_status(5 downto 0);
+   -- I don't understand why these signals need to be routed independantly to the reply_translator
+   -- When the DAS protocol is updated to handle uniform replies, i think that these interface signals will be removed?
+   stop_bit_o       <= bit_status(1);
+   last_frame_bit_o <= bit_status(0);
+   frame_status_word_o <= bit_status;
+
+   rc_bit_encoding <=
+      "0001" when card_addr_i = READOUT_CARD_1 else
+      "0010" when card_addr_i = READOUT_CARD_2 else
+      "0100" when card_addr_i = READOUT_CARD_3 else
+      "1000" when card_addr_i = READOUT_CARD_4 else
+      "1111" when card_addr_i = ALL_READOUT_CARDS else
+      "0000";
 
    -- This status bits are monitored in snapshots.
    -- They are included in the status header of every data frame
-   -- What happens in between each frame is of no consequence, except for the errors.
-   bit_status_i <=
---      reset_event_i &
-      internal_cmd_i &
-      '0' & --tes_bias_step_level_i &
-      active_clk_i &
-      '0' & --sync_box_err_i &
-      sync_box_free_run_i &
-      cmd_stop_i &
-      last_frame_i;
-
---   reset_event         <= bit_status(7);
-   internal_cmd        <= bit_status(6);
-   --tes_bias_step_level <= bit_status(5);
-   active_clk          <= bit_status(4);
-   --sync_box_err        <= bit_status(3);
-   sync_box_free_run   <= bit_status(2);
-   stop_bit_o          <= bit_status(1);
-   last_frame_bit_o    <= bit_status(0);
-
+   -- What happens in between each frame is not recorded, except for resets and errors (i.e. Clock Card reset, or Sync Box error).
+   bit_status_i <= x"0000" & "00" & rc_bit_encoding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
+   frame_status <= bit_status;
    bit_status_reg: reg
       generic map(
          WIDTH      => BIT_STATUS_SIZE
@@ -603,6 +624,9 @@ begin
          reg_o      => bit_status
       );
 
+   -------------------------------------------------------------------
+   -- Miscellaneous Registers
+   -------------------------------------------------------------------
    frame_seq_num_reg: reg
       generic map(
          WIDTH      => PACKET_WORD_WIDTH
@@ -756,10 +780,10 @@ begin
 
          when TX_ROW_LEN =>
             if(word_count >= 3) then
-               next_retire_state <= TX_NUM_ROWS;
+               next_retire_state <= TX_NUM_ROWS_TO_READ;
             end if;
 
-         when TX_NUM_ROWS =>
+         when TX_NUM_ROWS_TO_READ =>
             if(word_count >= 4) then
                next_retire_state <= TX_DATA_RATE;
             end if;
@@ -771,31 +795,41 @@ begin
 
          when TX_SYNC_NUM =>
             if(word_count >= 6) then
-               next_retire_state <= TX_CARD_ADDR;
+               next_retire_state <= TX_HEADER_VERSION;
             end if;
 
-         when TX_CARD_ADDR =>
+         when TX_HEADER_VERSION =>
             if(word_count >= 7) then
                next_retire_state <= TX_RAMP_VALUE;
             end if;
 
          when TX_RAMP_VALUE =>
             if(word_count >= 8) then
-               next_retire_state <= TX_NUM_ROWS_TO_READ;
+               next_retire_state <= TX_RAMP_CA_PI;
             end if;
 
-         when TX_NUM_ROWS_TO_READ =>
+         when TX_RAMP_CA_PI =>
             if(word_count >= 9) then
-               next_retire_state <= TX_SPARE;
+               next_retire_state <= TX_NUM_ROWS_SERVOED;
             end if;
 
-         when TX_SPARE =>
+         when TX_NUM_ROWS_SERVOED =>
             if(word_count >= 10) then
                next_retire_state <= TX_DV_NUM;
             end if;
 
          when TX_DV_NUM =>
             if(word_count >= 11) then
+               next_retire_state <= TX_RUN_FILE_ID;
+            end if;
+
+         when TX_RUN_FILE_ID =>
+            if(word_count >= 12) then
+               next_retire_state <= TX_USER_WRITABLE;
+            end if;
+
+         when TX_USER_WRITABLE =>
+            if(word_count >= 13) then
                next_retire_state <= TX_HEADER;
             end if;
 
@@ -805,31 +839,6 @@ begin
             if(word_count >= NUM_RAM_HEAD_WORDS) then
                next_retire_state <= TX_SEND_DATA;
             end if;
-
---         when TX_CARD_ADDR =>
---            if(word_count >= NUM_RAM_HEAD_WORDS-4) then
---               next_retire_state <= TX_RAMP_VALUE;
---            end if;
---
---         when TX_RAMP_VALUE =>
---            if(word_count >= NUM_RAM_HEAD_WORDS-3) then
---               next_retire_state <= TX_ROW_LEN;
---            end if;
---
---         when TX_ROW_LEN =>
---            if(word_count >= NUM_RAM_HEAD_WORDS-2) then
---               next_retire_state <= TX_NUM_ROWS;
---            end if;
---
---         when TX_NUM_ROWS =>
---            if(word_count >= NUM_RAM_HEAD_WORDS-1) then
---               next_retire_state <= TX_DATA_RATE;
---            end if;
---
---         when TX_DATA_RATE =>
---            if(word_count >= NUM_RAM_HEAD_WORDS) then
---               next_retire_state <= TX_SEND_DATA;
---            end if;
 
          when TX_SEND_DATA =>
             if(word_rdy = '0') then
@@ -855,16 +864,19 @@ begin
          frame_status                                  when TX_FRAME_STATUS,
          frame_seq_num                                 when TX_FRAME_SEQUENCE_NUM,
          conv_std_logic_vector(row_len_i,32)           when TX_ROW_LEN,
-         conv_std_logic_vector(num_rows_i,32)          when TX_NUM_ROWS,
+         conv_std_logic_vector(num_rows_to_read_i, 32) when TX_NUM_ROWS_TO_READ,
          data_rate_i                                   when TX_DATA_RATE,
          issue_sync_num                                when TX_SYNC_NUM,
-         x"000000" & card_addr_i                       when TX_CARD_ADDR,
+         DATA_PACKET_HEADER_REVISION                   when TX_HEADER_VERSION,
          step_value_i                                  when TX_RAMP_VALUE,
-         conv_std_logic_vector(num_rows_to_read_i, 32) when TX_NUM_ROWS_TO_READ,
-         (others => '0')                               when TX_SPARE,
+         ramp_card_addr_i(15 downto 0) & ramp_param_id_i(15 downto 0) when TX_RAMP_CA_PI,
+         conv_std_logic_vector(num_rows_i,32)          when TX_NUM_ROWS_SERVOED,
          external_dv_num_i                             when TX_DV_NUM,
+         run_file_id_i                                 when TX_RUN_FILE_ID,
+         user_writable_i                               when TX_USER_WRITABLE,
          head_data                                     when TX_HEADER,
          (others => '0')                               when others;
+
 
    retire_state_out: process(present_retire_state, ack_i, data_size, word_rdy, cmd_code, matched,
       data_bus, reset_and_error_code, header_storage_address, header_tx_address, cmd_to_retire_i, word_count)
@@ -872,9 +884,11 @@ begin
       -- Default values
       reg_en          <= '0';
       reset_ack_o     <= '0';
+      sync_box_err_ack_o <= '1';
       cmd_rdy         <= '0';
       cmd_valid_o     <= '0';
       clr_reset       <= '0';
+      clr_sync_box_err <= '0';
 
       head_wren       <= '0';
       word_ack        <= '0';
@@ -918,7 +932,8 @@ begin
             -- The reset event bit is stored for every command including internal commands
             -- However it is only cleared once a reply is returned to the RTL PC, in TX_STATUS
             -- Thus, the flag may be set in the errno words for some internal command, but not others.
-            -- Using this information, we determine when an internal reset occurred.
+            -- Using this information, we determine during which internal command a reset occurred.
+            -- The same goes for the sync box error flag, but it is reported out even more rarely -- only in data frames.
             status_en       <= '1';
 
             if(matched = '1') then
@@ -936,19 +951,20 @@ begin
 
             if (ack_i = '1') then
                reset_ack_o     <= '1';
+               sync_box_err_ack_o <= '1';
             end if;
 
             rdy_o           <= '1';
             -- By acking 'work_ack' we clear the front of the queue
             word_ack        <= ack_i;
             cmd_valid_o     <= '1';
---            ena_word_count  <= ack_i;
---            head_address    <= header_tx_address;
 
             if (ack_i = '1') then
                -- If is a data frame
                if(cmd_code = DATA) then
                   clr_reset       <= '1';
+                  -- The sync box error flag is only reported in data frame headers
+                  clr_sync_box_err <= '1';
                -- If this is a RB
                elsif(cmd_code = READ_BLOCK) then
                   clr_reset       <= '1';
@@ -1068,57 +1084,21 @@ begin
             cmd_sent_o <= '1';
             head_address    <= header_storage_address;
 
-         when TX_FRAME_STATUS =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
+         when
+         TX_FRAME_STATUS |
+         TX_FRAME_SEQUENCE_NUM |
+         TX_ROW_LEN |
+         TX_NUM_ROWS_TO_READ |
+         TX_DATA_RATE |
+         TX_SYNC_NUM |
+         TX_HEADER_VERSION |
+         TX_RAMP_VALUE |
+         TX_RAMP_CA_PI |
+         TX_NUM_ROWS_SERVOED |
+         TX_DV_NUM |
+         TX_RUN_FILE_ID |
+         TX_USER_WRITABLE =>
 
-         when TX_FRAME_SEQUENCE_NUM =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_ROW_LEN =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_NUM_ROWS =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_DATA_RATE =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_SYNC_NUM =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_CARD_ADDR =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_RAMP_VALUE =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_NUM_ROWS_TO_READ =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_SPARE =>
-            rdy_o           <= '1';
-            ena_word_count  <= ack_i;
-            head_address    <= header_tx_address;
-
-         when TX_DV_NUM =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;
             head_address    <= header_tx_address;
