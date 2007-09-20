@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.12 2007/07/25 18:39:31 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.13 2007/08/28 23:26:37 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,18 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.13  2007/08/28 23:26:37  bburger
+-- BB: added registers and interface signals to support the following commands:
+-- constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
+-- constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
+-- constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
+-- constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
+-- constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
+-- constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
+-- constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
+-- constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
+-- constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
+--
 -- Revision 1.12  2007/07/25 18:39:31  bburger
 -- BB:
 -- - removed the ret_dat_req_o, ret_dat_ack_i and frame_seq_num_o signals from the ret_dat_wbs interface because these signals are not driven from here.  They are driven from the cmd_translator block.
@@ -90,17 +102,10 @@ use work.frame_timing_pack.all;
 
 entity ret_dat_wbs is
    port(
-      -- to ret_dat fsm (cmd_translator):
+      -- to issue_reply:
       start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- to internal_cmd_fsm (cmd_translator):
---      tes_bias_toggle_en_o   : out std_logic;
---      tes_bias_high_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
       internal_cmd_mode_o    : out std_logic_vector(1 downto 0);
       step_period_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -109,15 +114,9 @@ entity ret_dat_wbs is
       step_param_id_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_card_addr_o       : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
-      -- Enable internal commands
---      status_cmd_en_o        : out std_logic;
-
-      -- Enable CRC errors in data packets
+      run_file_id_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
-
-      -- Indicates the number of rows of data to read from each Readout Card
-      -- Readout Cards have a parameter called READ_ROW_INDEX that returns data starting from that row.
       num_rows_to_read_o     : out integer;
 
       -- global interface
@@ -143,16 +142,15 @@ architecture rtl of ret_dat_wbs is
    signal rd_cmd            : std_logic;
 
    -- RAM/Register signals
-   signal start_wren        : std_logic;
-   signal stop_wren         : std_logic;
-   signal data_rate_wren    : std_logic;
-   signal tes_tgl_en_wren   : std_logic;
-   signal tes_tgl_max_wren  : std_logic;
-   signal tes_tgl_min_wren  : std_logic;
-   signal tes_tgl_rate_wren : std_logic;
-   signal int_cmd_en_wren   : std_logic;
-   signal crc_err_en_wren   : std_logic;
-
+   signal start_wren             : std_logic;
+   signal stop_wren              : std_logic;
+   signal data_rate_wren         : std_logic;
+   signal tes_tgl_en_wren        : std_logic;
+   signal tes_tgl_max_wren       : std_logic;
+   signal tes_tgl_min_wren       : std_logic;
+   signal tes_tgl_rate_wren      : std_logic;
+   signal int_cmd_en_wren        : std_logic;
+   signal crc_err_en_wren        : std_logic;
    signal internal_cmd_mode_wren : std_logic;
    signal step_period_wren       : std_logic;
    signal step_minimum_wren      : std_logic;
@@ -162,17 +160,18 @@ architecture rtl of ret_dat_wbs is
    signal step_card_addr_wren    : std_logic;
    signal step_data_num_wren     : std_logic;
    signal num_rows_to_read_wren  : std_logic;
+   signal run_file_id_wren       : std_logic;
+   signal user_writable_wren     : std_logic;
 
-   signal start_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal stop_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal data_rate_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal tes_tgl_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal tes_tgl_max_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal tes_tgl_min_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal tes_tgl_rate_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal int_cmd_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal crc_err_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
+   signal start_data             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal stop_data              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal data_rate_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_en_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_max_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_min_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_rate_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal int_cmd_en_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal crc_err_en_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal internal_cmd_mode_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_period_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_minimum_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -182,6 +181,8 @@ architecture rtl of ret_dat_wbs is
    signal step_card_addr_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_data_num_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal num_rows_to_read_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal run_file_id_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal user_writable_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- WBS states:
    type states is (IDLE, WR, RD);
@@ -195,6 +196,28 @@ begin
       "01" when internal_cmd_mode_data = x"00000001" else
       "10" when internal_cmd_mode_data = x"00000002" else
       "11" when internal_cmd_mode_data = x"00000003" else "00";
+
+   run_file_id_o <= run_file_id_data;
+   run_file_id_reg : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => run_file_id_wren,
+         reg_i             => dat_i,
+         reg_o             => run_file_id_data
+      );
+
+   user_writable_o <= user_writable_data;
+   user_writable_reg : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => user_writable_wren,
+         reg_i             => dat_i,
+         reg_o             => user_writable_data
+      );
 
    internal_cmd_mode_reg : reg
       generic map(WIDTH => WB_DATA_WIDTH)
@@ -468,17 +491,15 @@ begin
    state_out: process(current_state, stb_i, addr_i, tga_i, next_state)
    begin
       -- Default assignments
-      start_wren        <= '0';
-      stop_wren         <= '0';
-      data_rate_wren    <= '0';
-
-      tes_tgl_en_wren   <= '0';
-      tes_tgl_max_wren  <= '0';
-      tes_tgl_min_wren  <= '0';
-      tes_tgl_rate_wren <= '0';
-      int_cmd_en_wren   <= '0';
-      crc_err_en_wren   <= '0';
-
+      start_wren             <= '0';
+      stop_wren              <= '0';
+      data_rate_wren         <= '0';
+      tes_tgl_en_wren        <= '0';
+      tes_tgl_max_wren       <= '0';
+      tes_tgl_min_wren       <= '0';
+      tes_tgl_rate_wren      <= '0';
+      int_cmd_en_wren        <= '0';
+      crc_err_en_wren        <= '0';
       internal_cmd_mode_wren <= '0';
       step_period_wren       <= '0';
       step_minimum_wren      <= '0';
@@ -488,8 +509,9 @@ begin
       step_card_addr_wren    <= '0';
       step_data_num_wren     <= '0';
       num_rows_to_read_wren  <= '0';
-
-      ack_o             <= '0';
+      run_file_id_wren       <= '0';
+      user_writable_wren     <= '0';
+      ack_o                  <= '0';
 
       case current_state is
          when IDLE  =>
@@ -505,6 +527,12 @@ begin
                      stop_wren   <= '1';
                      ack_o <= '1';
                   end if;
+               elsif(addr_i = RUN_ID_ADDR) then
+                  run_file_id_wren <= '1';
+                  ack_o <= '1';
+               elsif(addr_i = USER_WRITABLE_ADDR) then
+                  user_writable_wren <= '1';
+                  ack_o <= '1';
                elsif(addr_i = DATA_RATE_ADDR) then
                   data_rate_wren <= '1';
                   ack_o <= '1';
@@ -571,7 +599,6 @@ begin
 ------------------------------------------------------------
 --  Wishbone interface
 ------------------------------------------------------------
-
    dat_o <=
       start_data             when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
       stop_data              when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
@@ -584,13 +611,15 @@ begin
       crc_err_en_data        when (addr_i = CRC_ERR_EN_ADDR) else
       num_rows_to_read_data  when (addr_i = NUM_ROWS_TO_READ_ADDR) else
       internal_cmd_mode_data when (addr_i = INTERNAL_CMD_MODE_ADDR) else
-      step_period_data       when (addr_i = RAMP_STEP_PERIOD_ADDR  ) else
-      step_minimum_data      when (addr_i = RAMP_MIN_VAL_ADDR      ) else
-      step_size_data         when (addr_i = RAMP_STEP_SIZE_ADDR    ) else
-      step_maximum_data      when (addr_i = RAMP_MAX_VAL_ADDR      ) else
-      step_param_id_data     when (addr_i = RAMP_PARAM_ID_ADDR     ) else
-      step_card_addr_data    when (addr_i = RAMP_CARD_ADDR_ADDR    ) else
+      step_period_data       when (addr_i = RAMP_STEP_PERIOD_ADDR) else
+      step_minimum_data      when (addr_i = RAMP_MIN_VAL_ADDR) else
+      step_size_data         when (addr_i = RAMP_STEP_SIZE_ADDR) else
+      step_maximum_data      when (addr_i = RAMP_MAX_VAL_ADDR) else
+      step_param_id_data     when (addr_i = RAMP_PARAM_ID_ADDR) else
+      step_card_addr_data    when (addr_i = RAMP_CARD_ADDR_ADDR) else
       step_data_num_data     when (addr_i = RAMP_STEP_DATA_NUM_ADDR) else
+      run_file_id_data       when (addr_i = RUN_ID_ADDR) else
+      user_writable_data     when (addr_i = USER_WRITABLE_ADDR) else
       (others => '0');
 
    rd_cmd  <= '1' when
@@ -603,13 +632,15 @@ begin
        addr_i = TES_TGL_RATE_ADDR or
        addr_i = NUM_ROWS_TO_READ_ADDR or
        addr_i = INTERNAL_CMD_MODE_ADDR or
-       addr_i = RAMP_STEP_PERIOD_ADDR   or
-       addr_i = RAMP_MIN_VAL_ADDR       or
-       addr_i = RAMP_STEP_SIZE_ADDR     or
-       addr_i = RAMP_MAX_VAL_ADDR       or
-       addr_i = RAMP_PARAM_ID_ADDR      or
-       addr_i = RAMP_CARD_ADDR_ADDR     or
+       addr_i = RAMP_STEP_PERIOD_ADDR or
+       addr_i = RAMP_MIN_VAL_ADDR or
+       addr_i = RAMP_STEP_SIZE_ADDR or
+       addr_i = RAMP_MAX_VAL_ADDR or
+       addr_i = RAMP_PARAM_ID_ADDR or
+       addr_i = RAMP_CARD_ADDR_ADDR or
        addr_i = RAMP_STEP_DATA_NUM_ADDR or
+       addr_i = RUN_ID_ADDR or
+       addr_i = USER_WRITABLE_ADDR or
        addr_i = INT_CMD_EN_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
@@ -623,13 +654,15 @@ begin
        addr_i = TES_TGL_RATE_ADDR or
        addr_i = NUM_ROWS_TO_READ_ADDR or
        addr_i = INTERNAL_CMD_MODE_ADDR or
-       addr_i = RAMP_STEP_PERIOD_ADDR   or
-       addr_i = RAMP_MIN_VAL_ADDR       or
-       addr_i = RAMP_STEP_SIZE_ADDR     or
-       addr_i = RAMP_MAX_VAL_ADDR       or
-       addr_i = RAMP_PARAM_ID_ADDR      or
-       addr_i = RAMP_CARD_ADDR_ADDR     or
+       addr_i = RAMP_STEP_PERIOD_ADDR or
+       addr_i = RAMP_MIN_VAL_ADDR or
+       addr_i = RAMP_STEP_SIZE_ADDR or
+       addr_i = RAMP_MAX_VAL_ADDR or
+       addr_i = RAMP_PARAM_ID_ADDR or
+       addr_i = RAMP_CARD_ADDR_ADDR or
        addr_i = RAMP_STEP_DATA_NUM_ADDR or
+       addr_i = RUN_ID_ADDR or
+       addr_i = USER_WRITABLE_ADDR or
        addr_i = INT_CMD_EN_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
