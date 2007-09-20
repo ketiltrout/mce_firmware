@@ -28,8 +28,21 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/08/28 19:59:27 $> - <initials $Author: bburger $>
+-- <date $Date: 2007/08/28 23:48:43 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.39  2007/08/28 23:48:43  bburger
+-- BB: added interface signals to support the following commands:
+-- constant READOUT_ROW_INDEX_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"13";
+-- constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
+-- constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
+-- constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
+-- constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
+-- constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
+-- constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
+-- constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
+-- constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
+-- constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
+--
 -- Revision 1.38  2007/08/28 19:59:27  bburger
 -- Bryce:  Added parameters to support:
 -- - Reading data from less than 41 rows
@@ -287,19 +300,12 @@ package wishbone_pack is
    constant CONFIG_APP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
    constant RET_DAT_S_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
    constant USE_DV_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
-
    constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
-   constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
-   constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
-   constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
-   constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
-   constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
-   constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
-   constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
-   constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
-
+   constant RUN_ID_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56";
+   constant USER_WRITABLE_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
    constant ARRAY_ID_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"58";
    constant BOX_ID_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
+
    constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
    constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
 
@@ -316,6 +322,15 @@ package wishbone_pack is
    constant CONFIG_JTAG             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AA";
    constant MCE_BCLR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AB";
    constant CC_BCLR_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AC";
+
+   constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
+   constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
+   constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
+   constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
+   constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
+   constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
+   constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
+   constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
 
    -- Power Card Specific
    constant BRST_MCE_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
