@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.65  2007/09/12 05:12:21  mandana
+-- rev. 04000002 with data mode 7 added 22b filtfb/10b err, 10b pid pars
+--
 -- Revision 1.64  2007/09/10 23:33:07  mandana
 -- rev. 4.0.1 for readout_row_index default to 0 and be able to do multiple rows
 --
@@ -380,7 +383,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000002"; -- added data_mode 6 for mixed filter+err mode
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000003"; -- added data_mode 6 for mixed filter+err mode
                                                                      -- added readout_row_index 
                                                                      -- data mode 7 added 22b filtfb/10b err
                                                                      -- 10b pid pars
