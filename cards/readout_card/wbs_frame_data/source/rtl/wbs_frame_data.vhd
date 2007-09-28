@@ -52,9 +52,13 @@
 
 --
 -- Revision history:
--- <date $Date: 2007/09/07 00:14:24 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/09/10 23:55:08 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.29.2.4  2007/09/10 23:55:08  mandana
+-- fixed raw_address counter
+-- added data mode 7 for 22b filtfb/10b error
+--
 -- Revision 1.29.2.3  2007/09/07 00:14:24  mandana
 -- readout_row_index init value is 0
 -- when readout_row_index is set, the counter goes to 41 rows and wraps to 0
@@ -456,7 +460,7 @@ begin
 
          if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1') then
             if we_i = '0' then
-              if (data_mode /= MODE2_FILTERED) then         
+              if (data_mode /= MODE2_FILTERED and data_mode /= MODE6_FILT_ERROR and data_mode /=MODE7_FILT_ERROR2) then  
                 next_state <= WSS1;
               
               -- For filter mode data wait for the start of the frame before reading back. In that case row 0 is read before 
@@ -804,29 +808,29 @@ begin
                         coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
 
    with ch_mux_sel select
-      filtfb_error_2_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 9) & 
-                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(10 downto 0) when "000",
+      filtfb_error_2_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 7) & 
+                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 4) when "000",
                         
-                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 9) & 
-                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(10 downto 0) when "001",
+                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 7) & 
+                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 4) when "001",
                         
-                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 9) & 
-                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(10 downto 0) when "010",
+                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 7) & 
+                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 4) when "010",
                         
-                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 9) & 
-                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(10 downto 0) when "011",
+                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 7) & 
+                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 4) when "011",
                         
-                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 9) & 
-                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(10 downto 0) when "100",
+                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 7) & 
+                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 4) when "100",
                         
-                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 9) & 
-                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(10 downto 0) when "101",
+                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 7) & 
+                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 4) when "101",
                         
-                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 9) & 
-                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(10 downto 0) when "110",
+                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 7) & 
+                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 4) when "110",
                         
-                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 9) & 
-                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(10 downto 0) when others;
+                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 7) & 
+                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 4) when others;
 
    with raw_ch_mux_sel select
       raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
