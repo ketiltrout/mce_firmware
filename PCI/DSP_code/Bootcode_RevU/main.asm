@@ -1533,8 +1533,8 @@ BLOCK_TRANSFER
 ;  Trashes:
 ;   - A and B
 
-	;; DSP PCI burst limit is 256 bytes.  Only transfer multiple of 32 bytes.
-	MOVE	X:BLOCK_SIZE,A	; A1 = BLOCK_SIZE
+	;; DSP PCI burst limit is 256 bytes.
+	MOVE	X:BLOCK_SIZE,A		; A1 = BLOCK_SIZE
 	
 	CMP	#0,A
 	JEQ	BLOCK_DONE
@@ -1549,7 +1549,7 @@ BLOCK_TRANSFER1
 	SUB	B,A			; A -= B
 	ADD	#0,B			; Clear carry bit
 	MOVE	A,X:BLOCK_SIZE		; Updated BLOCK_SIZE
-	MOVE	B,X:BURST_SIZE		; BURST_SIZE ;= round32(min(BLOCK_SIZE,$100))
+	MOVE	B,X:BURST_SIZE		; BURST_SIZE = min(BLOCK_SIZE,$100)
 	ASR	#25,B,B			; B0 = # of 16 bit words
 
 	;; Setup DMA from BURST_SRC to PCI tx
