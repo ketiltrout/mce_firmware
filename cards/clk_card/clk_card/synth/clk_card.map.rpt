@@ -1,5 +1,5 @@
 Analysis & Synthesis report for clk_card
-Thu Sep 20 10:36:03 2007
+Wed Oct 10 17:00:17 2007
 Quartus II Version 6.1 Build 201 11/27/2006 SJ Full Version
 
 
@@ -24,8 +24,8 @@ Quartus II Version 6.1 Build 201 11/27/2006 SJ Full Version
  16. State Machine - |clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|pres_state
  17. State Machine - |clk_card|ret_dat_wbs:ret_dat_parameter_slave|current_state
  18. State Machine - |clk_card|dv_rx:dv_rx_slave|current_s_state
- 19. State Machine - |clk_card|dv_rx:dv_rx_slave|current_state
- 20. State Machine - |clk_card|dv_rx:dv_rx_slave|current_m_state
+ 19. State Machine - |clk_card|dv_rx:dv_rx_slave|current_m_state
+ 20. State Machine - |clk_card|dv_rx:dv_rx_slave|current_state
  21. State Machine - |clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state
  22. State Machine - |clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|current_init_win_state
  23. State Machine - |clk_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|current_state
@@ -447,12 +447,12 @@ applicable agreement for further details.
 +------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                           ;
 +-----------------------------+------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Thu Sep 20 10:36:03 2007    ;
+; Analysis & Synthesis Status ; Successful - Wed Oct 10 17:00:16 2007    ;
 ; Quartus II Version          ; 6.1 Build 201 11/27/2006 SJ Full Version ;
 ; Revision Name               ; clk_card                                 ;
 ; Top-level Entity Name       ; clk_card                                 ;
 ; Family                      ; Stratix                                  ;
-; Total logic elements        ; 14,202                                   ;
+; Total logic elements        ; 14,137                                   ;
 ; Total pins                  ; 252                                      ;
 ; Total virtual pins          ; 0                                        ;
 ; Total memory bits           ; 812,544                                  ;
@@ -728,36 +728,36 @@ applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------------------------------------------+
 ; Resource                                    ; Usage                                                                         ;
 +---------------------------------------------+-------------------------------------------------------------------------------+
-; Total logic elements                        ; 14202                                                                         ;
+; Total logic elements                        ; 14137                                                                         ;
 ;     -- Combinational with no register       ; 8042                                                                          ;
-;     -- Register only                        ; 2656                                                                          ;
+;     -- Register only                        ; 2591                                                                          ;
 ;     -- Combinational with a register        ; 3504                                                                          ;
 ;                                             ;                                                                               ;
 ; Logic element usage by number of LUT inputs ;                                                                               ;
-;     -- 4 input functions                    ; 6421                                                                          ;
-;     -- 3 input functions                    ; 2302                                                                          ;
-;     -- 2 input functions                    ; 2684                                                                          ;
-;     -- 1 input functions                    ; 125                                                                           ;
+;     -- 4 input functions                    ; 6424                                                                          ;
+;     -- 3 input functions                    ; 2304                                                                          ;
+;     -- 2 input functions                    ; 2680                                                                          ;
+;     -- 1 input functions                    ; 124                                                                           ;
 ;     -- 0 input functions                    ; 14                                                                            ;
 ;                                             ;                                                                               ;
 ; Logic elements by mode                      ;                                                                               ;
-;     -- normal mode                          ; 12054                                                                         ;
+;     -- normal mode                          ; 11989                                                                         ;
 ;     -- arithmetic mode                      ; 2148                                                                          ;
 ;     -- qfbk mode                            ; 0                                                                             ;
 ;     -- register cascade mode                ; 0                                                                             ;
 ;     -- synchronous clear/load mode          ; 1830                                                                          ;
-;     -- asynchronous clear/load mode         ; 5822                                                                          ;
+;     -- asynchronous clear/load mode         ; 5757                                                                          ;
 ;                                             ;                                                                               ;
-; Total registers                             ; 6160                                                                          ;
+; Total registers                             ; 6095                                                                          ;
 ; Total logic cells in carry chains           ; 2350                                                                          ;
 ; I/O pins                                    ; 252                                                                           ;
 ; Total memory bits                           ; 812544                                                                        ;
 ; DSP block 9-bit elements                    ; 8                                                                             ;
 ; Total PLLs                                  ; 1                                                                             ;
 ; Maximum fan-out node                        ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk0 ;
-; Maximum fan-out                             ; 7002                                                                          ;
-; Total fan-out                               ; 76124                                                                         ;
-; Average fan-out                             ; 4.91                                                                          ;
+; Maximum fan-out                             ; 7024                                                                          ;
+; Total fan-out                               ; 75940                                                                         ;
+; Average fan-out                             ; 4.92                                                                          ;
 +---------------------------------------------+-------------------------------------------------------------------------------+
 
 
@@ -766,7 +766,7 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ; Compilation Hierarchy Node                                                   ; Logic Cells ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                                                                                                                                                      ;
 +------------------------------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; |clk_card                                                                    ; 14202 (547) ; 6160         ; 812544      ; 8            ; 0       ; 0         ; 1         ; 252  ; 0            ; 8042 (547)   ; 2656 (0)          ; 3504 (0)         ; 2350 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                ;
+; |clk_card                                                                    ; 14137 (547) ; 6095         ; 812544      ; 8            ; 0       ; 0         ; 1         ; 252  ; 0            ; 8042 (547)   ; 2591 (0)          ; 3504 (0)         ; 2350 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                ;
 ;    |backplane_id_thermo:backplane_id_thermo_slave|                           ; 195 (44)    ; 114          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 81 (26)      ; 60 (2)            ; 54 (16)          ; 18 (0)          ; 0 (0)      ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave                                                                                                                                                                                                                  ;
 ;       |counter:byte_counter|                                                 ; 12 (12)     ; 4            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 8 (8)        ; 3 (3)             ; 1 (1)            ; 0 (0)           ; 0 (0)      ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter                                                                                                                                                                                             ;
 ;       |reg:id_data0|                                                         ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|reg:id_data0                                                                                                                                                                                                     ;
@@ -859,7 +859,7 @@ applicable agreement for further details.
 ;          |binary_counter:addr_gen|                                           ; 11 (11)     ; 11           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 11 (11)          ; 11 (11)         ; 0 (0)      ; |clk_card|dispatch:psuc_dispatch_block|dispatch_wishbone:wishbone|binary_counter:addr_gen                                                                                                                                                                                ;
 ;       |reg:hdr0|                                                             ; 22 (22)     ; 22           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 22 (22)          ; 0 (0)           ; 0 (0)      ; |clk_card|dispatch:psuc_dispatch_block|reg:hdr0                                                                                                                                                                                                                          ;
 ;       |reg:hdr1|                                                             ; 16 (16)     ; 16           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 0 (0)           ; 0 (0)      ; |clk_card|dispatch:psuc_dispatch_block|reg:hdr1                                                                                                                                                                                                                          ;
-;    |dv_rx:dv_rx_slave|                                                       ; 209 (162)   ; 199          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 183 (144)         ; 16 (8)           ; 8 (0)           ; 0 (0)      ; |clk_card|dv_rx:dv_rx_slave                                                                                                                                                                                                                                              ;
+;    |dv_rx:dv_rx_slave|                                                       ; 140 (93)    ; 132          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 8 (8)        ; 117 (78)          ; 15 (7)           ; 8 (0)           ; 0 (0)      ; |clk_card|dv_rx:dv_rx_slave                                                                                                                                                                                                                                              ;
 ;       |binary_counter:sample_counter|                                        ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 8 (8)            ; 8 (8)           ; 0 (0)      ; |clk_card|dv_rx:dv_rx_slave|binary_counter:sample_counter                                                                                                                                                                                                                ;
 ;       |shift_reg:rx_buffer|                                                  ; 39 (39)     ; 39           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 39 (39)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|dv_rx:dv_rx_slave|shift_reg:rx_buffer                                                                                                                                                                                                                          ;
 ;    |fpga_thermo:fpga_thermo_slave|                                           ; 205 (23)    ; 138          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 67 (15)      ; 18 (0)            ; 120 (8)          ; 76 (0)          ; 0 (0)      ; |clk_card|fpga_thermo:fpga_thermo_slave                                                                                                                                                                                                                                  ;
@@ -885,7 +885,7 @@ applicable agreement for further details.
 ;       |reg:id_data3|                                                         ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:id_data3                                                                                                                                                                                                                    ;
 ;       |reg:thermo_data0|                                                     ; 6 (6)       ; 6            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 6 (6)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:thermo_data0                                                                                                                                                                                                                ;
 ;       |reg:thermo_data1|                                                     ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:thermo_data1                                                                                                                                                                                                                ;
-;    |issue_reply:issue_reply_block|                                           ; 8152 (0)    ; 3630         ; 677376      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4522 (0)     ; 1168 (0)          ; 2462 (0)         ; 1598 (0)        ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block                                                                                                                                                                                                                                  ;
+;    |issue_reply:issue_reply_block|                                           ; 8156 (0)    ; 3632         ; 677376      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4524 (0)     ; 1169 (0)          ; 2463 (0)         ; 1598 (0)        ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block                                                                                                                                                                                                                                  ;
 ;       |cmd_queue:i_cmd_queue|                                                ; 776 (381)   ; 424          ; 8704        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 352 (271)    ; 143 (40)          ; 281 (70)         ; 246 (193)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue                                                                                                                                                                                                            ;
 ;          |cmd_queue_tpram:cmd_queue_ram40_inst|                              ; 0 (0)       ; 0            ; 8192        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst                                                                                                                                                                       ;
 ;             |alt3pram:alt3pram_component|                                    ; 0 (0)       ; 0            ; 8192        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component                                                                                                                                           ;
@@ -962,7 +962,7 @@ applicable agreement for further details.
 ;                   |dffpipe_dd9:dffpipe_ws_nbrp|                              ; 6 (6)       ; 6            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 2 (2)             ; 4 (4)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|dffpipe_dd9:dffpipe_ws_nbrp                                                                                                          ;
 ;                   |dpram_i0s:fiforam|                                        ; 0 (0)       ; 0            ; 2048        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|dpram_i0s:fiforam                                                                                                                    ;
 ;                      |altsyncram_5qf1:altsyncram3|                           ; 0 (0)       ; 0            ; 2048        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|dpram_i0s:fiforam|altsyncram_5qf1:altsyncram3                                                                                        ;
-;       |reply_queue:i_reply_queue|                                            ; 5316 (676)  ; 2048         ; 662528      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 3268 (589)   ; 482 (7)           ; 1566 (80)        ; 880 (127)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue                                                                                                                                                                                                        ;
+;       |reply_queue:i_reply_queue|                                            ; 5320 (679)  ; 2050         ; 662528      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 3270 (591)   ; 483 (7)           ; 1567 (81)        ; 880 (127)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue                                                                                                                                                                                                        ;
 ;          |lpm_mult:Mult0|                                                    ; 67 (0)      ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 67 (0)       ; 0 (0)             ; 0 (0)            ; 24 (0)          ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0                                                                                                                                                                                         ;
 ;             |multcore:mult_core|                                             ; 67 (43)     ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 67 (43)      ; 0 (0)             ; 0 (0)            ; 24 (0)          ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0|multcore:mult_core                                                                                                                                                                      ;
 ;                |mpar_add:padder|                                             ; 24 (0)      ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 24 (0)       ; 0 (0)             ; 0 (0)            ; 24 (0)          ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder                                                                                                                                                      ;
@@ -972,7 +972,7 @@ applicable agreement for further details.
 ;                   |lpm_add_sub:adder[1]|                                     ; 12 (0)      ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 12 (0)       ; 0 (0)             ; 0 (0)            ; 12 (0)          ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[1]                                                                                                                                 ;
 ;                      |addcore:adder|                                         ; 12 (0)      ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 12 (0)       ; 0 (0)             ; 0 (0)            ; 12 (0)          ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[1]|addcore:adder                                                                                                                   ;
 ;                         |a_csnbuffer:result_node|                            ; 12 (12)     ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 12 (12)      ; 0 (0)             ; 0 (0)            ; 12 (12)         ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[1]|addcore:adder|a_csnbuffer:result_node                                                                                           ;
-;          |reg:bit_status_reg|                                                ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 4 (4)             ; 4 (4)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:bit_status_reg                                                                                                                                                                                     ;
+;          |reg:bit_status_reg|                                                ; 9 (9)       ; 9            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 5 (5)             ; 4 (4)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:bit_status_reg                                                                                                                                                                                     ;
 ;          |reg:card_addr_reg|                                                 ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:card_addr_reg                                                                                                                                                                                      ;
 ;          |reg:cmd_code_reg|                                                  ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:cmd_code_reg                                                                                                                                                                                       ;
 ;          |reg:data_size_reg_t|                                               ; 11 (11)     ; 11           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 11 (11)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:data_size_reg_t                                                                                                                                                                                    ;
@@ -1443,6 +1443,19 @@ Encoding Type:  One-Hot
 
 
 Encoding Type:  One-Hot
++------------------------------------------------------------------------------------------------------------------+
+; State Machine - |clk_card|dv_rx:dv_rx_slave|current_m_state                                                      ;
++----------------------+----------------------+----------------------+----------------------+----------------------+
+; Name                 ; current_m_state.done ; current_m_state.rx_2 ; current_m_state.rx_1 ; current_m_state.idle ;
++----------------------+----------------------+----------------------+----------------------+----------------------+
+; current_m_state.idle ; 0                    ; 0                    ; 0                    ; 0                    ;
+; current_m_state.rx_1 ; 0                    ; 0                    ; 1                    ; 1                    ;
+; current_m_state.rx_2 ; 0                    ; 1                    ; 0                    ; 1                    ;
+; current_m_state.done ; 1                    ; 0                    ; 0                    ; 1                    ;
++----------------------+----------------------+----------------------+----------------------+----------------------+
+
+
+Encoding Type:  One-Hot
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ; State Machine - |clk_card|dv_rx:dv_rx_slave|current_state                                                                                                              ;
 +-----------------------------+----------------------------+-----------------------------+----------------------------+-----------------------------+--------------------+
@@ -1454,19 +1467,6 @@ Encoding Type:  One-Hot
 ; current_state.manch_dv_rcvd ; 0                          ; 1                           ; 0                          ; 0                           ; 1                  ;
 ; current_state.manch_dv_ack  ; 1                          ; 0                           ; 0                          ; 0                           ; 1                  ;
 +-----------------------------+----------------------------+-----------------------------+----------------------------+-----------------------------+--------------------+
-
-
-Encoding Type:  One-Hot
-+----------------------------------------------------------------------------------------------------------------------------------------------+
-; State Machine - |clk_card|dv_rx:dv_rx_slave|current_m_state                                                                                  ;
-+------------------------------------+----------------------+----------------------+------------------------------------+----------------------+
-; Name                               ; current_m_state.done ; current_m_state.rx_2 ; current_m_state.latch_manch_packet ; current_m_state.idle ;
-+------------------------------------+----------------------+----------------------+------------------------------------+----------------------+
-; current_m_state.idle               ; 0                    ; 0                    ; 0                                  ; 0                    ;
-; current_m_state.latch_manch_packet ; 0                    ; 0                    ; 1                                  ; 1                    ;
-; current_m_state.rx_2               ; 0                    ; 1                    ; 0                                  ; 1                    ;
-; current_m_state.done               ; 1                    ; 0                    ; 0                                  ; 1                    ;
-+------------------------------------+----------------------+----------------------+------------------------------------+----------------------+
 
 
 Encoding Type:  One-Hot
@@ -2357,10 +2357,6 @@ Encoding Type:  One-Hot
 ; psuc_dispatch_block/status[13]                                               ; Stuck at GND due to stuck port data_in      ;
 ; psuc_dispatch_block/status[14]                                               ; Stuck at GND due to stuck port data_in      ;
 ; psuc_dispatch_block/status[15]                                               ; Stuck at GND due to stuck port data_in      ;
-; dv_rx_slave/manch_reg_dly2[35]                                               ; Lost fanout                                 ;
-; dv_rx_slave/manch_reg_dly1[35]                                               ; Lost fanout                                 ;
-; dv_rx_slave/manch_reg[35]                                                    ; Lost fanout                                 ;
-; dv_rx_slave/sync_box_err                                                     ; Stuck at GND due to stuck port data_in      ;
 ; frame_timing_slave/wbi/resync_req_reg/reg_o[0]                               ; Stuck at GND due to stuck port clock_enable ;
 ; frame_timing_slave/wbi/resync_req_reg/reg_o[1]                               ; Stuck at GND due to stuck port clock_enable ;
 ; frame_timing_slave/wbi/resync_req_reg/reg_o[2]                               ; Stuck at GND due to stuck port clock_enable ;
@@ -2443,7 +2439,11 @@ Encoding Type:  One-Hot
 ; issue_reply_block/i_reply_queue/rq_seq/rx_rc2/lvds_receiver/rx_buffer/reg[0] ; Lost fanout                                 ;
 ; issue_reply_block/i_reply_queue/rq_seq/rx_rc1/lvds_receiver/rx_buffer/reg[0] ; Lost fanout                                 ;
 ; issue_reply_block/i_reply_queue/rq_seq/rx_bc3/lvds_receiver/rx_buffer/reg[0] ; Lost fanout                                 ;
-; Total Number of Removed Registers = 497                                      ;                                             ;
+; issue_reply_block/i_reply_queue/rq_seq/rx_bc2/lvds_receiver/rx_buffer/reg[0] ; Lost fanout                                 ;
+; issue_reply_block/i_reply_queue/rq_seq/rx_bc1/lvds_receiver/rx_buffer/reg[0] ; Lost fanout                                 ;
+; issue_reply_block/i_reply_queue/rq_seq/rx_ac/lvds_receiver/rx_buffer/reg[0]  ; Lost fanout                                 ;
+; cc_dispatch_block/receiver/cmd_rx/rx_buffer/reg[0]                           ; Lost fanout                                 ;
+; Total Number of Removed Registers = 489                                      ;                                             ;
 +------------------------------------------------------------------------------+---------------------------------------------+
 * Table truncated at 100 items. To change the number of removed registers reported, set the "Number of Removed Registers Reported" option under Assignments->Settings->Analysis and Synthesis Settings->More Settings
 
@@ -2462,8 +2462,8 @@ Encoding Type:  One-Hot
 ; issue_reply:issue_reply_block|reply_translator:i_reply_translator|translator_current_state.standard_reply    ; 100                        ; 1                                     ;
 ; issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|present_state.store_cmd_param                            ; 100                        ; 1                                     ;
 ; dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|pres_state.wb_cycle~150                                ; 100                        ; 1                                     ;
-; dispatch:cc_dispatch_block|reg:hdr1|reg_o[16]~244                                                            ; 100                        ; 1                                     ;
-; dispatch:cc_dispatch_block|reg:hdr1|reg_o[17]~246                                                            ; 100                        ; 1                                     ;
+; dispatch:cc_dispatch_block|reg:hdr1|reg_o[16]~246                                                            ; 100                        ; 1                                     ;
+; dispatch:cc_dispatch_block|reg:hdr1|reg_o[17]~248                                                            ; 100                        ; 1                                     ;
 ; issue_reply:issue_reply_block|reply_translator:i_reply_translator|translator_current_state.standard_reply~27 ; 100                        ; 1                                     ;
 +--------------------------------------------------------------------------------------------------------------+----------------------------+---------------------------------------+
 
@@ -2473,12 +2473,12 @@ Encoding Type:  One-Hot
 +----------------------------------------------+-------+
 ; Statistic                                    ; Value ;
 +----------------------------------------------+-------+
-; Total registers                              ; 6160  ;
+; Total registers                              ; 6095  ;
 ; Number of registers using Synchronous Clear  ; 1610  ;
 ; Number of registers using Synchronous Load   ; 220   ;
-; Number of registers using Asynchronous Clear ; 5761  ;
+; Number of registers using Asynchronous Clear ; 5696  ;
 ; Number of registers using Asynchronous Load  ; 61    ;
-; Number of registers using Clock Enable       ; 3599  ;
+; Number of registers using Clock Enable       ; 3601  ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
 
@@ -2497,9 +2497,9 @@ Encoding Type:  One-Hot
 ; ret_dat_wbs:ret_dat_parameter_slave|num_rows_to_read_data[0]                                                                                                       ; 3       ;
 ; sync_gen:sync_gen_slave|sync_gen_wbs:wbi|num_rows_data[0]                                                                                                          ; 4       ;
 ; ret_dat_wbs:ret_dat_parameter_slave|data_rate_data[1]                                                                                                              ; 3       ;
-; sync_gen:sync_gen_slave|sync_gen_wbs:wbi|num_rows_data[3]                                                                                                          ; 4       ;
 ; ret_dat_wbs:ret_dat_parameter_slave|data_rate_data[3]                                                                                                              ; 3       ;
 ; ret_dat_wbs:ret_dat_parameter_slave|num_rows_to_read_data[3]                                                                                                       ; 3       ;
+; sync_gen:sync_gen_slave|sync_gen_wbs:wbi|num_rows_data[3]                                                                                                          ; 4       ;
 ; sync_gen:sync_gen_slave|sync_gen_wbs:wbi|num_rows_data[5]                                                                                                          ; 4       ;
 ; ret_dat_wbs:ret_dat_parameter_slave|data_rate_data[5]                                                                                                              ; 3       ;
 ; ret_dat_wbs:ret_dat_parameter_slave|num_rows_to_read_data[5]                                                                                                       ; 3       ;
@@ -2576,8 +2576,6 @@ Encoding Type:  One-Hot
 ; issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|a_fefifo_n1d:read_state|b_non_empty      ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3 ; Deleted         ;
 ; issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|a_fefifo_n1d:read_state|b_one            ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3 ; Deleted         ;
 ; issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|dffpipe_dd9:dffpipe_rs_dbwp|dffe5a[0]    ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3 ; Deleted         ;
-; dv_rx:dv_rx_slave|current_m_state.latch_manch_packet                                                                                                               ; inclk15                                                                       ; Deleted         ;
-; dv_rx:dv_rx_slave|current_m_state.rx_2                                                                                                                             ; inclk15                                                                       ; Deleted         ;
 ; dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving                                                                             ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2 ; Deleted         ;
 ; issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver|lvds_receiving                ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2 ; Deleted         ;
 ; issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver|lvds_receiving               ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2 ; Deleted         ;
@@ -2608,10 +2606,6 @@ Encoding Type:  One-Hot
 ; issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|dffpipe_dd9:dffpipe_rs_dbwp|dffe5a[0]~25 ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3 ; Created         ;
 ; issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|dffpipe_dd9:dffpipe_rs_dbwp|dffe5a[0]~26 ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3 ; Created         ;
 ; issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component|dcfifo_t9d1:auto_generated|dffpipe_dd9:dffpipe_rs_dbwp|dffe5a[0]~27 ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3 ; Created         ;
-; dv_rx:dv_rx_slave|current_m_state.latch_manch_packet~8                                                                                                             ; inclk15                                                                       ; Created         ;
-; dv_rx:dv_rx_slave|current_m_state.rx_2~17                                                                                                                          ; inclk15                                                                       ; Created         ;
-; dv_rx:dv_rx_slave|current_m_state.rx_2~18                                                                                                                          ; inclk15                                                                       ; Created         ;
-; dv_rx:dv_rx_slave|current_m_state.rx_2~19                                                                                                                          ; inclk15                                                                       ; Created         ;
 ; dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~74                                                                          ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2 ; Created         ;
 ; dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~75                                                                          ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2 ; Created         ;
 ; dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~76                                                                          ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2 ; Created         ;
@@ -2653,171 +2647,171 @@ Encoding Type:  One-Hot
 +--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output                                                                                                                                                  ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|fpga_thermo:fpga_thermo_slave|us_timer:timeout_timer|us_count[1]                                                                                                  ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|error_o[1]                                        ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|fpga_thermo:fpga_thermo_slave|us_timer:timeout_timer|us_count[29]                                                                                                 ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|error_o[0]                                        ;
 ; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|error_o[0]                                         ;
 ; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|error_o[0]                                        ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|error_o[1]                                        ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|error_o[2]                                        ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|error_o[1]                                        ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|error_o[0]                                        ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|error_o[1]                                        ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|error_o[2]                                        ;
 ; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|error_o[1]                                        ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|error_o[1]                                        ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|error_o[2]                                        ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|error_o[2]                                         ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|cc_reset:cc_reset_block|us_timer:timeout_timer2|us_count[6]                                                                                                       ;
-; 3:1                ; 48 bits   ; 96 LEs        ; 48 LEs               ; 48 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|reg:hdr0|reg_o[24]                                                                                                                   ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[4]                                                      ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|shift_reg:tx_buffer|reg[18]                                                                   ;
-; 3:1                ; 48 bits   ; 96 LEs        ; 48 LEs               ; 48 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|reg:hdr0|reg_o[23]                                                                                                                     ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[12]                                                       ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|us_timer:wdt|us_count[26]                                                                                   ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|fpga_thermo:fpga_thermo_slave|smb_master:master2|us_timer:smb_timer|us_count[11]                                                                                  ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|psu_ctrl:psu_ctrl_slave|us_timer:timeout_timer|us_count[8]                                                                                                        ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[26]                                                                      ;
-; 3:1                ; 64 bits   ; 128 LEs       ; 0 LEs                ; 128 LEs                ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|c_cmd_code[30]                                                                                  ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|parallel_crc:crc_calc|crc_reg[10]                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|parallel_crc:crc_calc|crc_reg[19]                  ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|parallel_crc:crc_calc|crc_reg[25]                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|parallel_crc:crc_calc|crc_reg[27]                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|parallel_crc:crc_calc|crc_reg[19]                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|parallel_crc:crc_calc|crc_reg[11]                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|parallel_crc:crc_calc|crc_reg[12]                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|parallel_crc:crc_calc|crc_reg[1]                  ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|parallel_crc:crc_calc|crc_reg[31]                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|parallel_crc:crc_calc|crc_reg[2]                   ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|cksum_calc[24]                                                                                                  ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[6]                                                                         ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|sram_ctrl:sram_ctrl_slave|\i_gen_ack:count[21]                                                                                                                    ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[25]                                                             ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|error_o[2]                                        ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|error_o[0]                                        ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|error_o[0]                                         ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|cc_reset:cc_reset_block|us_timer:timeout_timer2|us_count[11]                                                                                                      ;
+; 3:1                ; 48 bits   ; 96 LEs        ; 48 LEs               ; 48 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|reg:hdr1|reg_o[23]                                                                                                                   ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[24]                                                     ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|shift_reg:tx_buffer|reg[22]                                                                   ;
+; 3:1                ; 48 bits   ; 96 LEs        ; 48 LEs               ; 48 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|reg:hdr0|reg_o[9]                                                                                                                      ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[8]                                                        ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|us_timer:wdt|us_count[2]                                                                                    ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|fpga_thermo:fpga_thermo_slave|smb_master:master2|us_timer:smb_timer|us_count[26]                                                                                  ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|psu_ctrl:psu_ctrl_slave|us_timer:timeout_timer|us_count[21]                                                                                                       ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[3]                                                                       ;
+; 3:1                ; 64 bits   ; 128 LEs       ; 0 LEs                ; 128 LEs                ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|c_param_id[9]                                                                                   ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|parallel_crc:crc_calc|crc_reg[12]                 ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|parallel_crc:crc_calc|crc_reg[28]                  ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|parallel_crc:crc_calc|crc_reg[12]                 ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|parallel_crc:crc_calc|crc_reg[17]                 ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|parallel_crc:crc_calc|crc_reg[10]                 ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|parallel_crc:crc_calc|crc_reg[1]                  ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|parallel_crc:crc_calc|crc_reg[8]                  ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|parallel_crc:crc_calc|crc_reg[19]                 ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|parallel_crc:crc_calc|crc_reg[1]                  ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|parallel_crc:crc_calc|crc_reg[21]                  ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|cksum_calc[11]                                                                                                  ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[31]                                                                        ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|sram_ctrl:sram_ctrl_slave|\i_gen_ack:count[29]                                                                                                                    ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[12]                                                             ;
 ; 3:1                ; 3 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|num_cards[0]                                                                                              ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[21] ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[11]  ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[30] ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[15] ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[19] ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[9]  ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[7]  ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[18] ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[16] ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[14]  ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|sync_num[21]                                                                                        ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|us_timer:timer|us_count[13]                                                                         ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc|crc_reg[6]                                                                                 ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[25]                                                                ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[24]                                                                  ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|us_timer:timeout_timer|us_count[3]                                           ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|us_timer:timeout_timer|us_count[10]                                                                             ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|cc_reset:cc_reset_block|us_timer:timeout_timer1|us_count[9]                                                                                                       ;
-; 4:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|checksum[1]                                                                                     ;
-; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|ramp_value[18]                                                                                      ;
-; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|packet_type[6]                                                                                  ;
-; 5:1                ; 16 bits   ; 48 LEs        ; 32 LEs               ; 16 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|ok_or_er[29]                                                                                    ;
-; 5:1                ; 32 bits   ; 96 LEs        ; 64 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|status[10]                                                                                      ;
-; 5:1                ; 16 bits   ; 48 LEs        ; 32 LEs               ; 16 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|crd_add_par_id[11]                                                                              ;
-; 5:1                ; 16 bits   ; 48 LEs        ; 32 LEs               ; 16 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|crd_add_par_id[19]                                                                              ;
-; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[15]                                                                                              ;
-; 5:1                ; 12 bits   ; 36 LEs        ; 24 LEs               ; 12 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[6]                                                                                               ;
-; 5:1                ; 8 bits    ; 24 LEs        ; 16 LEs               ; 8 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[23]                                                                                              ;
-; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[12]                                                                                              ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[16] ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[22]  ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[28] ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[22] ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[1]  ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[5]  ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[18] ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[10] ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[21] ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver|shift_reg:rx_buffer|reg[16]  ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|sync_num[28]                                                                                        ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|us_timer:timer|us_count[15]                                                                         ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc|crc_reg[29]                                                                                ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[11]                                                                ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[3]                                                                   ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|us_timer:timeout_timer|us_count[14]                                          ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|us_timer:timeout_timer|us_count[18]                                                                             ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|cc_reset:cc_reset_block|us_timer:timeout_timer1|us_count[18]                                                                                                      ;
+; 4:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|checksum[20]                                                                                    ;
+; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|ramp_value[24]                                                                                      ;
+; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|ok_or_er[1]                                                                                     ;
+; 5:1                ; 16 bits   ; 48 LEs        ; 32 LEs               ; 16 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|ok_or_er[24]                                                                                    ;
+; 5:1                ; 32 bits   ; 96 LEs        ; 64 LEs               ; 32 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|status[1]                                                                                       ;
+; 5:1                ; 16 bits   ; 48 LEs        ; 32 LEs               ; 16 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|crd_add_par_id[24]                                                                              ;
+; 5:1                ; 16 bits   ; 48 LEs        ; 32 LEs               ; 16 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|crd_add_par_id[23]                                                                              ;
+; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[13]                                                                                              ;
+; 5:1                ; 12 bits   ; 36 LEs        ; 24 LEs               ; 12 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[1]                                                                                               ;
+; 5:1                ; 8 bits    ; 24 LEs        ; 16 LEs               ; 8 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[21]                                                                                              ;
+; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[14]                                                                                              ;
 ; 5:1                ; 8 bits    ; 24 LEs        ; 16 LEs               ; 8 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx_word[22]                                                                                              ;
-; 4:1                ; 5 bits    ; 10 LEs        ; 10 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg|reg_o[5]                                                                                    ;
-; 7:1                ; 2 bits    ; 8 LEs         ; 2 LEs                ; 6 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|packet_size[31]                                                                                 ;
-; 7:1                ; 15 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|packet_size[1]                                                                                  ;
-; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg|reg_o[1]                                                                                    ;
+; 4:1                ; 5 bits    ; 10 LEs        ; 10 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg|reg_o[6]                                                                                    ;
+; 7:1                ; 2 bits    ; 8 LEs         ; 2 LEs                ; 6 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|packet_size[0]                                                                                  ;
+; 7:1                ; 15 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|packet_size[5]                                                                                  ;
+; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:par_id_reg|reg_o[3]                                                                                       ;
 ; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:data_size_reg_t|reg_o[2]                                                                                  ;
-; 5:1                ; 7 bits    ; 21 LEs        ; 14 LEs               ; 7 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:data_size_reg_t|reg_o[6]                                                                                  ;
-; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg|reg_o[2]                                                                                    ;
-; 8:1                ; 3 bits    ; 15 LEs        ; 6 LEs                ; 9 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:cmd_code_reg|reg_o[1]                                                                                     ;
-; 9:1                ; 4 bits    ; 24 LEs        ; 12 LEs               ; 12 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:cmd_code_reg|reg_o[29]                                                                                    ;
-; 15:1               ; 23 bits   ; 230 LEs       ; 230 LEs              ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|fibre_word[28]                                                                                  ;
-; 15:1               ; 6 bits    ; 60 LEs        ; 60 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|fibre_word[0]                                                                                   ;
-; 16:1               ; 2 bits    ; 20 LEs        ; 20 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|fibre_word[1]                                                                                   ;
-; 3:1                ; 9 bits    ; 18 LEs        ; 18 LEs               ; 0 LEs                  ; Yes        ; |clk_card|psu_ctrl:psu_ctrl_slave|counter:bit_ctr|count[8]                                                                                                                  ;
-; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|counter:bit_counter|count[3]                                                    ;
-; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter|count[3]                                                                                       ;
-; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |clk_card|id_thermo:card_id_thermo_slave|counter:byte_counter|count[3]                                                                                                      ;
-; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|counter:bit_counter|count[6]                                                                  ;
+; 5:1                ; 7 bits    ; 21 LEs        ; 14 LEs               ; 7 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:data_size_reg_t|reg_o[10]                                                                                 ;
+; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg|reg_o[3]                                                                                    ;
+; 8:1                ; 3 bits    ; 15 LEs        ; 6 LEs                ; 9 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:cmd_code_reg|reg_o[9]                                                                                     ;
+; 9:1                ; 4 bits    ; 24 LEs        ; 12 LEs               ; 12 LEs                 ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:cmd_code_reg|reg_o[14]                                                                                    ;
+; 15:1               ; 22 bits   ; 220 LEs       ; 220 LEs              ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|fibre_word[14]                                                                                  ;
+; 15:1               ; 7 bits    ; 70 LEs        ; 70 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|fibre_word[13]                                                                                  ;
+; 16:1               ; 2 bits    ; 20 LEs        ; 20 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|fibre_word[2]                                                                                   ;
+; 3:1                ; 9 bits    ; 18 LEs        ; 18 LEs               ; 0 LEs                  ; Yes        ; |clk_card|psu_ctrl:psu_ctrl_slave|counter:bit_ctr|count[2]                                                                                                                  ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; Yes        ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|counter:bit_counter|count[0]                                                    ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter|count[2]                                                                                       ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |clk_card|id_thermo:card_id_thermo_slave|counter:byte_counter|count[1]                                                                                                      ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|counter:bit_counter|count[0]                                                                  ;
 ; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; Yes        ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|counter:bit_counter|count[6]                                                      ;
 ; 3:1                ; 6 bits    ; 12 LEs        ; 12 LEs               ; 0 LEs                  ; Yes        ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|counter:bit_ctr|count[0]                                                                                      ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|buf_data_o[19]                                                                                         ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|dat_o[11]                                                                                                   ;
-; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|id1_ld                                                                                                              ;
-; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|thermo1_ld                                                                                                          ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|buf_data_o[25]                                                                                         ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|dat_o[19]                                                                                                   ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|id0_ld                                                                                                              ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|thermo0_ld                                                                                                          ;
 ; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|next_state~4                                                                               ;
-; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|id1_ld                                                                                                                             ;
-; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|thermo0_ld                                                                                                                         ;
-; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|one_wire_master:master|next_state~2                                                                                                ;
-; 3:1                ; 15 bits   ; 30 LEs        ; 30 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|size_o[0]                                                                                                 ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|comb~13                                                                                                       ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|buf_data_o[5]                                                                                            ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|id0_ld                                                                                                                             ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|thermo1_ld                                                                                                                         ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|one_wire_master:master|next_state~4                                                                                                ;
+; 3:1                ; 15 bits   ; 30 LEs        ; 30 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|size_o[8]                                                                                                 ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|comb~10                                                                                                       ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|buf_data_o[1]                                                                                            ;
 ; 3:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|psu_ctrl:psu_ctrl_slave|spi_tx_word[57]                                                                                                                           ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~50                                                                                      ;
-; 3:1                ; 18 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~41                                                                                      ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~48                                                                                        ;
-; 3:1                ; 18 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~47                                                                                        ;
-; 3:1                ; 3 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|next_out_state~5                                                                                                                    ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~54                                                                                      ;
+; 3:1                ; 18 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~44                                                                                      ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~49                                                                                        ;
+; 3:1                ; 18 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|crc_data~38                                                                                        ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|next_out_state~7                                                                                                                    ;
 ; 4:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; No         ; |clk_card|ret_dat_wbs:ret_dat_parameter_slave|stop_wren                                                                                                                     ;
-; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|wb_ns.wb_error                                                                                                      ;
-; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|wb_ns.wb_idle                                                                                                                      ;
-; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|epc16_sel_n                                                                                                                         ;
+; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|backplane_id_thermo:backplane_id_thermo_slave|wb_ns.wb_idle                                                                                                       ;
+; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|id_thermo:card_id_thermo_slave|wb_ns.wb_error                                                                                                                     ;
+; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|config_n                                                                                                                            ;
 ; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|ret_dat_wbs:ret_dat_parameter_slave|internal_cmd_mode_o[0]                                                                                                        ;
 ; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|internal_cmd_offset[2]                                                                                    ;
-; 5:1                ; 5 bits    ; 15 LEs        ; 5 LEs                ; 10 LEs                 ; No         ; |clk_card|sync_gen:sync_gen_slave|sync_gen_core:sgc|next_state~25                                                                                                           ;
-; 5:1                ; 31 bits   ; 93 LEs        ; 31 LEs               ; 62 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[27]                                                                                            ;
-; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|dv_rx:dv_rx_slave|next_state~16                                                                                                                                   ;
+; 5:1                ; 5 bits    ; 15 LEs        ; 5 LEs                ; 10 LEs                 ; No         ; |clk_card|sync_gen:sync_gen_slave|sync_gen_core:sgc|next_state~31                                                                                                           ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|dv_rx:dv_rx_slave|next_state~18                                                                                                                                   ;
+; 5:1                ; 31 bits   ; 93 LEs        ; 31 LEs               ; 62 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[21]                                                                                            ;
 ; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|ret_dat_wbs:ret_dat_parameter_slave|Selector2                                                                                                                     ;
-; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|sync_gen:sync_gen_slave|sync_gen_wbs:wbi|Selector0                                                                                                                ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|sync_gen:sync_gen_slave|sync_gen_wbs:wbi|Selector2                                                                                                                ;
 ; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|fpga_thermo:fpga_thermo_slave|Selector5                                                                                                                           ;
-; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|Selector5                                                                                                                           ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|Selector7                                                                                                                           ;
 ; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|clk_switchover:clk_switchover_slave|Selector0                                                                                                                     ;
-; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector26                                                                                                                                ;
-; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; No         ; |clk_card|sync_gen:sync_gen_slave|sync_gen_core:sgc|next_state.reset                                                                                                        ;
-; 5:1                ; 8 bits    ; 24 LEs        ; 16 LEs               ; 8 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|Selector13                                                                                                      ;
-; 6:1                ; 2 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|cards_to_reply[2]                                                            ;
-; 5:1                ; 4 bits    ; 12 LEs        ; 8 LEs                ; 4 LEs                  ; No         ; |clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|Selector0                                                                                                   ;
-; 5:1                ; 32 bits   ; 96 LEs        ; 96 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector60                                                                                          ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector27                                                                                                                                ;
+; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; No         ; |clk_card|sync_gen:sync_gen_slave|sync_gen_core:sgc|next_state.dv_received                                                                                                  ;
+; 5:1                ; 8 bits    ; 24 LEs        ; 16 LEs               ; 8 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|Selector8                                                                                                       ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|cards_to_reply[3]                                                            ;
+; 5:1                ; 4 bits    ; 12 LEs        ; 8 LEs                ; 4 LEs                  ; No         ; |clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|Selector5                                                                                                   ;
+; 5:1                ; 32 bits   ; 96 LEs        ; 96 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector53                                                                                          ;
 ; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector18                                                                                                                                ;
 ; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector23                                                                                                                                ;
-; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector21                                                                                                                                ;
-; 6:1                ; 32 bits   ; 128 LEs       ; 96 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|Selector12                                                                                       ;
-; 6:1                ; 32 bits   ; 128 LEs       ; 96 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|Selector9                                                                                          ;
-; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|Selector3                                                                                                                           ;
-; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector2                                                                                                                                 ;
+; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector22                                                                                                                                ;
+; 6:1                ; 32 bits   ; 128 LEs       ; 96 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|Selector9                                                                                        ;
+; 6:1                ; 32 bits   ; 128 LEs       ; 96 LEs               ; 32 LEs                 ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|Selector39                                                                                         ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|config_fpga:config_fpga_slave|Selector4                                                                                                                           ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|cc_reset:cc_reset_block|Selector0                                                                                                                                 ;
 ; 7:1                ; 2 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; No         ; |clk_card|psu_ctrl:psu_ctrl_slave|Selector6                                                                                                                                 ;
 ; 6:1                ; 5 bits    ; 20 LEs        ; 10 LEs               ; 10 LEs                 ; No         ; |clk_card|cc_reset:cc_reset_block|Selector15                                                                                                                                ;
 ; 9:1                ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; No         ; |clk_card|dv_rx:dv_rx_slave|Selector10                                                                                                                                      ;
-; 10:1               ; 2 bits    ; 12 LEs        ; 12 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|cards_to_reply[7]                                                            ;
-; 10:1               ; 5 bits    ; 30 LEs        ; 20 LEs               ; 10 LEs                 ; No         ; |clk_card|psu_ctrl:psu_ctrl_slave|Selector3                                                                                                                                 ;
-; 11:1               ; 8 bits    ; 56 LEs        ; 56 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector11                                                                                      ;
+; 10:1               ; 2 bits    ; 12 LEs        ; 12 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|cards_to_reply[6]                                                            ;
+; 10:1               ; 5 bits    ; 30 LEs        ; 20 LEs               ; 10 LEs                 ; No         ; |clk_card|psu_ctrl:psu_ctrl_slave|Selector1                                                                                                                                 ;
+; 11:1               ; 8 bits    ; 56 LEs        ; 56 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector12                                                                                      ;
 ; 11:1               ; 3 bits    ; 21 LEs        ; 21 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector22                                                                                      ;
-; 11:1               ; 2 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector30                                                                                      ;
+; 11:1               ; 3 bits    ; 21 LEs        ; 21 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector20                                                                                      ;
 ; 11:1               ; 3 bits    ; 21 LEs        ; 21 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector16                                                                                      ;
-; 11:1               ; 4 bits    ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector13                                                                                      ;
+; 11:1               ; 4 bits    ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector7                                                                                       ;
 ; 11:1               ; 2 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector2                                                                                       ;
-; 11:1               ; 2 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector15                                                                                      ;
+; 11:1               ; 2 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector23                                                                                      ;
 ; 11:1               ; 2 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector18                                                                                      ;
-; 11:1               ; 2 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector31                                                                                      ;
+; 11:1               ; 2 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector21                                                                                      ;
 ; 12:1               ; 2 bits    ; 16 LEs        ; 16 LEs               ; 0 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|cards_to_reply[1]                                                            ;
 ; 9:1                ; 3 bits    ; 18 LEs        ; 12 LEs               ; 6 LEs                  ; No         ; |clk_card|fpga_thermo:fpga_thermo_slave|smb_master:master2|Selector4                                                                                                        ;
-; 14:1               ; 4 bits    ; 36 LEs        ; 16 LEs               ; 20 LEs                 ; No         ; |clk_card|clk_switchover:clk_switchover_slave|Selector6                                                                                                                     ;
-; 10:1               ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; No         ; |clk_card|fpga_thermo:fpga_thermo_slave|smb_master:master2|Selector2                                                                                                        ;
-; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|Selector2                                                                    ;
-; 12:1               ; 4 bits    ; 32 LEs        ; 28 LEs               ; 4 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|Selector3                                                                                                       ;
+; 14:1               ; 4 bits    ; 36 LEs        ; 16 LEs               ; 20 LEs                 ; No         ; |clk_card|clk_switchover:clk_switchover_slave|Selector3                                                                                                                     ;
+; 10:1               ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; No         ; |clk_card|fpga_thermo:fpga_thermo_slave|smb_master:master2|Selector0                                                                                                        ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|Selector8                                                                    ;
+; 12:1               ; 4 bits    ; 32 LEs        ; 28 LEs               ; 4 LEs                  ; No         ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|Selector11                                                                                                      ;
 ; 13:1               ; 2 bits    ; 16 LEs        ; 4 LEs                ; 12 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|Selector7                                                                                                       ;
-; 13:1               ; 2 bits    ; 16 LEs        ; 4 LEs                ; 12 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|Selector8                                                                                                       ;
-; 18:1               ; 7 bits    ; 84 LEs        ; 56 LEs               ; 28 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|Selector1                                                                                                     ;
+; 13:1               ; 2 bits    ; 16 LEs        ; 4 LEs                ; 12 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|Selector12                                                                                                      ;
+; 18:1               ; 7 bits    ; 84 LEs        ; 56 LEs               ; 28 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|Selector11                                                                                                    ;
 ; 18:1               ; 2 bits    ; 24 LEs        ; 6 LEs                ; 18 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|Selector15                                                                                                    ;
-; 11:1               ; 11 bits   ; 77 LEs        ; 66 LEs               ; 11 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector33                                                                                      ;
-; 21:1               ; 32 bits   ; 448 LEs       ; 352 LEs              ; 96 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|data_o[6]                                                                    ;
+; 11:1               ; 11 bits   ; 77 LEs        ; 66 LEs               ; 11 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector44                                                                                      ;
+; 21:1               ; 32 bits   ; 448 LEs       ; 352 LEs              ; 96 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|data_o[23]                                                                   ;
 ; 12:1               ; 2 bits    ; 16 LEs        ; 4 LEs                ; 12 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_translator:i_reply_translator|Selector50                                                                                      ;
-; 17:1               ; 5 bits    ; 55 LEs        ; 35 LEs               ; 20 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector1                                                                                           ;
-; 20:1               ; 3 bits    ; 39 LEs        ; 18 LEs               ; 21 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector5                                                                                           ;
-; 20:1               ; 2 bits    ; 26 LEs        ; 12 LEs               ; 14 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector12                                                                                          ;
-; 37:1               ; 21 bits   ; 504 LEs       ; 252 LEs              ; 252 LEs                ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|Selector30                                                                                                ;
-; 38:1               ; 2 bits    ; 50 LEs        ; 4 LEs                ; 46 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|Selector5                                                                                                 ;
-; 513:1              ; 11 bits   ; 3762 LEs      ; 253 LEs              ; 3509 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[24]                                                                                              ;
+; 17:1               ; 5 bits    ; 55 LEs        ; 35 LEs               ; 20 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector11                                                                                          ;
+; 20:1               ; 3 bits    ; 39 LEs        ; 18 LEs               ; 21 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector4                                                                                           ;
+; 20:1               ; 2 bits    ; 26 LEs        ; 12 LEs               ; 14 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|Selector10                                                                                          ;
+; 37:1               ; 21 bits   ; 504 LEs       ; 252 LEs              ; 252 LEs                ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|Selector15                                                                                                ;
+; 38:1               ; 2 bits    ; 50 LEs        ; 4 LEs                ; 46 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|Selector24                                                                                                ;
+; 513:1              ; 11 bits   ; 3762 LEs      ; 253 LEs              ; 3509 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[20]                                                                                              ;
 ; 39:1               ; 2 bits    ; 52 LEs        ; 4 LEs                ; 48 LEs                 ; No         ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|Selector27                                                                                                ;
-; 767:1              ; 16 bits   ; 8176 LEs      ; 400 LEs              ; 7776 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[13]                                                                                              ;
+; 767:1              ; 16 bits   ; 8176 LEs      ; 400 LEs              ; 7776 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[12]                                                                                              ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
@@ -7100,7 +7094,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+----------------------------------+-----------------+
 ; Parameter Name ; Value                            ; Type            ;
 +----------------+----------------------------------+-----------------+
-; revision       ; 00000100000000000000000000000010 ; Unsigned Binary ;
+; revision       ; 00000100000000000000000000000011 ; Unsigned Binary ;
 +----------------+----------------------------------+-----------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
@@ -8321,7 +8315,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 6.1 Build 201 11/27/2006 SJ Full Version
-    Info: Processing started: Thu Sep 20 10:30:32 2007
+    Info: Processing started: Wed Oct 10 16:54:40 2007
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off clk_card -c clk_card
 Info: Found 1 design units, including 0 entities, in source file ../../../library/sys_param/source/rtl/command_pack.vhd
     Info: Found design unit 1: command_pack
@@ -8634,67 +8628,68 @@ Info: Found 2 design units, including 1 entities, in source file ../source/rtl/c
     Info: Found design unit 1: clk_card-top
     Info: Found entity 1: clk_card
 Info: Elaborating entity "clk_card" for the top level hierarchy
-Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(376): object "debug" assigned a value but never read
-Warning (10034): Output port "lvds_spare" at clk_card.vhd(108) has no driver
-Warning (10034): Output port "ttl_tx2" at clk_card.vhd(138) has no driver
-Warning (10034): Output port "ttl_txena2" at clk_card.vhd(139) has no driver
-Warning (10034): Output port "ttl_tx3" at clk_card.vhd(142) has no driver
-Warning (10034): Output port "ttl_txena3" at clk_card.vhd(143) has no driver
-Warning (10034): Output port "eeprom_so" at clk_card.vhd(147) has no driver
-Warning (10034): Output port "eeprom_sck" at clk_card.vhd(148) has no driver
-Warning (10034): Output port "eeprom_cs" at clk_card.vhd(149) has no driver
-Warning (10034): Output port "mictor0_o[15]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[14]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[13]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[12]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[11]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[10]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[9]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[8]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[7]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[6]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[5]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[4]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[3]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[2]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[1]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0_o[0]" at clk_card.vhd(199) has no driver
-Warning (10034): Output port "mictor0clk_o" at clk_card.vhd(200) has no driver
-Warning (10034): Output port "mictor1_o[15]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[14]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[13]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[12]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[11]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[10]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[9]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[8]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[7]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[6]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[5]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[4]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[3]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[2]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[1]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1_o[0]" at clk_card.vhd(204) has no driver
-Warning (10034): Output port "mictor1clk_o" at clk_card.vhd(205) has no driver
-Warning (10034): Output port "mictor1_e[15]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[14]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[13]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[12]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[11]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[10]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[9]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[8]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[7]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[6]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[5]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[4]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[3]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[2]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[1]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1_e[0]" at clk_card.vhd(206) has no driver
-Warning (10034): Output port "mictor1clk_e" at clk_card.vhd(207) has no driver
-Warning (10034): Output port "tx" at clk_card.vhd(210) has no driver
+Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(379): object "debug" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(390): object "sync_box_err_ack" assigned a value but never read
+Warning (10034): Output port "lvds_spare" at clk_card.vhd(111) has no driver
+Warning (10034): Output port "ttl_tx2" at clk_card.vhd(141) has no driver
+Warning (10034): Output port "ttl_txena2" at clk_card.vhd(142) has no driver
+Warning (10034): Output port "ttl_tx3" at clk_card.vhd(145) has no driver
+Warning (10034): Output port "ttl_txena3" at clk_card.vhd(146) has no driver
+Warning (10034): Output port "eeprom_so" at clk_card.vhd(150) has no driver
+Warning (10034): Output port "eeprom_sck" at clk_card.vhd(151) has no driver
+Warning (10034): Output port "eeprom_cs" at clk_card.vhd(152) has no driver
+Warning (10034): Output port "mictor0_o[15]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[14]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[13]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[12]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[11]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[10]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[9]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[8]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[7]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[6]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[5]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[4]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[3]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[2]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[1]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0_o[0]" at clk_card.vhd(202) has no driver
+Warning (10034): Output port "mictor0clk_o" at clk_card.vhd(203) has no driver
+Warning (10034): Output port "mictor1_o[15]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[14]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[13]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[12]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[11]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[10]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[9]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[8]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[7]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[6]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[5]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[4]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[3]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[2]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[1]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1_o[0]" at clk_card.vhd(207) has no driver
+Warning (10034): Output port "mictor1clk_o" at clk_card.vhd(208) has no driver
+Warning (10034): Output port "mictor1_e[15]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[14]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[13]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[12]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[11]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[10]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[9]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[8]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[7]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[6]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[5]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[4]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[3]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[2]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[1]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1_e[0]" at clk_card.vhd(209) has no driver
+Warning (10034): Output port "mictor1clk_e" at clk_card.vhd(210) has no driver
+Warning (10034): Output port "tx" at clk_card.vhd(213) has no driver
 Info: Elaborating entity "cc_reset" for hierarchy "cc_reset:cc_reset_block"
 Warning (10036): Verilog HDL or VHDL warning at cc_reset.vhd(105): object "startmce_brst" assigned a value but never read
 Warning (10036): Verilog HDL or VHDL warning at cc_reset.vhd(106): object "start_cc_bclr" assigned a value but never read
@@ -8815,7 +8810,7 @@ Info: Found 1 design units, including 1 entities, in source file db/altsyncram_s
     Info: Found entity 1: altsyncram_s0g3
 Info: Elaborating entity "altsyncram_s0g3" for hierarchy "issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|altsyncram:mem0|altsyncram_s0g3:auto_generated"
 Info: Elaborating entity "cmd_translator" for hierarchy "issue_reply:issue_reply_block|cmd_translator:i_cmd_translator"
-Warning (10036): Verilog HDL or VHDL warning at cmd_translator.vhd(170): object "external_dv_num" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cmd_translator.vhd(173): object "external_dv_num" assigned a value but never read
 Info: Elaborating entity "cmd_queue" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue"
 Info (10041): Verilog HDL or VHDL info at cmd_queue.vhd(252): inferred latch for "timer_clr"
 Info: Elaborating entity "reg" for hierarchy "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg"
@@ -8906,9 +8901,9 @@ Info: Found 1 design units, including 1 entities, in source file db/cntr_u0j.tdf
     Info: Found entity 1: cntr_u0j
 Info: Elaborating entity "cntr_u0j" for hierarchy "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer|lpm_counter:write_pointer|cntr_u0j:auto_generated"
 Info: Elaborating entity "reply_translator" for hierarchy "issue_reply:issue_reply_block|reply_translator:i_reply_translator"
-Warning (10036): Verilog HDL or VHDL warning at reply_translator.vhd(191): object "r_cmd_ack" assigned a value but never read
-Warning (10631): VHDL Process Statement warning at reply_translator.vhd(595): inferring latch(es) for signal or variable "c_or_r", which holds its previous value in one or more paths through the process
-Info (10041): Verilog HDL or VHDL info at reply_translator.vhd(595): inferred latch for "c_or_r"
+Warning (10036): Verilog HDL or VHDL warning at reply_translator.vhd(194): object "r_cmd_ack" assigned a value but never read
+Warning (10631): VHDL Process Statement warning at reply_translator.vhd(598): inferring latch(es) for signal or variable "c_or_r", which holds its previous value in one or more paths through the process
+Info (10041): Verilog HDL or VHDL info at reply_translator.vhd(598): inferred latch for "c_or_r"
 Info: Elaborating entity "fibre_tx" for hierarchy "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx"
 Info: Elaborating entity "sync_fifo_tx" for hierarchy "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo"
 Info: Elaborating entity "dcfifo" for hierarchy "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component"
@@ -8995,7 +8990,7 @@ Info: Elaborating entity "frame_timing" for hierarchy "frame_timing:frame_timing
 Info: Elaborating entity "frame_timing_wbs" for hierarchy "frame_timing:frame_timing_slave|frame_timing_wbs:wbi"
 Info: Elaborating entity "frame_timing_core" for hierarchy "frame_timing:frame_timing_slave|frame_timing_core:ftc"
 Info: Elaborating entity "dv_rx" for hierarchy "dv_rx:dv_rx_slave"
-Warning (10036): Verilog HDL or VHDL warning at dv_rx.vhd(139): object "manch_sync" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at dv_rx.vhd(136): object "manch_sync" assigned a value but never read
 Info: Elaborating entity "shift_reg" for hierarchy "dv_rx:dv_rx_slave|shift_reg:rx_buffer"
 Info: Elaborating entity "ret_dat_wbs" for hierarchy "ret_dat_wbs:ret_dat_parameter_slave"
 Info: Elaborating entity "psu_ctrl" for hierarchy "psu_ctrl:psu_ctrl_slave"
@@ -9022,7 +9017,6 @@ Warning: Reduced register "dispatch:psuc_dispatch_block|status[12]" with stuck d
 Warning: Reduced register "dispatch:psuc_dispatch_block|status[13]" with stuck data_in port to stuck value GND
 Warning: Reduced register "dispatch:psuc_dispatch_block|status[14]" with stuck data_in port to stuck value GND
 Warning: Reduced register "dispatch:psuc_dispatch_block|status[15]" with stuck data_in port to stuck value GND
-Warning: Reduced register "dv_rx:dv_rx_slave|sync_box_err" with stuck data_in port to stuck value GND
 Warning: No clock transition on "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:resync_req_reg|reg_o[0]" register due to stuck clock or clock enable
 Warning: Reduced register "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:resync_req_reg|reg_o[0]" with stuck clock_enable port to stuck value GND
 Warning: No clock transition on "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:resync_req_reg|reg_o[1]" register due to stuck clock or clock enable
@@ -9250,10 +9244,7 @@ Warning: Reduced register "issue_reply:issue_reply_block|reply_translator:i_repl
 Warning: Reduced register "issue_reply:issue_reply_block|reply_translator:i_reply_translator|frame_status[29]" with stuck data_in port to stuck value GND
 Warning: Reduced register "issue_reply:issue_reply_block|reply_translator:i_reply_translator|frame_status[30]" with stuck data_in port to stuck value GND
 Warning: Reduced register "issue_reply:issue_reply_block|reply_translator:i_reply_translator|frame_status[31]" with stuck data_in port to stuck value GND
-Warning: Reduced register "issue_reply:issue_reply_block|reply_queue:i_reply_queue|sync_box_err" with stuck data_in port to stuck value GND
-Warning: Reduced register "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:bit_status_reg|reg_o[3]" with stuck data_in port to stuck value GND
 Warning: Reduced register "fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:tx_addr_reg|reg[1]" with stuck data_in port to stuck value GND
-Warning: Reduced register "issue_reply:issue_reply_block|reply_translator:i_reply_translator|frame_status[3]" with stuck data_in port to stuck value GND
 Warning: Reduced register "fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:tx_addr_reg|reg[2]" with stuck data_in port to stuck value GND
 Warning: Reduced register "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|crc_num_bits[17]" with stuck data_in port to stuck value GND
 Warning: Reduced register "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|crc_num_bits[18]" with stuck data_in port to stuck value GND
@@ -9452,8 +9443,8 @@ Info: State machine "|clk_card|dispatch:psuc_dispatch_block|dispatch_wishbone:wi
 Info: State machine "|clk_card|dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|pres_state" contains 7 states
 Info: State machine "|clk_card|ret_dat_wbs:ret_dat_parameter_slave|current_state" contains 3 states
 Info: State machine "|clk_card|dv_rx:dv_rx_slave|current_s_state" contains 3 states
-Info: State machine "|clk_card|dv_rx:dv_rx_slave|current_state" contains 5 states
 Info: State machine "|clk_card|dv_rx:dv_rx_slave|current_m_state" contains 4 states
+Info: State machine "|clk_card|dv_rx:dv_rx_slave|current_state" contains 5 states
 Info: State machine "|clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state" contains 7 states
 Info: State machine "|clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|current_init_win_state" contains 7 states
 Info: State machine "|clk_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|current_state" contains 3 states
@@ -9614,6 +9605,17 @@ Info: Encoding result for state machine "|clk_card|dv_rx:dv_rx_slave|current_s_s
     Info: State "|clk_card|dv_rx:dv_rx_slave|current_s_state.idle" uses code string "000"
     Info: State "|clk_card|dv_rx:dv_rx_slave|current_s_state.manch_sync_rcvd" uses code string "011"
     Info: State "|clk_card|dv_rx:dv_rx_slave|current_s_state.manch_sync_ack" uses code string "101"
+Info: Selected One-Hot state machine encoding method for state machine "|clk_card|dv_rx:dv_rx_slave|current_m_state"
+Info: Encoding result for state machine "|clk_card|dv_rx:dv_rx_slave|current_m_state"
+    Info: Completed encoding using 4 state bits
+        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.done"
+        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.rx_2"
+        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.rx_1"
+        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.idle"
+    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.idle" uses code string "0000"
+    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.rx_1" uses code string "0011"
+    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.rx_2" uses code string "0101"
+    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.done" uses code string "1001"
 Info: Selected One-Hot state machine encoding method for state machine "|clk_card|dv_rx:dv_rx_slave|current_state"
 Info: Encoding result for state machine "|clk_card|dv_rx:dv_rx_slave|current_state"
     Info: Completed encoding using 5 state bits
@@ -9627,17 +9629,6 @@ Info: Encoding result for state machine "|clk_card|dv_rx:dv_rx_slave|current_sta
     Info: State "|clk_card|dv_rx:dv_rx_slave|current_state.fibre_dv_low" uses code string "00101"
     Info: State "|clk_card|dv_rx:dv_rx_slave|current_state.manch_dv_rcvd" uses code string "01001"
     Info: State "|clk_card|dv_rx:dv_rx_slave|current_state.manch_dv_ack" uses code string "10001"
-Info: Selected One-Hot state machine encoding method for state machine "|clk_card|dv_rx:dv_rx_slave|current_m_state"
-Info: Encoding result for state machine "|clk_card|dv_rx:dv_rx_slave|current_m_state"
-    Info: Completed encoding using 4 state bits
-        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.done"
-        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.rx_2"
-        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.latch_manch_packet"
-        Info: Encoded state bit "dv_rx:dv_rx_slave|current_m_state.idle"
-    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.idle" uses code string "0000"
-    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.latch_manch_packet" uses code string "0011"
-    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.rx_2" uses code string "0101"
-    Info: State "|clk_card|dv_rx:dv_rx_slave|current_m_state.done" uses code string "1001"
 Info: Selected One-Hot state machine encoding method for state machine "|clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state"
 Info: Encoding result for state machine "|clk_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state"
     Info: Completed encoding using 7 state bits
@@ -10828,16 +10819,15 @@ Info: Ignored 440 buffer(s)
     Info: Ignored 396 SOFT buffer(s)
     Info: Ignored 44 LCELL buffer(s)
 Info: Performing gate-level register retiming
-Info: Not allowed to move 873 registers
-    Info: Not allowed to move at least 26 registers because they are in a sequence of registers directly fed by input pins
+Info: Not allowed to move 771 registers
+    Info: Not allowed to move at least 27 registers because they are in a sequence of registers directly fed by input pins
     Info: Not allowed to move at least 38 registers because they feed output pins directly
-    Info: Not allowed to move at least 262 registers because they are fed by registers in a different clock domain
-    Info: Not allowed to move at least 117 registers because they feed registers in a different clock domain
+    Info: Not allowed to move at least 194 registers because they are fed by registers in a different clock domain
+    Info: Not allowed to move at least 82 registers because they feed registers in a different clock domain
     Info: Not allowed to move at least 430 registers because they feed clock or asynchronous control signals of other registers
-Info: Quartus II software applied gate-level register retiming to 4 clock domains
+Info: Quartus II software applied gate-level register retiming to 3 clock domains
     Info: Quartus II software applied gate-level register retiming to clock "fibre_rx_clkr": created 7 new registers, removed 3 registers, left 48 registers untouched
     Info: Quartus II software applied gate-level register retiming to clock "clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3": created 12 new registers, removed 4 registers, left 27 registers untouched
-    Info: Quartus II software applied gate-level register retiming to clock "inclk15": created 4 new registers, removed 2 registers, left 75 registers untouched
     Info: Quartus II software applied gate-level register retiming to clock "clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2": created 33 new registers, removed 11 registers, left 175 registers untouched
 Warning: Output pins are stuck at VCC or GND
     Warning: Pin "lvds_spare" stuck at GND
@@ -10918,10 +10908,7 @@ Warning: Output pins are stuck at VCC or GND
     Warning: Pin "fibre_tx_bisten" stuck at VCC
     Warning: Pin "fibre_tx_foto" stuck at GND
 Info: Registers with preset signals will power-up high
-Info: 131 registers lost all their fanouts during netlist optimizations. The first 100 are displayed below.
-    Info: Register "dv_rx_slave/manch_reg_dly2[35]" lost all its fanouts during netlist optimizations.
-    Info: Register "dv_rx_slave/manch_reg_dly1[35]" lost all its fanouts during netlist optimizations.
-    Info: Register "dv_rx_slave/manch_reg[35]" lost all its fanouts during netlist optimizations.
+Info: 127 registers lost all their fanouts during netlist optimizations. The first 100 are displayed below.
     Info: Register "psuc_dispatch_block/receiver/cmd_rx/rx_buffer/reg[0]" lost all its fanouts during netlist optimizations.
     Info: Register "dv_rx_slave/rx_buffer/reg[39]" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_reply_queue/rq_seq/rx_psu/lvds_receiver/rx_buffer/reg[0]" lost all its fanouts during netlist optimizations.
@@ -10960,6 +10947,7 @@ Info: 131 registers lost all their fanouts during netlist optimizations. The fir
     Info: Register "issue_reply_block/i_reply_translator/frame_seq_num[19]" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_reply_translator/frame_status[11]" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_reply_translator/frame_seq_num[11]" lost all its fanouts during netlist optimizations.
+    Info: Register "issue_reply_block/i_reply_translator/frame_status[3]" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_reply_translator/frame_seq_num[3]" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_reply_translator/frame_seq_num[28]" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_reply_translator/frame_seq_num[20]" lost all its fanouts during netlist optimizations.
@@ -11019,12 +11007,14 @@ Info: 131 registers lost all their fanouts during netlist optimizations. The fir
     Info: Register "issue_reply_block/i_cmd_queue/previous_state.strobe_detect" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_cmd_queue/previous_state.latch_data" lost all its fanouts during netlist optimizations.
     Info: Register "issue_reply_block/i_cmd_queue/previous_state.done_store" lost all its fanouts during netlist optimizations.
+    Info: Register "issue_reply_block/i_cmd_queue/previous_state.wait_to_issue" lost all its fanouts during netlist optimizations.
+    Info: Register "issue_reply_block/i_cmd_queue/previous_state.word_pause" lost all its fanouts during netlist optimizations.
     Info: List truncated at 100 items
 Info: Inserted 2 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|pres_state.wb_cycle"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|reg:hdr1|reg_o[18]"
 Info: Inserted 2 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|reg:hdr1|reg_o[16]"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|reg:hdr1|reg_o[17]"
-Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|addr_o[0]~572"
+Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|addr_o[0]~574"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "ret_dat_wbs:ret_dat_parameter_slave|Equal9~67"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "issue_reply:issue_reply_block|reply_queue:i_reply_queue|present_retire_state.tx_status"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.done"
@@ -11034,8 +11024,8 @@ Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "issue_reply:issu
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|present_state.store_cmd_param"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "~GND"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|pres_state.wb_cycle~150"
-Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|reg:hdr1|reg_o[16]~244"
-Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|reg:hdr1|reg_o[17]~246"
+Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|reg:hdr1|reg_o[16]~246"
+Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "dispatch:cc_dispatch_block|reg:hdr1|reg_o[17]~248"
 Info: Inserted 1 logic cells for Maximum Fan-Out assignment on "issue_reply:issue_reply_block|reply_translator:i_reply_translator|translator_current_state.standard_reply~27"
 Warning: Ignored Maximum Fan-Out assignment
     Warning: Ignored Maximum Fan-Out logic option for node "rst"
@@ -11074,17 +11064,17 @@ Warning: Design contains 34 input pin(s) that do not drive logic
     Warning: No output dependent on input pin "mictor0_e[15]"
     Warning: No output dependent on input pin "mictor0clk_e"
     Warning: No output dependent on input pin "rx"
-Info: Implemented 15495 device resources after synthesis - the final resource count might be different
+Info: Implemented 15430 device resources after synthesis - the final resource count might be different
     Info: Implemented 72 input pins
     Info: Implemented 146 output pins
     Info: Implemented 34 bidirectional pins
-    Info: Implemented 14202 logic cells
+    Info: Implemented 14137 logic cells
     Info: Implemented 1032 RAM segments
     Info: Implemented 1 ClockLock PLLs
     Info: Implemented 8 DSP elements
-Info: Quartus II Analysis & Synthesis was successful. 0 errors, 512 warnings
-    Info: Allocated 223 megabytes of memory during processing
-    Info: Processing ended: Thu Sep 20 10:36:02 2007
-    Info: Elapsed time: 00:05:30
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 509 warnings
+    Info: Allocated 225 megabytes of memory during processing
+    Info: Processing ended: Wed Oct 10 17:00:16 2007
+    Info: Elapsed time: 00:05:36
 
 
