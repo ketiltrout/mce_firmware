@@ -268,6 +268,21 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling entity fsfb_proc_pidz
 -- Compiling architecture rtl of fsfb_proc_pidz
 
+} {} {}} C:/scuba2_repository/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package fsfb_calc_pack
+-- Compiling entity fsfb_io_controller
+-- Compiling architecture rtl of fsfb_io_controller
+
 } {} {}} C:/scuba2_repository/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
@@ -285,21 +300,6 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package fsfb_corr_pack
 -- Compiling entity wbs_frame_data
 -- Compiling architecture rtl of wbs_frame_data
-
-} {} {}} C:/scuba2_repository/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package flux_loop_ctrl_pack
--- Loading package fsfb_calc_pack
--- Compiling entity fsfb_io_controller
--- Compiling architecture rtl of fsfb_io_controller
 
 } {} {}} C:/scuba2_repository/cards/clk_card/test/source/cc_test_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/test/source/cc_test_pack.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -874,6 +874,22 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling entity altserial_flash_loader
 -- Compiling architecture sim_altserial_flash_loader of altserial_flash_loader
 
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/issue_reply.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/issue_reply.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package component_pack
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package sync_gen_pack
+-- Loading package fibre_rx_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Compiling entity issue_reply
+-- Compiling architecture rtl of issue_reply
+
 } {} {}} C:/scuba2_repository/cards/library/components/source/rtl/wb_slave.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/library/components/source/rtl/wb_slave.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
@@ -902,6 +918,22 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package async_pack
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package sync_gen_pack
+-- Loading package issue_reply_pack
+-- Loading package fibre_rx_pack
+-- Loading package component_pack
+-- Loading package altera_mf_components
+-- Compiling entity fibre_rx
+-- Compiling architecture rtl of fibre_rx
 
 } {} {}} C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs_pack.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -991,6 +1023,25 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package component_pack
 -- Compiling entity rs232_rx
 -- Compiling architecture rtl of rs232_rx
+
+} {} {}} C:/scuba2_repository/cards/clk_card/clk_card/source/rtl/clk_card.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/clk_card/source/rtl/clk_card.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Loading package all_cards_pack
+-- Loading package sync_gen_pack
+-- Loading package issue_reply_pack
+-- Loading package cc_reset_pack
+-- Loading package ret_dat_wbs_pack
+-- Loading package clk_card_pack
+-- Compiling entity clk_card
+-- Compiling architecture top of clk_card
 
 } {} {}} C:/scuba2_repository/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd {1 {vcom -work work -2002 -explicit -check_synthesis C:/scuba2_repository/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -1147,6 +1198,24 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Compiling package sync_gen_pack
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Loading package sync_gen_pack
+-- Loading package cmd_queue_ram40_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Loading package cmd_queue_pack
+-- Loading package issue_reply_pack
+-- Compiling entity reply_queue
+-- Compiling architecture behav of reply_queue
 
 } {} {}} C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd {1 {vcom -work work -2002 -explicit -cover s C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -1347,6 +1416,22 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package component_pack
 -- Compiling entity psu_ctrl
 -- Compiling architecture top of psu_ctrl
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd
+Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Loading package sync_gen_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Loading package issue_reply_pack
+-- Compiling entity cmd_translator
+-- Compiling architecture rtl of cmd_translator
 
 } {} {}} C:/Modeltech_6.1c/vhdl_src/std/textio.vhd {1 {vcom -work std -2002 -explicit C:/Modeltech_6.1c/vhdl_src/std/textio.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -2285,20 +2370,17 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling entity cmd_translator_internal_cmd_fsm
 -- Compiling architecture rtl of cmd_translator_internal_cmd_fsm
 
-} {} {}} C:/scuba2_repository/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd
+} {} {}} C:/scuba2_repository/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
+-- Loading package component_pack
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package flux_loop_ctrl_pack
--- Loading package offset_ctrl_pack
--- Compiling entity offset_ctrl
--- Compiling architecture struct of offset_ctrl
+-- Compiling entity id_thermo
+-- Compiling architecture behav of id_thermo
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
@@ -2315,17 +2397,20 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling entity fibre_rx_fifo
 -- Compiling architecture rtl of fibre_rx_fifo
 
-} {} {}} C:/scuba2_repository/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd
+} {} {}} C:/scuba2_repository/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
--- Loading package component_pack
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
--- Compiling entity id_thermo
--- Compiling architecture behav of id_thermo
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package offset_ctrl_pack
+-- Compiling entity offset_ctrl
+-- Compiling architecture struct of offset_ctrl
 
 } {} {}} C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd
 Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
