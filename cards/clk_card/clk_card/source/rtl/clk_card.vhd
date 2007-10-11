@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.73 2007/09/05 03:38:24 bburger Exp $
+-- $Id: clk_card.vhd,v 1.74 2007/09/20 19:50:19 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.74  2007/09/20 19:50:19  bburger
+-- BB:  cc_v04000002
+--
 -- Revision 1.73  2007/09/05 03:38:24  bburger
 -- BB:  cc_v04000001
 --
@@ -241,7 +244,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000002";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000003";
 
    -- reset
    signal rst                : std_logic;
@@ -944,7 +947,7 @@ begin
    port map(
       -- Clock and Reset:
       clk_i               => clk,
-      manch_clk_i         => inclk15,  -- Manchester Clock Input
+--      manch_clk_i         => inclk15,  -- Manchester Clock Input
       clk_n_i             => clk_n,
       rst_i               => rst,
 
@@ -958,7 +961,7 @@ begin
       dv_o                => external_dv,
       dv_sequence_num_o   => external_dv_num,
       sync_box_err_o      => sync_box_err,
-      sync_box_err_ack_i  => sync_box_err_ack,
+--      sync_box_err_ack_i  => sync_box_err_ack,
       sync_box_free_run_o => sync_box_free_run,
 
       sync_mode_i         => sync_mode,

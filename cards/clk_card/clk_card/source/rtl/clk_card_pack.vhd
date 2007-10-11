@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.6 2007/08/28 23:31:30 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.7 2007/09/20 19:50:19 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.7  2007/09/20 19:50:19  bburger
+-- BB:  cc_v04000002
+--
 -- Revision 1.6  2007/08/28 23:31:30  bburger
 -- BB: added interface signals to support the following commands:
 -- constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
@@ -250,7 +253,7 @@ package clk_card_pack is
    port(
       -- Clock and Reset:
       clk_i               : in std_logic;
-      manch_clk_i         : in std_logic;
+--      manch_clk_i         : in std_logic;
       clk_n_i             : in std_logic;
       rst_i               : in std_logic;
 
@@ -264,7 +267,7 @@ package clk_card_pack is
       dv_o                : out std_logic;
       dv_sequence_num_o   : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
       sync_box_err_o      : out std_logic;
-      sync_box_err_ack_i  : in std_logic;
+--      sync_box_err_ack_i  : in std_logic;
       sync_box_free_run_o : out std_logic;
 
       sync_mode_i         : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
