@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.56 2007/07/24 23:58:34 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.57 2007/09/20 19:49:26 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/07/24 23:58:34 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/09/20 19:49:26 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.57  2007/09/20 19:49:26  bburger
+-- BB:  Reorder the port declaration.
+--
 -- Revision 1.56  2007/07/24 23:58:34  bburger
 -- BB:
 -- - added the frame_status_word_i signal to the reply_translator interface for reporting the word from reply_queue registers.
@@ -447,31 +450,46 @@ begin
       when LD_STATUS =>
          if(fibre_tx_busy_i = '0') then
             translator_next_state <= WAIT_Q_WORD1;
---            translator_next_state <= LD_FRAME_STATUS;
          end if;
-
-      ----------------------------------------
-      -- Frame ok_or_er word (stop bit, last frame bit)
-      ----------------------------------------
---      when LD_FRAME_STATUS =>
---         if(fibre_tx_busy_i = '0') then
---            translator_next_state <= WAIT_Q_WORD1;
-----            translator_next_state <= LD_FRAME_SEQ_NUM;
---         end if;
-
-      ----------------------------------------
-      -- Frame sequence number
-      ----------------------------------------
---      when LD_FRAME_SEQ_NUM =>
---         if(fibre_tx_busy_i = '0') then
---            translator_next_state <= WAIT_Q_WORD1;
---         end if;
 
       ----------------------------------------
       -- Wait states for allowing the reply_queue to respond
       ----------------------------------------
       when WAIT_Q_WORD1 =>
-         translator_next_state <= WAIT_Q_WORD4;
+         if(DATA_PROPAGATION_DELAY = 1) then
+            -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
+            if (fibre_word_rdy_i  = '1') then
+               translator_next_state <= LD_DATA;
+            else
+               translator_next_state <= LD_CKSUM;
+            end if;
+         else
+            translator_next_state <= WAIT_Q_WORD2;
+         end if;
+
+      when WAIT_Q_WORD2 =>
+         if(DATA_PROPAGATION_DELAY = 2) then
+            -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
+            if (fibre_word_rdy_i  = '1') then
+               translator_next_state <= LD_DATA;
+            else
+               translator_next_state <= LD_CKSUM;
+            end if;
+         else
+            translator_next_state <= WAIT_Q_WORD3;
+         end if;
+
+      when WAIT_Q_WORD3 =>
+         if(DATA_PROPAGATION_DELAY = 3) then
+            -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
+            if (fibre_word_rdy_i  = '1') then
+               translator_next_state <= LD_DATA;
+            else
+               translator_next_state <= LD_CKSUM;
+            end if;
+         else
+            translator_next_state <= WAIT_Q_WORD4;
+         end if;
 
       when WAIT_Q_WORD4 =>
          -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
@@ -787,7 +805,8 @@ begin
          end if;
 
       when WAIT_Q_WORD1  =>
-
+      when WAIT_Q_WORD2  =>
+      when WAIT_Q_WORD3  =>
       when WAIT_Q_WORD4  =>
 
       when DONE =>
