@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.14 2007/07/25 18:31:41 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.15 2007/09/20 19:56:05 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.15  2007/09/20 19:56:05  bburger
+-- BB:  Added a sync_box_err_ack signal to tell the dv_rx block when to clear an error
+--
 -- Revision 1.14  2007/07/25 18:31:41  bburger
 -- BB:
 -- - manch_clk_i signal is added to the dv_rx interace to allow the block to sample the fibre line with the manchester clock.
@@ -131,6 +134,8 @@ architecture top of dv_rx is
    signal dv_dat_temp      : std_logic;
    signal dv_dat           : std_logic;
 
+   signal manch_dat_temp   : std_logic;
+   signal manch_det_temp   : std_logic;
    signal manch_dat        : std_logic;
    signal manch_det        : std_logic;
    signal manch_word       : std_logic_vector(MANCHESTER_WORD_WIDTH-1 downto 0);
@@ -143,6 +148,8 @@ architecture top of dv_rx is
    signal rx_buf_ena       : std_logic;
 
    constant MANCHESTER_PACKET_SIZE : std_logic_vector(7 downto 0) := "00101000";
+   constant MANCHESTER_PACKET_SIZE_MINUS_1 : std_logic_vector(7 downto 0) := "00100111";
+
    signal sample_count     : std_logic_vector(7 downto 0);
    signal sample_count_ena : std_logic;
    signal sample_count_clr : std_logic;
@@ -157,6 +164,9 @@ architecture top of dv_rx is
 
    signal dv_sequence_num      : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
+   signal manch_ack            : std_logic;
+   signal manch_ack1           : std_logic;
+   signal manch_ack2           : std_logic;
 
    signal sync_box_err : std_logic;
 
@@ -180,6 +190,38 @@ begin
          dv_dat          <= '0';
       elsif(clk_i'event and clk_i = '1') then
          dv_dat          <= dv_dat_temp;
+      end if;
+   end process;
+
+   ---------------------------------------------------------
+   -- double synchronizer for manch_dat and mach
+   ---------------------------------------------------------
+   -- A double synchronizer is implemented here for the manch_dat or manch_det signals.
+   -- The manchester decoder spec sheet garuntees that the data signal is aligned with the clock.
+   -- However, with synchronizers we can ensure that data is captured on the falling edge of the clock, when all signals have settled.
+   process(rst_i, manch_clk_i)
+   begin
+      if(rst_i = '1') then
+         manch_dat_temp <= '0';
+         manch_det_temp <= '0';
+      elsif(manch_clk_i'event and manch_clk_i = '0') then
+         manch_dat_temp <= manch_dat_i;
+         manch_det_temp <= manch_det_i;
+      end if;
+   end process;
+
+   process(rst_i, manch_clk_i)
+   begin
+      if(rst_i = '1') then
+         manch_dat <= '0';
+         manch_det <= '0';
+         manch_ack1 <= '0';
+         manch_ack2 <= '0';
+      elsif(manch_clk_i'event and manch_clk_i = '1') then
+         manch_dat <= manch_dat_temp;
+         manch_det <= manch_det_temp;
+         manch_ack1 <= manch_ack;
+         manch_ack2 <= manch_ack1;
       end if;
    end process;
 
@@ -267,7 +309,7 @@ begin
       load_i     => '0',
       clr_i      => '0',
       shr_i      => '0',
-      serial_i   => manch_dat_i,
+      serial_i   => manch_dat,
       serial_o   => open,
       parallel_i => (others => '0'),
       parallel_o => manch_word
@@ -295,14 +337,14 @@ begin
       end if;
    end process manch_state_ff;
 
-   manch_ns: process(current_m_state, manch_dat_i, sample_count, manch_det_i)
+   manch_ns: process(current_m_state, manch_dat, sample_count, manch_det)--, manch_ack2)
    begin
       next_m_state <= current_m_state;
       case current_m_state is
 
          when IDLE =>
             -- Manchester sync and DV are active low
-            if (manch_det_i = '1' and manch_dat_i = '0') then
+            if (manch_det = '1' and manch_dat = '0') then
                next_m_state <= RX_2;
             end if;
 
@@ -310,21 +352,23 @@ begin
             next_m_state <= DONE;
 
          when RX_2 =>
-            if (sample_count = MANCHESTER_PACKET_SIZE) then
+            if (sample_count = MANCHESTER_PACKET_SIZE_MINUS_1) then
                next_m_state <= LATCH_MANCH_PACKET;
             else
                next_m_state <= RX_2;
             end if;
 
          when DONE =>
-            next_m_state <= IDLE;
+--            if(manch_ack2 = '1') then
+               next_m_state <= IDLE;
+--            end if;
 
          when others =>
             next_m_state <= IDLE;
       end case;
    end process manch_ns;
 
-   manch_out: process(current_m_state, manch_dat_i, manch_det_i)
+   manch_out: process(current_m_state, manch_dat, manch_det)
    begin
       -- Default Assignments
       rx_buf_ena       <= '0';
@@ -337,7 +381,7 @@ begin
 
          when IDLE =>
             -- Manchester sync and DV are active low
-            if (manch_det_i = '1' and manch_dat_i = '0') then
+            if (manch_det = '1' and manch_dat = '0') then
                rx_buf_ena       <= '1';
                sample_count_ena <= '1';
             end if;
@@ -401,7 +445,9 @@ begin
             next_state <= MANCH_DV_ACK;
 
          when MANCH_DV_ACK =>
-            next_state <= IDLE;
+--            if (manch_rdy_dly2 = '0') then
+               next_state <= IDLE;
+--            end if;
 
          when others =>
             next_state <= IDLE;
@@ -460,7 +506,9 @@ begin
             next_s_state <= MANCH_SYNC_ACK;
 
          when MANCH_SYNC_ACK =>
-            next_s_state <= IDLE;
+--            if (manch_rdy_dly2 = '0') then
+               next_s_state <= IDLE;
+--            end if;
 
          when others =>
             next_s_state <= IDLE;
@@ -472,6 +520,7 @@ begin
    begin
       -- Default Assignments
       sync_o <= '0';
+--      manch_ack  <= '0';
 
       case current_s_state is
 
@@ -484,6 +533,7 @@ begin
             sync_o <= '1';
 
          when MANCH_SYNC_ACK =>
+--            manch_ack <= '1';
 
          when others => NULL;
       end case;
