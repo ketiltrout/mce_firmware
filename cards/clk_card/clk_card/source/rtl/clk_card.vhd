@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.74 2007/09/20 19:50:19 bburger Exp $
+-- $Id: clk_card.vhd,v 1.75 2007/10/11 18:35:00 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.75  2007/10/11 18:35:00  bburger
+-- BB:  Rolled dv_rx back from 1.5 to 1.3 because of a bug in the 1.5 code that causes the DV Number (from the sync box) to increment by two, and to spit out garble every few frames.
+--
 -- Revision 1.74  2007/09/20 19:50:19  bburger
 -- BB:  cc_v04000002
 --
@@ -244,7 +247,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000003";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000004";
 
    -- reset
    signal rst                : std_logic;
