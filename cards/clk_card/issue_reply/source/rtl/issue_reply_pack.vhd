@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.53 2007/07/24 22:55:44 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.54 2007/08/28 23:22:08 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.54  2007/08/28 23:22:08  bburger
+-- BB:  Renamed INTERNAL_COMMAND_PERIOD to HOUSEKEEPING_COMMAND_PERIOD
+--
 -- Revision 1.53  2007/07/24 22:55:44  bburger
 -- BB:
 -- - Updated the constants in this file to be consistent with the new protocol, to fix bugs, to suport internal commands and to implement a warning mask.
@@ -145,6 +148,9 @@ package issue_reply_pack is
 
    -- The logical AND of this word with the status word filters out the warnings from the status word,
    -- leaving only the errors.
-   constant STATUS_WORD_WARNING_MASK : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := "00111111111111111111111111111111"; --"00010010010010010010010010010010";
+   constant STATUS_WORD_WARNING_MASK : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) :=   "00011011011011011011011011011011"; --"00010010010010010010010010010010";
+
+   -- This is the data pipeline propagation delay setting for the reply_translator
+   constant DATA_PROPAGATION_DELAY : integer := 2;
 
 end issue_reply_pack;
