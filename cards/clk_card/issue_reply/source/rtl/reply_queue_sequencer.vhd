@@ -32,6 +32,13 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.31  2007/07/24 23:27:47  bburger
+-- BB:
+-- - added lvds_reply_psu_a signal to sequencer interface for replies from the PSUC dispatch block
+-- - removed the size_o signal from the sequencer interface, because the size of reply packets is now calculated in reply_queue
+-- - trimmed the error_o bus from 31 bits to 30 bits to make room for stale_data and internal_reset_has_occurred bits that are incorporated in the reply_queue
+-- - Fixed latency issues in the data pipeline.
+--
 -- Revision 1.30  2007/02/10 05:11:32  bburger
 -- Bryce:  Changed the error logic to act more like the timing of the non-error logic.
 --
@@ -92,6 +99,8 @@ port(
      lvds_reply_cc_a   : in std_logic;
      lvds_reply_psu_a  : in std_logic;
 
+     card_not_present_i  : in std_logic_vector(9 downto 0);
+
      card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      -- cmd_translator interface
      cmd_code_i        : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
@@ -142,16 +151,17 @@ signal timeout_reg_q    : std_logic;
 
 signal cards_rdy        : std_logic_vector(9 downto 0);
 signal cards_to_reply   : std_logic_vector(9 downto 0);
-signal no_reply_yet     : std_logic_vector(9 downto 0);
-signal wrong_cards      : std_logic_vector(9 downto 0);
+--signal no_reply_yet     : std_logic_vector(9 downto 0);
+signal wrong_card_error      : std_logic_vector(9 downto 0);
 -- Timeout:  Card Not Populated
-signal timeout_not_pop  : std_logic_vector(9 downto 0);
+--signal card_not_populated  : std_logic_vector(9 downto 0);
 -- Timeout:  Execution Error
 signal timeout_error    : std_logic_vector(9 downto 0);
-signal card_error       : std_logic_vector(9 downto 0);
+signal detected_crc_error       : std_logic_vector(9 downto 0);
 signal half_done_error  : std_logic_vector(9 downto 0);
-signal cumulative_error : std_logic_vector(9 downto 0);
+signal crc_error : std_logic_vector(9 downto 0);
 signal update_status    : std_logic;
+signal card_rdy_or_np   : std_logic_vector(9 downto 0);
 
 
 ---------------------------------------------------------
@@ -177,6 +187,17 @@ signal timer_count     : integer;
 ---------------------------------------------------------
 -- Reply_queue_receiver interface signals
 ---------------------------------------------------------
+signal ac_data_buf        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal bc1_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal bc2_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal bc3_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal rc1_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal rc2_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal rc3_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal rc4_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal cc_data_buf        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal psu_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
 signal ac_error           : std_logic_vector(2 downto 0);
 signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal ac_rdy             : std_logic;
@@ -396,21 +417,20 @@ begin
    -- Continuous Assignments
    ---------------------------------------------------------
    error_o <=
---      '0' & -- This bit was originally used as the timeout bit for all cards.  Now used for just the Clock Card.
       -- The bit order from left to right of the following lines is:
       -- (a) Timeout because card not present
       -- (b) CRC error or other timeout error
       -- (c) Wishbone execution error
-      timeout_not_pop(9) & cumulative_error(9) & ac_error(0)  &
-      timeout_not_pop(8) & cumulative_error(8) & bc1_error(0) &
-      timeout_not_pop(7) & cumulative_error(7) & bc2_error(0) &
-      timeout_not_pop(6) & cumulative_error(6) & bc3_error(0) &
-      timeout_not_pop(5) & cumulative_error(5) & rc1_error(0) &
-      timeout_not_pop(4) & cumulative_error(4) & rc2_error(0) &
-      timeout_not_pop(3) & cumulative_error(3) & rc3_error(0) &
-      timeout_not_pop(2) & cumulative_error(2) & rc4_error(0) &
-      timeout_not_pop(1) & cumulative_error(1) & cc_error(0)  &
-      timeout_not_pop(0) & cumulative_error(0) & psu_error(0);
+      card_not_present_i(9) & crc_error(9) & ac_error(0)  &
+      card_not_present_i(8) & crc_error(8) & bc1_error(0) &
+      card_not_present_i(7) & crc_error(7) & bc2_error(0) &
+      card_not_present_i(6) & crc_error(6) & bc3_error(0) &
+      card_not_present_i(5) & crc_error(5) & rc1_error(0) &
+      card_not_present_i(4) & crc_error(4) & rc2_error(0) &
+      card_not_present_i(3) & crc_error(3) & rc3_error(0) &
+      card_not_present_i(2) & crc_error(2) & rc4_error(0) &
+      card_not_present_i(1) & crc_error(1) & cc_error(0)  &
+      card_not_present_i(0) & crc_error(0) & psu_error(0);
 
    ---------------------------------------------------------
    -- Error FSM
@@ -437,50 +457,74 @@ begin
    begin
       if(rst_i = '1') then
          -- Resetting to '1' to clear the slate and record whether a card ever replies.
-         no_reply_yet        <= (others => '1');
-         wrong_cards         <= (others => '0');
-         timeout_not_pop     <= (others => '0');
-         timeout_error       <= (others => '0');
-         cumulative_error    <= (others => '0');
+         wrong_card_error <= (others => '0');
+         timeout_error <= (others => '0');
+         crc_error <= (others => '0');
+
       elsif(clk_i'event and clk_i = '1') then
          -- Cascaded logic
          -- The states are for sequential stages of the logic
          if(pres_state = LATCH_ERROR) then
-            -- The Carnot Maps for this logic are Bryce Burger's SCUBA2 Logbook #8
-            -- wrong_cards indicates that the wrong card has responded to the command.
-            wrong_cards      <= (half_done_error and (not cards_to_reply));
-            -- cumulative_error is any sort of error that is not due to a card not being populated or a wishbone error.
-            cumulative_error <= card_error or timeout_error;
+            -- The Carnot Maps for this logic are Bryce Burger's SCUBA2 Logbook #8, near the beginning of the book.
+            -- wrong_card_error indicates that a card has responded in part or in full to the command that wasn't supposed to.
+            -- This error is not currently reported..
+            wrong_card_error <= ((half_done_error or cards_rdy) and (not cards_to_reply));
+
          elsif(pres_state = ERROR_WAIT1) then
-            -- no_reply_yet indicates that a card that was supposed to respond has not sent a reply yet
-            no_reply_yet     <= (no_reply_yet and (((not cards_to_reply) and wrong_cards) or ((not cards_rdy) and (not wrong_cards))));
+            -- timeout_error indicates that the receiver has not received an answer from a card that is supposed to reply and is populated.
+            timeout_error <= (cards_to_reply and (not cards_rdy));
+
          elsif(pres_state = ERROR_WAIT2) then
-            -- timeout_not_pop indicates that a card has timed out because it is not populated.  The Clock Card assumes a card is not populated until the first response from that card
-            timeout_not_pop  <= (cards_to_reply and (not cards_rdy) and no_reply_yet and (not wrong_cards));
-            -- timeout_error can occur after the Clock Card has received a successful response from a card.
-            -- timeout_error indicates that the receiver has not received an answer from a card that was supposed to reply because it is populated.
-            timeout_error    <= (cards_to_reply and (not cards_rdy) and (not no_reply_yet) and (not wrong_cards)) or ((not cards_to_reply) and cards_rdy and wrong_cards);
+            -- crc_error is any sort of error that is not due to a card not being populated or a wishbone error.
+            crc_error <= (detected_crc_error or timeout_error);
+--            crc_error <= (detected_crc_error or timeout_error) and (not card_not_present_i);
+
          else
-            no_reply_yet        <= no_reply_yet;
-            wrong_cards         <= wrong_cards;
-            timeout_not_pop     <= timeout_not_pop;
-            timeout_error       <= timeout_error;
-            cumulative_error    <= cumulative_error;
+            wrong_card_error <= wrong_card_error;
+            timeout_error    <= timeout_error;
+            crc_error        <= crc_error;
          end if;
       end if;
    end process;
 
-   -- The card-error bit is set if the receiver has detected any sort of CRC error over the backplane in either direction
-   card_error <=
-      ac_error(1) & bc1_error(1) & bc2_error(1) & bc3_error(1) & rc1_error(1) & rc2_error(1) & rc3_error(1) & rc4_error(1) & cc_error(1) & psu_error(1);
+   -- The card-error bit is set if the receiver has detected a CRC error over the backplane in either direction
+   detected_crc_error <=
+      ac_error(1) &
+      bc1_error(1) &
+      bc2_error(1) &
+      bc3_error(1) &
+      rc1_error(1) &
+      rc2_error(1) &
+      rc3_error(1) &
+      rc4_error(1) &
+      cc_error(1) &
+      psu_error(1);
 
    -- The half-done bit is set if the receiver has started receiving something, but has not finished
    half_done_error <=
-      ac_error(2) & bc1_error(2) & bc2_error(2) & bc3_error(2) & rc1_error(2) & rc2_error(2) & rc3_error(2) & rc4_error(2) & cc_error(2) & psu_error(2);
+      ac_error(2) &
+      bc1_error(2) &
+      bc2_error(2) &
+      bc3_error(2) &
+      rc1_error(2) &
+      rc2_error(2) &
+      rc3_error(2) &
+      rc4_error(2) &
+      cc_error(2) &
+      psu_error(2);
 
-   -- Note the two last bits are both "cc_rdy" because the Power Supply Controller is a sub-block of the Clock Card
+   -- Indicates which cards have responded fully to a command
    cards_rdy <=
-      ac_rdy & bc1_rdy & bc2_rdy & bc3_rdy & rc1_rdy & rc2_rdy & rc3_rdy & rc4_rdy & cc_rdy & psu_rdy;
+      ac_rdy &
+      bc1_rdy &
+      bc2_rdy &
+      bc3_rdy &
+      rc1_rdy &
+      rc2_rdy &
+      rc3_rdy &
+      rc4_rdy &
+      cc_rdy &
+      psu_rdy;
 
    cards_to_reply <=
       "0000000000" when (card_addr_i = NO_CARDS) else
@@ -554,7 +598,8 @@ begin
    end process state_FF;
 
    state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, ack_i, word_count, card_data_size,
-      ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy, psu_rdy, cmd_code_i)
+      ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy, psu_rdy, cmd_code_i,
+      card_not_present_i)
    begin
       -- Default Assignments
       next_state <= pres_state;
@@ -568,35 +613,35 @@ begin
             end if;
 
          when WAIT_FOR_REPLY =>
-            if((card_addr_i = CLOCK_CARD and cc_rdy = '1') or
-               (card_addr_i = POWER_SUPPLY_CARD and psu_rdy = '1') or
-               (card_addr_i = ADDRESS_CARD and ac_rdy = '1') or
-               (card_addr_i = BIAS_CARD_1 and bc1_rdy = '1') or
-               (card_addr_i = BIAS_CARD_2 and bc2_rdy = '1') or
-               (card_addr_i = BIAS_CARD_3 and bc3_rdy = '1') or
-               (card_addr_i = READOUT_CARD_1 and rc1_rdy = '1') or
-               (card_addr_i = READOUT_CARD_2 and rc2_rdy = '1') or
-               (card_addr_i = READOUT_CARD_3 and rc3_rdy = '1') or
-               (card_addr_i = READOUT_CARD_4 and rc4_rdy = '1') or
+            if((card_addr_i = CLOCK_CARD and (cc_rdy = '1' or card_not_present_i(1) = '1')) or
+               (card_addr_i = POWER_SUPPLY_CARD and (psu_rdy = '1' or card_not_present_i(0) = '1')) or
+               (card_addr_i = ADDRESS_CARD and (ac_rdy = '1' or card_not_present_i(9) = '1')) or
+               (card_addr_i = BIAS_CARD_1 and (bc1_rdy = '1' or card_not_present_i(8) = '1')) or
+               (card_addr_i = BIAS_CARD_2 and (bc2_rdy = '1' or card_not_present_i(7) = '1')) or
+               (card_addr_i = BIAS_CARD_3 and (bc3_rdy = '1' or card_not_present_i(6) = '1')) or
+               (card_addr_i = READOUT_CARD_1 and (rc1_rdy = '1' or card_not_present_i(5) = '1')) or
+               (card_addr_i = READOUT_CARD_2 and (rc2_rdy = '1' or card_not_present_i(4) = '1')) or
+               (card_addr_i = READOUT_CARD_3 and (rc3_rdy = '1' or card_not_present_i(3) = '1')) or
+               (card_addr_i = READOUT_CARD_4 and (rc4_rdy = '1' or card_not_present_i(2) = '1')) or
                (card_addr_i = ALL_BIAS_CARDS and
-                  bc1_rdy = '1' and
-                  bc2_rdy = '1' and
-                  bc3_rdy = '1') or
+                  (bc1_rdy = '1' or card_not_present_i(8) = '1') and
+                  (bc2_rdy = '1' or card_not_present_i(7) = '1') and
+                  (bc3_rdy = '1' or card_not_present_i(6) = '1')) or
                (card_addr_i = ALL_READOUT_CARDS and
-                  rc1_rdy = '1' and
-                  rc2_rdy = '1' and
-                  rc3_rdy = '1' and
-                  rc4_rdy = '1') or
+                  (rc1_rdy = '1' or card_not_present_i(5) = '1') and
+                  (rc2_rdy = '1' or card_not_present_i(4) = '1') and
+                  (rc3_rdy = '1' or card_not_present_i(3) = '1') and
+                  (rc4_rdy = '1' or card_not_present_i(2) = '1')) or
                (card_addr_i = ALL_FPGA_CARDS and
-                  cc_rdy = '1' and
-                  ac_rdy = '1' and
-                  bc1_rdy = '1' and
-                  bc2_rdy = '1' and
-                  bc3_rdy = '1' and
-                  rc1_rdy = '1' and
-                  rc2_rdy = '1' and
-                  rc3_rdy = '1' and
-                  rc4_rdy = '1')) then
+                  (cc_rdy = '1' or card_not_present_i(1) = '1') and
+                  (ac_rdy = '1' or card_not_present_i(9) = '1') and
+                  (bc1_rdy = '1' or card_not_present_i(8) = '1') and
+                  (bc2_rdy = '1' or card_not_present_i(7) = '1') and
+                  (bc3_rdy = '1' or card_not_present_i(6) = '1') and
+                  (rc1_rdy = '1' or card_not_present_i(5) = '1') and
+                  (rc2_rdy = '1' or card_not_present_i(4) = '1') and
+                  (rc3_rdy = '1' or card_not_present_i(3) = '1') and
+                  (rc4_rdy = '1' or card_not_present_i(2) = '1'))) then
                   next_state <= LATCH_ERROR;
                elsif(timeout = '1') then
                   next_state <= TIMED_OUT;
@@ -750,17 +795,45 @@ begin
    ---------------------------------------------------------
    -- Data Pipeline:  Not to be integrated in a state machine because of latency issues
    ---------------------------------------------------------
+   data_buff: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         ac_data_buf  <= (others => '0');
+         bc1_data_buf <= (others => '0');
+         bc2_data_buf <= (others => '0');
+         bc3_data_buf <= (others => '0');
+         rc1_data_buf <= (others => '0');
+         rc2_data_buf <= (others => '0');
+         rc3_data_buf <= (others => '0');
+         rc4_data_buf <= (others => '0');
+         cc_data_buf  <= (others => '0');
+         psu_data_buf <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         ac_data_buf  <= ac_data;
+         bc1_data_buf <= bc1_data;
+         bc2_data_buf <= bc2_data;
+         bc3_data_buf <= bc3_data;
+         rc1_data_buf <= rc1_data;
+         rc2_data_buf <= rc2_data;
+         rc3_data_buf <= rc3_data;
+         rc4_data_buf <= rc4_data;
+         cc_data_buf  <= cc_data;
+         psu_data_buf <= psu_data;
+      end if;
+   end process data_buff;
+
+
    data_o <=
-      ac_data when ac_rdy = '1' else
-      bc1_data when bc1_rdy = '1' else
-      bc2_data when bc2_rdy = '1' else
-      bc3_data when bc3_rdy = '1' else
-      rc1_data when rc1_rdy = '1' else
-      rc2_data when rc2_rdy = '1' else
-      rc3_data when rc3_rdy = '1' else
-      rc4_data when rc4_rdy = '1' else
-      cc_data when cc_rdy = '1' else
-      psu_data when psu_rdy = '1' else
+      ac_data_buf  when ac_rdy  = '1' else
+      bc1_data_buf when bc1_rdy = '1' else
+      bc2_data_buf when bc2_rdy = '1' else
+      bc3_data_buf when bc3_rdy = '1' else
+      rc1_data_buf when rc1_rdy = '1' else
+      rc2_data_buf when rc2_rdy = '1' else
+      rc3_data_buf when rc3_rdy = '1' else
+      rc4_data_buf when rc4_rdy = '1' else
+      cc_data_buf  when cc_rdy  = '1' else
+      psu_data_buf when psu_rdy = '1' else
       (others => '0');
 
    state_Out: process(pres_state, ack_i, word_count, card_data_size)
