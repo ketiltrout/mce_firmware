@@ -34,7 +34,7 @@
 set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 6.1
 
 # Pin & Location Assignments
 # ==========================
@@ -389,7 +389,7 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name FITTER_EFFORT "FAST FIT"
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
 
 # Timing Analysis Assignments
@@ -416,7 +416,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE "C:\\scuba2_repository\\cards\\clk_card\\clk_card\\synth\\fibre_tx_measurements.stp"
+set_global_assignment -name USE_SIGNALTAP_FILE "C:\\scuba2_repository\\cards\\clk_card\\clk_card\\synth\\dv_rx.stp"
 
 # LogicLock Region Assignments
 # ============================
@@ -501,6 +501,8 @@ set_location_assignment PIN_B12 -to tx
 set_location_assignment PIN_AE21 -to auto_stp_trigger_out_0
 set_location_assignment PIN_K21 -to box_id_ena_n
 set_location_assignment PIN_D28 -to extend_n
+set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION OFF
+set_global_assignment -name STRATIX_CARRY_CHAIN_LENGTH 70
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -531,6 +533,7 @@ set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switch
 set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_ctrl_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/clk_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
+set_global_assignment -name VHDL_FILE ../../pll/source/rtl/manch_pll.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/three_wire_master.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
 set_global_assignment -name VHDL_FILE ../../subarray_id/source/rtl/subarray_id.vhd
@@ -629,4 +632,5 @@ set_global_assignment -name SIGNALTAP_FILE clk_card_psc.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_fibre_rx.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_rc_prob.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_rc_probb.stp
-set_global_assignment -name STRATIX_CARRY_CHAIN_LENGTH 70
+set_global_assignment -name SIGNALTAP_FILE dv_rx.stp
+set_global_assignment -name SIGNALTAP_FILE dv_rx_manch_clk.stp
