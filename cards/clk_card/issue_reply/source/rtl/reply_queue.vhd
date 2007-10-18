@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.44 2007/09/05 03:43:28 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.45 2007/09/20 19:48:37 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.45  2007/09/20 19:48:37  bburger
+-- BB:
+-- - Added the following interface signals to reply_queue for version 6 of the data frame header:  ramp_card_addr, ramp_param_id, run_file_id, user_writable_i
+-- - Updated the header to version 6
+--
 -- Revision 1.44  2007/09/05 03:43:28  bburger
 -- BB:  Reordered the words in the data frame headers to match the original configuration at ACT.
 --
@@ -148,6 +153,8 @@ entity reply_queue is
       lvds_reply_cc_a     : in std_logic;
       lvds_reply_psu_a    : in std_logic;
 
+      card_not_present_i  : in std_logic_vector(9 downto 0);
+
       -- Global signals
       clk_i               : in std_logic;
       clk_n_i             : in std_logic;
@@ -183,6 +190,8 @@ architecture behav of reply_queue is
       lvds_reply_rc4_a  : in std_logic;
       lvds_reply_cc_a   : in std_logic;
       lvds_reply_psu_a  : in std_logic;
+
+      card_not_present_i  : in std_logic_vector(9 downto 0);
 
       -- fibre interface:
 --      size_o            : out integer;
@@ -1151,6 +1160,8 @@ begin
          lvds_reply_rc4_a  => lvds_reply_rc4_a,
          lvds_reply_cc_a   => lvds_reply_cc_a,
          lvds_reply_psu_a  => lvds_reply_psu_a,
+
+         card_not_present_i =>card_not_present_i,
 
          card_data_size_i  => data_size_t,  -- Add this to the pack file
          -- cmd_translator interface

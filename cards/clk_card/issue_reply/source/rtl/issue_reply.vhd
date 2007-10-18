@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.67 2007/09/05 03:41:50 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.68 2007/09/20 19:44:53 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/09/05 03:41:50 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/09/20 19:44:53 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.68  2007/09/20 19:44:53  bburger
+-- BB:  Added the following interface signals to reply_queue for version 6 of the data frame header:  ramp_card_addr, ramp_param_id, run_file_id, user_writable_i
+--
 -- Revision 1.67  2007/09/05 03:41:50  bburger
 -- BB:  added num_rows_to_read_i interface to reply_queue
 --
@@ -92,6 +95,8 @@ entity issue_reply is
       lvds_reply_rc4_a       : in std_logic;
       lvds_reply_cc_a        : in std_logic;
       lvds_reply_psu_a       : in std_logic;
+
+      card_not_present_i     : in std_logic_vector(9 downto 0);
 
       -- inputs from the fibre receiver
       fibre_clkr_i           : in std_logic;
@@ -378,6 +383,8 @@ architecture rtl of issue_reply is
       lvds_reply_rc4_a    : in std_logic;
       lvds_reply_cc_a     : in std_logic;
       lvds_reply_psu_a    : in std_logic;
+
+      card_not_present_i  : in std_logic_vector(9 downto 0);
 
       -- Global signals
       clk_i               : in std_logic;
@@ -742,6 +749,8 @@ begin
       lvds_reply_rc4_a    => lvds_reply_rc4_a,
       lvds_reply_cc_a     => lvds_reply_cc_a,
       lvds_reply_psu_a    => lvds_reply_psu_a,
+
+      card_not_present_i  => card_not_present_i,
 
       -- Global signals
       clk_i               => clk_i,
