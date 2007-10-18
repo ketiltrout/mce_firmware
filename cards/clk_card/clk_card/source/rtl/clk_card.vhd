@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.74 2007/09/20 19:50:19 bburger Exp $
+-- $Id: clk_card.vhd,v 1.75 2007/10/11 18:35:00 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.75  2007/10/11 18:35:00  bburger
+-- BB:  Rolled dv_rx back from 1.5 to 1.3 because of a bug in the 1.5 code that causes the DV Number (from the sync box) to increment by two, and to spit out garble every few frames.
+--
 -- Revision 1.74  2007/09/20 19:50:19  bburger
 -- BB:  cc_v04000002
 --
@@ -83,6 +86,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+--use ieee.std_logic_arith.all;
+--use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -103,7 +108,9 @@ entity clk_card is
       rst_n             : in std_logic;
 
       -- Manchester Clock PLL inputs:
-      inclk15           : in std_logic;
+      inclk15           : in std_logic; -- Enhanced PLL, for clock switchover.
+      inclk1            : in std_logic; -- Fast PLL
+      inclk5            : in std_logic; -- Enhanced PLL
 
       -- LVDS interface:
       lvds_cmd          : out std_logic;
@@ -244,7 +251,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000003";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000005";
 
    -- reset
    signal rst                : std_logic;
@@ -256,6 +263,7 @@ architecture top of clk_card is
    signal clk_n              : std_logic;
    signal comm_clk           : std_logic;
    signal fibre_clk          : std_logic;
+   signal manch_clk          : std_logic;
 
    -- sync_gen interface
    signal sync_num           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -408,6 +416,8 @@ architecture top of clk_card is
    signal run_file_id       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal user_writable     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
+   signal card_not_present : std_logic_vector(9 downto 0);
+
 begin
 
    -- Debug Signals
@@ -460,6 +470,29 @@ begin
    sram1_nce1 <= sram_nce1;
    sram0_ce2  <= sram_ce2;
    sram1_ce2  <= sram_ce2;
+
+   card_not_present <=
+      lvds_reply_ac_b &
+      lvds_reply_bc1_b &
+      lvds_reply_bc2_b &
+      lvds_reply_bc3_b &
+      lvds_reply_rc1_b &
+      lvds_reply_rc2_b &
+      lvds_reply_rc3_b &
+      lvds_reply_rc4_b &
+      '0' & -- Clock Card
+      '0';  -- PSUC
+
+
+   ----------------------------------------------------------------
+   -- Manchester Clock Pll
+   ----------------------------------------------------------------
+   manch_pll_block : manch_pll
+   port map (
+      inclk0   => inclk1,
+      c0       => manch_clk,
+      locked   => open
+   );
 
    ----------------------------------------------------------------
    -- Autonomous Clock Card Reset Block
@@ -614,6 +647,8 @@ begin
       lvds_reply_rc4_a  => lvds_reply_rc4_a,
       lvds_reply_cc_a   => lvds_reply_cc_a,
       lvds_reply_psu_a  => lvds_reply_psu_a,
+
+      card_not_present_i => card_not_present,
 
       -- fibre receiver interface
       fibre_clkr_i      => fibre_rx_clkr,
@@ -947,7 +982,7 @@ begin
    port map(
       -- Clock and Reset:
       clk_i               => clk,
---      manch_clk_i         => inclk15,  -- Manchester Clock Input
+      manch_clk_i         => manch_clk,  -- Manchester Clock Input
       clk_n_i             => clk_n,
       rst_i               => rst,
 
@@ -961,7 +996,7 @@ begin
       dv_o                => external_dv,
       dv_sequence_num_o   => external_dv_num,
       sync_box_err_o      => sync_box_err,
---      sync_box_err_ack_i  => sync_box_err_ack,
+      sync_box_err_ack_i  => sync_box_err_ack,
       sync_box_free_run_o => sync_box_free_run,
 
       sync_mode_i         => sync_mode,
