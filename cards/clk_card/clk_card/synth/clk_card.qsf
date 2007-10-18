@@ -34,7 +34,7 @@
 set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 6.1
+set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -629,5 +629,4 @@ set_global_assignment -name SIGNALTAP_FILE clk_card_psc.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_fibre_rx.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_rc_prob.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_rc_probb.stp
-set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION OFF
 set_global_assignment -name STRATIX_CARRY_CHAIN_LENGTH 70
