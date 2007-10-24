@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.66  2007/09/28 00:04:06  mandana
+-- rev 4.0.3
+-- fixed data mode 7 to be 22b filtfb and 10b error scaled by 16
+-- wait 1 frame for mixed filtfb/error modes
+--
 -- Revision 1.65  2007/09/12 05:12:21  mandana
 -- rev. 04000002 with data mode 7 added 22b filtfb/10b err, 10b pid pars
 --
@@ -383,9 +388,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000003"; -- added data_mode 6 for mixed filter+err mode
-                                                                     -- added readout_row_index 
-                                                                     -- data mode 7 added 22b filtfb/10b err
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000004"; -- added data_mode 8 for mixed filter+flux count mode
                                                                      -- 10b pid pars
 
 -- Global signals
