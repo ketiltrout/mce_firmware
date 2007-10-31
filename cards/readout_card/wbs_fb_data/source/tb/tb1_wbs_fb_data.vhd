@@ -21,7 +21,7 @@
 --
 -- tb1_wbs_fb_data.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_wbs_fb_data.vhd,v $
+-- Revision 1.5  2006/11/24 21:12:07  mandana
+-- splitted fb_const to be channel specific
+--
 -- Revision 1.4  2006/06/08 23:09:28  mandana
 -- added test for column to column overlap of gainp parameters
 --
@@ -94,8 +97,11 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch0_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch0_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch0_o       : out std_logic;
       offset_dat_ch0_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch0_o    : out std_logic;
       const_val_ch0_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+      servo_mode_ch0_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch1_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch1_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
       p_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -107,8 +113,11 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch1_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch1_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch1_o       : out std_logic;
       offset_dat_ch1_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch1_o    : out std_logic;
       const_val_ch1_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+      servo_mode_ch1_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch2_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch2_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
       p_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -120,8 +129,11 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch2_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch2_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch2_o       : out std_logic;
       offset_dat_ch2_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch2_o    : out std_logic;
       const_val_ch2_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+      servo_mode_ch2_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch3_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch3_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
       p_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -133,8 +145,11 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch3_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch3_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch3_o       : out std_logic;
       offset_dat_ch3_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch3_o    : out std_logic;
       const_val_ch3_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+      servo_mode_ch3_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch4_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch4_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
       p_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -146,7 +161,10 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch4_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch4_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch4_o       : out std_logic;
       offset_dat_ch4_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch4_o    : out std_logic;
+      servo_mode_ch4_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       const_val_ch4_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       adc_offset_dat_ch5_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch5_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -159,8 +177,11 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch5_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch5_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch5_o       : out std_logic;
       offset_dat_ch5_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch5_o    : out std_logic;
       const_val_ch5_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+      servo_mode_ch5_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch6_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch6_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
       p_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -172,8 +193,11 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch6_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch6_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch6_o       : out std_logic;
       offset_dat_ch6_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch6_o    : out std_logic;
       const_val_ch6_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+      servo_mode_ch6_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch7_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch7_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
       p_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -185,7 +209,10 @@ architecture beh of tb1_wbs_fb_data is
       flux_quanta_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch7_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch7_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch7_o       : out std_logic;
       offset_dat_ch7_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch7_o    : out std_logic;
+      servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       filter_coeff0_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       filter_coeff1_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -194,7 +221,6 @@ architecture beh of tb1_wbs_fb_data is
       filter_coeff4_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       filter_coeff5_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       filter_coeff6_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      servo_mode_o            : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       ramp_step_size_o        : out std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
       ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
       num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
@@ -222,7 +248,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch0_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch0_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch0_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch0_o       : std_logic;
   signal offset_dat_ch0_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch0_o    : std_logic;
   signal const_val_ch0_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal adc_offset_dat_ch1_o    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch1_i   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -235,7 +263,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch1_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch1_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch1_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch1_o       : std_logic;
   signal offset_dat_ch1_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch1_o    : std_logic;
   signal const_val_ch1_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal adc_offset_dat_ch2_o    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch2_i   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -248,7 +278,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch2_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch2_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch2_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch2_o       : std_logic;
   signal offset_dat_ch2_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch2_o    : std_logic;
   signal const_val_ch2_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal adc_offset_dat_ch3_o    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch3_i   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -261,7 +293,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch3_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch3_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch3_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch3_o       : std_logic;
   signal offset_dat_ch3_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch3_o    : std_logic;
   signal const_val_ch3_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal adc_offset_dat_ch4_o    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch4_i   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -274,7 +308,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch4_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch4_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch4_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch4_o       : std_logic;
   signal offset_dat_ch4_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch4_o    : std_logic;
   signal const_val_ch4_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal adc_offset_dat_ch5_o    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch5_i   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -287,7 +323,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch5_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch5_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch5_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch5_o       : std_logic;
   signal offset_dat_ch5_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch5_o    : std_logic;
   signal const_val_ch5_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal adc_offset_dat_ch6_o    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch6_i   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -300,7 +338,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch6_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch6_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch6_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch6_o       : std_logic;
   signal offset_dat_ch6_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch6_o    : std_logic;
   signal const_val_ch6_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal adc_offset_dat_ch7_o    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
   signal adc_offset_addr_ch7_i   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
@@ -313,7 +353,9 @@ architecture beh of tb1_wbs_fb_data is
   signal flux_quanta_dat_ch7_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal flux_quanta_addr_ch7_i            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_ch7_o           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal sa_bias_rdy_ch7_o       : std_logic;
   signal offset_dat_ch7_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_rdy_ch7_o    : std_logic;
   signal const_val_ch7_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
   signal filter_coeff0_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff1_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -322,7 +364,14 @@ architecture beh of tb1_wbs_fb_data is
   signal filter_coeff4_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff5_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff6_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal servo_mode_o            : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch0_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch1_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch2_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch3_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch4_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch5_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch6_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_ch7_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
   signal ramp_step_size_o        : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
   signal ramp_amp_o              : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
   signal num_ramp_frame_cycles_o : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
@@ -350,6 +399,7 @@ architecture beh of tb1_wbs_fb_data is
   signal finish_write_flux_quanta_bank_ch7 : boolean := false;
   signal finish_write_adc_offset_bank_ch2  : boolean := false;
   signal finish_write_misc_bank_sa_bias    : boolean := false;
+  signal finish_write_misc_bank_offset     : boolean := false;
   signal finish_write_misc_bank_servo_mode : boolean := false;
   signal finish_write_to_banks             : boolean := false;
   signal finish_read_p_bank_ch0            : boolean := false;
@@ -386,8 +436,11 @@ begin  -- beh
         flux_quanta_dat_ch0_o             => flux_quanta_dat_ch0_o,
         flux_quanta_addr_ch0_i            => flux_quanta_addr_ch0_i,
         sa_bias_ch0_o           => sa_bias_ch0_o,
+        sa_bias_rdy_ch0_o       => sa_bias_rdy_ch0_o,
         offset_dat_ch0_o        => offset_dat_ch0_o,
+        offset_dat_rdy_ch0_o    => offset_dat_rdy_ch0_o,
         const_val_ch0_o         => const_val_ch0_o,
+        servo_mode_ch0_o        => servo_mode_ch0_o,
         adc_offset_dat_ch1_o    => adc_offset_dat_ch1_o,
         adc_offset_addr_ch1_i   => adc_offset_addr_ch1_i,
         p_dat_ch1_o             => p_dat_ch1_o,
@@ -399,8 +452,11 @@ begin  -- beh
         flux_quanta_dat_ch1_o             => flux_quanta_dat_ch1_o,
         flux_quanta_addr_ch1_i            => flux_quanta_addr_ch1_i,
         sa_bias_ch1_o           => sa_bias_ch1_o,
+        sa_bias_rdy_ch1_o       => sa_bias_rdy_ch1_o,
         offset_dat_ch1_o        => offset_dat_ch1_o,
+        offset_dat_rdy_ch1_o    => offset_dat_rdy_ch1_o,
         const_val_ch1_o         => const_val_ch1_o,
+        servo_mode_ch1_o        => servo_mode_ch1_o,
         adc_offset_dat_ch2_o    => adc_offset_dat_ch2_o,
         adc_offset_addr_ch2_i   => adc_offset_addr_ch2_i,
         p_dat_ch2_o             => p_dat_ch2_o,
@@ -412,8 +468,11 @@ begin  -- beh
         flux_quanta_dat_ch2_o             => flux_quanta_dat_ch2_o,
         flux_quanta_addr_ch2_i            => flux_quanta_addr_ch2_i,
         sa_bias_ch2_o           => sa_bias_ch2_o,
+        sa_bias_rdy_ch2_o       => sa_bias_rdy_ch2_o,
         offset_dat_ch2_o        => offset_dat_ch2_o,
+        offset_dat_rdy_ch2_o    => offset_dat_rdy_ch2_o,
         const_val_ch2_o         => const_val_ch2_o,
+        servo_mode_ch2_o        => servo_mode_ch2_o,
         adc_offset_dat_ch3_o    => adc_offset_dat_ch3_o,
         adc_offset_addr_ch3_i   => adc_offset_addr_ch3_i,
         p_dat_ch3_o             => p_dat_ch3_o,
@@ -425,8 +484,11 @@ begin  -- beh
         flux_quanta_dat_ch3_o             => flux_quanta_dat_ch3_o,
         flux_quanta_addr_ch3_i            => flux_quanta_addr_ch3_i,
         sa_bias_ch3_o           => sa_bias_ch3_o,
+        sa_bias_rdy_ch3_o       => sa_bias_rdy_ch3_o,
         offset_dat_ch3_o        => offset_dat_ch3_o,
+        offset_dat_rdy_ch3_o    => offset_dat_rdy_ch3_o,
         const_val_ch3_o         => const_val_ch3_o,
+        servo_mode_ch3_o        => servo_mode_ch3_o,
         adc_offset_dat_ch4_o    => adc_offset_dat_ch4_o,
         adc_offset_addr_ch4_i   => adc_offset_addr_ch4_i,
         p_dat_ch4_o             => p_dat_ch4_o,
@@ -438,8 +500,11 @@ begin  -- beh
         flux_quanta_dat_ch4_o             => flux_quanta_dat_ch4_o,
         flux_quanta_addr_ch4_i            => flux_quanta_addr_ch4_i,
         sa_bias_ch4_o           => sa_bias_ch4_o,
+        sa_bias_rdy_ch4_o       => sa_bias_rdy_ch4_o,
         offset_dat_ch4_o        => offset_dat_ch4_o,
+        offset_dat_rdy_ch4_o    => offset_dat_rdy_ch4_o,
         const_val_ch4_o         => const_val_ch4_o,
+        servo_mode_ch4_o        => servo_mode_ch4_o,
         adc_offset_dat_ch5_o    => adc_offset_dat_ch5_o,
         adc_offset_addr_ch5_i   => adc_offset_addr_ch5_i,
         p_dat_ch5_o             => p_dat_ch5_o,
@@ -451,8 +516,11 @@ begin  -- beh
         flux_quanta_dat_ch5_o             => flux_quanta_dat_ch5_o,
         flux_quanta_addr_ch5_i            => flux_quanta_addr_ch5_i,
         sa_bias_ch5_o           => sa_bias_ch5_o,
+        sa_bias_rdy_ch5_o       => sa_bias_rdy_ch5_o,
         offset_dat_ch5_o        => offset_dat_ch5_o,
+        offset_dat_rdy_ch5_o    => offset_dat_rdy_ch5_o,
         const_val_ch5_o         => const_val_ch5_o,
+        servo_mode_ch5_o        => servo_mode_ch5_o,
         adc_offset_dat_ch6_o    => adc_offset_dat_ch6_o,
         adc_offset_addr_ch6_i   => adc_offset_addr_ch6_i,
         p_dat_ch6_o             => p_dat_ch6_o,
@@ -464,8 +532,11 @@ begin  -- beh
         flux_quanta_dat_ch6_o             => flux_quanta_dat_ch6_o,
         flux_quanta_addr_ch6_i            => flux_quanta_addr_ch6_i,
         sa_bias_ch6_o           => sa_bias_ch6_o,
+        sa_bias_rdy_ch6_o       => sa_bias_rdy_ch6_o,
         offset_dat_ch6_o        => offset_dat_ch6_o,
+        offset_dat_rdy_ch6_o    => offset_dat_rdy_ch6_o,
         const_val_ch6_o         => const_val_ch6_o,
+        servo_mode_ch6_o        => servo_mode_ch6_o,
         adc_offset_dat_ch7_o    => adc_offset_dat_ch7_o,
         adc_offset_addr_ch7_i   => adc_offset_addr_ch7_i,
         p_dat_ch7_o             => p_dat_ch7_o,
@@ -477,8 +548,11 @@ begin  -- beh
         flux_quanta_dat_ch7_o             => flux_quanta_dat_ch7_o,
         flux_quanta_addr_ch7_i            => flux_quanta_addr_ch7_i,
         sa_bias_ch7_o           => sa_bias_ch7_o,
+        sa_bias_rdy_ch7_o       => sa_bias_rdy_ch7_o,
         offset_dat_ch7_o        => offset_dat_ch7_o,
+        offset_dat_rdy_ch7_o    => offset_dat_rdy_ch7_o,
         const_val_ch7_o         => const_val_ch7_o,
+        servo_mode_ch7_o        => servo_mode_ch7_o,
         filter_coeff0_o         => filter_coeff0_o,
         filter_coeff1_o         => filter_coeff1_o,
         filter_coeff2_o         => filter_coeff2_o,
@@ -486,7 +560,6 @@ begin  -- beh
         filter_coeff4_o         => filter_coeff4_o,
         filter_coeff5_o         => filter_coeff5_o,
         filter_coeff6_o         => filter_coeff6_o,
-        servo_mode_o            => servo_mode_o,
         ramp_step_size_o        => ramp_step_size_o,
         ramp_amp_o              => ramp_amp_o,
         num_ramp_frame_cycles_o => num_ramp_frame_cycles_o,
@@ -777,6 +850,34 @@ begin  -- beh
     end loop;  -- i
     
     finish_write_misc_bank_sa_bias <= true;
+    stb_i <= '0';
+    cyc_i <= '0';
+    we_i  <= '0';
+    tga_i    <= (others => '0');
+
+    ---------------------------------------------------------------------------
+    -- Write to offset
+    wait for 23*PERIOD;
+    addr_i <= OFFSET_ADDR;
+    stb_i  <= '1';
+    cyc_i  <= '1';
+    we_i   <= '1';
+   
+    for i in 0 to 7 loop
+      dat_i  <= dat_i +7;
+      wait for PERIOD;
+      --wait until falling_edge(ack_o);
+      --wait for EDGE_DEPENDENCY;
+      -- assert a wait cycle by master
+      if i=5 then
+        stb_i <= '0';
+        wait for 6*PERIOD;
+        stb_i <= '1';
+      end if;
+      tga_i  <= tga_i+1;
+    end loop;  -- i
+    
+    finish_write_misc_bank_offset <= true;
     stb_i <= '0';
     cyc_i <= '0';
     we_i  <= '0';
