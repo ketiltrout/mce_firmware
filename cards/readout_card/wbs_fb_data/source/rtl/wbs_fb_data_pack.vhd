@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.6  2006/12/05 22:36:09  mandana
+-- split the servo_mode to be column specific
+--
 -- Revision 1.5  2006/11/24 20:48:15  mandana
 -- splitted fb_const to be channel specific
 --
@@ -236,35 +239,51 @@ package wbs_fb_data_pack is
       clk_50_i                : in  std_logic;
       rst_i                   : in  std_logic;
       sa_bias_ch0_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch0_o       : out std_logic;
       offset_dat_ch0_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch0_o    : out std_logic;
       const_val_ch0_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch0_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       sa_bias_ch1_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch1_o       : out std_logic;
       offset_dat_ch1_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch1_o    : out std_logic;
       const_val_ch1_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch1_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       sa_bias_ch2_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch2_o       : out std_logic;
       offset_dat_ch2_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch2_o    : out std_logic;
       const_val_ch2_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch2_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       sa_bias_ch3_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch3_o       : out std_logic;
       offset_dat_ch3_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch3_o    : out std_logic;
       const_val_ch3_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch3_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       sa_bias_ch4_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch4_o       : out std_logic;
       offset_dat_ch4_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch4_o    : out std_logic;
       const_val_ch4_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch4_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       sa_bias_ch5_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch5_o       : out std_logic;
       offset_dat_ch5_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch5_o    : out std_logic;
       const_val_ch5_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch5_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       sa_bias_ch6_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch6_o       : out std_logic;
       offset_dat_ch6_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch6_o    : out std_logic;
       const_val_ch6_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch6_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       sa_bias_ch7_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch7_o       : out std_logic;
       offset_dat_ch7_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch7_o    : out std_logic;
       const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       filter_coeff0_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);

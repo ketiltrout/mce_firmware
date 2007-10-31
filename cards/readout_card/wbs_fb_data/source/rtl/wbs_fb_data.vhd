@@ -81,6 +81,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.8  2006/12/05 22:35:27  mandana
+-- split the servo_mode to be column specific
+--
 -- Revision 1.7  2006/11/24 21:00:30  mandana
 -- had to undo the non-working rev. 1.5 fix
 --
@@ -146,7 +149,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch0_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch0_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch0_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch0_o       : out std_logic;
     offset_dat_ch0_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch0_o    : out std_logic;
     const_val_ch0_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch0_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
@@ -161,7 +166,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch1_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch1_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch1_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch1_o       : out std_logic;
     offset_dat_ch1_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch1_o    : out std_logic;
     const_val_ch1_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch1_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
     
@@ -177,7 +184,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch2_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch2_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch2_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch2_o       : out std_logic;
     offset_dat_ch2_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch2_o    : out std_logic;
     const_val_ch2_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch2_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
@@ -193,7 +202,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch3_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch3_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch3_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch3_o       : out std_logic;
     offset_dat_ch3_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch3_o    : out std_logic;
     const_val_ch3_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch3_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
     
@@ -209,7 +220,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch4_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch4_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch4_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch4_o       : out std_logic;
     offset_dat_ch4_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch4_o    : out std_logic;
     const_val_ch4_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch4_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
    
@@ -225,7 +238,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch5_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch5_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch5_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch5_o       : out std_logic;
     offset_dat_ch5_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch5_o    : out std_logic;
     const_val_ch5_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch5_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
@@ -241,7 +256,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch6_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch6_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch6_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch6_o       : out std_logic;
     offset_dat_ch6_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch6_o    : out std_logic;
     const_val_ch6_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch6_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
     
@@ -257,7 +274,9 @@ entity wbs_fb_data is
     flux_quanta_dat_ch7_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     flux_quanta_addr_ch7_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch7_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_rdy_ch7_o       : out std_logic;
     offset_dat_ch7_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_ch7_o    : out std_logic;
     const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
@@ -514,35 +533,50 @@ begin  -- struct
         clk_50_i                => clk_50_i,
         rst_i                   => rst_i,
         sa_bias_ch0_o           => sa_bias_ch0_o,
+        sa_bias_rdy_ch0_o       => sa_bias_rdy_ch0_o,        
         offset_dat_ch0_o        => offset_dat_ch0_o,
-        const_val_ch0_o         => const_val_ch0_o,
+        offset_dat_rdy_ch0_o    => offset_dat_rdy_ch0_o,        
         servo_mode_ch0_o        => servo_mode_ch0_o,
         sa_bias_ch1_o           => sa_bias_ch1_o,
+        sa_bias_rdy_ch1_o       => sa_bias_rdy_ch1_o,        
         offset_dat_ch1_o        => offset_dat_ch1_o,
+        offset_dat_rdy_ch1_o    => offset_dat_rdy_ch1_o,        
         const_val_ch1_o         => const_val_ch1_o,
         servo_mode_ch1_o        => servo_mode_ch1_o,
         sa_bias_ch2_o           => sa_bias_ch2_o,
+        sa_bias_rdy_ch2_o       => sa_bias_rdy_ch2_o,        
         offset_dat_ch2_o        => offset_dat_ch2_o,
+        offset_dat_rdy_ch2_o    => offset_dat_rdy_ch2_o,        
         const_val_ch2_o         => const_val_ch2_o,
         servo_mode_ch2_o        => servo_mode_ch2_o,
         sa_bias_ch3_o           => sa_bias_ch3_o,
+        sa_bias_rdy_ch3_o       => sa_bias_rdy_ch3_o,        
         offset_dat_ch3_o        => offset_dat_ch3_o,
+        offset_dat_rdy_ch3_o    => offset_dat_rdy_ch3_o,        
         const_val_ch3_o         => const_val_ch3_o,
         servo_mode_ch3_o        => servo_mode_ch3_o,
         sa_bias_ch4_o           => sa_bias_ch4_o,
+        sa_bias_rdy_ch4_o       => sa_bias_rdy_ch4_o,        
         offset_dat_ch4_o        => offset_dat_ch4_o,
+        offset_dat_rdy_ch4_o    => offset_dat_rdy_ch4_o,        
         const_val_ch4_o         => const_val_ch4_o,
         servo_mode_ch4_o        => servo_mode_ch4_o,
         sa_bias_ch5_o           => sa_bias_ch5_o,
+        sa_bias_rdy_ch5_o       => sa_bias_rdy_ch5_o,        
         offset_dat_ch5_o        => offset_dat_ch5_o,
+        offset_dat_rdy_ch5_o    => offset_dat_rdy_ch5_o,        
         const_val_ch5_o         => const_val_ch5_o,
         servo_mode_ch5_o        => servo_mode_ch5_o,
         sa_bias_ch6_o           => sa_bias_ch6_o,
+        sa_bias_rdy_ch6_o       => sa_bias_rdy_ch6_o,        
         offset_dat_ch6_o        => offset_dat_ch6_o,
+        offset_dat_rdy_ch6_o    => offset_dat_rdy_ch6_o,        
         const_val_ch6_o         => const_val_ch6_o,
         servo_mode_ch6_o        => servo_mode_ch6_o,
         sa_bias_ch7_o           => sa_bias_ch7_o,
+        sa_bias_rdy_ch7_o       => sa_bias_rdy_ch7_o,        
         offset_dat_ch7_o        => offset_dat_ch7_o,
+        offset_dat_rdy_ch7_o    => offset_dat_rdy_ch7_o,        
         const_val_ch7_o         => const_val_ch7_o,
         servo_mode_ch7_o        => servo_mode_ch7_o,
         filter_coeff0_o         => filter_coeff0_o,
