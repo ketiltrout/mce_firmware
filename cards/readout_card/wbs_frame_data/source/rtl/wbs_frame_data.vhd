@@ -53,9 +53,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2007/10/24 23:15:55 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/10/24 23:30:16 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.30  2007/10/24 23:30:16  mandana
+-- data mode 8 added
+--
 -- Revision 1.29.2.6  2007/10/24 23:15:55  mandana
 -- added data mode 8 and disabled data mode 3 or raw mode
 --
@@ -470,7 +473,7 @@ begin
          if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1') then
             if we_i = '0' then
               if (data_mode /= MODE2_FILTERED and data_mode /= MODE6_FILT_ERROR and 
-                  data_mode /=MODE7_FILT_ERROR2 and data_mode /= MODE8_FILT_FLX_CNT) then  
+                  data_mode /=MODE7_FILT_ERROR2 and data_mode /= MODE9_FILT_FLX_CNT) then  
                 next_state <= WSS1;
               
               -- For filter mode data wait for the start of the frame before reading back. In that case row 0 is read before 
@@ -707,7 +710,7 @@ begin
 --------------------------------------------------------------------------------------------
 --                  Data OUTPUT Select MUX
 ---------------------------------------------------------------------------------------------
-     
+-- Note: 1000 or data_mode 8 is skipped for backward compatibility as it was used for different windowing in rc 4.0.4firmware
     dat_out_mux_sel <= data_mode(DAT_MUX_SEL_WIDTH-1 downto 0);
    
     with dat_out_mux_sel select
@@ -719,10 +722,10 @@ begin
                        fb_flx_cnt_dat when "0101",
                        filtfb_error_dat   when "0110",
                        filtfb_error_2_dat when "0111",
-                       filtfb_flx_cnt_dat when "1000",
+                       filtfb_flx_cnt_dat when "1001", -- 1000 is skipped, see note below.
                        error_dat        when others;
                  
- 
+  
  
 --------------------------------------------------------------------------------------------
 --                 Channel select MUXs
@@ -845,14 +848,14 @@ begin
 
    with ch_mux_sel select
       filtfb_flx_cnt_dat <= 
-                        filtered_dat_ch0_i (31 downto 8) & flux_cnt_dat_ch0_i when "000",
-                        filtered_dat_ch1_i (31 downto 8) & flux_cnt_dat_ch1_i when "001",
-                        filtered_dat_ch2_i (31 downto 8) & flux_cnt_dat_ch2_i when "010",
-                        filtered_dat_ch3_i (31 downto 8) & flux_cnt_dat_ch3_i when "011",
-                        filtered_dat_ch4_i (31 downto 8) & flux_cnt_dat_ch4_i when "100",
-                        filtered_dat_ch5_i (31 downto 8) & flux_cnt_dat_ch5_i when "101",
-                        filtered_dat_ch6_i (31 downto 8) & flux_cnt_dat_ch6_i when "110",
-                        filtered_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
+                        filtered_dat_ch0_i(31) & filtered_dat_ch0_i(23 downto 1) & flux_cnt_dat_ch0_i when "000",
+                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(23 downto 1) & flux_cnt_dat_ch1_i when "001",
+                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(23 downto 1) & flux_cnt_dat_ch2_i when "010",
+                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(23 downto 1) & flux_cnt_dat_ch3_i when "011",
+                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(23 downto 1) & flux_cnt_dat_ch4_i when "100",
+                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(23 downto 1) & flux_cnt_dat_ch5_i when "101",
+                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(23 downto 1) & flux_cnt_dat_ch6_i when "110",
+                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(23 downto 1) & flux_cnt_dat_ch7_i when others;
                         
 
 --   with raw_ch_mux_sel select

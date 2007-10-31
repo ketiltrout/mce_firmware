@@ -29,9 +29,14 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2007/06/16 03:31:17 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/10/24 22:51:27 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.12  2007/10/24 22:51:27  mandana
+-- added ch_mux_init
+-- added data mode 7 for mixed filtfb/error
+-- added data mode 8 for mixed filtfb/flux count
+--
 -- Revision 1.11  2007/06/16 03:31:17  mandana
 -- added data_mode=6 for 18b filtered fb + 14b error
 --
@@ -102,6 +107,6 @@ constant MODE4_FB_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := 
 constant MODE5_FB_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
 constant MODE6_FILT_ERROR  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
 constant MODE7_FILT_ERROR2 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000007";
-constant MODE8_FILT_FLX_CNT: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000008";
+constant MODE9_FILT_FLX_CNT: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000009";
 
 end package;
