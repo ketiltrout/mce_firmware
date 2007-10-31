@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.8  2006/02/15 21:35:14  mandana
+-- added fltr_rst_i
+--
 -- Revision 1.7  2005/12/12 22:25:29  mandana
 -- removed the unused flux_jumping_en_i port
 -- added filter interface ports
@@ -215,6 +218,7 @@ package flux_loop_ctrl_pack is
          clk_25_i                  : in     std_logic;                                             -- global clock (25 MHz)
          clk_50_i                  : in     std_logic;                                             -- global clock (50 MHz)
          restart_frame_aligned_i   : in     std_logic;                                             -- start of frame signal (50 MHz domain)
+         offset_dat_rdy_i          : in     std_logic;                                             -- indicates when offset data is updated
          offset_dat_i              : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- parallel offset data input value from wishbone feedback data
          offset_dac_spi_o          : out    std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0)     -- serial offset data output value, clock and chip select
       );
@@ -231,6 +235,7 @@ package flux_loop_ctrl_pack is
          clk_25_i                  : in     std_logic;                                             -- global clock (25 MHz)
          clk_50_i                  : in     std_logic;                                             -- global clock (50 MHz)
          restart_frame_aligned_i   : in     std_logic;                                             -- start of frame signal (50 MHz domain)
+         sa_bias_dat_rdy_i         : in     std_logic;                                             -- indicates when sa_bias data is updated         
          sa_bias_dat_i             : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- parallel sa bias data input value from wishbone feedback data
          sa_bias_dac_spi_o         : out    std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0)    -- serial sa bias data output value, clock and chip select
        );   

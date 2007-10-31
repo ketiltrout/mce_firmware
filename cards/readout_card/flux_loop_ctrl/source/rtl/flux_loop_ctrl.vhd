@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.13  2006/02/15 21:35:14  mandana
+-- added fltr_rst_i
+--
 -- Revision 1.12  2005/12/12 22:24:26  mandana
 -- removed the unused flux_jumping_en_i port
 -- changed fsfb_fltr_dat_o port definition to fltr_queue_data_width-1
@@ -161,7 +164,9 @@ entity flux_loop_ctrl is
     flux_quanta_addr_o         : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
     flux_quanta_dat_i          : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     sa_bias_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    sa_bias_dat_rdy_i          : in  std_logic;
     offset_dat_i               : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    offset_dat_rdy_i           : in  std_logic;
     filter_coeff0_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     filter_coeff1_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     filter_coeff2_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -332,6 +337,7 @@ begin  -- struct
         clk_25_i                => clk_25_i,
         clk_50_i                => clk_50_i,
         restart_frame_aligned_i => restart_frame_1row_prev_i,
+        offset_dat_rdy_i        => offset_dat_rdy_i,
         offset_dat_i            => offset_dat_i,
         offset_dac_spi_o        => offset_dac_spi_o
         );
@@ -356,6 +362,7 @@ begin  -- struct
         clk_25_i                => clk_25_i,
         clk_50_i                => clk_50_i,
         restart_frame_aligned_i => restart_frame_1row_post_i,
+        sa_bias_dat_rdy_i       => sa_bias_dat_rdy_i,
         sa_bias_dat_i           => sa_bias_dat_i,
         sa_bias_dac_spi_o       => sa_bias_dac_spi_o
         ); 

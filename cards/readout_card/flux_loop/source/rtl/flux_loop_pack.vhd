@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.13  2006/12/11 18:05:02  mandana
+-- Added per-column servo-mode ports for fsfb_corr interface
+--
 -- Revision 1.12  2006/12/05 22:44:33  mandana
 -- split the servo_mode to be column specific. Note that flux_jump will still get enabled based on column 0 servo_mode!
 --
@@ -185,7 +188,9 @@ package flux_loop_pack is
       flux_quanta_addr_o          : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       flux_quanta_dat_i           : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
       sa_bias_dat_i               : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_dat_rdy_i           : in  std_logic;
       offset_dat_i                : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_i            : in  std_logic;
       filter_coeff0_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       filter_coeff1_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       filter_coeff2_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -423,7 +428,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch0_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch0_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch0_o       : out std_logic;
       offset_dat_ch0_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch0_o    : out std_logic;
       const_val_ch0_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch0_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch1_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -437,7 +444,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch1_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch1_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch1_o       : out std_logic;
       offset_dat_ch1_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch1_o    : out std_logic;
       const_val_ch1_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch1_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch2_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -451,7 +460,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch2_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch2_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch2_o       : out std_logic;
       offset_dat_ch2_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch2_o    : out std_logic;
       const_val_ch2_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch2_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch3_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -465,7 +476,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch3_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch3_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch3_o       : out std_logic;
       offset_dat_ch3_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch3_o    : out std_logic;
       const_val_ch3_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch3_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch4_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -479,7 +492,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch4_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch4_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch4_o       : out std_logic;
       offset_dat_ch4_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch4_o    : out std_logic;
       const_val_ch4_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch4_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch5_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -493,7 +508,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch5_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch5_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch5_o       : out std_logic;
       offset_dat_ch5_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch5_o    : out std_logic;
       const_val_ch5_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch5_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch6_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -507,7 +524,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch6_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch6_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch6_o       : out std_logic;
       offset_dat_ch6_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch6_o    : out std_logic;
       const_val_ch6_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch6_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch7_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -521,7 +540,9 @@ package flux_loop_pack is
       flux_quanta_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_ch7_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       sa_bias_ch7_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      sa_bias_rdy_ch7_o       : out std_logic;
       offset_dat_ch7_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      offset_dat_rdy_ch7_o    : out std_logic;
       const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       filter_coeff0_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);

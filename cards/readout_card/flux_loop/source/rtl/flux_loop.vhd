@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.15  2006/12/11 18:05:02  mandana
+-- Added per-column servo-mode ports for fsfb_corr interface
+--
 -- Revision 1.14  2006/12/05 22:43:57  mandana
 -- split the servo_mode to be column specific. Note that flux_jump will still get enabled based on column 0 servo_mode!
 --
@@ -291,8 +294,8 @@ architecture struct of flux_loop is
   signal raw_req_ch7       : std_logic;
   signal raw_ack_ch7       : std_logic;
 
-
-  
+  signal sa_bias_dat_rdy       : std_logic_vector (7 downto 0);
+  signal offset_dat_rdy    : std_logic_vector (7 downto 0);
 
 
   -- Signals Interface between wbs_fb_data and flux_loop_ctrl
@@ -544,7 +547,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch0,
         flux_quanta_dat_i         => flux_quanta_dat_ch0,
         sa_bias_dat_i             => sa_bias_dat_ch0,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(0),
         offset_dat_i              => offset_dat_ch0,
+        offset_dat_rdy_i          => offset_dat_rdy(0),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -617,7 +622,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch1,
         flux_quanta_dat_i         => flux_quanta_dat_ch1,
         sa_bias_dat_i             => sa_bias_dat_ch1,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(1),
         offset_dat_i              => offset_dat_ch1,
+        offset_dat_rdy_i          => offset_dat_rdy(1),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -691,7 +698,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch2,
         flux_quanta_dat_i         => flux_quanta_dat_ch2,
         sa_bias_dat_i             => sa_bias_dat_ch2,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(2),
         offset_dat_i              => offset_dat_ch2,
+        offset_dat_rdy_i          => offset_dat_rdy(2),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -765,7 +774,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch3,
         flux_quanta_dat_i         => flux_quanta_dat_ch3,
         sa_bias_dat_i             => sa_bias_dat_ch3,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(3),
         offset_dat_i              => offset_dat_ch3,
+        offset_dat_rdy_i          => offset_dat_rdy(3),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -839,7 +850,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch4,
         flux_quanta_dat_i         => flux_quanta_dat_ch4,
         sa_bias_dat_i             => sa_bias_dat_ch4,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(4),
         offset_dat_i              => offset_dat_ch4,
+        offset_dat_rdy_i          => offset_dat_rdy(4),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -913,7 +926,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch5,
         flux_quanta_dat_i         => flux_quanta_dat_ch5,
         sa_bias_dat_i             => sa_bias_dat_ch5,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(5),
         offset_dat_i              => offset_dat_ch5,
+        offset_dat_rdy_i          => offset_dat_rdy(5),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -987,7 +1002,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch6,
         flux_quanta_dat_i         => flux_quanta_dat_ch6,
         sa_bias_dat_i             => sa_bias_dat_ch6,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(6),
         offset_dat_i              => offset_dat_ch6,
+        offset_dat_rdy_i          => offset_dat_rdy(6),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -1061,7 +1078,9 @@ begin  -- struct
         flux_quanta_addr_o        => flux_quanta_addr_ch7,
         flux_quanta_dat_i         => flux_quanta_dat_ch7,
         sa_bias_dat_i             => sa_bias_dat_ch7,
+        sa_bias_dat_rdy_i         => sa_bias_dat_rdy(7),
         offset_dat_i              => offset_dat_ch7,
+        offset_dat_rdy_i          => offset_dat_rdy(7),
         filter_coeff0_i           => filter_coeff0,
         filter_coeff1_i           => filter_coeff1,
         filter_coeff2_i           => filter_coeff2,
@@ -1296,7 +1315,9 @@ begin  -- struct
         flux_quanta_dat_ch0_o   => flux_quanta_dat_ch0,
         flux_quanta_addr_ch0_i  => flux_quanta_addr_ch0,
         sa_bias_ch0_o           => sa_bias_dat_ch0,
+        sa_bias_rdy_ch0_o       => sa_bias_dat_rdy(0),
         offset_dat_ch0_o        => offset_dat_ch0,
+        offset_dat_rdy_ch0_o    => offset_dat_rdy(0),
         const_val_ch0_o         => const_val_ch0,
         servo_mode_ch0_o        => servo_mode_ch0,
         adc_offset_dat_ch1_o    => adc_offset_dat_ch1,
@@ -1310,7 +1331,9 @@ begin  -- struct
         flux_quanta_dat_ch1_o   => flux_quanta_dat_ch1,
         flux_quanta_addr_ch1_i  => flux_quanta_addr_ch1,
         sa_bias_ch1_o           => sa_bias_dat_ch1,
+        sa_bias_rdy_ch1_o       => sa_bias_dat_rdy(1),
         offset_dat_ch1_o        => offset_dat_ch1,
+        offset_dat_rdy_ch1_o    => offset_dat_rdy(1),
         const_val_ch1_o         => const_val_ch1,
         servo_mode_ch1_o        => servo_mode_ch1,
         adc_offset_dat_ch2_o    => adc_offset_dat_ch2,
@@ -1324,7 +1347,9 @@ begin  -- struct
         flux_quanta_dat_ch2_o   => flux_quanta_dat_ch2,
         flux_quanta_addr_ch2_i  => flux_quanta_addr_ch2,
         sa_bias_ch2_o           => sa_bias_dat_ch2,
+        sa_bias_rdy_ch2_o       => sa_bias_dat_rdy(2),
         offset_dat_ch2_o        => offset_dat_ch2,
+        offset_dat_rdy_ch2_o    => offset_dat_rdy(2),
         const_val_ch2_o         => const_val_ch2,
         servo_mode_ch2_o        => servo_mode_ch2,
         adc_offset_dat_ch3_o    => adc_offset_dat_ch3,
@@ -1338,7 +1363,9 @@ begin  -- struct
         flux_quanta_dat_ch3_o   => flux_quanta_dat_ch3,
         flux_quanta_addr_ch3_i  => flux_quanta_addr_ch3,
         sa_bias_ch3_o           => sa_bias_dat_ch3,
+        sa_bias_rdy_ch3_o       => sa_bias_dat_rdy(3),
         offset_dat_ch3_o        => offset_dat_ch3,
+        offset_dat_rdy_ch3_o    => offset_dat_rdy(3),
         const_val_ch3_o         => const_val_ch3,
         servo_mode_ch3_o        => servo_mode_ch3,
         adc_offset_dat_ch4_o    => adc_offset_dat_ch4,
@@ -1352,7 +1379,9 @@ begin  -- struct
         flux_quanta_dat_ch4_o   => flux_quanta_dat_ch4,
         flux_quanta_addr_ch4_i  => flux_quanta_addr_ch4,
         sa_bias_ch4_o           => sa_bias_dat_ch4,
+        sa_bias_rdy_ch4_o       => sa_bias_dat_rdy(4),
         offset_dat_ch4_o        => offset_dat_ch4,
+        offset_dat_rdy_ch4_o    => offset_dat_rdy(4),
         const_val_ch4_o         => const_val_ch4,
         servo_mode_ch4_o        => servo_mode_ch4,
         adc_offset_dat_ch5_o    => adc_offset_dat_ch5,
@@ -1363,10 +1392,12 @@ begin  -- struct
         i_addr_ch5_i            => i_addr_ch5,
         d_dat_ch5_o             => d_dat_ch5,
         d_addr_ch5_i            => d_addr_ch5,
-        flux_quanta_dat_ch5_o    => flux_quanta_dat_ch5,
-        flux_quanta_addr_ch5_i   => flux_quanta_addr_ch5,
+        flux_quanta_dat_ch5_o   => flux_quanta_dat_ch5,
+        flux_quanta_addr_ch5_i  => flux_quanta_addr_ch5,
         sa_bias_ch5_o           => sa_bias_dat_ch5,
+        sa_bias_rdy_ch5_o       => sa_bias_dat_rdy(5),
         offset_dat_ch5_o        => offset_dat_ch5,
+        offset_dat_rdy_ch5_o    => offset_dat_rdy(5),
         const_val_ch5_o         => const_val_ch5,
         servo_mode_ch5_o        => servo_mode_ch5,
         adc_offset_dat_ch6_o    => adc_offset_dat_ch6,
@@ -1380,8 +1411,10 @@ begin  -- struct
         flux_quanta_dat_ch6_o   => flux_quanta_dat_ch6,
         flux_quanta_addr_ch6_i  => flux_quanta_addr_ch6,
         sa_bias_ch6_o           => sa_bias_dat_ch6,
-        const_val_ch6_o         => const_val_ch6,
+        sa_bias_rdy_ch6_o       => sa_bias_dat_rdy(6),
         offset_dat_ch6_o        => offset_dat_ch6,
+        offset_dat_rdy_ch6_o    => offset_dat_rdy(6),
+        const_val_ch6_o         => const_val_ch6,
         servo_mode_ch6_o        => servo_mode_ch6,
         adc_offset_dat_ch7_o    => adc_offset_dat_ch7,
         adc_offset_addr_ch7_i   => adc_offset_addr_ch7,
@@ -1394,7 +1427,9 @@ begin  -- struct
         flux_quanta_dat_ch7_o   => flux_quanta_dat_ch7,
         flux_quanta_addr_ch7_i  => flux_quanta_addr_ch7,
         sa_bias_ch7_o           => sa_bias_dat_ch7,
+        sa_bias_rdy_ch7_o       => sa_bias_dat_rdy(7),
         offset_dat_ch7_o        => offset_dat_ch7,
+        offset_dat_rdy_ch7_o    => offset_dat_rdy(7),
         const_val_ch7_o         => const_val_ch7,
         servo_mode_ch7_o        => servo_mode_ch7,
         filter_coeff0_o         => filter_coeff0,
