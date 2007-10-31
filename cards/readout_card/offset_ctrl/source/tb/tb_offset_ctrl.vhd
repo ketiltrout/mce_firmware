@@ -21,7 +21,7 @@
 --
 -- tb_offset_ctrl.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko
 -- Organisation:  UBC
 --
@@ -35,6 +35,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_offset_ctrl.vhd,v $
+-- Revision 1.3  2004/11/26 18:27:17  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/16 18:34:35  anthonyk
 -- Changed SPI_DATA_WIDTH to OFFSET_SPI_DATA_WIDTH
 --
@@ -85,7 +88,8 @@ architecture test of tb_offset_ctrl is
    -- global input signals
    signal   clk_spi         : std_logic                       := '0';     -- 25 MHz SPI clock
    signal   clk_sys         : std_logic                       := '0';     -- 50 MHz system clock
-   signal   start           : std_logic                       := '0';     -- write trigger      
+   signal   start           : std_logic                       := '0';     -- write trigger
+   signal   update          : std_logic                       := '0';     -- write_trigger only if update is 1
    signal   pdata           : std_logic_vector(15 downto 0)   := (others => '0');     -- parallel data
    signal   offset_dat     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- sa bias data wishbone input 
    signal   rst             : std_logic                       := '0';     -- system reset
@@ -109,6 +113,7 @@ architecture test of tb_offset_ctrl is
          clk_25_i                  : in     std_logic;                                     -- global clock (25 MHz)
          clk_50_i                  : in     std_logic;                                     -- global clock (50 MHz)    
          restart_frame_aligned_i   : in     std_logic;                                     -- start of frame signal (50 MHz domain)
+         offset_dat_rdy_i          : in     std_logic;                                     -- asserted when new offset_dat_i is loaded
          offset_dat_i             : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);     -- parallel sa bias data input value from wishbone feedback data
          offset_dac_spi_o         : out    std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0)     -- serial sa bias data output value, clock and chip select
       );
@@ -150,7 +155,7 @@ begin
    -- Generate the system start input stimulus for SPI write transfter 
    -- (a one CLK_SYS_PERIOD pulse)
    
-   stimulus : process
+   stimulus1 : process
    begin
       wait until clk_sys ='1';
       start <= '1';
@@ -159,12 +164,22 @@ begin
       -- Increment the parallel data at about midway of each write transfer
       -- This allows the sampling of parallel data for comparison with serial
       -- data by not allowing any changes close to the active start pulse.
-      wait for 20*CLK_SYS_PERIOD;
+      wait for 60*CLK_SYS_PERIOD;
+   end process stimulus1;
+   
+   stimulus2 : process
+   begin
+      -- Increment the parallel data at about midway of each write transfer
+      -- This allows the sampling of parallel data for comparison with serial
+      -- data by not allowing any changes close to the active start pulse.
+      wait for 30*CLK_SYS_PERIOD;
       pdata <= pdata + 1;
-      wait for 20*CLK_SYS_PERIOD;
-   end process stimulus;
-   
-   
+      update <= '1';
+      wait for CLK_SYS_PERIOD;
+      update <= '0';
+      wait for 90*CLK_SYS_PERIOD;
+   end process stimulus2;
+  
    -- Capture the serial data for comparison
       
    scapture : process (offset_spi_bus, rst)
@@ -225,6 +240,7 @@ begin
           clk_25_i                => clk_spi,
           clk_50_i                => clk_sys,
           restart_frame_aligned_i => start,
+          offset_dat_rdy_i        => update,
           offset_dat_i            => offset_dat,
           offset_dac_spi_o        => offset_spi_bus
           );
