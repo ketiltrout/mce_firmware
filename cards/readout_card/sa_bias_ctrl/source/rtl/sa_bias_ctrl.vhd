@@ -21,7 +21,7 @@
 --
 -- sa_bias_ctrl.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko
 -- Organisation:  UBC
 --
@@ -42,6 +42,9 @@
 -- Revision history:
 -- 
 -- $Log: sa_bias_ctrl.vhd,v $
+-- Revision 1.3  2004/11/26 18:27:33  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/16 18:35:00  anthonyk
 -- Changed SPI_DATA_WIDTH to SA_BIAS_SPI_DATA_WIDTH
 --
@@ -72,6 +75,9 @@ entity sa_bias_ctrl is
            
       -- control signals from frame timing block
       restart_frame_aligned_i   : in     std_logic;                                     -- start of frame signal (50 MHz domain)
+      
+      -- control signal indicates sa_bias_dat is updated
+      sa_bias_dat_rdy_i         : in     std_logic;
       
       -- control signals from configuration register
       sa_bias_dat_i             : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);    -- parallel sa bias data input value from wishbone feedback data
@@ -104,9 +110,27 @@ architecture struct of sa_bias_ctrl is
    signal spi_csb                   : std_logic;
    signal spi_sclk                  : std_logic;
    signal spi_sdat                  : std_logic;
-
+   signal update_frame_aligned      : std_logic;
+   signal update_pending            : std_logic;
 
 begin
+   update_frame_aligned <= restart_frame_aligned_i and update_pending;
+   
+   extend_update:process(rst_i, clk_50_i)
+   begin
+     if (rst_i = '1') then
+       update_pending <='0';
+     elsif (clk_50_i'event and clk_50_i = '1') then
+       if (sa_bias_dat_rdy_i = '1') then
+         update_pending <= '1';
+       elsif (restart_frame_aligned_i = '1') then
+         update_pending <= '0';
+       else   
+         update_pending <= update_pending;
+       end if;       
+     end if;  
+   end process; -- extend_update;
+   
    -- Clock domain crossing component
    -- this block brings the restart_frame_aligned input from the fast clock domain (50 MHz)
    -- to the slow clock domain (25 MHz).  It assumes no phase relationship between
@@ -121,7 +145,7 @@ begin
          rst_i                       => rst_i,
          clk_slow                    => clk_25_i,
          clk_fast                    => clk_50_i,
-         input_fast                  => restart_frame_aligned_i,
+         input_fast                  => update_frame_aligned,
          output_slow                 => spi_write_start
       );     
    
