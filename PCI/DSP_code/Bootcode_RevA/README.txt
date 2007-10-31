@@ -6,7 +6,7 @@ updated 25/05/07
 
 ---------------------------------------
 When downloading via dataman to EEPROM
-Checksum = $732134
+Checksum = $723F65
 ---------------------------------------
 
 'build_pci_once' is run to generate .lod and .cld files which can be downloaded to the PCI DSP via the on-chip emulator OnCe.
@@ -14,6 +14,17 @@ Checksum = $732134
 'build_pci_rom' is run to generate a motorola .s file which is burned to E2PROM, from which the PCI code is bootstraped.
 
 
+Change from RevA_1.5 --> RevA2.0
+--------------------------------
+PCI Recovery has been changed for TO and TDIS errors to resume rather than restart transfer.
+Restart on these errors resulted in data corruption
+Code changes instigated by work carried out at UBC by Matthew Hasselfield.
+
+Packets are now broked down into Nx256byte bursts (maxium) followed by 
+a final single burst to transfer the remaining bytes.
+
+A signal has also been pathed to the Dtype connector to indicate when a GO command
+is being transmitted down the fibre.  This was used to debug a timing issue with DV.
 
 Change from RevA_1.4 --> RevA1.5
 --------------------------------

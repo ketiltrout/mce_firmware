@@ -64,6 +64,9 @@ APPLICATION_RUNNING	EQU	12   ; can be set by an application to indicate its stil
 
 INTERNAL_GO		EQU	13   ; GO command received while diagnostic application still running 
 				     ; tests DMA bursts as bus master
+PCIBURST_RESTART	EQU	14   ; RESTART BURST ON PCI ERROR
+PCIBURST_RESUME		EQU	15   ; RESUME BURST ON PCI ERROR
+
 
 
 ; HST timeout recovery....
@@ -108,6 +111,8 @@ MTRQ	EQU	1		; Set whem master transmitter is not full (DPSR)
 MARQ	EQU	4		; Master address request (DPSR)
 MRRQ	EQU	2		; Master Receive Request (DPSR)
 TRTY	EQU	10		; PCI Target Retry (DPSR)
+RDCQ	EQU	15		; Remaining Data Count Qualifier (DPSR)
+
 
 APER	EQU	5		; Address parity error
 DPER	EQU	6		; Data parity error

@@ -7,7 +7,7 @@ Author:      DAVID ATKINSON
 Target:      250MHz SDSU PCI card - DSP56301
 Controller:  For use with SCUBA 2 Multichannel Electronics 
 
-Version:     Release Version A (1.5)
+Version:     Release Version A (2.0)
 
 
 Assembler directives:
@@ -99,7 +99,7 @@ PRE_ERROR
 
 PACKET_INFO                                            ; packet preamble valid
 
-; Packet preamle is valid so....
+; Packet preamble is valid so....
 ; now get next two 32bit words.  i.e. $20205250 $00000004, or $20204441 $xxxxxxxx
 ; note that these are received little endian (and byte swapped)
 ; i.e. for RP receive 50 52 20 20  04 00 00 00
@@ -129,8 +129,8 @@ PACKET_INFO                                            ; packet preamble valid
 		JNE	<PACKET_IN              ; no?  Not a valid packet type.  Go back to start and resync to next preamble.
 
 
-; It's a data packet....
-; check if it's the first packet after the GO command has been issued...
+; It's a data packet.
+; check if it's the first packet after the GO command has been issued.
 
                 JCLR  	#DATA_DLY,X:STATUS,INC_FRAME_COUNT        ; do we need to add a delay since first frame?
 
@@ -175,19 +175,17 @@ MCE_PACKET
 
 
 ; ----------------------------------------------------------------------------------------------------------
-; Determine how to break up packet to write to host
+; Determine how to break up packet to write to host.
+; Determine number of Half Full FIFOs will be read in and number of left over words in FIFO.
+; Determine the number of maximum PCI write bursts (256 bytes) are required
+; to write the packet to host, and the size of the left over burst.
 
 ; Note that this SR uses accumulator B 
 ; Therefore execute before we get the bus address from host (which is stored in B) 
 ; i.e before we issue notify message ('NFY')
 
-		JSR	<CALC_NO_BUFFS		; subroutine which calculates the number of 512 (16bit) buffers 
-						; number of left over 32 (16bit) blocks  
-						; and number of left overs (16bit) words  
-
-;  note that a 512 (16-bit) buffer is transfered to the host as 4 x 64 x 32bit DMA burst
-;            a 32  (16-bit) block is transfered to the host as a    16 x 32bit DMA burst
-;            left over 16bit words are transfered to the host in pairs as 32bit words 
+		JSR	<CALC_NO_BUFFS		; subroutine which calculates the number of 512 (16bit)
+				
 ; -------------------------------------------------------------------------------------------------
 
 
@@ -206,13 +204,13 @@ MCE_PACKET
 ; ---------------------------------------------------------------------------------------------------------
 ; Write TOTAL_BUFFS * 512 buffers to host
 ; ----------------------------------------------------------------------------------------------------				
-		DO	X:<TOTAL_BUFFS,READ_BUFFS_END	; note that if TOTAL_BUFFS = 0 we jump to ALL_BUFFS_END
+		DO	X:<TOTAL_BUFFS,READ_BUFFS_END	
 	
-WAIT_BUFF	JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO	; if fatal error then dump fifo and reset (i.e. if HST timeout)
-		JSET	#HF,X:PDRD,WAIT_BUFF		; Wait for FIFO to be half full + 1
+WAIT_BUFF	JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO  ; if fatal error then dump fifo and reset (i.e. if HST timeout)
+		JSET	#HF,X:PDRD,WAIT_BUFF		  ; Wait for FIFO to be half full + 1
 		NOP
 		NOP
-		JSET	#HF,X:PDRD,WAIT_BUFF		; Protection against metastability
+		JSET	#HF,X:PDRD,WAIT_BUFF		 ; Protection against metastability
 
 ; Copy the image block as 512 x 16bit words to DSP Y: Memory using R1 as pointer
 		DO	#512,L_BUFFER
@@ -222,15 +220,13 @@ L_BUFFER
 READ_BUFFS_END							; all buffers have been read (-->Y)	
 
 ; ---------------------------------------------------------------------------------------------------------
-; Read NUM_LEFTOVER_BLOCKS * 32 blocks
+; Read NUM_LEFTOVER_BLOCKS * 128 blocks to host
 ; ----------------------------------------------------------------------------------------------------		
+; less than 512 Y Memory locations then read in N x 128 (x16bit words) 
 
-; less than 512 pixels but if greater than 32 will then do bursts
-; of 16 x 32bit in length, if less than 32 then does single read writes
+		DO	X:<NUM_LEFTOVER_BLOCKS,READ_BLOCKS
 
-		DO	X:<NUM_LEFTOVER_BLOCKS,READ_BLOCKS	 ;note that if NUM_LEFOVERS_BLOCKS = 0 we jump to LEFTOVER_BLOCKS
-
-		DO	#32,S_BUFFER
+		DO	#128,S_BUFFER
 WAIT_1		JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO ; check for fatal error (i.e. after HST timeout)
 		JCLR	#EF,X:PDRD,WAIT_1		; Wait for the pixel datum to be there
 		NOP					; Settling time
@@ -242,12 +238,12 @@ S_BUFFER
 READ_BLOCKS
 
 ; -----------------------------------------------------------------------------------------------------
-; Single write left over words to host
+; Left over data to read from FIFO
 ; ----------------------------------------------------------------------------------------------------	
 
 LEFT_OVERS	
 		DO	X:<LEFT_TO_READ,LEFT_OVERS_READ		; read in remaining words of data packet
-								; if LEFT_TO_READ = 0 then will jump to LEFT_OVERS_READ
+			
 
 WAIT_2		JSET	#FATAL_ERROR,X:<STATUS,START		; check for fatal error (i.e. after HST timeout)
 		JCLR	#EF,X:PDRD,WAIT_2			; Wait till something in FIFO flagged
@@ -272,44 +268,29 @@ WT_HOST		JSET	#FATAL_ERROR,X:<STATUS,START		; if fatal error - run initialisatio
 ; Write all data to host.
 
 ; ---------------------------------------------------------------------------------------------------------
-; Write TOTAL_BUFFS * 512 buffers to host
-; ----------------------------------------------------------------------------------------------------				
-		DO	X:<TOTAL_BUFFS,WRITE_BUFFS_END	; note that if TOTAL_BUFFS = 0 we jump to ALL_BUFFS_END
-
+; Write N * maximum bursts over bus.  Each burst writes from 128 y memory locations
 ; R2 points to data in Y memory to be written to host
 ; host address is in B - got by SEND_PACKET_TO_HOST command 
-; so we can now write this buffer to host
+; ----------------------------------------------------------------------------------------------------				
 
-		JSR	<WRITE_512_TO_PCI			; this subroutine will increment host address, which is in B and R2
+		DO	X:<NMAX_BURSTS,WRITE_BUFFS_END		; write N x 256 byte bursts.
+		MOVE	#>128,X0
+		MOVE	X0,X:NBURST_YMEM			; # of locations in y memory (256bytes)		
+		JSR	<WRITE_PCI_BURST
 		NOP
 WRITE_BUFFS_END							; all buffers have been writen to host	
+		JSET	#FATAL_ERROR,X:<STATUS,START
 
 ; ---------------------------------------------------------------------------------------------------------
-; Write NUM_LEFTOVER_BLOCKS * 32 blocks to host
+; Burst the final data words over the PCI bus
 ; ----------------------------------------------------------------------------------------------------		
 
-; less than 512 pixels but if greater than 32 will then do bursts
-; of 16 x 32bit in length, if less than 32 then does single read writes
-
-		DO	X:<NUM_LEFTOVER_BLOCKS,WRITE_BLOCKS	 ;note that if NUM_LEFOVERS_BLOCKS = 0 we jump to LEFTOVER_BLOCKS
-
-		JSR	<WRITE_32_TO_PCI		; write small blocks
-		NOP
-WRITE_BLOCKS
-
-; -----------------------------------------------------------------------------------------------------
-; Single write left over words to host
-; ----------------------------------------------------------------------------------------------------	
-
-; now write left overs to host as 32 bit words
-		
-		DO	X:LEFT_TO_WRITE,LEFT_OVERS_WRITE	; left overs to write is half left overs read - since 32 bit writes
-								; if LEFT_TO_WRITE = 0, will jump to LEFT_OVERS_WRITTEN
-		JSR	WRITE_TO_PCI				; uses R2 as pointer to Y memory, host address in B	
-		NOP
-
-LEFT_OVERS_WRITE
-
+		CLR	A
+		MOVE	X:LEFT_TO_READ,X0		; number of left over 16-bit words in Y memory
+		MOVE	X0,X:NBURST_YMEM
+		CMP	X0,A	
+		JEQ	HST_ACK_REP			; Check that there are words to write.
+		JSR	<WRITE_PCI_BURST
 		JSET	#FATAL_ERROR,X:<STATUS,START
 
 ; ----------------------------------------------------------------------------------------------------------
@@ -559,6 +540,8 @@ SEND_PACKET_TO_CONTROLLER
 	CMP	X0,A
 	JEQ	BLOCK_CON
 
+; debug: toggle TOUT to indicate go command issued (monitor pin 26 on Dtype)
+	MOVEP	#%010,X:PDRE		; Port E Data Register (TXD-->TOUT)
 
 	JCLR	#APPLICATION_RUNNING,X:STATUS,SET_PACKET_DELAY	; not running diagnostic application?
 
@@ -600,6 +583,7 @@ BLOCK_CON
 	NOP
 END_BLOCK_CON
 
+	MOVEP	#%001,X:PDRE		; re-initialise Port Data Register - GO done.
 	BCLR	#PACKET_CHOKE,X:<STATUS	; disable packet choke...
 					; comms now open with MCE and packets will be processed.	
 ; Enable Byte swaping for correct comms protocol.
@@ -971,9 +955,13 @@ CALC_NO_BUFFS
 
 	MOVE	X:<PACKET_SIZE_LOW,A0
 	MOVE	X:<PACKET_SIZE_HIH,A1
-	ASR	#9,A,A			; divide by 512...number of 16bit words in a buffer
+	ASR	#7,A,A			; divide by 128. To get # of max 256byte bursts over bus
 	NOP
-	MOVE	A0,X:<TOTAL_BUFFS
+	MOVE	A0,X:<NMAX_BURSTS	
+	ASR	#2,A,A			; divide by another 2 (total=/512: number of 16bit words)
+	NOP
+	MOVE	A0,X:<TOTAL_BUFFS	; number of half full fifos required to read in all of data.
+
 
 	MOVE	A0,X1
 	MOVE	#HF_FIFO,Y1
@@ -986,11 +974,11 @@ CALC_NO_BUFFS
 	SUB	B,A			; now A holds number of left over 16bit words 
 	NOP
 	MOVE	A0,X:<LEFT_TO_READ	; store number of left over 16bit words to read
-	ASR	#5,A,A			; divide by 32... number of 16bit words in lefover block
+	ASR	#7,A,A			; divide by 128 - for max burst size (256bytes)
 	NOP
 	MOVE	A0,X:<NUM_LEFTOVER_BLOCKS
 	MOVE	A0,X1
-	MOVE	#>SMALL_BLK,Y1
+	MOVE	#>128,Y1
 	MPY	X1,Y1,A
 	ASR	#1,A,A
 	NOP
@@ -1040,30 +1028,85 @@ CLR_FO_RTS
 
 ;-----------------------------------------------
 PCI_ERROR_RECOVERY
-;-----------------------------------------------
 ; Recover from an error writing to the PCI bus
+; TO, TDIS 			- resume burst
+; TRTY,TAB,MAB,APER,DPER   	- restart burst
+;
+; resume recovery for TO/TDIS added on advice 
+; from Matthew Hasselfield (UBC) 
+;----------------------------------------------
 
-	JCLR	#TRTY,X:DPSR,ERROR1	; Retry error
+; in pci error count
+
+	MOVE	X:ECOUNT_PCI,A0
+	INC	A
+	NOP
+	MOVE	A0,X:ECOUNT_PCI
+
+	JSET	#TRTY,X:DPSR,TRTY_ERROR
+	JSET	#TO,X:DPSR,TO_ERROR	
+	JSET	#TDIS,X:DPSR,TDIS_ERROR	
+	JSET	#TAB,X:DPSR,TAB_ERROR
+	JSET	#MAB,X:DPSR,MAB_ERROR		
+	JSET	#DPER,X:DPSR,DPER_ERROR	
+	JSET	#APER,X:DPSR,APER_ERROR	
+
+TRTY_ERROR					; Retry error
+	MOVE	X:ECOUNT_TRTY,A0
+	INC	A
 	MOVEP	#$0400,X:DPSR		; Clear target retry error bit
+	MOVE	A0,X:ECOUNT_TRTY
+	BSET	#PCIBURST_RESTART,X:STATUS
 	RTS
-ERROR1	JCLR	#TO,X:DPSR,ERROR2	; Timeout error
+
+TO_ERROR				; Timeout error
+	MOVE	X:ECOUNT_TO,A0
+	INC	A
 	MOVEP	#$0800,X:DPSR		; Clear timeout error bit
+	MOVE	A0,X:ECOUNT_TO
+	BSET	#PCIBURST_RESUME,X:STATUS
 	RTS
-ERROR2	JCLR	#TDIS,X:DPSR,ERROR3	; Target disconnect error
+
+TDIS_ERROR				; Target disconnect error
+	MOVE	X:ECOUNT_TDIS,A0
+	INC	A
 	MOVEP	#$0200,X:DPSR		; Clear target disconnect bit
+	MOVE	A0,X:ECOUNT_TDIS
+	BSET	#PCIBURST_RESUME,X:STATUS
 	RTS
-ERROR3	JCLR	#TAB,X:DPSR,ERROR4	; Target abort error
-	MOVEP	#$0100,X:DPSR		; Clear target abort error bit
+
+TAB_ERROR				; Target abort error
+	MOVE	X:ECOUNT_TAB,A0
+	INC	A
+	MOVEP	#$0100,X:DPSR		; Clear target abort error bit	
+	MOVE	A0,X:ECOUNT_TAB
+	BSET	#PCIBURST_RESTART,X:STATUS
 	RTS
-ERROR4	JCLR	#MAB,X:DPSR,ERROR5	; Master abort error
+
+MAB_ERROR				; Master abort error
+	MOVE	X:ECOUNT_MAB,A0
+	INC	A
 	MOVEP	#$0080,X:DPSR		; Clear master abort error bit
+	MOVE	A0,X:ECOUNT_MAB
+	BSET	#PCIBURST_RESTART,X:STATUS
 	RTS
-ERROR5	JCLR	#DPER,X:DPSR,ERROR6	; Data parity error
+
+DPER_ERROR				; Data parity error
+	MOVE	X:ECOUNT_DPER,A0
+	INC	A
 	MOVEP	#$0040,X:DPSR		; Clear data parity error bit
+	MOVE	A0,X:ECOUNT_DPER
+	BSET	#PCIBURST_RESTART,X:STATUS
 	RTS
-ERROR6	JCLR	#APER,X:DPSR,ERROR7	; Address parity error
+
+APER_ERROR				; Address parity error
+	MOVE	X:ECOUNT_APER,A0
+	INC	A
 	MOVEP	#$0020,X:DPSR		; Clear address parity error bit
-ERROR7	RTS
+	MOVE	A0,X:ECOUNT_APER
+	BSET	#PCIBURST_RESTART,X:STATUS
+	RTS
+
 
 ; ----------------------------------------------------------------------------
 PCI_MESSAGE_TO_HOST
@@ -1256,97 +1299,94 @@ SAVE_REGISTERS
 	RTS
 
 
+;--------------------------------------------------------------------------------------------------
+WRITE_PCI_BURST 		; writes 128x16bit words across PCI bus: 256 bytes (max burst) 	
+;----------------------------------------------------------------------------------------------------
 
-; ------------------------------------------------------------------------------------
-WRITE_TO_PCI 		
-;-------------------------------------------------------------------------------------
-; sub routine to write two 16 bit words (stored in Y memory) 
-; to host memory as PCI bus master.
-; results in a 32bit word written to host memory. 
+	CLR	A
+	MOVE	X:NBURST_YMEM,A0	; Number of y memory locations to trasfer.
+	MOVE	X:NBURST_YMEM,N2	; y memory increment
 
-; the 32 bit host address is in accumulator B.
-; this address is writen to DPMC (MSBs) and DPAR (LSBs)
-; address is incrememted by 4 (bytes) after write.
-
-; R2 is used as a pointer to Y:memory address
-
-	
-	JCLR	#MTRQ,X:DPSR,*		; wait here if DTXM is full
-
-TX_LSB	MOVEP	Y:(R2)+,X:DTXM		; Least significant word to transmit
-TX_MSB	MOVEP	Y:(R2)+,X:DTXM		; Most significant word to transmit
-
-
-	EXTRACTU #$010010,B,A		; Get D31-16 bits only, 
-	NOP				; top byte = $00 so FC1 = FC0 = 0
-	MOVE	A0,A1
-
-; we are using two 16 bit writes to make a 32bit word 
-; so FC1=0 and FC0=0 when A1 written to DPMC
-
+	ASL	#1,A,A			; x2 for bytes
 	NOP
-	MOVE	A1,X:DPMC		; DSP master control register
-	NOP
-	EXTRACTU #$010000,B,A
-	NOP
-	MOVE	A0,A1
-	OR	#$070000,A		; A1 gets written to DPAR register
-	NOP
-
-AGAIN1	MOVEP	A1,X:DPAR		; Write to PCI bus
-	NOP				; Pipeline delay
-	NOP
-	JCLR	#MARQ,X:DPSR,*		; Bit is set if its a retry
-	JSET	#MDT,X:DPSR,INC_ADD	; If no error go to the next sub-block
-	JSR	<PCI_ERROR_RECOVERY
-	JMP	<AGAIN1
-INC_ADD	
-	CLR 	A	(R4)+		  ; clear A and increment word count
-	MOVE	#>4,A0			  ; 4 bytes per word transfer on pcibus
-	ADD	A,B	R4,X:<WORD_COUNT  ; Inc bus address by 4 bytes, and save word count
-	RTS
-
-; -------------------------------------------------------------------------------------------
-WRITE_32_TO_PCI 			
-; DMAs 32 x 16bit words to host memory as PCI burst.  	
-;-----------------------------------------------------------------------------------------------
-	MOVE	#32,N2			; Number of 16bit words per transfer 
-	MOVE	#16,N4			; Number of 32bit words per transfer
+	MOVE	A0,X:NBURST_BYTE	; save # bytes to transfer
+	ASR	#1,A,A			; back to pixels
+	ADD	#0,A			; clear carry
+	DEC	A			; DMA count = number pixels - 1
+	ADD	#0,A			; clear carry
 
 	MOVE	R2,X:DSR0		; Source address for DMA = pixel data
 	MOVEP	#DTXM,X:DDR0		; Destination = PCI master transmitter
-	MOVEP	#>31,X:DCO0		; DMA Count = # of pixels - 1 
+	MOVEP	A0,X:DCO0		; DMA Count = # of pixels - 1 
+DMA_GO	MOVEP	#$8EFA51,X:DCR0		; Start DMA with control register DE=1
+	MOVE	(R2)+N2			; Increment pixel buffer address for next time
 
-	EXTRACTU #$010010,B,A		; Get D31-16 bits only
+	ASR	#1,A,A			; npix/2 to get BL (#PCI transfers-1)
+	ADD	#0,A			; clear carry
+	ASL	#16,A,A			; get BL into top byte
 	NOP
-	MOVE	A0,A1			; [D31-16] in A1
-	NOP
-	ORI	#$0F0000,A		; Burst length = # of PCI writes 
-	NOP				;   = # of pixels / 2 - 1 ...$0F = 16
-	MOVE	A1,X:DPMC		; DPMC = B[31:16] + $3F0000
+	MOVE	A0,X:PCI_BL		; save BL
+
+PCI_BURST
+	EXTRACTU #$010010,B,A		; Get D31-16 bits only of PCI addr
+	ASL	#24,A,A			; put in A1
+	MOVE	X:PCI_BL,X0
+	ADD	X0,A			; add BL = pci burst size - 1
+	NOP				;   = # of pixels / 2 - 1 ...
+	MOVE	A1,X:DPMC		; DPMC = B[31:16] + $BL0000
 
 	EXTRACTU #$010000,B,A
-	NOP
-	MOVE	A0,A1			; Get PCI_ADDR[15:0] into A1[15:0]
-	NOP
-	ORI	#$070000,A		; A1 gets written to DPAR register
-	NOP
-
-	
-AGAIN2	MOVEP	#$8EFA51,X:DCR0		; Start DMA with control register DE=1
+	ASL	#24,A,A			; put in A1
+	MOVE	#$070000,X0
+	ADD	X0,A
+	NOP	
 	MOVEP	A1,X:DPAR		; Initiate writing to the PCI bus
 	NOP
 	NOP
+WAIT_PCI
 	JCLR	#MARQ,X:DPSR,*		; Wait until the PCI operation is done
-	JSET	#MDT,X:DPSR,WR_OK1	; If no error go to the next sub-block
+	JSET	#MDT,X:DPSR,WR_OK	; If no error go to the next sub-block
 	JSR	<PCI_ERROR_RECOVERY
-	JMP	<AGAIN2			; Just try to write the sub-block again
-WR_OK1	
-	CLR 	A	(R4)+N4	  	  ; increment number of 32bit word count
-	MOVE	#>64,A0			  ; 2 bytes on pcibus per pixel
-	ADD	A,B	R4,X:<WORD_COUNT  ; PCI address = + 2 x # of pixels (!!!)
-	MOVE	(R2)+N2			  ; Pixel buffer address = + # of pixels
+	BCLR	#PCIBURST_RESTART,X:STATUS 	;  Clear and Test
+	JCS	<PCI_BURST		   	;  restart burst
+	BCLR	#PCIBURST_RESUME,X:STATUS  	;  Clear and Test
+	JCS	<PCI_RESUME			;  resume burst
+WR_OK
+	CLR 	A
+	MOVE	X:NBURST_BYTE,A0	; get number of bytes transferred
+	ADD	A,B			; update PCI address = + # bytes transferred 
 	RTS
+
+PCI_RESUME	
+	CLR	A
+	MOVEP	X:DPSR,A0		; get dpsr: remaining data count
+	ASR	#16,A,A			; get remaining words to write into bottom byte
+	JCLR	#RDCQ,X:DPSR,NO_RDCQ	;	 
+	INC	A			; BL[5-0] = RDC[5-0] + RDCQ
+NO_RDCQ
+	NOP
+	MOVE	A0,X1			; save burst length still to go in X1 (=transfers-1)
+
+	INC	A			; BL + 1 = number of 32bit words left to transfer
+	ASL	#2,A,A			; x4 = number of bytes left to transfer
+	NOP
+	MOVE	A0,X0			; number bytes left to transfer now in x0
+
+	MOVE	X:NBURST_BYTE,A		; get number of bytes that were supposed to have been transferred (A1)
+	MOVE	X0,X:NBURST_BYTE	; update #bytes left to burst in resume 
+	SUB	X0,A			; subtract #bytes left to get number of bytes trasferred already (A1)
+	ASR	#24,A,A			; shift to A0
+	ADD	#0,A			; clear carry
+
+	ADD	A,B			; add what's been transferred to pci bus address
+	ADD	#0,B			; clear carry
+	MOVE	X1,A0			; get BL (transfers-1) 
+	ASL	#16,A,A			; get BL into top byte
+	NOP
+	MOVE	A0,X:PCI_BL		; save burst length (top byte)
+	JMP	PCI_BURST		; resume burst
+
+
 
 ;------------------------------------------------------------
 WRITE_512_TO_PCI 		
@@ -1492,11 +1532,11 @@ VAR_TBL_START	EQU	@LCV(L)
 STATUS		DC	0
 FRAME_COUNT	DC	0	; used as a check....... increments for every frame write.....must be cleared by host.
 PRE_CORRUPT	DC	0
-REV_NUMBER	DC	$410105		; byte 0 = minor revision #
+REV_NUMBER	DC	$410200		; byte 0 = minor revision #
 					; byte 1 = mayor revision #
 					; byte 2 = release Version (ascii letter)
-REV_DATA	DC	$250507		; data: day-month-year
-P_CHECKSUM	DC	$2EF490         ;**** DO NOT CHANGE
+REV_DATA	DC	$1F0A07		; data: day-month-year
+P_CHECKSUM	DC	$e8681f         ;**** DO NOT CHANGE
 ; -------------------------------------------------
 WORD_COUNT		DC	0	; word count.  Number of words successfully writen to host in last packet.	
 NUM_DUMPED		DC	0	; number of words (16-bit) dumped to Y memory (512) after an HST timeout.
@@ -1553,10 +1593,6 @@ SV_Y1			DC	0
 
 SV_SR			DC	0	; stauts register save.
 
-ZERO			DC	0
-ONE			DC	1
-FOUR			DC	4
-
 
 
 PACKET_SIZE_LOW		DC	0
@@ -1567,6 +1603,7 @@ PREAMB2			DC	$5A5A	; preamble 16-bit word....2 of which make up second preamble 
 DATA_WD			DC	$4441	; "DA"
 REPLY_WD		DC	$5250	; "RP"
 
+NMAX_BURSTS		DC	0
 TOTAL_BUFFS		DC	0	; total number of 512 buffers in packet
 LEFT_TO_READ		DC	0	; number of words (16 bit) left to read after last 512 buffer
 LEFT_TO_WRITE		DC	0	; number of woreds (32 bit) to write to host i.e. half of those left over read
@@ -1574,6 +1611,26 @@ NUM_LEFTOVER_BLOCKS	DC	0	; small block DMA burst transfer
 
 DATA_DLY_VAL		DC	0	; data delay value..  Delay added to first frame received after GO command 
 CONSTORE		DC	$200
+
+NBURST_YMEM		DC	0	; number of y memory locations in DMA transfer (to PCI burst) 
+NBURST_BYTE		DC	0	; number of bytes in PCI burst 
+PCI_BL			DC	0	; holds PCI "burst length" in top byte (= word transfers -1)
+
+ZERO			DC	0
+ONE			DC	1
+FOUR			DC	4
+
+FILL46			DC	0
+
+; pci error counts
+ECOUNT_PCI		DC	0	; total count
+ECOUNT_TRTY		DC	0	; PCI target retry count
+ECOUNT_TO		DC	0	; PCI time out count
+ECOUNT_TDIS		DC	0	; PCI target disconnect count
+ECOUNT_TAB		DC	0	; PCI target abort count
+ECOUNT_MAB		DC	0	; PCI master abort count
+ECOUNT_DPER		DC	0	; PCI data parity error count
+ECOUNT_APER		DC	0	; PCI address parity error count
 
 ;----------------------------------------------------------
 

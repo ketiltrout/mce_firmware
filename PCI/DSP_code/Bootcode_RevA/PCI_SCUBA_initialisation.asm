@@ -232,13 +232,16 @@ START	MOVEP	#>$000001,X:DPMC
 	MOVEP	#%010100,X:PDRD ; Data Register - Pulse RS* high
 				; was %011100
 
-; Program the SCI port to benign values
-	MOVEP	#%000,X:PCRE	; Port Control Register = GPIO
-	MOVEP	#%110,X:PRRE	; Port Direction Register (0 = Input)
-	MOVEP	#%010,X:PDRE	; Port Data Register
+
+; Program the SCI port to benign values: 
 ;	PE0 = RXD
-;	PE1 = TXD
+;	PE1 = TXD  - use for debug (on d-type) to show when GO sent
 ;	PE2 = SCLK
+
+	MOVEP	#%000,X:PCRE	; Port Control Register = GPIO
+	MOVEP	#%111,X:PRRE	; Port Direction Register (0 = Input)
+	MOVEP	#%001,X:PDRE	; Port Data Register
+
 
 ; Program the triple timer to assert TCI0 as an GPIO output = 1
 	MOVEP	#$2800,X:TCSR0
