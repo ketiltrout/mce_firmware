@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.47 2007/02/19 22:01:35 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.47.2.1 2007/07/11 18:47:51 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.47.2.1  2007/07/11 18:47:51  mandana
+-- added test case for RC raw-data bugs and rewrite of wbs_frame_data
+--
 -- Revision 1.47  2007/02/19 22:01:35  mandana
 -- added test case for rewrite of wbs_frame_data and capture_raw bugs in rc_v03000019 and on
 --
@@ -179,6 +182,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       wdog              : out std_logic;
       slot_id           : in std_logic_vector(3 downto 0);
       card_id           : inout std_logic;
+      array_id          : in std_logic_vector(2 downto 0);      
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
       smb_nalert        : in std_logic;
@@ -356,6 +360,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       card_id    : inout std_logic;
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
+      smb_nalert : in std_logic;
 
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
@@ -615,6 +620,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
    signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
    signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
+   signal cc_array_id : std_logic_vector(2 downto 0) := "000";
 
    ------------------------------------------------
    -- Clock Card Signals
@@ -1075,6 +1081,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc1_mictorclk     : std_logic_vector(2 downto 1);
    signal bc1_rs232_rx      : std_logic;
    signal bc1_rs232_tx      : std_logic;
+   
+   signal bc1_smb_nalert    : std_logic;
 
 
    ------------------------------------------------
@@ -1331,6 +1339,7 @@ begin
          dip_sw4          => cc_dip_sw4,
          wdog             => cc_wdog,
          slot_id          => cc_slot_id,
+         array_id         => cc_array_id,
          card_id          => open,
          smb_clk          => open,
          smb_data         => open,
@@ -1863,7 +1872,7 @@ begin
 --         dip_sw4       => bc1_dip_sw4,
 --         wdog          => bc1_wdog,
 --         slot_id       => bc1_slot_id,
---
+--         smb_nalert    => bc1_smb_nalert,
 --         -- debug ports:
 --         test          => bc1_test,
 --         mictor        => bc1_mictor,
@@ -2358,37 +2367,11 @@ begin
 --      wait for 200 us;
 
 ------------------------------------------------------
--- Test case for RC raw-data bugs and rewrite of wbs_frame_data
-------------------------------------------------------
-      command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-     
-      command <= command_wb;
-      address_id <= rc1_captr_raw_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 150 us;      
-
-      command <= command_wb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
+-- Test case for sa_bias/update modified to only happen when updated
+------------------------------------------------------  
 
       command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
+      address_id <= rc1_sa_bias_cmd;
       data_valid <= X"00000001";
       data       <= X"00000000";
       load_preamble;
@@ -2397,50 +2380,170 @@ begin
       wait for 10 us;
 
       command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
+      address_id <= rc1_sa_bias_cmd;
+      data_valid <= X"00000005";
+      data       <= X"000000AA";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 15 us;
+
+      command <= command_wb;
+      address_id <= rc1_offset_cmd;
+      data_valid <= X"00000001";
+      data       <= X"0000000F";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+      
+      wait for 120 us;
+
+      command <= command_wb;
+      address_id <= rc1_offset_cmd;
+      data_valid <= X"00000001";
       data       <= X"0000000F";
       load_preamble;
       load_command;
       load_checksum;
       wait for 20 us;
 
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
+      command <= command_wb;
+      address_id <= rc1_offset_cmd;
+      data_valid <= X"00000008";
+      data       <= X"0000000F";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 600 us;
+      wait for 20 us;
+      wait for 120 us;
+------------------------------------------------------
+-- Test case for RC data
+------------------------------------------------------  
 
-      command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_servo_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 15 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"0000000F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
 
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 600 us;
 
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 600 us;
-      
+------------------------------------------------------
+-- Test case for RC raw-data bugs and rewrite of wbs_frame_data
+------------------------------------------------------
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--     
+--      command <= command_wb;
+--      address_id <= rc1_captr_raw_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 150 us;      
+--
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"0000000F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
+    
 ------------------------------------------------------
 --  7:  Testing Fibre Rx.
 --  This case tests what happens to the fibre_rx block
