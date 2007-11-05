@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: subarray_id.vhd,v 1.1 2007/07/25 22:33:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: subarray_id.vhd,v 1.2 2007/07/26 20:25:35 bburger Exp $>
 --
 -- Project:    Scuba 2
 -- Author:     Jonathan Jacob
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date: 2007/07/25 22:33:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/07/26 20:25:35 $> -     <text>      - <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ begin
 
    padded_array_id(WB_DATA_WIDTH-1 downto ARRAY_ID_BITS) <= (others => '0');
 --   padded_array_id(ARRAY_ID_BITS-1 downto 0) <= array_id;
-   padded_array_id(ARRAY_ID_BITS-1 downto 0) <= array_id_i;
+   padded_array_id(ARRAY_ID_BITS-1 downto 0) <= not array_id_i(0) & not array_id_i(1) & not array_id_i(2);
 
    ------------------------------------------------------------------------
    -- Wishbone
