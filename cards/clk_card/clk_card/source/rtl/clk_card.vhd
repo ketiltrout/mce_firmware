@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.75 2007/10/11 18:35:00 bburger Exp $
+-- $Id: clk_card.vhd,v 1.76 2007/10/18 22:32:34 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.76  2007/10/18 22:32:34  bburger
+-- BB: added a dedicated manchester PLL, and added interface signals to the spare LVDS lines on the backplane to help the CC determind which cards are present
+--
 -- Revision 1.75  2007/10/11 18:35:00  bburger
 -- BB:  Rolled dv_rx back from 1.5 to 1.3 because of a bug in the 1.5 code that causes the DV Number (from the sync box) to increment by two, and to spit out garble every few frames.
 --
@@ -251,7 +254,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000005";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000006";
 
    -- reset
    signal rst                : std_logic;
