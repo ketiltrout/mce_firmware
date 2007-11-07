@@ -32,6 +32,13 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.32  2007/10/18 22:44:08  bburger
+-- BB:
+-- - The firmware now uses the spare LVDS Bus Backplane signals to determine which cards are there
+-- - Simplified the logic for determining which bits are set in the error word.  Now, if a card is not present, it’s bit will always be asserted, regardless of if the reply is from it or not.  This is because card-not-present bits are now always valid, from start up.  Before, a command had to be issued to a card before the bits were valid.
+-- - If a card is not present, a command to it will time out immediately, instead of waiting for the timeout period to expire.
+-- - Added a buffer to the data pipeline to relax timing constraints on the synthesizer.
+--
 -- Revision 1.31  2007/07/24 23:27:47  bburger
 -- BB:
 -- - added lvds_reply_psu_a signal to sequencer interface for replies from the PSUC dispatch block
@@ -464,6 +471,7 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          -- Cascaded logic
          -- The states are for sequential stages of the logic
+         -- The LATCH_ERROR state occurs after either all expected replies have been received, or after a timeout.
          if(pres_state = LATCH_ERROR) then
             -- The Carnot Maps for this logic are Bryce Burger's SCUBA2 Logbook #8, near the beginning of the book.
             -- wrong_card_error indicates that a card has responded in part or in full to the command that wasn't supposed to.
