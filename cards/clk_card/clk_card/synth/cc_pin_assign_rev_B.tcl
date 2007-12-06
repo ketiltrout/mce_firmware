@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.11  2007/07/26 20:27:02  bburger
+# BB:  commented out the external trigger pin from the .tcl file, and uncommented the mictor header interface that uses the same pins.
+#
 # Revision 1.10  2007/07/25 18:52:37  bburger
 # BB:
 # - added the extend_n pin to the clk_card interface
@@ -140,9 +143,9 @@
 
 
 # print welcome message
-puts "\n\nClock Card Pin Assignment Script v1.0"
+puts "\n\nClock Card Pin Assignment Script v1.10"
 puts "-------------------------------------"
-puts "\n(for clock card rev. AA)"
+puts "\n(for clock card rev. B)"
 
 
 # include Quartus Tcl API
@@ -491,6 +494,54 @@ cmp add_assignment $top_name "" sram1_nwe LOCATION "Pin_W4"
 cmp add_assignment $top_name "" sram1_nce1 LOCATION "Pin_W3"
 cmp add_assignment $top_name "" sram1_ce2 LOCATION "Pin_V9"
 puts "   Assigned: SRAM bank 1 pins."
+
+
+# assign flash interface
+cmp add_assignment $top_name "" "flash_addr\[0\]" LOCATION "Pin_C22"
+cmp add_assignment $top_name "" "flash_addr\[1\]" LOCATION "Pin_A22"
+cmp add_assignment $top_name "" "flash_addr\[2\]" LOCATION "Pin_B22"
+cmp add_assignment $top_name "" "flash_addr\[3\]" LOCATION "Pin_E21"
+cmp add_assignment $top_name "" "flash_addr\[4\]" LOCATION "Pin_D21"
+cmp add_assignment $top_name "" "flash_addr\[5\]" LOCATION "Pin_C21"
+cmp add_assignment $top_name "" "flash_addr\[6\]" LOCATION "Pin_B21"
+cmp add_assignment $top_name "" "flash_addr\[7\]" LOCATION "Pin_A21"
+cmp add_assignment $top_name "" "flash_addr\[8\]" LOCATION "Pin_D20"
+cmp add_assignment $top_name "" "flash_addr\[9\]" LOCATION "Pin_C20"
+cmp add_assignment $top_name "" "flash_addr\[10\]" LOCATION "Pin_A20"
+cmp add_assignment $top_name "" "flash_addr\[11\]" LOCATION "Pin_B20"
+cmp add_assignment $top_name "" "flash_addr\[12\]" LOCATION "Pin_C17"
+cmp add_assignment $top_name "" "flash_addr\[13\]" LOCATION "Pin_B17"
+cmp add_assignment $top_name "" "flash_addr\[14\]" LOCATION "Pin_D17"
+cmp add_assignment $top_name "" "flash_addr\[15\]" LOCATION "Pin_E17"
+cmp add_assignment $top_name "" "flash_addr\[16\]" LOCATION "Pin_B16"
+cmp add_assignment $top_name "" "flash_addr\[17\]" LOCATION "Pin_A16"
+cmp add_assignment $top_name "" "flash_addr\[18\]" LOCATION "Pin_E16"
+cmp add_assignment $top_name "" "flash_addr\[19\]" LOCATION "Pin_C16"
+cmp add_assignment $top_name "" "flash_addr\[20\]" LOCATION "Pin_D16"
+
+cmp add_assignment $top_name "" "flash_data\[0\]" LOCATION "Pin_C5"
+cmp add_assignment $top_name "" "flash_data\[1\]" LOCATION "Pin_A5"
+cmp add_assignment $top_name "" "flash_data\[2\]" LOCATION "Pin_C4"
+cmp add_assignment $top_name "" "flash_data\[3\]" LOCATION "Pin_B4"
+cmp add_assignment $top_name "" "flash_data\[4\]" LOCATION "Pin_B5"
+cmp add_assignment $top_name "" "flash_data\[5\]" LOCATION "Pin_B3"
+cmp add_assignment $top_name "" "flash_data\[6\]" LOCATION "Pin_A3"
+cmp add_assignment $top_name "" "flash_data\[7\]" LOCATION "Pin_A4"
+cmp add_assignment $top_name "" "flash_data\[8\]" LOCATION "Pin_B26"
+cmp add_assignment $top_name "" "flash_data\[9\]" LOCATION "Pin_A26"
+cmp add_assignment $top_name "" "flash_data\[10\]" LOCATION "Pin_B25"
+cmp add_assignment $top_name "" "flash_data\[11\]" LOCATION "Pin_B24"
+cmp add_assignment $top_name "" "flash_data\[12\]" LOCATION "Pin_D24"
+cmp add_assignment $top_name "" "flash_data\[13\]" LOCATION "Pin_A25"
+cmp add_assignment $top_name "" "flash_data\[14\]" LOCATION "Pin_C25"
+cmp add_assignment $top_name "" "flash_data\[15\]" LOCATION "Pin_A24"
+
+cmp add_assignment $top_name "" flash_nrp LOCATION "Pin_D22"
+cmp add_assignment $top_name "" flash_nwe LOCATION "Pin_A23"
+cmp add_assignment $top_name "" flash_nby LOCATION "Pin_C23"
+cmp add_assignment $top_name "" flash_noe LOCATION "Pin_E23"
+cmp add_assignment $top_name "" flash_nce LOCATION "Pin_B23"
+puts "   Assigned: Flash pins."
 
 
 # assign fibre transmitter interface
