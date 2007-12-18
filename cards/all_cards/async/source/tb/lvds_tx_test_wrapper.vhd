@@ -18,10 +18,13 @@
 --
 -- Description:
 -- Puseudo random LVDS transmitter test.
--- 
+--
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.8  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.7  2004/05/31 21:41:54  erniel
 -- attempt at making the enable signal control the state transitions
 --
@@ -65,10 +68,10 @@ entity lvds_tx_test_wrapper is
       rst_i      : in std_logic;   -- reset input
       clk_i      : in std_logic;   -- clock input
       comm_clk_i : in std_logic;   -- fast communications clock input
-      
+
       en_i : in std_logic;    -- enable signal
       done_o : out std_logic; -- done ouput signal
-      
+
       -- extended signals
       lvds_o : out std_logic   -- LVDS output bit
    );
@@ -83,18 +86,18 @@ architecture behaviour of lvds_tx_test_wrapper is
    signal cyc : std_logic;
    signal busy : std_logic;
    signal stb : std_logic;
-   
+
    -- clock divider signals
    signal clk_divide : std_logic_vector(2 downto 0);
    signal tx_clk : std_logic;
-   
-   -- internal signals      
+
+   -- internal signals
    signal random_ena : std_logic;
    signal random_dat : std_logic_vector(7 downto 0);
-   
+
    signal count_ena : std_logic;
    signal count_dat : std_logic_vector(7 downto 0);
-   
+
    -- state machine
    type states is (IDLE, RANDOM, COUNT, SQUARE);
    signal present_state : states;
@@ -109,10 +112,10 @@ begin
          clk_divide <= clk_divide + 1;
       end if;
    end process;
-   
-   tx_clk <= clk_divide(2);  -- divide clock by 8 
-   
-   
+
+   tx_clk <= clk_divide(2);  -- divide clock by 8
+
+
    -- our LVDS transmitter
    lvds_tx : async_tx
       port map(
@@ -126,10 +129,10 @@ begin
          ack_o =>  ack,
          cyc_i =>  cyc
       );
-            
+
    -- we don't use the cyc signal
    cyc <= '1';
-   
+
    -- our random number generator
    lfsr : prand
       generic map (size => 8)
@@ -139,7 +142,7 @@ begin
          en_i =>  random_ena,
          out_o => random_dat
       );
-   
+
    -- counter
    counter: process(rst_i, tx_clk)
    begin
@@ -151,9 +154,9 @@ begin
          end if;
       end if;
    end process counter;
-   
+
    done_o <= en_i;
-   
+
    state_FF: process(rst_i, en_i)
    begin
       if(rst_i = '1') then
@@ -162,9 +165,11 @@ begin
          present_state <= next_state;
       end if;
    end process state_FF;
-   
+
    state_NS: process(present_state)
    begin
+      next_state <= present_state;
+
       case present_state is
          when IDLE =>   next_state <= RANDOM;
          when RANDOM => next_state <= COUNT;
@@ -173,17 +178,17 @@ begin
          when others => next_state <= RANDOM;
       end case;
    end process state_NS;
-   
+
    with present_state select
       dat <= count_dat when COUNT,
              random_dat when RANDOM,
              "00011100" when SQUARE,
              "00000000" when others;
-   
+
    stb <= (not ack and not busy) when (present_state = RANDOM or present_state = COUNT or present_state = SQUARE) else '0';
    we  <= (not ack and not busy) when (present_state = RANDOM or present_state = COUNT or present_state = SQUARE) else '0';
 
    random_ena <= ack when present_state = RANDOM else '0';
    count_ena  <= ack when present_state = COUNT  else '0';
-     
+
 end behaviour;

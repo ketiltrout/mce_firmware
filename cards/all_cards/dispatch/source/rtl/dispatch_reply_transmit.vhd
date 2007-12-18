@@ -29,8 +29,11 @@
 -- Implements the reply transmitter for the dispatch block.
 --
 -- Revision history:
--- 
+--
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.13  2006/05/04 23:10:57  mandana
+-- added integer range for crc_num_words
+--
 -- Revision 1.12  2006/01/16 20:02:48  bburger
 -- Ernie:   Added dip_sw interfaces to introduce artifical crc rx/tx errors on the busbackplan.  This feature is for testing purposes only.
 --
@@ -88,26 +91,26 @@ use sys_param.command_pack.all;
 
 entity dispatch_reply_transmit is
 port(clk_i      : in std_logic;
-     rst_i      : in std_logic;     
-     
+     rst_i      : in std_logic;
+
      lvds_tx_o : out std_logic;
-     
+
      -- Start/done signals:
      reply_start_i : in std_logic;
      reply_done_o  : out std_logic;
-     
+
      -- Command header words:
      header0_i : in std_logic_vector(31 downto 0);
      header1_i : in std_logic_vector(31 downto 0);
-     
+
      -- Buffer interface:
      buf_data_i : in std_logic_vector(31 downto 0);
      buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-     
+
      -- test interface
      dip_sw : in std_logic);
 end dispatch_reply_transmit;
-     
+
 architecture rtl of dispatch_reply_transmit is
 
 component lvds_tx
@@ -151,8 +154,8 @@ begin
             rdy_i      => lvds_tx_rdy,
             busy_o     => lvds_tx_busy,
             lvds_o     => lvds_tx_o);
-            
-                                 
+
+
    ---------------------------------------------------------
    -- CRC calculation
    ---------------------------------------------------------
@@ -170,15 +173,15 @@ begin
                done_o      => open,
                valid_o     => open,
                checksum_o  => crc_checksum);
-    
-   crc_num_words <= conv_integer(header0_i(BB_DATA_SIZE'range) + 2);           
+
+   crc_num_words <= conv_integer(header0_i(BB_DATA_SIZE'range) + 2);
    crc_poly <= "00000100110000010001110110110111" when dip_sw = '1' else "10000100110000010001110110110111";
 
 
-   ---------------------------------------------------------               
+   ---------------------------------------------------------
    -- Counter for transmitted words
-   ---------------------------------------------------------   
-   
+   ---------------------------------------------------------
+
    word_counter : binary_counter
    generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i   => clk_i,
@@ -189,10 +192,10 @@ begin
             clear_i => word_count_clr,
             count_i => (others => '0'),
             count_o => word_count);
-            
+
    buf_addr_o <= word_count;
-   
-   
+
+
    ---------------------------------------------------------
    -- Transmit controller FSM
    ---------------------------------------------------------
@@ -204,44 +207,41 @@ begin
          pres_state <= next_state;
       end if;
    end process tx_stateFF;
-   
+
    tx_stateNS: process(pres_state, reply_start_i, lvds_tx_busy, word_count, header0_i)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>      if(reply_start_i = '1') then
                               next_state <= TX_HDR;
-                           else
-                              next_state <= IDLE;
                            end if;
-         
-         when TX_HDR =>    if(lvds_tx_busy = '0' and word_count = 1) then 
+
+         when TX_HDR =>    if(lvds_tx_busy = '0' and word_count = 1) then
                               if(header0_i(BB_DATA_SIZE'range) = 0) then
                                  next_state <= TX_CRC;
                               else
                                  next_state <= FETCH;
                               end if;
-                           else
-                              next_state <= TX_HDR;
                            end if;
-         
+
          when FETCH =>     next_state <= TX_DATA;
-         
+
          when TX_DATA =>   if(lvds_tx_busy = '0' and word_count = header0_i(BB_DATA_SIZE'range)-1) then
                               next_state <= TX_CRC;
                            else
                               next_state <= FETCH;
                            end if;
-                           
+
          when TX_CRC =>    if(lvds_tx_busy = '0') then
                               next_state <= DONE;
-                           else
-                              next_state <= TX_CRC;
                            end if;
-         
+
          when others =>    next_state <= IDLE;
       end case;
    end process tx_stateNS;
-   
+
    tx_stateOut: process(pres_state, word_count, lvds_tx_busy, header0_i, header1_i, buf_data_i, crc_checksum)
    begin
       word_count_ena <= '0';
@@ -252,15 +252,15 @@ begin
       lvds_tx_rdy    <= '0';
       lvds_tx_data   <= (others => '0');
       reply_done_o   <= '0';
-      
+
       case pres_state is
          when IDLE =>    word_count_clr       <= '1';
                          crc_clr              <= '1';
-                      
+
          when TX_HDR =>  if(lvds_tx_busy = '0') then
                             crc_ena           <= '1';
                             lvds_tx_rdy       <= '1';
-                               
+
                             if(word_count = 0) then
                                word_count_ena <= '1';
                                lvds_tx_data   <= header0_i;
@@ -271,9 +271,9 @@ begin
                                crc_data       <= header1_i;
                             end if;
                          end if;
-         
+
          when FETCH =>   null;
-         
+
          when TX_DATA => if(lvds_tx_busy = '0') then
                             word_count_ena    <= '1';
                             crc_ena           <= '1';
@@ -281,16 +281,16 @@ begin
                             lvds_tx_rdy       <= '1';
                             lvds_tx_data      <= buf_data_i;
                          end if;
-         
+
          when TX_CRC =>  if(lvds_tx_busy = '0') then
                             lvds_tx_rdy       <= '1';
                             lvds_tx_data      <= crc_checksum;
                          end if;
-         
+
          when DONE =>    reply_done_o         <= '1';
-         
+
          when others =>  null;
       end case;
    end process tx_stateOut;
-   
+
 end rtl;

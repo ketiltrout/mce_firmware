@@ -21,16 +21,19 @@
 --
 -- dispatch_wishbone.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
 -- Implements the Wishbone Master part of the dispatch block
 --
 -- Revision history:
--- 
+--
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.15  2005/12/12 20:48:44  erniel
+-- fixed implicit register on buf_addr_o
+--
 -- Revision 1.14  2005/12/02 00:41:17  erniel
 -- modified FSM to accomodate pipeline-mode buffer at dispatch top-level
 --
@@ -98,21 +101,21 @@ use sys_param.wishbone_pack.all;
 entity dispatch_wishbone is
 port(clk_i : in std_logic;
      rst_i : in std_logic;
-     
-     -- Command header and data buffer interface:     
+
+     -- Command header and data buffer interface:
      header0_i : in std_logic_vector(31 downto 0);
      header1_i : in std_logic_vector(31 downto 0);
-     
-     buf_data_i : in std_logic_vector(31 downto 0);     
+
+     buf_data_i : in std_logic_vector(31 downto 0);
      buf_data_o : out std_logic_vector(31 downto 0);
      buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      buf_wren_o : out std_logic;
-     
+
      -- Start/done/error signals:
      execute_start_i : in std_logic;
-     execute_done_o   : out std_logic;     
+     execute_done_o   : out std_logic;
      execute_error_o  : out std_logic;
-     
+
      -- Wishbone interface:
      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -120,18 +123,18 @@ port(clk_i : in std_logic;
      we_o   : out std_logic;
      stb_o  : out std_logic;
      cyc_o  : out std_logic;
-     dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
      err_i  : in std_logic;  -- asserted when a Wishbone slave is not connected
-     
+
      -- Watchdog reset interface:
      wdt_rst_o : out std_logic);
 end dispatch_wishbone;
-     
+
 architecture rtl of dispatch_wishbone is
 
 constant WATCHDOG_TIMEOUT_US : integer := 180000;
-   
+
 type master_states is (IDLE, FETCH, WB_CYCLE, DONE, ERROR);
 signal pres_state : master_states;
 signal next_state : master_states;
@@ -144,11 +147,11 @@ signal timer_rst : std_logic;
 signal timer     : integer;
 
 begin
-  
+
    ---------------------------------------------------------
    -- Address generator
    ---------------------------------------------------------
-   
+
    addr_gen : binary_counter
    generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i   => clk_i,
@@ -160,29 +163,29 @@ begin
             count_i => (others => '0'),
             count_o => addr);
 
-   
+
    ---------------------------------------------------------
    -- Watchdog timer
    ---------------------------------------------------------
-   
+
    -- When in IDLE, kick the watchdog every WATCHDOG_TIMEOUT_US (currently 180,000) us
-   
-   -- When in WB_CYCLE or DONE, do not kick the watchdog (hold timer at 0).  
+
+   -- When in WB_CYCLE or DONE, do not kick the watchdog (hold timer at 0).
    -- If the wishbone hangs, the external watchdog will be allowed to reset the FPGA (since it is not being kicked)
-   
+
    wdt : us_timer
    port map (clk => clk_i,
              timer_reset_i => timer_rst,
              timer_count_o => timer);
-   
-   timer_rst <= '1' when timer = WATCHDOG_TIMEOUT_US or pres_state = WB_CYCLE or pres_state = DONE else '0';   
+
+   timer_rst <= '1' when timer = WATCHDOG_TIMEOUT_US or pres_state = WB_CYCLE or pres_state = DONE else '0';
    wdt_rst_o <= '1' when timer = 0 else '0';
-         
-   
+
+
    ---------------------------------------------------------
    -- Wishbone protocol FSM
    ---------------------------------------------------------
-   
+
    stateFF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -191,42 +194,50 @@ begin
          pres_state <= next_state;
       end if;
    end process stateFF;
-   
+
    stateNS: process(pres_state, header0_i, execute_start_i, ack_i, err_i, addr)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+
       case pres_state is
-         when IDLE =>     if(execute_start_i = '1') then
-                             if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
-                                next_state <= FETCH;
-                             else
-                                next_state <= WB_CYCLE;
-                             end if;
-                          else
-                             next_state <= IDLE;
-                          end if;
-         
-         when FETCH =>    next_state <= WB_CYCLE;
-                              
-         when WB_CYCLE => if(ack_i = '1') then
-                             if(addr = header0_i(BB_DATA_SIZE'range)-1) then  
-                                next_state <= DONE;                              -- slave has accepted last piece of data
-                             elsif(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
-                                next_state <= FETCH;
-                             else
-                                next_state <= WB_CYCLE;
-                             end if;
-                          elsif(err_i = '1') then 
-                             next_state <= ERROR;                                -- slave does not exist, abort
-                          else
-                             next_state <= WB_CYCLE;
-                          end if;
-                                                      
-         when DONE =>     next_state <= IDLE;
-         
-         when ERROR =>    next_state <= IDLE;
+         when IDLE =>
+            if(execute_start_i = '1') then
+               if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
+                  next_state <= FETCH;
+               else
+                  next_state <= WB_CYCLE;
+               end if;
+            end if;
+
+         when FETCH =>
+            next_state <= WB_CYCLE;
+
+         when WB_CYCLE =>
+            if(ack_i = '1') then
+               if(addr = header0_i(BB_DATA_SIZE'range)-1) then
+                  next_state <= DONE;                              -- slave has accepted last piece of data
+               elsif(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
+                  next_state <= FETCH;
+               else
+                  next_state <= WB_CYCLE;
+               end if;
+            elsif(err_i = '1') then
+               next_state <= ERROR;                                -- slave does not exist, abort
+            end if;
+
+         when DONE =>
+            next_state <= IDLE;
+
+         when ERROR =>
+            next_state <= IDLE;
+
+         when others =>
+            next_state <= IDLE;
+
       end case;
    end process stateNS;
-   
+
    stateOut: process(pres_state, header0_i, header1_i, buf_data_i, dat_i, ack_i, addr)
    begin
       addr_o          <= (others => '0');
@@ -242,36 +253,42 @@ begin
       buf_wren_o      <= '0';
       execute_done_o  <= '0';
       execute_error_o <= '0';
-                            
+
       case pres_state is
-         when IDLE =>     addr_clr      <= '1';
-         
-         when FETCH =>    buf_addr_o    <= addr;
-         
-         when WB_CYCLE => addr_o        <= header1_i(BB_PARAMETER_ID'range);
-                          tga_o(BB_DATA_SIZE_WIDTH-1 downto 0) <= addr;          -- zero-padded to 32-bits by default assignment
-                          cyc_o         <= '1';
-                          stb_o         <= '1';
-                          
-                          if(ack_i = '1') then
-                             addr_ena   <= '1';
-                          end if;
-                             
-                          if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then  
-                             buf_addr_o <= addr;                                 -- write commands: read data from buffer
-                             dat_o      <= buf_data_i;                                        
-                             we_o       <= '1';
-                          else  
-                             buf_addr_o <= addr;                                 -- read commands: write data to buffer
-                             buf_data_o <= dat_i;
-                             buf_wren_o <= '1';
-                          end if;
-                          
-         when DONE =>     execute_done_o     <= '1';
-         
-         when ERROR =>    execute_done_o     <= '1';
-                          execute_error_o    <= '1';
-      end case;  
+         when IDLE =>
+            addr_clr      <= '1';
+
+         when FETCH =>
+            buf_addr_o    <= addr;
+
+         when WB_CYCLE =>
+            addr_o        <= header1_i(BB_PARAMETER_ID'range);
+            tga_o(BB_DATA_SIZE_WIDTH-1 downto 0) <= addr;          -- zero-padded to 32-bits by default assignment
+            cyc_o         <= '1';
+            stb_o         <= '1';
+
+            if(ack_i = '1') then
+               addr_ena   <= '1';
+            end if;
+
+            if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
+               buf_addr_o <= addr;                                 -- write commands: read data from buffer
+               dat_o      <= buf_data_i;
+               we_o       <= '1';
+            else
+               buf_addr_o <= addr;                                 -- read commands: write data to buffer
+               buf_data_o <= dat_i;
+               buf_wren_o <= '1';
+            end if;
+
+         when DONE =>
+            execute_done_o     <= '1';
+
+         when ERROR =>
+            execute_done_o     <= '1';
+            execute_error_o    <= '1';
+
+      end case;
    end process stateOut;
-   
+
 end rtl;

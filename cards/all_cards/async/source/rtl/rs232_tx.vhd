@@ -21,16 +21,19 @@
 --
 -- rs232_tx.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
 -- RS232 transmit module (RS232 wrapper for async_tx)
 --
 -- Revision history:
--- 
+--
 -- $Log: rs232_tx.vhd,v $
+-- Revision 1.5  2006/05/11 22:27:27  bench2
+-- fixed incomplete state machine
+--
 -- Revision 1.4  2005/01/12 22:45:56  erniel
 -- removed async_tx instantiation
 -- removed comm_clk and mem_clk
@@ -60,11 +63,11 @@ use components.component_pack.all;
 entity rs232_tx is
 port(clk_i      : in std_logic;
      rst_i      : in std_logic;
-     
+
      dat_i      : in std_logic_vector(7 downto 0);
      rdy_i      : in std_logic;
      busy_o     : out std_logic;
-     
+
      rs232_o    : out std_logic);
 end rs232_tx;
 
@@ -99,7 +102,7 @@ begin
             load_i  => bit_count_clr,
             count_i => 0,
             count_o => bit_count);
-            
+
    data_buffer: fifo
    generic map(DATA_WIDTH => 8,
                ADDR_WIDTH => 6)
@@ -113,9 +116,9 @@ begin
             empty_o   => buf_empty,
             full_o    => buf_full,
             used_o    => open);
-   
+
    busy_o <= buf_full;
-   
+
    tx_buffer: shift_reg
    generic map(WIDTH => 10)
    port map(clk_i      => clk_i,
@@ -128,9 +131,9 @@ begin
             serial_o   => tx_bit,
             parallel_i => tx_data,
             parallel_o => open);
-           
-   tx_data <= '1' & buf_data & '0';           
-           
+
+   tx_data <= '1' & buf_data & '0';
+
    stateFF: process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
@@ -139,31 +142,33 @@ begin
          pres_state <= next_state;
       end if;
    end process stateFF;
-   
+
    stateNS: process(pres_state, buf_empty, bit_count)
    begin
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>  if(buf_empty = '0') then
                           next_state <= SETUP;
                        else
                           next_state <= IDLE;
                        end if;
-         
+
          when SETUP => next_state <= SEND;
-         
+
          when SEND =>  if(bit_count = 4339) then
                           next_state <= DONE;
                        else
                           next_state <= SEND;
                        end if;
-         
+
          when DONE =>  next_state <= IDLE;
-         
+
          when others => next_state <= IDLE;
-         
+
       end case;
    end process stateNS;
-                         
+
    stateOut: process(pres_state, bit_count, tx_bit)
    begin
       bit_count_ena <= '0';
@@ -172,26 +177,26 @@ begin
       tx_ena        <= '0';
       tx_ld         <= '0';
       rs232_o        <= '1';
-            
+
       case pres_state is
          when IDLE =>  bit_count_ena <= '1';
                        bit_count_clr <= '1';
-                       
+
          when SETUP => tx_ena        <= '1';
                        tx_ld         <= '1';
-         
+
          when SEND =>  bit_count_ena <= '1';
                        -- for RS232 bitrate of 115 kbps, hold each bit for 434 clk_i periods.
-                       if(bit_count = 433  or bit_count = 867  or bit_count = 1301 or bit_count = 1735 or 
-                          bit_count = 2169 or bit_count = 2603 or bit_count = 3037 or bit_count = 3471 or 
+                       if(bit_count = 433  or bit_count = 867  or bit_count = 1301 or bit_count = 1735 or
+                          bit_count = 2169 or bit_count = 2603 or bit_count = 3037 or bit_count = 3471 or
                           bit_count = 3905 or bit_count = 4339) then tx_ena <= '1';
                        end if;
-                       rs232_o <= tx_bit;                      
-         
+                       rs232_o <= tx_bit;
+
          when DONE =>  buf_read      <= '1';
-         
+
          when others => null;
       end case;
    end process stateOut;
-   
+
 end rtl;
