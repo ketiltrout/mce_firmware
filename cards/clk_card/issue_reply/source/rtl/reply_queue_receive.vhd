@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.18  2007/07/24 23:12:23  bburger
+-- BB:
+-- - Cleaned out comments
+--
 -- Revision 1.17  2006/07/07 00:42:08  bburger
 -- Bryce: changed the meaning of bit 2 of the error code to indicate whether the state machine has left idle.  This is used to determine if unexpected packets have been received by this block in reply_queue_sequencer
 --
@@ -56,6 +60,8 @@ port(clk_i      : in std_logic;
      lvds_reply_i : in std_logic;
 
      error_o : out std_logic_vector(2 downto 0);   -- 3 error bits: Tx CRC error, Rx CRC error, Execute Error
+     bad_preamble_o : out std_logic;
+
      data_o  : out std_logic_vector(31 downto 0);
      rdy_o   : out std_logic;
      ack_i   : in std_logic;
@@ -315,6 +321,7 @@ begin
       word_count_ena <= '0';
       word_count_clr <= '0';
       rdy_o          <= '0';
+      bad_preamble_o <= '0';
 
       case pres_state is
          when RX_INIT =>      crc_clr           <= '1';
@@ -325,6 +332,7 @@ begin
          when RX_HEADER0 =>   if(lvds_rx_rdy = '1') then
                                  if(lvds_rx_data(BB_PREAMBLE'range) /= BB_PREAMBLE) then
                                     crc_clr     <= '1';         -- reset CRC calculation during resynchronization
+                                    bad_preamble_o <= '1';
                                  end if;
                                  lvds_rx_ack    <= '1';
                                  crc_ena        <= '1';
