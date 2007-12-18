@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: backplane_id_thermo.vhd,v $
+-- Revision 1.2  2007/07/26 20:24:35  bburger
+-- BB:  Corrected the entity name from box_id_thermo to backplane_id_thermo
+--
 -- Revision 1.1  2007/07/25 22:38:26  bburger
 -- BB:  Initial committal
 --
@@ -283,6 +286,8 @@ begin
 
    control_NS: process(ctrl_ps, slave_done, slave_ready, slave_ndetect, byte_count)
    begin
+      ctrl_ns <= ctrl_ps;
+
       case ctrl_ps is
          when CTRL_IDLE =>
             ctrl_ns <= PHASE1_INIT;
@@ -475,6 +480,8 @@ begin
 
    wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd, write_cmd)
    begin
+      wb_ns <= wb_ps;
+
       case wb_ps is
          when WB_IDLE =>
             if(read_id_cmd = '1') then

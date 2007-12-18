@@ -21,16 +21,24 @@
 --
 -- ac_test.vhd
 --
--- Project:	      SCUBA-2
--- Author:	      Ernie Lin
+-- Project:       SCUBA-2
+-- Author:        Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2005/11/22 00:01:19 $>	- <initials $Author: erniel $>
+-- <date $Date: 2006/08/02 22:43:15 $>	- <initials $Author: mandana $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.10  2006/08/02 22:43:15  mandana
+-- updated revision to 3.0
+-- added ramp_off_msg to not let the user know to turn off the ramp mode before applying fixed values
+-- removed easter_msg
+-- updated error_msg to be more informative
+-- added pll output for ramp_test 12.5MHz clock
+-- fixed the bug associated with typing f while ramp mode was enabled
+--
 -- Revision 1.9  2005/11/22 00:01:19  erniel
 -- updated AC_test to version 2.0b:
 --      minor bug fix to ac_dac_ctrl_test
@@ -76,7 +84,7 @@ port(inclk : in std_logic;
      rx : in std_logic;
      tx : out std_logic;
 
-     dac_data0  : out std_logic_vector(13 downto 0); 
+     dac_data0  : out std_logic_vector(13 downto 0);
      dac_data1  : out std_logic_vector(13 downto 0);
      dac_data2  : out std_logic_vector(13 downto 0);
      dac_data3  : out std_logic_vector(13 downto 0);
@@ -169,7 +177,7 @@ port(rst_i       : in std_logic;
      dac_dat8_o  : out std_logic_vector(13 downto 0);
      dac_dat9_o  : out std_logic_vector(13 downto 0);
      dac_dat10_o : out std_logic_vector(13 downto 0);
-     dac_clk_o   : out std_logic_vector (40 downto 0));   
+     dac_clk_o   : out std_logic_vector (40 downto 0));
 end component;
 
 signal fixed_dac_ena  : std_logic;
@@ -205,7 +213,7 @@ port(rst_i       : in std_logic;
      dac_dat8_o  : out std_logic_vector(13 downto 0);
      dac_dat9_o  : out std_logic_vector(13 downto 0);
      dac_dat10_o : out std_logic_vector(13 downto 0);
-     dac_clk_o   : out std_logic_vector(40 downto 0));   
+     dac_clk_o   : out std_logic_vector(40 downto 0));
 end component;
 
 signal ramp_dac_ena    : std_logic;
@@ -222,7 +230,7 @@ signal ramp_dac_data8  : std_logic_vector(13 downto 0);
 signal ramp_dac_data9  : std_logic_vector(13 downto 0);
 signal ramp_dac_data10 : std_logic_vector(13 downto 0);
 signal ramp_dac_clk    : std_logic_vector(40 downto 0);
-  
+
 signal ramp_enabled : std_logic;
 
 begin
@@ -375,6 +383,8 @@ begin
 
    process(pres_state, rx_rdy, rx_data, tx_count, fixed_dac_done, ramp_dac_done)
    begin
+      next_state <= pres_state;
+
       case pres_state is
          when RESET =>          next_state <= TX_RESET;
 
@@ -425,7 +435,7 @@ begin
                                    next_state <= TX_IDLE;
                                 else
                                    next_state <= WAIT_DAC_DONE;
-                                end if;  
+                                end if;
 
          when others =>         next_state <= TX_IDLE;
 
@@ -441,7 +451,7 @@ begin
       tx_count_clr  <= '0';
       cmd1_ld       <= '0';
       cmd2_ld       <= '0';
-      
+
       rst_cmd       <= '0';
       fixed_dac_ena <= '0';
       ramp_dac_ena  <= '0';
@@ -468,7 +478,7 @@ begin
                             if(tx_count = IDLE_MSG_LEN - 1) then
                                tx_count_ena <= '1';
                                tx_count_clr <= '1';
-                            end if;   
+                            end if;
                             tx_data <= idle_msg;
 
          when TX_ERROR =>   if(tx_busy = '0') then
@@ -510,13 +520,13 @@ begin
    --------------------------------------------------------
    -- DAC (Fixed Mode) block
    --------------------------------------------------------
-   
+
    ac_dac_fix : ac_dac_ctrl_test
       port map(rst_i       => rst,
                clk_i       => clk,
                en_i        => fixed_dac_ena,
                done_o      => fixed_dac_done,
-               
+
                dac_dat0_o  => fix_dac_data0,
                dac_dat1_o  => fix_dac_data1,
                dac_dat2_o  => fix_dac_data2,
@@ -541,7 +551,7 @@ begin
                clk_4_i     => clk_4,
                en_i        => ramp_dac_ena,
                done_o      => ramp_dac_done,
-               
+
                dac_dat0_o  => ramp_dac_data0,
                dac_dat1_o  => ramp_dac_data1,
                dac_dat2_o  => ramp_dac_data2,
@@ -553,7 +563,7 @@ begin
                dac_dat8_o  => ramp_dac_data8,
                dac_dat9_o  => ramp_dac_data9,
                dac_dat10_o => ramp_dac_data10,
-               dac_clk_o   => ramp_dac_clk);   
+               dac_clk_o   => ramp_dac_clk);
 
 
    -- This process keeps track of whether ramp mode is currently enabled or not:
@@ -567,7 +577,7 @@ begin
          end if;
       end if;
    end process;
-      
+
    -- Multiplexing fixed mode and ramp mode DAC test wrapper outputs:
    dac_data0  <= ramp_dac_data0  when ramp_enabled = '1' else fix_dac_data0;
    dac_data1  <= ramp_dac_data1  when ramp_enabled = '1' else fix_dac_data1;
