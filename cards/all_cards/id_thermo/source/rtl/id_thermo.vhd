@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.10  2007/07/26 20:23:01  bburger
+-- BB:  scaling bug fixed.  Now the temperatures make room at the LSB for the stale bit
+--
 -- Revision 1.9  2007/07/25 22:22:19  bburger
 -- BB:  Customized this block to what it actually is used for.  Initially it was intended to be used for both the card id_thermo and box id_thermo chips, but the interfaces between the two are different (1-wire vs. 3-wire) so I abandoned the idea of reusing this block and implemented a box_id_thermo block in the clk_card directory.
 -- - This block now incorporates a stale bit in the LSB of the data returned to the dispatch block.
@@ -277,6 +280,8 @@ begin
 
    control_NS: process(ctrl_ps, slave_done, slave_ready, slave_ndetect, byte_count)
    begin
+      ctrl_ns <= ctrl_ps;
+
       case ctrl_ps is
          when CTRL_IDLE =>           ctrl_ns <= PHASE1_INIT;
 
@@ -450,6 +455,8 @@ begin
 
    wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd, write_cmd)
    begin
+      wb_ns <= wb_ps;
+
       case wb_ps is
          when WB_IDLE =>
             if(read_id_cmd = '1') then
