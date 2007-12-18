@@ -28,9 +28,18 @@
 -- 'special character' byte transmitted by the Linux PC.
 --
 -- Revision history:
--- <date $Date: 2007/01/24 01:19:41 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/07/25 18:50:04 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: cc_reset.vhd,v $
+-- Revision 1.4  2007/07/25 18:50:04  bburger
+-- BB:  Block has been completely revamped
+-- - added wishbone interface to support commands for mce_reset and cc_reset
+-- - renamed rst_n_i interface signal to ext_rest_n_i
+-- - added cc_bclr_o and mce_bclr_o to differentiate between cc bclr's and mce bclr's
+-- - added fibre_clkr_i signal to the cc_reset interface to allow the block to sample the fibre based on the fibre clock
+-- - added mce_bclr_event_o/ mce_bclr_ack_i to allow the cc_reset block to notify the issue reply chain when mce_bclr's happen
+-- - added cc_bclr_event_o/ cc_bclr_ack_i to allow the cc_reset block to notify the issue reply chain when cc_bclr's happen
+--
 -- Revision 1.3  2007/01/24 01:19:41  bburger
 -- Bryce:  Added a timer to extend the BClr pulse over the Bus Backplane to all the whole subrak to be reset.  Also added FSMs for recording BRst and BClr events.
 --
@@ -119,7 +128,7 @@ architecture rtl of cc_reset is
    signal mce_bclr_event1  : std_logic;
    signal mce_bclr_event2  : std_logic;
 
---   signal rst             : std_logic;
+   signal rst             : std_logic;
    signal cc_bclr         : std_logic;
 --   signal mce_bclr        : std_logic;
 
@@ -171,6 +180,7 @@ begin
 
    cc_bclr_o  <= (not ext_rst_n_i) or cc_bclr;
    mce_bclr_o <= mce_bclr1 or mce_bclr2;
+   rst <= (not ext_rst_n_i) or cc_bclr or mce_bclr1 or mce_bclr2;
 
    --------------------------------------------------------------------------------------------------------------------
    -- Notes:
@@ -382,11 +392,11 @@ begin
 
          when WAIT_FOR_RESET =>
             -- Wait here until the next asynchronous BRST/ BCLR resets the state machine.
-            -- if there is a cc bclr special character or a cc push button blr then
             if(cc_bclr_wren = '1' or ext_rst_n_i = '0') then
+            -- if there is a cc bclr special character or a cc push button blr
                next_state <= PREP_CLOCK_CARD_BCLR;
-            -- if there is an mce_bclr special character or and mce push button bclr then
             elsif(mce_bclr_wren = '1') then
+            -- if there is an mce_bclr special character or and mce push button bclr
                next_state <= PREP_SUBRACK_BCLR;
             end if;
 
@@ -590,7 +600,8 @@ begin
    -- State forwarder
    process(clk_i, brst5)
    begin
-      -- Neither ext_rst_n_i (BRst, 1.5V monitor, 3.3V monitor) nor BClr should reset this register.
+      -- This FSM should only be reset after a power-up or a reconfiguration.
+      -- Thus, neither ext_rst_n_i (BRst, 1.5V monitor, 3.3V monitor) nor BClr should reset this register.
       if(brst5 = '0') then
          current_brst_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
@@ -649,9 +660,10 @@ begin
    --  WB FSM
    ------------------------------------------------------------
    -- clocked FSMs, advance the state for both FSMs
-   state_FF: process(clk_i, cc_bclr)
+   state_FF: process(clk_i, rst)
    begin
-      if(cc_bclr = '1') then
+      -- This state machine is reset during every normal reset event.
+      if(rst = '1') then
          current_wbs_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
          current_wbs_state <= next_wbs_state;
