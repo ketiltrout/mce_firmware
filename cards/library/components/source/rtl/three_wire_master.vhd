@@ -30,7 +30,10 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: three_wire_master.vhd,v $
+-- Revision 1.1  2007/07/25 22:56:31  bburger
+-- BB:  Initial committal
+--
 --
 -----------------------------------------------------------------------------
 
@@ -184,6 +187,8 @@ begin
 
    stateNS: process(pres_state, init_i, write_i, read_i, bit_count, timer)
    begin
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>
             if(init_i = '1') then

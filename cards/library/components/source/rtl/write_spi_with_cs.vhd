@@ -25,12 +25,15 @@
 -- Organisation:  UBC
 --
 -- Description:  This module implements writing to an SPI device and implements cs signal
--- WARNING: This code has not yet been linted! 
--- 
+-- WARNING: This code has not yet been linted!
+--
 --
 -- Revision history:
--- <date $Date: 2006/04/28 21:38:51 $> - <initials $Author: mandana $>
+-- <date $Date: 2006/10/28 00:11:58 $> - <initials $Author: bburger $>
 -- $Log: write_spi_with_cs.vhd,v $
+-- Revision 1.7  2006/10/28 00:11:58  bburger
+-- Bryce:  Removed unused signal
+--
 -- Revision 1.6  2006/04/28 21:38:51  mandana
 -- added integer range for count
 --
@@ -48,7 +51,7 @@
 --
 -- Revision 1.1  2004/04/15 18:37:58  mandana
 -- initial release
---   
+--
 --
 -----------------------------------------------------------------------------
 
@@ -69,13 +72,13 @@ port(--inputs
      rst_i            : in std_logic;
      start_i          : in std_logic;
      parallel_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
-     
+
      --outputs
      spi_clk_o        : out std_logic;
      done_o           : out std_logic;
      spi_ncs_o        : out std_logic;
      serial_wr_data_o : out std_logic);
-     
+
 end write_spi_with_cs;
 
 architecture rtl of write_spi_with_cs is
@@ -106,7 +109,7 @@ begin
 -----------------------------------------------------------------------------
    -- clock output going to the spi device
    spi_clk_o <= spi_clk_i when run_spi_clk = '1' else '0';
-      
+
    -- phase shifted clock for the state machine logic
    n_spi_clk <= not(spi_clk_i);
 
@@ -115,7 +118,7 @@ begin
 --
 -- State machine sequencer
 --
------------------------------------------------------------------------------ 
+-----------------------------------------------------------------------------
    process(rst_i, n_spi_clk)
    begin
       if rst_i = '1' then
@@ -130,31 +133,33 @@ begin
 --
 -- Next state logic assignments
 --
------------------------------------------------------------------------------ 
+-----------------------------------------------------------------------------
 
    process(current_state, start_i, count)
    begin
+      next_state <= current_state;
+
       case current_state is
          when IDLE =>
             if start_i = '1' then
                next_state <= START;
             else
                next_state <= IDLE;
-            end if;   
-            
+            end if;
+
          when START =>
             next_state <= WRITE;
-            
+
          when WRITE =>
             if count >= DATA_LENGTH - 1 then
                next_state <= IDLE;
             else
                next_state <= WRITE;
             end if;
-         
+
          when others =>
             next_state <= IDLE;
-            
+
       end case;
    end process;
 
@@ -164,17 +169,17 @@ begin
 --
 -- Next state output assignments
 --
------------------------------------------------------------------------------   
-   
+-----------------------------------------------------------------------------
+
    process(current_state, start_i, count)
    begin
-      
+
       done_o <= '0';
       shift_reg_load  <= '0';
       reset_counter   <= '0';
       spi_ncs_o       <= '0';
       run_spi_clk     <= '0';
-      
+
       case current_state is
          when IDLE =>
             if start_i = '1' then
@@ -184,9 +189,9 @@ begin
                spi_ncs_o       <= '1';
                reset_counter   <= '1';
                shift_reg_load  <= '1';
-            end if;           
-            
-         when START => 
+            end if;
+
+         when START =>
             reset_counter      <= '1';
             run_spi_clk        <= '1';
 
@@ -197,14 +202,14 @@ begin
                spi_ncs_o       <= '1';
                done_o          <= '1';
             end if;
-         
+
          when others =>
             null;
-            
+
       end case;
    end process;
-            
-   
+
+
 ------------------------------------------------------------------------
 --
 -- Instantiate shift registers
@@ -212,9 +217,9 @@ begin
 ------------------------------------------------------------------------
 
    shl  <= '0';
-   
+
    spi_shift : shift_reg
-   
+
    generic map (WIDTH => DATA_LENGTH)
    port map(clk_i      => n_spi_clk,
         rst_i          => rst_i,
@@ -231,7 +236,7 @@ begin
 --
 -- Counter for the EEPROM state machine, running off the slow clock
 --
-------------------------------------------------------------------------  
+------------------------------------------------------------------------
    process(reset_counter, n_spi_clk)
    begin
       if reset_counter = '1' then
@@ -240,6 +245,6 @@ begin
          count <= count + 1;
       end if;
    end process;
-   
+
 
 end rtl;

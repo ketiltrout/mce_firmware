@@ -21,7 +21,7 @@
 --
 -- one_wire_master.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -29,8 +29,13 @@
 -- Implements the master for communicating with slave devices that use the 1-wire protocol.
 --
 -- Revision history:
--- 
+--
 -- $Log: one_wire_master.vhd,v $
+-- Revision 1.3  2005/10/26 21:04:05  erniel
+-- consolidated external and internal interfaces via generic parameter
+-- fixed potentially dangerous issue with previous interface change
+-- converted counters to binary_counters
+--
 -- Revision 1.2  2005/10/21 19:04:50  erniel
 -- added support for interfaces with external tristate
 -- some interface signal name changes
@@ -53,7 +58,7 @@ entity one_wire_master is
 generic(tristate : string := "INTERNAL");  -- valid values are "INTERNAL" and "EXTERNAL".
 port(clk_i         : in std_logic;
      rst_i         : in std_logic;
-     
+
      -- host-side signals
      master_data_i : in std_logic_vector(7 downto 0);
      master_data_o : out std_logic_vector(7 downto 0);
@@ -144,10 +149,10 @@ begin
             serial_i   => slave_data_io,
             serial_o   => open,
             parallel_i => (others => '0'),
-            parallel_o => read_data);   
+            parallel_o => read_data);
 
    master_data_o <= read_data;
-   
+
    bit_counter : binary_counter
    generic map(WIDTH => 3)
    port map(clk_i   => clk_i,
@@ -158,7 +163,7 @@ begin
             clear_i => bit_count_clr,
             count_i => (others => '0'),
             count_o => bit_count);
-     
+
    timer_counter : binary_counter
    generic map(WIDTH => TIMER_WIDTH)
    port map(clk_i   => clk_i,
@@ -169,12 +174,12 @@ begin
             clear_i => timer_clr,
             count_i => (others => '0'),
             count_o => timer);
-            
+
 
    ---------------------------------------------------------
    -- One-Wire Protocol FSM
    ---------------------------------------------------------
-   
+
    stateFF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -186,6 +191,8 @@ begin
 
    stateNS: process(pres_state, init_i, write_i, read_i, bit_count, timer)
    begin
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>       if(init_i = '1') then
                                next_state <= INIT_PULSE;
@@ -203,7 +210,7 @@ begin
                                next_state <= INIT_PULSE;
                             end if;
 
-         when INIT_REPLY => if(timer = INIT_PHASE_2_LENGTH) then 
+         when INIT_REPLY => if(timer = INIT_PHASE_2_LENGTH) then
                                next_state <= INIT_DONE;
                             else
                                next_state <= INIT_REPLY;
@@ -220,7 +227,7 @@ begin
                             else
                                next_state <= READ_SLOT;
                             end if;
- 
+
          when others =>     next_state <= IDLE;
       end case;
    end process stateNS;
@@ -232,7 +239,7 @@ begin
       ndetect_o     <= '1';
 
       pulldown_ena  <= '0';
-      
+
       write_reg_ena <= '0';
       write_reg_ld  <= '0';
 
@@ -262,10 +269,10 @@ begin
                                timer_clr     <= '1';
                             end if;
 
-         when WRITE_SLOT => if((timer < WRITE_0_SLOT_DELAY and write_data = '0') or 
+         when WRITE_SLOT => if((timer < WRITE_0_SLOT_DELAY and write_data = '0') or
                                (timer < WRITE_1_SLOT_DELAY and write_data = '1')) then
                                pulldown_ena  <= '1';
-                            end if;                                      
+                            end if;
 
                             if(timer = SLOT_LENGTH) then
                                write_reg_ena <= '1';
@@ -287,13 +294,13 @@ begin
                             end if;
 
          when INIT_DONE =>  done_o    <= '1';
-                            ndetect_o <= read_data(7) or read_data(6) or read_data(5) or read_data(4) or 
+                            ndetect_o <= read_data(7) or read_data(6) or read_data(5) or read_data(4) or
                                          read_data(3) or read_data(2) or read_data(1) or read_data(0);
 
          when WRITE_DONE => done_o    <= '1';
 
          when READ_DONE =>  done_o    <= '1';
-                            ready_o   <= read_data(7) or read_data(6) or read_data(5) or read_data(4) or 
+                            ready_o   <= read_data(7) or read_data(6) or read_data(5) or read_data(4) or
                                          read_data(3) or read_data(2) or read_data(1) or read_data(0);
 
          when others =>     null;
@@ -304,7 +311,7 @@ begin
    ---------------------------------------------------------
    -- Conversion to Internally Tristated Interface
    ---------------------------------------------------------
-   
+
    interface: process(pulldown_ena)
    begin
       if(tristate = "INTERNAL") then
@@ -317,6 +324,6 @@ begin
          slave_data_o <= '0';
          slave_wren_o <= pulldown_ena;
       end if;
-   end process interface;         
-   
+   end process interface;
+
 end behav;
