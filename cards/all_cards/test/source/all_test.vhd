@@ -21,7 +21,7 @@
 --
 -- all_test.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -31,18 +31,21 @@
 -----------------------------------------------------------------------------
 -- IMPORTANT NOTE:
 --
--- To recompile for different cards, please run the corresponding tcl file 
+-- To recompile for different cards, please run the corresponding tcl file
 -- found in the cards/all_cards/test/synth/ directory.  The tcl files can be
 -- accessed via the Tools->Tcl Scripts menu item.
 --
 -----------------------------------------------------------------------------
 --
 -- Revision history:
--- 
+--
 -- $Log: all_test.vhd,v $
+-- Revision 1.12  2006/08/30 22:55:18  mandana
+-- reformatted comment
+--
 -- Revision 1.11  2006/08/30 22:53:42  mandana
--- updated ports to comply with our generic bc_pin_assign.tcl in scripts directory 
--- in an attempt to centralize one tcl file that gets update with board revisions. 
+-- updated ports to comply with our generic bc_pin_assign.tcl in scripts directory
+-- in an attempt to centralize one tcl file that gets update with board revisions.
 -- pins affected are led, slot_id, rst_n, card_id, dip_sw.
 -- removed easter_msg
 --
@@ -70,7 +73,7 @@ port(inclk   : in std_logic;
      red_led : out std_logic;
      ylw_led : out std_logic;
      grn_led : out std_logic;
-     
+
      dip_sw3 : in std_logic;
      dip_sw4 : in std_logic;
      slot_id : in std_logic_vector(3 downto 0);
@@ -134,10 +137,10 @@ port(-- basic signals
      clk_i     : in std_logic;    -- clock input
      en_i      : in std_logic;    -- enable signal
      done_o    : out std_logic;   -- done ouput signal
-      
+
      -- transmitter signals
      data_o    : out std_logic_vector(1 downto 0);
-      
+
      -- extended signals
      dip_switch_i : in std_logic_vector (1 downto 0)); -- physical dip switch pin
 end component;
@@ -157,14 +160,14 @@ port(-- basic signals
      clk_i     : in std_logic;    -- clock input
      en_i      : in std_logic;    -- enable signal
      done_o    : out std_logic;   -- done ouput signal
-      
+
      -- transmitter signals
      data_o    : out std_logic_vector(3 downto 0);
 
      -- extended signals
      slot_id_i : in std_logic_vector (3 downto 0)); -- physical slot_id pin
 end component;
- 
+
 signal slot_test_ena  : std_logic;
 signal slot_test_done : std_logic;
 signal slot_test_data : std_logic_vector(3 downto 0);
@@ -176,15 +179,15 @@ component id_thermo_test_wrapper
 port(-- basic signals
      rst_i     : in std_logic;    -- reset input
      clk_i     : in std_logic;    -- clock input
-     
+
      id_en_i   : in std_logic;    -- ID enable signal
      temp_en_i : in std_logic;    -- temperature enable signal
-     
+
      done_o    : out std_logic;   -- ID done output signal
-     
+
      -- transmitter signals
      data_o    : out std_logic_vector(31 downto 0);
-      
+
      -- extended signals
      id_thermo_io : inout std_logic); -- physical pin
 end component;
@@ -283,7 +286,7 @@ begin
                    t         when 9,
                    space     when 10,
                    v         when 11,
-                   period    when 12, 
+                   period    when 12,
                    four      when 13, -- v4.1 test firmware
                    period    when 14,
                    one       when 15,
@@ -318,7 +321,7 @@ begin
                    a           when 13,
                    n           when 14,
                    d           when 15,
-                   space       when others;   
+                   space       when others;
 
    --------------------------------------------------------
    -- Control logic
@@ -335,6 +338,8 @@ begin
 
    process(pres_state, rx_rdy, rx_data, tx_count, dip_test_done, slot_test_done, id_thermo_test_done)
    begin
+      next_state <= pres_state;
+
       case pres_state is
          when RESET =>      next_state <= TX_RESET;
 
@@ -358,7 +363,7 @@ begin
 
          when RX_CMD1 =>    if(rx_rdy = '1') then
                                case rx_data is
-                                  when d | shift(d) => next_state <= READ_DIP;                                  
+                                  when d | shift(d) => next_state <= READ_DIP;
                                   when l | shift(l) => next_state <= RX_CMD2;
                                   when s | shift(s) => next_state <= READ_SLOT;
                                   when c | shift(c) => next_state <= READ_ID;
@@ -436,7 +441,7 @@ begin
       end case;
    end process;
 
-   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, cmd2, dip_reg_data, slot_reg_data, id_reg_data, temp_reg_data)   
+   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, cmd2, dip_reg_data, slot_reg_data, id_reg_data, temp_reg_data)
    begin
       rx_ack       <= '0';
       tx_rdy       <= '0';
@@ -487,7 +492,7 @@ begin
                             if(tx_count = IDLE_MSG_LEN - 1) then
                                tx_count_ena <= '1';
                                tx_count_clr <= '1';
-                            end if;   
+                            end if;
                             tx_data <= idle_msg;
 
          when TX_ERROR =>   if(tx_busy = '0') then
@@ -615,7 +620,7 @@ begin
    red_led <= led0;
    ylw_led <= led1;
    grn_led <= led2;
-      
+
 
    --------------------------------------------------------
    -- DIP Switch block
@@ -644,7 +649,7 @@ begin
 
 
    --------------------------------------------------------
-   -- Slot ID block 
+   -- Slot ID block
    --------------------------------------------------------
 
    slot_test : slot_id_test_wrapper
@@ -670,7 +675,7 @@ begin
 
 
    --------------------------------------------------------
-   -- Card ID / Temperature block 
+   -- Card ID / Temperature block
    --------------------------------------------------------
 
    id_thermo_test : id_thermo_test_wrapper
@@ -685,7 +690,7 @@ begin
    -- shift out id data as hexadecimal (4 bits at a time)
    -- process implements a shift-by-4 shift register:
    -- ID data is 32-bit.
-   process(clk, rst)  
+   process(clk, rst)
    begin
       if(rst = '1') then
          id_reg_data <= (others => '0');
@@ -699,11 +704,11 @@ begin
          end if;
       end if;
    end process;
-   
+
    -- shift data out as hexadecimal (4 bits at a time)
    -- process implements a shift-by-4 shift register:
    -- temperature data is 16 bit.
-   process(clk, rst)  
+   process(clk, rst)
    begin
       if(rst = '1') then
          temp_reg_data <= (others => '0');
@@ -716,6 +721,6 @@ begin
             end if;
          end if;
       end if;
-   end process;  
+   end process;
 
 end rtl;

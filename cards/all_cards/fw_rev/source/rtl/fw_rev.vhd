@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: fw_rev.vhd,v 1.2 2006/04/29 00:52:36 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fw_rev.vhd,v 1.3 2006/05/05 19:20:41 mandana Exp $>
 --
 -- Project:      SCUBA2
 -- Author:       Mandana Amiri
@@ -28,14 +28,17 @@
 --
 -- Description:
 -- A firmware-revision register that acts as a wishbone slave:
--- The revision is: RRrrBBBB where 
+-- The revision is: RRrrBBBB where
 --                  RR is the major revision number
---                  rr is the minor revision number                   
+--                  rr is the minor revision number
 --                  BBBB is the build number
 --
 -- Revision history:
--- <date $Date: 2006/04/29 00:52:36 $>    - <initials $Author: bburger $>
+-- <date $Date: 2006/05/05 19:20:41 $>    - <initials $Author: mandana $>
 -- $Log: fw_rev.vhd,v $
+-- Revision 1.3  2006/05/05 19:20:41  mandana
+-- added err_o to the interface to issue a wishbone error for write commands
+--
 -- Revision 1.2  2006/04/29 00:52:36  bburger
 -- Bryce:
 -- - fw_rev:  added a 'when others' statement to a state machine
@@ -44,7 +47,7 @@
 --
 -- Revision 1.1  2005/02/21 22:25:15  mandana
 -- Initial release of firmware revision register
--- 
+--
 --
 ------------------------------------------------------------------------
 
@@ -58,10 +61,10 @@ use sys_param.wishbone_pack.all;
 entity fw_rev is
 generic(REVISION         :std_logic_vector (31 downto 0) := X"01010001");
    port(clk_i   : in std_logic;
-        rst_i   : in std_logic;     
-        
+        rst_i   : in std_logic;
+
         -- Wishbone signals
-        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
@@ -90,7 +93,7 @@ begin
 --
 -- Firmware Revision Wishbone slave FSM
 --
------------------------------------------------------------------------- 
+------------------------------------------------------------------------
    state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -99,55 +102,57 @@ begin
          present_state <= next_state;
       end if;
    end process state_FF;
-  
+
    state_NS: process(present_state, read_cmd, write_cmd)
    begin
+      next_state <= present_state;
+
       case present_state is
-         when IDLE =>        
+         when IDLE =>
             if(read_cmd = '1') then
                next_state <= READ;
             elsif (write_cmd = '1') then
                next_state <= ERROR;
-            else   
+            else
                next_state <= IDLE;
             end if;
-                        
-         when READ => 
+
+         when READ =>
             next_state <= DONE;
-         
-         when DONE => 
+
+         when DONE =>
             next_state <= IDLE;
-         
+
          when ERROR =>
             next_state <= IDLE;
-            
+
          when others =>
             next_state <= IDLE;
-         
+
       end case;
    end process state_NS;
-   
+
    state_out: process(present_state, fw_rev_data)
    begin
       ack_o       <= '0';
       dat_o       <= (others => '0');
       err_o       <= '0';
-      
-      case present_state is                             
-         when READ => 
+
+      case present_state is
+         when READ =>
             ack_o       <= '1';
             dat_o       <= fw_rev_data;
-                                       
-         when ERROR =>  
+
+         when ERROR =>
             err_o       <= '1';
-            
+
          when others =>
             null;
-            
+
       end case;
    end process state_out;
 
    read_cmd  <= '1' when (addr_i = FW_REV_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    write_cmd <= '1' when (addr_i = FW_REV_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
-   
+
 end rtl;

@@ -29,8 +29,11 @@
 -- Top-level file for dispatch module
 --
 -- Revision history:
--- 
+--
 -- $Log: dispatch.vhd,v $
+-- Revision 1.13  2006/04/03 19:38:52  mandana
+-- make mainline adhere Rev. C backplane slot ids
+--
 -- Revision 1.12  2006/03/16 19:17:31  bburger
 -- Bryce:  added a section for decoding slot ids if using bus backplane revC.  Now, all we need to do is comment out one section, and uncomment the other to switch from revA/B <--> C
 --
@@ -93,12 +96,12 @@ use sys_param.wishbone_pack.all;
 entity dispatch is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
-     rst_i      : in std_logic;     
-     
+     rst_i      : in std_logic;
+
      -- bus backplane interface (LVDS)
      lvds_cmd_i   : in std_logic;
      lvds_reply_o : out std_logic;
-     
+
      -- wishbone slave interface
      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -109,11 +112,11 @@ port(clk_i      : in std_logic;
      dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
      err_i  : in std_logic;
-     
+
      -- misc. external interface
      wdt_rst_o : out std_logic;
      slot_i    : in std_logic_vector(3 downto 0);
-     
+
      -- test interface
      dip_sw3 : in std_logic;
      dip_sw4 : in std_logic);
@@ -124,7 +127,7 @@ architecture rtl of dispatch is
 component dispatch_cmd_receive
 port(clk_i       : in std_logic;
      comm_clk_i  : in std_logic;
-     rst_i       : in std_logic;         
+     rst_i       : in std_logic;
      lvds_cmd_i  : in std_logic;
      card_i      : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
      cmd_done_o  : out std_logic;
@@ -139,15 +142,15 @@ end component;
 
 component dispatch_wishbone
 port(clk_i           : in std_logic;
-     rst_i           : in std_logic;     
+     rst_i           : in std_logic;
      header0_i       : in std_logic_vector(31 downto 0);
-     header1_i       : in std_logic_vector(31 downto 0);     
-     buf_data_i      : in std_logic_vector(31 downto 0);     
+     header1_i       : in std_logic_vector(31 downto 0);
+     buf_data_i      : in std_logic_vector(31 downto 0);
      buf_data_o      : out std_logic_vector(31 downto 0);
      buf_addr_o      : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      buf_wren_o      : out std_logic;
      execute_start_i : in std_logic;
-     execute_done_o  : out std_logic;     
+     execute_done_o  : out std_logic;
      execute_error_o : out std_logic;
      dat_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      addr_o          : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -174,7 +177,7 @@ port(clk_i         : in std_logic;
      dip_sw        : in std_logic);
 end component;
 
-type dispatch_states is (INITIALIZE, FETCH, EXECUTE, REPLY);
+type dispatch_states is (INITIALIZE, FETCH, EXECUTE, REPLY, DUMMY);
 signal pres_state : dispatch_states;
 signal next_state : dispatch_states;
 
@@ -230,7 +233,7 @@ begin
             buf_addr_o   => cmd_buf_addr,
             buf_wren_o   => cmd_buf_wren,
             dip_sw       => dip_sw3);
-                 
+
    wishbone : dispatch_wishbone
    port map(clk_i           => clk_i,
             rst_i           => rst_i,
@@ -265,12 +268,12 @@ begin
             buf_data_i    => buf_rddata,
             buf_addr_o    => reply_buf_addr,
             dip_sw        => dip_sw4);
-            
-           
+
+
    ---------------------------------------------------------
    -- Storage for Headers and Data
    ---------------------------------------------------------
-      
+
    hdr0 : reg
    generic map(WIDTH => 32)
    port map(clk_i => clk_i,
@@ -278,7 +281,7 @@ begin
             ena_i => header_ld,
             reg_i => rx_header0,
             reg_o => cmd_header0);
-   
+
    hdr1 : reg
    generic map(WIDTH => 32)
    port map(clk_i => clk_i,
@@ -311,13 +314,13 @@ begin
             address_b => buf_rdaddr,
             q_b       => buf_rddata);
 
-   
+
    ---------------------------------------------------------
    -- Glue Logic
    ---------------------------------------------------------
 --   -- For Bus Backplane Rev. A and B
 --   -- slot ID decode logic:
---   slot_decode: process(slot_i) 
+--   slot_decode: process(slot_i)
 --   begin
 --      case slot_i is
 --         when "0000" => card <= (others => '1');
@@ -364,7 +367,7 @@ begin
          when others => card <= (others => '1');
       end case;
    end process slot_decode;
-   
+
    -- status register:
    status_reg: process(clk_i, rst_i)
    begin
@@ -377,28 +380,28 @@ begin
             if(cmd_error = '1') then    -- status bits are set when an error happens
                status(0) <= '1';
             end if;
-         
+
             if(execute_error = '1') then
                status(1) <= '1';
             end if;
          end if;
       end if;
    end process status_reg;
-   
-   -- reply header encode logic:   
-   reply_header0(BB_PREAMBLE'range)     <= cmd_header0(BB_PREAMBLE'range); 
+
+   -- reply header encode logic:
+   reply_header0(BB_PREAMBLE'range)     <= cmd_header0(BB_PREAMBLE'range);
    reply_header0(BB_COMMAND_TYPE'range) <= cmd_header0(BB_COMMAND_TYPE'range);
    reply_header0(BB_DATA_SIZE'range)    <= (others => '0') when cmd_header0(BB_COMMAND_TYPE'range) = WRITE_CMD else cmd_header0(BB_DATA_SIZE'range);
-                                         
+
    reply_header1(BB_CARD_ADDRESS'range) <= cmd_header1(BB_CARD_ADDRESS'range);
    reply_header1(BB_PARAMETER_ID'range) <= cmd_header1(BB_PARAMETER_ID'range);
    reply_header1(BB_STATUS'range)       <= status;
-   
-         
+
+
    ---------------------------------------------------------
    -- Dispatch Control FSM
    ---------------------------------------------------------
-   
+
    stateFF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -407,66 +410,78 @@ begin
          pres_state <= next_state;
       end if;
    end process stateFF;
-   
+
    stateNS: process(pres_state, cmd_done, cmd_error, execute_done, reply_done)
    begin
-      case pres_state is   
-         when INITIALIZE => next_state <= FETCH;
-               
-         when FETCH =>      if(cmd_done = '1') then
-                               if(cmd_error = '1') then
-                                  next_state <= REPLY;       -- if there are errors in received command packet, send error reply packet
-                               else                  
-                                  next_state <= EXECUTE;     -- otherwise execute command
-                               end if;
-                            else
-                               next_state <= FETCH;
-                            end if;
-                         
-         when EXECUTE =>    if(execute_done = '1') then
-                               next_state <= REPLY;
-                            else
-                               next_state <= EXECUTE;
-                            end if;
-                         
-         when REPLY =>      if(reply_done = '1') then
-                               next_state <= INITIALIZE;
-                            else
-                               next_state <= REPLY;
-                            end if;
-                            
-         when others =>     next_state <= INITIALIZE;
+      -- Default Assignment
+      next_state <= pres_state;
+
+      case pres_state is
+         when INITIALIZE =>
+            next_state <= DUMMY;
+
+         when DUMMY =>
+            next_state <= FETCH;
+
+         when FETCH =>
+            if(cmd_done = '1') then
+               if(cmd_error = '1') then
+                  next_state <= REPLY;       -- if there are errors in received command packet, send error reply packet
+               else
+                  next_state <= EXECUTE;     -- otherwise execute command
+               end if;
+            end if;
+
+         when EXECUTE =>
+            if(execute_done = '1') then
+               next_state <= REPLY;
+            end if;
+
+         when REPLY =>
+            if(reply_done = '1') then
+               next_state <= INITIALIZE;
+            end if;
+
+         when others =>
+            next_state <= INITIALIZE;
+
       end case;
    end process stateNS;
-   
+
    stateOut: process(pres_state, cmd_buf_wren, cmd_buf_addr, cmd_buf_data, wb_buf_wren, wb_buf_addr, wb_buf_data, reply_buf_addr)
    begin
       status_clr    <= '0';
-      header_ld     <= '0'; 
+      header_ld     <= '0';
       execute_start <= '0';
-      reply_start   <= '0';     
+      reply_start   <= '0';
       buf_wren      <= '0';
       buf_wraddr    <= (others => '0');
       buf_wrdata    <= (others => '0');
       buf_rdaddr    <= (others => '0');
-   
-      case pres_state is 
-         when INITIALIZE => status_clr    <= '1';
-                 
-         when FETCH =>      header_ld     <= '1'; 
-                            buf_wren      <= cmd_buf_wren;
-                            buf_wraddr    <= cmd_buf_addr;
-                            buf_wrdata    <= cmd_buf_data;
-         
-         when EXECUTE =>    execute_start <= '1';
-                            buf_wren      <= wb_buf_wren;
-                            buf_wraddr    <= wb_buf_addr;
-                            buf_wrdata    <= wb_buf_data;
-                            buf_rdaddr    <= wb_buf_addr;
-         
-         when REPLY =>      reply_start   <= '1';
-                            buf_rdaddr    <= reply_buf_addr;
-                            
+
+      case pres_state is
+         when INITIALIZE =>
+            status_clr    <= '1';
+
+         when DUMMY => null;
+
+         when FETCH =>
+            header_ld     <= '1';
+            buf_wren      <= cmd_buf_wren;
+            buf_wraddr    <= cmd_buf_addr;
+            buf_wrdata    <= cmd_buf_data;
+
+         when EXECUTE =>
+            execute_start <= '1';
+            buf_wren      <= wb_buf_wren;
+            buf_wraddr    <= wb_buf_addr;
+            buf_wrdata    <= wb_buf_data;
+            buf_rdaddr    <= wb_buf_addr;
+
+         when REPLY =>
+            reply_start   <= '1';
+            buf_rdaddr    <= reply_buf_addr;
+
          when others =>     null;
       end case;
    end process stateOut;

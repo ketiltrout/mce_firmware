@@ -20,18 +20,21 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.9 2006/05/12 19:15:06 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.10 2006/05/12 20:11:12 bench2 Exp $>
 --
 -- Project:      SCUBA2
--- Author:		 Bryce Burger
--- Organisation:	UBC
+-- Author:      Bryce Burger
+-- Organisation:  UBC
 --
 -- Description:
 -- This file implements the LED functionality
 --
 -- Revision history:
--- 
+--
 -- $Log: leds.vhd,v $
+-- Revision 1.10  2006/05/12 20:11:12  bench2
+-- MA: changed led default setting to Green ON
+--
 -- Revision 1.9  2006/05/12 19:15:06  mandana
 -- default status for leds are specified as Green On, Red and Yellow Off
 --
@@ -44,7 +47,7 @@
 -- added new wishbone slave controller
 --
 --
--- <date $Date: 2006/05/12 19:15:06 $>	-		<text>		- <initials $Author: mandana $>
+-- <date $Date: 2006/05/12 20:11:12 $> -     <text>      - <initials $Author: bench2 $>
 --
 ------------------------------------------------------------------------
 
@@ -60,10 +63,10 @@ use sys_param.wishbone_pack.all;
 
 entity leds is
    port(clk_i   : in std_logic;
-        rst_i   : in std_logic;		
-        
+        rst_i   : in std_logic;
+
         -- Wishbone signals
-        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
@@ -71,7 +74,7 @@ entity leds is
         cyc_i   : in std_logic;
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic;
-      
+
         -- LED outputs
         power   : out std_logic;
         status  : out std_logic;
@@ -98,7 +101,7 @@ begin
 --
 -- LED Wishbone slave controller
 --
------------------------------------------------------------------------- 
+------------------------------------------------------------------------
 
    state_FF: process(clk_i, rst_i)
    begin
@@ -108,9 +111,11 @@ begin
          pres_state <= next_state;
       end if;
    end process state_FF;
-  
+
    state_NS: process(pres_state, write_cmd, read_cmd)
    begin
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>        if(write_cmd = '1') then
                                 next_state <= GET_PACKET;
@@ -119,30 +124,30 @@ begin
                              else
                                 next_state <= IDLE;
                              end if;
-                             
+
          when GET_PACKET =>  next_state <= DONE;
-         
+
          when SEND_PACKET => next_state <= DONE;
-         
+
          when DONE =>        next_state <= IDLE;
       end case;
    end process state_NS;
-   
+
    state_out: process(pres_state, padded_led_data)
    begin
       case pres_state is
          when IDLE =>        led_data_ld <= '0';
                              ack_o       <= '0';
                              dat_o       <= (others => '0');
-                             
+
          when GET_PACKET =>  led_data_ld <= '1';
                              ack_o       <= '1';
                              dat_o       <= (others => '0');
-         
+
          when SEND_PACKET => led_data_ld <= '0';
                              ack_o       <= '1';
                              dat_o       <= padded_led_data;
-                             
+
          when DONE =>        led_data_ld <= '0';
                              ack_o       <= '0';
                              dat_o       <= (others => '0');
@@ -154,17 +159,17 @@ begin
 --
 -- Wishbone
 --
------------------------------------------------------------------------- 
-   
+------------------------------------------------------------------------
+
    write_cmd <= '1' when (addr_i = LED_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
    read_cmd  <= '1' when (addr_i = LED_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   
-   
+
+
 ------------------------------------------------------------------------
 --
 -- LED register
 --
------------------------------------------------------------------------- 
+------------------------------------------------------------------------
 
    led_reg: process(clk_i, rst_i)
    begin
@@ -176,12 +181,12 @@ begin
          end if;
       end if;
    end process led_reg;
-   
+
    padded_led_data(WB_DATA_WIDTH-1 downto NUM_LEDS) <= (others => '0');
    padded_led_data(NUM_LEDS-1 downto 0) <= led_data;
-   
+
    power  <= led_data(POWER_LED); -- green
    status <= led_data(STATUS_LED); -- yellow
    fault  <= led_data(FAULT_LED); -- red
-   
+
 end rtl;
