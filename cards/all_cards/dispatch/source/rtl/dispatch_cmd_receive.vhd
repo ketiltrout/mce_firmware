@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.24  2007/07/25 19:33:38  bburger
+-- BB:  added support for the psuc to have it own dispatch block
+--
 -- Revision 1.23  2006/08/11 23:55:54  bburger
 -- Bryce:  the Power Supply Card is now recognized as its own card even though the Clock Card receiver handles the replies
 --
@@ -58,6 +61,7 @@ port(clk_i      : in std_logic;
      -- Done/error signals:
      cmd_done_o  : out std_logic;  -- indicates receive completed
      cmd_error_o : out std_logic;  -- indicates received packet is invalid (CRC error or data size error)
+     bad_preamble_o : out std_logic;
 
      -- Command header words:
      header0_o : out std_logic_vector(31 downto 0);
@@ -84,7 +88,7 @@ port(clk_i      : in std_logic;
      lvds_i     : in std_logic);
 end component;
 
-type receiver_states is (IDLE, RX_HDR0, RX_HDR1, PARSE_HDR, RX_DATA, RX_CRC, DONE);
+type receiver_states is (IDLE, RX_HDR0, RX_HDR1, PARSE_HDR, RX_DATA, RX_CRC, DONE, DUMMY);
 signal pres_state : receiver_states;
 signal next_state : receiver_states;
 
@@ -218,40 +222,46 @@ begin
 
    rx_stateNS: process(pres_state, lvds_rx_rdy, lvds_rx_data, cmd_type, data_size, word_count)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+
       case pres_state is
-         when IDLE =>      next_state <= RX_HDR0;
+         when IDLE =>
+            next_state <= DUMMY;
 
-         when RX_HDR0 =>   if(lvds_rx_rdy = '1' and lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
-                              next_state <= RX_HDR1;
-                           else
-                              next_state <= RX_HDR0;
-                           end if;
+         when DUMMY =>
+            next_state <= RX_HDR0;
 
-         when RX_HDR1 =>   if(lvds_rx_rdy = '1') then
-                              next_state <= PARSE_HDR;
-                           else
-                              next_state <= RX_HDR1;
-                           end if;
+         when RX_HDR0 =>
+            if(lvds_rx_rdy = '1' and lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
+               next_state <= RX_HDR1;
+            end if;
 
-         when PARSE_HDR => if(cmd_type = WRITE_CMD) then
-                              next_state <= RX_DATA;
-                           else
-                              next_state <= RX_CRC;
-                           end if;
+         when RX_HDR1 =>
+            if(lvds_rx_rdy = '1') then
+               next_state <= PARSE_HDR;
+            end if;
 
-         when RX_DATA =>   if(lvds_rx_rdy = '1' and word_count = data_size-1) then
-                              next_state <= RX_CRC;
-                           else
-                              next_state <= RX_DATA;
-                           end if;
+         when PARSE_HDR =>
+            if(cmd_type = WRITE_CMD) then
+               next_state <= RX_DATA;
+            else
+               next_state <= RX_CRC;
+            end if;
 
-         when RX_CRC =>    if(lvds_rx_rdy = '1') then
-                              next_state <= DONE;
-                           else
-                              next_state <= RX_CRC;
-                           end if;
+         when RX_DATA =>
+            if(lvds_rx_rdy = '1' and word_count = data_size-1) then
+               next_state <= RX_CRC;
+            end if;
 
-         when others =>    next_state <= IDLE;
+         when RX_CRC =>
+            if(lvds_rx_rdy = '1') then
+               next_state <= DONE;
+            end if;
+
+         when others =>
+            next_state <= IDLE;
+
       end case;
    end process rx_stateNS;
 
@@ -271,48 +281,59 @@ begin
       header1_o      <= (others => '0');
       cmd_done_o     <= '0';
       cmd_error_o    <= '0';
+      bad_preamble_o <= '0';
 
       case pres_state is
-         when IDLE =>      word_count_clr     <= '1';
-                           crc_clr            <= '1';
+         when IDLE =>
+            word_count_clr     <= '1';
+            crc_clr            <= '1';
 
-         when RX_HDR0 =>   if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack     <= '1';
-                              if(lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
-                                 crc_ena      <= '1';              -- don't want to enable CRC nor load header0
-                                 header0_ld   <= '1';              -- when we are sync'ing to the next packet!
-                              end if;
-                           end if;
+         when DUMMY => null;
 
-         when RX_HDR1 =>   if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack     <= '1';
-                              crc_ena         <= '1';
-                              header1_ld      <= '1';
-                           end if;
+         when RX_HDR0 =>
+            if(lvds_rx_rdy = '1') then
+               lvds_rx_ack     <= '1';
+               if(lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
+                  crc_ena      <= '1';              -- don't want to enable CRC nor load header0
+                  header0_ld   <= '1';              -- when we are sync'ing to the next packet!
+               else
+                  bad_preamble_o <= '1';
+               end if;
+            end if;
 
-         when RX_DATA =>   if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack     <= '1';
-                              crc_ena         <= '1';
-                              word_count_ena  <= '1';
-                              buf_data_o      <= lvds_rx_data;
-                              buf_wren_o      <= '1';
-                           end if;
+         when RX_HDR1 =>
+            if(lvds_rx_rdy = '1') then
+               lvds_rx_ack     <= '1';
+               crc_ena         <= '1';
+               header1_ld      <= '1';
+            end if;
 
-         when RX_CRC =>    if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack     <= '1';
-                              crc_ena         <= '1';
-                           end if;
+         when RX_DATA =>
+            if(lvds_rx_rdy = '1') then
+               lvds_rx_ack     <= '1';
+               crc_ena         <= '1';
+               word_count_ena  <= '1';
+               buf_data_o      <= lvds_rx_data;
+               buf_wren_o      <= '1';
+            end if;
 
-         when DONE =>      if(cmd_valid = '1') then
-                              cmd_done_o      <= '1';
-                              header0_o       <= header0;
-                              header1_o       <= header1;
-                              if(crc_valid = '0' or header0(BB_DATA_SIZE'range) = 0) then
-                                 cmd_error_o  <= '1';
-                              end if;
-                           end if;
+         when RX_CRC =>
+            if(lvds_rx_rdy = '1') then
+               lvds_rx_ack     <= '1';
+               crc_ena         <= '1';
+            end if;
 
-         when others =>    null;
+         when DONE =>
+            if(cmd_valid = '1') then
+               cmd_done_o      <= '1';
+               header0_o       <= header0;
+               header1_o       <= header1;
+               if(crc_valid = '0' or header0(BB_DATA_SIZE'range) = 0) then
+                  cmd_error_o  <= '1';
+               end if;
+            end if;
+
+         when others => null;
       end case;
    end process rx_stateOut;
 
