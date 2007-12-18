@@ -42,7 +42,7 @@ begin
    end process shiftreg;
 
 
-   
+
    serial_o <= reg(0) when shr_i = '1' else reg(WIDTH-1); -- when doing a shr, we grab the LSB.  When doing shl, we grab the MSB
    parallel_o <= reg;
 
@@ -94,10 +94,10 @@ begin
          end if;
       end if;
    end process;
-   
+
    count_o <= count;
 
-end behav;    
+end behav;
 
 
 
@@ -229,7 +229,7 @@ architecture rtl of smb_master is
 -- READ_DATA_SAMPLE = 65 us
 --------------------------------------------------------------------------------------
 
-constant END_CONDITION_LENGTH : integer := 435;   -- 435 x 20 ns clock cycle = 8.7 us   
+constant END_CONDITION_LENGTH : integer := 435;   -- 435 x 20 ns clock cycle = 8.7 us
 constant START_SETUP_DELAY    : integer := 235;
 constant STOP_SETUP_DELAY     : integer := 200;
 constant BIT_PERIOD_LENGTH    : integer := 5000;
@@ -310,10 +310,10 @@ begin
             serial_i   => slave_data_io,
             serial_o   => open,
             parallel_i => (others => '0'),
-            parallel_o => read_data); 
+            parallel_o => read_data);
 
    master_data_o <= read_data;
-   
+
    bit_counter : binary_counter
    generic map(WIDTH => 4)
    port map(clk_i   => clk_i,
@@ -324,7 +324,7 @@ begin
             clear_i => bit_count_clr,
             count_i => (others => '0'),
             count_o => bit_count);
-     
+
    timer_counter : binary_counter
    generic map(WIDTH => TIMER_WIDTH)
    port map(clk_i   => clk_i,
@@ -335,7 +335,7 @@ begin
             clear_i => timer_clr,
             count_i => (others => '0'),
             count_o => timer);
-            
+
 
    ---------------------------------------------------------
    -- SMB Bus Protocol FSM
@@ -352,6 +352,8 @@ begin
 
    stateNS: process(pres_state, start_i, stop_i, write_i, read_i, bit_count, timer)
    begin
+      next_state <= pres_state;
+
       case pres_state is
         when BUS_FREE =>        if(start_i = '1') then           -- must have start before anything else
                                    next_state <= START;
@@ -398,8 +400,8 @@ begin
         when START_DONE =>      next_state <= BUS_IDLE;
 
         when STOP_DONE =>       next_state <= BUS_FREE;
-                                
-        when WRITE_DONE =>      next_state <= BUS_IDLE;   
+
+        when WRITE_DONE =>      next_state <= BUS_IDLE;
 
         when READ_DONE =>       next_state <= BUS_IDLE;
 
@@ -435,12 +437,12 @@ begin
                            bit_count_clr <= '1';
                            timer_clr     <= '1';
 
-        when START =>      if(timer > START_SETUP_DELAY) then 
-                              slave_data_io <= '0';  
+        when START =>      if(timer > START_SETUP_DELAY) then
+                              slave_data_io <= '0';
                            end if;
 
-        when STOP =>       if(timer < STOP_SETUP_DELAY) then 
-                              slave_data_io <= '0';  
+        when STOP =>       if(timer < STOP_SETUP_DELAY) then
+                              slave_data_io <= '0';
                            end if;
 
         when WRITE_BYTE => if(timer < DATA_VALID_BEGIN or timer > DATA_VALID_END) then
@@ -454,7 +456,7 @@ begin
                            if(bit_count = 8 and timer = READ_DATA_SAMPLE) then
                               read_reg_ena  <= '1';
                            end if;
- 
+
                            if(timer = BIT_PERIOD_LENGTH) then
                               if(bit_count = 8) then
                                  bit_count_clr <= '1';
@@ -487,7 +489,7 @@ begin
                            done_o        <= '1';
 
         when STOP_DONE =>  done_o        <= '1';            -- smbclk and smbdat are high (ie. SMBus idle) after stop
-                                   
+
         when WRITE_DONE => slave_clk_o   <= '0';            -- smbclk is low (glitches on smbdat are ok) after write
                            done_o        <= '1';
                            error_o       <= read_data(0);
@@ -536,7 +538,7 @@ architecture rtl of smb_test is
 -- READ_DATA_SAMPLE = 65 us
 --------------------------------------------------------------------------------------
 --
---constant END_CONDITION_LENGTH : integer := 435; 
+--constant END_CONDITION_LENGTH : integer := 435;
 --constant START_SETUP_DELAY    : integer := 235;
 --constant STOP_SETUP_DELAY     : integer := 200;
 --constant BIT_PERIOD_LENGTH    : integer := 5000;
@@ -573,7 +575,7 @@ architecture rtl of smb_test is
 component clkgen
 port(inclk0 : in std_logic;
      c0     : out std_logic;
-     e0	    : out std_logic);
+     e0      : out std_logic);
 end component;
 
 component decoder
@@ -593,7 +595,7 @@ port(clk_i         : in std_logic;
      read_i        : in std_logic;
      done_o        : out std_logic;
      error_o       : out std_logic;
-     slave_clk_o   : out std_logic;   
+     slave_clk_o   : out std_logic;
      slave_data_io : inout std_logic);
 end component;
 
@@ -756,8 +758,8 @@ begin
    end process;
 
 -----------------------------------------------------------
--- FUNCTIONALITY MOVED TO SMB_MASTER 
------------------------------------------------------------   
+-- FUNCTIONALITY MOVED TO SMB_MASTER
+-----------------------------------------------------------
 --   -- timer & bit counter
 --   bit_counter : binary_counter
 --   generic map(WIDTH => 4)
@@ -769,7 +771,7 @@ begin
 --            clear_i => bit_count_clr,
 --            count_i => (others => '0'),
 --            count_o => bit_count);
---     
+--
 --   timer_counter : binary_counter
 --   generic map(WIDTH => TIMER_WIDTH)
 --   port map(clk_i   => clk,
@@ -793,7 +795,7 @@ begin
 --            serial_i   => smbdat_io,
 --            serial_o   => open,
 --            parallel_i => (others => '0'),
---            parallel_o => read_data); 
+--            parallel_o => read_data);
 --
 --   -- write data
 --   with bit_count select
@@ -805,7 +807,7 @@ begin
 --                    '0' when "0101",   -- address bit 5
 --                    '0' when "0110",   -- address bit 6
 --                    '1' when "0111",   -- read command
---                    'Z' when others; 
+--                    'Z' when others;
 --
 --   -- SMBus state machine
 --   process(clk, rst)
@@ -870,7 +872,7 @@ begin
 --         when IDLE =>       bit_count_clr <= '1';
 --                            timer_clr     <= '1';
 --
---         when START =>      if(timer > START_SETUP_DELAY) then 
+--         when START =>      if(timer > START_SETUP_DELAY) then
 --                               smbdat_io <= '0';
 --                            end if;
 --
@@ -885,7 +887,7 @@ begin
 --                            if(bit_count = 8 and timer = READ_DATA_SAMPLE) then
 --                               read_reg_ena <= '1';
 --                            end if;
--- 
+--
 --                            if(timer = BIT_PERIOD_LENGTH) then
 --                               if(bit_count = 8) then
 --                                  bit_count_clr <= '1';
@@ -902,7 +904,7 @@ begin
 --                            if(bit_count < 8 and timer = READ_DATA_SAMPLE) then
 --                               read_reg_ena  <= '1';
 --                            end if;
--- 
+--
 --                            if(timer = BIT_PERIOD_LENGTH) then
 --                               if(bit_count = 8) then
 --                                  bit_count_clr <= '1';
@@ -912,8 +914,8 @@ begin
 --                               timer_clr     <= '1';
 --                            end if;
 --
---         when STOP =>       if(timer < STOP_SETUP_DELAY) then 
---                               smbdat_io <= '0'; 
+--         when STOP =>       if(timer < STOP_SETUP_DELAY) then
+--                               smbdat_io <= '0';
 --                            end if;
 --
 --         when DONE =>       output_ld <= '1';
