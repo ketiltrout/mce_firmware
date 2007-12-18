@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.33  2007/11/07 00:38:22  bburger
+-- BB:  Added a comment.  No changes to the code.
+--
 -- Revision 1.32  2007/10/18 22:44:08  bburger
 -- BB:
 -- - The firmware now uses the spare LVDS Bus Backplane signals to determine which cards are there
@@ -156,20 +159,20 @@ signal timeout_reg_set  : std_logic;
 signal timeout_reg_clr  : std_logic;
 signal timeout_reg_q    : std_logic;
 
-signal cards_rdy        : std_logic_vector(9 downto 0);
-signal cards_to_reply   : std_logic_vector(9 downto 0);
+signal card_ready        : std_logic_vector(9 downto 0);
+signal cards_addressed   : std_logic_vector(9 downto 0);
 --signal no_reply_yet     : std_logic_vector(9 downto 0);
 signal wrong_card_error      : std_logic_vector(9 downto 0);
 -- Timeout:  Card Not Populated
 --signal card_not_populated  : std_logic_vector(9 downto 0);
 -- Timeout:  Execution Error
-signal timeout_error    : std_logic_vector(9 downto 0);
-signal detected_crc_error       : std_logic_vector(9 downto 0);
-signal half_done_error  : std_logic_vector(9 downto 0);
-signal crc_error : std_logic_vector(9 downto 0);
-signal update_status    : std_logic;
-signal card_rdy_or_np   : std_logic_vector(9 downto 0);
-
+signal timeout_error       : std_logic_vector(9 downto 0);
+signal detected_crc_error  : std_logic_vector(9 downto 0);
+signal half_done_error     : std_logic_vector(9 downto 0);
+signal crc_error           : std_logic_vector(9 downto 0);
+signal update_status       : std_logic;
+signal card_rdy_or_np      : std_logic_vector(9 downto 0);
+signal card_should_reply   : std_logic_vector(9 downto 0);
 
 ---------------------------------------------------------
 -- FSM for latching out 0xDEADDEAD data
@@ -464,9 +467,10 @@ begin
    begin
       if(rst_i = '1') then
          -- Resetting to '1' to clear the slate and record whether a card ever replies.
-         wrong_card_error <= (others => '0');
-         timeout_error <= (others => '0');
-         crc_error <= (others => '0');
+--         wrong_card_error <= (others => '0');
+         timeout_error     <= (others => '0');
+         crc_error         <= (others => '0');
+         card_should_reply <= (others => '0');
 
       elsif(clk_i'event and clk_i = '1') then
          -- Cascaded logic
@@ -476,21 +480,24 @@ begin
             -- The Carnot Maps for this logic are Bryce Burger's SCUBA2 Logbook #8, near the beginning of the book.
             -- wrong_card_error indicates that a card has responded in part or in full to the command that wasn't supposed to.
             -- This error is not currently reported..
-            wrong_card_error <= ((half_done_error or cards_rdy) and (not cards_to_reply));
+--            wrong_card_error  <= ((half_done_error or card_ready) and (not cards_addressed));
+
+            -- card_should_reply is asserted when the card has been addressed by a command, and the Clock Card detects that is is populated in the subrack
+            card_should_reply <= cards_addressed and (not card_not_present_i);
 
          elsif(pres_state = ERROR_WAIT1) then
-            -- timeout_error indicates that the receiver has not received an answer from a card that is supposed to reply and is populated.
-            timeout_error <= (cards_to_reply and (not cards_rdy));
+            -- timeout_error indicates that the receiver has not received an answer from a card is populated and has been addressed.
+            timeout_error <= card_should_reply and (not card_ready);
 
          elsif(pres_state = ERROR_WAIT2) then
             -- crc_error is any sort of error that is not due to a card not being populated or a wishbone error.
             crc_error <= (detected_crc_error or timeout_error);
---            crc_error <= (detected_crc_error or timeout_error) and (not card_not_present_i);
 
          else
-            wrong_card_error <= wrong_card_error;
-            timeout_error    <= timeout_error;
-            crc_error        <= crc_error;
+--            wrong_card_error <= wrong_card_error;
+            timeout_error     <= timeout_error;
+            crc_error         <= crc_error;
+            card_should_reply <= card_should_reply;
          end if;
       end if;
    end process;
@@ -522,7 +529,7 @@ begin
       psu_error(2);
 
    -- Indicates which cards have responded fully to a command
-   cards_rdy <=
+   card_ready <=
       ac_rdy &
       bc1_rdy &
       bc2_rdy &
@@ -534,7 +541,7 @@ begin
       cc_rdy &
       psu_rdy;
 
-   cards_to_reply <=
+   cards_addressed <=
       "0000000000" when (card_addr_i = NO_CARDS) else
       "0000000001" when (card_addr_i = POWER_SUPPLY_CARD) else
       "0000000010" when (card_addr_i = CLOCK_CARD) else
