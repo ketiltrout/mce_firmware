@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.10 2006/05/12 20:11:12 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.11 2007/12/18 20:17:19 bburger Exp $>
 --
 -- Project:      SCUBA2
 -- Author:      Bryce Burger
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: leds.vhd,v $
+-- Revision 1.11  2007/12/18 20:17:19  bburger
+-- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
+--
 -- Revision 1.10  2006/05/12 20:11:12  bench2
 -- MA: changed led default setting to Green ON
 --
@@ -47,7 +50,7 @@
 -- added new wishbone slave controller
 --
 --
--- <date $Date: 2006/05/12 20:11:12 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2007/12/18 20:17:19 $> -     <text>      - <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -130,6 +133,8 @@ begin
          when SEND_PACKET => next_state <= DONE;
 
          when DONE =>        next_state <= IDLE;
+         
+         when others =>      next_state <= IDLE;
       end case;
    end process state_NS;
 
