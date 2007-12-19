@@ -28,8 +28,13 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/08/28 23:48:43 $> - <initials $Author: bburger $>
+-- <date $Date: 2007/09/20 20:02:47 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.40  2007/09/20 20:02:47  bburger
+-- BB:  Now supports commands to the following param_id's (for the data frame header):
+-- - RUN_ID_ADDR
+-- - USER_WRITABLE_ADDR
+--
 -- Revision 1.39  2007/08/28 23:48:43  bburger
 -- BB: added interface signals to support the following commands:
 -- constant READOUT_ROW_INDEX_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"13";
@@ -266,6 +271,9 @@ package wishbone_pack is
    -- Bias Card Specific
    constant FLUX_FB_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"20";
    constant BIAS_ADDR               : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"21";
+   constant SA_HTR0_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"22";
+   constant SA_HTR1_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"23";
+   constant FLUX_FB_UPPER_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"24";
 
    -- System (All FPGA Cards)
    constant ROW_LEN_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"30";
