@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.15  2005/12/12 20:48:44  erniel
+-- fixed implicit register on buf_addr_o
+--
 -- Revision 1.14  2005/12/02 00:41:17  erniel
 -- modified FSM to accomodate pipeline-mode buffer at dispatch top-level
 --
@@ -194,6 +197,9 @@ begin
    
    stateNS: process(pres_state, header0_i, execute_start_i, ack_i, err_i, addr)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>     if(execute_start_i = '1') then
                              if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
@@ -224,6 +230,9 @@ begin
          when DONE =>     next_state <= IDLE;
          
          when ERROR =>    next_state <= IDLE;
+         
+         when others =>    next_state <= IDLE;
+         
       end case;
    end process stateNS;
    
