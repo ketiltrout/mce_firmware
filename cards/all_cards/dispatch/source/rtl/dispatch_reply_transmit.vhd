@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.13  2006/05/04 23:10:57  mandana
+-- added integer range for crc_num_words
+--
 -- Revision 1.12  2006/01/16 20:02:48  bburger
 -- Ernie:   Added dip_sw interfaces to introduce artifical crc rx/tx errors on the busbackplan.  This feature is for testing purposes only.
 --
@@ -207,6 +210,9 @@ begin
    
    tx_stateNS: process(pres_state, reply_start_i, lvds_tx_busy, word_count, header0_i)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>      if(reply_start_i = '1') then
                               next_state <= TX_HDR;
