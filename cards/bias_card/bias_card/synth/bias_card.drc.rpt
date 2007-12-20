@@ -1,5 +1,5 @@
 Design Assistant report for bias_card
-Wed Dec 19 16:09:55 2007
+Wed Dec 19 17:28:19 2007
 Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 
 
@@ -39,7 +39,7 @@ applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Design Assistant Summary                                                ;
 +-----------------------------------+-------------------------------------+
-; Design Assistant Status           ; Analyzed - Wed Dec 19 16:09:55 2007 ;
+; Design Assistant Status           ; Analyzed - Wed Dec 19 17:28:19 2007 ;
 ; Revision Name                     ; bias_card                           ;
 ; Top-level Entity Name             ; bias_card                           ;
 ; Family                            ; Stratix                             ;
@@ -302,7 +302,7 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Design Assistant
     Info: Version 7.2 Build 151 09/26/2007 SJ Full Version
-    Info: Processing started: Wed Dec 19 16:09:51 2007
+    Info: Processing started: Wed Dec 19 17:28:15 2007
 Info: Command: quartus_drc --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 Critical Warning: (Critical) Rule C101: Gated clock should be implemented according to the Altera standard scheme. Found 1 node(s) related to this rule.
     Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|flux_fb_changed_o"
@@ -448,7 +448,7 @@ Info: (Information) Rule T102: Top nodes with the highest number of fan-outs. (V
 Info: Design Assistant information: finished post-fitting analysis of current design -- generated 105 information messages and 8 warning messages
 Info: Quartus II Design Assistant was successful. 0 errors, 74 warnings
     Info: Allocated 106 megabytes of memory during processing
-    Info: Processing ended: Wed Dec 19 16:09:55 2007
+    Info: Processing ended: Wed Dec 19 17:28:19 2007
     Info: Elapsed time: 00:00:04
 
 

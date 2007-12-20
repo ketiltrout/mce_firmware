@@ -1,5 +1,5 @@
 Flow report for bias_card
-Wed Dec 19 16:09:55 2007
+Wed Dec 19 17:28:19 2007
 Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 
 
@@ -37,7 +37,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------------+
 ; Flow Summary                                                        ;
 +--------------------------+------------------------------------------+
-; Flow Status              ; Analyzed - Wed Dec 19 16:09:55 2007      ;
+; Flow Status              ; Analyzed - Wed Dec 19 17:28:19 2007      ;
 ; Quartus II Version       ; 7.2 Build 151 09/26/2007 SJ Full Version ;
 ; Revision Name            ; bias_card                                ;
 ; Top-level Entity Name    ; bias_card                                ;
@@ -60,7 +60,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 12/19/2007 16:07:43 ;
+; Start date & time ; 12/19/2007 17:26:15 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -110,12 +110,12 @@ applicable agreement for further details.
 +-------------------------+--------------+-------------------------+
 ; Module Name             ; Elapsed Time ; Average Processors Used ;
 +-------------------------+--------------+-------------------------+
-; Analysis & Synthesis    ; 00:00:32     ; 1.0                     ;
-; Fitter                  ; 00:01:26     ; 1.0                     ;
-; Assembler               ; 00:00:03     ; 1.0                     ;
+; Analysis & Synthesis    ; 00:00:31     ; 1.0                     ;
+; Fitter                  ; 00:01:21     ; 1.0                     ;
+; Assembler               ; 00:00:02     ; 1.0                     ;
 ; Classic Timing Analyzer ; 00:00:03     ; 1.0                     ;
 ; Design Assistant        ; 00:00:04     ; 1.0                     ;
-; Total                   ; 00:02:08     ; --                      ;
+; Total                   ; 00:02:01     ; --                      ;
 +-------------------------+--------------+-------------------------+
 
 

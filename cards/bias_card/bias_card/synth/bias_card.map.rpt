@@ -1,5 +1,5 @@
 Analysis & Synthesis report for bias_card
-Wed Dec 19 16:08:14 2007
+Wed Dec 19 17:26:45 2007
 Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 
 
@@ -129,7 +129,7 @@ applicable agreement for further details.
 +------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                           ;
 +-----------------------------+------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Wed Dec 19 16:08:14 2007    ;
+; Analysis & Synthesis Status ; Successful - Wed Dec 19 17:26:45 2007    ;
 ; Quartus II Version          ; 7.2 Build 151 09/26/2007 SJ Full Version ;
 ; Revision Name               ; bias_card                                ;
 ; Top-level Entity Name       ; bias_card                                ;
@@ -2275,7 +2275,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 7.2 Build 151 09/26/2007 SJ Full Version
-    Info: Processing started: Wed Dec 19 16:07:42 2007
+    Info: Processing started: Wed Dec 19 17:26:14 2007
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off bias_card -c bias_card
 Info: Found 1 design units, including 0 entities, in source file ../../../library/sys_param/source/rtl/command_pack.vhd
     Info: Found design unit 1: command_pack
@@ -2458,18 +2458,18 @@ Info: Found 2 design units, including 1 entities, in source file ../source/rtl/b
     Info: Found design unit 1: bias_card-top
     Info: Found entity 1: bias_card
 Info: Elaborating entity "bias_card" for the top level hierarchy
-Warning (10034): Output port "lvds_txb" at bias_card.vhd(156) has no driver
-Warning (10034): Output port "ttl_tx1" at bias_card.vhd(160) has no driver
-Warning (10034): Output port "ttl_tx2" at bias_card.vhd(164) has no driver
-Warning (10034): Output port "ttl_txena2" at bias_card.vhd(165) has no driver
-Warning (10034): Output port "ttl_tx3" at bias_card.vhd(168) has no driver
-Warning (10034): Output port "ttl_txena3" at bias_card.vhd(169) has no driver
-Warning (10034): Output port "eeprom_so" at bias_card.vhd(173) has no driver
-Warning (10034): Output port "eeprom_sck" at bias_card.vhd(174) has no driver
-Warning (10034): Output port "eeprom_cs" at bias_card.vhd(175) has no driver
-Warning (10034): Output port "mictorclk[2]" at bias_card.vhd(202) has no driver
-Warning (10034): Output port "mictorclk[1]" at bias_card.vhd(202) has no driver
-Warning (10034): Output port "tx" at bias_card.vhd(204) has no driver
+Warning (10034): Output port "lvds_txb" at bias_card.vhd(161) has no driver
+Warning (10034): Output port "ttl_tx1" at bias_card.vhd(165) has no driver
+Warning (10034): Output port "ttl_tx2" at bias_card.vhd(169) has no driver
+Warning (10034): Output port "ttl_txena2" at bias_card.vhd(170) has no driver
+Warning (10034): Output port "ttl_tx3" at bias_card.vhd(173) has no driver
+Warning (10034): Output port "ttl_txena3" at bias_card.vhd(174) has no driver
+Warning (10034): Output port "eeprom_so" at bias_card.vhd(178) has no driver
+Warning (10034): Output port "eeprom_sck" at bias_card.vhd(179) has no driver
+Warning (10034): Output port "eeprom_cs" at bias_card.vhd(180) has no driver
+Warning (10034): Output port "mictorclk[2]" at bias_card.vhd(207) has no driver
+Warning (10034): Output port "mictorclk[1]" at bias_card.vhd(207) has no driver
+Warning (10034): Output port "tx" at bias_card.vhd(209) has no driver
 Info: Elaborating entity "bc_pll" for hierarchy "bc_pll:pll0"
 Info: Found 1 design units, including 1 entities, in source file ../../../../../altera/72/quartus/libraries/megafunctions/altpll.tdf
     Info: Found entity 1: altpll
@@ -2540,8 +2540,8 @@ Info: Found 1 design units, including 1 entities, in source file db/altsyncram_d
 Info: Elaborating entity "altsyncram_dkl3" for hierarchy "dispatch:cmd0|altsyncram:buf|altsyncram_dkl3:auto_generated"
 Info: Elaborating entity "id_thermo" for hierarchy "id_thermo:id_thermo0"
 Info: Elaborating entity "one_wire_master" for hierarchy "id_thermo:id_thermo0|one_wire_master:master"
-Warning (10034): Output port "slave_data_o" at one_wire_master.vhd(76) has no driver
-Warning (10034): Output port "slave_wren_o" at one_wire_master.vhd(77) has no driver
+Warning (10034): Output port "slave_data_o" at one_wire_master.vhd(79) has no driver
+Warning (10034): Output port "slave_wren_o" at one_wire_master.vhd(80) has no driver
 Info: Elaborating entity "shift_reg" for hierarchy "id_thermo:id_thermo0|one_wire_master:master|shift_reg:tx_data_reg"
 Info: Elaborating entity "binary_counter" for hierarchy "id_thermo:id_thermo0|one_wire_master:master|binary_counter:bit_counter"
 Info: Elaborating entity "binary_counter" for hierarchy "id_thermo:id_thermo0|one_wire_master:master|binary_counter:timer_counter"
@@ -2564,11 +2564,11 @@ Info: Elaborating entity "counter" for hierarchy "bc_dac_ctrl:bc_dac_ctrl_slave|
 Info: Elaborating entity "write_spi_with_cs" for hierarchy "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac"
 Info: Elaborating entity "shift_reg" for hierarchy "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift"
 Info: Elaborating entity "bc_dac_ctrl_wbs" for hierarchy "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs"
-Warning (10036): Verilog HDL or VHDL warning at bc_dac_ctrl_wbs.vhd(111): object "master_wait" assigned a value but never read
-Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(234): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(248): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(267): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(273): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10036): Verilog HDL or VHDL warning at bc_dac_ctrl_wbs.vhd(114): object "master_wait" assigned a value but never read
+Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(237): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(251): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(270): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_wbs.vhd(276): signal "tga_i" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
 Info: Elaborating entity "tpram_32bit_x_64" for hierarchy "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|tpram_32bit_x_64:flux_fb_ram"
 Info: Found 1 design units, including 1 entities, in source file ../../../../../altera/72/quartus/libraries/megafunctions/alt3pram.tdf
     Info: Found entity 1: alt3pram
@@ -3137,8 +3137,8 @@ Info: Implemented 3161 device resources after synthesis - the final resource cou
     Info: Implemented 144 RAM segments
     Info: Implemented 1 ClockLock PLLs
 Info: Quartus II Analysis & Synthesis was successful. 0 errors, 135 warnings
-    Info: Allocated 189 megabytes of memory during processing
-    Info: Processing ended: Wed Dec 19 16:08:15 2007
-    Info: Elapsed time: 00:00:33
+    Info: Allocated 190 megabytes of memory during processing
+    Info: Processing ended: Wed Dec 19 17:26:45 2007
+    Info: Elapsed time: 00:00:31
 
 

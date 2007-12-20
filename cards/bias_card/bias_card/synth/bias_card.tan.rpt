@@ -1,5 +1,5 @@
 Classic Timing Analyzer report for bias_card
-Wed Dec 19 16:09:50 2007
+Wed Dec 19 17:28:14 2007
 Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 
 
@@ -3228,7 +3228,7 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Classic Timing Analyzer
     Info: Version 7.2 Build 151 09/26/2007 SJ Full Version
-    Info: Processing started: Wed Dec 19 16:09:47 2007
+    Info: Processing started: Wed Dec 19 17:28:11 2007
 Info: Command: quartus_tan --read_settings_files=off --write_settings_files=off bias_card -c bias_card --timing_analysis_only
 Warning: Found 15 node(s) in clock paths which may be acting as ripple and/or gated clocks -- node(s) analyzed as buffer(s) resulting in clock skew
     Info: Detected ripple clock "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|addr[0]" as buffer
@@ -3782,7 +3782,7 @@ Info: Minimum slack time is 380 ps for clock "bc_pll:pll0|altpll:altpll_componen
 Info: All timing requirements were met for slow timing model timing analysis. See Report window for more details.
 Info: Quartus II Classic Timing Analyzer was successful. 0 errors, 2 warnings
     Info: Allocated 127 megabytes of memory during processing
-    Info: Processing ended: Wed Dec 19 16:09:50 2007
+    Info: Processing ended: Wed Dec 19 17:28:14 2007
     Info: Elapsed time: 00:00:03
 
 

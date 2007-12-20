@@ -1,5 +1,5 @@
 Assembler report for bias_card
-Wed Dec 19 16:09:46 2007
+Wed Dec 19 17:28:10 2007
 Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 
 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Wed Dec 19 16:09:46 2007 ;
+; Assembler Status      ; Successful - Wed Dec 19 17:28:10 2007 ;
 ; Revision Name         ; bias_card                             ;
 ; Top-level Entity Name ; bias_card                             ;
 ; Family                ; Stratix                               ;
@@ -119,12 +119,12 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
     Info: Version 7.2 Build 151 09/26/2007 SJ Full Version
-    Info: Processing started: Wed Dec 19 16:09:43 2007
+    Info: Processing started: Wed Dec 19 17:28:08 2007
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 Info: Assembler is generating device programming files
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
     Info: Allocated 175 megabytes of memory during processing
-    Info: Processing ended: Wed Dec 19 16:09:46 2007
-    Info: Elapsed time: 00:00:03
+    Info: Processing ended: Wed Dec 19 17:28:10 2007
+    Info: Elapsed time: 00:00:02
 
 
