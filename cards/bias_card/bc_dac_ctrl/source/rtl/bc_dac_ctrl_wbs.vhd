@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.7 2006/08/03 19:00:52 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.8 2006/10/02 18:42:52 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.8  2006/10/02 18:42:52  bburger
+-- Bryce:  Gave the WBS the ability to update either the bias or flux_fb, without having to do the other.
+--
 -- Revision 1.7  2006/08/03 19:00:52  mandana
 -- removed reference to ac_dac_ctrl_pack file
 -- moved ram component declaraion to bc_dac_ctrl_pack
@@ -113,8 +116,9 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal bias_wren        : std_logic;
    signal bias_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
+   signal tpram_addr       : std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
    signal addr             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-
+   
    
    -- WBS states:
    type states is (IDLE, WR, RD1, RD2); 
@@ -128,9 +132,9 @@ begin
       (
          data              => dat_i,
          wren              => flux_fb_wren,
-         wraddress         => tga_i(COL_ADDR_WIDTH-1 downto 0),
+         wraddress         => tpram_addr,
          rdaddress_a       => flux_fb_addr_i,
-         rdaddress_b       => tga_i(COL_ADDR_WIDTH-1 downto 0),
+         rdaddress_b       => tpram_addr,
          clock             => clk_i,
          qa                => flux_fb_data_o,
          qb                => flux_fb_data
@@ -144,7 +148,7 @@ begin
    debug(25)    <= stb_i;
    debug(26)    <= cyc_i;
 --   debug(27)    <= ack_o;
-   
+ 
    bias_data_reg : reg
       generic map(
          WIDTH             => PACKET_WORD_WIDTH
@@ -227,6 +231,7 @@ begin
       ack_o             <= '0';
       flux_fb_changed_o <= '0';
       bias_changed_o    <= '0';
+      tpram_addr        <= tga_i(COL_ADDR_WIDTH-1 downto 0);
       
       case current_state is         
          when IDLE  =>                   
@@ -236,26 +241,37 @@ begin
             ack_o <= '1';
             
             if(stb_i = '1') then
-               if(addr_i = FLUX_FB_ADDR) then
-                  flux_fb_wren <= '1';
-               elsif(addr_i = BIAS_ADDR) then
+               if(addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) then
+                  flux_fb_wren <= '1';              
+               end if;   
+               if (addr_i = FLUX_FB_UPPER_ADDR) then   
+                  tpram_addr <= tga_i(COL_ADDR_WIDTH-1 downto 0) + 16;
+               end if;   
+               if(addr = BIAS_ADDR) then
                   bias_wren <= '1';
                end if;
             end if;
             
             -- This is so that the bias block does not update bias during every frame - only when the values are changed
             if(cyc_i = '0') then
-               if(addr = FLUX_FB_ADDR) then
+               if(addr = FLUX_FB_ADDR or addr = FLUX_FB_UPPER_ADDR) then
                   flux_fb_changed_o <= '1';
-               elsif(addr = BIAS_ADDR) then
+               end if;   
+               if(addr = BIAS_ADDR) then
                   bias_changed_o    <= '1';
                end if;
             end if;
             
          when RD1 =>
+            if (addr = FLUX_FB_UPPER_ADDR) then   
+               tpram_addr <= tga_i(COL_ADDR_WIDTH-1 downto 0) + 16;
+            end if;   
             ack_o <= '0';
          
          when RD2 =>
+            if (addr = FLUX_FB_UPPER_ADDR) then   
+               tpram_addr <= tga_i(COL_ADDR_WIDTH-1 downto 0) + 16;
+            end if;            
             ack_o  <= '1';
             
 -- I don't know why this was here..
@@ -276,6 +292,7 @@ begin
    
    with addr_i select dat_o <=
       flux_fb_data    when FLUX_FB_ADDR,
+      flux_fb_data    when FLUX_FB_UPPER_ADDR,
       bias_data       when BIAS_ADDR,
       (others => '0') when others;
    
@@ -283,10 +300,10 @@ begin
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = FLUX_FB_ADDR or addr_i = BIAS_ADDR) else '0'; 
+      (addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR or addr_i = BIAS_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = FLUX_FB_ADDR or addr_i = BIAS_ADDR) else '0'; 
+      (addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR or addr_i = BIAS_ADDR) else '0'; 
       
 end rtl;
