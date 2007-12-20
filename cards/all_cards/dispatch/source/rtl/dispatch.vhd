@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.13  2006/04/03 19:38:52  mandana
+-- make mainline adhere Rev. C backplane slot ids
+--
 -- Revision 1.12  2006/03/16 19:17:31  bburger
 -- Bryce:  added a section for decoding slot ids if using bus backplane revC.  Now, all we need to do is comment out one section, and uncomment the other to switch from revA/B <--> C
 --
@@ -410,6 +413,9 @@ begin
    
    stateNS: process(pres_state, cmd_done, cmd_error, execute_done, reply_done)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+
       case pres_state is   
          when INITIALIZE => next_state <= FETCH;
                
