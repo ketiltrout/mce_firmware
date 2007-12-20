@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.24  2007/07/25 19:33:38  bburger
+-- BB:  added support for the psuc to have it own dispatch block
+--
 -- Revision 1.23  2006/08/11 23:55:54  bburger
 -- Bryce:  the Power Supply Card is now recognized as its own card even though the Clock Card receiver handles the replies
 --
@@ -218,6 +221,9 @@ begin
 
    rx_stateNS: process(pres_state, lvds_rx_rdy, lvds_rx_data, cmd_type, data_size, word_count)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+
       case pres_state is
          when IDLE =>      next_state <= RX_HDR0;
 
