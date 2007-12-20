@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.28 2006/10/04 18:49:26 mandana Exp $
+-- $Id: bias_card.vhd,v 1.29 2007/03/08 22:24:13 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.29  2007/03/08 22:24:13  mandana
+-- Rev. 01030007 to fix fpga_thermo bug and 1C resolution for card_temp instead of 0.5C
+--
 -- Revision 1.28  2006/10/04 18:49:26  mandana
 -- updated revision to x1030006 for seperating update_bias and update_flux_fb
 -- updated top-level interface according to latest bias-card tcl
@@ -208,7 +211,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030007"; -- 03 signifies backplane Rev. C slot IDs
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01040000"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -471,7 +474,7 @@ begin
       slave_data <=
          fw_rev_data       when FW_REV_ADDR,     
          led_data          when LED_ADDR,
-         bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR,
+         bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,         
@@ -482,7 +485,7 @@ begin
       slave_ack <= 
          fw_rev_ack       when FW_REV_ADDR,
          led_ack          when LED_ADDR,
-         bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR,
+         bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_ack  when FPGA_TEMP_ADDR,         
@@ -491,7 +494,7 @@ begin
          
    with addr select
       slave_err <= 
-         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | 
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | FLUX_FB_UPPER_ADDR | 
                                SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          fw_rev_err       when FW_REV_ADDR,
          id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,

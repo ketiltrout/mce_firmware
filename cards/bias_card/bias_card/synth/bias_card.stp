@@ -1,9 +1,9 @@
-<session jtag_chain="ByteBlaster [LPT1]" sof_file="">
+<session jtag_chain="" sof_file="">
   <display_tree gui_logging_enabled="0">
     <display_branch instance="auto_signaltap_0" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
   </display_tree>
-  <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
-    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="3"/>
+  <instance compilation_mode="full" entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="6"/>
     <signal_set global_temp="1" is_expanded="true" name="signal_set: 2006/04/06 17:56:07  #0">
       <clock name="bc_pll:pll0|c0" polarity="posedge"/>
       <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="16384" trigger_in_enable="no" trigger_out_enable="no"/>
@@ -153,7 +153,7 @@
         </setup_view>
       </presentation>
       <trigger global_temp="1" is_expanded="true" name="trigger: 2006/04/06 17:56:07  #1" position="center" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
-        <events>
+        <events use_custom_flow_control="no">
           <level enabled="yes" type="basic">
             <op_node/>
           </level>
@@ -161,6 +161,7 @@
             <op_node/>
           </level>
         </events>
+        <power_up_trigger/>
       </trigger>
     </signal_set>
     <position_info>
@@ -173,6 +174,7 @@
   <global_info>
     <single attribute="active instance" value="0"/>
     <multi attribute="column width" size="18" value="34,34,282,74,68,70,88,100,101,101,101,101,101,101,101,101,107,78"/>
-    <multi attribute="window position" size="9" value="894,663,398,124,356,50,124,0,0"/>
+    <multi attribute="window position" size="9" value="1197,472,398,124,356,50,36,0,1"/>
+    <single attribute="lock mode" value="36110"/>
   </global_info>
 </session>

@@ -1,6 +1,6 @@
 Flow report for bias_card
-Wed Mar 07 14:29:35 2007
-Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
+Wed Dec 19 16:09:55 2007
+Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 
 
 ---------------------
@@ -18,10 +18,10 @@ Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 1991-2006 Altera Corporation
+Copyright (C) 1991-2007 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
-functions, and any output files any of the foregoing 
+functions, and any output files from any of the foregoing 
 (including device programming or simulation files), and any 
 associated documentation or information are expressly subject 
 to the terms and conditions of the Altera Program License 
@@ -34,25 +34,25 @@ applicable agreement for further details.
 
 
 
-+--------------------------------------------------------------------------+
-; Flow Summary                                                             ;
-+--------------------------+-----------------------------------------------+
-; Flow Status              ; Analyzed - Wed Mar 07 14:29:35 2007           ;
-; Quartus II Version       ; 6.0 Build 202 06/20/2006 SP 1 SJ Full Version ;
-; Revision Name            ; bias_card                                     ;
-; Top-level Entity Name    ; bias_card                                     ;
-; Family                   ; Stratix                                       ;
-; Device                   ; EP1S10F780C5                                  ;
-; Timing Models            ; Final                                         ;
-; Met timing requirements  ; Yes                                           ;
-; Total logic elements     ; 2,391 / 10,570 ( 23 % )                       ;
-; Total pins               ; 187 / 427 ( 44 % )                            ;
-; Total virtual pins       ; 0                                             ;
-; Total memory bits        ; 69,632 / 920,448 ( 8 % )                      ;
-; DSP block 9-bit elements ; 0 / 48 ( 0 % )                                ;
-; Total PLLs               ; 1 / 6 ( 17 % )                                ;
-; Total DLLs               ; 0 / 2 ( 0 % )                                 ;
-+--------------------------+-----------------------------------------------+
++---------------------------------------------------------------------+
+; Flow Summary                                                        ;
++--------------------------+------------------------------------------+
+; Flow Status              ; Analyzed - Wed Dec 19 16:09:55 2007      ;
+; Quartus II Version       ; 7.2 Build 151 09/26/2007 SJ Full Version ;
+; Revision Name            ; bias_card                                ;
+; Top-level Entity Name    ; bias_card                                ;
+; Family                   ; Stratix                                  ;
+; Device                   ; EP1S10F780C5                             ;
+; Timing Models            ; Final                                    ;
+; Met timing requirements  ; Yes                                      ;
+; Total logic elements     ; 2,536 / 10,570 ( 24 % )                  ;
+; Total pins               ; 187 / 427 ( 44 % )                       ;
+; Total virtual pins       ; 0                                        ;
+; Total memory bits        ; 69,632 / 920,448 ( 8 % )                 ;
+; DSP block 9-bit elements ; 0 / 48 ( 0 % )                           ;
+; Total PLLs               ; 1 / 6 ( 17 % )                           ;
+; Total DLLs               ; 0 / 2 ( 0 % )                            ;
++--------------------------+------------------------------------------+
 
 
 +-----------------------------------------+
@@ -60,47 +60,63 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 03/07/2007 14:25:46 ;
+; Start date & time ; 12/19/2007 16:07:43 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
 
 
-+-----------------------------------------------------------------------------------------------------------+
-; Flow Non-Default Global Settings                                                                          ;
-+--------------------------------------------+---------------+---------------+-------------+----------------+
-; Assignment Name                            ; Value         ; Default Value ; Entity Name ; Section Id     ;
-+--------------------------------------------+---------------+---------------+-------------+----------------+
-; AUTO_ENABLE_SMART_COMPILE                  ; Off           ; --            ; --          ; --             ;
-; DO_COMBINED_ANALYSIS                       ; On            ; Off           ; --          ; --             ;
-; EDA_GENERATE_FUNCTIONAL_NETLIST            ; On            ; --            ; --          ; eda_simulation ;
-; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ; On            ; --            ; --          ; eda_simulation ;
-; EDA_MAP_ILLEGAL_CHARACTERS                 ; On            ; --            ; --          ; eda_simulation ;
-; EDA_OUTPUT_DATA_FORMAT                     ; Vhdl          ; --            ; --          ; eda_simulation ;
-; ENABLE_CLOCK_LATENCY                       ; On            ; Off           ; --          ; --             ;
-; ENABLE_DRC_SETTINGS                        ; On            ; Off           ; --          ; --             ;
-; ENABLE_RECOVERY_REMOVAL_ANALYSIS           ; On            ; Off           ; --          ; --             ;
-; ENABLE_SIGNALTAP                           ; Off           ; --            ; --          ; --             ;
-; OPTIMIZE_FAST_CORNER_TIMING                ; On            ; Off           ; --          ; --             ;
-; PHYSICAL_SYNTHESIS_EFFORT                  ; Extra         ; Normal        ; --          ; --             ;
-; PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION    ; On            ; Off           ; --          ; --             ;
-; STRATIX_OPTIMIZATION_TECHNIQUE             ; Speed         ; Balanced      ; --          ; --             ;
-; USE_SIGNALTAP_FILE                         ; bias_card.stp ; --            ; --          ; --             ;
-+--------------------------------------------+---------------+---------------+-------------+----------------+
++-------------------------------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                                              ;
++---------------------------------------------------+-----------+--------------------------------+-------------+----------------+
+; Assignment Name                                   ; Value     ; Default Value                  ; Entity Name ; Section Id     ;
++---------------------------------------------------+-----------+--------------------------------+-------------+----------------+
+; ADV_NETLIST_OPT_SYNTH_GATE_RETIME                 ; On        ; Off                            ; --          ; --             ;
+; ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP               ; On        ; Off                            ; --          ; --             ;
+; AUTO_ENABLE_SMART_COMPILE                         ; Off       ; --                             ; --          ; --             ;
+; AUTO_PACKED_REGISTERS                             ; Normal    ; Off                            ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_CYCLONE                     ; Normal    ; Auto                           ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_MAXII                       ; Normal    ; Auto                           ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_STRATIX                     ; Normal    ; Auto                           ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_STRATIXII                   ; Normal    ; Auto                           ; --          ; --             ;
+; DO_COMBINED_ANALYSIS                              ; On        ; Off                            ; --          ; --             ;
+; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; On        ; --                             ; --          ; eda_simulation ;
+; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION        ; On        ; --                             ; --          ; eda_simulation ;
+; EDA_MAP_ILLEGAL_CHARACTERS                        ; On        ; --                             ; --          ; eda_simulation ;
+; EDA_OUTPUT_DATA_FORMAT                            ; Vhdl      ; --                             ; --          ; eda_simulation ;
+; ENABLE_CLOCK_LATENCY                              ; On        ; Off                            ; --          ; --             ;
+; ENABLE_DRC_SETTINGS                               ; On        ; Off                            ; --          ; --             ;
+; ENABLE_RECOVERY_REMOVAL_ANALYSIS                  ; On        ; Off                            ; --          ; --             ;
+; ENABLE_SIGNALTAP                                  ; Off       ; --                             ; --          ; --             ;
+; IGNORE_LCELL_BUFFERS                              ; On        ; Off                            ; --          ; --             ;
+; MUX_RESTRUCTURE                                   ; Off       ; Auto                           ; --          ; --             ;
+; OPTIMIZE_FAST_CORNER_TIMING                       ; On        ; Off                            ; --          ; --             ;
+; OPTIMIZE_HOLD_TIMING                              ; All paths ; IO Paths and Minimum TPD Paths ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ; On        ; Off                            ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_COMBO_LOGIC                    ; On        ; Off                            ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_EFFORT                         ; Extra     ; Normal                         ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION           ; On        ; Off                            ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_REGISTER_RETIMING              ; On        ; Off                            ; --          ; --             ;
+; SAFE_STATE_MACHINE                                ; On        ; Off                            ; --          ; --             ;
+; STATE_MACHINE_PROCESSING                          ; One-Hot   ; Auto                           ; --          ; --             ;
+; STRATIX_OPTIMIZATION_TECHNIQUE                    ; Speed     ; Balanced                       ; --          ; --             ;
+; TIMEQUEST_MULTICORNER_ANALYSIS                    ; On        ; Off                            ; --          ; --             ;
+; USE_SIGNALTAP_FILE                                ; upper.stp ; --                             ; --          ; --             ;
++---------------------------------------------------+-----------+--------------------------------+-------------+----------------+
 
 
-+-------------------------------------+
-; Flow Elapsed Time                   ;
-+----------------------+--------------+
-; Module Name          ; Elapsed Time ;
-+----------------------+--------------+
-; Analysis & Synthesis ; 00:01:25     ;
-; Fitter               ; 00:01:33     ;
-; Assembler            ; 00:00:05     ;
-; Timing Analyzer      ; 00:00:08     ;
-; Design Assistant     ; 00:00:11     ;
-; Total                ; 00:03:22     ;
-+----------------------+--------------+
++------------------------------------------------------------------+
+; Flow Elapsed Time                                                ;
++-------------------------+--------------+-------------------------+
+; Module Name             ; Elapsed Time ; Average Processors Used ;
++-------------------------+--------------+-------------------------+
+; Analysis & Synthesis    ; 00:00:32     ; 1.0                     ;
+; Fitter                  ; 00:01:26     ; 1.0                     ;
+; Assembler               ; 00:00:03     ; 1.0                     ;
+; Classic Timing Analyzer ; 00:00:03     ; 1.0                     ;
+; Design Assistant        ; 00:00:04     ; 1.0                     ;
+; Total                   ; 00:02:08     ; --                      ;
++-------------------------+--------------+-------------------------+
 
 
 ------------

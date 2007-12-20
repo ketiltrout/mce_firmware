@@ -28,7 +28,7 @@
 set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:26:51  DECEMBER 15, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 7.2
 
 # Pin & Location Assignments
 # ==========================
@@ -441,7 +441,7 @@ set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
 set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
 set_global_assignment -name FAMILY Stratix
 set_global_assignment -name TOP_LEVEL_ENTITY bias_card
-set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
+set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
 
 # Fitter Assignments
 # ==================
@@ -476,7 +476,7 @@ set_global_assignment -name ENABLE_DRC_SETTINGS ON
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE bias_card.stp
+set_global_assignment -name USE_SIGNALTAP_FILE upper.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -497,10 +497,10 @@ set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 	# EDA Netlist Writer Assignments
 	# ==============================
-	set_global_assignment -name EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ON -section_id eda_simulation
-	set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST ON -section_id eda_simulation
-	set_global_assignment -name EDA_MAP_ILLEGAL_CHARACTERS ON -section_id eda_simulation
-	set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
+set_global_assignment -name EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ON -section_id eda_simulation
+set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST ON -section_id eda_simulation
+set_global_assignment -name EDA_MAP_ILLEGAL_CHARACTERS ON -section_id eda_simulation
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
 
 # end EDA_TOOL_SETTINGS(eda_simulation)
 # -------------------------------------
@@ -530,6 +530,7 @@ set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING ON
 set_global_assignment -name DO_COMBINED_ANALYSIS ON
 set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
+set_global_assignment -name SAFE_STATE_MACHINE ON
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
@@ -599,3 +600,23 @@ set_global_assignment -name VHDL_FILE ../source/rtl/bias_card.vhd
 set_global_assignment -name HEX_FILE ../source/tb/bias_card_wb.hex
 set_global_assignment -name SIGNALTAP_FILE bias.stp
 set_global_assignment -name SIGNALTAP_FILE bias_card.stp
+set_global_assignment -name SIGNALTAP_FILE upper.stp
+set_global_assignment -name MUX_RESTRUCTURE OFF
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME ON
+set_global_assignment -name IGNORE_LCELL_BUFFERS ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
+set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -from * -to *
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_instance_assignment -name MAX_FANOUT 1000 -to *
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIXII NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_MAXII NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_CYCLONE NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX NORMAL
