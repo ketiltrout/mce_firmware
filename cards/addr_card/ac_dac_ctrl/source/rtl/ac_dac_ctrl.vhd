@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.12 2006/08/01 18:20:51 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.13 2008/01/08 23:23:42 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.13  2008/01/08 23:23:42  bburger
+-- BB:  Interim commital for code sharing between PCs
+--
 -- Revision 1.12  2006/08/01 18:20:51  bburger
 -- Bryce:  removed component declarations from header files and moved them to source files
 --
@@ -113,15 +116,19 @@ end ac_dac_ctrl;
 architecture rtl of ac_dac_ctrl is
 
    -----------------------------------------------------------------------
-   -- ADC <-> WBS
+   -- ADC <-> WBS Signals
    -----------------------------------------------------------------------
-   signal active_row_addr     : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-   signal active_row_int      : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal prev_row_addr       : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-   signal prev_row_int        : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal row_to_turn_off_slv : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+   signal row_to_turn_off_int : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+
+   signal row_to_turn_on_slv : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal row_to_turn_on_int : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+
+   signal row_order_index_int : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal row_order_index_slv : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 
    -----------------------------------------------------------------------
-   -- ADC
+   -- ADC Signals
    -----------------------------------------------------------------------
    -- Row Addressing FSM signals:
    type row_states is (PRESET1, PRESET2, IDLE, PROPAGATE1, LATCH1, PROPAGATE2, LATCH2, PROPAGATE3, LATCH3,
@@ -132,7 +139,6 @@ architecture rtl of ac_dac_ctrl is
    signal row_next_state      : row_states;
    signal frame_aligned_reg   : std_logic;
    signal mux_en              : integer range 0 to 2;
-   signal row_count           : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
    signal prev_row_count      : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
    signal row_count_new       : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
 
@@ -146,13 +152,18 @@ architecture rtl of ac_dac_ctrl is
 
    constant DAC_NO_CLKS  : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00000000000000000000000000000000000000000";
    constant DAC_ALL_CLKS : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "11111111111111111111111111111111111111111";
-   constant DAC_CLKS1    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "11000000110000001100000011000000110000001";
-   constant DAC_CLKS2    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00110000001100000011000000110000001100000";
-   constant DAC_CLKS3    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00001100000011000000110000001100000011000";
-   constant DAC_CLKS4    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00000011000000110000001100000011000000110";
+   constant DAC_CLKS1    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "10000001100000011000000110000001100000011";
+   constant DAC_CLKS2    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00000110000001100000011000000110000001100";
+   constant DAC_CLKS3    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00011000000110000001100000011000000110000";
+   constant DAC_CLKS4    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "01100000011000000110000001100000011000000";
+
+--   constant DAC_CLKS1    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "11000000110000001100000011000000110000001";
+--   constant DAC_CLKS2    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00110000001100000011000000110000001100000";
+--   constant DAC_CLKS3    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00001100000011000000110000001100000011000";
+--   constant DAC_CLKS4    : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00000011000000110000001100000011000000110";
 
    -----------------------------------------------------------------------
-   -- WBS
+   -- WBS Signals
    -----------------------------------------------------------------------
    component tpram_32bit_x_64
    PORT
@@ -191,7 +202,6 @@ architecture rtl of ac_dac_ctrl is
    signal on_val_wren      : std_logic;
    signal off_val_wren     : std_logic;
    signal row_order_wren   : std_logic;
-   signal logical_addr     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal mux_en_wren      : std_logic;
    signal mux_en_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal on_dataa         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -205,43 +215,45 @@ architecture rtl of ac_dac_ctrl is
    signal current_state    : states;
    signal next_state       : states;
 
-   signal addr_int : integer range 0 to 31;
+   signal addr_int : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
    signal datab_mux : word32;
    signal dac_sel : integer range 0 to 6;
 
    signal update_row_index : std_logic;
 
-   signal next_row_num                : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal next_row_num_new            : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal next_row_order_index_int                : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal next_row_order_index_int_new            : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
 
 begin
 
    ------------------------------------------------------------
    -- Specialized Registers
    ------------------------------------------------------------
-   next_row_num_new <= 0 when restart_frame_1row_prev_i = '1' else next_row_num + 1;
+   next_row_order_index_int_new <= 0 when restart_frame_1row_prev_i = '1' else next_row_order_index_int + 1;
    row_num_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         next_row_num <= 0;
+         next_row_order_index_int <= 0;
       elsif(clk_i'event and clk_i = '1') then
          if(row_switch_i = '1') then
-            next_row_num <= next_row_num_new;
+            next_row_order_index_int <= next_row_order_index_int_new;
          end if;
       end if;
    end process row_num_cntr;
 
-   active_row_addr <= std_logic_vector(conv_unsigned(row_count, ROW_ADDR_WIDTH));
-   prev_row_int    <= conv_integer(prev_row_addr);
+   row_order_index_slv <= std_logic_vector(conv_unsigned(row_order_index_int, ROW_ADDR_WIDTH));
+   row_to_turn_off_int <= conv_integer(row_to_turn_off_slv);
+   row_to_turn_on_int <= conv_integer(row_to_turn_on_slv);
+
    row_index_register: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         row_count      <= 0;
-         prev_row_addr  <= (others => '0');
+         row_order_index_int      <= 0;
+         row_to_turn_off_slv  <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(update_row_index = '1') then
-            row_count      <= next_row_num;
-            prev_row_addr  <= logical_addr(ROW_ADDR_WIDTH-1 downto 0);
+            row_order_index_int  <= next_row_order_index_int;
+            row_to_turn_off_slv  <= row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0);
          end if;
       end if;
    end process row_index_register;
@@ -383,7 +395,7 @@ begin
    -- output states for row selection FSM
    -- In every scan instance, the current row has to be turned on and the previous row has to be turned off
    -- Therefore only 2 DACs are clocked.
-   row_state_out: process(row_current_state, prev_row_int, row_count)
+   row_state_out: process(row_current_state, row_to_turn_off_int, row_to_turn_on_int)
    begin
       -- Default assignments
       dac_sel    <= 0;
@@ -410,14 +422,14 @@ begin
 
          when AC_LATCH_OFF =>
             dac_sel    <= 6;
-            dac_clks_o(prev_row_int) <= '1';
+            dac_clks_o(row_to_turn_off_int) <= '1';
 
          when AC_PROPAGATE_ON =>
             dac_sel    <= 5;
 
          when AC_LATCH_ON =>
             dac_sel    <= 5;
-            dac_clks_o(row_count) <= '1';
+            dac_clks_o(row_to_turn_on_int) <= '1';
             update_row_index <= '1';
 
          when AC_WAIT_FOR_NEW_ROW_INDEX =>
@@ -566,7 +578,7 @@ begin
    ------------------------------------------------------------
    --  Wishbone Control Signals
    ------------------------------------------------------------
-   addr_int  <= conv_integer(addr_i(4 downto 0));
+   addr_int  <= conv_integer(addr_i(ROW_ADDR_WIDTH-1 downto 0));
    datab_mux <= datab(addr_int);
 
    dat_o     <=
@@ -601,7 +613,7 @@ begin
       dataa(1) (13 downto 0) when dac_sel = 1 else
       dataa(3) (13 downto 0) when dac_sel = 2 else
       dataa(4) (13 downto 0) when dac_sel = 3 else
-      dataa(5) (13 downto 0) when dac_sel = 4 else
+      dataa(6) (13 downto 0) when dac_sel = 4 else
       on_dataa (13 downto 0) when dac_sel = 5 else
       off_dataa(13 downto 0) when dac_sel = 6 else
       (others => '0');
@@ -616,7 +628,7 @@ begin
       (others => '0');
 
    dac_data_o(3) <=
-      dataa(9)(13 downto 0)  when dac_sel = 1 else
+      dataa(9) (13 downto 0)  when dac_sel = 1 else
       dataa(11)(13 downto 0) when dac_sel = 2 else
       dataa(12)(13 downto 0) when dac_sel = 3 else
       dataa(14)(13 downto 0) when dac_sel = 4 else
@@ -678,7 +690,15 @@ begin
       off_dataa(13 downto 0) when dac_sel = 6 else
       (others => '0');
 
-   dac_data_o(10) <= dataa(40)(13 downto 0);
+   -- This data bus is only connected to one DAC
+   dac_data_o(10) <=
+      dataa(40)(13 downto 0) when dac_sel = 1 else
+      dataa(40)(13 downto 0) when dac_sel = 2 else
+      dataa(40)(13 downto 0) when dac_sel = 3 else
+      dataa(40)(13 downto 0) when dac_sel = 4 else
+      on_dataa (13 downto 0) when dac_sel = 5 else
+      off_dataa(13 downto 0) when dac_sel = 6 else
+      (others => '0');
 
    -----------------------------------------------------------------------
    -- RAM Storage
@@ -689,8 +709,7 @@ begin
          data              => dat_i,
          wren              => on_val_wren,
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         -- There is a bug here: this should be the next row
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => on_dataa,
@@ -703,7 +722,7 @@ begin
          data              => dat_i,
          wren              => off_val_wren,
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_off_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => off_dataa,
@@ -716,10 +735,10 @@ begin
          data              => dat_i,
          wren              => row_order_wren,
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => active_row_addr,
+         rdaddress_a       => row_order_index_slv,
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
-         qa                => logical_addr,
+         qa                => row_to_turn_on_slv,
          qb                => row_order_data
       );
 
@@ -744,7 +763,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(0),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(0),
@@ -757,7 +776,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(1),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(1),
@@ -770,7 +789,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(2),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(2),
@@ -783,7 +802,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(3),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(3),
@@ -796,7 +815,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(4),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(4),
@@ -809,7 +828,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(5),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(5),
@@ -822,7 +841,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(6),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(6),
@@ -835,7 +854,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(7),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(7),
@@ -851,7 +870,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(8),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(8),
@@ -864,7 +883,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(9),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(9),
@@ -877,7 +896,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(10),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(10),
@@ -890,7 +909,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(11),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(11),
@@ -903,7 +922,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(12),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(12),
@@ -916,7 +935,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(13),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(13),
@@ -929,7 +948,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(14),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(14),
@@ -942,7 +961,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(15),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(15),
@@ -958,7 +977,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(16),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(16),
@@ -971,7 +990,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(17),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(17),
@@ -984,7 +1003,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(18),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(18),
@@ -997,7 +1016,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(19),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(19),
@@ -1010,7 +1029,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(20),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(20),
@@ -1023,7 +1042,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(21),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(21),
@@ -1036,7 +1055,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(22),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(22),
@@ -1049,7 +1068,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(23),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(23),
@@ -1065,7 +1084,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(24),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(24),
@@ -1078,7 +1097,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(25),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(25),
@@ -1091,7 +1110,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(26),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(26),
@@ -1104,7 +1123,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(27),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(27),
@@ -1117,7 +1136,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(28),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(28),
@@ -1130,7 +1149,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(29),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(29),
@@ -1143,7 +1162,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(30),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(30),
@@ -1156,7 +1175,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(31),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(31),
@@ -1172,7 +1191,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(32),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(32),
@@ -1185,7 +1204,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(33),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(33),
@@ -1198,7 +1217,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(34),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(34),
@@ -1211,7 +1230,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(35),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(35),
@@ -1224,7 +1243,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(36),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(36),
@@ -1237,7 +1256,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(37),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(37),
@@ -1250,7 +1269,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(38),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(38),
@@ -1263,7 +1282,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(39),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(39),
@@ -1276,7 +1295,7 @@ begin
          data              => dat_i,
          wren              => fb_wren(40),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => clk_i,
          qa                => dataa(40),
