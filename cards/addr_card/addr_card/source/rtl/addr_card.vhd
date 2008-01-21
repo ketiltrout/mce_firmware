@@ -31,6 +31,12 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.25  2007/12/18 21:13:27  bburger
+-- BB:
+-- - moved all the component declarations from addr_card to addr_card_pack
+-- - instatiated bp_slot_id
+-- - ac_v02000004
+--
 -- Revision 1.24  2007/03/22 21:14:57  bburger
 -- Bryce:  ac_v02000003
 --
@@ -122,7 +128,7 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000004";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000005";
 
    -- clocks
    signal clk      : std_logic;
@@ -166,6 +172,7 @@ architecture top of addr_card is
 
    -- frame_timing interface
    signal restart_frame_aligned : std_logic;
+   signal restart_frame_1row_prev : std_logic;
    signal row_switch            : std_logic;
    signal row_en                : std_logic;
 
@@ -200,10 +207,13 @@ architecture top of addr_card is
       -- frame_timing interface:
       row_switch_i            : in std_logic;
       restart_frame_aligned_i : in std_logic;
+      restart_frame_1row_prev_i : in std_logic;
       row_en_i                : in std_logic;
 
       -- Global Signals
       clk_i                   : in std_logic;
+      clk_i_n                 : in std_logic;
+      clk_100_i               : in std_logic;
       rst_i                   : in std_logic
    );
    end component;
@@ -318,9 +328,12 @@ begin
 
          row_switch_i               => row_switch,
          restart_frame_aligned_i    => restart_frame_aligned,
+         restart_frame_1row_prev_i  => restart_frame_1row_prev,
          row_en_i                   => row_en,
 
          clk_i                      => clk,
+         clk_i_n                    => clk_n,
+         clk_100_i                  => comm_clk,
          rst_i                      => rst
       );
 
@@ -328,7 +341,7 @@ begin
       port map(
          dac_dat_en_o               => open,
          adc_coadd_en_o             => open,
-         restart_frame_1row_prev_o  => open,
+         restart_frame_1row_prev_o  => restart_frame_1row_prev,
          restart_frame_aligned_o    => restart_frame_aligned,
          restart_frame_1row_post_o  => open,
          initialize_window_o        => open,
@@ -411,7 +424,12 @@ begin
       slave_data <=
          fw_rev_data       when FW_REV_ADDR,
          led_data          when LED_ADDR,
-         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
+         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR |
+                                FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
+                                FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
+                                FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
+                                FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
+                                FB_COL40_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
@@ -422,7 +440,12 @@ begin
       slave_ack <=
          fw_rev_ack        when FW_REV_ADDR,
          led_ack           when LED_ADDR,
-         ac_dac_ack        when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
+         ac_dac_ack        when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR |
+                                FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
+                                FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
+                                FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
+                                FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
+                                FB_COL40_ADDR,
          frame_timing_ack  when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
@@ -432,7 +455,12 @@ begin
    with addr select
       slave_err <=
          '0'               when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR |
-                                SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+                                SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR |
+                                FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
+                                FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
+                                FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
+                                FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
+                                FB_COL40_ADDR,
          fw_rev_err        when FW_REV_ADDR,
          id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err   when FPGA_TEMP_ADDR,
