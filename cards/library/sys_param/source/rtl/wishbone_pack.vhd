@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/12/19 20:50:26 $> - <initials $Author: mandana $>
+-- <date $Date: 2008/01/21 19:43:06 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.42  2008/01/21 19:43:06  bburger
+-- BB:  Added the parameter IDs for fb_col0 through fb_col40 for the sq2fb multiplexing
+--
 -- Revision 1.41  2007/12/19 20:50:26  mandana
 -- added flux_fb_upper, sa_htr0/1
 --
@@ -350,6 +353,7 @@ package wishbone_pack is
    constant DIP_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"97";
    constant CYC_OO_SYC_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";
    constant LED_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
+   constant SCRATCH_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9a";   
 
    -- Clock Card Specific
    constant UPLOAD_FW_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
