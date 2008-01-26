@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/03/06 00:49:03 $>    - <initials $Author: bburger $>
+-- <date $Date: 2007/07/25 19:27:34 $>    - <initials $Author: bburger $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.4  2007/07/25 19:27:34  bburger
+-- BB:  Cosmetic changes
+--
 -- Revision 1.3  2007/03/06 00:49:03  bburger
 -- Bryce:  added the smbalert_i signal to the fpga_thermo interface
 --
@@ -60,6 +63,32 @@ use work.frame_timing_pack.all;
 
 package all_cards_pack is
 
+   constant SLOT_ID_BITS : integer := 4;
+
+   -----------------------------------------------------------------------------
+   -- all_cards component
+   -----------------------------------------------------------------------------
+   component all_cards
+   generic ( REVISION: std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"01010000"; 
+             CARD_TYPE: std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := b"111"
+             );
+   port(clk_i   : in std_logic;
+        rst_i   : in std_logic;
+
+        -- Wishbone signals
+        dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+        addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_i    : in std_logic;
+        stb_i   : in std_logic;
+        cyc_i   : in std_logic;
+        slot_id_i         : in std_logic_vector(SLOT_ID_BITS-1 downto 0);
+        err_all_cards_o   : out std_logic;
+        qa_all_cards_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        ack_all_cards_o   : out std_logic
+      );
+   end component;
+   
    -----------------------------------------------------------------------------
    -- LED Component
    -----------------------------------------------------------------------------
@@ -86,6 +115,7 @@ package all_cards_pack is
 
    -----------------------------------------------------------------------------
    -- Firmware Revision Component
+   -- OBSOLETE: use all_cards instead!
    -----------------------------------------------------------------------------
    component fw_rev
    generic ( REVISION: std_logic_vector(31 downto 0) := X"01010000");
@@ -107,9 +137,8 @@ package all_cards_pack is
 
    -----------------------------------------------------------------------------
    -- slot_id component
+   -- OBSOLETE: use all_cards instead!
    -----------------------------------------------------------------------------
-   constant SLOT_ID_BITS : integer := 4;
-
    component bp_slot_id
    port (
       clk_i   : in std_logic;
