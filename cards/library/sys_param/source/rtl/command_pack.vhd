@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.21  2006/07/17 14:34:38  bburger
+-- Bryce:  modified FIBRE_NO_ERROR_STATUS for new fibre protocol
+--
 -- Revision 1.20  2006/06/09 22:22:59  bburger
 -- Bryce:  Moved the no_channels constant from wbs_frame_data_pack to command_pack so that the clock card could use it.  I also modified flux_loop_pack to use no_channels instead of a literal value of 8.
 --
@@ -104,7 +107,19 @@ package command_pack is
    
    -- Number of channels per RC
    constant NO_CHANNELS       : integer := 8;
-
+   
+   ------------------------------------------------------------------------
+   -- CARD-TYPE Declarations
+   ------------------------------------------------------------------------   
+   constant MAX_NUM_CARD_TYPES : integer := 8;
+   constant CARD_TYPE_WIDTH    : integer := 3;
+   
+   constant AC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "000";
+   constant BC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "001";
+   constant RC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "010";
+   constant CC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "011";
+   constant PSCUC_CARD_TYPE    : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "100";      
+   
    ------------------------------------------------------------------------
    -- Bus Backplane-Protocol Declarations
    ------------------------------------------------------------------------
@@ -150,7 +165,7 @@ package command_pack is
    constant ALL_READOUT_CARDS : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0B";
    constant ALL_BIAS_CARDS    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0C";
    constant ALL_FPGA_CARDS    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0D";
-   constant ALL_CARDS         : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0E";
+   constant ALL_MCE_CARDS     : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0E";
 
    -- parameter id's are defined in wishbone_pack.vhd
    
