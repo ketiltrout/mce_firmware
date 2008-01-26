@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.24.2.1  2007/12/20 00:53:49  mandana
+-- safe fsm to fix reset problem
+-- have to avoid the trunk as it has some dummy state added
+--
 -- Revision 1.24  2007/07/25 19:33:38  bburger
 -- BB:  added support for the psuc to have it own dispatch block
 --
@@ -181,7 +185,7 @@ begin
    cmd_type  <= header0(BB_COMMAND_TYPE'range);
 
    cmd_valid <= '1' when (header1(BB_CARD_ADDRESS'range) = card_i) or
-                         (header1(BB_CARD_ADDRESS'range) = ALL_CARDS) or
+                         (header1(BB_CARD_ADDRESS'range) = ALL_MCE_CARDS) or 
                          (header1(BB_CARD_ADDRESS'range) = ALL_FPGA_CARDS and card_i /= POWER_SUPPLY_CARD) or
                          (header1(BB_CARD_ADDRESS'range) = ALL_BIAS_CARDS and (card_i = BIAS_CARD_1 or card_i = BIAS_CARD_2 or card_i = BIAS_CARD_3)) or
                          (header1(BB_CARD_ADDRESS'range) = ALL_READOUT_CARDS and (card_i = READOUT_CARD_1 or card_i = READOUT_CARD_2 or card_i = READOUT_CARD_3 or card_i = READOUT_CARD_4))
