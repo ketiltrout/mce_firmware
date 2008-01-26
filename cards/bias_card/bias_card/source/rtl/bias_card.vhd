@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.29 2007/03/08 22:24:13 mandana Exp $
+-- $Id: bias_card.vhd,v 1.30 2007/12/20 00:39:29 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.30  2007/12/20 00:39:29  mandana
+-- rev. 1.4.0
+-- added flux_fb_upper command for mceV2
+-- added safe FSM compile option + completing state machines
+--
 -- Revision 1.29  2007/03/08 22:24:13  mandana
 -- Rev. 01030007 to fix fpga_thermo bug and 1C resolution for card_temp instead of 0.5C
 --
@@ -211,7 +216,12 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01040000"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01040001"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
+
+-- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
+signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal all_cards_ack           : std_logic;
+signal all_cards_err           : std_logic;
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -243,10 +253,6 @@ signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack  : std_logic;
 signal slave_err         : std_logic;
 
-signal fw_rev_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal fw_rev_ack        : std_logic;
-signal fw_rev_err        : std_logic;
-
 signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal id_thermo_ack     : std_logic;
 signal id_thermo_err     : std_logic;
@@ -254,11 +260,6 @@ signal id_thermo_err     : std_logic;
 signal fpga_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fpga_thermo_ack   : std_logic;
 signal fpga_thermo_err   : std_logic;
-
-signal slot_id_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal slot_id_ack       : std_logic;
-signal slot_id_err       : std_logic;
-
 
 -- frame_timing interface
 signal update_bias : std_logic; 
@@ -273,6 +274,9 @@ begin
    -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_nrx1);
    
+   -- This line will be used by clock card to check card presence
+   lvds_txb <= '0';
+
    mictor   <= debug;
    test (4) <= dac_ncs_temp(0);
    test (6) <= dac_data_temp(0);
@@ -374,26 +378,15 @@ begin
          fault                      => red_led
       );
    
-   fw_rev_slave: fw_rev
-      generic map( REVISION => BC_REVISION)
-      port map(
-         clk_i                      => clk,
-         rst_i                      => rst,
+   ----------------------------------------------------------------------------
+   -- all_cards registers Instantition
+   ----------------------------------------------------------------------------
 
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         err_o                      => fw_rev_err,
-         dat_o                      => fw_rev_data,
-         ack_o                      => fw_rev_ack
-    );
-   
-    slot_id_slave: bp_slot_id
+    i_all_cards: all_cards
+       generic map( REVISION => BC_REVISION, 
+                    CARD_TYPE=> BC_CARD_TYPE
+                    )
        port map(
-          slot_id_i => slot_id,
           clk_i  => clk,
           rst_i  => rst,
 
@@ -403,9 +396,10 @@ begin
           we_i   => we,
           stb_i  => stb,
           cyc_i  => cyc,
-          err_o  => slot_id_err,
-          dat_o  => slot_id_data,
-          ack_o  => slot_id_ack
+          slot_id_i => slot_id,
+          err_all_cards_o  => all_cards_err,
+          qa_all_cards_o   => all_cards_data,
+          ack_all_cards_o  => all_cards_ack
      );
 
    bc_dac_ctrl_slave: bc_dac_ctrl
@@ -472,34 +466,31 @@ begin
    
    with addr select
       slave_data <=
-         fw_rev_data       when FW_REV_ADDR,     
+         all_cards_data    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,     
          led_data          when LED_ADDR,
          bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,         
-         slot_id_data      when SLOT_ID_ADDR,
          (others => '0')   when others;
 
    with addr select
       slave_ack <= 
-         fw_rev_ack       when FW_REV_ADDR,
+         all_cards_ack    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_ack          when LED_ADDR,
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_ack  when FPGA_TEMP_ADDR,         
-         slot_id_ack      when SLOT_ID_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
          '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | FLUX_FB_UPPER_ADDR | 
                                SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
-         fw_rev_err       when FW_REV_ADDR,
+         all_cards_err    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err  when FPGA_TEMP_ADDR,
-         slot_id_err      when SLOT_ID_ADDR,                      
          '1'              when others;        
    
 end top;
