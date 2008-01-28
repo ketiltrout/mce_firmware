@@ -531,6 +531,24 @@ set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING ON
 set_global_assignment -name DO_COMBINED_ANALYSIS ON
 set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
 set_global_assignment -name SAFE_STATE_MACHINE ON
+set_global_assignment -name MUX_RESTRUCTURE OFF
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME ON
+set_global_assignment -name IGNORE_LCELL_BUFFERS ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
+set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -from * -to *
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_instance_assignment -name MAX_FANOUT 1000 -to *
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIXII NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_MAXII NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_CYCLONE NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX NORMAL
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
@@ -540,6 +558,7 @@ set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/asy
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
@@ -601,22 +620,3 @@ set_global_assignment -name HEX_FILE ../source/tb/bias_card_wb.hex
 set_global_assignment -name SIGNALTAP_FILE bias.stp
 set_global_assignment -name SIGNALTAP_FILE bias_card.stp
 set_global_assignment -name SIGNALTAP_FILE upper.stp
-set_global_assignment -name MUX_RESTRUCTURE OFF
-set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
-set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME ON
-set_global_assignment -name IGNORE_LCELL_BUFFERS ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
-set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
-set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
-set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -from * -to *
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
-set_instance_assignment -name MAX_FANOUT 1000 -to *
-set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIXII NORMAL
-set_global_assignment -name AUTO_PACKED_REGISTERS_MAXII NORMAL
-set_global_assignment -name AUTO_PACKED_REGISTERS_CYCLONE NORMAL
-set_global_assignment -name AUTO_PACKED_REGISTERS NORMAL
-set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX NORMAL

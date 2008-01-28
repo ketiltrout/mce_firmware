@@ -1,5 +1,5 @@
 Flow report for bias_card
-Fri Dec 21 10:36:58 2007
+Fri Jan 25 17:38:40 2008
 Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 
 
@@ -37,7 +37,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------------+
 ; Flow Summary                                                        ;
 +--------------------------+------------------------------------------+
-; Flow Status              ; Analyzed - Fri Dec 21 10:36:58 2007      ;
+; Flow Status              ; Analyzed - Fri Jan 25 17:38:40 2008      ;
 ; Quartus II Version       ; 7.2 Build 151 09/26/2007 SJ Full Version ;
 ; Revision Name            ; bias_card                                ;
 ; Top-level Entity Name    ; bias_card                                ;
@@ -45,7 +45,7 @@ applicable agreement for further details.
 ; Device                   ; EP1S10F780C5                             ;
 ; Timing Models            ; Final                                    ;
 ; Met timing requirements  ; Yes                                      ;
-; Total logic elements     ; 2,894 / 10,570 ( 27 % )                  ;
+; Total logic elements     ; 3,097 / 10,570 ( 29 % )                  ;
 ; Total pins               ; 187 / 427 ( 44 % )                       ;
 ; Total virtual pins       ; 0                                        ;
 ; Total memory bits        ; 69,632 / 920,448 ( 8 % )                 ;
@@ -60,7 +60,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 12/21/2007 10:34:36 ;
+; Start date & time ; 01/25/2008 17:36:27 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -100,7 +100,6 @@ applicable agreement for further details.
 ; SAFE_STATE_MACHINE                                ; On        ; Off                            ; --          ; --             ;
 ; STATE_MACHINE_PROCESSING                          ; One-Hot   ; Auto                           ; --          ; --             ;
 ; STRATIX_OPTIMIZATION_TECHNIQUE                    ; Speed     ; Balanced                       ; --          ; --             ;
-; TIMEQUEST_MULTICORNER_ANALYSIS                    ; On        ; Off                            ; --          ; --             ;
 ; USE_SIGNALTAP_FILE                                ; upper.stp ; --                             ; --          ; --             ;
 +---------------------------------------------------+-----------+--------------------------------+-------------+----------------+
 
@@ -110,12 +109,12 @@ applicable agreement for further details.
 +-------------------------+--------------+-------------------------+
 ; Module Name             ; Elapsed Time ; Average Processors Used ;
 +-------------------------+--------------+-------------------------+
-; Analysis & Synthesis    ; 00:00:31     ; 1.0                     ;
-; Fitter                  ; 00:01:36     ; 1.0                     ;
-; Assembler               ; 00:00:03     ; 1.0                     ;
-; Classic Timing Analyzer ; 00:00:04     ; 1.0                     ;
-; Design Assistant        ; 00:00:05     ; 1.0                     ;
-; Total                   ; 00:02:19     ; --                      ;
+; Analysis & Synthesis    ; 00:00:34     ; 1.0                     ;
+; Fitter                  ; 00:01:26     ; 1.0                     ;
+; Assembler               ; 00:00:02     ; 1.0                     ;
+; Classic Timing Analyzer ; 00:00:03     ; 1.0                     ;
+; Design Assistant        ; 00:00:04     ; 1.0                     ;
+; Total                   ; 00:02:09     ; --                      ;
 +-------------------------+--------------+-------------------------+
 
 
