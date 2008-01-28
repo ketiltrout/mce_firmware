@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.57 2007/09/20 19:49:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.58 2007/10/18 22:45:09 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/09/20 19:49:26 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/10/18 22:45:09 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.58  2007/10/18 22:45:09  bburger
+-- BB:  added funtionality that adjusts the data pipeline delay based on a constant parameter.
+--
 -- Revision 1.57  2007/09/20 19:49:26  bburger
 -- BB:  Reorder the port declaration.
 --
@@ -140,6 +143,24 @@ end reply_translator;
 
 architecture rtl of reply_translator is
 
+   -- The logical AND of this word with the status word filters out the warnings from the status word,
+   -- leaving only the errors.
+   constant STATUS_WORD_WARNING_MASK : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) :=   "00011011011011011011011011011011"; --"00010010010010010010010010010010";
+   constant NO_ERRORS_REPORTED       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) :=   "00000000000000000000000000000000";
+
+   constant RB_OK : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"52424F4B";
+   -- "GOOK" = 0x474F4F4B or
+   -- "STOK" = 0x53544F4B or
+   -- "RSOK" = 0x52534F4B or
+   -- "WBOK" = 0x57424F4B or
+   -- "RBOK" = 0x52424F4B or
+   -- "GOER" = 0x474F4552 or
+   -- "STER" = 0x53544552 or
+   -- "RSER" = 0x52534552 or
+   -- "WBER" = 0x57424552 or
+   -- "RBER" = 0x52424552 or
+
+   -- Reply Structure
    constant NUM_REPLY_WORDS      : integer := 4;
    constant NUM_FRAME_HEAD_WORDS : integer := 41;
    constant SERVICING_COMMAND    : std_logic := '0';
@@ -419,16 +440,6 @@ begin
          end if;
 
       ----------------------------------------
-      -- "GOOK" = 0x474F4F4B or
-      -- "STOK" = 0x53544F4B or
-      -- "RSOK" = 0x52534F4B or
-      -- "WBOK" = 0x57424F4B or
-      -- "RBOK" = 0x52424F4B or
-      -- "GOER" = 0x474F4552 or
-      -- "STER" = 0x53544552 or
-      -- "RSER" = 0x52534552 or
-      -- "WBER" = 0x57424552 or
-      -- "RBER" = 0x52424552 or
       -- Frame Status Block
       ----------------------------------------
       when LD_OKorER =>
@@ -567,11 +578,11 @@ begin
 --            end if;
 
             -- If there is an error in the RB
-            if (r_cmd_code = READ_BLOCK and error_flags_only /= x"00000000") then
+            if (r_cmd_code = READ_BLOCK and error_flags_only /= NO_ERRORS_REPORTED) then
                packet_size <= conv_std_logic_vector(4,PACKET_WORD_WIDTH);
             -- Else if it is a non-error RB, or any DA reply
             elsif (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then
-               packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);
+               packet_size <= conv_std_logic_vector(rb_packet_size, PACKET_WORD_WIDTH);
             -- Else for any other packet.
             else
                packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
@@ -580,7 +591,7 @@ begin
             packet_type    <= REPLY;
             crd_add_par_id <= "00000000" & r_card_addr & "00000000" & r_param_id;
 
-            if(error_flags_only = x"00000000") then
+            if(error_flags_only = NO_ERRORS_REPORTED) then
                ok_or_er <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             else
                ok_or_er <= r_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
@@ -739,7 +750,7 @@ begin
          if(fibre_tx_busy_i = '0') then
             fibre_word_ack_o <= '1';
             -- Not transmitted in RBOK packets or data packets
-            if(c_or_r = SERVICING_REPLY and (ok_or_er = x"52424F4B" or packet_type = DATA)) then
+            if(c_or_r = SERVICING_REPLY and (ok_or_er = RB_OK or packet_type = DATA)) then
                fibre_tx_rdy_o <= '0';
                checksum_ld    <= '0';
             else
