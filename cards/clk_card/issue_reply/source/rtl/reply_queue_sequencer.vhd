@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.34  2007/12/18 20:36:40  bburger
+-- BB:  Repaired the errno word logic that was reporting both card error and card not present at the same time.
+--
 -- Revision 1.33  2007/11/07 00:38:22  bburger
 -- BB:  Added a comment.  No changes to the code.
 --
@@ -628,16 +631,26 @@ begin
             end if;
 
          when WAIT_FOR_REPLY =>
-            if((card_addr_i = CLOCK_CARD and (cc_rdy = '1' or card_not_present_i(1) = '1')) or
-               (card_addr_i = POWER_SUPPLY_CARD and (psu_rdy = '1' or card_not_present_i(0) = '1')) or
-               (card_addr_i = ADDRESS_CARD and (ac_rdy = '1' or card_not_present_i(9) = '1')) or
-               (card_addr_i = BIAS_CARD_1 and (bc1_rdy = '1' or card_not_present_i(8) = '1')) or
-               (card_addr_i = BIAS_CARD_2 and (bc2_rdy = '1' or card_not_present_i(7) = '1')) or
-               (card_addr_i = BIAS_CARD_3 and (bc3_rdy = '1' or card_not_present_i(6) = '1')) or
-               (card_addr_i = READOUT_CARD_1 and (rc1_rdy = '1' or card_not_present_i(5) = '1')) or
-               (card_addr_i = READOUT_CARD_2 and (rc2_rdy = '1' or card_not_present_i(4) = '1')) or
-               (card_addr_i = READOUT_CARD_3 and (rc3_rdy = '1' or card_not_present_i(3) = '1')) or
-               (card_addr_i = READOUT_CARD_4 and (rc4_rdy = '1' or card_not_present_i(2) = '1')) or
+            if((card_addr_i = CLOCK_CARD and
+                  (cc_rdy = '1' or card_not_present_i(1) = '1')) or
+               (card_addr_i = POWER_SUPPLY_CARD and
+                  (psu_rdy = '1' or card_not_present_i(0) = '1')) or
+               (card_addr_i = ADDRESS_CARD and
+                  (ac_rdy = '1' or card_not_present_i(9) = '1')) or
+               (card_addr_i = BIAS_CARD_1 and
+                  (bc1_rdy = '1' or card_not_present_i(8) = '1')) or
+               (card_addr_i = BIAS_CARD_2 and
+                  (bc2_rdy = '1' or card_not_present_i(7) = '1')) or
+               (card_addr_i = BIAS_CARD_3 and
+                  (bc3_rdy = '1' or card_not_present_i(6) = '1')) or
+               (card_addr_i = READOUT_CARD_1 and
+                  (rc1_rdy = '1' or card_not_present_i(5) = '1')) or
+               (card_addr_i = READOUT_CARD_2 and
+                  (rc2_rdy = '1' or card_not_present_i(4) = '1')) or
+               (card_addr_i = READOUT_CARD_3 and
+                  (rc3_rdy = '1' or card_not_present_i(3) = '1')) or
+               (card_addr_i = READOUT_CARD_4 and
+                  (rc4_rdy = '1' or card_not_present_i(2) = '1')) or
                (card_addr_i = ALL_BIAS_CARDS and
                   (bc1_rdy = '1' or card_not_present_i(8) = '1') and
                   (bc2_rdy = '1' or card_not_present_i(7) = '1') and
