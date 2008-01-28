@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.102 2007/07/24 22:08:19 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.103 2007/08/28 23:16:40 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.103  2007/08/28 23:16:40  bburger
+-- Bryce:  Added a register to store the step value of the cmd_translator ramp.
+--
 -- Revision 1.102  2007/07/24 22:08:19  bburger
 -- BB:
 -- - added rdy_for_data_o to cmd_queue interface.
@@ -147,6 +150,7 @@ entity cmd_queue is
       internal_cmd_i  : in std_logic;
 --      tes_bias_step_level_i : in std_logic;
       step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      override_sync_num_i : in std_logic;
 
       -- lvds_tx interface
       tx_o            : out std_logic;
@@ -460,7 +464,8 @@ begin
    end process;
 
    state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i,
-   uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state)
+   uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state,
+   override_sync_num_i)
    begin
       next_state <= present_state;
       case present_state is
@@ -526,6 +531,8 @@ begin
                --next_send_state <= NEXT_UOP;
                next_state <= HEADER_A;
             -- Determine whether the current sync period is between the issue sync and the timeout sync.  If so, the u-op should be issued.
+            elsif(override_sync_num_i = '1') then
+               next_state <= HEADER_A;
             elsif(issue_sync < timeout_sync) then
                if(sync_num_i >= issue_sync and sync_num_i < timeout_sync) then
                   next_state <= HEADER_A;
@@ -659,7 +666,7 @@ begin
       end if;
    end process;
 
-   state_out: process(present_state, data_clk_i, bit_ctr_count, previous_state, cmd_code)
+   state_out: process(present_state, data_clk_i, bit_ctr_count, previous_state, cmd_code, override_sync_num_i)
    begin
       --defaults
       reg_en               <= '0';
@@ -722,6 +729,10 @@ begin
          -----------------------------------------------------
          when WAIT_TO_ISSUE =>
             data_count_clr       <= '1';
+
+            if(override_sync_num_i = '1') then
+               sync_num_reg_en <= '1';
+            end if;
 
          when ISSUE =>
             if(previous_state /= CHECKSUM and bit_ctr_count < PACKET_WORD_WIDTH) then
