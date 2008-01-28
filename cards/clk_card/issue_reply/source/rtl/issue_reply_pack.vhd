@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.54 2007/08/28 23:22:08 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.55 2007/10/18 22:38:43 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.55  2007/10/18 22:38:43  bburger
+-- BB:  added a parameter that characterizes the data propagation delay of the data pipeline from reply_queue_receive to reply_translator.  This will help make adjustments more quickly in the future.
+--
 -- Revision 1.54  2007/08/28 23:22:08  bburger
 -- BB:  Renamed INTERNAL_COMMAND_PERIOD to HOUSEKEEPING_COMMAND_PERIOD
 --
@@ -145,10 +148,6 @@ package issue_reply_pack is
    constant CARD_TEMP_SIZE  : integer := 10; -- Includes space for fpga_temp errno word
    constant PSC_STATUS_SIZE : integer :=  8; -- Includes space for card_temp errno word
    constant BOX_TEMP_SIZE   : integer :=  2; -- Includes space for fpga_temp errno word
-
-   -- The logical AND of this word with the status word filters out the warnings from the status word,
-   -- leaving only the errors.
-   constant STATUS_WORD_WARNING_MASK : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) :=   "00011011011011011011011011011011"; --"00010010010010010010010010010010";
 
    -- This is the data pipeline propagation delay setting for the reply_translator
    constant DATA_PROPAGATION_DELAY : integer := 2;
