@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.52 2007/09/05 03:39:53 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.53 2007/09/20 19:35:59 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -31,9 +31,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/09/05 03:39:53 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/09/20 19:35:59 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.53  2007/09/20 19:35:59  bburger
+-- BB:  Commented the port declaration
+--
 -- Revision 1.52  2007/09/05 03:39:53  bburger
 -- BB:  changed TES_BIAS_DATA_SIZE to step_data_num_i
 --
@@ -122,6 +125,7 @@ port(
       last_frame_o          : out std_logic;
       internal_cmd_o        : out std_logic;
       num_rows_to_read_i    : in integer;
+      override_sync_num_o   : out std_logic;
 
       -- input from the cmd_queue
       busy_i                : in std_logic;
@@ -143,7 +147,7 @@ architecture rtl of cmd_translator is
    constant INPUT_NUM_SEL          : std_logic := '1';
    constant CURRENT_NUM_PLUS_1_SEL : std_logic := '0';
 
-   type state is (IDLE, SIMPLE, FPGA_TEMP, CARD_TEMP, PSC_STATUS, BOX_TEMP, TES_BIAS, LATCH_TES_BIAS_DATA, DONE, UPDATE_FOR_NEXT, WAIT_FOR_ACK, ONE_MORE, STOP);
+   type state is (IDLE, SIMPLE, FPGA_TEMP, CARD_TEMP, PSC_STATUS, BOX_TEMP, TES_BIAS, LATCH_TES_BIAS_DATA, DONE, UPDATE_FOR_NEXT, PROCESSING_RET_DAT, ONE_MORE, STOP);
    signal current_state : state;
    signal next_state    : state;
 
@@ -171,8 +175,9 @@ architecture rtl of cmd_translator is
 
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal seq_num          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal load_sync_num    : std_logic;
-   signal next_sync_num    : std_logic;
+   signal increment_sync_num : std_logic;
+   signal jump_sync_num    : std_logic;
+--   signal override_sync_num_o : std_logic;
    signal load_seq_num     : std_logic;
    signal next_seq_num     : std_logic;
 
@@ -234,7 +239,7 @@ begin
 --   tes_bias_step_level_o  <= not toggle_which_way;
    step_value_o <= ramp_value;
    frame_seq_num_o <= seq_num;
-   frame_sync_num_o <= sync_num;
+   frame_sync_num_o <= sync_num; -- when override_sync_num_o = '0' else sync_number_i;
 
    -- Size calculation logic for data packets
 --   data_size_int          <= NO_CHANNELS * num_rows_i;
@@ -352,10 +357,10 @@ begin
          end if;
 
          -- Manage sync number
-         if(load_sync_num = '1') then
+         if(increment_sync_num = '1') then
             -- issue ret_dat on the following frame period
             sync_num <= sync_number_i + 1;
-         elsif(next_sync_num = '1') then
+         elsif(jump_sync_num = '1') then
             sync_num <= sync_num + data_rate_i;
          end if;
 
@@ -424,10 +429,10 @@ begin
             if(ret_dat_req = '1') then
                ret_dat_start <= '1';
                if(dv_mode_i = DV_INTERNAL) then
-                  next_state <= WAIT_FOR_ACK;
+                  next_state <= PROCESSING_RET_DAT;
                -- Issue the first ret_dat command on the next DV pulse
                elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
-                  next_state <= WAIT_FOR_ACK;
+                  next_state <= PROCESSING_RET_DAT;
                end if;
             -- If there is a simple command
             elsif(simple_cmd_req = '1') then
@@ -448,7 +453,7 @@ begin
                end if;
             end if;
 
-         when WAIT_FOR_ACK =>
+         when PROCESSING_RET_DAT =>
             -- If there are more data frames to go:
             if(ack_i = '1' and seq_num /= stop_seq_num_i) then
                -- Before moving on to UPDATE_FOR_NEXT, let's check for pending internal commands
@@ -473,6 +478,10 @@ begin
             elsif(ack_i = '1' and seq_num = stop_seq_num_i) then
                next_state <= IDLE;
                ret_dat_done <= '1';
+            -- A stop command was received, and we are not receiving an ack to the previous frame collected
+            elsif(ret_dat_req = '0') then
+               -- Issue one last ret_dat command with stop & last-frame bits set
+               next_state <= STOP;
             end if;
 
          when UPDATE_FOR_NEXT =>
@@ -480,18 +489,12 @@ begin
             if(dv_mode_i = DV_INTERNAL) then
                -- If there still is an outstanding ret_dat request, then issue a ret_dat command
                if(ret_dat_req = '1') then
-                  next_state <= WAIT_FOR_ACK;
-               -- Otherwise stop the data process
-               else
-                  next_state <= STOP;
+                  next_state <= PROCESSING_RET_DAT;
                end if;
             elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
                -- If there still is an outstanding ret_dat request, then issue a ret_dat command
                if(ret_dat_req = '1') then
-                  next_state <= WAIT_FOR_ACK;
-               -- Otherwise stop the data process
-               else
-                  next_state <= STOP;
+                  next_state <= PROCESSING_RET_DAT;
                end if;
             end if;
 
@@ -573,7 +576,7 @@ begin
       data_o           <= (others => '0');
 
       case current_state is
-         when UPDATE_FOR_NEXT | WAIT_FOR_ACK =>
+         when UPDATE_FOR_NEXT | PROCESSING_RET_DAT =>
             card_addr_o          <= f_rx_card_addr;
             param_id_o           <= f_rx_param_id;
             cmd_code_o           <= DATA;
@@ -681,8 +684,10 @@ begin
       tes_bias_toggle_req, cmd_rdy_i, internal_cmd_mode_i)
    begin
       -- default assignments
-      load_sync_num        <= '0';
-      next_sync_num        <= '0';
+      increment_sync_num   <= '0';
+      jump_sync_num        <= '0';
+      override_sync_num_o    <= '0';
+
       load_seq_num         <= '0';
       next_seq_num         <= '0';
 
@@ -708,7 +713,7 @@ begin
             -- ret_dat_req may be asserted for some time before the cmd_queue is ready for the first ret_dat command
             -- Thus slide the sync number until the cmd_queue accepts the ret_dat command
             if(ret_dat_req = '1') then
-               load_sync_num <= '1';
+               increment_sync_num <= '1';
                load_seq_num  <= '1';
 
                -- Ack fibre_rx one cycle before entering the data process.
@@ -725,7 +730,7 @@ begin
                update_nts <= '1';
             end if;
 
-         when WAIT_FOR_ACK =>
+         when PROCESSING_RET_DAT =>
             instr_rdy_o <= '1';
 
             if(seq_num = stop_seq_num_i) then
@@ -743,23 +748,34 @@ begin
                instr_rdy_o <= '0';
             end if;
 
+--            if(ret_dat_req = '0') then
+--               -- Set the sync number to issue the ret_dat command immediately
+----               increment_sync_num <= '1';
+--            end if;
+
          when UPDATE_FOR_NEXT =>
             -- Either of these conditions are only met on the last clock period in this state.
             if(dv_mode_i = DV_INTERNAL) then
-               next_sync_num <= '1';
+               jump_sync_num <= '1';
                next_seq_num  <= '1';
             elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
                -- Since the timing of the DV pulse dictates the next data packet,
                -- we issue a ret_dat on the frame period immediately following a DV packet/pulse.
                -- Until the DV packet/pulse arrives, we slide the sync number
-               load_sync_num <= '1';
+               increment_sync_num <= '1';
                next_seq_num  <= '1';
             end if;
 
          when STOP =>
-            instr_rdy_o  <= '1';
-            last_frame_o <= '1';
-            cmd_stop_o   <= '1';
+            instr_rdy_o       <= '1';
+            last_frame_o      <= '1';
+            cmd_stop_o        <= '1';
+
+            -- override_sync_num_o is asserted to notify the cmd_queue to issue the command immediately,
+            -- without waiting for the next sync pulse, which may never arrive if the reason that the
+            -- MCE data acquisition has frozen is because the Sync Box fibre is broken/ disconnected.
+            override_sync_num_o <= '1';
+
             if(ack_i = '1') then
                -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to stop command
                -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
