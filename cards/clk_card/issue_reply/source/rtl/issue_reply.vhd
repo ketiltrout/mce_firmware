@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.68 2007/09/20 19:44:53 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.69 2007/10/18 22:37:34 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/09/20 19:44:53 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/10/18 22:37:34 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.69  2007/10/18 22:37:34  bburger
+-- BB:  Added card-not-present interfaces
+--
 -- Revision 1.68  2007/09/20 19:44:53  bburger
 -- BB:  Added the following interface signals to reply_queue for version 6 of the data frame header:  ramp_card_addr, ramp_param_id, run_file_id, user_writable_i
 --
@@ -243,6 +246,7 @@ architecture rtl of issue_reply is
       last_frame_o          : out std_logic;
       internal_cmd_o        : out std_logic;
       num_rows_to_read_i    : in integer;
+      override_sync_num_o   : out std_logic;
 
       -- input from the cmd_queue
       busy_i                : in std_logic;
@@ -299,6 +303,7 @@ architecture rtl of issue_reply is
       internal_cmd_i  : in std_logic;
 --      tes_bias_step_level_i : in std_logic;
       step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      override_sync_num_i : in std_logic;
 
       -- lvds_tx interface
       tx_o            : out std_logic;
@@ -504,6 +509,7 @@ architecture rtl of issue_reply is
    signal internal_cmd_issued : std_logic;
 --   signal tes_bias_step_level2 : std_logic;
    signal rdy_for_data        : std_logic;
+   signal override_sync_num   : std_logic;
 
    -- reply_translator to reply_queue interface
    signal m_op_rdy            : std_logic;
@@ -593,6 +599,7 @@ begin
       --num_rows_i          => num_rows_i,
 --      tes_bias_step_level_o => tes_bias_step_level,
       step_value_o        => step_value,
+      override_sync_num_o => override_sync_num,
 
       --input from the u-op sequence generator
       busy_i              => busy,
@@ -664,6 +671,7 @@ begin
       internal_cmd_i  => internal_cmd_issued,
       cmd_code_i      => reply_cmd_code,
       step_value_i    => step_value,
+      override_sync_num_i => override_sync_num,
 
       -- lvds_tx interface
       tx_o            => lvds_cmd_o,
