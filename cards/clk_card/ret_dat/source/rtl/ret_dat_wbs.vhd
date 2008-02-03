@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.13 2007/08/28 23:26:37 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.14 2007/09/20 19:51:55 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,11 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.14  2007/09/20 19:51:55  bburger
+-- BB:  Now supports commands to the following param_id's (for the data frame header):
+-- - RUN_ID_ADDR
+-- - USER_WRITABLE_ADDR
+--
 -- Revision 1.13  2007/08/28 23:26:37  bburger
 -- BB: added registers and interface signals to support the following commands:
 -- constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
@@ -118,6 +123,10 @@ entity ret_dat_wbs is
       user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
       num_rows_to_read_o     : out integer;
+      cards_present_i        : in std_logic_vector(9 downto 0);
+      rcs_to_report_o        : out std_logic_vector(3 downto 0);
+      ret_dat_req_o          : out std_logic;
+      ret_dat_ack_i          : in std_logic;
 
       -- global interface
       clk_i                  : in std_logic;
@@ -130,6 +139,7 @@ entity ret_dat_wbs is
       we_i                   : in std_logic;
       stb_i                  : in std_logic;
       cyc_i                  : in std_logic;
+      err_o                  : out std_logic;
       dat_o                  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o                  : out std_logic
    );
@@ -162,6 +172,10 @@ architecture rtl of ret_dat_wbs is
    signal num_rows_to_read_wren  : std_logic;
    signal run_file_id_wren       : std_logic;
    signal user_writable_wren     : std_logic;
+   signal cards_present_wren     : std_logic;
+   signal rcs_to_report_wren     : std_logic;
+   signal ret_dat_req_wren       : std_logic;
+   signal ret_dat_card_addr_wren : std_logic;
 
    signal start_data             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal stop_data              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -183,11 +197,19 @@ architecture rtl of ret_dat_wbs is
    signal num_rows_to_read_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal run_file_id_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal user_writable_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal cards_present_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal rcs_to_report_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ret_dat_req_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ret_dat_card_addr_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
+   signal cards_present          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- WBS states:
    type states is (IDLE, WR, RD);
    signal current_state     : states;
    signal next_state        : states;
+
+   signal ret_dat_req : std_logic;
 
 begin
 
@@ -196,6 +218,28 @@ begin
       "01" when internal_cmd_mode_data = x"00000001" else
       "10" when internal_cmd_mode_data = x"00000002" else
       "11" when internal_cmd_mode_data = x"00000003" else "00";
+
+   rcs_to_report_o <= "1111" when rcs_to_report_data > "00000000000000000000000000001111" else rcs_to_report_data(3 downto 0);
+   rcs_to_report_reg : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => rcs_to_report_wren,
+         reg_i             => dat_i,
+         reg_o             => rcs_to_report_data
+      );
+
+   cards_present <= "0000000000000000000000" & cards_present_i;
+   cards_present_reg : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => '1',
+         reg_i             => cards_present,
+         reg_o             => cards_present_data
+      );
 
    run_file_id_o <= run_file_id_data;
    run_file_id_reg : reg
@@ -397,6 +441,16 @@ begin
          reg_o             => int_cmd_en_data
       );
 
+   ret_dat_card_addr : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => ret_dat_card_addr_wren,
+         reg_i             => dat_i,
+         reg_o             => ret_dat_card_addr_data
+      );
+
    -- Custom register that gets set to DEFAULT_DATA_RATE upon reset
    data_rate_o <= data_rate_data(SYNC_NUM_WIDTH-1 downto 0);
    data_rate_reg: process(clk_i, rst_i)
@@ -422,6 +476,27 @@ begin
          end if;
       end if;
    end process num_rows_to_read_reg;
+
+   ret_dat_req_data <= "0000000000000000000000000000000" & ret_dat_req;
+   ret_dat_req_o <= ret_dat_req;
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         ret_dat_req <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         -- Track ret_dat commands
+         if(ret_dat_ack_i = '1') then
+            -- Data run is done
+            ret_dat_req <= '0';
+         elsif(ret_dat_req_wren = '1') then
+            if(dat_i /= x"00000000") then
+               ret_dat_req <= '1';
+            else
+               ret_dat_req <= '0';
+            end if;
+         end if;
+      end if;
+   end process;
 
      -- Can't put this here because ret_dat addresses refer to readout cards!!
      -- Eventually this register will be used when the ret_dat handling is moved to this block
@@ -511,7 +586,11 @@ begin
       num_rows_to_read_wren  <= '0';
       run_file_id_wren       <= '0';
       user_writable_wren     <= '0';
+      cards_present_wren     <= '0';
+      rcs_to_report_wren     <= '0';
+      ret_dat_req_wren       <= '0';
       ack_o                  <= '0';
+      err_o                  <= '0';
 
       case current_state is
          when IDLE  =>
@@ -527,6 +606,9 @@ begin
                      stop_wren   <= '1';
                      ack_o <= '1';
                   end if;
+               elsif(addr_i = RET_DAT_REQ_ADDR) then
+                  ret_dat_req_wren <= '1';
+                  ack_o <= '1';
                elsif(addr_i = RUN_ID_ADDR) then
                   run_file_id_wren <= '1';
                   ack_o <= '1';
@@ -581,8 +663,14 @@ begin
                elsif(addr_i = RAMP_STEP_DATA_NUM_ADDR) then
                   step_data_num_wren <= '1';
                   ack_o <= '1';
+               elsif(addr_i = CARDS_PRESENT_ADDR) then
+                  err_o <= '1';
+--                  cards_present_wren <= '1';
+--                  ack_o <= '1';
+               elsif(addr_i = CARDS_TO_REPORT_ADDR) then
+                  rcs_to_report_wren <= '1';
+                  ack_o <= '1';
                end if;
-
             end if;
 
          when RD =>
@@ -602,6 +690,8 @@ begin
    dat_o <=
       start_data             when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
       stop_data              when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
+      ret_dat_card_addr_data when (addr_i = RET_DAT_CARD_ADDR_ADDR) else
+      ret_dat_req_data       when (addr_i = RET_DAT_REQ_ADDR) else
       data_rate_data         when (addr_i = DATA_RATE_ADDR) else
       tes_tgl_en_data        when (addr_i = TES_TGL_EN_ADDR) else
       tes_tgl_max_data       when (addr_i = TES_TGL_MAX_ADDR) else
@@ -620,11 +710,15 @@ begin
       step_data_num_data     when (addr_i = RAMP_STEP_DATA_NUM_ADDR) else
       run_file_id_data       when (addr_i = RUN_ID_ADDR) else
       user_writable_data     when (addr_i = USER_WRITABLE_ADDR) else
+      cards_present_data     when (addr_i = CARDS_PRESENT_ADDR) else
+      rcs_to_report_data     when (addr_i = CARDS_TO_REPORT_ADDR) else
       (others => '0');
 
    rd_cmd  <= '1' when
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and
       (addr_i = RET_DAT_S_ADDR or
+       addr_i = RET_DAT_CARD_ADDR_ADDR or
+       addr_i = RET_DAT_REQ_ADDR or
        addr_i = DATA_RATE_ADDR or
        addr_i = TES_TGL_EN_ADDR or
        addr_i = TES_TGL_MAX_ADDR or
@@ -642,11 +736,15 @@ begin
        addr_i = RUN_ID_ADDR or
        addr_i = USER_WRITABLE_ADDR or
        addr_i = INT_CMD_EN_ADDR or
+       addr_i = CARDS_PRESENT_ADDR or
+       addr_i = CARDS_TO_REPORT_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
    wr_cmd  <= '1' when
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and
       (addr_i = RET_DAT_S_ADDR or
+       addr_i = RET_DAT_CARD_ADDR_ADDR or
+       addr_i = RET_DAT_REQ_ADDR or
        addr_i = DATA_RATE_ADDR or
        addr_i = TES_TGL_EN_ADDR or
        addr_i = TES_TGL_MAX_ADDR or
@@ -664,6 +762,8 @@ begin
        addr_i = RUN_ID_ADDR or
        addr_i = USER_WRITABLE_ADDR or
        addr_i = INT_CMD_EN_ADDR or
+       addr_i = CARDS_PRESENT_ADDR or
+       addr_i = CARDS_TO_REPORT_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
 end rtl;
