@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_translator_pack.vhd,v 1.5 2005/11/15 03:17:22 bburger Exp $
+-- $Id: reply_translator_pack.vhd,v 1.6 2006/01/16 19:00:33 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_translator_pack.vhd,v $
+-- Revision 1.6  2006/01/16 19:00:33  bburger
+-- Bryce:  minor bug fixes for handling crc errors and timeouts
+--
 -- Revision 1.5  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -58,44 +61,5 @@ library work;
 use work.sync_gen_pack.all;
 
 package reply_translator_pack is
- 
--------------------------------
-component reply_translator
--------------------------------
-port(
-    -- global inputs 
-     rst_i                   : in  std_logic;                                               -- global reset
-     clk_i                   : in  std_logic;                                               -- global clock
-
-     -- signals to/from cmd_translator    
-     cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
-     cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
-     cmd_code_i              : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1     downto 0);  -- fibre command code
-     card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
-     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
-         
-     -- signals to/from reply queue 
-     mop_rdy_i              : in  std_logic;                                                 -- macro op done
-     mop_error_code_i       : in  std_logic_vector (29                       downto 0);      -- macro op success (others => '0') else error code
-     mop_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1  downto 0);      -- command code vector - indicates if data or reply (and which command)
-     mop_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);      -- mop parameter id passed from reply_queue
-     mop_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);      -- mop card id passed from reply_queue
---     internal_cmd_i          : in  std_logic;                                                 -- asserted if m_op is an internal command
-     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
-     num_fibre_words_i       : in  integer ;                                                  -- indicate number of packet words to be read from reply queue
-     fibre_word_ack_o        : out std_logic;                                                 -- asserted to requeset next fibre word
-     fibre_word_rdy_i        : in std_logic;
-     mop_ack_o              : out std_logic;                                                 -- asserted to indicate to reply queue the the packet has been processed
-
-     cmd_stop_i              : in std_logic;
-     last_frame_i            : in std_logic;
-     frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-
-     -- signals to / from fibre_tx
-     tx_ff_i                 : in std_logic;                                             -- transmit fifo full
-     tx_fw_o                 : out std_logic;                                            -- transmit fifo write request
-     txd_o                   : out std_logic_vector (7 downto 0)                         -- transmit fifo data input
-     );      
-end component;
 
 end reply_translator_pack;
