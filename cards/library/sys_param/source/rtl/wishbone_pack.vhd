@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/01/21 19:43:06 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/01/26 01:15:59 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.43  2008/01/26 01:15:59  mandana
+-- added scratch!
+--
 -- Revision 1.42  2008/01/21 19:43:06  bburger
 -- BB:  Added the parameter IDs for fb_col0 through fb_col40 for the sq2fb multiplexing
 --
@@ -207,12 +210,16 @@ package wishbone_pack is
    -- Null Address
    constant NULL_ADDR               : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"00";
 
-   -- Address Card Specific
+   ---------------------------------------------------------------------------------------
+   -- Address Card Specific Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant ROW_ORDER_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"01";
    constant ON_BIAS_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"02";
    constant OFF_BIAS_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"03";
    constant ENBL_MUX_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
 
+   ---------------------------------------------------------------------------------------
+   -- Address Card Specific Parameter IDs
    -- Do not change addresses in the following block because the AC uses the fact that they
    -- are contiguous to simplify the written code.
    ---------------------------------------------------------------------------------------
@@ -259,7 +266,9 @@ package wishbone_pack is
    constant FB_COL40_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E8";
    ---------------------------------------------------------------------------------------
 
-   -- Readout Card Specific
+   ---------------------------------------------------------------------------------------
+   -- Readout Card Specific Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant SA_BIAS_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"10";
    constant OFFSET_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"11";
    constant COL_MAP_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"12";
@@ -306,7 +315,9 @@ package wishbone_pack is
    constant ADC_OFFSET6_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6E";
    constant ADC_OFFSET7_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6F";
 
-   -- All Readout Cards
+   ---------------------------------------------------------------------------------------
+   -- All Readout Cards Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant FLTR_RST_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"14";
    constant EN_FB_JUMP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
    constant RET_DAT_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
@@ -320,14 +331,18 @@ package wishbone_pack is
    constant RAMP_STEP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1E";
    constant FB_CONST_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F";
 
-   -- Bias Card Specific
+   ---------------------------------------------------------------------------------------
+   -- Bias Card Specific Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant FLUX_FB_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"20";
    constant BIAS_ADDR               : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"21";
    constant SA_HTR0_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"22";
    constant SA_HTR1_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"23";
    constant FLUX_FB_UPPER_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"24";
 
-   -- System (All FPGA Cards)
+   ---------------------------------------------------------------------------------------
+   -- System (All FPGA Cards) Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant ROW_LEN_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"30";
    constant NUM_ROWS_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"31";
    constant SAMPLE_DLY_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"32";
@@ -337,7 +352,9 @@ package wishbone_pack is
    constant RESYNC_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36";
    constant FLX_LP_INIT_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
 
-   -- Any FPGA Card
+   ---------------------------------------------------------------------------------------
+   -- Any FPGA Card Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant RST_WTCHDG_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"41";
    constant EEPROM_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"43";
    constant VFY_EEPROM_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"44";
@@ -353,9 +370,11 @@ package wishbone_pack is
    constant DIP_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"97";
    constant CYC_OO_SYC_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";
    constant LED_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
-   constant SCRATCH_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9a";   
+   constant SCRATCH_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9a";
 
-   -- Clock Card Specific
+   ---------------------------------------------------------------------------------------
+   -- Clock Card Specific Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant UPLOAD_FW_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
    constant CONFIG_FAC_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"51";
    constant CONFIG_APP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
@@ -366,9 +385,12 @@ package wishbone_pack is
    constant USER_WRITABLE_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
    constant ARRAY_ID_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"58";
    constant BOX_ID_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
-
+   constant CARDS_PRESENT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5A";
+   constant CARDS_TO_REPORT_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
    constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
+   constant RET_DAT_REQ_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
    constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
+   constant RET_DAT_CARD_ADDR_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
 
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
@@ -393,12 +415,13 @@ package wishbone_pack is
    constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
    constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
 
-   -- Power Card Specific
+   ---------------------------------------------------------------------------------------
+   -- Power Card Specific Parameter IDs
+   ---------------------------------------------------------------------------------------
    constant BRST_MCE_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
    constant CYCLE_POW_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
    constant CUT_POW_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
    constant PSC_STATUS_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
-
 
    ---------------------------------------------------------------------------------
    -- Instruction Parameters Default values
