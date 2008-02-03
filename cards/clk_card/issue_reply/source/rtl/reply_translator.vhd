@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.58 2007/10/18 22:45:09 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.59 2008/01/28 20:30:02 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,14 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2007/10/18 22:45:09 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2008/01/28 20:30:02 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.59  2008/01/28 20:30:02  bburger
+-- BB:
+-- - moved the constant called STATUS_WORD_WARNING_MASK from issue_reply_pack to reply_translator, where it is used locally
+-- - invented the constants called RB_OK and NO_ERRORS_REPORTED to eliminate literals.
+--
 -- Revision 1.58  2007/10/18 22:45:09  bburger
 -- BB:  added funtionality that adjusts the data pipeline delay based on a constant parameter.
 --
@@ -111,6 +116,8 @@ port(
    c_cmd_code_i        : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    c_card_addr_i       : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
    c_param_id_i        : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   stop_reply_req_i    : in std_logic;
+   stop_reply_ack_o    : out std_logic;
 
    -- signals to/from reply queue
    r_cmd_code_i        : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
@@ -122,16 +129,15 @@ port(
    num_fibre_words_i   : in integer;                                                -- indicate number of packet words to be read from reply queue
    fibre_word_ack_o    : out std_logic;                                               -- asserted to requeset next fibre word
    fibre_word_rdy_i    : in std_logic;
-   mop_ack_o           : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
+--   mop_ack_o           : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
 
    -- We may choose to remove these signals once we move to the new protocol.
-   cmd_stop_i          : in std_logic;
-   last_frame_i        : in std_logic;
+--   last_frame_i        : in std_logic;
    frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    frame_status_word_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
    -- input from the cmd_queue
-   busy_i              : in std_logic;
+--   busy_i              : in std_logic;
 
    -- signals to/ from fibre_tx (interface to a FIFO)
    fibre_tx_rdy_o      : out std_logic;                                               -- transmit fifo full
@@ -350,8 +356,8 @@ begin
       end if;
    end process fsm_state_forwarder;
 
-   translator_fsm_nextstate : process (translator_current_state, c_cmd_rdy, c_cmd_err, busy_i,
-      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy, cmd_stop_i)
+   translator_fsm_nextstate : process (translator_current_state, c_cmd_rdy, c_cmd_err,
+      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy)
    begin
       -- Default Assignments
       translator_next_state <= translator_current_state;
@@ -369,13 +375,14 @@ begin
            -- Error in received command packet
             translator_next_state <= CMD_ERROR_REPLY;
          -- Commands received by fibre_rx will always be service first because they may require immediate response
-         elsif(c_cmd_rdy = '1' and (c_cmd_code = GO or c_cmd_code = RESET)) then
+         -- Lets take replies to stop commands out of the cmd_translator's hands for now, and see where this leads.
+         elsif(c_cmd_rdy = '1' and (c_cmd_code = GO or c_cmd_code = RESET or c_cmd_code = STOP)) then
             -- Quick response required for GO and RS commands
             translator_next_state <= QUICK_REPLY;
-         elsif(c_cmd_rdy = '1' and c_cmd_code = STOP and busy_i = '0' and cmd_stop_i = '1') then
-            -- Delayed response required for STOP commands, after last data frame
-            -- Wait until the cmd_queue busy signal is deasserted after a data packet that has the stop bit set.
-            translator_next_state <= QUICK_REPLY;
+--         elsif(c_cmd_rdy = '1' and c_cmd_code = STOP and stop_reply_req_i = '1') then
+--            -- Delayed response required for STOP commands, after last data frame
+--            -- Wait until the cmd_queue busy signal is deasserted after a data packet that has the stop bit set.
+--            translator_next_state <= QUICK_REPLY;
          elsif(c_cmd_rdy = '1' and (c_cmd_code = WRITE_BLOCK or c_cmd_code = READ_BLOCK)) then
             -- Acknowledge all other commands (WB, RB) and stay in this state because no quick response is required.
             translator_next_state <= SKIP_COMMAND;
@@ -627,10 +634,11 @@ begin
       fibre_word_ack_o <= '0';
       checksum_ld      <= '0';
       checksum_clr     <= '0';
-      mop_ack_o        <= '0'; -- For commands from reply_queue
+--      mop_ack_o        <= '0'; -- For commands from reply_queue
       c_cmd_ack        <= '0'; -- For commands from cmd_translator
       r_cmd_ack        <= '0'; -- For commands from cmd_translator
       c_or_r           <= c_or_r;
+      stop_reply_ack_o <= '0';
 
       case translator_current_state is
 
@@ -656,6 +664,7 @@ begin
       when QUICK_REPLY =>
          c_cmd_ack <= '1'; -- go to CMD_ERROR_REPLY
          c_or_r    <= SERVICING_COMMAND;
+         stop_reply_ack_o <= '1';
 
       -- From reply_queue
       when STANDARD_REPLY =>
@@ -821,7 +830,7 @@ begin
       when WAIT_Q_WORD4  =>
 
       when DONE =>
-         mop_ack_o <= '1';
+--         mop_ack_o <= '1';
 
       when others =>
 
