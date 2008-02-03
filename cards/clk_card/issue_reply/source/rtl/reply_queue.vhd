@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.45 2007/09/20 19:48:37 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.46 2007/10/18 22:40:10 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.46  2007/10/18 22:40:10  bburger
+-- BB:  Added card-not-present interfaces
+--
 -- Revision 1.45  2007/09/20 19:48:37  bburger
 -- BB:
 -- - Added the following interface signals to reply_queue for version 6 of the data frame header:  ramp_card_addr, ramp_param_id, run_file_id, user_writable_i
@@ -111,13 +114,15 @@ entity reply_queue is
       ack_i               : in std_logic;
 
       -- reply_translator interface (from reply_queue_retire)
-      cmd_sent_i          : in std_logic;
+-- The reply_queue acks, based on how much data it has to give,
+-- not how much the reply_transator thinks it needs!
+--      cmd_sent_i          : in std_logic;
       cmd_valid_o         : out std_logic;
       cmd_code_o          : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       param_id_o          : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
       card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      stop_bit_o          : out std_logic;
-      last_frame_bit_o    : out std_logic;
+--      stop_bit_o          : out std_logic;
+--      last_frame_bit_o    : out std_logic;
       frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
@@ -604,8 +609,8 @@ begin
 
    -- I don't understand why these signals need to be routed independantly to the reply_translator
    -- When the DAS protocol is updated to handle uniform replies, i think that these interface signals will be removed?
-   stop_bit_o       <= bit_status(1);
-   last_frame_bit_o <= bit_status(0);
+--   stop_bit_o       <= bit_status(1);
+--   last_frame_bit_o <= bit_status(0);
    frame_status_word_o <= bit_status;
 
    rc_bit_encoding <=
