@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.69 2007/10/18 22:37:34 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.70 2008/01/28 20:26:15 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 --
--- <date $Date: 2007/10/18 22:37:34 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/01/28 20:26:15 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.70  2008/01/28 20:26:15  bburger
+-- BB:
+-- - added the override_sync_num interface signal to the cmd_translator and cmd_queue
+--
 -- Revision 1.69  2007/10/18 22:37:34  bburger
 -- BB:  Added card-not-present interfaces
 --
@@ -136,6 +140,8 @@ entity issue_reply is
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
       num_rows_to_read_i     : in integer;
+      ret_dat_req_i          : in std_logic;
+      ret_dat_ack_o          : out std_logic;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -213,6 +219,10 @@ architecture rtl of issue_reply is
       -- output to fibre_rx
       ack_o                 : out std_logic;
 
+      -- interface with reply_translator
+      stop_reply_req_o      : out std_logic;
+      stop_reply_ack_i      : in std_logic;
+
       -- ret_dat_wbs interface:
       start_seq_num_i       : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       stop_seq_num_i        : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -230,6 +240,8 @@ architecture rtl of issue_reply is
       step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ret_dat_req_i          : in std_logic;
+      ret_dat_ack_o          : out std_logic;
 
       -- other inputs
       sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -249,7 +261,7 @@ architecture rtl of issue_reply is
       override_sync_num_o   : out std_logic;
 
       -- input from the cmd_queue
-      busy_i                : in std_logic;
+--      busy_i                : in std_logic;
       ack_i                 : in std_logic;
       rdy_for_data_i        : in std_logic;
 
@@ -295,7 +307,7 @@ architecture rtl of issue_reply is
       mop_rdy_i       : in std_logic;
       mop_ack_o       : out std_logic;
       rdy_for_data_o  : out std_logic;
-      busy_o          : out std_logic;
+--      busy_o          : out std_logic;
       cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;
       last_frame_i    : in std_logic;
@@ -347,13 +359,15 @@ architecture rtl of issue_reply is
       ack_i               : in std_logic;
 
       -- reply_translator interface (from reply_queue_retire)
-      cmd_sent_i          : in std_logic;
+-- The reply_queue acks, based on how much data it has to give,
+-- not how much the reply_transator thinks it needs!
+--      cmd_sent_i          : in std_logic;
       cmd_valid_o         : out std_logic;
       cmd_code_o          : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       param_id_o          : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
       card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      stop_bit_o          : out std_logic;
-      last_frame_bit_o    : out std_logic;
+--      stop_bit_o          : out std_logic;
+--      last_frame_bit_o    : out std_logic;
       frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
@@ -410,12 +424,16 @@ architecture rtl of issue_reply is
 
       crc_err_en_i           : in std_logic;
 
-      -- signals to/from cmd_translator
+      -- signals to/from fibre_rx
       cmd_rcvd_er_i           : in  std_logic;
       cmd_rcvd_ok_i           : in  std_logic;
       c_cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
       c_card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
       c_param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+
+      -- signals to/from cmd_translator
+      stop_reply_req_i      : in std_logic;
+      stop_reply_ack_o      : out std_logic;
 
       -- signals to/from reply queue
       r_cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
@@ -429,14 +447,15 @@ architecture rtl of issue_reply is
       num_fibre_words_i       : in  integer ;
       fibre_word_ack_o        : out std_logic;
       fibre_word_rdy_i        : in std_logic;
-      mop_ack_o               : out std_logic;
-      cmd_stop_i              : in std_logic;
-      last_frame_i            : in std_logic;
+-- The reply_queue acks, based on how much data it has to give,
+-- not how much the reply_transator thinks it needs!
+--      mop_ack_o               : out std_logic;
+--      last_frame_i            : in std_logic;
       frame_status_word_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- input from the cmd_queue
-      busy_i                  : in std_logic;
+--      busy_i                  : in std_logic;
 
       -- signals to / from fibre_tx
       fibre_tx_busy_i         : in std_logic;
@@ -476,7 +495,28 @@ architecture rtl of issue_reply is
    signal reply_cmd_code_b    : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal issue_sync          : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
-   -- reply_queue interface
+   -- cmd_translator to reply_translator
+   signal c_stop_reply_req    : std_logic;
+   signal c_stop_reply_ack    : std_logic;
+
+   -- cmd_translator to cmd_queue interface
+   signal card_addr2          : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal parameter_id        : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
+   signal data_size           : std_logic_vector (BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal data                : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal data_clk2           : std_logic;
+   signal frame_sync_num      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal frame_seq_num       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal macro_instr_rdy     : std_logic;
+--   signal busy                : std_logic;
+   signal mop_ack             : std_logic;
+   signal cmd_stop            : std_logic;
+   signal last_frame          : std_logic;
+   signal internal_cmd_issued : std_logic;
+   signal rdy_for_data        : std_logic;
+   signal override_sync_num   : std_logic;
+
+   -- cmd_queue to reply_queue interface
    signal r_cmd_code          : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal r_param_id          : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
    signal r_card_addr         : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -489,42 +529,20 @@ architecture rtl of issue_reply is
    signal last_frame_cr       : std_logic;
    signal frame_seq_num_cr    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal internal_cmd_cr     : std_logic;
---   signal tes_bias_step_level : std_logic;
    signal step_value          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_value2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
-   -- cmd_translator to cmd_queue interface
-   signal card_addr2          : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-   signal parameter_id        : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-   signal data_size           : std_logic_vector (BB_DATA_SIZE_WIDTH-1 downto 0);
-   signal data                : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal data_clk2           : std_logic;
-   signal frame_sync_num      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal frame_seq_num       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal macro_instr_rdy     : std_logic;
-   signal busy                : std_logic;
-   signal mop_ack             : std_logic;
-   signal cmd_stop            : std_logic;
-   signal last_frame          : std_logic;
-   signal internal_cmd_issued : std_logic;
---   signal tes_bias_step_level2 : std_logic;
-   signal rdy_for_data        : std_logic;
-   signal override_sync_num   : std_logic;
-
-   -- reply_translator to reply_queue interface
+   -- reply_queue to reply_translator interface
    signal m_op_rdy            : std_logic;
    signal m_op_error_code     : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal fibre_word          : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);
    signal num_fibre_words     : integer;
    signal fibre_word_ack      : std_logic;
    signal fibre_word_rdy      : std_logic;
-   signal m_op_ack            : std_logic;
-   signal reply_cmd_stop      : std_logic;
-   signal reply_last_frame    : std_logic;
    signal reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal frame_status_word   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
-   -- reply_translator / fibre_tx interface
+   -- reply_translator to fibre_tx interface
    signal fibre_tx_dat        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal fibre_tx_rdy        : std_logic;
    signal fibre_tx_busy       : std_logic;
@@ -580,6 +598,10 @@ begin
       num_data_i          => num_data,
       param_id_i          => c_param_id,
 
+      -- Signals to/from reply_translator
+      stop_reply_req_o => c_stop_reply_req,
+      stop_reply_ack_i => c_stop_reply_ack,
+
       -- output to fibre_rx
       ack_o               => cmd_ack,
 
@@ -601,8 +623,8 @@ begin
       step_value_o        => step_value,
       override_sync_num_o => override_sync_num,
 
-      --input from the u-op sequence generator
-      busy_i              => busy,
+      --input from the cmd_queue
+--      busy_i              => busy,
       ack_i               => mop_ack,
       rdy_for_data_i      => rdy_for_data,
 
@@ -613,11 +635,6 @@ begin
       external_dv_i       => external_dv_i,
 
       -- ret_dat_wbs interface
---      tes_bias_toggle_en_i   => tes_bias_toggle_en_i,
---      tes_bias_high_i        => tes_bias_high_i,
---      tes_bias_low_i         => tes_bias_low_i,
---      tes_bias_toggle_rate_i => tes_bias_toggle_rate_i,
---      status_cmd_en_i        => status_cmd_en_i,
       num_rows_to_read_i  => num_rows_to_read_i,
       internal_cmd_mode_i => internal_cmd_mode_i,
       step_period_i       => step_period_i,
@@ -627,6 +644,8 @@ begin
       step_param_id_i     => step_param_id_i,
       step_card_addr_i    => step_card_addr_i,
       step_data_num_i     => step_data_num_i,
+      ret_dat_req_i       => ret_dat_req_i,
+      ret_dat_ack_o       => ret_dat_ack_o,
 
       sync_number_i       => sync_number_i
    );
@@ -662,7 +681,7 @@ begin
       data_clk_i      => data_clk2,
       issue_sync_i    => frame_sync_num,
       mop_rdy_i       => macro_instr_rdy,
-      busy_o          => busy,
+--      busy_o          => busy,
       mop_ack_o       => mop_ack,
       rdy_for_data_o  => rdy_for_data,
       cmd_stop_i      => cmd_stop,
@@ -716,12 +735,14 @@ begin
       ack_i               => fibre_word_ack,
 
       -- reply_translator interface (from reply_queue_retire)
-      cmd_sent_i          => m_op_ack,
+-- The reply_queue acks, based on how much data it has to give,
+-- not how much the reply_transator thinks it needs!
+--      cmd_sent_i          => m_op_ack,
       cmd_code_o          => r_cmd_code,
       param_id_o          => r_param_id,
       card_addr_o         => r_card_addr,
-      stop_bit_o          => reply_cmd_stop,
-      last_frame_bit_o    => reply_last_frame,
+--      stop_bit_o          => reply_cmd_stop,
+--      last_frame_bit_o    => reply_last_frame,
       frame_seq_num_o     => reply_frame_seq_num,
       frame_status_word_o => frame_status_word,
 
@@ -780,12 +801,16 @@ begin
       clk_i             => clk_i,
       crc_err_en_i      => crc_err_en_i,
 
-      -- Signals to/from cmd_translator
+      -- Signals to/from fibre_rx
       cmd_rcvd_er_i     => cmd_err,
       cmd_rcvd_ok_i     => rt_cmd_rdy,
       c_cmd_code_i      => c_cmd_code,
       c_card_addr_i     => c_card_addr,
       c_param_id_i      => c_param_id,
+
+      -- Signals to/from cmd_translator
+      stop_reply_req_i => c_stop_reply_req,
+      stop_reply_ack_o => c_stop_reply_ack,
 
       -- Signals to/from reply queue
       r_cmd_code_i      => r_cmd_code,
@@ -797,14 +822,15 @@ begin
       num_fibre_words_i => num_fibre_words,
       fibre_word_ack_o  => fibre_word_ack,
       fibre_word_rdy_i  => fibre_word_rdy,
-      mop_ack_o         => m_op_ack,
-      cmd_stop_i        => reply_cmd_stop,
-      last_frame_i      => reply_last_frame,
+-- The reply_queue acks, based on how much data it has to give,
+-- not how much the reply_transator thinks it needs!
+--      mop_ack_o         => m_op_ack,
+--      last_frame_i      => reply_last_frame,
       frame_status_word_i => frame_status_word,
       frame_seq_num_i   => reply_frame_seq_num,
 
       -- Signals from cmd_queue
-      busy_i            => busy,
+--      busy_i            => busy,
 
       -- Signals to / from fibre_tx
       fibre_tx_rdy_o    => fibre_tx_rdy,
