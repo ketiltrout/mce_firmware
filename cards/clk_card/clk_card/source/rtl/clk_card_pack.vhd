@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.8 2007/10/11 18:35:00 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.9 2007/10/18 22:34:37 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.9  2007/10/18 22:34:37  bburger
+-- BB:  Added a manchester pll declaration
+--
 -- Revision 1.8  2007/10/11 18:35:00  bburger
 -- BB:  Rolled dv_rx back from 1.5 to 1.3 because of a bug in the 1.5 code that causes the DV Number (from the sync box) to increment by two, and to spit out garble every few frames.
 --
@@ -304,6 +307,10 @@ package clk_card_pack is
       user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
       num_rows_to_read_o     : out integer;
+      cards_present_i        : in std_logic_vector(9 downto 0);
+      rcs_to_report_o        : out std_logic_vector(3 downto 0);
+      ret_dat_req_o          : out std_logic;
+      ret_dat_ack_i          : in std_logic;
 
       -- global interface
       clk_i                  : in std_logic;
@@ -316,6 +323,7 @@ package clk_card_pack is
       we_i                   : in std_logic;
       stb_i                  : in std_logic;
       cyc_i                  : in std_logic;
+      err_o                  : out std_logic;
       dat_o                  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o                  : out std_logic
    );
@@ -418,6 +426,8 @@ package clk_card_pack is
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
       num_rows_to_read_i     : in integer;
+      ret_dat_req_i          : in std_logic;
+      ret_dat_ack_o          : out std_logic;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
