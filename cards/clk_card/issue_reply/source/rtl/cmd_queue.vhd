@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.103 2007/08/28 23:16:40 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.104 2008/01/28 20:22:47 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.104  2008/01/28 20:22:47  bburger
+-- BB:  Added an interface signal called override_sync_num_i which tells the cmd_queue to issues a final ret_dat command immediately, in response to a stop command
+--
 -- Revision 1.103  2007/08/28 23:16:40  bburger
 -- Bryce:  Added a register to store the step value of the cmd_translator ramp.
 --
@@ -142,7 +145,7 @@ entity cmd_queue is
       mop_rdy_i       : in std_logic;
       mop_ack_o       : out std_logic;
       rdy_for_data_o  : out std_logic;
-      busy_o          : out std_logic;
+--      busy_o          : out std_logic;
       cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;
       last_frame_i    : in std_logic;
@@ -682,7 +685,7 @@ begin
       uop_rdy_o            <= '0';
       crc_ena              <= '0';
       sync_num_reg_en      <= '0';
-      busy_o               <= '1';
+--      busy_o               <= '1';
       rdy_for_data_o       <= '0';
 
       case present_state is
@@ -691,7 +694,7 @@ begin
             crc_clr              <= '1';
             crc_ena              <= '1';
             update_prev_state    <= '1';
-            busy_o               <= '0';
+--            busy_o               <= '0';
 
          -----------------------------------------------------
          -- Store Command
