@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.77 2007/11/05 23:18:44 bburger Exp $
+-- $Id: clk_card.vhd,v 1.78 2007/12/18 20:59:35 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.78  2007/12/18 20:59:35  bburger
+-- BB:  cc_v04000007
+--
 -- Revision 1.77  2007/11/05 23:18:44  bburger
 -- BB:  cc_v04000006
 --
@@ -257,7 +260,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000007";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000008";
 
    -- reset
    signal rst                : std_logic;
@@ -345,41 +348,59 @@ architecture top of clk_card is
 
    signal led_data            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal led_ack             : std_logic;
+
    signal sync_gen_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal sync_gen_ack        : std_logic;
+
    signal frame_timing_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal frame_timing_ack    : std_logic;
+
    signal fw_rev_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fw_rev_ack          : std_logic;
+   signal fw_rev_err          : std_logic;
+
    signal ret_dat_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ret_dat_ack         : std_logic;
+   signal ret_dat_err         : std_logic;
+
    signal card_id_thermo_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal card_id_thermo_ack  : std_logic;
+   signal card_id_thermo_err  : std_logic;
+
    signal backplane_id_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal backplane_id_thermo_ack   : std_logic;
+   signal backplane_id_thermo_err   : std_logic;
+
    signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fpga_thermo_ack     : std_logic;
+   signal fpga_thermo_err     : std_logic;
+
    signal config_fpga_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal config_fpga_ack     : std_logic;
+
    signal select_clk_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal select_clk_ack      : std_logic;
+
    signal psu_ctrl_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal psu_ctrl_ack        : std_logic;
+
    signal sram_ctrl_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal sram_ctrl_ack       : std_logic;
+
    signal slot_id_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal slot_id_ack         : std_logic;
+   signal slot_id_err         : std_logic;
+
    signal array_id_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal array_id_ack        : std_logic;
+   signal array_id_err        : std_logic;
+
    signal cc_reset_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal cc_reset_ack        : std_logic;
 
-   signal fw_rev_err         : std_logic;
-   signal card_id_thermo_err : std_logic;
-   signal backplane_id_thermo_err  : std_logic;
-   signal fpga_thermo_err    : std_logic;
-   signal slot_id_err        : std_logic;
-   signal array_id_err       : std_logic;
+--   signal all_cards_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--   signal all_cards_ack       : std_logic;
+--   signal all_cards_err       : std_logic;
 
    -- lvds_tx interface
    signal sync : std_logic;
@@ -423,6 +444,8 @@ architecture top of clk_card is
    signal user_writable     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    signal card_not_present : std_logic_vector(9 downto 0);
+   signal cards_present    : std_logic_vector(9 downto 0);
+   signal rcs_to_report    : std_logic_vector(3 downto 0);
 
 begin
 
@@ -477,6 +500,7 @@ begin
    sram0_ce2  <= sram_ce2;
    sram1_ce2  <= sram_ce2;
 
+   -- Bits are active-high
    card_not_present <=
       lvds_reply_ac_b &
       lvds_reply_bc1_b &
@@ -547,60 +571,72 @@ begin
    -- Wishbone signals
    with addr select
       slave_data <=
-         fw_rev_data         when FW_REV_ADDR,
          led_data            when LED_ADDR,
          sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+         config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         select_clk_data     when SELECT_CLK_ADDR,
+         sram_ctrl_data      when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
+         -- The following two selections will be replaced by all_cards once it is bug-free
+         fw_rev_data         when FW_REV_ADDR,
+         slot_id_data        when SLOT_ID_ADDR,
+--         all_cards_data      when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_data        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
-                                  RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR,
+                                  RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         backplane_id_thermo_data  when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         backplane_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
-         config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
-         select_clk_data     when SELECT_CLK_ADDR,
-         sram_ctrl_data      when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
-         slot_id_data        when SLOT_ID_ADDR,
          array_id_data       when ARRAY_ID_ADDR,
          cc_reset_data       when MCE_BCLR_ADDR | CC_BCLR_ADDR,
          (others => '0')     when others;
 
    with addr select
       slave_ack <=
-         fw_rev_ack          when FW_REV_ADDR,
          led_ack             when LED_ADDR,
          sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+         config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         select_clk_ack      when SELECT_CLK_ADDR,
+         sram_ctrl_ack       when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
+         -- The following two selections will be replaced by all_cards once it is bug-free
+         fw_rev_ack          when FW_REV_ADDR,
+         slot_id_ack         when SLOT_ID_ADDR,
+--         all_cards_ack       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_ack         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
-                                  RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR,
+                                  RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         backplane_id_thermo_ack   when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         backplane_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
-         config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
-         select_clk_ack      when SELECT_CLK_ADDR,
-         sram_ctrl_ack       when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
-         slot_id_ack         when SLOT_ID_ADDR,
          array_id_ack        when ARRAY_ID_ADDR,
          cc_reset_ack        when MCE_BCLR_ADDR | CC_BCLR_ADDR,
          '0'                 when others;
 
    with addr select
       slave_err <=
-         '0'                 when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR |
-                                  DATA_RATE_ADDR | CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
+         '0'                 when LED_ADDR |
+                                  USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR |
+                                  CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
                                   SELECT_CLK_ADDR |
-                                  TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
-                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
-                                  RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR | RAMP_STEP_DATA_NUM_ADDR |
-                                  SRAM_ADDR_ADDR | SRAM_DATA_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR,
+                                  SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
+         -- The following two selections will be replaced by all_cards once it is bug-free
          fw_rev_err          when FW_REV_ADDR,
-         card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         backplane_id_thermo_err   when BOX_TEMP_ADDR | BOX_ID_ADDR,
-         fpga_thermo_err     when FPGA_TEMP_ADDR,
          slot_id_err         when SLOT_ID_ADDR,
+--         all_cards_err       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
+         ret_dat_err         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
+                                  TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
+                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
+                                  RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR,
+         card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
+         backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         fpga_thermo_err     when FPGA_TEMP_ADDR,
          array_id_err        when ARRAY_ID_ADDR,
          '1'                 when others;
 
@@ -691,6 +727,8 @@ begin
       num_rows_to_read_i  => num_rows_to_read,
       run_file_id_i       => run_file_id,
       user_writable_i     => user_writable,
+      ret_dat_req_i       => ret_dat_req,
+      ret_dat_ack_o       => ret_dat_done,
 
       -- dv_rx interface
       external_dv_i       => external_dv,
@@ -716,6 +754,26 @@ begin
       sync_number_i      => sync_num
    );
 
+--   i_all_cards: all_cards
+--      generic map(
+--         REVISION => CC_REVISION,
+--         CARD_TYPE=> CC_CARD_TYPE)
+--      port map(
+--         clk_i  => clk,
+--         rst_i  => rst,
+--
+--         dat_i  => data,
+--         addr_i => addr,
+--         tga_i  => tga,
+--         we_i   => we,
+--         stb_i  => stb,
+--         cyc_i  => cyc,
+--         slot_id_i => slot_id,
+--         err_all_cards_o  => all_cards_err,
+--         qa_all_cards_o   => all_cards_data,
+--         ack_all_cards_o  => all_cards_ack
+--   );
+
    slot_id_slave : bp_slot_id
    port map(
       clk_i  => clk,
@@ -732,6 +790,23 @@ begin
       err_o  => slot_id_err,
       dat_o  => slot_id_data,
       ack_o  => slot_id_ack
+   );
+
+   fw_rev_slave: fw_rev
+   generic map(REVISION => CC_REVISION)
+   port map(
+      clk_i  => clk,
+      rst_i  => rst,
+
+      dat_i  => data,
+      addr_i => addr,
+      tga_i  => tga,
+      we_i   => we,
+      stb_i  => stb,
+      cyc_i  => cyc,
+      err_o  => fw_rev_err,
+      dat_o  => fw_rev_data,
+      ack_o  => fw_rev_ack
    );
 
    array_id_slave : subarray_id
@@ -846,23 +921,6 @@ begin
       power  => grn_led,
       status => open, --ylw_led,
       fault  => open --red_led
-   );
-
-   fw_rev_slave: fw_rev
-   generic map(REVISION => CC_REVISION)
-   port map(
-      clk_i  => clk,
-      rst_i  => rst,
-
-      dat_i  => data,
-      addr_i => addr,
-      tga_i  => tga,
-      we_i   => we,
-      stb_i  => stb,
-      cyc_i  => cyc,
-      err_o  => fw_rev_err,
-      dat_o  => fw_rev_data,
-      ack_o  => fw_rev_ack
    );
 
    card_id_thermo_slave : id_thermo
@@ -1009,6 +1067,7 @@ begin
       sync_o              => external_sync
    );
 
+   cards_present <= not card_not_present;
    ret_dat_parameter_slave: ret_dat_wbs
    port map
    (
@@ -1028,6 +1087,11 @@ begin
       user_writable_o        => user_writable,
       crc_err_en_o           => crc_err_en,
       num_rows_to_read_o     => num_rows_to_read,
+      ret_dat_req_o          => ret_dat_req,
+      ret_dat_ack_i          => ret_dat_done,
+
+      cards_present_i        => cards_present,
+      rcs_to_report_o        => rcs_to_report,
 
       -- global interface
       clk_i                  => clk,
@@ -1040,6 +1104,7 @@ begin
       we_i                   => we,
       stb_i                  => stb,
       cyc_i                  => cyc,
+      err_o                  => ret_dat_err,
       dat_o                  => ret_dat_data,
       ack_o                  => ret_dat_ack
    );
