@@ -18,14 +18,14 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- <Title>
+-- all_cards.vhd
 --
 -- Project:      SCUBA2
 -- Author:       Mandana Amiri
 -- Organisation: UBC
 --
 -- Description: This module defines series of registers that are common to all cards
---              For now: fw_rev, card_type, scratch 0 to 7
+--              For now: fw_rev, card_type, scratch 0 to 7, slot_id
 ------------------------------------------------------------------------------------
 
 library ieee;
