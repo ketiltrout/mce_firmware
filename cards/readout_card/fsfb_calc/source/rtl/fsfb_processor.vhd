@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.10  2007/03/21 17:25:48  mandana
+-- changed ramp and const data width to comply with the proper constants
+--
 -- Revision 1.9  2006/07/05 19:28:52  mandana
 -- change default servo_mode (servo_mode=0) to constant mode in order to initialize DACs to 0 upon reset
 --
@@ -208,7 +211,8 @@ begin
          ramp_dat_ltch <= (others => '0');
       elsif (clk_50_i'event and clk_50_i = '1') then
          if (initialize_window_ext_i = '1') then
-            ramp_dat_ltch <= (others => '0');
+            -- initalize to ramp UP and init value for DAC 
+            ramp_dat_ltch <= '0' & conv_std_logic_vector(DAC_INIT_VAL,RAMP_AMP_WIDTH);            
          elsif (ramp_update_new_i = '1') then
             ramp_dat_ltch <= ramp_dat;
          end if;
@@ -255,10 +259,10 @@ begin
       update_dat : case servo_mode_i is
          
          -- constant mode setting
-         when "00"   => fsfb_proc_dat_o <= ext(const_dat_ltch, fsfb_proc_dat_o'length);
+         when "00"   => fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- constant mode setting
-         when "01"   => fsfb_proc_dat_o <= ext(const_dat_ltch, fsfb_proc_dat_o'length);
+         when "01"   => fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- ramp mode setting
          when "10"   => fsfb_proc_dat_o <= sxt(ramp_dat_ltch, fsfb_proc_dat_o'length);
