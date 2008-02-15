@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.13  2006/12/12 21:44:57  mandana
+-- fixed bug in writing servo_mode for column 0
+--
 -- Revision 1.12  2006/12/11 18:07:06  mandana
 -- fixed a bug associated with fb_const initial value for column 8
 --
@@ -363,17 +366,17 @@ begin  -- rtl
     end loop;  -- i
      
     case addr_i is
-      when FILT_COEF_ADDR =>
-        case tga_i(MAX_BIT_TAG-1 downto 0) is
-          when "000" => wren(FILTER_INDEX_OFFSET+0) <= we_i;
-          when "001" => wren(FILTER_INDEX_OFFSET+1) <= we_i;
-          when "010" => wren(FILTER_INDEX_OFFSET+2) <= we_i;
-          when "011" => wren(FILTER_INDEX_OFFSET+3) <= we_i;
-          when "100" => wren(FILTER_INDEX_OFFSET+4) <= we_i;
-          when "101" => wren(FILTER_INDEX_OFFSET+5) <= we_i;
-          when "110" => wren(FILTER_INDEX_OFFSET+6) <= we_i;
-          when others => null;
-        end case;
+--      when FILT_COEF_ADDR =>
+--       case tga_i(MAX_BIT_TAG-1 downto 0) is
+--          when "000" => wren(FILTER_INDEX_OFFSET+0) <= we_i;
+--          when "001" => wren(FILTER_INDEX_OFFSET+1) <= we_i;
+--          when "010" => wren(FILTER_INDEX_OFFSET+2) <= we_i;
+--          when "011" => wren(FILTER_INDEX_OFFSET+3) <= we_i;
+--          when "100" => wren(FILTER_INDEX_OFFSET+4) <= we_i;
+--          when "101" => wren(FILTER_INDEX_OFFSET+5) <= we_i;
+--          when "110" => wren(FILTER_INDEX_OFFSET+6) <= we_i;
+--          when others => null;
+--        end case;
 
       when RAMP_STEP_ADDR =>
         wren(RAMP_STEP_INDEX_OFFSET) <= we_i;
@@ -446,7 +449,7 @@ begin  -- rtl
   -- Acknowlege signals
   with addr_i select
     ack_read_misc_bank <=
-    (stb_i and cyc_i) when FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
+    (stb_i and cyc_i) when SERVO_MODE_ADDR | RAMP_STEP_ADDR | -- FILT_COEF_ADDR | 
                            RAMP_AMP_ADDR | FB_CONST_ADDR | RAMP_DLY_ADDR |
                            SA_BIAS_ADDR |  OFFSET_ADDR | EN_FB_JUMP_ADDR,
     '0'               when others;
@@ -467,16 +470,16 @@ begin  -- rtl
   -- based on the address present on addr_i.
   -----------------------------------------------------------------------------
 
-  with tga_i(2 downto 0) select
-    filter_coeff <=
-    reg(FILTER_INDEX_OFFSET+0) when "000",
-    reg(FILTER_INDEX_OFFSET+1) when "001",
-    reg(FILTER_INDEX_OFFSET+2) when "010",
-    reg(FILTER_INDEX_OFFSET+3) when "011",
-    reg(FILTER_INDEX_OFFSET+4) when "100",
-    reg(FILTER_INDEX_OFFSET+5) when "101",
-    reg(FILTER_INDEX_OFFSET+6) when "110",
-    reg(FILTER_INDEX_OFFSET+0) when others;
+--  with tga_i(2 downto 0) select
+--    filter_coeff <=
+--    reg(FILTER_INDEX_OFFSET+0) when "000",
+--    reg(FILTER_INDEX_OFFSET+1) when "001",
+--    reg(FILTER_INDEX_OFFSET+2) when "010",
+--    reg(FILTER_INDEX_OFFSET+3) when "011",
+--    reg(FILTER_INDEX_OFFSET+4) when "100",
+--    reg(FILTER_INDEX_OFFSET+5) when "101",
+--    reg(FILTER_INDEX_OFFSET+6) when "110",
+--    reg(FILTER_INDEX_OFFSET+0) when others;
 
 
   with tga_i(2 downto 0) select
@@ -531,7 +534,7 @@ begin  -- rtl
   
   with addr_i select
     qa_misc_bank_o <=
-    filter_coeff                  when FILT_COEF_ADDR,
+--    filter_coeff                  when FILT_COEF_ADDR,
     servo_dat                     when SERVO_MODE_ADDR,
     reg(RAMP_STEP_INDEX_OFFSET)   when RAMP_STEP_ADDR,
     reg(RAMP_AMP_INDEX_OFFSET)    when RAMP_AMP_ADDR,
@@ -547,13 +550,13 @@ begin  -- rtl
   -- Outputs to flux_loop_ctrl
   -----------------------------------------------------------------------------
 
-  filter_coeff0_o         <= reg(FILTER_INDEX_OFFSET+0);
-  filter_coeff1_o         <= reg(FILTER_INDEX_OFFSET+1);
-  filter_coeff2_o         <= reg(FILTER_INDEX_OFFSET+2);
-  filter_coeff3_o         <= reg(FILTER_INDEX_OFFSET+3);
-  filter_coeff4_o         <= reg(FILTER_INDEX_OFFSET+4);
-  filter_coeff5_o         <= reg(FILTER_INDEX_OFFSET+5);
-  filter_coeff6_o         <= reg(FILTER_INDEX_OFFSET+6);
+--  filter_coeff0_o         <= reg(FILTER_INDEX_OFFSET+0);
+--  filter_coeff1_o         <= reg(FILTER_INDEX_OFFSET+1);
+--  filter_coeff2_o         <= reg(FILTER_INDEX_OFFSET+2);
+--  filter_coeff3_o         <= reg(FILTER_INDEX_OFFSET+3);
+--  filter_coeff4_o         <= reg(FILTER_INDEX_OFFSET+4);
+--  filter_coeff5_o         <= reg(FILTER_INDEX_OFFSET+5);
+--  filter_coeff6_o         <= reg(FILTER_INDEX_OFFSET+6);
   servo_mode_ch0_o        <= reg(SERVO_INDEX_OFFSET+0)(SERVO_MODE_SEL_WIDTH-1 downto 0);
   servo_mode_ch1_o        <= reg(SERVO_INDEX_OFFSET+1)(SERVO_MODE_SEL_WIDTH-1 downto 0);
   servo_mode_ch2_o        <= reg(SERVO_INDEX_OFFSET+2)(SERVO_MODE_SEL_WIDTH-1 downto 0);
