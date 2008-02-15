@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_ramp.vhd,v $
+-- Revision 1.5  2007/03/21 17:58:58  mandana
+-- reduce output data width to RAMP_AMP_WIDTH and avoid zero-extending all intermediate signals
+--
 -- Revision 1.4  2005/11/28 19:11:29  bburger
 -- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
 --
@@ -92,8 +95,11 @@ end fsfb_proc_ramp;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_signed.all;
+
 
 library work;
+use work.readout_card_pack.all;
 use work.fsfb_calc_pack.all;
 
 use work.flux_loop_pack.all;
@@ -101,14 +107,14 @@ use work.flux_loop_pack.all;
 architecture rtl of fsfb_proc_ramp is
 
    -- constant declarations
-   constant ZEROES             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto RAMP_AMP_WIDTH) := (others => '0');
-   constant ZERO_VAL           : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0) := (others => '0');
+   constant RAMP_ZERO_VAL      : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0) := conv_std_logic_vector(DAC_INIT_VAL,RAMP_AMP_WIDTH);
    
    -- internal signal declarations
    signal add_sub_n            : std_logic;                                                  -- add/subtract operation select
    signal add_sub_result       : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);                -- result of the adder/subtractor
    signal result_reg           : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);                -- registered adder/subtractor result 
    signal ramp_dat             : std_logic_vector(RAMP_AMP_WIDTH downto 0);                  -- ramp result (msb = 1 for subtraction, 0 for addition)
+   signal ramp_upper_limit     : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);                -- adds ramp amplitude and zero value
    
    signal pre_fsfb_dat_rdy_1d  : std_logic;                                                  -- previous fsfb queue value rdy delay by 1 clock cycle
    signal pre_fsfb_dat_rdy_2d  : std_logic;                                                  -- previous fsfb queue value rdy delay by 2 clock cycles
@@ -128,11 +134,21 @@ begin
          result                  => add_sub_result       
       );
       
+      -- Perform add/subtract once the input data is ready
+   i_adder : fsfb_calc_add_sub32
+      port map (
+         add_sub                 => '1',
+         dataa                   => ramp_amp_i,
+         datab                   => RAMP_ZERO_VAL, 
+         result                  => ramp_upper_limit       
+      );
+   
+      
    -- Register the result for comparison
    result_reg_proc : process (rst_i, clk_50_i)
    begin
       if (rst_i = '1') then
-         result_reg <= (others => '0');
+         result_reg <= RAMP_ZERO_VAL;
       elsif (clk_50_i'event and clk_50_i = '1') then
          if (previous_fsfb_dat_rdy_i = '1') then
             result_reg <= add_sub_result;
@@ -146,13 +162,14 @@ begin
    comparator : process (rst_i, clk_50_i)
    begin
       if (rst_i = '1') then
-         ramp_dat <= (others => '0');
+         ramp_dat(RAMP_AMP_WIDTH-1 downto 0) <= RAMP_ZERO_VAL;
+         ramp_dat(ramp_dat'left) <= '0';
       elsif (clk_50_i'event and clk_50_i = '1') then
          -- Add operation was performed
          -- Check upper limit <= ramp_amp_i
          if (add_sub_n = '1') then
-            if (result_reg >= ramp_amp_i) then
-               ramp_dat(RAMP_AMP_WIDTH-1 downto 0) <= ramp_amp_i;
+            if (result_reg >= ramp_upper_limit) then
+               ramp_dat(RAMP_AMP_WIDTH-1 downto 0) <= ramp_upper_limit;
                ramp_dat(ramp_dat'left)             <= '1';                            -- next operation flag is set to subtraction    
             else
                ramp_dat(RAMP_AMP_WIDTH-1 downto 0) <= result_reg;
@@ -163,8 +180,8 @@ begin
          -- Subtract operation was performed
          -- Check lower bound >= 0
          if (add_sub_n = '0') then
-            if (result_reg(result_reg'left) = '1' or result_reg = ZERO_VAL) then
-               ramp_dat(RAMP_AMP_WIDTH-1 downto 0) <= (others => '0');              -- next operation flag is set to addition
+            if (result_reg < RAMP_ZERO_VAL) then
+               ramp_dat(RAMP_AMP_WIDTH-1 downto 0) <= RAMP_ZERO_VAL;                       -- next operation flag is set to addition
                ramp_dat(ramp_dat'left)             <= '0'; 
             else
                ramp_dat(RAMP_AMP_WIDTH-1 downto 0) <= result_reg;      
