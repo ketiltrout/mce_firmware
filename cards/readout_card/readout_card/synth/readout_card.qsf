@@ -35,7 +35,7 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "7.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 7.2
 
 # Pin & Location Assignments
 # ==========================
@@ -674,7 +674,6 @@ set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_w
 # end ENTITY(readout_card)
 # ------------------------
 
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 set_global_assignment -name EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ON -section_id eda_simulation
@@ -1092,17 +1091,25 @@ set_location_assignment PIN_B12 -to tx
 set_location_assignment PIN_C12 -to rx
 set_location_assignment PIN_G5 -to mictor_clk[0]
 set_location_assignment PIN_C5 -to mictor_clk[1]
-set_global_assignment -name SIGNALTAP_FILE rc_v01010006_03may2005_single_ch_ac_sync_check.stp
-set_global_assignment -name SIGNALTAP_FILE ro_card.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter2.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter_ws.stp
+set_instance_assignment -name PARTITION_HIERARCHY no_file_for_top_partition -to | -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_COLOR 2147039 -section_id Top
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIXII NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_MAXII NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS_CYCLONE NORMAL
+set_global_assignment -name AUTO_PACKED_REGISTERS NORMAL
+set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING OFF
+set_global_assignment -name DO_COMBINED_ANALYSIS OFF
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/readout_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
@@ -1123,14 +1130,12 @@ set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl_p
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
@@ -1141,7 +1146,6 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
 set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_storage.vhd
 set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd
@@ -1202,3 +1206,9 @@ set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
 set_global_assignment -name SIGNALTAP_FILE ../../fsfb_calc/source/rtl/raw.stp
 set_global_assignment -name SIGNALTAP_FILE raw.stp
+set_global_assignment -name SAFE_STATE_MACHINE ON
+set_global_assignment -name INCREMENTAL_COMPILATION OFF
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS OUTPUT DRIVING AN UNSPECIFIED SIGNAL"
+set_global_assignment -name SEED 1
+set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"

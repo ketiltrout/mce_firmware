@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.68  2007/11/01 18:53:47  mandana
+-- 4.0.5: data mode 8 is replaced by data mode 9 with new windowing of filtered data
+--
 -- Revision 1.67  2007/10/24 23:31:45  mandana
 -- added data mode 8 (mixed mode filtfb + flux_count)
 --
@@ -391,7 +394,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000005"; -- added data_mode 8 for mixed filter+flux count mode - windowing readjusted!
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000006"; -- added data_mode 8 for mixed filter+flux count mode - windowing readjusted!
                                                                      -- 10b pid pars
 
 -- Global signals
@@ -453,10 +456,10 @@ signal offset_dac_spi_ch7      : std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto
 signal ack_led                 : std_logic;
 signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
--- Firmware Revision block signals
-signal fw_rev_data             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal fw_rev_ack              : std_logic;
-signal fw_rev_err              : std_logic;
+-- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
+signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal all_cards_ack           : std_logic;
+signal all_cards_err           : std_logic;
 
 -- id_thermo signals
 signal id_thermo_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -468,11 +471,6 @@ signal fpga_thermo_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fpga_thermo_ack         : std_logic;
 signal fpga_thermo_err         : std_logic;
 
--- slot_id signals
-signal slot_id_data            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal slot_id_ack             : std_logic;
-signal slot_id_err             : std_logic;
-
 begin
 
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
@@ -481,6 +479,8 @@ begin
    -- The ttl_in1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_in1);
  
+   -- This line will be used by clock card to check card presence
+   lvds_txb <= '0';
    ----------------------------------------------------------------------------
    -- PLL Instantiation
    ----------------------------------------------------------------------------
@@ -562,15 +562,14 @@ begin
       dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                              RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
-      fw_rev_data     when   FW_REV_ADDR,     
+      all_cards_data  when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,     
       id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
       fpga_thermo_data when  FPGA_TEMP_ADDR,
-      slot_id_data    when   SLOT_ID_ADDR,
       (others => '0') when others;        -- default to zero
 
 
    
-   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or fw_rev_ack or id_thermo_ack or fpga_thermo_ack or slot_id_ack;
+   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or all_cards_ack or id_thermo_ack or fpga_thermo_ack;
 
  
 
@@ -600,14 +599,12 @@ begin
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
                                         
-    fw_rev_err       when   FW_REV_ADDR,
+    all_cards_err    when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
     
     id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
     
     fpga_thermo_err  when   FPGA_TEMP_ADDR,
-    
-    slot_id_err      when   SLOT_ID_ADDR,
-    
+        
     '1'              when others;        
    
    ----------------------------------------------------------------------------
@@ -870,11 +867,13 @@ begin
          fault  => red_led);
 
    ----------------------------------------------------------------------------
-   -- Firmware Revision Instantition
+   -- all_cards registers Instantition
    ----------------------------------------------------------------------------
 
-    i_fw_rev: fw_rev
-       generic map( REVISION => RC_REVISION)
+    i_all_cards: all_cards
+       generic map( REVISION => RC_REVISION, 
+                    CARD_TYPE=> RC_CARD_TYPE
+                    )
        port map(
           clk_i  => clk,
           rst_i  => rst,
@@ -885,32 +884,12 @@ begin
           we_i   => dispatch_we_out,
           stb_i  => dispatch_stb_out,
           cyc_i  => dispatch_cyc_out,
-          err_o  => fw_rev_err,
-          dat_o  => fw_rev_data,
-          ack_o  => fw_rev_ack
+          slot_id_i => slot_id,
+          err_all_cards_o  => all_cards_err,
+          qa_all_cards_o   => all_cards_data,
+          ack_all_cards_o  => all_cards_ack
      );
    
-   ----------------------------------------------------------------------------
-   -- slot_id Instantition
-   ----------------------------------------------------------------------------
-
-    i_slot_id: bp_slot_id
-       port map(
-          slot_id_i => slot_id,
-          clk_i  => clk,
-          rst_i  => rst,
-
-          dat_i  => dispatch_dat_out,
-          addr_i => dispatch_addr_out,
-          tga_i  => dispatch_tga_out,
-          we_i   => dispatch_we_out,
-          stb_i  => dispatch_stb_out,
-          cyc_i  => dispatch_cyc_out,
-          err_o  => slot_id_err,
-          dat_o  => slot_id_data,
-          ack_o  => slot_id_ack
-     );
-
    ----------------------------------------------------------------------------
    -- id_thermo Instantition
    ----------------------------------------------------------------------------
