@@ -53,9 +53,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2007/10/24 23:30:16 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2007/10/31 20:30:37 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.31  2007/10/31 20:30:37  mandana
+-- data mode 8 is replaced by data mode 9 with new windowing of filtered data
+--
 -- Revision 1.30  2007/10/24 23:30:16  mandana
 -- data mode 8 added
 --
@@ -361,7 +364,7 @@ signal unfiltered_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtered_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal fb_error_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal fb_flx_cnt_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+-- signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_error_2_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_flx_cnt_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
@@ -720,7 +723,7 @@ begin
                        -- raw_dat        when "0011",
                        fb_error_dat   when "0100",
                        fb_flx_cnt_dat when "0101",
-                       filtfb_error_dat   when "0110",
+                       --filtfb_error_dat   when "0110", -- 0110 is skipped, as 0111 is a better solution
                        filtfb_error_2_dat when "0111",
                        filtfb_flx_cnt_dat when "1001", -- 1000 is skipped, see note below.
                        error_dat        when others;
@@ -796,30 +799,30 @@ begin
                         fsfb_dat_ch6_i (31 downto 8) & flux_cnt_dat_ch6_i when "110",
                         fsfb_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
 
-   with ch_mux_sel select
-      filtfb_error_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & 
-                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
-                        
-                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 11) & 
-                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
-                        
-                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 11) & 
-                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
-                        
-                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 11) & 
-                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
-                        
-                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 11) & 
-                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
-                        
-                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 11) & 
-                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
-                        
-                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 11) & 
-                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
-                        
-                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & 
-                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
+--   with ch_mux_sel select
+--      filtfb_error_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & 
+--                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
+--                        
+--                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 11) & 
+--                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
+--                        
+--                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 11) & 
+--                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
+--                        
+--                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 11) & 
+--                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
+--                        
+--                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 11) & 
+--                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
+--                        
+--                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 11) & 
+--                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
+--                        
+--                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 11) & 
+--                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
+--                        
+--                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & 
+--                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
 
    with ch_mux_sel select
       filtfb_error_2_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 7) & 
