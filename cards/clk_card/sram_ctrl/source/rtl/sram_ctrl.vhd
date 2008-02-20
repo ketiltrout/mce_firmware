@@ -20,7 +20,7 @@
 
 -- sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.6 2006/12/22 23:49:30 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.7 2007/01/08 21:26:58 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Ernie Lin
@@ -47,8 +47,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2006/12/22 23:49:30 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2007/01/08 21:26:58 $> -     <text>      - <initials $Author: mandana $>
 -- $Log: sram_ctrl.vhd,v $
+-- Revision 1.7  2007/01/08 21:26:58  mandana
+-- assert rdata_wren for another cycle to accommodate 10ns address-to-data delay of the chip
+-- cleaned up the code by adding comments and removing verfication state machine.
+--
 -- Revision 1.6  2006/12/22 23:49:30  mandana
 -- access sram modules as a 32b bank
 --
@@ -221,21 +225,21 @@ begin
    n_bhe_o <= '0';
    n_oe_o  <= '0';
    ce2_o   <= '1';
-   
+   n_ce1_o <= '0' when addr_i = SRAM_DATA_ADDR else '1';
    -- gen n_ce1
-   i_gen_n_ce: process(rst_i, clk_i)
-   begin
-      if (rst_i = '1') then
-         n_ce1_o <= '1';
-      elsif(clk_i'event and clk_i = '1') then
-         if (addr_i = SRAM_DATA_ADDR) then
-            n_ce1_o <= '0';
-         else 
-            n_ce1_o <= '1';
-         end if;   
-      end if; 
-   end process i_gen_n_ce;
-
+--   i_gen_n_ce: process(rst_i, clk_i)
+--   begin
+--      if (rst_i = '1') then
+--         n_ce1_o <= '1';
+--      elsif(clk_i'event and clk_i = '1') then
+--         if (addr_i = SRAM_DATA_ADDR) then
+--            n_ce1_o <= '0';
+--         else 
+--            n_ce1_o <= '1';
+--         end if;   
+--      end if; 
+--   end process i_gen_n_ce;
+   
    -------------------------------------------------------------      
    -- Driving address and data lines and corresponding registers
    -- seperate registers for read datapath and write datapath
@@ -305,7 +309,7 @@ begin
                count:=count+1;
                if (addr_i = SRAM_ADDR_ADDR) then
                   ack_read <= '1';
-               elsif count=2 then
+               elsif count=3 then
                   ack_read <= '1';
                   count:=0;
                end if;
