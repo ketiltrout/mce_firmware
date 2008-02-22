@@ -31,6 +31,11 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.26  2008/01/21 19:34:52  bburger
+-- BB:
+-- - v02000005
+-- - Added wishbone support for fb_col0, fb_col1, .., fb_col40
+--
 -- Revision 1.25  2007/12/18 21:13:27  bburger
 -- BB:
 -- - moved all the component declarations from addr_card to addr_card_pack
@@ -223,8 +228,13 @@ begin
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_txena1 <= '1';
+
    -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_nrx1);
+
+   -- This bit (active high) is used by the Clock Card to determine if this card is NOT present in the subrack.
+   -- '1': Not present; '0': present
+   lvds_txb <= '0';
 
    pll0: ac_pll
    port map(inclk0 => inclk,
