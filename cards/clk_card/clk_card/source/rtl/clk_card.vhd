@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.78 2007/12/18 20:59:35 bburger Exp $
+-- $Id: clk_card.vhd,v 1.79 2008/02/03 09:39:35 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.79  2008/02/03 09:39:35  bburger
+-- BB:  cc_v04000008
+-- - Added support for several new commands:  CARDS_TO_REPORT_ADDR |  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR
+--
 -- Revision 1.78  2007/12/18 20:59:35  bburger
 -- BB:  cc_v04000007
 --
@@ -260,7 +264,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000008";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000009";
 
    -- reset
    signal rst                : std_logic;
@@ -398,9 +402,9 @@ architecture top of clk_card is
    signal cc_reset_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal cc_reset_ack        : std_logic;
 
---   signal all_cards_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---   signal all_cards_ack       : std_logic;
---   signal all_cards_err       : std_logic;
+   signal all_cards_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal all_cards_ack       : std_logic;
+   signal all_cards_err       : std_logic;
 
    -- lvds_tx interface
    signal sync : std_logic;
@@ -577,9 +581,9 @@ begin
          select_clk_data     when SELECT_CLK_ADDR,
          sram_ctrl_data      when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          -- The following two selections will be replaced by all_cards once it is bug-free
-         fw_rev_data         when FW_REV_ADDR,
-         slot_id_data        when SLOT_ID_ADDR,
---         all_cards_data      when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
+--         fw_rev_data         when FW_REV_ADDR,
+--         slot_id_data        when SLOT_ID_ADDR,
+         all_cards_data      when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_data        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
@@ -601,9 +605,9 @@ begin
          select_clk_ack      when SELECT_CLK_ADDR,
          sram_ctrl_ack       when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          -- The following two selections will be replaced by all_cards once it is bug-free
-         fw_rev_ack          when FW_REV_ADDR,
-         slot_id_ack         when SLOT_ID_ADDR,
---         all_cards_ack       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
+--         fw_rev_ack          when FW_REV_ADDR,
+--         slot_id_ack         when SLOT_ID_ADDR,
+         all_cards_ack       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_ack         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
@@ -625,9 +629,9 @@ begin
                                   SELECT_CLK_ADDR |
                                   SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          -- The following two selections will be replaced by all_cards once it is bug-free
-         fw_rev_err          when FW_REV_ADDR,
-         slot_id_err         when SLOT_ID_ADDR,
---         all_cards_err       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
+--         fw_rev_err          when FW_REV_ADDR,
+--         slot_id_err         when SLOT_ID_ADDR,
+         all_cards_err       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_err         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
@@ -754,25 +758,25 @@ begin
       sync_number_i      => sync_num
    );
 
---   i_all_cards: all_cards
---      generic map(
---         REVISION => CC_REVISION,
---         CARD_TYPE=> CC_CARD_TYPE)
---      port map(
---         clk_i  => clk,
---         rst_i  => rst,
---
---         dat_i  => data,
---         addr_i => addr,
---         tga_i  => tga,
---         we_i   => we,
---         stb_i  => stb,
---         cyc_i  => cyc,
---         slot_id_i => slot_id,
---         err_all_cards_o  => all_cards_err,
---         qa_all_cards_o   => all_cards_data,
---         ack_all_cards_o  => all_cards_ack
---   );
+   i_all_cards: all_cards
+      generic map(
+         REVISION => CC_REVISION,
+         CARD_TYPE=> CC_CARD_TYPE)
+      port map(
+         clk_i  => clk,
+         rst_i  => rst,
+
+         dat_i  => data,
+         addr_i => addr,
+         tga_i  => tga,
+         we_i   => we,
+         stb_i  => stb,
+         cyc_i  => cyc,
+         slot_id_i => slot_id,
+         err_all_cards_o  => all_cards_err,
+         qa_all_cards_o   => all_cards_data,
+         ack_all_cards_o  => all_cards_ack
+   );
 
    slot_id_slave : bp_slot_id
    port map(
