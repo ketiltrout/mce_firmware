@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.57 2008/01/21 19:38:32 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.58 2008/02/03 09:54:06 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.58  2008/02/03 09:54:06  bburger
+-- BB:  Clock Card STOP command testing
+--
 -- Revision 1.57  2008/01/21 19:38:32  bburger
 -- BB: testing sq2fb multiplexing firmware (Address Card)
 --
@@ -3812,59 +3815,19 @@ begin
 --                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
 --                                  RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
 --                                  RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | RCS_TO_REPORT,
-
-
-      command <= command_wb;
-      address_id <= all_row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000080";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 25 us;
-
-      command <= command_wb;
-      address_id <= all_num_rows_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000004";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 25 us;
-
---   constant cc_scratch_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SCRATCH_ADDR;
---   constant cc_user_writable_hdr_wd_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD    & x"00" & USER_WRITABLE_ADDR;
---   constant cc_rcs_to_report_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_ORDER_ADDR;
-
+--
+--
 --      command <= command_wb;
---      address_id <= cc_scratch_cmd;
---      data_valid <= X"00000008";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 25 us;
---
---      command <= command_rb;
---      address_id <= cc_scratch_cmd;
---      data_valid <= X"00000008";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 25 us;
---
---      command <= command_rb;
---      address_id <= cc_cards_present_cmd;
+--      address_id <= all_row_len_cmd;
 --      data_valid <= X"00000001";
---      data       <= X"00000000";
+--      data       <= X"00000080";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      wait for 25 us;
 --
 --      command <= command_wb;
---      address_id <= cc_rcs_to_report_cmd;
+--      address_id <= all_num_rows_cmd;
 --      data_valid <= X"00000001";
 --      data       <= X"00000004";
 --      load_preamble;
@@ -3872,71 +3835,111 @@ begin
 --      load_checksum;
 --      wait for 25 us;
 --
---      command <= command_rb;
---      address_id <= cc_rcs_to_report_cmd;
+----   constant cc_scratch_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SCRATCH_ADDR;
+----   constant cc_user_writable_hdr_wd_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD    & x"00" & USER_WRITABLE_ADDR;
+----   constant cc_rcs_to_report_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_ORDER_ADDR;
+--
+----      command <= command_wb;
+----      address_id <= cc_scratch_cmd;
+----      data_valid <= X"00000008";
+----      data       <= X"00000001";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 25 us;
+----
+----      command <= command_rb;
+----      address_id <= cc_scratch_cmd;
+----      data_valid <= X"00000008";
+----      data       <= X"00000000";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 25 us;
+----
+----      command <= command_rb;
+----      address_id <= cc_cards_present_cmd;
+----      data_valid <= X"00000001";
+----      data       <= X"00000000";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 25 us;
+----
+----      command <= command_wb;
+----      address_id <= cc_rcs_to_report_cmd;
+----      data_valid <= X"00000001";
+----      data       <= X"00000004";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 25 us;
+----
+----      command <= command_rb;
+----      address_id <= cc_rcs_to_report_cmd;
+----      data_valid <= X"00000001";
+----      data       <= X"00000000";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 25 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_num_rows_reported_cmd;
 --      data_valid <= X"00000001";
---      data       <= X"00000000";
+--      data       <= X"00000004";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      wait for 25 us;
-
-      command <= command_wb;
-      address_id <= cc_num_rows_reported_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000004";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 25 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 25 us;
-
-      command <= command_wb;
-      address_id <= cc_data_rate_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000010";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 25 us;
-
-      command <= command_wb;
-      address_id <= cc_use_dv_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 53 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 115 us;
-
-      manchester_data <= '0';
-      wait for 320 ns;
-      wait for 1240 ns; -- dv sequence # 1
-      manchester_data <= '1';
-      wait for 326120 ns;
-
-      manchester_data <= '0';
-      wait for 320 ns;
-      wait for 1200 ns; -- dv sequence # 2
-      manchester_data <= '1';
-      wait for 326160 ns;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 25 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_data_rate_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000010";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 25 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 53 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 115 us;
+--
+--      manchester_data <= '0';
+--      wait for 320 ns;
+--      wait for 1240 ns; -- dv sequence # 1
+--      manchester_data <= '1';
+--      wait for 326120 ns;
+--
+--      manchester_data <= '0';
+--      wait for 320 ns;
+--      wait for 1200 ns; -- dv sequence # 2
+--      manchester_data <= '1';
+--      wait for 326160 ns;
 
       command <= command_st;
       address_id <= rc1_ret_dat_cmd;
