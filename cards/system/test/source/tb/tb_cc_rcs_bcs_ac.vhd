@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.60 2008/05/29 21:24:49 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.61 2008/06/12 21:45:07 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.61  2008/06/12 21:45:07  bburger
+-- BB:  Added a couple of cases for testing const_val39
+--
 -- Revision 1.60  2008/05/29 21:24:49  bburger
 -- BB:  Modified for testing const_mode and const_val commands on the address/ fast biasing cards.
 --
@@ -685,6 +688,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ac_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & NUM_ROWS_ADDR;
    constant ac_const_mode_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_MODE_ADDR;
    constant ac_const_val_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_VAL_ADDR;
+   constant ac_const_val39_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_VAL39_ADDR;
 
    constant bc1_flux_fb_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & FLUX_FB_ADDR;
    constant bc1_bias_cmd            : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & BIAS_ADDR;
@@ -2749,88 +2753,88 @@ begin
 --      load_checksum;
 --      wait for 125 us;
 --
-      -----------------------------------
-      command <= command_wb;
-      address_id <= ac_row_order_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col0_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col1_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000101";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col2_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000201";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col3_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000301";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col4_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000401";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col5_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000501";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col6_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000601";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col7_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000701";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
+--      -----------------------------------
+--      command <= command_wb;
+--      address_id <= ac_row_order_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col0_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col1_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000101";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col2_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000201";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col3_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000301";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col4_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000401";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col5_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000501";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col6_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000601";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col7_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000701";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
 --      command <= command_wb;
 --      address_id <= ac_fb_col8_cmd;
 --      data_valid <= X"00000029";
@@ -3127,64 +3131,83 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 125 us;
-
-      ------------------------------
+--
+--      ------------------------------
 --   constant ac_const_mode_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_MODE_ADDR;
 --   constant ac_const_val_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_VAL_ADDR;
+--
+--      command <= command_wb;
+--      address_id <= ac_const_mode_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_const_val_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"FFFFFFD6";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_enbl_mux_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_const_mode_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_enbl_mux_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_enbl_mux_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
+--
 
       command <= command_wb;
-      address_id <= ac_const_mode_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000000";
+      address_id <= ac_const_val39_cmd;
+      data_valid <= X"00000001";
+      data       <= X"FFFFFFFF";
       load_preamble;
       load_command;
       load_checksum;
       wait for 125 us;
 
-      command <= command_wb;
-      address_id <= ac_const_val_cmd;
-      data_valid <= X"00000029";
-      data       <= X"FFFFFFD6";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_enbl_mux_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
-
-      command <= command_wb;
-      address_id <= ac_const_mode_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
-
-      command <= command_wb;
-      address_id <= ac_enbl_mux_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
-
-      command <= command_wb;
-      address_id <= ac_enbl_mux_cmd;
+      command <= command_rb;
+      address_id <= ac_const_val39_cmd;
       data_valid <= X"00000001";
       data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 500 us;
+      wait for 125 us;
 
 --      present_sim_state <= ROW_LEN;
 --      command <= command_rb;
