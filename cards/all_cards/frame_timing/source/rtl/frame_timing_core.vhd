@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.11 2006/03/08 22:57:22 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.13 2008/05/29 21:22:01 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.13  2008/05/29 21:22:01  bburger
+-- BB:  Added the error_o interface which is asserted if there is a slip in the timing of sync pulses, caused by missing a sync pulse, or receiving a spurrious one.
+--
+-- Revision 1.12  2006/03/22 19:25:12  mandana
+-- moved constant definitions from sync_gen_pack to frame_timing_pack
+--
 -- Revision 1.11  2006/03/08 22:57:22  bburger
 -- Bryce:
 -- - removed component delclarations from frame_timing pack files
@@ -96,19 +102,19 @@ entity frame_timing_core is
       dac_dat_en_o               : out std_logic;
       adc_coadd_en_o             : out std_logic;
       restart_frame_1row_prev_o  : out std_logic;
-      restart_frame_aligned_o    : out std_logic; 
+      restart_frame_aligned_o    : out std_logic;
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
       sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      
+
       -- Address Card interface
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
-         
+
       -- Bias Card interface
       update_bias_o              : out std_logic;
-      
+
       -- Wishbone interface
       row_len_i                  : in integer; -- not used yet
       num_rows_i                 : in integer; -- not used yet
@@ -120,9 +126,12 @@ entity frame_timing_core is
       resync_ack_o               : out std_logic; -- not used yet
       init_window_req_i          : in std_logic;
       init_window_ack_o          : out std_logic; -- not used yet
-      fltr_rst_ack_o             : out std_logic; 
-      fltr_rst_req_i             : in std_logic; 
-      
+      fltr_rst_ack_o             : out std_logic;
+      fltr_rst_req_i             : in std_logic;
+
+      -- Debug interface
+      error_o                    : out std_logic;
+
       -- Global signals
       clk_i                      : in std_logic;
       clk_n_i                    : in std_logic;
@@ -132,34 +141,36 @@ entity frame_timing_core is
 end frame_timing_core;
 
 architecture beh of frame_timing_core is
-   
+
    constant ONE_CYCLE_LATENCY     : integer := 1;
    constant TWO_CYCLE_LATENCY     : integer := 2;
 
    signal frame_count_int         : integer;
    signal frame_count_new         : integer;
+   signal frame_count_a           : integer;
+   signal frame_count_b           : integer;
    signal row_count_int           : integer;
    signal row_count_new           : integer;
    signal enable_counters         : std_logic;
    signal sync_received           : std_logic;
-   
+
    signal sync_count       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal sync_count_new   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   
+
    signal end_of_frame_minus_1row : integer;
    signal end_of_frame_plus_1row  : integer;
-   
+
    signal sync_temp               : std_logic;
    signal sync                    : std_logic;
 
    type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);
    signal current_state, next_state : states;
-   
+
    type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, RESET_ON, RESET_HOLD, SET, SET_HOLD);
    signal current_init_win_state, next_init_win_state : init_win_states;
-   
+
 begin
-   
+
    sync_num_o     <= sync_count;
    sync_count_new <= sync_count + "00000000000000000000000000000001";
    sync_cntr: process(clk_i, rst_i)
@@ -175,18 +186,26 @@ begin
 
    end_of_frame_minus_1row <= (num_rows_i*row_len_i)-row_len_i-1;
    end_of_frame_plus_1row <= row_len_i-1;
-   
+
    -- Temporary
    resync_ack_o <= '0';
-   
+
+   error_o <= '0' when frame_count_a = frame_count_b else '1';
    frame_count_new <= (frame_count_int + 1) when sync_received = '0' else 0;
    frame_period_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          frame_count_int <= 0;
+         frame_count_a   <= 0;
+         frame_count_b   <= 0;
       elsif(clk_i'event and clk_i = '1') then
          if(enable_counters = '1') then
             frame_count_int <= frame_count_new;
+         end if;
+
+         if(sync_received = '1') then
+            frame_count_a   <= frame_count_int;
+            frame_count_b   <= frame_count_a;
          end if;
       end if;
    end process frame_period_cntr;
@@ -208,35 +227,34 @@ begin
    -----------------------
    -- The persistence of the last restart_frame signal is only for as long as the next one is not received.
    -- So I can send initialize window signals whenever I want to!.
-   
+
    -- There are two situations in which the intialize_window should be asserted:
    -- 1- After a resync
-   -- 2- After changing flux_loop parameters   
-   
+   -- 2- After changing flux_loop parameters
    restart_frame_1row_prev_o  <= '1' when frame_count_int = end_of_frame_minus_1row else '0';
    restart_frame_aligned_o    <= sync_received;
    restart_frame_1row_post_o  <= '1' when frame_count_int = end_of_frame_plus_1row else '0';
-   
+
    -- The bias card DACs begin to be updated approximately 6 cycles after update_bias_o is asserted.
    -- The length of time required to update all 32 flux_feedback values on the bias card is longer than one row dwell period.
    update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS else '0';
 
-   -- row_switch_o is pulsed on the last clock cycle of every 
+   -- row_switch_o is pulsed on the last clock cycle of every
    row_switch_o               <= '1' when row_count_int = row_len_i - 1 or sync_received = '1' else '0';
-   
+
    -- dac_dat_en_o has to be enabled on the clock cycle before the feedback begins, and lasts until the end of the row for safety reasons
    -- the dac_dat_en_o line is taken notice of after 6 clock cycle have elapsed on a new row.
    dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i - 1 else '0';
-   
-   -- adc_coadd_en_o has to be enabled on the same clock cycle that sampling begins, and has to be disabled on the same clock cycle when sampling finishes.  
+
+   -- adc_coadd_en_o has to be enabled on the same clock cycle that sampling begins, and has to be disabled on the same clock cycle when sampling finishes.
    -- This is possible because of the 4-cycle latency in the ADCs
    adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - 1 and row_count_int <= row_len_i-1 else '0';
-   
+
    -- row_en_o has to be enabled on the clock cycle before the row is to be activated, and has to be disabled on the clock cycle before the row is to be deactivated
    -- row_en_o is only taken notice of a minimum of 3 clock cycles after a row_switch, to allow the ac_dac_ctrl_core time to preload the new value.
    row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int <= row_len_i-1-ONE_CYCLE_LATENCY else '0';
    -----------------------
-      
+
    init_win_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -253,7 +271,7 @@ begin
       case current_init_win_state is
          when SET =>
             next_init_win_state <= SET_HOLD;
-         
+
          when SET_HOLD =>
             if(sync_received = '1') then
                -- Will service an init_window request first, and then a fltr_rst request
@@ -263,23 +281,23 @@ begin
                   next_init_win_state <= RESET_ON;
                end if;
             end if;
-         
+
          when INIT_ON =>
             next_init_win_state <= INIT_HOLD;
-         
+
          when INIT_HOLD =>
             if(sync_received = '1') then
                next_init_win_state <= INIT_OFF;
-            end if;               
-         
+            end if;
+
          when RESET_ON =>
             next_init_win_state <= RESET_HOLD;
-         
+
          when RESET_HOLD =>
             if(sync_received = '1') then
                next_init_win_state <= INIT_OFF;
-            end if;               
-         
+            end if;
+
          when INIT_OFF =>
             if(init_window_req_i = '1' or fltr_rst_req_i = '1') then
                if(sync_received = '1') then
@@ -287,20 +305,20 @@ begin
                else
                   next_init_win_state <= SET_HOLD;
                end if;
-            end if;               
-         
+            end if;
+
          when others =>
             next_init_win_state <= INIT_OFF;
       end case;
    end process init_win_state_NS;
-   
+
    init_win_state_out: process(current_init_win_state, sync_received)
    begin
       initialize_window_o <= '0';
       init_window_ack_o   <= '0';
       fltr_rst_o          <= '0';
       fltr_rst_ack_o      <= '0';
-      
+
       case current_init_win_state is
          when SET =>
 
@@ -311,14 +329,14 @@ begin
 
          when INIT_HOLD =>
             initialize_window_o <= '1';
-            
+
             if(sync_received = '1') then
                init_window_ack_o <= '1';
             end if;
-         
+
          when RESET_ON =>
             fltr_rst_o <= '1';
-         
+
          when RESET_HOLD =>
             fltr_rst_o <= '1';
 
@@ -331,10 +349,10 @@ begin
          when others =>
       end case;
    end process init_win_state_out;
-   
+
    -- If a frame_reset occurs, then during the next sync pulse, frame_count_int resets to zero and increments to 1 two cycles after the rising edge of the sync pulse
    -- Otherwise, frame_count_int should reset to zero at the time when it reaches END_OF_FRAME - and disregard sync altogether.
-   
+
    -- During normal operation, this block will have synchronized itself so that clk_count_o wraps to 0 on the clock cycle following the sync pulse
    -- Also, during normal operation, clk_error_o should indicate '0' if it is perfectly synchronized.
    -- Because the sync pulse comes in on the last clock cycle of the frame, I have had to delay the update of clk_error_o by two clock cycles to make sure that it latches '0'.
@@ -348,17 +366,17 @@ begin
       if(rst_i = '1') then
          current_state <= IDLE;
          enable_counters <= '0';
-         
+
       elsif(clk_i'event and clk_i = '1') then
          current_state <= next_state;
-         
+
          if(resync_req_i = '1') then
             current_state <= IDLE;
             enable_counters <= '0';
          elsif(sync_received = '1') then
             enable_counters <= '1';
          end if;
-         
+
       end if;
    end process state_FF;
 
@@ -396,7 +414,7 @@ begin
             next_state <= IDLE;
       end case;
    end process state_NS;
-   
+
    state_out: process(current_state)
    begin
       sync_received   <= '0';
@@ -411,7 +429,7 @@ begin
          when others => NULL;
       end case;
    end process state_out;
-   
+
    -- double synchronizer for sync_i:
    process(rst_i, clk_n_i)
    begin
@@ -421,16 +439,16 @@ begin
          sync_temp  <= sync_i;
       end if;
    end process;
-   
+
    process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
-         sync       <= '0';      
+         sync       <= '0';
       elsif(clk_i'event and clk_i = '1') then
          sync       <= sync_temp;
       end if;
    end process;
-   
-   
+
+
 
 end beh;
