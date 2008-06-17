@@ -1,5 +1,5 @@
 Analysis & Synthesis report for addr_card
-Thu May 29 13:07:44 2008
+Thu Jun 12 12:18:14 2008
 Quartus II Version 6.1 Build 201 11/27/2006 SJ Full Version
 
 
@@ -382,12 +382,12 @@ applicable agreement for further details.
 +------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                           ;
 +-----------------------------+------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Thu May 29 13:07:43 2008    ;
+; Analysis & Synthesis Status ; Successful - Thu Jun 12 12:18:14 2008    ;
 ; Quartus II Version          ; 6.1 Build 201 11/27/2006 SJ Full Version ;
 ; Revision Name               ; addr_card                                ;
 ; Top-level Entity Name       ; addr_card                                ;
 ; Family                      ; Stratix                                  ;
-; Total logic elements        ; 11,101                                   ;
+; Total logic elements        ; 11,082                                   ;
 ; Total pins                  ; 279                                      ;
 ; Total virtual pins          ; 0                                        ;
 ; Total memory bits           ; 195,584                                  ;
@@ -569,20 +569,20 @@ applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------+
 ; Resource                                    ; Usage                                     ;
 +---------------------------------------------+-------------------------------------------+
-; Total logic elements                        ; 11101                                     ;
-;     -- Combinational with no register       ; 6533                                      ;
+; Total logic elements                        ; 11082                                     ;
+;     -- Combinational with no register       ; 6514                                      ;
 ;     -- Register only                        ; 3327                                      ;
 ;     -- Combinational with a register        ; 1241                                      ;
 ;                                             ;                                           ;
 ; Logic element usage by number of LUT inputs ;                                           ;
-;     -- 4 input functions                    ; 6511                                      ;
-;     -- 3 input functions                    ; 611                                       ;
-;     -- 2 input functions                    ; 629                                       ;
+;     -- 4 input functions                    ; 6383                                      ;
+;     -- 3 input functions                    ; 730                                       ;
+;     -- 2 input functions                    ; 619                                       ;
 ;     -- 1 input functions                    ; 20                                        ;
 ;     -- 0 input functions                    ; 3                                         ;
 ;                                             ;                                           ;
 ; Logic elements by mode                      ;                                           ;
-;     -- normal mode                          ; 10682                                     ;
+;     -- normal mode                          ; 10663                                     ;
 ;     -- arithmetic mode                      ; 419                                       ;
 ;     -- qfbk mode                            ; 0                                         ;
 ;     -- register cascade mode                ; 0                                         ;
@@ -597,8 +597,8 @@ applicable agreement for further details.
 ; Total PLLs                                  ; 1                                         ;
 ; Maximum fan-out node                        ; ac_pll:pll0|altpll:altpll_component|_clk0 ;
 ; Maximum fan-out                             ; 6721                                      ;
-; Total fan-out                               ; 69208                                     ;
-; Average fan-out                             ; 5.13                                      ;
+; Total fan-out                               ; 69033                                     ;
+; Average fan-out                             ; 5.12                                      ;
 +---------------------------------------------+-------------------------------------------+
 
 
@@ -607,8 +607,8 @@ applicable agreement for further details.
 +--------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ; Compilation Hierarchy Node                             ; Logic Cells ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                                                                            ;
 +--------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; |addr_card                                             ; 11101 (264) ; 4568         ; 195584      ; 8            ; 0       ; 0         ; 1         ; 279  ; 0            ; 6533 (264)   ; 3327 (0)          ; 1241 (0)         ; 450 (0)         ; 0 (0)      ; |addr_card                                                                                                                                                                                     ;
-;    |ac_dac_ctrl:ac_dac_ctrl_slave|                     ; 7902 (4672) ; 3299         ; 129024      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4603 (4603)  ; 2669 (13)         ; 630 (56)         ; 6 (6)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave                                                                                                                                                       ;
+; |addr_card                                             ; 11082 (316) ; 4568         ; 195584      ; 8            ; 0       ; 0         ; 1         ; 279  ; 0            ; 6514 (316)   ; 3327 (0)          ; 1241 (0)         ; 450 (0)         ; 0 (0)      ; |addr_card                                                                                                                                                                                     ;
+;    |ac_dac_ctrl:ac_dac_ctrl_slave|                     ; 7889 (4659) ; 3299         ; 129024      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4590 (4590)  ; 2669 (13)         ; 630 (56)         ; 6 (6)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave                                                                                                                                                       ;
 ;       |reg:\ram_bank:0:fast_dac_reg|                   ; 14 (14)     ; 14           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 14 (14)          ; 0 (0)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:fast_dac_reg                                                                                                                          ;
 ;       |reg:\ram_bank:0:mode_reg|                       ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:mode_reg                                                                                                                              ;
 ;       |reg:\ram_bank:0:val_reg|                        ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:val_reg                                                                                                                               ;
@@ -1087,7 +1087,7 @@ applicable agreement for further details.
 ;                   |altsyncram_7lo1:auto_generated|     ; 0 (0)       ; 0            ; 2048        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|tpram_32bit_x_64:row_order_ram|alt3pram:alt3pram_component|altdpram:altdpram_component2|altsyncram:ram_block|altsyncram_7lo1:auto_generated           ;
 ;    |ac_pll:pll0|                                       ; 0 (0)       ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|ac_pll:pll0                                                                                                                                                                         ;
 ;       |altpll:altpll_component|                        ; 0 (0)       ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|ac_pll:pll0|altpll:altpll_component                                                                                                                                                 ;
-;    |all_cards:i_all_cards|                             ; 404 (148)   ; 256          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 148 (148)    ; 256 (0)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards                                                                                                                                                               ;
+;    |all_cards:i_all_cards|                             ; 405 (149)   ; 256          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 149 (149)    ; 256 (0)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards                                                                                                                                                               ;
 ;       |reg:\i_all_cards_bank:10:all_cards_reg|         ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards|reg:\i_all_cards_bank:10:all_cards_reg                                                                                                                        ;
 ;       |reg:\i_all_cards_bank:3:all_cards_reg|          ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards|reg:\i_all_cards_bank:3:all_cards_reg                                                                                                                         ;
 ;       |reg:\i_all_cards_bank:4:all_cards_reg|          ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards|reg:\i_all_cards_bank:4:all_cards_reg                                                                                                                         ;
@@ -1096,7 +1096,7 @@ applicable agreement for further details.
 ;       |reg:\i_all_cards_bank:7:all_cards_reg|          ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards|reg:\i_all_cards_bank:7:all_cards_reg                                                                                                                         ;
 ;       |reg:\i_all_cards_bank:8:all_cards_reg|          ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards|reg:\i_all_cards_bank:8:all_cards_reg                                                                                                                         ;
 ;       |reg:\i_all_cards_bank:9:all_cards_reg|          ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|all_cards:i_all_cards|reg:\i_all_cards_bank:9:all_cards_reg                                                                                                                         ;
-;    |dispatch:cmd0|                                     ; 1298 (167)  ; 385          ; 66560       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 913 (160)    ; 107 (0)           ; 278 (7)          ; 190 (0)         ; 0 (0)      ; |addr_card|dispatch:cmd0                                                                                                                                                                       ;
+;    |dispatch:cmd0|                                     ; 1239 (108)  ; 385          ; 66560       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 854 (101)    ; 107 (0)           ; 278 (7)          ; 190 (0)         ; 0 (0)      ; |addr_card|dispatch:cmd0                                                                                                                                                                       ;
 ;       |altsyncram:buf|                                 ; 0 (0)       ; 0            ; 65536       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|dispatch:cmd0|altsyncram:buf                                                                                                                                                        ;
 ;          |altsyncram_dkl3:auto_generated|              ; 0 (0)       ; 0            ; 65536       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|dispatch:cmd0|altsyncram:buf|altsyncram_dkl3:auto_generated                                                                                                                         ;
 ;       |dispatch_cmd_receive:receiver|                  ; 408 (74)    ; 153          ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 255 (66)     ; 74 (0)            ; 79 (8)           ; 54 (11)         ; 0 (0)      ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver                                                                                                                                         ;
@@ -1140,17 +1140,17 @@ applicable agreement for further details.
 ;          |shift_reg:tx_addr_reg|                       ; 4 (4)       ; 4            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 4 (4)            ; 0 (0)           ; 0 (0)      ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|shift_reg:tx_addr_reg                                                                                                                   ;
 ;          |us_timer:smb_timer|                          ; 46 (46)     ; 36           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer                                                                                                                      ;
 ;       |us_timer:timeout_timer|                         ; 46 (46)     ; 36           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |addr_card|fpga_thermo:fpga_thermo0|us_timer:timeout_timer                                                                                                                                     ;
-;    |frame_timing:frame_timing_slave|                   ; 781 (0)     ; 370          ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 411 (0)      ; 222 (0)           ; 148 (0)          ; 160 (0)         ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave                                                                                                                                                     ;
+;    |frame_timing:frame_timing_slave|                   ; 782 (0)     ; 370          ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 412 (0)      ; 222 (0)           ; 148 (0)          ; 160 (0)         ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave                                                                                                                                                     ;
 ;       |frame_timing_core:ftc|                          ; 297 (297)   ; 79           ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 218 (218)    ; 2 (2)             ; 77 (77)          ; 160 (160)       ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc                                                                                                                               ;
 ;          |lpm_mult:Mult0|                              ; 0 (0)       ; 0            ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|lpm_mult:Mult0                                                                                                                ;
 ;             |mult_hh01:auto_generated|                 ; 0 (0)       ; 0            ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|lpm_mult:Mult0|mult_hh01:auto_generated                                                                                       ;
-;       |frame_timing_wbs:wbi|                           ; 484 (324)   ; 291          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 193 (193)    ; 220 (60)          ; 71 (71)          ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi                                                                                                                                ;
+;       |frame_timing_wbs:wbi|                           ; 485 (325)   ; 291          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 194 (194)    ; 220 (60)          ; 71 (71)          ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi                                                                                                                                ;
 ;          |reg:address_on_delay_reg|                    ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:address_on_delay_reg                                                                                                       ;
 ;          |reg:feedback_delay_reg|                      ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:feedback_delay_reg                                                                                                         ;
 ;          |reg:resync_req_reg|                          ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:resync_req_reg                                                                                                             ;
 ;          |reg:sample_delay_reg|                        ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:sample_delay_reg                                                                                                           ;
 ;          |reg:sample_num_reg|                          ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:sample_num_reg                                                                                                             ;
-;    |id_thermo:id_thermo0|                              ; 218 (61)    ; 113          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 105 (43)     ; 58 (0)            ; 55 (18)          ; 18 (0)          ; 0 (0)      ; |addr_card|id_thermo:id_thermo0                                                                                                                                                                ;
+;    |id_thermo:id_thermo0|                              ; 217 (60)    ; 113          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 104 (42)     ; 58 (0)            ; 55 (18)          ; 18 (0)          ; 0 (0)      ; |addr_card|id_thermo:id_thermo0                                                                                                                                                                ;
 ;       |counter:byte_counter|                           ; 11 (11)     ; 4            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (7)        ; 3 (3)             ; 1 (1)            ; 0 (0)           ; 0 (0)      ; |addr_card|id_thermo:id_thermo0|counter:byte_counter                                                                                                                                           ;
 ;       |one_wire_master:master|                         ; 100 (62)    ; 45           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 55 (54)      ; 9 (0)             ; 36 (8)           ; 18 (0)          ; 0 (0)      ; |addr_card|id_thermo:id_thermo0|one_wire_master:master                                                                                                                                         ;
 ;          |binary_counter:bit_counter|                  ; 3 (3)       ; 3            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 3 (3)            ; 0 (0)           ; 0 (0)      ; |addr_card|id_thermo:id_thermo0|one_wire_master:master|binary_counter:bit_counter                                                                                                              ;
@@ -1805,16 +1805,16 @@ Encoding Type: Safe One-Hot
 ; 7:1                ; 2 bits    ; 8 LEs         ; 6 LEs                ; 2 LEs                  ; No         ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector1                                     ;
 ; 8:1                ; 2 bits    ; 10 LEs        ; 4 LEs                ; 6 LEs                  ; No         ; |addr_card|dispatch:cmd0|Selector1                                                                         ;
 ; 9:1                ; 41 bits   ; 246 LEs       ; 41 LEs               ; 205 LEs                ; No         ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|mode_wren_vec[28]                                                 ;
-; 8:1                ; 2 bits    ; 10 LEs        ; 6 LEs                ; 4 LEs                  ; No         ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector4                                     ;
-; 10:1               ; 41 bits   ; 246 LEs       ; 41 LEs               ; 205 LEs                ; No         ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|val_wren_vec[8]                                                   ;
+; 8:1                ; 2 bits    ; 10 LEs        ; 6 LEs                ; 4 LEs                  ; No         ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector2                                     ;
+; 10:1               ; 40 bits   ; 240 LEs       ; 40 LEs               ; 200 LEs                ; No         ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|val_wren_vec[10]                                                  ;
 ; 9:1                ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; No         ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|Selector3                                           ;
 ; 8:1                ; 2 bits    ; 10 LEs        ; 4 LEs                ; 6 LEs                  ; No         ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|Selector5                                           ;
 ; 9:1                ; 3 bits    ; 18 LEs        ; 12 LEs               ; 6 LEs                  ; No         ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|Selector3                                 ;
 ; 9:1                ; 3 bits    ; 18 LEs        ; 12 LEs               ; 6 LEs                  ; No         ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|Selector1                                           ;
 ; 10:1               ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; No         ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|Selector0                                           ;
 ; 17:1               ; 3 bits    ; 33 LEs        ; 24 LEs               ; 9 LEs                  ; No         ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector1                                                         ;
-; 593:1              ; 27 bits   ; 10665 LEs     ; 2781 LEs             ; 7884 LEs               ; No         ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[9]                                          ;
-; 848:1              ; 3 bits    ; 1695 LEs      ; 327 LEs              ; 1368 LEs               ; No         ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[1]                                          ;
+; 593:1              ; 27 bits   ; 10665 LEs     ; 2808 LEs             ; 7857 LEs               ; No         ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[9]                                          ;
+; 848:1              ; 3 bits    ; 1695 LEs      ; 330 LEs              ; 1365 LEs               ; No         ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[1]                                          ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+------------------------------------------------------------------------------------------------------------+
 
 
@@ -3373,7 +3373,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+----------------------------------+-----------------+
 ; Parameter Name ; Value                            ; Type            ;
 +----------------+----------------------------------+-----------------+
-; revision       ; 00000010000000000000000000000110 ; Unsigned Binary ;
+; revision       ; 00000010000000000000000000000111 ; Unsigned Binary ;
 ; card_type      ; 000                              ; Unsigned Binary ;
 +----------------+----------------------------------+-----------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
@@ -6612,7 +6612,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 6.1 Build 201 11/27/2006 SJ Full Version
-    Info: Processing started: Thu May 29 13:03:16 2008
+    Info: Processing started: Thu Jun 12 12:12:55 2008
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off addr_card -c addr_card
 Info: Found 2 design units, including 1 entities, in source file ../../../library/components/source/rtl/parallel_crc.vhd
     Info: Found design unit 1: parallel_crc-behav
@@ -6789,50 +6789,50 @@ Info: Found 2 design units, including 1 entities, in source file ../source/rtl/a
     Info: Found design unit 1: addr_card-top
     Info: Found entity 1: addr_card
 Info: Elaborating entity "addr_card" for the top level hierarchy
-Warning (10036): Verilog HDL or VHDL warning at addr_card.vhd(143): object "mem_clk" assigned a value but never read
-Warning (10034): Output port "ttl_tx1" at addr_card.vhd(80) has no driver
-Warning (10034): Output port "ttl_tx2" at addr_card.vhd(84) has no driver
-Warning (10034): Output port "ttl_txena2" at addr_card.vhd(85) has no driver
-Warning (10034): Output port "ttl_tx3" at addr_card.vhd(88) has no driver
-Warning (10034): Output port "ttl_txena3" at addr_card.vhd(89) has no driver
-Warning (10034): Output port "eeprom_so" at addr_card.vhd(93) has no driver
-Warning (10034): Output port "eeprom_sck" at addr_card.vhd(94) has no driver
-Warning (10034): Output port "eeprom_cs" at addr_card.vhd(95) has no driver
-Warning (10034): Output port "mictor[32]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[31]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[30]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[29]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[28]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[27]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[26]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[25]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[24]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[23]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[22]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[21]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[20]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[19]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[18]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[17]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[16]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[15]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[14]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[13]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[12]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[11]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[10]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[9]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[8]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[7]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[6]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[5]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[4]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[3]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[2]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictor[1]" at addr_card.vhd(126) has no driver
-Warning (10034): Output port "mictorclk[2]" at addr_card.vhd(127) has no driver
-Warning (10034): Output port "mictorclk[1]" at addr_card.vhd(127) has no driver
-Warning (10034): Output port "tx" at addr_card.vhd(129) has no driver
+Warning (10036): Verilog HDL or VHDL warning at addr_card.vhd(148): object "mem_clk" assigned a value but never read
+Warning (10034): Output port "ttl_tx1" at addr_card.vhd(85) has no driver
+Warning (10034): Output port "ttl_tx2" at addr_card.vhd(89) has no driver
+Warning (10034): Output port "ttl_txena2" at addr_card.vhd(90) has no driver
+Warning (10034): Output port "ttl_tx3" at addr_card.vhd(93) has no driver
+Warning (10034): Output port "ttl_txena3" at addr_card.vhd(94) has no driver
+Warning (10034): Output port "eeprom_so" at addr_card.vhd(98) has no driver
+Warning (10034): Output port "eeprom_sck" at addr_card.vhd(99) has no driver
+Warning (10034): Output port "eeprom_cs" at addr_card.vhd(100) has no driver
+Warning (10034): Output port "mictor[32]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[31]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[30]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[29]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[28]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[27]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[26]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[25]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[24]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[23]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[22]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[21]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[20]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[19]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[18]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[17]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[16]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[15]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[14]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[13]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[12]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[11]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[10]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[9]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[8]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[7]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[6]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[5]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[4]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[3]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[2]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictor[1]" at addr_card.vhd(131) has no driver
+Warning (10034): Output port "mictorclk[2]" at addr_card.vhd(132) has no driver
+Warning (10034): Output port "mictorclk[1]" at addr_card.vhd(132) has no driver
+Warning (10034): Output port "tx" at addr_card.vhd(134) has no driver
 Info: Elaborating entity "ac_pll" for hierarchy "ac_pll:pll0"
 Info: Found 1 design units, including 1 entities, in source file ../../../../../altera/61/quartus/libraries/megafunctions/altpll.tdf
     Info: Found entity 1: altpll
@@ -6904,7 +6904,7 @@ Info: Elaborating entity "altsyncram_dkl3" for hierarchy "dispatch:cmd0|altsyncr
 Info: Elaborating entity "all_cards" for hierarchy "all_cards:i_all_cards"
 Info: Elaborating entity "leds" for hierarchy "leds:leds_slave"
 Info: Elaborating entity "ac_dac_ctrl" for hierarchy "ac_dac_ctrl:ac_dac_ctrl_slave"
-Warning (10036): Verilog HDL or VHDL warning at ac_dac_ctrl.vhd(150): object "frame_aligned_reg" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at ac_dac_ctrl.vhd(156): object "frame_aligned_reg" assigned a value but never read
 Info: Elaborating entity "tpram_32bit_x_64" for hierarchy "ac_dac_ctrl:ac_dac_ctrl_slave|tpram_32bit_x_64:on_ram"
 Info: Found 1 design units, including 1 entities, in source file ../../../../../altera/61/quartus/libraries/megafunctions/alt3pram.tdf
     Info: Found entity 1: alt3pram
@@ -8215,17 +8215,17 @@ Warning: Design contains 8 input pin(s) that do not drive logic
     Warning: No output dependent on input pin "dip_sw4"
     Warning: No output dependent on input pin "smb_nalert"
     Warning: No output dependent on input pin "rx"
-Info: Implemented 13501 device resources after synthesis - the final resource count might be different
+Info: Implemented 13482 device resources after synthesis - the final resource count might be different
     Info: Implemented 17 input pins
     Info: Implemented 246 output pins
     Info: Implemented 16 bidirectional pins
-    Info: Implemented 11101 logic cells
+    Info: Implemented 11082 logic cells
     Info: Implemented 2112 RAM segments
     Info: Implemented 1 ClockLock PLLs
     Info: Implemented 8 DSP elements
 Info: Quartus II Analysis & Synthesis was successful. 0 errors, 955 warnings
-    Info: Allocated 195 megabytes of memory during processing
-    Info: Processing ended: Thu May 29 13:07:43 2008
-    Info: Elapsed time: 00:04:27
+    Info: Allocated 196 megabytes of memory during processing
+    Info: Processing ended: Thu Jun 12 12:18:13 2008
+    Info: Elapsed time: 00:05:18
 
 

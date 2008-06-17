@@ -5,9 +5,9 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 14.479 ns
-From           : slot_id[2]
-To             : dispatch:cmd0|pres_state.fetch
+Actual Time    : 15.534 ns
+From           : lvds_sync
+To             : frame_timing:frame_timing_slave|frame_timing_core:ftc|sync_temp
 From Clock     : --
 To Clock       : inclk
 Failed Paths   : 0
@@ -15,7 +15,7 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 23.566 ns
+Actual Time    : 21.948 ns
 From           : ac_dac_ctrl:ac_dac_ctrl_slave|tpram_32bit_x_64:row_order_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_7lo1:auto_generated|ram_block1a0~portb_address_reg5
 To             : dac_clk[32]
 From Clock     : inclk
@@ -25,9 +25,9 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : -5.394 ns
-From           : smb_data
-To             : fpga_thermo:fpga_thermo0|smb_master:master2|shift_reg:rx_data_reg|reg[0]
+Actual Time    : -5.526 ns
+From           : card_id
+To             : id_thermo:id_thermo0|one_wire_master:master|shift_reg:rx_data_reg|reg[7]
 From Clock     : --
 To Clock       : inclk
 Failed Paths   : 0
@@ -35,31 +35,31 @@ Failed Paths   : 0
 Type           : Worst-case Minimum tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : -6.181 ns
+Actual Time    : -5.777 ns
 From           : ac_pll:pll0|altpll:altpll_component|_clk3
-To             : dac_clk[27]
+To             : dac_clk[4]
 From Clock     : inclk
 To Clock       : --
 Failed Paths   : 0
 
-Type           : Clock Setup: 'ac_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 4.498 ns
-Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 64.51 MHz ( period = 15.502 ns )
-From           : dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle
-To             : dispatch:cmd0|altsyncram:buf|altsyncram_dkl3:auto_generated|ram_block1a22~porta_datain_reg0
-From Clock     : ac_pll:pll0|altpll:altpll_component|_clk0
-To Clock       : ac_pll:pll0|altpll:altpll_component|_clk0
-Failed Paths   : 0
-
 Type           : Clock Setup: 'ac_pll:pll0|altpll:altpll_component|_clk2'
-Slack          : 4.623 ns
+Slack          : 4.353 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
-Actual Time    : 185.98 MHz ( period = 5.377 ns )
-From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_bio1:auto_generated|alt_sync_fifo_aem:sync_fifo|cntr_aua:cntr1|safe_q[0]
-To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_bio1:auto_generated|alt_sync_fifo_aem:sync_fifo|dpram_jv01:dpram4|altsyncram_6rh1:altsyncram14|ram_block15a18~porta_datain_reg13
+Actual Time    : 177.09 MHz ( period = 5.647 ns )
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[1]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_bio1:auto_generated|alt_sync_fifo_aem:sync_fifo|dpram_jv01:dpram4|altsyncram_6rh1:altsyncram14|ram_block15a0~porta_datain_reg17
 From Clock     : ac_pll:pll0|altpll:altpll_component|_clk2
 To Clock       : ac_pll:pll0|altpll:altpll_component|_clk2
+Failed Paths   : 0
+
+Type           : Clock Setup: 'ac_pll:pll0|altpll:altpll_component|_clk0'
+Slack          : 4.532 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 64.65 MHz ( period = 15.468 ns )
+From           : dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle
+To             : dispatch:cmd0|altsyncram:buf|altsyncram_dkl3:auto_generated|ram_block1a26~porta_datain_reg0
+From Clock     : ac_pll:pll0|altpll:altpll_component|_clk0
+To Clock       : ac_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Clock Hold: 'ac_pll:pll0|altpll:altpll_component|_clk0'
@@ -73,11 +73,11 @@ To Clock       : ac_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Clock Hold: 'ac_pll:pll0|altpll:altpll_component|_clk2'
-Slack          : 0.667 ns
+Slack          : 0.555 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
 Actual Time    : N/A
-From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[4]
-To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[4]
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_bio1:auto_generated|alt_sync_fifo_aem:sync_fifo|cntr_aua:cntr1|safe_q[1]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_bio1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe7a[1]
 From Clock     : ac_pll:pll0|altpll:altpll_component|_clk2
 To Clock       : ac_pll:pll0|altpll:altpll_component|_clk2
 Failed Paths   : 0
