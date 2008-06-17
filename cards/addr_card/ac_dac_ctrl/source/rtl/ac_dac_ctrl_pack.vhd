@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_pack.vhd,v 1.7 2005/01/26 01:26:04 mandana Exp $
+-- $Id: ac_dac_ctrl_pack.vhd,v 1.9 2008/05/29 21:16:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,12 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.9  2008/05/29 21:16:41  bburger
+-- BB:  Added the AC_NUM_DACS constant
+--
+-- Revision 1.8  2006/08/01 18:20:51  bburger
+-- Bryce:  removed component declarations from header files and moved them to source files
+--
 -- Revision 1.7  2005/01/26 01:26:04  mandana
 -- removed mem_clk_i
 --
@@ -45,7 +51,7 @@
 -- Revision 1.3  2004/11/02 07:38:09  bburger
 -- Bryce:  ac_dac_ctrl in progress
 --
---   
+--
 --
 -----------------------------------------------------------------------------
 library ieee;
@@ -62,10 +68,11 @@ use work.frame_timing_pack.all;
 
 package ac_dac_ctrl_pack is
 
+   constant AC_NUM_DACS : integer := 41;
    constant AC_NUM_BUSES : integer := 11;
    constant AC_BUS_WIDTH : integer := 14;
    constant ROW_COUNTER_MAX : integer := 63;
-   
+
    -- The reset value is one less than the max value so that the counter does not stop, and hold reset high forever.
    constant FRAME_RESTART_DELAY_MAX : integer := 2;
    constant FRAME_RESTART_RESET : integer := 1;
