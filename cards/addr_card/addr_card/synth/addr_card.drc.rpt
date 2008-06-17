@@ -1,0 +1,1008 @@
+Design Assistant report for addr_card
+Tue Mar 29 13:23:47 2005
+Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Design Assistant Summary
+  3. Design Assistant Settings
+  4. Design Assistant Results Summary
+  5. High
+  6. Medium
+  7. Information only
+  8. Design Assistant Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2004 Altera Corporation
+Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+support information,  device programming or simulation file,  and any other
+associated  documentation or information  provided by  Altera  or a partner
+under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+other  use  of such  megafunction  design,  netlist,  support  information,
+device programming or simulation file,  or any other  related documentation
+or information  is prohibited  for  any  other purpose,  including, but not
+limited to  modification,  reverse engineering,  de-compiling, or use  with
+any other  silicon devices,  unless such use is  explicitly  licensed under
+a separate agreement with  Altera  or a megafunction partner.  Title to the
+intellectual property,  including patents,  copyrights,  trademarks,  trade
+secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+support  information,  device programming or simulation file,  or any other
+related documentation or information provided by  Altera  or a megafunction
+partner, remains with Altera, the megafunction partner, or their respective
+licensors. No other licenses, including any licenses needed under any third
+party's intellectual property, are provided herein.
+
+
+
++-----------------------------------------------------------------+
+; Design Assistant Summary                                        ;
++-------------------------+---------------------------------------+
+; Design Assistant Status ; Successful - Tue Mar 29 13:23:47 2005 ;
+; Revision Name           ; addr_card                             ;
+; Top-level Entity Name   ; addr_card                             ;
+; Family                  ; Stratix                               ;
++-------------------------+---------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Design Assistant Settings                                                                                                                                                                                                                                                                     ;
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
+; Option                                                                                                                                                                                                                                                                         ; Setting      ;
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
+; Design Assistant mode                                                                                                                                                                                                                                                          ; Post-Fitting ;
+; Minimum number of node fan-out                                                                                                                                                                                                                                                 ; 30           ;
+; Maximum number of nodes to report                                                                                                                                                                                                                                              ; 50           ;
+; Combinational logic used as clock signal should be implemented according to Altera standard scheme                                                                                                                                                                             ; On           ;
+; Inverter should not be implemented in logic cell                                                                                                                                                                                                                               ; On           ;
+; Input clock pin should fan out to only one set of combinational logic used as clock signal                                                                                                                                                                                     ; On           ;
+; Clock signal source should drive only input clock ports                                                                                                                                                                                                                        ; On           ;
+; Clock signal should be a global signal (This rule applies during post-fitting analysis. This rule applies during both post-fitting analysis and post-synthesis analysis if the design targets a MAX 3000 or MAX 7000 device. For more information, see the Help for the rule.) ; On           ;
+; Clock signal source should not drive registers that are triggered by different clock edges                                                                                                                                                                                     ; On           ;
+; Combinational logic used as reset signal should be synchronized                                                                                                                                                                                                                ; Off          ;
+; External reset should be synchronized using two cascaded registers                                                                                                                                                                                                             ; Off          ;
+; External reset should be correctly synchronized                                                                                                                                                                                                                                ; Off          ;
+; Reset signal source should drive only input reset ports                                                                                                                                                                                                                        ; On           ;
+; Reset signal that is generated in one clock domain and used in other, asynchronous clock domains should be synchronized                                                                                                                                                        ; Off          ;
+; Reset signal that is generated in one clock domain and used in other, asynchronous clock domains should be correctly synchronized                                                                                                                                              ; Off          ;
+; Nodes with more than specified number of fan-outs                                                                                                                                                                                                                              ; On           ;
+; Top nodes with highest fan-out                                                                                                                                                                                                                                                 ; On           ;
+; Register output directly drives input of another register when both registers are triggered at same time                                                                                                                                                                       ; On           ;
+; Registers in direct data transfer between clock domains are triggered by clock edges at the same time                                                                                                                                                                          ; On           ;
+; Design should not contain combinational loops                                                                                                                                                                                                                                  ; On           ;
+; Register output should not drive its own control signal directly or through combinational logic                                                                                                                                                                                ; On           ;
+; Design should not contain delay chains                                                                                                                                                                                                                                         ; On           ;
+; Two or more register outputs in cascade should not directly drive clock ports of following registers                                                                                                                                                                           ; On           ;
+; Pulses should be implemented according to Altera standard scheme                                                                                                                                                                                                               ; On           ;
+; Multiple pulses should not be generated in design                                                                                                                                                                                                                              ; On           ;
+; Design should not contain SR latches                                                                                                                                                                                                                                           ; On           ;
+; Design should not contain latches                                                                                                                                                                                                                                              ; On           ;
+; Combinational logic should not directly drive write enable signal of asynchronous RAM                                                                                                                                                                                          ; On           ;
+; Design should not contain asynchronous memory                                                                                                                                                                                                                                  ; On           ;
+; Output enable and input of tri-state node should not be driven by same signal source                                                                                                                                                                                           ; On           ;
+; Data bits are not synchronized when transferred between asynchronous clock domains                                                                                                                                                                                             ; On           ;
+; All data bits that are transferred between asynchronous clock domains are synchronized                                                                                                                                                                                         ; On           ;
+; Data bits are not correctly synchronized when transferred between asynchronous clock domains                                                                                                                                                                                   ; On           ;
+; Only one VREF pin should be assigned to HardCopy test pin in an I/O bank (This rule does not apply to all HardCopy and HardCopy Stratix devices. This rule is used to analyze a design only when the rule applies to the design's target HardCopy or HardCopy Stratix device.) ; Off          ;
+; PLL drives multiple clock network types (This rule does not apply to all HardCopy and HardCopy Stratix devices. This rule is used to analyze a design only when the rule applies to the design's target HardCopy or HardCopy Stratix device.)                                  ; Off          ;
+; Design is missing fmax requirement                                                                                                                                                                                                                                             ; On           ;
+; Design is missing tco, tpd, or tsu requirement                                                                                                                                                                                                                                 ; On           ;
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
+
+
++---------------------------------------------------+
+; Design Assistant Results Summary                  ;
++----------------------------+----------------------+
+; Severity of Rule violation ; Number of violations ;
++----------------------------+----------------------+
+; Critical                   ; 0                    ;
+; High                       ; 2                    ;
+; Medium                     ; 1                    ;
+; Information only           ; 378                  ;
++----------------------------+----------------------+
+
+
++----------------------------------------------------------------------------------------------------------------------+
+; High                                                                                                                 ;
++-------------------------------------------------------+--------------------------------------------------------------+
+; Rule name                                             ; Name                                                         ;
++-------------------------------------------------------+--------------------------------------------------------------+
+; Design should not contain delay chains - Delay chain1 ; frame_timing:frame_timing_slave|frame_timing_core:ftc|add~13 ;
+; Design should not contain delay chains - Delay chain1 ; frame_timing:frame_timing_slave|frame_timing_core:ftc|add~77 ;
+; Design should not contain delay chains - Delay chain2 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|add~6      ;
+; Design should not contain delay chains - Delay chain2 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|add~19     ;
++-------------------------------------------------------+--------------------------------------------------------------+
+
+
++----------------------------------------------------------------------------------------------------------------------------------------+
+; Medium                                                                                                                                 ;
++--------------------------------------------------------------------------------------------+-------------------------------------------+
+; Rule name                                                                                  ; Name                                      ;
++--------------------------------------------------------------------------------------------+-------------------------------------------+
+; Clock signal source should not drive registers that are triggered by different clock edges ; ac_pll:pll0|altpll:altpll_component|_clk0 ;
++--------------------------------------------------------------------------------------------+-------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Information only                                                                                                                                                                                                                      ;
++-----------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+---------+
+; Rule name                                                                                                             ; Name                                                                                                ; Fan-Out ;
++-----------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+---------+
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|pres_state~21                    ; 35      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|tx_ena~45                        ; 34      ;
+; Nodes with more than specified number of fan-outs                                                                     ; rst                                                                                                 ; 1035    ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|pres_state~23   ; 37      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state~21                                              ; 128     ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~27                                        ; 40      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                               ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_core:ftc|row_count_new~0                               ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_clks_o[40]~41                              ; 41      ;
+; Nodes with more than specified number of fan-outs                                                                     ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[4]                                  ; 40      ;
+; Nodes with more than specified number of fan-outs                                                                     ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[5]                                  ; 40      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|reduce_nor~0                                  ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|timer_rst~23                                               ; 37      ;
+; Nodes with more than specified number of fan-outs                                                                     ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|rd_cmd~31                                         ; 34      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~29                                        ; 67      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|pres_state~20                                                                         ; 67      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~14                                               ; 38      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~576                                                                                      ; 37      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|resync_req_wren~7                              ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|mux_en_wren~3                                     ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|reg:cmd0|reg_o[13]                                                                    ; 35      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|reg:cmd0|reg_o[15]                                                                    ; 35      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|reg:cmd0|reg_o[14]                                                                    ; 35      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|temp1_ld~0                                              ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~21                                       ; 119     ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~26                                       ; 42      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|data_shreg_ena                                          ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~12                             ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~583                                                                                      ; 34      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_next_state~2                                  ; 62      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reduce_or~22                                      ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_pres_state~21                                 ; 74      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_ena                                           ; 64      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc:crc_calc|reduce_nor~386                       ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|tx_next_state.tx_done~0                           ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|item_counter~72 ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|item_counter~1  ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|temp0_ld~0                                              ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|crc_ena~1                                               ; 64      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|next_state.ready~0                       ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|address_on_delay_wren~6                        ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~41                                                                                       ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_input_sel~12                                  ; 63      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_input_sel~13                                  ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|pres_state~20                            ; 48      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|rx_buf_ena~28                            ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~13                                               ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~34                                                                                       ; 43      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~32                                                                                       ; 43      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|reduce_nor~4                                               ; 34      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|feedback_delay_wren~16                         ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~39                                                                                       ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~37                                                                                       ; 33      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_wren~2                                ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_num_wren~4                              ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data~2225                      ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_reg~49                         ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~43                                                                                       ; 34      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~38                                                                                       ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; reduce_nor~42                                                                                       ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~3                            ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|reply_buf_data_o[0]~11635                                  ; 32      ;
+; Nodes with more than specified number of fan-outs                                                                     ; ~VCC_cell                                                                                           ; 45      ;
+; Nodes with more than specified number of fan-outs                                                                     ; ac_pll:pll0|altpll:altpll_component|_clk0                                                           ; 1014    ;
+; Nodes with more than specified number of fan-outs                                                                     ; ac_pll:pll0|altpll:altpll_component|_clk2                                                           ; 85      ;
+; Top nodes with highest fan-out                                                                                        ; rst                                                                                                 ; 1035    ;
+; Top nodes with highest fan-out                                                                                        ; ac_pll:pll0|altpll:altpll_component|_clk0                                                           ; 1014    ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state~21                                              ; 128     ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~21                                       ; 119     ;
+; Top nodes with highest fan-out                                                                                        ; ac_pll:pll0|altpll:altpll_component|_clk2                                                           ; 85      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_pres_state~21                                 ; 74      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~29                                        ; 67      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|pres_state~20                                                                         ; 67      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_ena                                           ; 64      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|crc_ena~1                                               ; 64      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_input_sel~12                                  ; 63      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_next_state~2                                  ; 62      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|pres_state~20                            ; 48      ;
+; Top nodes with highest fan-out                                                                                        ; ~VCC_cell                                                                                           ; 45      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~32                                                                                       ; 43      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~34                                                                                       ; 43      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~26                                       ; 42      ;
+; Top nodes with highest fan-out                                                                                        ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_clks_o[40]~41                              ; 41      ;
+; Top nodes with highest fan-out                                                                                        ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[5]                                  ; 40      ;
+; Top nodes with highest fan-out                                                                                        ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[4]                                  ; 40      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~27                                        ; 40      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~14                                               ; 38      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|pres_state~23   ; 37      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_wishbone:wishbone|timer_rst~23                                               ; 37      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~576                                                                                      ; 37      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|reg:cmd0|reg_o[14]                                                                    ; 35      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|reg:cmd0|reg_o[15]                                                                    ; 35      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|pres_state~21                    ; 35      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|reg:cmd0|reg_o[13]                                                                    ; 35      ;
+; Top nodes with highest fan-out                                                                                        ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|rd_cmd~31                                         ; 34      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~43                                                                                       ; 34      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|tx_ena~45                        ; 34      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~583                                                                                      ; 34      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_wishbone:wishbone|reduce_nor~4                                               ; 34      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|tx_next_state.tx_done~0                           ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~39                                                                                       ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|rx_buf_ena~28                            ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~37                                                                                       ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|reduce_nor~0                                  ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~41                                                                                       ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_input_sel~13                                  ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                               ; 33      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|next_state.ready~0                       ; 32      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~42                                                                                       ; 32      ;
+; Top nodes with highest fan-out                                                                                        ; reduce_nor~38                                                                                       ; 32      ;
+; Top nodes with highest fan-out                                                                                        ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|mux_en_wren~3                                     ; 32      ;
+; Top nodes with highest fan-out                                                                                        ; frame_timing:frame_timing_slave|frame_timing_core:ftc|row_count_new~0                               ; 32      ;
+; Top nodes with highest fan-out                                                                                        ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_reg~49                         ; 32      ;
+; Top nodes with highest fan-out                                                                                        ; dispatch:cmd0|dispatch_cmd_receive:receiver|temp1_ld~0                                              ; 32      ;
+; Top nodes with highest fan-out                                                                                        ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data~2225                      ; 32      ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~27                                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|row_current_state~24                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|row_current_state~23                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[17]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[17]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[21]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[21]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[22]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[22]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[19]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[19]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[20]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[20]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[23]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[23]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[16]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[16]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[18]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[18]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state~25                              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|mux_en                                         ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|reg:mux_en_reg|reg_o[0]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|frame_aligned_reg                              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[13]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[15]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[14]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[15]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[14]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[13]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; fw_rev:fw_rev_slave|present_state~21                                                                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[7]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[6]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[2]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[1]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[11]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[8]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[0]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[10]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[9]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[4]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[3]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[5]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[17]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[21]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[22]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[19]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[20]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[23]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[16]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[18]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[13]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[14]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[12]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[11]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[10]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[9]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[8]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[7]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[6]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[5]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[4]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[3]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[2]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[1]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[0]                           ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[0]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[0]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[1]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[1]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[2]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[2]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[7]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[7]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[6]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[6]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[5]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[9]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[9]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[8]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[8]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[4]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[4]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[3]                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[3]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[12]                       ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[5]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[10]                       ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[10]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_reply_transmit:transmitter|reg:data_size_reg|reg_o[11]                       ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[11]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; fw_rev:fw_rev_slave|present_state~22                                                                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[12]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[24]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[15]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~24                                        ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[0]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[0]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[12]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[28]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[28]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[29]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[29]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[30]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[27]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[27]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[25]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[24]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[26]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[26]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[25]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[30]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[31]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|shift_reg:crc_data_reg|reg[31]                          ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[0]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[1]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[1]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[1]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[2]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[2]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[2]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[3]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[3]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[3]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[4]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[4]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[4]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[5]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[5]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[5]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[6]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[6]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[6]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[7]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[7]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[7]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[8]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[8]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[8]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[9]                                                                   ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[9]                                                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[9]                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[10]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[10]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[10]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[11]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[11]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[11]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[12]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[12]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[12]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[13]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[13]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[13]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[13]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[14]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[14]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[14]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[14]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[15]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[15]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[15]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[15]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[16]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[16]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[16]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[16]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[17]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[17]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[17]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[17]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[18]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[18]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[18]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[18]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[19]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[19]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[19]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[19]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[20]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[20]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[20]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[20]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[21]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[21]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[21]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[21]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[22]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[22]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[22]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[22]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[23]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[23]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[23]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[23]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[24]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[24]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[24]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[24]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[24]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[25]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[25]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[25]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[25]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[25]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[26]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[26]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[26]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[26]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[26]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[27]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[27]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[27]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[27]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[27]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[28]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[28]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[28]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[28]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[28]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[29]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[29]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[29]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[29]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[29]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply2|reg_o[30]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|status_reg[0]                                                                         ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[30]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[30]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[30]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[30]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[30]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply1|reg_o[31]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd1|reg_o[31]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply0|reg_o[31]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:cmd0|reg_o[31]                                                                    ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|reg:reply2|reg_o[31]                                                                  ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|status_reg[1]                                                                         ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[31]                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure1 ; dispatch:cmd0|altsyncram:receive_buf|altsyncram_8lk2:auto_generated|ram_block1a13~porta_we_reg      ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[12]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|ack                                      ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[11]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[10]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[9]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[8]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[7]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[6]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[5]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[4]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[3]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[2]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[1]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[0]                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[19]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[21]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[22]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[23]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[20]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[18]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[17]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[16]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[14]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[15]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[14]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[13]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[12]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[11]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[10]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[9]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[8]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[7]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[6]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[5]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[4]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[3]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[2]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[1]               ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[24]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[26]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[28]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[29]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[27]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[25]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[30]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[18]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[22]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[20]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[24]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[17]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[19]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[15]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds                                     ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_temp                                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[16]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[23]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[21]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[29]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[30]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[28]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[31]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[25]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[26]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[31]                ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[32]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[27]              ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|ack_temp                                 ; N/A     ;
+; Register output directly drives input of another register when both registers are triggered at same time - Structure2 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[13]                ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; lvds_sync                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; lvds_cmd                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; lvds_txa                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; lvds_txb                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; ttl_tx1                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; ttl_txena1                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; ttl_tx2                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; ttl_txena2                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; ttl_tx3                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; ttl_txena3                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; eeprom_so                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; eeprom_sck                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; eeprom_cs                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data0[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data1[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data2[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data3[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data4[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data5[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data6[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data7[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data8[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[13]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[12]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[11]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[10]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[9]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[8]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[7]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[6]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[5]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[4]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[3]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data9[0]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[13]                                                                                      ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[12]                                                                                      ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[11]                                                                                      ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[10]                                                                                      ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[9]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[8]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[7]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[6]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[5]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[4]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[3]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[2]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[1]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_data10[0]                                                                                       ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[40]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[39]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[38]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[37]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[36]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[35]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[34]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[33]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[32]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[31]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[30]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[29]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[28]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[27]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[26]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[25]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[24]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[23]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[22]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[21]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[20]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[19]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[18]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[17]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[16]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[15]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[14]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[13]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[12]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[11]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[10]                                                                                         ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[9]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[8]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[7]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[6]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[5]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[4]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[3]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[2]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[1]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; dac_clk[0]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; red_led                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; ylw_led                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; grn_led                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; wdog                                                                                                ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[32]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[31]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[30]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[29]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[28]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[27]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[26]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[25]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[24]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[23]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[22]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[21]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[20]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[19]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[18]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[17]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[16]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[15]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[14]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[13]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[12]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[11]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[10]                                                                                          ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[9]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[8]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[7]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[6]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[5]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[4]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[3]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[2]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictor[1]                                                                                           ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictorclk[2]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; mictorclk[1]                                                                                        ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; rs232_tx                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[16]                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[15]                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[14]                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[13]                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[12]                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[11]                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[10]                                                                                            ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[9]                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[8]                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[7]                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[6]                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[5]                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[4]                                                                                             ; N/A     ;
+; Design is missing tco, tpd, or tsu requirement                                                                        ; test[3]                                                                                             ; N/A     ;
++-----------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+---------+
+
+
++---------------------------+
+; Design Assistant Messages ;
++---------------------------+
+Info: *******************************************************************
+Info: Running Quartus II Design Assistant
+    Info: Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
+    Info: Processing started: Tue Mar 29 13:23:43 2005
+Info: Command: quartus_drc --import_settings_files=off --export_settings_files=off addr_card -c addr_card
+Info: Design Assistant information: target device EP1S10F780C5 does not support HardCopy conversion -- ignored HardCopy rules
+Critical Warning: Design Assistant warning: Design should not contain delay chains. Found 2 delay chains.
+    Critical Warning: Delay chain 1 contains 2 node(s)
+        Critical Warning: Node frame_timing:frame_timing_slave|frame_timing_core:ftc|add~13
+        Critical Warning: Node frame_timing:frame_timing_slave|frame_timing_core:ftc|add~77
+    Critical Warning: Delay chain 2 contains 2 node(s)
+        Critical Warning: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|add~6
+        Critical Warning: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|add~19
+Warning: Design Assistant warning: Clock signal source should not drive registers that are triggered by different clock edges. Found 1 node(s) related to this rule.
+    Warning: Node ac_pll:pll0|altpll:altpll_component|_clk0
+Info: Design Assistant information: Nodes with more than specified number of fan-outs. Found 65 node(s) with highest fan-out.
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|pres_state~21 has 35 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|tx_ena~45 has 34 fan-out(s)
+    Info: Node rst has 1035 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|pres_state~23 has 37 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_wishbone:wishbone|pres_state~21 has 128 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~27 has 40 fan-out(s)
+    Info: Node frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters has 33 fan-out(s)
+    Info: Node frame_timing:frame_timing_slave|frame_timing_core:ftc|row_count_new~0 has 32 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_clks_o[40]~41 has 41 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[4] has 40 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[5] has 40 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|reduce_nor~0 has 33 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_wishbone:wishbone|timer_rst~23 has 37 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|rd_cmd~31 has 34 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~29 has 67 fan-out(s)
+    Info: Node dispatch:cmd0|pres_state~20 has 67 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~14 has 38 fan-out(s)
+    Info: Node reduce_nor~576 has 37 fan-out(s)
+    Info: Node frame_timing:frame_timing_slave|frame_timing_wbs:wbi|resync_req_wren~7 has 32 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|mux_en_wren~3 has 32 fan-out(s)
+    Info: Node dispatch:cmd0|reg:cmd0|reg_o[13] has 35 fan-out(s)
+    Info: Node dispatch:cmd0|reg:cmd0|reg_o[15] has 35 fan-out(s)
+    Info: Node dispatch:cmd0|reg:cmd0|reg_o[14] has 35 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|temp1_ld~0 has 32 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~21 has 119 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~26 has 42 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|data_shreg_ena has 32 fan-out(s)
+    Info: Node frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~12 has 32 fan-out(s)
+    Info: Node reduce_nor~583 has 34 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_next_state~2 has 62 fan-out(s)
+    Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant Detailed Results section of Compilation Report for complete lists of Design Assistant messages generated.
+Info: Design Assistant information: Top nodes with highest fan-out. Found 50 node(s) with highest fan-out.
+    Info: Node rst has 1035 fan-out(s)
+    Info: Node ac_pll:pll0|altpll:altpll_component|_clk0 has 1014 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_wishbone:wishbone|pres_state~21 has 128 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~21 has 119 fan-out(s)
+    Info: Node ac_pll:pll0|altpll:altpll_component|_clk2 has 85 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_pres_state~21 has 74 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~29 has 67 fan-out(s)
+    Info: Node dispatch:cmd0|pres_state~20 has 67 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_ena has 64 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|crc_ena~1 has 64 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_input_sel~12 has 63 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_next_state~2 has 62 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|pres_state~20 has 48 fan-out(s)
+    Info: Node ~VCC_cell has 45 fan-out(s)
+    Info: Node reduce_nor~32 has 43 fan-out(s)
+    Info: Node reduce_nor~34 has 43 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~26 has 42 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_clks_o[40]~41 has 41 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[5] has 40 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|dac_id_int[4] has 40 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~27 has 40 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~14 has 38 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|pres_state~23 has 37 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_wishbone:wishbone|timer_rst~23 has 37 fan-out(s)
+    Info: Node reduce_nor~576 has 37 fan-out(s)
+    Info: Node dispatch:cmd0|reg:cmd0|reg_o[14] has 35 fan-out(s)
+    Info: Node dispatch:cmd0|reg:cmd0|reg_o[15] has 35 fan-out(s)
+    Info: Node dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|pres_state~21 has 35 fan-out(s)
+    Info: Node dispatch:cmd0|reg:cmd0|reg_o[13] has 35 fan-out(s)
+    Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|rd_cmd~31 has 34 fan-out(s)
+    Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant Detailed Results section of Compilation Report for complete lists of Design Assistant messages generated.
+Info: Design Assistant information: Register output directly drives input of another register when both registers are triggered at same time. Found 2 shift register structure(s) related to this rule.
+    Info: Structure 1 contains 239 node(s)
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~27
+        Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|row_current_state~24
+        Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|row_current_state~23
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[17]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[17]
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[21]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[21]
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[22]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[22]
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[19]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[19]
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[20]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[20]
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[23]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[23]
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[16]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[16]
+        Info: Node dispatch:cmd0|reg:cmd1|reg_o[18]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word1|reg_o[18]
+        Info: Node frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state~25
+        Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|mux_en
+        Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|reg:mux_en_reg|reg_o[0]
+        Info: Node ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|frame_aligned_reg
+        Info: Node dispatch:cmd0|reg:cmd0|reg_o[13]
+        Info: Node dispatch:cmd0|reg:cmd0|reg_o[15]
+        Info: Node dispatch:cmd0|reg:cmd0|reg_o[14]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[15]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[14]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|reg:tmp_word0|reg_o[13]
+        Info: Node fw_rev:fw_rev_slave|present_state~21
+        Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant Detailed Results section of Compilation Report for complete lists of Design Assistant messages generated.
+    Info: Structure 2 contains 68 node(s)
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[12]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|ack
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[11]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[10]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[9]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[8]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[7]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[6]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[5]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[4]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[3]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[2]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[1]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[0]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[19]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[21]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[22]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[23]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[20]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[18]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[17]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[16]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[14]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[15]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[14]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[13]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[12]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[11]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[10]
+        Info: Node dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[9]
+        Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant Detailed Results section of Compilation Report for complete lists of Design Assistant messages generated.
+Info: Design Assistant information: Design is missing tco, tpd, or tsu requirement. Found 261 instance(s) related to this rule.
+    Info: Node lvds_sync
+    Info: Node lvds_cmd
+    Info: Node lvds_txa
+    Info: Node lvds_txb
+    Info: Node ttl_tx1
+    Info: Node ttl_txena1
+    Info: Node ttl_tx2
+    Info: Node ttl_txena2
+    Info: Node ttl_tx3
+    Info: Node ttl_txena3
+    Info: Node eeprom_so
+    Info: Node eeprom_sck
+    Info: Node eeprom_cs
+    Info: Node dac_data0[13]
+    Info: Node dac_data0[12]
+    Info: Node dac_data0[11]
+    Info: Node dac_data0[10]
+    Info: Node dac_data0[9]
+    Info: Node dac_data0[8]
+    Info: Node dac_data0[7]
+    Info: Node dac_data0[6]
+    Info: Node dac_data0[5]
+    Info: Node dac_data0[4]
+    Info: Node dac_data0[3]
+    Info: Node dac_data0[2]
+    Info: Node dac_data0[1]
+    Info: Node dac_data0[0]
+    Info: Node dac_data1[13]
+    Info: Node dac_data1[12]
+    Info: Node dac_data1[11]
+    Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant Detailed Results section of Compilation Report for complete lists of Design Assistant messages generated.
+Info: Design Assistant information: finished post-fitting analysis of current design -- generated 378 information messages and 3 warning messages
+Info: Quartus II Design Assistant was successful. 0 errors, 9 warnings
+    Info: Processing ended: Tue Mar 29 13:23:47 2005
+    Info: Elapsed time: 00:00:03
+
+

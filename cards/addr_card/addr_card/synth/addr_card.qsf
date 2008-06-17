@@ -385,7 +385,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE ac_v02000004_resetmcebug_.stp
+set_global_assignment -name USE_SIGNALTAP_FILE ac_v02000006v1.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -411,6 +411,7 @@ set_parameter -name "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|tpram_32b
 # end ENTITY(addr_card)
 # ---------------------
 
+set_global_assignment -name SAFE_STATE_MACHINE ON
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
@@ -431,6 +432,7 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pa
 set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../clk_card/sync_gen/source/rtl/sync_gen_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
@@ -476,4 +478,6 @@ set_global_assignment -name VHDL_FILE ../source/rtl/addr_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/addr_card.vhd
 set_global_assignment -name SIGNALTAP_FILE addr_card.stp
 set_global_assignment -name SIGNALTAP_FILE ac_v02000004_resetmcebug_.stp
-set_global_assignment -name SAFE_STATE_MACHINE ON
+set_global_assignment -name SIGNALTAP_FILE ac_v02000006c.stp
+set_global_assignment -name SIGNALTAP_FILE "ac_v02000006-1.stp"
+set_global_assignment -name SIGNALTAP_FILE ac_v02000006v1.stp
