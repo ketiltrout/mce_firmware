@@ -31,6 +31,14 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.28  2008/05/29 21:19:51  bburger
+-- BB:
+-- - Added the all_cards slave, which replaces bp_slot_id and fw_rev
+-- - Incremented the version number to v02000006
+--
+-- Revision 1.27  2008/02/22 01:44:48  bburger
+-- BB:  Added card not present i/o bit to overall interface.
+--
 -- Revision 1.26  2008/01/21 19:34:52  bburger
 -- BB:
 -- - v02000005
@@ -133,93 +141,103 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000005";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000006";
 
    -- clocks
    signal clk      : std_logic;
    signal mem_clk  : std_logic;
    signal comm_clk : std_logic;
    signal clk_n    : std_logic;
-
    signal rst      : std_logic;
 
    -- wishbone bus (from master)
-   signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal addr : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-   signal tga  : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-   signal we   : std_logic;
-   signal stb  : std_logic;
-   signal cyc  : std_logic;
+   signal data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal addr      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+   signal tga       : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+   signal we        : std_logic;
+   signal stb       : std_logic;
+   signal cyc       : std_logic;
+   signal slave_err : std_logic;
 
    -- wishbone bus (from slaves)
    signal slave_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal slave_ack         : std_logic;
+
    signal led_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal led_ack           : std_logic;
+
    signal ac_dac_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ac_dac_ack        : std_logic;
+
    signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal frame_timing_ack  : std_logic;
-   signal slave_err         : std_logic;
+   signal fw_rev_err        : std_logic;
+
    signal fw_rev_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fw_rev_ack        : std_logic;
+
    signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal id_thermo_ack     : std_logic;
+   signal id_thermo_err     : std_logic;
+
    signal fpga_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fpga_thermo_ack   : std_logic;
+   signal fpga_thermo_err   : std_logic;
+
    signal slot_id_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal slot_id_ack       : std_logic;
+   signal slot_id_err       : std_logic;
 
-   signal fw_rev_err      : std_logic;
-   signal id_thermo_err   : std_logic;
-   signal fpga_thermo_err : std_logic;
-   signal slot_id_err     : std_logic;
+   signal all_cards_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal all_cards_ack     : std_logic;
+   signal all_cards_err     : std_logic;
 
    -- frame_timing interface
-   signal restart_frame_aligned : std_logic;
+   signal restart_frame_aligned   : std_logic;
    signal restart_frame_1row_prev : std_logic;
-   signal row_switch            : std_logic;
-   signal row_en                : std_logic;
+   signal row_switch              : std_logic;
+   signal row_en                  : std_logic;
 
    -- DAC hardware interface:
    signal dac_data : w14_array11;
 
    component ac_pll
-   port(inclk0 : in std_logic;
-     c0 : out std_logic;
-        c1 : out std_logic;
-        c2 : out std_logic;
-     c3 : out std_logic);
+   port(
+      inclk0 : in std_logic;
+      c0 : out std_logic;
+      c1 : out std_logic;
+      c2 : out std_logic;
+      c3 : out std_logic);
    end component;
 
    component ac_dac_ctrl is
    port
    (
       -- DAC hardware interface:
-      dac_data_o              : out w14_array11;
-      dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
+      dac_data_o                : out w14_array11;
+      dac_clks_o                : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
 
       -- wishbone interface:
-      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                    : in std_logic;
-      stb_i                   : in std_logic;
-      cyc_i                   : in std_logic;
-      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                   : out std_logic;
+      dat_i                     : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                    : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                     : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                      : in std_logic;
+      stb_i                     : in std_logic;
+      cyc_i                     : in std_logic;
+      dat_o                     : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                     : out std_logic;
 
       -- frame_timing interface:
-      row_switch_i            : in std_logic;
-      restart_frame_aligned_i : in std_logic;
+      row_switch_i              : in std_logic;
+      restart_frame_aligned_i   : in std_logic;
       restart_frame_1row_prev_i : in std_logic;
-      row_en_i                : in std_logic;
+      row_en_i                  : in std_logic;
 
       -- Global Signals
-      clk_i                   : in std_logic;
-      clk_i_n                 : in std_logic;
-      clk_100_i               : in std_logic;
-      rst_i                   : in std_logic
+      clk_i                     : in std_logic;
+      clk_i_n                   : in std_logic;
+      clk_100_i                 : in std_logic;
+      rst_i                     : in std_logic
    );
    end component;
 
@@ -237,76 +255,61 @@ begin
    lvds_txb <= '0';
 
    pll0: ac_pll
-   port map(inclk0 => inclk,
-            c0 => clk,
-            c1 => mem_clk,
-            c2 => comm_clk,
-            c3 => clk_n);
+   port map(
+      inclk0 => inclk,
+      c0 => clk,
+      c1 => mem_clk,
+      c2 => comm_clk,
+      c3 => clk_n
+   );
 
    cmd0: dispatch
-      port map(
-         clk_i                      => clk,
-         comm_clk_i                 => comm_clk,
-         rst_i                      => rst,
+   port map(
+      clk_i        => clk,
+      comm_clk_i   => comm_clk,
+      rst_i        => rst,
 
-         lvds_cmd_i                 => lvds_cmd,
-         lvds_reply_o               => lvds_txa,
+      lvds_cmd_i   => lvds_cmd,
+      lvds_reply_o => lvds_txa,
 
-         dat_o                      => data,
-         addr_o                     => addr,
-         tga_o                      => tga,
-         we_o                       => we,
-         stb_o                      => stb,
-         cyc_o                      => cyc,
-         dat_i                      => slave_data,
-         ack_i                      => slave_ack,
-         err_i                      => slave_err,
+      dat_o        => data,
+      addr_o       => addr,
+      tga_o        => tga,
+      we_o         => we,
+      stb_o        => stb,
+      cyc_o        => cyc,
+      dat_i        => slave_data,
+      ack_i        => slave_ack,
+      err_i        => slave_err,
 
-         wdt_rst_o                  => wdog,
-         slot_i                     => slot_id,
+      wdt_rst_o    => wdog,
+      slot_i       => slot_id,
 
-         dip_sw3                    => '1',
-         dip_sw4                    => '1'
-      );
+      dip_sw3      => '1',
+      dip_sw4      => '1'
+   );
 
-    slot_id_slave: bp_slot_id
-       port map(
-          slot_id_i => slot_id,
-          clk_i  => clk,
-          rst_i  => rst,
+   i_all_cards: all_cards
+   generic map(
+      REVISION        => AC_REVISION,
+      CARD_TYPE       => AC_CARD_TYPE)
+   port map(
+      clk_i           => clk,
+      rst_i           => rst,
 
-          dat_i  => data,
-          addr_i => addr,
-          tga_i  => tga,
-          we_i   => we,
-          stb_i  => stb,
-          cyc_i  => cyc,
-          err_o  => slot_id_err,
-          dat_o  => slot_id_data,
-          ack_o  => slot_id_ack
-     );
+      dat_i           => data,
+      addr_i          => addr,
+      tga_i           => tga,
+      we_i            => we,
+      stb_i           => stb,
+      cyc_i           => cyc,
+      slot_id_i       => slot_id,
+      err_all_cards_o => all_cards_err,
+      qa_all_cards_o  => all_cards_data,
+      ack_all_cards_o => all_cards_ack
+   );
 
    leds_slave: leds
-      port map(
-         clk_i                      => clk,
-         rst_i                      => rst,
-
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => led_data,
-         ack_o                      => led_ack,
-
-         power                      => grn_led,
-         status                     => ylw_led,
-         fault                      => red_led
-      );
-
-   fw_rev_slave: fw_rev
-   generic map( REVISION => AC_REVISION)
    port map(
       clk_i  => clk,
       rst_i  => rst,
@@ -317,64 +320,67 @@ begin
       we_i   => we,
       stb_i  => stb,
       cyc_i  => cyc,
-      err_o  => fw_rev_err,
-      dat_o  => fw_rev_data,
-      ack_o  => fw_rev_ack
+      dat_o  => led_data,
+      ack_o  => led_ack,
+
+      power  => grn_led,
+      status => ylw_led,
+      fault  => red_led
    );
 
    ac_dac_ctrl_slave: ac_dac_ctrl
-      port map(
-         dac_data_o                 => dac_data,
-         dac_clks_o                 => dac_clk,
+   port map(
+      dac_data_o                => dac_data,
+      dac_clks_o                => dac_clk,
 
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => ac_dac_data,
-         ack_o                      => ac_dac_ack,
+      dat_i                     => data,
+      addr_i                    => addr,
+      tga_i                     => tga,
+      we_i                      => we,
+      stb_i                     => stb,
+      cyc_i                     => cyc,
+      dat_o                     => ac_dac_data,
+      ack_o                     => ac_dac_ack,
 
-         row_switch_i               => row_switch,
-         restart_frame_aligned_i    => restart_frame_aligned,
-         restart_frame_1row_prev_i  => restart_frame_1row_prev,
-         row_en_i                   => row_en,
+      row_switch_i              => row_switch,
+      restart_frame_aligned_i   => restart_frame_aligned,
+      restart_frame_1row_prev_i => restart_frame_1row_prev,
+      row_en_i                  => row_en,
 
-         clk_i                      => clk,
-         clk_i_n                    => clk_n,
-         clk_100_i                  => comm_clk,
-         rst_i                      => rst
-      );
+      clk_i                     => clk,
+      clk_i_n                   => clk_n,
+      clk_100_i                 => comm_clk,
+      rst_i                     => rst
+   );
 
    frame_timing_slave: frame_timing
-      port map(
-         dac_dat_en_o               => open,
-         adc_coadd_en_o             => open,
-         restart_frame_1row_prev_o  => restart_frame_1row_prev,
-         restart_frame_aligned_o    => restart_frame_aligned,
-         restart_frame_1row_post_o  => open,
-         initialize_window_o        => open,
+   port map(
+      dac_dat_en_o              => open,
+      adc_coadd_en_o            => open,
+      restart_frame_1row_prev_o => restart_frame_1row_prev,
+      restart_frame_aligned_o   => restart_frame_aligned,
+      restart_frame_1row_post_o => open,
+      initialize_window_o       => open,
 
-         row_switch_o               => row_switch,
-         row_en_o                   => row_en,
+      row_switch_o              => row_switch,
+      row_en_o                  => row_en,
 
-         update_bias_o              => open,
+      update_bias_o             => open,
 
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => frame_timing_data,
-         ack_o                      => frame_timing_ack,
+      dat_i                     => data,
+      addr_i                    => addr,
+      tga_i                     => tga,
+      we_i                      => we,
+      stb_i                     => stb,
+      cyc_i                     => cyc,
+      dat_o                     => frame_timing_data,
+      ack_o                     => frame_timing_ack,
 
-         clk_i                      => clk,
-         clk_n_i                    => clk_n,
-         rst_i                      => rst,
-         sync_i                     => lvds_sync
-      );
+      clk_i                     => clk,
+      clk_n_i                   => clk_n,
+      rst_i                     => rst,
+      sync_i                    => lvds_sync
+   );
 
    id_thermo0: id_thermo
    port map(
@@ -398,24 +404,24 @@ begin
 
    fpga_thermo0: fpga_thermo
    port map(
-      clk_i   => clk,
-      rst_i   => rst,
+      clk_i      => clk,
+      rst_i      => rst,
 
       -- Wishbone signals
-      dat_i   => data,
-      addr_i  => addr,
-      tga_i   => tga,
-      we_i    => we,
-      stb_i   => stb,
-      cyc_i   => cyc,
-      err_o   => fpga_thermo_err,
-      dat_o   => fpga_thermo_data,
-      ack_o   => fpga_thermo_ack,
+      dat_i      => data,
+      addr_i     => addr,
+      tga_i      => tga,
+      we_i       => we,
+      stb_i      => stb,
+      cyc_i      => cyc,
+      err_o      => fpga_thermo_err,
+      dat_o      => fpga_thermo_data,
+      ack_o      => fpga_thermo_ack,
 
       -- FPGA temperature chip signals
-      smbclk_o  => smb_clk,
+      smbclk_o   => smb_clk,
       smbalert_i => smb_nalert,
-      smbdat_io => smb_data
+      smbdat_io  => smb_data
    );
 
    dac_data0  <= dac_data(0);
@@ -432,9 +438,9 @@ begin
 
    with addr select
       slave_data <=
-         fw_rev_data       when FW_REV_ADDR,
+         all_cards_data    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_data          when LED_ADDR,
-         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR |
+         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR | CONST_MODE_ADDR | CONST_VAL_ADDR |
                                 FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
                                 FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
@@ -443,14 +449,13 @@ begin
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
-         slot_id_data      when SLOT_ID_ADDR,
          (others => '0')   when others;
 
    with addr select
       slave_ack <=
-         fw_rev_ack        when FW_REV_ADDR,
+         all_cards_ack     when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_ack           when LED_ADDR,
-         ac_dac_ack        when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR |
+         ac_dac_ack        when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR | CONST_MODE_ADDR | CONST_VAL_ADDR |
                                 FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
                                 FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
@@ -459,22 +464,21 @@ begin
          frame_timing_ack  when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
-         slot_id_ack       when SLOT_ID_ADDR,
          '0'               when others;
 
    with addr select
       slave_err <=
-         '0'               when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR |
+         '0'               when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | CONST_MODE_ADDR | CONST_VAL_ADDR |
+                                ROW_LEN_ADDR | NUM_ROWS_ADDR |
                                 SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR |
                                 FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
                                 FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                 FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
                                 FB_COL40_ADDR,
-         fw_rev_err        when FW_REV_ADDR,
+         all_cards_err     when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err   when FPGA_TEMP_ADDR,
-         slot_id_err       when SLOT_ID_ADDR,
          '1'               when others;
 
 end top;
