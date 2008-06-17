@@ -29,8 +29,14 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/08/18 17:06:52 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/05/29 21:22:55 $> - <initials $Author: bburger $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.8  2008/05/29 21:22:55  bburger
+-- BB:  added the w14_array41 data type for handling the data busses on the address card.
+--
+-- Revision 1.7  2008/01/21 19:40:19  bburger
+-- BB:  Added new types and subtypes for handling all the data/ clk busses on the Address Card (for sq2fb multiplexing)
+--
 -- Revision 1.6  2004/08/18 17:06:52  bburger
 -- Bryce:  added a word12
 --
@@ -85,11 +91,12 @@ package data_types_pack is
    subtype word64         is std_logic_vector(63 downto 0);
 
 
-   type    w_array11   is array (10 downto 0) of word14; -- for address card bus (just keep it for old code and test code's sake)
-   type    w1_array32 is array (31 downto 0) of word1; -- for address card bus (new naming convention)
-   type    w1_array41 is array (40 downto 0) of word1; -- for address card bus (new naming convention)
-   type    w14_array11 is array (10 downto 0) of word14; -- for address card bus (new naming convention)
-   type    w32_array32 is array (31 downto 0) of word32; -- for address card bus (new naming convention)
-   type    w32_array41 is array (40 downto 0) of word32; -- for address card bus (new naming convention)
-   type    int_array41 is array (40 downto 0) of integer; -- for address card rows
+   type w_array11   is array (10 downto 0) of word14; -- for address card bus (just keep it for old code and test code's sake)
+   type w1_array32  is array (31 downto 0) of word1; -- for address card bus (new naming convention)
+   type w1_array41  is array (40 downto 0) of word1; -- for address card bus (new naming convention)
+   type w14_array11 is array (10 downto 0) of word14; -- for address card bus (new naming convention)
+   type w14_array41 is array (40 downto 0) of word14; -- for piping constant/ multiplexed values to the bus arbitrator (Address Card)
+   type w32_array32 is array (31 downto 0) of word32; -- for address card bus (new naming convention)
+   type w32_array41 is array (40 downto 0) of word32; -- for address card bus (new naming convention)
+   type int_array41 is array (40 downto 0) of integer; -- for address card rows
 end data_types_pack;
