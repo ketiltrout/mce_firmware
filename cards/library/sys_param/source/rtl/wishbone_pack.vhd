@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/05/29 21:23:40 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/06/12 21:44:21 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.46  2008/06/12 21:44:21  bburger
+-- BB:  Added the const_val39 command, for ac_v02000007
+--
 -- Revision 1.45  2008/05/29 21:23:40  bburger
 -- BB:  added const_mode_addr and const_val_addr constants
 --
@@ -226,6 +229,7 @@ package wishbone_pack is
 
    constant CONST_MODE_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
    constant CONST_VAL_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
+   constant CONST_VAL39_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"08";
 
    ---------------------------------------------------------------------------------------
    -- Address Card Specific Parameter IDs
