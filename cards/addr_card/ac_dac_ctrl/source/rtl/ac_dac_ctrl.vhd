@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.15 2008/05/29 21:13:15 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.16 2008/06/12 21:43:12 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.16  2008/06/12 21:43:12  bburger
+-- BB:  Added support for const_val39, for revision ac_v02000007
+--
 -- Revision 1.15  2008/05/29 21:13:15  bburger
 -- BB:  Added support for const_mode and const_val commands, which allow a user to add any subset of the 41 DACs to a group that has one constant value latched out once.  The latching occurs when any of the following commands are issued:
 -- - mux_en
@@ -863,6 +866,10 @@ begin
                   val_wren_vec(tga_int)  <= '1';
                   -- We should update the constant outputs if either the mode bit or value changes.
                   val_changing           <= '1';
+               elsif(addr_i = CONST_VAL39_ADDR) then
+                  val_wren_vec(39)       <= '1';
+                  -- We should update the constant outputs if either the mode bit or value changes.
+                  val_changing           <= '1';
                end if;
             end if;
 
@@ -885,13 +892,14 @@ begin
    const_data <= const_data_vec(tga_int);
 
    dat_o <=
-      on_datab       when (addr_i = ON_BIAS_ADDR) else
-      off_datab      when (addr_i = OFF_BIAS_ADDR) else
-      mux_en_data    when (addr_i = ENBL_MUX_ADDR) else
-      row_order_data when (addr_i = ROW_ORDER_ADDR) else
-      mode_data      when (addr_i = CONST_MODE_ADDR) else
-      const_data     when (addr_i = CONST_VAL_ADDR) else
-      datab_mux      when ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR)) else
+      on_datab           when (addr_i = ON_BIAS_ADDR) else
+      off_datab          when (addr_i = OFF_BIAS_ADDR) else
+      mux_en_data        when (addr_i = ENBL_MUX_ADDR) else
+      row_order_data     when (addr_i = ROW_ORDER_ADDR) else
+      mode_data          when (addr_i = CONST_MODE_ADDR) else
+      const_data         when (addr_i = CONST_VAL_ADDR) else
+      const_data_vec(39) when (addr_i = CONST_VAL39_ADDR) else
+      datab_mux          when ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR)) else
       (others => '0');
 
    rd_cmd  <= '1' when
@@ -902,6 +910,7 @@ begin
          addr_i = ROW_ORDER_ADDR or
          addr_i = CONST_MODE_ADDR or
          addr_i = CONST_VAL_ADDR or
+         addr_i = CONST_VAL39_ADDR or
          ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR))) else '0';
 
    wr_cmd  <= '1' when
@@ -912,6 +921,7 @@ begin
          addr_i = ROW_ORDER_ADDR or
          addr_i = CONST_MODE_ADDR or
          addr_i = CONST_VAL_ADDR or
+         addr_i = CONST_VAL39_ADDR or
          ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR))) else '0';
 
    -----------------------------------------------------------------------
