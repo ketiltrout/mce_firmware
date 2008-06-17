@@ -28,8 +28,14 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/01/26 01:15:59 $> - <initials $Author: mandana $>
+-- <date $Date: 2008/05/29 21:23:40 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.45  2008/05/29 21:23:40  bburger
+-- BB:  added const_mode_addr and const_val_addr constants
+--
+-- Revision 1.44  2008/02/03 09:53:26  bburger
+-- BB:  Added parameter id's for the following commands:  CARDS_PRESENT_ADDR, CARDS_TO_REPORT_ADDR, SRAM_ADDR_ADDR, RET_DAT_CARD_ADDR_ADDR
+--
 -- Revision 1.43  2008/01/26 01:15:59  mandana
 -- added scratch!
 --
@@ -218,6 +224,9 @@ package wishbone_pack is
    constant OFF_BIAS_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"03";
    constant ENBL_MUX_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
 
+   constant CONST_MODE_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
+   constant CONST_VAL_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
+
    ---------------------------------------------------------------------------------------
    -- Address Card Specific Parameter IDs
    -- Do not change addresses in the following block because the AC uses the fact that they
@@ -233,37 +242,37 @@ package wishbone_pack is
    constant FB_COL7_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"C7";
    constant FB_COL8_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"C8";
    constant FB_COL9_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"C9";
-   constant FB_COL10_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CA";
-   constant FB_COL11_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CB";
-   constant FB_COL12_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CC";
-   constant FB_COL13_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CD";
-   constant FB_COL14_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CE";
-   constant FB_COL15_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CF";
-   constant FB_COL16_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D0";
-   constant FB_COL17_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D1";
-   constant FB_COL18_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D2";
-   constant FB_COL19_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D3";
-   constant FB_COL20_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D4";
-   constant FB_COL21_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D5";
-   constant FB_COL22_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D6";
-   constant FB_COL23_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D7";
-   constant FB_COL24_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D8";
-   constant FB_COL25_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D9";
-   constant FB_COL26_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DA";
-   constant FB_COL27_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DB";
-   constant FB_COL28_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DC";
-   constant FB_COL29_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DD";
-   constant FB_COL30_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DE";
-   constant FB_COL31_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DF";
-   constant FB_COL32_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E0";
-   constant FB_COL33_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E1";
-   constant FB_COL34_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E2";
-   constant FB_COL35_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E3";
-   constant FB_COL36_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E4";
-   constant FB_COL37_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E5";
-   constant FB_COL38_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E6";
-   constant FB_COL39_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E7";
-   constant FB_COL40_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E8";
+   constant FB_COL10_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CA";
+   constant FB_COL11_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CB";
+   constant FB_COL12_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CC";
+   constant FB_COL13_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CD";
+   constant FB_COL14_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CE";
+   constant FB_COL15_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"CF";
+   constant FB_COL16_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D0";
+   constant FB_COL17_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D1";
+   constant FB_COL18_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D2";
+   constant FB_COL19_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D3";
+   constant FB_COL20_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D4";
+   constant FB_COL21_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D5";
+   constant FB_COL22_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D6";
+   constant FB_COL23_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D7";
+   constant FB_COL24_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D8";
+   constant FB_COL25_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"D9";
+   constant FB_COL26_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DA";
+   constant FB_COL27_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DB";
+   constant FB_COL28_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DC";
+   constant FB_COL29_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DD";
+   constant FB_COL30_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DE";
+   constant FB_COL31_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"DF";
+   constant FB_COL32_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E0";
+   constant FB_COL33_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E1";
+   constant FB_COL34_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E2";
+   constant FB_COL35_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E3";
+   constant FB_COL36_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E4";
+   constant FB_COL37_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E5";
+   constant FB_COL38_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E6";
+   constant FB_COL39_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E7";
+   constant FB_COL40_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E8";
    ---------------------------------------------------------------------------------------
 
    ---------------------------------------------------------------------------------------
