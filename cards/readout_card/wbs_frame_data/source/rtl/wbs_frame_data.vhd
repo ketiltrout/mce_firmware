@@ -53,9 +53,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2008/06/17 20:40:03 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2008/06/19 22:36:45 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.32.2.1  2008/06/19 22:36:45  mandana
+-- raw mode readout enabled, obsolete mixed-mode filter data disabled as filter is already disabled for raw mode anyway.
+--
 -- Revision 1.32.2.1  2008/06/17 20:40:03  mandana
 -- raw mode readout enabled, obsolete mixed-mode filter data disabled as filter is already disabled for raw mode anyway.
 --
@@ -600,7 +603,7 @@ begin
          
          if (addr_i /= RET_DAT_ADDR) then -- both rw for datamode & readout_row_index, only read for captr_raw
             wb_ack <= (stb_i and cyc_i);
-         else        
+         -- else        
             dec_raw_addr <= '1';
          end if;
          
