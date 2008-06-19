@@ -29,7 +29,7 @@
 -- 
 -- This block instantiates several registers for the following parameters:
 -- 
--- a. filter_coeff      -seven values in total   
+-- a. filter_coeff      -seven values in total   (commented)
 -- b. servo_mode        
 -- c. ramp_step_size    
 -- d. ramp_amp          
@@ -39,7 +39,7 @@
 -- h. offset_dat        -one for each channel-
 --
 -- These registers are defined using an array of std_logic_vector, i.e., "reg".  The index
--- of this array is as follows for each parameter:
+-- of this array is as follows for each parameter: (see the code, slightly reordered from this list)
 -- reg(0)  = filter_coeff0
 -- reg(1)  = filter_coeff1
 -- reg(2)  = filter_coeff2
@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.13.2.1  2008/02/15 22:26:56  mandana
+-- commented filt_coeff as it is not supported and causes timing problems for now.
+--
 -- Revision 1.13  2006/12/12 21:44:57  mandana
 -- fixed bug in writing servo_mode for column 0
 --
@@ -281,8 +284,9 @@ architecture rtl of misc_banks_admin is
   constant SA_BIAS_INDEX_OFFSET    : integer := 26;   -- Index of sa_bias in array register
   constant OFFSET_DAT_INDEX_OFFSET : integer := 34;   -- Index of offset_dat in array register
   constant EN_FB_JUMP_OFFSET       : integer := 42;   -- Index of enable flag for the flux-jumping block
-  constant FILTER_INDEX_OFFSET     : integer := 43;   -- Index of filter_coeff in array register (2 values common for all channels)
-  constant MISC_BANK_MAX_RANGE     : integer := 51;   -- Maximum number of parameters in the Miscellanous bank
+  --constant FILTER_INDEX_OFFSET     : integer := 43;   -- Index of filter_coeff in array register (2 values common for all channels)
+  --constant MISC_BANK_MAX_RANGE     : integer := 51;   -- Maximum number of parameters in the Miscellanous bank
+  constant MISC_BANK_MAX_RANGE     : integer := 43;   -- Maximum number of parameters in the Miscellanous bank
  
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
 
@@ -543,7 +547,7 @@ begin  -- rtl
     offset_dat                    when OFFSET_ADDR,
     fb_const                      when FB_CONST_ADDR,
     reg(EN_FB_JUMP_OFFSET)        when EN_FB_JUMP_ADDR,
-    filter_coeff                  when others;           -- default to first value in bank
+    servo_dat                     when others;           -- default to first value in bank
   
 
   -----------------------------------------------------------------------------
