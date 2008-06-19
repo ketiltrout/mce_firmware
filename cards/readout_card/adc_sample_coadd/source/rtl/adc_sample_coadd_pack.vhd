@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.5  2005/06/23 17:26:51  mohsen
+-- MA/BB: RAW_DATA_POSITION_POINTER changed from 8 to 14
+--
 -- Revision 1.4  2004/12/13 21:03:01  mohsen
 -- Reduced the word size of RAW data storage from 16 to 8.  This is as the result of
 -- the memroy shortage in the Stratix EP1S30 with the current design of the readout card.
@@ -73,8 +76,8 @@ package adc_sample_coadd_pack is
   constant TOTAL_ROW_NO              : integer := 64;
   constant FSFB_DONE_DLY             : integer := 6;
   constant NUMB_RAW_FRM_TO_GRAB      : integer := 2;                    -- =#of raw frames to grab
-  constant USED_RAW_DAT_WIDTH        : integer := 8;                    -- Number of ADC output bits to be saved
-  constant RAW_DATA_POSITION_POINTER : integer := 14;--USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
+  constant USED_RAW_DAT_WIDTH        : integer := 14;                    -- Number of ADC output bits to be saved
+  constant RAW_DATA_POSITION_POINTER : integer := 13;--USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
   
 
   
@@ -84,12 +87,12 @@ package adc_sample_coadd_pack is
 
   component raw_dat_bank
     port (
-      data      : in  std_logic_vector (7 downto 0);
+      data      : in  std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
       wren      : in  std_logic;
-      wraddress : in  std_logic_vector (12 downto 0);
-      rdaddress : in  std_logic_vector (12 downto 0);
+      wraddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+      rdaddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
       clock     : in  std_logic;
-      q         : out std_logic_vector (7 downto 0));
+      q         : out std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0));
   end component;
 
   
@@ -104,7 +107,7 @@ package adc_sample_coadd_pack is
       rst_i        : in  std_logic;
       clk_i        : in  std_logic;
       clr_index_i  : in  std_logic;
-      addr_index_o : out std_logic_vector (12 downto 0));
+      addr_index_o : out std_logic_vector (ADDR_WIDTH-1 downto 0));
   end component;
 
 
