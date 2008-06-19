@@ -66,6 +66,9 @@
 --
 -- Revision history:
 -- $Log: pid_ram_admin.vhd,v $
+-- Revision 1.3  2006/09/25 23:21:02  mandana
+-- changed PIDZ_DATA_WIDTH from 8b to 10b
+--
 -- Revision 1.2  2005/12/13 00:48:01  mandana
 -- removed range checking to remove substancial extra logic, RTL takes care of range checking
 -- modified sign_8_xtnd_to_32 to sign_xtnd_to_32 to work with PIDZ_DATA_WIDTH instead of 8
@@ -205,11 +208,11 @@ begin  -- rtl
     rdaddress_b => addr_ch0_i,                      -- from flux_loop_ctrl ch0
     wren        => wren0,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa0,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa0,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb0);                        -- to flux_loop_ctrl ch0
 
---  qa0 <= (others => '0');     -- Decided not to have access through
+  qa0 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -222,12 +225,12 @@ begin  -- rtl
     rdaddress_b => addr_ch1_i,                      -- from flux_loop_ctrl ch1
     wren        => wren1,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa1,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa1,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb1);                      -- to flux_loop_ctrl ch1
 
 
---  qa1 <= (others => '0');     -- Decided not to have access through
+  qa1 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -240,12 +243,12 @@ begin  -- rtl
     rdaddress_b => addr_ch2_i,                      -- from flux_loop_ctrl ch2
     wren        => wren2,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa2,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa2,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb2);                      -- to flux_loop_ctrl ch2
 
 
---  qa2 <= (others => '0');     -- Decided not to have access through
+  qa2 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -258,12 +261,12 @@ begin  -- rtl
     rdaddress_b => addr_ch3_i,                      -- from flux_loop_ctrl ch3
     wren        => wren3,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa3,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa3,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb3);                      -- to flux_loop_ctrl ch3
 
 
---  qa3 <= (others => '0');     -- Decided not to have access through
+  qa3 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -276,12 +279,12 @@ begin  -- rtl
     rdaddress_b => addr_ch4_i,                      -- from flux_loop_ctrl ch4
     wren        => wren4,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa4,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa4,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb4);                      -- to flux_loop_ctrl ch4
 
 
---  qa4 <= (others => '0');     -- Decided not to have access through
+  qa4 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -294,12 +297,12 @@ begin  -- rtl
     rdaddress_b => addr_ch5_i,                      -- from flux_loop_ctrl ch5
     wren        => wren5,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa5,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa5,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb5);                      -- to flux_loop_ctrl ch5
  
 
---  qa5 <= (others => '0');     -- Decided not to have access through
+  qa5 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -312,12 +315,12 @@ begin  -- rtl
     rdaddress_b => addr_ch6_i,                      -- from flux_loop_ctrl ch6
     wren        => wren6,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa6,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa6,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb6);                      -- to flux_loop_ctrl ch6
 
 
---  qa6 <= (others => '0');     -- Decided not to have access through
+  qa6 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -330,12 +333,12 @@ begin  -- rtl
     rdaddress_b => addr_ch7_i,                      -- from flux_loop_ctrl ch7
     wren        => wren7,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa7,                              -- not used anymore
---    qa          => open,                              -- not used anymore
+--    qa          => qa7,                              -- not used anymore
+    qa          => open,                              -- not used anymore
     qb          => qb7);                      -- to flux_loop_ctrl ch7
 
 
---  qa7 <= (others => '0');     -- Decided not to have access through
+  qa7 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
