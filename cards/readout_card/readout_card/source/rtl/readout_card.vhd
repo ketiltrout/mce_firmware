@@ -31,6 +31,18 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.70  2008/06/17 20:21:19  mandana
+-- revision 4.1.7, raw mode active, filter disabled, pid write only
+--
+-- Revision 1.69  2008/02/15 22:32:17  mandana
+-- bugfix: unreliable reset due to unsafe and incomplete state machines is fixed.
+-- bugfix: flux_jump sign problem fixed
+-- servo_mode=2 or ramp previously only went from 0 to ramp_amp, but now goes from -8192 to -8192+ramp_amp
+--  new commands are added: scratch and card_type. Scratch takes 8 values and can be used by software to detect reset.
+-- slot_id and fw_rev are now integrated as part of all_cards.vhd
+-- lvds_tx_b=0, This will allow Clock Card to use the secondary backplane lvds line and check whether RC is plugged in.
+-- filter_coeff commented in misc_banks_admin
+--
 -- Revision 1.68  2007/11/01 18:53:47  mandana
 -- 4.0.5: data mode 8 is replaced by data mode 9 with new windowing of filtered data
 --
@@ -394,7 +406,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000006"; -- added data_mode 8 for mixed filter+flux count mode - windowing readjusted!
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04010007"; -- added data_mode 8 for mixed filter+flux count mode - windowing readjusted!
                                                                      -- 10b pid pars
 
 -- Global signals
