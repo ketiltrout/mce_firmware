@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.61 2008/06/12 21:45:07 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.61 2008/06/17 19:00:52 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.61  2008/06/17 19:00:52  bburger
+-- BB:  Added a couple of cases for testing const_val39
+--
 -- Revision 1.61  2008/06/12 21:45:07  bburger
 -- BB:  Added a couple of cases for testing const_val39
 --
@@ -230,7 +233,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
 
       box_id_in         : in std_logic;
       box_id_out        : out std_logic;
-      box_id_ena        : out std_logic;
+      box_id_ena_n      : out std_logic;
 
       extend_n          : in std_logic;
 
@@ -1489,7 +1492,7 @@ begin
          array_id         => "001",
          box_id_in        => '0',
          box_id_out       => open,
-         box_id_ena       => open,
+         box_id_ena_n     => open,
 
          extend_n         => '0',
 
