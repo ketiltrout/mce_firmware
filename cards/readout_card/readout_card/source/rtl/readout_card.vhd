@@ -403,7 +403,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04020007"; -- added data_mode 8 for mixed filter+flux count mode - windowing readjusted!
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04030007"; -- added data_mode 8 for mixed filter+flux count mode - windowing readjusted!
                                                                      -- 10b pid pars
 
 -- Global signals
