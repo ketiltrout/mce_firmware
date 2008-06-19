@@ -1103,6 +1103,11 @@ set_global_assignment -name AUTO_PACKED_REGISTERS_CYCLONE NORMAL
 set_global_assignment -name AUTO_PACKED_REGISTERS NORMAL
 set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING OFF
 set_global_assignment -name DO_COMBINED_ANALYSIS OFF
+set_global_assignment -name SAFE_STATE_MACHINE ON
+set_global_assignment -name INCREMENTAL_COMPILATION OFF
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
+set_global_assignment -name SEED 1
+set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -1206,9 +1211,4 @@ set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
 set_global_assignment -name SIGNALTAP_FILE ../../fsfb_calc/source/rtl/raw.stp
 set_global_assignment -name SIGNALTAP_FILE raw.stp
-set_global_assignment -name SAFE_STATE_MACHINE ON
-set_global_assignment -name INCREMENTAL_COMPILATION OFF
-set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS OUTPUT DRIVING AN UNSPECIFIED SIGNAL"
-set_global_assignment -name SEED 1
-set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
