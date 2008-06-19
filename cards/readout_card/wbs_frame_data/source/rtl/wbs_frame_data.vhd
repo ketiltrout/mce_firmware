@@ -53,9 +53,15 @@
 
 --
 -- Revision history:
--- <date $Date: 2007/10/31 20:30:37 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2008/06/17 20:40:03 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.32.2.1  2008/06/17 20:40:03  mandana
+-- raw mode readout enabled, obsolete mixed-mode filter data disabled as filter is already disabled for raw mode anyway.
+--
+-- Revision 1.32  2008/02/15 22:24:48  mandana
+-- data_mode 6 is skipped, as 7 is more elegant
+--
 -- Revision 1.31  2007/10/31 20:30:37  mandana
 -- data mode 8 is replaced by data mode 9 with new windowing of filtered data
 --
@@ -720,12 +726,12 @@ begin
        wbs_data     <= error_dat      when "0000",
                        unfiltered_dat when "0001",
                        filtered_dat   when "0010",
-                       -- raw_dat        when "0011",
+                       raw_dat        when "0011",
                        fb_error_dat   when "0100",
                        fb_flx_cnt_dat when "0101",
                        --filtfb_error_dat   when "0110", -- 0110 is skipped, as 0111 is a better solution
-                       filtfb_error_2_dat when "0111",
-                       filtfb_flx_cnt_dat when "1001", -- 1000 is skipped, see note below.
+                      -- filtfb_error_2_dat when "0111",
+                      -- filtfb_flx_cnt_dat when "1001", -- 1000 is skipped, see note below.
                        error_dat        when others;
                  
   
@@ -824,52 +830,52 @@ begin
 --                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & 
 --                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
 
-   with ch_mux_sel select
-      filtfb_error_2_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 7) & 
-                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 4) when "000",
-                        
-                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 7) & 
-                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 4) when "001",
-                        
-                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 7) & 
-                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 4) when "010",
-                        
-                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 7) & 
-                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 4) when "011",
-                        
-                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 7) & 
-                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 4) when "100",
-                        
-                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 7) & 
-                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 4) when "101",
-                        
-                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 7) & 
-                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 4) when "110",
-                        
-                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 7) & 
-                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 4) when others;
+--   with ch_mux_sel select
+--      filtfb_error_2_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 7) & 
+--                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 4) when "000",
+--                        
+--                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 7) & 
+--                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 4) when "001",
+--                        
+--                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 7) & 
+--                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 4) when "010",
+--                        
+--                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 7) & 
+--                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 4) when "011",
+--                        
+--                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 7) & 
+--                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 4) when "100",
+--                        
+--                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 7) & 
+--                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 4) when "101",
+--                        
+--                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 7) & 
+--                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 4) when "110",
+--                        
+--                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 7) & 
+--                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 4) when others;
 
-   with ch_mux_sel select
-      filtfb_flx_cnt_dat <= 
-                        filtered_dat_ch0_i(31) & filtered_dat_ch0_i(23 downto 1) & flux_cnt_dat_ch0_i when "000",
-                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(23 downto 1) & flux_cnt_dat_ch1_i when "001",
-                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(23 downto 1) & flux_cnt_dat_ch2_i when "010",
-                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(23 downto 1) & flux_cnt_dat_ch3_i when "011",
-                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(23 downto 1) & flux_cnt_dat_ch4_i when "100",
-                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(23 downto 1) & flux_cnt_dat_ch5_i when "101",
-                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(23 downto 1) & flux_cnt_dat_ch6_i when "110",
-                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(23 downto 1) & flux_cnt_dat_ch7_i when others;
+--   with ch_mux_sel select
+--      filtfb_flx_cnt_dat <= 
+--                        filtered_dat_ch0_i(31) & filtered_dat_ch0_i(23 downto 1) & flux_cnt_dat_ch0_i when "000",
+--                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(23 downto 1) & flux_cnt_dat_ch1_i when "001",
+--                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(23 downto 1) & flux_cnt_dat_ch2_i when "010",
+--                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(23 downto 1) & flux_cnt_dat_ch3_i when "011",
+--                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(23 downto 1) & flux_cnt_dat_ch4_i when "100",
+--                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(23 downto 1) & flux_cnt_dat_ch5_i when "101",
+--                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(23 downto 1) & flux_cnt_dat_ch6_i when "110",
+--                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(23 downto 1) & flux_cnt_dat_ch7_i when others;
                         
 
---   with raw_ch_mux_sel select
---      raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
---                        sxt(raw_dat_ch1_i, raw_dat'length) when "001", 
---                        sxt(raw_dat_ch2_i, raw_dat'length) when "010",
---                        sxt(raw_dat_ch3_i, raw_dat'length) when "011",
---                        sxt(raw_dat_ch4_i, raw_dat'length) when "100",
---                        sxt(raw_dat_ch5_i, raw_dat'length) when "101",
---                        sxt(raw_dat_ch6_i, raw_dat'length) when "110",
---                        sxt(raw_dat_ch7_i, raw_dat'length) when others;
+   with raw_ch_mux_sel select
+      raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
+                        sxt(raw_dat_ch1_i, raw_dat'length) when "001", 
+                        sxt(raw_dat_ch2_i, raw_dat'length) when "010",
+                        sxt(raw_dat_ch3_i, raw_dat'length) when "011",
+                        sxt(raw_dat_ch4_i, raw_dat'length) when "100",
+                        sxt(raw_dat_ch5_i, raw_dat'length) when "101",
+                        sxt(raw_dat_ch6_i, raw_dat'length) when "110",
+                        sxt(raw_dat_ch7_i, raw_dat'length) when others;
                         
 -------------------------------------------------------------------------------------------------
 --                      Data Mode & Readout Row Index Register
