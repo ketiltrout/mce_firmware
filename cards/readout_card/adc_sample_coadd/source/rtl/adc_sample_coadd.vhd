@@ -109,6 +109,18 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.6.2.3  2008/06/19 23:48:14  mandana
+-- increase raw_dat from 8 bit to 14 bit
+--
+-- Revision 1.6.2.2  2007/02/19 20:10:08  mandana
+-- sign-extend raw-data
+--
+-- Revision 1.6.2.1  2006/04/10 19:49:03  mandana
+-- RAM storage for raw mode is enabled.
+--
+-- Revision 1.6  2005/11/28 18:56:25  bburger
+-- Bryce:  Raw data queue removed to make room from flux-jumping & signal tap
+--
 -- Revision 1.5  2004/12/20 19:43:01  mohsen
 -- fixed sign bits usage
 --
@@ -246,9 +258,9 @@ begin  -- struc
   -- The following statement is used to select part of the accuracy of the ADC.
   -- Based on the value of RAW_DATA_POSITION_POINTER, we select part of the
   -- ADC 14-bit output
-  raw_dat   <= adc_dat_i(ADC_DAT_WIDTH-1) & adc_dat_i(RAW_DATA_POSITION_POINTER-2 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
+  raw_dat   <= adc_dat_i; --(ADC_DAT_WIDTH-1) & adc_dat_i(RAW_DATA_POSITION_POINTER-2 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
   
-  raw_dat_o <= (ZERO_PAD & raw_dat_out);  -- zero pad to match the width expected by wbs_frame_data
+  raw_dat_o <= sxt(raw_dat_out, raw_dat_o'length);  -- sign extend to match the width expected by wbs_frame_data
 
   
   -----------------------------------------------------------------------------
@@ -266,7 +278,6 @@ begin  -- struc
   -- Instantiation of the Raw data bank
   -----------------------------------------------------------------------------
 
---  Bryce:  Commented this out so that I could fit signaltap logic into an 8-channel synthesis.
 --  i_raw_dat_bank: raw_dat_bank
 --
 --    port map (
