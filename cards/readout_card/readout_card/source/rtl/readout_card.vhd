@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.72  2008/06/19 23:57:24  mandana
+-- revision 4.3.7, 14-bit raw mode active, filter disabled, pid write only
+--
 -- Revision 1.69  2008/02/15 22:32:17  mandana
 -- bugfix: unreliable reset due to unsafe and incomplete state machines is fixed.
 -- bugfix: flux_jump sign problem fixed
@@ -403,8 +406,8 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04030007"; -- added data_mode 8 for mixed filter+flux count mode - windowing readjusted!
-                                                                     -- 10b pid pars
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000008"; -- 12b pid pars, 
+                                                                     -- fixed gainpid-read failure upon power-up (prior to reset)
 
 -- Global signals
 signal clk                     : std_logic;  -- system clk
