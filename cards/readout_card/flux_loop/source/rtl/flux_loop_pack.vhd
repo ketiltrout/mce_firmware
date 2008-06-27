@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.14  2007/10/31 20:11:13  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
+--
 -- Revision 1.13  2006/12/11 18:05:02  mandana
 -- Added per-column servo-mode ports for fsfb_corr interface
 --
@@ -103,7 +106,7 @@ package flux_loop_pack is
   constant ADC_OFFSET_ADDR_WIDTH  : integer := 6;                    -- memory used has 2**6 locations 
   
   constant PIDZ_ADDR_WIDTH        : integer := 6;                    -- Note that same memory storage element is used for PIDZ and ADC_OFFSET and FLUX_QUANTA
-  constant PIDZ_DATA_WIDTH        : integer := 8;
+  constant PIDZ_DATA_WIDTH        : integer := 12;
   constant PIDZ_MAX               : integer := (2**(PIDZ_DATA_WIDTH-1))-1;
   constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
   
