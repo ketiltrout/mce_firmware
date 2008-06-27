@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.73  2008/06/27 18:38:50  mandana
+-- rev. 4.0.8
+-- increased pid width to 12 bits
+-- fixed gainpid-read failure upon power-up (prior to reset)
+--
 -- Revision 1.72  2008/06/19 23:57:24  mandana
 -- revision 4.3.7, 14-bit raw mode active, filter disabled, pid write only
 --
@@ -406,9 +411,8 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000008"; -- 12b pid pars, 
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000009"; -- 14b pid pars , sa_bias/offset updated only when modified
                                                                      -- fixed gainpid-read failure upon power-up (prior to reset)
-
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
