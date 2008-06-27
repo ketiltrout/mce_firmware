@@ -68,13 +68,13 @@ set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "IO PATHS AND MINIMUM TPD PATHS"
-set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
+set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION AUTOMATICALLY
 set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
-set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX "MINIMIZE AREA"
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX NORMAL
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
 set_instance_assignment -name IO_STANDARD LVDS -to adc1_clk
@@ -1106,8 +1106,9 @@ set_global_assignment -name DO_COMBINED_ANALYSIS OFF
 set_global_assignment -name SAFE_STATE_MACHINE ON
 set_global_assignment -name INCREMENTAL_COMPILATION OFF
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
-set_global_assignment -name SEED 1
+set_global_assignment -name SEED 2
 set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -1134,6 +1135,7 @@ set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/par
 set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl_pack.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
@@ -1197,11 +1199,10 @@ set_global_assignment -name VHDL_FILE ../../pll/source/rtl/rc_pll.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_storage.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/pid_ram.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_14x64.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/pid_ram_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_10x64.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/misc_banks_admin.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.vhd
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
@@ -1211,4 +1212,8 @@ set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
 set_global_assignment -name SIGNALTAP_FILE ../../fsfb_calc/source/rtl/raw.stp
 set_global_assignment -name SIGNALTAP_FILE raw.stp
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk2"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk3"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk4"
+set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
