@@ -32,6 +32,12 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.7  2007/10/31 20:03:46  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify higher blocks when these are updated
+--
+-- Revision 1.6.2.1  2007/03/01 17:30:04  mandana
+-- 10b ram for pid coeffs
+--
 -- Revision 1.6  2006/12/05 22:36:09  mandana
 -- split the servo_mode to be column specific
 --
@@ -99,16 +105,16 @@ package wbs_fb_data_pack is
   end component;
 
 
-  component ram_8x64
+  component pid_ram
     port (
-      data        : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
-      wraddress   : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_a : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_b : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
+      data        : IN  STD_LOGIC_VECTOR (PIDZ_DATA_WIDTH-1 DOWNTO 0);
+      wraddress   : IN  STD_LOGIC_VECTOR (PIDZ_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_a : IN  STD_LOGIC_VECTOR (PIDZ_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_b : IN  STD_LOGIC_VECTOR (PIDZ_ADDR_WIDTH-1 DOWNTO 0);
       wren        : IN  STD_LOGIC := '1';
       clock       : IN  STD_LOGIC;
-      qa          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-      qb          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0));
+      qa          : OUT STD_LOGIC_VECTOR (PIDZ_DATA_WIDTH-1 DOWNTO 0);
+      qb          : OUT STD_LOGIC_VECTOR (PIDZ_DATA_WIDTH-1 DOWNTO 0));
   end component;
 
   component ram_14x64
