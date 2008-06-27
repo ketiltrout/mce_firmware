@@ -66,6 +66,9 @@
 --
 -- Revision history:
 -- $Log: pid_ram_admin.vhd,v $
+-- Revision 1.3  2006/09/25 23:21:02  mandana
+-- changed PIDZ_DATA_WIDTH from 8b to 10b
+--
 -- Revision 1.2  2005/12/13 00:48:01  mandana
 -- removed range checking to remove substancial extra logic, RTL takes care of range checking
 -- modified sign_8_xtnd_to_32 to sign_xtnd_to_32 to work with PIDZ_DATA_WIDTH instead of 8
@@ -176,7 +179,7 @@ architecture rtl of pid_ram_admin is
   signal ack_write_bank : std_logic;
   
   signal dat : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
-
+  
   
 begin  -- rtl
 
@@ -197,7 +200,7 @@ begin  -- rtl
   dat_ch6_o <= sign_xtnd_to_32(qb6);
   dat_ch7_o <= sign_xtnd_to_32(qb7);
   
-  i_bank_ch0 : ram_10x64
+  i_bank_ch0 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -214,7 +217,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch1 : ram_10x64
+  i_bank_ch1 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -232,7 +235,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
   
-  i_bank_ch2 : ram_10x64
+  i_bank_ch2 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -250,7 +253,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch3 : ram_10x64
+  i_bank_ch3 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -268,7 +271,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch4 : ram_10x64
+  i_bank_ch4 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -286,7 +289,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch5 : ram_10x64
+  i_bank_ch5 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -304,7 +307,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch6 : ram_10x64
+  i_bank_ch6 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -322,7 +325,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch7 : ram_10x64
+  i_bank_ch7 : pid_ram
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -415,7 +418,7 @@ begin  -- rtl
   -- Acknowlege signals
   i_gen_ack: process (clk_50_i, rst_i)
     
-    variable count : integer;           -- counts number of clock cycles passed
+    variable count : integer :=0;           -- counts number of clock cycles passed
     
   begin  -- process i_gen_ack
     if rst_i = '1' then                 -- asynchronous reset (active high)
@@ -494,11 +497,12 @@ begin  -- rtl
             if count=2 then
                ack_read_bank <= '1';
                count:=0;
+            else 
+               ack_read_bank <= '0';
             end if;
          else
             ack_read_bank <= '0';
-         end if;
-        
+         end if;      
         
       else
          ack_read_bank <= '0';        
@@ -508,7 +512,15 @@ begin  -- rtl
     end if;
   end process i_gen_ack;
 
-
+  -- read acknowledge
+  
+--  with addr_i select
+--    ack_read_bank <=
+--    (stb_i and cyc_i and (not we_i) and read_valid) when 
+--                    GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR | GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR | GAINP6_ADDR | GAINP7_ADDR|
+--                    GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR | GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR | GAINI6_ADDR | GAINI7_ADDR|
+--                    GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR | GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR | GAIND6_ADDR | GAIND7_ADDR,
+--    '0'                                             when others;
 
   
   -----------------------------------------------------------------------------
