@@ -65,7 +65,14 @@
 --
 --
 -- Revision history:
--- $Log$
+-- $Log: flux_quanta_ram_admin.vhd,v $
+-- Revision 1.1.2.1  2007/03/21 18:11:58  mandana
+-- removed conv_int calls, only process FLUX_QUANTA_DATA_WIDTH bits out of Wishbone data. use sign-extend functions
+--
+-- Revision 1.1  2005/09/15 00:03:59  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 --
 --
 ------------------------------------------------------------------------
@@ -165,7 +172,6 @@ architecture rtl of flux_quanta_ram_admin is
   signal ack_write_bank : std_logic;
   
   signal dat : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
-  constant SIGN_XTND_POS : std_logic_vector(WB_DATA_WIDTH-FLUX_QUANTA_DATA_WIDTH-1 downto 0) := (others => '0');
   
 begin  -- rtl
 
@@ -174,18 +180,16 @@ begin  -- rtl
   -- Instantiation of P Banks
   -----------------------------------------------------------------------------
 
-  dat <= (others => '0') when conv_integer(signed(dat_i)) < FLUX_QUANTA_MIN else
-         (others => '1') when conv_integer(signed(dat_i)) > FLUX_QUANTA_MAX else 
-         dat_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+  dat <= dat_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
   
-  dat_ch0_o <= SIGN_XTND_POS & qb0; 
-  dat_ch1_o <= SIGN_XTND_POS & qb1;
-  dat_ch2_o <= SIGN_XTND_POS & qb2;
-  dat_ch3_o <= SIGN_XTND_POS & qb3;
-  dat_ch4_o <= SIGN_XTND_POS & qb4;
-  dat_ch5_o <= SIGN_XTND_POS & qb5;
-  dat_ch6_o <= SIGN_XTND_POS & qb6;
-  dat_ch7_o <= SIGN_XTND_POS & qb7;
+  dat_ch0_o <= sxt( qb0, dat_ch0_o'length); 
+  dat_ch1_o <= sxt( qb1, dat_ch1_o'length);
+  dat_ch2_o <= sxt( qb2, dat_ch2_o'length);
+  dat_ch3_o <= sxt( qb3, dat_ch3_o'length);
+  dat_ch4_o <= sxt( qb4, dat_ch4_o'length);
+  dat_ch5_o <= sxt( qb5, dat_ch5_o'length);
+  dat_ch6_o <= sxt( qb6, dat_ch6_o'length);
+  dat_ch7_o <= sxt( qb7, dat_ch7_o'length);
   
   i_bank_ch0 : ram_14x64
     port map (
@@ -449,16 +453,14 @@ begin  -- rtl
   ack_bank_o <= ack_write_bank or ack_read_bank;
   
   qa_bank_o <=
-     SIGN_XTND_POS & qa0 when addr_i = FLX_QUANTA0_ADDR else
-     SIGN_XTND_POS & qa1 when addr_i = FLX_QUANTA1_ADDR else
-     SIGN_XTND_POS & qa2 when addr_i = FLX_QUANTA2_ADDR else
-     SIGN_XTND_POS & qa3 when addr_i = FLX_QUANTA3_ADDR else
-     SIGN_XTND_POS & qa4 when addr_i = FLX_QUANTA4_ADDR else
-     SIGN_XTND_POS & qa5 when addr_i = FLX_QUANTA5_ADDR else
-     SIGN_XTND_POS & qa6 when addr_i = FLX_QUANTA6_ADDR else
-     SIGN_XTND_POS & qa7 when addr_i = FLX_QUANTA7_ADDR else
-     SIGN_XTND_POS & qa0; -- default to ch0
-
-  
-  
+     sxt(qa0, qa_bank_o'length) when addr_i = FLX_QUANTA0_ADDR else
+     sxt(qa1, qa_bank_o'length) when addr_i = FLX_QUANTA1_ADDR else
+     sxt(qa2, qa_bank_o'length) when addr_i = FLX_QUANTA2_ADDR else
+     sxt(qa3, qa_bank_o'length) when addr_i = FLX_QUANTA3_ADDR else
+     sxt(qa4, qa_bank_o'length) when addr_i = FLX_QUANTA4_ADDR else
+     sxt(qa5, qa_bank_o'length) when addr_i = FLX_QUANTA5_ADDR else
+     sxt(qa6, qa_bank_o'length) when addr_i = FLX_QUANTA6_ADDR else
+     sxt(qa7, qa_bank_o'length) when addr_i = FLX_QUANTA7_ADDR else
+     sxt(qa0, qa_bank_o'length); -- default to ch0
+    
 end rtl;
