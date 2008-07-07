@@ -20,45 +20,17 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.54 2008/01/28 20:25:25 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.55 2008/02/03 09:44:34 bburger Exp $>
 --
 -- Project:       SCUBA-2
--- Author:        Jonathan Jacob
+-- Author:        Jonathan Jacob, re-vamped by Bryce Burger
 --
 -- Organisation:  UBC
 --
 -- Description:  This module is the fibre command translator.
 --
 -- Revision history:
---
--- <date $Date: 2008/01/28 20:25:25 $> -     <text>      - <initials $Author: bburger $>
---
--- $Log: cmd_translator.vhd,v $
--- Revision 1.54  2008/01/28 20:25:25  bburger
--- BB:
--- - renamed fsm states and signals to make them more descriptive
--- - added an interface signal called override_sync_num_o which the cmd_translator asserts to tell the cmd_queue to issues a final ret_dat immediately
--- - this code now supports REQ_LAST_DATA_PACKET commands
---
--- Revision 1.53  2007/09/20 19:35:59  bburger
--- BB:  Commented the port declaration
---
--- Revision 1.52  2007/09/05 03:39:53  bburger
--- BB:  changed TES_BIAS_DATA_SIZE to step_data_num_i
---
--- Revision 1.51  2007/08/30 18:31:08  bburger
--- BB:  A default assignment to ramp_val was missing from its process.  Now added.
---
--- Revision 1.50  2007/08/28 23:19:22  bburger
--- BB:
--- - Added functionality to cmd_translator for issuing ramp commands to any card/parameter
--- - Amalgamated the internal command modes into a single register
---
--- Revision 1.49  2007/07/24 22:11:03  bburger
--- BB:  cmd_translator is completely re-written:  arbiter, ret_dat, simple and internal have all be amalgamated to make implementing internal commands possible while conserving timing of ret_dat commands.
---
--- Revision 1.48  2006/11/03 23:02:43  bburger
--- Bryce:  issue_reply now waits until the after the last data packet to send the reply to a stop command.
+-- <date $Date: 2008/02/03 09:44:34 $> -     <text>      - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -178,8 +150,6 @@ architecture rtl of cmd_translator is
    -- For indicating a continuous data run
    signal ret_dat_in_progress : std_logic;
 
-   -- Fibre_rx will be ack'd immediately upon starting a data run in the cmd_translator.
-   -- This is to avoid tying it up during a data run -- it will thus be responsive to simple commands during a data run.
    signal f_rx_ret_dat_ack : std_logic;
    signal f_rx_card_addr   : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal f_rx_param_id    : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
@@ -322,7 +292,9 @@ begin
             ramp_value <= ramp_value;
          end if;
 
-         -- Latch important command information
+         -- Latch important command information response to the cmd_queue's cmd_rdy signal
+         -- There may be some problems with this, particularly if new commands come in and overwrite the old
+         -- This is possible if a data acquisition is started and then a stop command is sent too quickly afterward, maybe.
          if(cmd_rdy_i = '1') then
             f_rx_param_id  <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
             f_rx_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -339,11 +311,11 @@ begin
             ret_dat_stop_req <= '0';
          elsif(cmd_rdy_i = '1') then
             if(param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
-               -- Acknowledge the GO/ST command from fibre_rx, to clear it for a new command.
                if(cmd_code_i = GO) then
+                  -- ret_dat_req stays asserted for the duration of the data acquisition
                   ret_dat_req <= '1';
                else
-                  -- Assume it's a stop command
+                  -- Assume it's a stop command, and de-assert ret_dat_req
                   ret_dat_req <= '0';
                   ret_dat_stop_req <= '1';
                end if;
@@ -427,7 +399,7 @@ begin
    -------------------------------------------------------------------------------------------
    process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
       internal_cmd_mode_i, internal_status_req, internal_cmd_id, tes_bias_toggle_req,
-      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress)--, stop_reply_ack_i)
+      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress)
    begin
       next_state    <= current_state;
       ret_dat_start <= '0';
@@ -461,6 +433,12 @@ begin
                elsif(internal_cmd_id = BOX_TEMPERATURE) then
                   next_state <= BOX_TEMP;
                end if;
+            -- Note: a STOP command immediately de-asserts ret_dat_req
+            -- This statement traps the condition where a stop comes in before the first DV is received.
+            elsif(ret_dat_in_progress = '1' and ret_dat_req = '0') then
+               -- Do not issue any ret_dat commands, and close off the acquisition immdiately.
+               ret_dat_done <= '1';
+               next_state <= IDLE;
             end if;
 
          when PROCESSING_RET_DAT =>
@@ -513,21 +491,11 @@ begin
                end if;
             end if;
 
---         when REQ_DATA_PACKET =>
---            if(ack_i = '1') then
---               next_state <= REQ_LAST_DATA_PACKET;
---            end if;
-
          when REQ_LAST_DATA_PACKET =>
             if(ack_i = '1') then
                next_state <= IDLE;
                ret_dat_done <= '1';
             end if;
-
---         when REQ_STOP_REPLY =>
---            if(stop_reply_ack_i = '1') then
---               next_state <= IDLE;
---            end if;
 
          when SIMPLE =>
             if(ack_i = '1') then
@@ -542,7 +510,6 @@ begin
          when LATCH_TES_BIAS_DATA =>
             if(ack_i = '1') then
                -- If there was no ret_dat request before issuing the internal command, then we
-               -- Bryce:
 --               if(ret_dat_req = '1') then
                if(ret_dat_in_progress = '1') then
                   next_state <= UPDATE_FOR_NEXT;
@@ -629,12 +596,6 @@ begin
                data_clk_o        <= '0';
                internal_cmd_o    <= '1';
                data_o            <= ramp_value;
-
---               if(toggle_which_way = '0') then
---                  data_o         <= tes_bias_low_i;
---               else
---                  data_o         <= tes_bias_high_i;
---               end if;
             end if;
 
          when LATCH_TES_BIAS_DATA =>
@@ -647,12 +608,6 @@ begin
                data_clk_o        <= '1';
                internal_cmd_o    <= '1';
                data_o            <= ramp_value;
-
---               if(toggle_which_way = '0') then
---                  data_o         <= tes_bias_low_i;
---               else
---                  data_o         <= tes_bias_high_i;
---               end if;
             end if;
 
          when FPGA_TEMP =>
@@ -707,7 +662,7 @@ begin
    -- Control logic:  control signals used internally for book-keeping
    -------------------------------------------------------------------------------------------
    process(current_state, ret_dat_req, stop_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
-      tes_bias_toggle_req, cmd_rdy_i, internal_cmd_mode_i, ret_dat_stop_req)
+      tes_bias_toggle_req, simple_cmd_req, internal_cmd_mode_i, ret_dat_stop_req, cmd_rdy_i)
    begin
       -- default assignments
       increment_sync_num   <= '0';
@@ -744,13 +699,19 @@ begin
                increment_sync_num <= '1';
                load_seq_num  <= '1';
 
-               -- Ack fibre_rx one cycle before entering the data process.
-               -- This frees up fibre_rx for internal commands.
+               -- Ack fibre_rx one cycle before immediately entering the data process on the next cycle.
+               -- This frees up fibre_rx for now incoming commands, including STOP commands!!
                if(dv_mode_i = DV_INTERNAL) then
                   f_rx_ret_dat_ack <= '1';
-               elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+               -- This condition was modified to fix a bug that occurs if the MCE sources DV pulses
+               -- from the sync box, but doesn't ever receive them.
+               -- When this happened, the FSM would freeze here in IDLE with the fibre_rx cmd_rdy_i signal asserted,
+               -- and the MCE was unable to receive any more commands, including STOP commands.
+               -- I've crafted this statment to assert f_rx_ret_dat_ack until the acquisition is stopped.
+               elsif(dv_mode_i /= DV_INTERNAL and cmd_rdy_i = '1') then
                   f_rx_ret_dat_ack <= '1';
                end if;
+            -- If we get a stop command while ret_dat_req is not asserted
             elsif(ret_dat_stop_req = '1') then
                ret_dat_ack <= '1';
                f_rx_ret_dat_ack <= '1';
@@ -777,11 +738,6 @@ begin
                -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
                instr_rdy_o <= '0';
             end if;
-
---            if(ret_dat_req = '0') then
---               -- Set the sync number to issue the ret_dat command immediately
-----               increment_sync_num <= '1';
---            end if;
 
          when UPDATE_FOR_NEXT =>
             -- Either of these conditions are only met on the last clock period in this state.
@@ -810,22 +766,6 @@ begin
 
             end if;
 
---         when REQ_DATA_PACKET =>
---            instr_rdy_o       <= '1';
---            --last_frame_o      <= '1';
---            --cmd_stop_o        <= '1';
---
---            -- override_sync_num_o is asserted to notify the cmd_queue to issue the command immediately,
---            -- without waiting for the next sync pulse, which may never arrive if the reason that the
---            -- MCE data acquisition has frozen is because the Sync Box fibre is broken/ disconnected.
---            override_sync_num_o <= '1';
---
---            if(ack_i = '1') then
---               -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to stop command
---               -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
---               instr_rdy_o <= '0';
---            end if;
-
          when REQ_LAST_DATA_PACKET =>
             instr_rdy_o       <= '1';
             last_frame_o      <= '1';
@@ -837,7 +777,7 @@ begin
             override_sync_num_o <= '1';
 
             if(ack_i = '1') then
-               -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to stop command
+               -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to STOP command
                -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
                ret_dat_ack <= '1';
                f_rx_ret_dat_ack <= '1';
@@ -845,12 +785,13 @@ begin
                instr_rdy_o <= '0';
             end if;
 
-
---         when REQ_STOP_REPLY =>
---            stop_reply_req_o <= '1';
-
          when SIMPLE =>
-            instr_rdy_o <= cmd_rdy_i;
+            -- This has changed so that I can isolate the internal ready signals
+            -- (ret_dat_rdy, etc) from the input from fibre_rx (cmd_rdy_i).
+            -- This is necessary to receive STOP commands when the initial ret_dat
+            -- has not been processed yet (i.e. a ret_dat with no dv pulses)
+            --instr_rdy_o <= cmd_rdy_i;
+            instr_rdy_o <= simple_cmd_req;
 
             if(ack_i = '1') then
                simple_cmd_ack <= '1';
@@ -863,15 +804,6 @@ begin
                tes_bias_toggle_ack <= '1';
                step_ramp_value <= '1';
             end if;
-
---            if(ack_i = '1') then
---               -- Directly to IDLE, no cleanup needed
---               if(ret_dat_req = '1') then
---                  next_state <= UPDATE_FOR_NEXT;
---               else
---                  next_state <= IDLE;
---               end if;
---            end if;
 
          when TES_BIAS =>
             instr_rdy_o <= '1';
