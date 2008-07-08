@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_offset_banks_admin.vhd,v $
+-- Revision 1.4  2006/09/22 20:16:52  mandana
+-- enabled adc_offset read back by connecting porta for dispatch read
+--
 -- Revision 1.3  2004/12/17 00:41:36  mohsen
 -- To reduce memory requirements, the p/i/d/z and adc_offset values are not readable by the Dispatch.
 -- To limit changes, still using 3-port RAM but leave one output port open and ground the output to Dispatch.
@@ -393,7 +396,7 @@ begin  -- rtl
   -- Acknowlege signals
   i_gen_ack: process (clk_50_i, rst_i)
     
-    variable count : integer;           -- counts number of clock cycles passed
+    variable count : integer := 0;           -- counts number of clock cycles passed
     
   begin  -- process i_gen_ack
     if rst_i = '1' then                 -- asynchronous reset (active high)
@@ -439,6 +442,8 @@ begin  -- rtl
           if count=2 then
             ack_read_adc_offset_bank <= '1';
             count:=0;
+          else
+            ack_read_adc_offset_bank <= '0';
           end if;
         else
           ack_read_adc_offset_bank <= '0';

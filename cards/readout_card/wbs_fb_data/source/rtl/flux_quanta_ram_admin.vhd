@@ -66,6 +66,10 @@
 --
 -- Revision history:
 -- $Log: flux_quanta_ram_admin.vhd,v $
+-- Revision 1.2  2008/06/27 21:04:44  mandana
+-- merged with flux_quanta_admin_reduced_width
+-- removed conv_int calls, only process FLUX_QUANTA_DATA_WIDTH bits out of Wishbone data. use sign-extend functions
+--
 -- Revision 1.1.2.1  2007/03/21 18:11:58  mandana
 -- removed conv_int calls, only process FLUX_QUANTA_DATA_WIDTH bits out of Wishbone data. use sign-extend functions
 --
@@ -377,7 +381,7 @@ begin  -- rtl
   -- Acknowlege signals
   i_gen_ack: process (clk_50_i, rst_i)
     
-    variable count : integer;           -- counts number of clock cycles passed
+    variable count : integer := 0;           -- counts number of clock cycles passed
     
   begin  -- process i_gen_ack
     if rst_i = '1' then                 -- asynchronous reset (active high)
@@ -424,7 +428,10 @@ begin  -- rtl
             if count=2 then
                ack_read_bank <= '1';
                count:=0;
+            else 
+               ack_read_bank <= '0';
             end if;
+            
          else
             ack_read_bank <= '0';
          end if;
