@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.55 2008/02/03 09:44:34 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.56 2008/07/07 17:58:46 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -30,7 +30,7 @@
 -- Description:  This module is the fibre command translator.
 --
 -- Revision history:
--- <date $Date: 2008/02/03 09:44:34 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/07/07 17:58:46 $> -     <text>      - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -407,23 +407,30 @@ begin
 
       case current_state is
          when IDLE =>
-            -- If there is a data command
+            -- If a data taking process has started
             if(ret_dat_req = '1') then
+               -- Set the ret_dat_in_progress register
                ret_dat_start <= '1';
+               -- if we are sourcing DV pulses internally
                if(dv_mode_i = DV_INTERNAL) then
+                  -- Issue the first ret_dat immediately
                   next_state <= PROCESSING_RET_DAT;
-               -- Issue the first ret_dat command on the next DV pulse
+               -- if we are sourcing DV pulses externally and a DV comes in
                elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+                  -- Issue the first ret_dat immediately
                   next_state <= PROCESSING_RET_DAT;
                end if;
             -- If there is a simple command
             elsif(simple_cmd_req = '1') then
+               -- Issue the simple command
                next_state <= SIMPLE;
             -- If it is time to toggle the bias
             elsif(internal_cmd_mode_i = INTERNAL_RAMP and tes_bias_toggle_req = '1') then
+               -- Toggle the bias (This functionality is now obsolete)
                next_state <= TES_BIAS;
             -- If toggling is disabled and it is time to issue an internal command
             elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
+               -- Issue the next internal command (happens in a cycle)
                if(internal_cmd_id = FPGA_TEMPERATURE) then
                   next_state <= FPGA_TEMP;
                elsif(internal_cmd_id = CARD_TEMPERATURE) then
@@ -433,15 +440,19 @@ begin
                elsif(internal_cmd_id = BOX_TEMPERATURE) then
                   next_state <= BOX_TEMP;
                end if;
-            -- Note: a STOP command immediately de-asserts ret_dat_req
-            -- This statement traps the condition where a stop comes in before the first DV is received.
+            -- If a STOP command arrives before the first DV pulse arrives.
+            -- Note: a STOP immediately de-asserts ret_dat_req
             elsif(ret_dat_in_progress = '1' and ret_dat_req = '0') then
-               -- Do not issue any ret_dat commands, and close off the acquisition immdiately.
-               ret_dat_done <= '1';
-               next_state <= IDLE;
+               -- Issue one last ret_dat command with the stop bit set, and close off the acquisition.
+               next_state <= UPDATE_FOR_NEXT;
             end if;
 
          when PROCESSING_RET_DAT =>
+            -- This state determines if there are more frames to go, and acts accordingly.
+            -- If there are more frames, it checks to see if there are any internal commands to process first before issuing the next ret_dat
+            -- if there are no more frames, it loops back to IDLE
+            -- This state lasts only one clock cycle.
+
             -- If there are more data frames to go:
             if(ack_i = '1' and seq_num /= stop_seq_num_i) then
                -- Before moving on to UPDATE_FOR_NEXT, let's check for pending internal commands
@@ -469,22 +480,25 @@ begin
             end if;
 
          when UPDATE_FOR_NEXT =>
+            -- This state determines if at STOP command has occurred or not, and either holds here, or forwards on to the next state
             -- We stay in this state for one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
+
+            -- If we are sourcing DV pulses internally
             if(dv_mode_i = DV_INTERNAL) then
                -- If there still is an outstanding ret_dat request, then issue a ret_dat command
-               -- when triggering from internal DV's we wait in the PROCESSING_RET_DAT state.
                if(ret_dat_req = '1') then
                   next_state <= PROCESSING_RET_DAT;
+               -- Otherwise, if the ret_dat request is not asserted, a STOP command has occurred
                elsif(ret_dat_req = '0') then
-                  -- A stop command was received while processing the last data packet
                   next_state <= REQ_LAST_DATA_PACKET;
-
                end if;
+            -- Otherwise, if we are sourcing DV pulses externally
             elsif(dv_mode_i /= DV_INTERNAL) then
-               -- When waiting to trigger from external DVs, we wait in this state.
+               -- If a stop command has been received
                if(ret_dat_req = '0') then
-                  -- A stop command was received while waiting for the next DV pulse and gets priority
+                  -- issue the last ret_dat immediately
                   next_state <= REQ_LAST_DATA_PACKET;
+               -- Otherwise, wait in this state for the next DV to come in.
                elsif(ret_dat_req = '1' and external_dv_i = '1') then
                   -- If there still is an outstanding ret_dat request, then issue a ret_dat command
                   next_state <= PROCESSING_RET_DAT;
