@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.15.2.1  2007/12/20 01:25:10  mandana
+-- safe fsm to fix reset problem and no other change!
+--
 -- Revision 1.15  2005/12/12 20:48:44  erniel
 -- fixed implicit register on buf_addr_o
 --
@@ -91,6 +94,9 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
+library lpm;
+use lpm.lpm_components.all;
+
 library components;
 use components.component_pack.all;
 
@@ -145,6 +151,7 @@ signal addr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal timer_rst : std_logic;
 signal timer     : integer;
+signal sub_wire0	: STD_LOGIC_VECTOR (BB_DATA_SIZE_WIDTH-1 downto 0);
 
 begin
   
@@ -152,18 +159,32 @@ begin
    -- Address generator
    ---------------------------------------------------------
    
-   addr_gen : binary_counter
-   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
-   port map(clk_i   => clk_i,
-            rst_i   => rst_i,
-            ena_i   => addr_ena,
-            up_i    => '1',
-            load_i  => '0',
-            clear_i => addr_clr,
-            count_i => (others => '0'),
-            count_o => addr);
+--   addr_gen : binary_counter
+--   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
+--   port map(clk_i   => clk_i,
+--            rst_i   => rst_i,
+--            ena_i   => addr_ena,
+--            up_i    => '1',
+--            load_i  => '0',
+--            clear_i => addr_clr,
+--            count_i => (others => '0'),
+--            count_o => addr);
 
+   addr   <= sub_wire0(BB_DATA_SIZE_WIDTH-1 DOWNTO 0);
    
+   addr_gen : lpm_counter
+   generic map (
+   		lpm_direction => "UP",
+   		lpm_port_updown => "PORT_UNUSED",
+   		lpm_type => "LPM_COUNTER",
+   		lpm_width => BB_DATA_SIZE_WIDTH)
+   port map (
+        aclr => rst_i,
+        clock => clk_i,
+        sclr => addr_clr,
+        cnt_en => addr_ena,
+        q => sub_wire0);
+
    ---------------------------------------------------------
    -- Watchdog timer
    ---------------------------------------------------------
