@@ -25,7 +25,8 @@
 -- Organisation: UBC
 --
 -- Description: This module defines series of registers that are common to all cards
---              For now: fw_rev, card_type, scratch 0 to 7, slot_id
+--              For now: scratch 0 to 7, but one needs to add to the index to expand.
+--              it also returns: fw_rev, card_type, slot_id
 ------------------------------------------------------------------------------------
 
 library ieee;
@@ -62,13 +63,9 @@ end all_cards;
 
 architecture rtl of all_cards is
   constant ALL_CARDS_BANK_MAX_WIDTH    : integer := WB_DATA_WIDTH;
-  constant FW_REV_INDEX_OFFSET         : integer := 0;   -- Index of firmware revision
-  constant CARD_TYPE_INDEX_OFFSET      : integer := 1;   -- Index of card_type
-  constant SLOT_ID_INDEX_OFFSET        : integer := 2;
-  constant SCRATCH_INDEX_OFFSET        : integer := 3;   -- A Read/write wakeup register that is reset to 0 everytime the firmware is reset.
-  constant ALL_CARDS_BANK_MAX_RANGE    : integer := 11;   -- Maximum number of parameters in the Miscellanous bank
+  constant SCRATCH_INDEX_OFFSET        : integer := 0;   -- A Read/write wakeup register that is reset to 0 everytime the firmware is reset.
+  constant ALL_CARDS_BANK_MAX_RANGE    : integer := 8;   -- Maximum number of parameters in the Miscellanous bank
  
-  constant MAX_SCRATCH_INDEX           : integer := 8;
   constant MAX_SCRATCH_INDEX_BITS      : integer := 3;
  
   -----------------------------------------------------------------------------
@@ -96,15 +93,7 @@ architecture rtl of all_cards is
     i_reg: process (clk_i, rst_i)
     begin  -- process i_reg
       if rst_i = '1' then               -- asynchronous reset (active high)
-        if i = FW_REV_INDEX_OFFSET then
-          reg(i) <= REVISION;
-        elsif i= CARD_TYPE_INDEX_OFFSET then
-          reg(i) <= ext(CARD_TYPE, reg(i)'length);          
-        elsif i= SLOT_ID_INDEX_OFFSET then
-          reg(i) <= ext(slot_id_i, WB_DATA_WIDTH);
-        else
           reg(i) <= (others => '0');
-        end if;
       elsif clk_i'event and clk_i = '1' then  -- rising clock edge
         if wren(i)='1' then
           reg(i) <= dat_i;
@@ -192,10 +181,10 @@ architecture rtl of all_cards is
   with addr_i select
     qa_all_cards_o <=
     
-    reg(FW_REV_INDEX_OFFSET)      when FW_REV_ADDR,
-    reg(CARD_TYPE_INDEX_OFFSET)   when CARD_TYPE_ADDR,
-    reg(SLOT_ID_INDEX_OFFSET)     when SLOT_ID_ADDR,
+    REVISION		          when FW_REV_ADDR,
+    ext(CARD_TYPE, WB_DATA_WIDTH) when CARD_TYPE_ADDR,
+    ext(slot_id_i, WB_DATA_WIDTH) when SLOT_ID_ADDR,
     scratch                       when SCRATCH_ADDR,
-    reg(FW_REV_INDEX_OFFSET)      when others;           -- default to first value in bank
+    REVISION                      when others;           -- default to first value in bank
 
 end rtl;
