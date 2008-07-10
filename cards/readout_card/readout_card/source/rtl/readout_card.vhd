@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.74  2008/06/27 20:37:15  mandana
+-- rev. 4.0.9
+-- sa_bias/offset DACs only refreshed when new values are written to as oppose to every frame.
+--
 -- Revision 1.73  2008/06/27 18:38:50  mandana
 -- rev. 4.0.8
 -- increased pid width to 12 bits
@@ -411,8 +415,9 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"04000009"; -- 14b pid pars , sa_bias/offset updated only when modified
-                                                                     -- fixed gainpid-read failure upon power-up (prior to reset)
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000a"; -- 12b pid pars , sa_bias/offset updated only when modified
+                                                                     -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
+                                                                     -- removed quartus.ini from synth directory
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk

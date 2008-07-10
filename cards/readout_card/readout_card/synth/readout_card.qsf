@@ -1106,7 +1106,7 @@ set_global_assignment -name DO_COMBINED_ANALYSIS OFF
 set_global_assignment -name SAFE_STATE_MACHINE ON
 set_global_assignment -name INCREMENTAL_COMPILATION OFF
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
-set_global_assignment -name SEED 2
+set_global_assignment -name SEED 1
 set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
@@ -1217,3 +1217,6 @@ set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpl
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk3"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk4"
 set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[1]"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[0]"
+set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]"
