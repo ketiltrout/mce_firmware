@@ -30,7 +30,7 @@
 -- This block instantiates several registers for the following parameters:
 -- 
 -- a. filter_coeff      -seven values in total   (commented)
--- b. servo_mode        
+-- b. servo_mode        -- not in the bank anymore
 -- c. ramp_step_size    
 -- d. ramp_amp          
 -- e. const_val         
@@ -144,6 +144,10 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.15  2008/06/27 20:46:59  mandana
+-- merged with filter_coef_disabled branch
+-- added a register to the misc_bank output to relax timing of addr_gen:tga_o to dispatch_wishbone:buf
+--
 -- Revision 1.14  2007/10/31 20:03:46  mandana
 -- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify higher blocks when these are updated
 --
@@ -318,20 +322,21 @@ end misc_banks_admin;
 architecture rtl of misc_banks_admin is
 
   constant MAX_BIT_TAG             : integer := 3;    -- The number of bits used in tga_i to count up to the maximum number of values for each parameters
-  constant SERVO_INDEX_OFFSET      : integer := 0;    -- Index of servo_mode in array register
-  constant RAMP_STEP_INDEX_OFFSET  : integer := 8;    -- Index of ramp_step_size in array register
-  constant RAMP_AMP_INDEX_OFFSET   : integer := 9;    -- Index of ramp_amp in array register
-  constant CONST_VAL_INDEX_OFFSET  : integer := 10;   -- Index of const_val in array register
-  constant NUM_RAM_INDEX_OFFSET    : integer := 18;   -- Index of num_ramp_frame_cycles in array register
-  constant SA_BIAS_INDEX_OFFSET    : integer := 19;   -- Index of sa_bias in array register
-  constant OFFSET_DAT_INDEX_OFFSET : integer := 27;   -- Index of offset_dat in array register
-  constant EN_FB_JUMP_OFFSET       : integer := 35;   -- Index of enable flag for the flux-jumping block
+--  constant SERVO_INDEX_OFFSET      : integer := 0;    -- Index of servo_mode in array register
+  constant RAMP_STEP_INDEX_OFFSET  : integer := 0;    -- Index of ramp_step_size in array register
+  constant RAMP_AMP_INDEX_OFFSET   : integer := 1;    -- Index of ramp_amp in array register
+  constant CONST_VAL_INDEX_OFFSET  : integer := 2;   -- Index of const_val in array register
+  constant NUM_RAM_INDEX_OFFSET    : integer := 10;   -- Index of num_ramp_frame_cycles in array register
+  constant SA_BIAS_INDEX_OFFSET    : integer := 11;   -- Index of sa_bias in array register
+  constant OFFSET_DAT_INDEX_OFFSET : integer := 19;   -- Index of offset_dat in array register
+  constant EN_FB_JUMP_OFFSET       : integer := 27;   -- Index of enable flag for the flux-jumping block
 --  constant FILTER_INDEX_OFFSET     : integer := 36;   -- Index of filter_coeff in array register (2 values common for all channels)
 --  constant MISC_BANK_MAX_RANGE     : integer := 44;   -- Maximum number of parameters in the Miscellanous bank
-  constant MISC_BANK_MAX_RANGE     : integer := 36;   -- Maximum number of parameters in the Miscellanous bank
+  constant MISC_BANK_MAX_RANGE     : integer := 28;   -- Maximum number of parameters in the Miscellanous bank
  
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
-
+  constant ZERO_XTND_SERVO : std_logic_vector(WB_DATA_WIDTH-SERVO_MODE_SEL_WIDTH-1 downto 0) := (others => '0');
+  
   -----------------------------------------------------------------------------
   -- Registers for each value
   -- Note: we have used 32-bit registers across the board, as the wishbone
@@ -342,13 +347,19 @@ architecture rtl of misc_banks_admin is
   type misc_bank is array (0 to MISC_BANK_MAX_RANGE-1) of std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal reg : misc_bank;
   signal reg_temp :misc_bank;
-   
+
+  type servo_bank is array (0 to NO_CHANNELS-1) of std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  signal servo_mode_reg : servo_bank;
+     
   -----------------------------------------------------------------------------
   -- Signals from Misc Controller
   -----------------------------------------------------------------------------
 
   type wren_banks is array (0 to MISC_BANK_MAX_RANGE-1) of std_logic;
   signal wren : wren_banks;
+
+  type servo_wren_banks is array (0 to NO_CHANNELS-1) of std_logic;
+  signal servo_mode_wren : servo_wren_banks;
 
   signal ack_read_misc_bank         : std_logic;
   --signal ack_write_misc_bank        : std_logic;
@@ -362,7 +373,7 @@ architecture rtl of misc_banks_admin is
   signal sa_bias      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all sa_bias values
   signal offset_dat   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all offset_dat values
   signal fb_const     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all fb_const_val values
-  signal servo_dat    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- MUX output for all servo_mode values
+  signal servo_dat    : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  -- MUX output for all servo_mode values
  
   -----------------------------------------------------------------------------
   -- Signals to notify sa_bias and offset change
@@ -371,8 +382,6 @@ architecture rtl of misc_banks_admin is
   signal offset_dat_rdy : std_logic_vector(7 downto 0);
  
 begin  -- rtl
-
-  
 
   -----------------------------------------------------------------------------
   -- Instantiation of All Registers
@@ -398,8 +407,19 @@ begin  -- rtl
     end process i_reg;
   end generate i_misc_bank;
   
-
-    
+  i_servo_mode: for i in 0 to NO_CHANNELS-1 generate
+    i_servo_mode_reg: process (clk_50_i, rst_i)
+    begin -- process i_servo_mode_reg
+      if rst_i = '1' then
+        servo_mode_reg (i) <= (others => '0');
+      elsif clk_50_i'event and clk_50_i = '1' then -- rising clock edge  
+        if servo_mode_wren(i) = '1' then
+          servo_mode_reg (i) <= dat_i(SERVO_MODE_SEL_WIDTH-1 downto 0);
+        end if;
+      end if;  
+    end process i_servo_mode_reg;
+  end generate i_servo_mode;
+  
   -----------------------------------------------------------------------------
   -- Controller for All Registers:
   -- 
@@ -419,7 +439,11 @@ begin  -- rtl
     for i in 0 to MISC_BANK_MAX_RANGE-1 loop
       wren(i) <= '0';
     end loop;  -- i
-     
+
+    for j in 0 to NO_CHANNELS-1 loop
+      servo_mode_wren(j) <= '0';
+    end loop; --j     
+
     case addr_i is
 --      when FILT_COEF_ADDR =>
 --       case tga_i(MAX_BIT_TAG-1 downto 0) is
@@ -483,14 +507,14 @@ begin  -- rtl
 
       when SERVO_MODE_ADDR =>
         case tga_i(MAX_BIT_TAG-1 downto 0) is
-          when "000" => wren(SERVO_INDEX_OFFSET+0) <= we_i;
-          when "001" => wren(SERVO_INDEX_OFFSET+1) <= we_i;
-          when "010" => wren(SERVO_INDEX_OFFSET+2) <= we_i;
-          when "011" => wren(SERVO_INDEX_OFFSET+3) <= we_i;
-          when "100" => wren(SERVO_INDEX_OFFSET+4) <= we_i;
-          when "101" => wren(SERVO_INDEX_OFFSET+5) <= we_i;
-          when "110" => wren(SERVO_INDEX_OFFSET+6) <= we_i;
-          when "111" => wren(SERVO_INDEX_OFFSET+7) <= we_i;
+          when "000" => servo_mode_wren(0) <= we_i;
+          when "001" => servo_mode_wren(1) <= we_i;
+          when "010" => servo_mode_wren(2) <= we_i;
+          when "011" => servo_mode_wren(3) <= we_i;
+          when "100" => servo_mode_wren(4) <= we_i;
+          when "101" => servo_mode_wren(5) <= we_i;
+          when "110" => servo_mode_wren(6) <= we_i;
+          when "111" => servo_mode_wren(7) <= we_i;
           when others => null;
         end case;
       
@@ -554,7 +578,7 @@ begin  -- rtl
 --    reg(FILTER_INDEX_OFFSET+0) when others;
 
 
-  with tga_i(2 downto 0) select
+  with tga_i(MAX_BIT_TAG-1 downto 0) select
     sa_bias <=
     reg(SA_BIAS_INDEX_OFFSET+0) when "000",
     reg(SA_BIAS_INDEX_OFFSET+1) when "001",
@@ -567,7 +591,7 @@ begin  -- rtl
     reg(SA_BIAS_INDEX_OFFSET+0) when others;
 
 
-  with tga_i(2 downto 0) select
+  with tga_i(MAX_BIT_TAG-1 downto 0) select
     offset_dat <=
     reg(OFFSET_DAT_INDEX_OFFSET+0) when "000",
     reg(OFFSET_DAT_INDEX_OFFSET+1) when "001",
@@ -579,7 +603,7 @@ begin  -- rtl
     reg(OFFSET_DAT_INDEX_OFFSET+7) when "111",
     reg(OFFSET_DAT_INDEX_OFFSET+0) when others;
 
-  with tga_i(2 downto 0) select
+  with tga_i(MAX_BIT_TAG-1 downto 0) select
     fb_const <=
     reg(CONST_VAL_INDEX_OFFSET+0) when "000",
     reg(CONST_VAL_INDEX_OFFSET+1) when "001",
@@ -591,23 +615,24 @@ begin  -- rtl
     reg(CONST_VAL_INDEX_OFFSET+7) when "111",
     reg(CONST_VAL_INDEX_OFFSET+0) when others;
 
-  with tga_i(2 downto 0) select
+  with tga_i(MAX_BIT_TAG-1 downto 0) select
     servo_dat <=
-    reg(SERVO_INDEX_OFFSET+0) when "000",
-    reg(SERVO_INDEX_OFFSET+1) when "001",
-    reg(SERVO_INDEX_OFFSET+2) when "010",
-    reg(SERVO_INDEX_OFFSET+3) when "011",
-    reg(SERVO_INDEX_OFFSET+4) when "100",
-    reg(SERVO_INDEX_OFFSET+5) when "101",
-    reg(SERVO_INDEX_OFFSET+6) when "110",
-    reg(SERVO_INDEX_OFFSET+7) when "111",
-    reg(SERVO_INDEX_OFFSET+0) when others;
+    servo_mode_reg(0) when "000",
+    servo_mode_reg(1) when "001",
+    servo_mode_reg(2) when "010",
+    servo_mode_reg(3) when "011",
+    servo_mode_reg(4) when "100",
+    servo_mode_reg(5) when "101",
+    servo_mode_reg(6) when "110",
+    servo_mode_reg(7) when "111",
+    servo_mode_reg(0) when others;
  
   
   with addr_i select
     qa_misc_bank_o <=
 --    filter_coeff                  when FILT_COEF_ADDR,
-    servo_dat                     when SERVO_MODE_ADDR,
+    --ext(servo_dat, qa_misc_bank_o'length) when SERVO_MODE_ADDR,
+    ZERO_XTND_SERVO & servo_dat   when SERVO_MODE_ADDR,
     reg(RAMP_STEP_INDEX_OFFSET)   when RAMP_STEP_ADDR,
     reg(RAMP_AMP_INDEX_OFFSET)    when RAMP_AMP_ADDR,
     reg(NUM_RAM_INDEX_OFFSET)     when RAMP_DLY_ADDR,
@@ -615,28 +640,31 @@ begin  -- rtl
     offset_dat                    when OFFSET_ADDR,
     fb_const                      when FB_CONST_ADDR,
     reg(EN_FB_JUMP_OFFSET)        when EN_FB_JUMP_ADDR,
-    servo_dat                     when others;           -- default to first value in bank
-  
+    ZERO_XTND_SERVO & servo_dat   when others;
+    --ext(servo_dat, qa_misc_bank_o'length) when others;           -- default to first value in bank
+    -- !!Strangely, ext function to zero-extend worked well in modelsim but would 
+    -- do sign-extend in Quartus synthesis which has to do how the arith library is 
+    -- handled in quartus! Hence, manual zero-extend of servo-dat.
 
   -----------------------------------------------------------------------------
   -- Outputs to flux_loop_ctrl
   -----------------------------------------------------------------------------
 
---  filter_coeff0_o         <= reg(FILTER_INDEX_OFFSET+0);
---  filter_coeff1_o         <= reg(FILTER_INDEX_OFFSET+1);
---  filter_coeff2_o         <= reg(FILTER_INDEX_OFFSET+2);
---  filter_coeff3_o         <= reg(FILTER_INDEX_OFFSET+3);
---  filter_coeff4_o         <= reg(FILTER_INDEX_OFFSET+4);
---  filter_coeff5_o         <= reg(FILTER_INDEX_OFFSET+5);
---  filter_coeff6_o         <= reg(FILTER_INDEX_OFFSET+6);
-  servo_mode_ch0_o        <= reg(SERVO_INDEX_OFFSET+0)(SERVO_MODE_SEL_WIDTH-1 downto 0);
-  servo_mode_ch1_o        <= reg(SERVO_INDEX_OFFSET+1)(SERVO_MODE_SEL_WIDTH-1 downto 0);
-  servo_mode_ch2_o        <= reg(SERVO_INDEX_OFFSET+2)(SERVO_MODE_SEL_WIDTH-1 downto 0);
-  servo_mode_ch3_o        <= reg(SERVO_INDEX_OFFSET+3)(SERVO_MODE_SEL_WIDTH-1 downto 0);
-  servo_mode_ch4_o        <= reg(SERVO_INDEX_OFFSET+4)(SERVO_MODE_SEL_WIDTH-1 downto 0);
-  servo_mode_ch5_o        <= reg(SERVO_INDEX_OFFSET+5)(SERVO_MODE_SEL_WIDTH-1 downto 0);
-  servo_mode_ch6_o        <= reg(SERVO_INDEX_OFFSET+6)(SERVO_MODE_SEL_WIDTH-1 downto 0);
-  servo_mode_ch7_o        <= reg(SERVO_INDEX_OFFSET+7)(SERVO_MODE_SEL_WIDTH-1 downto 0);
+  filter_coeff0_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+0);
+  filter_coeff1_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+1);
+  filter_coeff2_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+2);
+  filter_coeff3_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+3);
+  filter_coeff4_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+4);
+  filter_coeff5_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+5);
+  filter_coeff6_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+6);
+  servo_mode_ch0_o        <= servo_mode_reg(0);
+  servo_mode_ch1_o        <= servo_mode_reg(1);
+  servo_mode_ch2_o        <= servo_mode_reg(2);
+  servo_mode_ch3_o        <= servo_mode_reg(3);
+  servo_mode_ch4_o        <= servo_mode_reg(4);
+  servo_mode_ch5_o        <= servo_mode_reg(5);
+  servo_mode_ch6_o        <= servo_mode_reg(6);
+  servo_mode_ch7_o        <= servo_mode_reg(7);
   ramp_step_size_o        <= reg(RAMP_STEP_INDEX_OFFSET)(RAMP_STEP_WIDTH-1 downto 0);
   ramp_amp_o              <= reg(RAMP_AMP_INDEX_OFFSET)(RAMP_AMP_WIDTH-1 downto 0 );
   num_ramp_frame_cycles_o <= reg(NUM_RAM_INDEX_OFFSET)(RAMP_CYC_WIDTH-1 downto 0);
