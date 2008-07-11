@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.76 2007/10/18 22:32:34 bburger Exp $
+-- $Id: clk_card.vhd,v 1.77 2007/11/05 23:18:44 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.77  2007/11/05 23:18:44  bburger
+-- BB:  cc_v04000006
+--
 -- Revision 1.76  2007/10/18 22:32:34  bburger
 -- BB: added a dedicated manchester PLL, and added interface signals to the spare LVDS lines on the backplane to help the CC determind which cards are present
 --
@@ -89,13 +92,10 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
---use ieee.std_logic_arith.all;
---use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
-use sys_param.data_types_pack.all;
 
 library work;
 use work.all_cards_pack.all;
@@ -187,6 +187,18 @@ entity clk_card is
       sram1_nce1 : out std_logic;
       sram1_ce2  : out std_logic;
 
+      -- Flash interface of EPC device
+      flash_addr : out std_logic_vector(20 downto 0);
+      flash_data : inout std_logic_vector( 15 downto 0);
+      flash_nrp  : out std_logic;
+      flash_nwe  : out std_logic;
+      flash_nby  : out std_logic;
+      flash_noe  : out std_logic;      
+      flash_nce  : out std_logic;          
+      
+      -- EPC PGM interface
+      flash_pgm : out std_logic_vector(2 downto 0);
+      
       -- miscellaneous ports:
       red_led           : out std_logic;
       ylw_led           : out std_logic;
@@ -211,8 +223,8 @@ entity clk_card is
 --      auto_stp_trigger_out_0 : out std_logic;
       mictor0_o         : out std_logic_vector(15 downto 0);
       mictor0clk_o      : out std_logic;
-      mictor0_e         : in std_logic_vector(15 downto 0);
-      mictor0clk_e      : in std_logic;
+      mictor0_e         : out std_logic_vector(15 downto 0);
+      mictor0clk_e      : out std_logic;
 
       mictor1_o         : out std_logic_vector(15 downto 0);
       mictor1clk_o      : out std_logic;
@@ -254,7 +266,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000006";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0F000006";
 
    -- reset
    signal rst                : std_logic;
@@ -421,6 +433,11 @@ architecture top of clk_card is
 
    signal card_not_present : std_logic_vector(9 downto 0);
 
+   -- signals needed for integrating nios_sopc
+   signal grn_led_wb, red_led_wb, ylw_led_wb : std_logic;
+   signal nios_led_data : std_logic_vector(15 downto 0);
+   signal tristate_bridge_data: std_logic_vector(31 downto 0);
+   
 begin
 
    -- Debug Signals
@@ -431,7 +448,7 @@ begin
 
    -- LED signals
    red_led <= fibre_rx_status;
-   ylw_led <= manchester_sigdet;
+   --ylw_led <= manchester_sigdet;
 
    -- Fibre TX Signals
    fibre_tx_data   <= fib_tx_data;
@@ -459,20 +476,20 @@ begin
    lvds_cmd  <= cmd;
 
    -- SRAM signals
-   sram0_addr <= sram_addr(19 downto 0);
-   sram1_addr <= sram_addr(19 downto 0);
-   sram0_nbhe <= sram_nbhe;
-   sram1_nbhe <= sram_nbhe;
-   sram0_nble <= sram_nble;
-   sram1_nble <= sram_nble;
+   sram0_addr <= sram_addr;--(21 downto 2);
+   sram1_addr <= sram_addr;--(21 downto 2);
+--   sram0_nbhe <= sram_nbhe;
+--   sram1_nbhe <= sram_nbhe;
+--   sram0_nble <= sram_nble;
+--   sram1_nble <= sram_nble;
    sram0_noe  <= sram_noe;
    sram1_noe  <= sram_noe;
    sram0_nwe  <= sram_nwe;
    sram1_nwe  <= sram_nwe;
    sram0_nce1 <= sram_nce1;
    sram1_nce1 <= sram_nce1;
-   sram0_ce2  <= sram_ce2;
-   sram1_ce2  <= sram_ce2;
+--   sram0_ce2  <= sram_ce2;
+--   sram1_ce2  <= sram_ce2;
 
    card_not_present <=
       lvds_reply_ac_b &
@@ -600,7 +617,129 @@ begin
          slot_id_err         when SLOT_ID_ADDR,
          array_id_err        when ARRAY_ID_ADDR,
          '1'                 when others;
+-------------------------------------------------------------------------------------
+   -- NIOS SOPC
+   nios_inst: nios_sopc
+   port map(
+   -- 1) global signals:
+     clk => clk, 
+     reset_n => rst_n,
+--     sram32_s1_data => open, -- God (Altera to be specific!) knows what is this about!
+     
+   -- the_led_flasher
+     leds_from_the_led_flasher => nios_led_data,
+     
+   --  tristate bridge avalon slave data
+     tristate_bridge_data => tristate_bridge_data,
 
+--   -- the_sram_32
+--     SRAM_DQ_to_and_from_the_sram32 (15 downto 0) => sram0_data,
+--     SRAM_DQ_to_and_from_the_sram32 (31 downto 16) => sram1_data,
+--     --SRAM1_DQ_to_and_from_the_sram32 => sram1_data,
+--     SRAM0_LB_N_from_the_sram32 => sram0_nble,
+--     SRAM0_UB_N_from_the_sram32 => sram0_nbhe,
+--     SRAM1_LB_N_from_the_sram32 => sram1_nble,
+--     SRAM1_UB_N_from_the_sram32 => sram1_nbhe,
+--     SRAM_ADDR_from_the_sram32 => sram_addr,
+--     SRAM_CE_N_from_the_sram32 => sram_nce1,
+--     SRAM_OE_N_from_the_sram32 => sram_noe,
+--     SRAM_WE_N_from_the_sram32 => sram_nwe,
+   -- the_sram 
+     address_to_the_sram32 (21 downto 2) => sram_addr,
+     nbe_to_the_sram32 (0) => sram0_nble,
+     nbe_to_the_sram32 (1) => sram0_nbhe,
+     nbe_to_the_sram32 (2) => sram1_nble,
+     nbe_to_the_sram32 (3) => sram1_nbhe,
+     noe_to_the_sram32 => sram_noe,
+     nwe_to_the_sram32 => sram_nwe,
+     nce_to_the_sram32 => sram_nce1,
+     
+   -- the_tristate_bridge_avalon_slave
+     address_to_the_cfi_flash => flash_addr,
+     read_n_to_the_cfi_flash => flash_noe,
+     select_n_to_the_cfi_flash => flash_nce,
+     write_n_to_the_cfi_flash => flash_nwe 
+    );
+
+--   port map (
+--     -- 1) global signals:
+--        clk => clk,
+--        reset_n => rst_n,
+--
+--     -- the_led_flasher        
+--        leds_from_the_led_flasher => nios_led_data,
+--
+--     -- the_sram
+--        SRAM_ADDR_from_the_sram => sram0_addr,
+--        SRAM_CE_N_from_the_sram => sram0_nce1,
+--        SRAM_DQ_to_and_from_the_sram => sram0_data,
+--        SRAM_LB_N_from_the_sram => sram0_nble,
+--        SRAM_OE_N_from_the_sram => sram0_noe,
+--        SRAM_UB_N_from_the_sram => sram0_nbhe,
+--        SRAM_WE_N_from_the_sram => sram0_nwe
+--        
+--     -- the_tri_state_bridge_0_avalon_slave
+----        select_n_to_the_epc_flash  => flash_nce,
+----        tri_state_bridge_0_address => flash_addr,
+----        tri_state_bridge_0_data    => flash_data,
+----        tri_state_bridge_0_readn   => flash_noe,
+----        write_n_to_the_epc_flash   => flash_nwe        
+--     );  
+
+--   i_nios_data_reg: process (rst, clk)
+--   begin 
+--      if (rst = '1') then
+--         sram0_data <= (others=> '0');
+--         sram1_data <= (others=> '0');
+--         flash_data <= (others=> '0');
+--      elsif (clk'event and clk = '1') then
+--         if sram_nwe = '0' then
+--            sram0_data <= tristate_bridge_data(15 downto 0);
+--            sram1_data <= tristate_bridge_data(31 downto 16);
+--         end if;  
+--         if flash_nwe_temp = '0' then
+--            flash_data <= tristate_bridge_data(15 downto 0);
+--         end if;   
+--      end if;
+--   end process i_nios_data_reg;  
+   
+   sram0_data <= tristate_bridge_data (15 downto 0);-- when sram_nwe = '0' else (others => 'Z');
+   sram1_data <= tristate_bridge_data (31 downto 16); --when sram_nwe = '0' else (others => 'Z');
+   flash_data <= tristate_bridge_data (15 downto 0); -- when flash_nwe_temp = '0' else (others => 'Z');
+                                         
+   sram0_ce2 <= '1';
+   flash_nrp <= '1';
+   flash_pgm <= (others => '0');
+   grn_led <= nios_led_data(0);
+   ylw_led <= nios_led_data(1);
+   --red_led <= nios_led_data(2);
+
+--------------------------------------------------------------------------------------   
+--   sram_ctrl_slave: sram_ctrl
+--   port map(
+--      -- SRAM signals:
+--      addr_o  => sram_addr,
+--      data_bi(15 downto 0) => sram0_data,
+--      data_bi(31 downto 16) => sram1_data,
+--      n_ble_o => sram_nble,
+--      n_bhe_o => sram_nbhe,
+--      n_oe_o  => sram_noe,
+--      n_ce1_o => sram_nce1,
+--      ce2_o   => sram_ce2,
+--      n_we_o  => sram_nwe,
+--
+--      -- wishbone signals:
+--      clk_i   => clk,
+--      rst_i   => rst,
+--      dat_i   => data,
+--      addr_i  => addr,
+--      tga_i   => tga,
+--      we_i    => we,
+--      stb_i   => stb,
+--      cyc_i   => cyc,
+--      dat_o   => sram_ctrl_data,
+--      ack_o   => sram_ctrl_ack
+--   );
    cc_dispatch_block: dispatch
    port map(
       lvds_cmd_i   => cmd,
@@ -713,24 +852,6 @@ begin
       sync_number_i      => sync_num
    );
 
-   slot_id_slave : bp_slot_id
-   port map(
-      clk_i  => clk,
-      rst_i  => rst,
-
-      slot_id_i => slot_id,
-
-      dat_i  => data,
-      addr_i => addr,
-      tga_i  => tga,
-      we_i   => we,
-      stb_i  => stb,
-      cyc_i  => cyc,
-      err_o  => slot_id_err,
-      dat_o  => slot_id_data,
-      ack_o  => slot_id_ack
-   );
-
    array_id_slave : subarray_id
    port map(
       clk_i  => clk,
@@ -749,31 +870,7 @@ begin
       ack_o  => array_id_ack
    );
 
-   sram_ctrl_slave: sram_ctrl
-   port map(
-      -- SRAM signals:
-      addr_o  => sram_addr,
-      data_bi(15 downto 0) => sram0_data,
-      data_bi(31 downto 16) => sram1_data,
-      n_ble_o => sram_nble,
-      n_bhe_o => sram_nbhe,
-      n_oe_o  => sram_noe,
-      n_ce1_o => sram_nce1,
-      ce2_o   => sram_ce2,
-      n_we_o  => sram_nwe,
 
-      -- wishbone signals:
-      clk_i   => clk,
-      rst_i   => rst,
-      dat_i   => data,
-      addr_i  => addr,
-      tga_i   => tga,
-      we_i    => we,
-      stb_i   => stb,
-      cyc_i   => cyc,
-      dat_o   => sram_ctrl_data,
-      ack_o   => sram_ctrl_ack
-   );
 
    -- E0 is 180 degrees out of phase with C3 to ensure that the rising edge of fibre_tx_ena occurs at least 5ns before the rising edge of fibre_tx_clkw.
    -- That is a spec-sheet requirement.
@@ -840,7 +937,7 @@ begin
       dat_o  => led_data,
       ack_o  => led_ack,
 
-      power  => grn_led,
+      power  => open, --grn_led,
       status => open, --ylw_led,
       fault  => open --red_led
    );
