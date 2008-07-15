@@ -1,6 +1,6 @@
 Design Assistant report for bias_card
-Fri Jan 25 17:38:40 2008
-Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
+Tue Jul 15 10:45:54 2008
+Quartus II Version 8.0 Build 215 05/29/2008 SJ Full Version
 
 
 ---------------------
@@ -9,17 +9,18 @@ Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
   1. Legal Notice
   2. Design Assistant Summary
   3. Design Assistant Settings
-  4. High Violations
-  5. Medium Violations
-  6. Information only Violations
-  7. Design Assistant Messages
+  4. Critical Violations
+  5. High Violations
+  6. Medium Violations
+  7. Information only Violations
+  8. Design Assistant Messages
 
 
 
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 1991-2007 Altera Corporation
+Copyright (C) 1991-2008 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
 functions, and any output files from any of the foregoing 
@@ -38,14 +39,14 @@ applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Design Assistant Summary                                                ;
 +-----------------------------------+-------------------------------------+
-; Design Assistant Status           ; Analyzed - Fri Jan 25 17:38:40 2008 ;
+; Design Assistant Status           ; Analyzed - Tue Jul 15 10:45:54 2008 ;
 ; Revision Name                     ; bias_card                           ;
 ; Top-level Entity Name             ; bias_card                           ;
 ; Family                            ; Stratix                             ;
-; Total Critical Violations         ; 0                                   ;
-; Total High Violations             ; 2                                   ;
-; Total Medium Violations           ; 1                                   ;
-; Total Information only Violations ; 121                                 ;
+; Total Critical Violations         ; 1                                   ;
+; Total High Violations             ; 4                                   ;
+; Total Medium Violations           ; 4                                   ;
+; Total Information only Violations ; 118                                 ;
 +-----------------------------------+-------------------------------------+
 
 
@@ -99,55 +100,102 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+----+
 
 
-+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; High Violations                                                                                                                                                                                                               ;
-+------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------+
-; Rule name                                                                    ; Name                                                                                                                                           ;
-+------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------+
-; Rule C102: Logic cell should not be used to generate inverted clock          ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                                             ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[0]                                 ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[0]~1751                         ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[1]                                 ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1752                         ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1750                         ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[2]                                 ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1753                         ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1748                         ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[3]                                 ;
-;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[3]~1754                         ;
-; Rule R101: Combinational logic used as a reset signal should be synchronized ; rst                                                                                                                                            ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[1]_RTM0292_RTM1388_RTM1424_RTM0550_RTM0695_RTM0775  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[2]_RTM0290_RTM1385_RTM1423_RTM0549_RTM0693_RTM0773  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[3]_RTM0288_RTM1382_RTM1422_RTM0548_RTM0691_RTM0771  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[4]_RTM0286_RTM1379_RTM1421_RTM0547_RTM0689_RTM0769  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[5]_RTM0284_RTM1376_RTM1420_RTM0546_RTM0687_RTM0767  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[6]_RTM0282_RTM1373_RTM1419_RTM0545_RTM0685_RTM0765  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[7]_RTM0280_RTM1370_RTM1418_RTM0544_RTM0683_RTM0763  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[8]_RTM0278_RTM1367_RTM1417_RTM0543_RTM0681_RTM0761  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[9]_RTM0276_RTM1364_RTM1416_RTM0542_RTM0679_RTM0759  ;
-;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[10]_RTM0274_RTM1361_RTM1415_RTM0541_RTM0677_RTM0757 ;
-+------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Critical Violations                                                                                                                                             ;
++--------------------------------------------------------------------------------------+--------------------------------------------------------------------------+
+; Rule name                                                                            ; Name                                                                     ;
++--------------------------------------------------------------------------------------+--------------------------------------------------------------------------+
+; Rule C101: Gated clock should be implemented according to the Altera standard scheme ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|flux_fb_changed_o ;
+;  Gated clock destination node(s) list                                                ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed ;
++--------------------------------------------------------------------------------------+--------------------------------------------------------------------------+
 
 
-+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Medium Violations                                                                                                                                                                           ;
-+--------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
-; Rule name                                                          ; Name                                                                                                                   ;
-+--------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
-; Rule C104: Clock signal source should drive only input clock ports ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                     ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[0]         ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[0]~1751 ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[1]         ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1752 ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1750 ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[2]         ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1753 ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1748 ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[3]         ;
-;  Clock ports destination node(s) list                              ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[3]~1754 ;
-;  Non-clock ports destination node(s) list                          ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|bias_clk_o~38                                                 ;
-;  Non-clock ports destination node(s) list                          ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|Selector99~35                                                 ;
-+--------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; High Violations                                                                                                                                                                                               ;
++------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+; Rule name                                                                    ; Name                                                                                                                           ;
++------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+; Rule C102: Logic cell should not be used to generate inverted clock          ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                             ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[0]                 ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[0]~1751         ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[1]                 ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1752         ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1750         ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[2]                 ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1753         ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1748         ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[3]                 ;
+;  Inverted clock destination node(s) list                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[3]~1754         ;
+; Rule R101: Combinational logic used as a reset signal should be synchronized ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|dac_count_rst                                                         ;
+;  Reset signal destination node(s) list                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[3]                                          ;
+;  Reset signal destination node(s) list                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[2]                                          ;
+;  Reset signal destination node(s) list                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[1]                                          ;
+;  Reset signal destination node(s) list                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[0]                                          ;
+;  Reset signal destination node(s) list                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[5]                                          ;
+;  Reset signal destination node(s) list                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]                                          ;
+; Rule R101: Combinational logic used as a reset signal should be synchronized ; rst                                                                                                                            ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[1]_RTM0261_RTM1357_RTM1392_RTM0473  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[2]_RTM0259_RTM1354_RTM1391_RTM0472  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[3]_RTM0257_RTM1351_RTM1389_RTM0471  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[4]_RTM0255_RTM1348_RTM1386_RTM0470  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[5]_RTM0253_RTM1345_RTM1385_RTM0469  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[6]_RTM0251_RTM1342_RTM1384_RTM0468  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[7]_RTM0249_RTM1339_RTM1383_RTM0467  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[8]_RTM0247_RTM1336_RTM1382_RTM0466  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[9]_RTM0245_RTM1333_RTM1381_RTM0465  ;
+;  Reset signal destination node(s) list                                       ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[10]_RTM0243_RTM1330_RTM1380_RTM0464 ;
+; Rule R101: Combinational logic used as a reset signal should be synchronized ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed_clr~44                                                ;
+;  Reset signal destination node(s) list                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed                                                       ;
++------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Medium Violations                                                                                                                                                                                                                                                                         ;
++-------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Rule name                                                                                                   ; Name                                                                                                                                                                        ;
++-------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Rule C103: Gated clock is not feeding at least a pre-defined number of clock port to effectively save power ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|flux_fb_changed_o                                                                                                    ;
+;  Gated clock destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed                                                                                                    ;
+; Rule C104: Clock signal source should drive only input clock ports                                          ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.next_dac2                                                                                    ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[3]                                                                                       ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[2]                                                                                       ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[1]                                                                                       ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[0]                                                                                       ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[5]                                                                                       ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]                                                                                       ;
+;  Non-clock ports destination node(s) list                                                                   ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.load1                                                                                        ;
+;  Non-clock ports destination node(s) list                                                                   ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.idle~669                                                                                     ;
+;  Non-clock ports destination node(s) list                                                                   ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.idle~667                                                                                     ;
+;  Non-clock ports destination node(s) list                                                                   ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|WideOr4                                                                                                            ;
+; Rule C104: Clock signal source should drive only input clock ports                                          ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                                                                          ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[0]                                                              ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[0]~1751                                                      ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[1]                                                              ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1752                                                      ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[1]~1750                                                      ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[2]                                                              ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1753                                                      ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1748                                                      ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[3]                                                              ;
+;  Clock ports destination node(s) list                                                                       ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[3]~1754                                                      ;
+;  Non-clock ports destination node(s) list                                                                   ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|bias_clk_o~38                                                                                                      ;
+;  Non-clock ports destination node(s) list                                                                   ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|Selector99~35                                                                                                      ;
+; Rule C106: Clock signal source should not drive registers that are triggered by different clock edges       ; bc_pll:pll0|altpll:altpll_component|_clk0                                                                                                                                   ;
+;  Positive edge destination node(s) list                                                                     ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.next_dac2                                                                                    ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[0]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[1]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[2]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[3]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[4]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[6]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[5]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[7]                                                                                                           ;
+;  Positive edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[14]                                                                                                          ;
+;  Negative edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a0~portb_address_reg1  ;
+;  Negative edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a0~portb_address_reg3  ;
+;  Negative edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a18~portb_address_reg1 ;
+;  Negative edge destination node(s) list                                                                     ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a18~portb_address_reg3 ;
++-------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
 +-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -155,127 +203,124 @@ applicable agreement for further details.
 +------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+---------+
 ; Rule name                                                        ; Name                                                                                                                           ; Fan-Out ;
 +------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0230_RTM1294                 ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; rst                                                                                                                            ; 1447    ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]                                          ; 101     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                             ; 68      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; rst                                                                                                                            ; 1383    ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal0~65                                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                   ; 142     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|Equal0~66                                                       ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~752                                                                      ; 41      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                               ; 71      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|pres_state.fetch                                                                                                 ; 66      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.done                                                                    ; 54      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1263_RTM0359         ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71                                                                           ; 99      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[1]~72                                                                           ; 99      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|Selector5~29                                                                                                     ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|Selector5~28                                                                                                     ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]                                                      ; 42      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync                                                   ; 43      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                                                          ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[16]                                                                                               ; 31      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[18]                                                                                               ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle                                                              ; 140     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; id_thermo:id_thermo0|wb_ps.send_temp                                                                                           ; 35      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle                                                                    ; 42      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[0]                              ; 35      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[1]                              ; 34      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~81                                                   ; 44      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1264                 ; 33      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|Selector3~257                           ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                             ; 70      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|dac_count[4]                                                          ; 102     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|WideOr4                                                               ; 96      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|Selector99~35                                                         ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg~1770            ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71                                                                           ; 99      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[1]~72                                                                           ; 99      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                               ; 69      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                   ; 135     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|Selector3~20                                                                                                     ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~722                                                                      ; 41      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|pres_state.fetch                                                                                                 ; 66      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.done                                                                    ; 54      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|Selector22~969                                                                                                   ; 31      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]                                                      ; 44      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal0~65                                                                ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|Equal0~66                                                       ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~298                                                                         ; 31      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync                                                   ; 43      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                                                          ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[15]_RTM0264_RTM1346_RTM0390         ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; ~GND                                                                                                                           ; 54      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux12~271                                                                                                ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~13                                                        ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~297                                                                         ; 95      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~78                                                                 ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[16]                                                                                               ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[18]                                                                                               ; 37      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; id_thermo:id_thermo0|wb_ps.send_temp                                                                                           ; 35      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; id_thermo:id_thermo0|wb_ps.send_id                                                                                             ; 34      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~295                                                                         ; 220     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~296                                                                         ; 131     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle                                                              ; 149     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0230_RTM1295_RTM1398_RTM1518 ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|bias_wren~21                                                            ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|Selector31~802                                                                                                   ; 36      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|Equal0~63                                                                                             ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|current_state.wr                                                                                      ; 36      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|reg_wren~4                                                                                            ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|resync_req_wren~19                                                        ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux12~271                                                                                                ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~301                                                                         ; 164     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~302                                                                         ; 131     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~303                                                                         ; 72      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; id_thermo:id_thermo0|wb_ps.send_id                                                                                             ; 34      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1263_RTM1361_RTM1442 ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~62                                                                 ; 35      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|feedback_delay_wren~17                                                    ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|init_window_ack_o~17                                                     ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_wren~27                                                   ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|address_on_delay_wren~18                                                  ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_wren~14                                                          ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~13                                                        ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~15                                                      ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_num_wren~16                                                        ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux14~274                                                                                                ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux15~291                                                                                                ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux15~296                                                                                                ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux13~271                                                                                                ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux8~277                                                                                                 ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux8~306                                                                                                 ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux9~274                                                                                                 ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux11~270                                                                                                ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux10~270                                                                                                ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|feedback_delay_wren~17                                                    ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_wren~27                                                   ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|init_window_ack_o~17                                                     ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|address_on_delay_wren~20                                                  ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_wren~16                                                          ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~17                                                      ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_num_wren~16                                                        ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle                                                                    ; 36      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|resync_req_wren~21                                                        ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector8~406                                                                ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector8~415                                                                ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector40~87                                                                ; 66      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[0]                              ; 35      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~81                                                   ; 44      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[1]                              ; 34      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[1]~1551                                        ; 109     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector63~212                                                               ; 31      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_wren~33                                                      ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|Equal0~63                                                                                             ; 34      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|current_state.wr                                                                                      ; 34      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|reg_wren~4                                                                                            ; 31      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector10~406                                                               ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector10~415                                                               ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector42~87                                                                ; 63      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg~449                                            ; 100     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|fltr_rst_ack_o~17                                                        ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0230_RTM1295_RTM1398_RTM0517 ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk0                                                                                      ; 1469    ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_wren~33                                                      ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; ~STRATIX_FITTER_CREATED_GND~I                                                                                                  ; 39      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1263_RTM1361_RTM0441 ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk0                                                                                      ; 1405    ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk1                                                                                      ; 72      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_pll:pll0|altpll:altpll_component|_clk0                                                                                      ; 1469    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rst                                                                                                                            ; 1447    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~295                                                                         ; 220     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle                                                              ; 149     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                   ; 135     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~296                                                                         ; 131     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[1]~1551                                        ; 109     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|dac_count[4]                                                          ; 102     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71                                                                           ; 99      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_pll:pll0|altpll:altpll_component|_clk0                                                                                      ; 1405    ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; rst                                                                                                                            ; 1383    ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~301                                                                         ; 164     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                   ; 142     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle                                                              ; 140     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~302                                                                         ; 131     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]                                          ; 101     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg~449                                            ; 100     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[1]~72                                                                           ; 99      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71                                                                           ; 99      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|WideOr4                                                               ; 96      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~297                                                                         ; 95      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_pll:pll0|altpll:altpll_component|_clk1                                                                                      ; 72      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                             ; 70      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                               ; 69      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector40~87                                                                ; 66      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~303                                                                         ; 72      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                               ; 71      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0                                                             ; 68      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|pres_state.fetch                                                                                                 ; 66      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; ~GND                                                                                                                           ; 54      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector42~87                                                                ; 63      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.done                                                                    ; 54      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]                                                      ; 44      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~81                                                   ; 44      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync                                                   ; 43      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~722                                                                      ; 41      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|reg:hdr1|reg_o[18]                                                                                               ; 37      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle                                                                    ; 36      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|Selector31~802                                                                                                   ; 36      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; fpga_thermo:fpga_thermo0|current_state.wr                                                                                      ; 36      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; id_thermo:id_thermo0|wb_ps.send_temp                                                                                           ; 35      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle                                                                    ; 42      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]                                                      ; 42      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~752                                                                      ; 41      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; ~STRATIX_FITTER_CREATED_GND~I                                                                                                  ; 39      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[0]                              ; 35      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; id_thermo:id_thermo0|wb_ps.send_temp                                                                                           ; 35      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~62                                                                 ; 35      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; fpga_thermo:fpga_thermo0|current_state.wr                                                                                      ; 34      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; id_thermo:id_thermo0|wb_ps.send_id                                                                                             ; 34      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; fpga_thermo:fpga_thermo0|Equal0~63                                                                                             ; 34      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[1]                              ; 34      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|reg:hdr1|reg_o[16]                                                                                               ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0230_RTM1294                 ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                                                          ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|Equal0~66                                                       ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1264                 ; 33      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|Selector3~257                           ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                                                          ; 33      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal0~65                                                                ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; fpga_thermo:fpga_thermo0|Equal0~63                                                                                             ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg~1770            ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~78                                                                 ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|fltr_rst_ack_o~17                                                        ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|Equal0~66                                                       ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector10~415                                                               ; 32      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux14~274                                                                                                ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_num_wren~16                                                        ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|bias_wren~21                                                            ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux12~271                                                                                                ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux15~296                                                                                                ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux13~271                                                                                                ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg~1770            ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux8~306                                                                                                 ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux9~274                                                                                                 ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux11~270                                                                                                ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; all_cards:i_all_cards|Mux10~270                                                                                                ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1263_RTM0359         ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|Selector99~35                                                         ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|fltr_rst_ack_o~17                                                        ; 32      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_wren~33                                                      ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; fpga_thermo:fpga_thermo0|reg_wren~4                                                                                            ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~13                                                        ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0230_RTM1295_RTM1398_RTM0517 ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_wren~16                                                          ; 32      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1263_RTM1361_RTM1442 ; 32      ;
 +------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+---------+
 
 
@@ -284,9 +329,13 @@ applicable agreement for further details.
 +---------------------------+
 Info: *******************************************************************
 Info: Running Quartus II Design Assistant
-    Info: Version 7.2 Build 151 09/26/2007 SJ Full Version
-    Info: Processing started: Fri Jan 25 17:38:36 2008
+    Info: Version 8.0 Build 215 05/29/2008 SJ Full Version
+    Info: Processing started: Tue Jul 15 10:45:43 2008
 Info: Command: quartus_drc --read_settings_files=off --write_settings_files=off bias_card -c bias_card
+Critical Warning: (Critical) Rule C101: Gated clock should be implemented according to the Altera standard scheme. Found 1 node(s) related to this rule.
+    Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|flux_fb_changed_o"
+        Critical Warning: Gated clock destination node(s) list
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed"
 Critical Warning: (High) Rule C102: Logic cell should not be used to generate inverted clock. Found 1 node(s) related to this rule.
     Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0"
         Critical Warning: Inverted clock destination node(s) list
@@ -300,22 +349,50 @@ Critical Warning: (High) Rule C102: Logic cell should not be used to generate in
             Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1748"
             Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[3]"
             Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[3]~1754"
-            Info: Truncated list of Design Assistant detail messages to 10 messages. (Total 67 messages)
-Critical Warning: (High) Rule R101: Combinational logic used as a reset signal should be synchronized. Found 1 node(s) related to this rule.
+            Info: Truncated list of Design Assistant detail messages to 10 messages. (Total 65 messages)
+Critical Warning: (High) Rule R101: Combinational logic used as a reset signal should be synchronized. Found 3 node(s) related to this rule.
+    Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|dac_count_rst"
+        Critical Warning: Reset signal destination node(s) list
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[3]"
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[2]"
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[1]"
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[0]"
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[5]"
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]"
     Critical Warning: Node  "rst"
         Critical Warning: Reset signal destination node(s) list
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[1]_RTM0292_RTM1388_RTM1424_RTM0550_RTM0695_RTM0775"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[2]_RTM0290_RTM1385_RTM1423_RTM0549_RTM0693_RTM0773"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[3]_RTM0288_RTM1382_RTM1422_RTM0548_RTM0691_RTM0771"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[4]_RTM0286_RTM1379_RTM1421_RTM0547_RTM0689_RTM0769"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[5]_RTM0284_RTM1376_RTM1420_RTM0546_RTM0687_RTM0767"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[6]_RTM0282_RTM1373_RTM1419_RTM0545_RTM0685_RTM0765"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[7]_RTM0280_RTM1370_RTM1418_RTM0544_RTM0683_RTM0763"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[8]_RTM0278_RTM1367_RTM1417_RTM0543_RTM0681_RTM0761"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[9]_RTM0276_RTM1364_RTM1416_RTM0542_RTM0679_RTM0759"
-            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[10]_RTM0274_RTM1361_RTM1415_RTM0541_RTM0677_RTM0757"
-            Info: Truncated list of Design Assistant detail messages to 10 messages. (Total 1416 messages)
-Warning: (Medium) Rule C104: Clock signal source should drive only input clock ports. Found 1 nodes related to this rule.
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[1]_RTM0261_RTM1357_RTM1392_RTM0473"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[2]_RTM0259_RTM1354_RTM1391_RTM0472"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[3]_RTM0257_RTM1351_RTM1389_RTM0471"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[4]_RTM0255_RTM1348_RTM1386_RTM0470"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[5]_RTM0253_RTM1345_RTM1385_RTM0469"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[6]_RTM0251_RTM1342_RTM1384_RTM0468"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[7]_RTM0249_RTM1339_RTM1383_RTM0467"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[8]_RTM0247_RTM1336_RTM1382_RTM0466"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[9]_RTM0245_RTM1333_RTM1381_RTM0465"
+            Critical Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[10]_RTM0243_RTM1330_RTM1380_RTM0464"
+            Info: Truncated list of Design Assistant detail messages to 10 messages. (Total 1370 messages)
+    Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed_clr~44"
+        Critical Warning: Reset signal destination node(s) list
+            Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed"
+Warning: (Medium) Rule C103: Gated clock is not feeding at least a pre-defined number of clock port to effectively save power. (Value defined:30). Found 1 node(s) related to this rule.
+    Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|flux_fb_changed_o"
+        Warning: Gated clock destination node(s) list
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_changed"
+Warning: (Medium) Rule C104: Clock signal source should drive only input clock ports. Found 2 nodes related to this rule.
+    Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.next_dac2"
+        Warning: Clock ports destination node(s) list
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[3]"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[2]"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[1]"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[0]"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[5]"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]"
+        Warning: Non-clock ports destination node(s) list
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.load1"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.idle~669"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.idle~667"
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|WideOr4"
     Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0"
         Warning: Clock ports destination node(s) list
             Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[0]"
@@ -328,78 +405,98 @@ Warning: (Medium) Rule C104: Clock signal source should drive only input clock p
             Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[2]~1748"
             Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|shift_reg:spi_shift|reg[3]"
             Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[3]~1754"
-            Info: Truncated list of Design Assistant detail messages to 10 messages. (Total 67 messages)
+            Info: Truncated list of Design Assistant detail messages to 10 messages. (Total 65 messages)
         Warning: Non-clock ports destination node(s) list
             Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|bias_clk_o~38"
             Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|Selector99~35"
-Info: (Information) Rule T101: Nodes with more than the specified number of fan-outs. (Value defined:30). Found 71 node(s) with highest fan-out.
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0230_RTM1294" has 33 fan-out(s)
-    Info: Node "rst" has 1447 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|Selector3~257" has 33 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0" has 70 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|dac_count[4]" has 102 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|WideOr4" has 96 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|Selector99~35" has 32 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg~1770" has 32 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71" has 99 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[1]~72" has 99 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 69 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 135 fan-out(s)
-    Info: Node "dispatch:cmd0|Selector3~20" has 32 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~722" has 41 fan-out(s)
+Warning: (Medium) Rule C106: Clock signal source should not drive registers that are triggered by different clock edges. Found 1 node(s) related to this rule.
+    Warning: Node  "bc_pll:pll0|altpll:altpll_component|_clk0"
+        Warning: Positive edge destination node(s) list
+            Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|flux_fb_current_state.next_dac2"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[0]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[1]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[2]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[3]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[4]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[6]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[5]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[7]"
+            Warning: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[14]"
+            Info: Truncated list of Design Assistant detail messages to 10 messages. (Total 1611 messages)
+        Warning: Negative edge destination node(s) list
+            Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a0~portb_address_reg1"
+            Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a0~portb_address_reg3"
+            Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a18~portb_address_reg1"
+            Warning: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_tpb1:auto_generated|ram_block1a18~portb_address_reg3"
+Info: (Information) Rule T101: Nodes with more than the specified number of fan-outs. (Value defined:30). Found 68 node(s) with highest fan-out.
+    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]" has 101 fan-out(s)
+    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0" has 68 fan-out(s)
+    Info: Node "rst" has 1383 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal0~65" has 33 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 142 fan-out(s)
+    Info: Node "fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|Equal0~66" has 33 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~752" has 41 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 71 fan-out(s)
     Info: Node "dispatch:cmd0|pres_state.fetch" has 66 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.done" has 54 fan-out(s)
-    Info: Node "dispatch:cmd0|Selector22~969" has 31 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]" has 44 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal0~65" has 33 fan-out(s)
-    Info: Node "fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|Equal0~66" has 33 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~298" has 31 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1263_RTM0359" has 32 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71" has 99 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[1]~72" has 99 fan-out(s)
+    Info: Node "dispatch:cmd0|Selector5~29" has 32 fan-out(s)
+    Info: Node "dispatch:cmd0|Selector5~28" has 32 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]" has 42 fan-out(s)
     Info: Node "frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync" has 43 fan-out(s)
     Info: Node "frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters" has 33 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[15]_RTM0264_RTM1346_RTM0390" has 32 fan-out(s)
-    Info: Node "~GND" has 54 fan-out(s)
-    Info: Node "all_cards:i_all_cards|Mux12~271" has 32 fan-out(s)
-    Info: Node "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~13" has 32 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~297" has 95 fan-out(s)
-    Info: Node "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~78" has 32 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[16]" has 33 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[16]" has 31 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[18]" has 32 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle" has 140 fan-out(s)
+    Info: Node "id_thermo:id_thermo0|wb_ps.send_temp" has 35 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle" has 42 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[0]" has 35 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[1]" has 34 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~81" has 44 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|shift_reg:tx_buffer|reg[32]_RTM0199_RTM1264" has 33 fan-out(s)
+    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|Selector3~257" has 33 fan-out(s)
+    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|WideOr4" has 96 fan-out(s)
+    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|Selector99~35" has 32 fan-out(s)
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
 Info: (Information) Rule T102: Top nodes with the highest number of fan-outs. (Value defined:50). Found 50 node(s) with highest fan-out.
-    Info: Node "bc_pll:pll0|altpll:altpll_component|_clk0" has 1469 fan-out(s)
-    Info: Node "rst" has 1447 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~295" has 220 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle" has 149 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 135 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~296" has 131 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[1]~1551" has 109 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|dac_count[4]" has 102 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71" has 99 fan-out(s)
+    Info: Node "bc_pll:pll0|altpll:altpll_component|_clk0" has 1405 fan-out(s)
+    Info: Node "rst" has 1383 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~301" has 164 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 142 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle" has 140 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~302" has 131 fan-out(s)
+    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]" has 101 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg~449" has 100 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[1]~72" has 99 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|tga_o[0]~71" has 99 fan-out(s)
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|WideOr4" has 96 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~297" has 95 fan-out(s)
     Info: Node "bc_pll:pll0|altpll:altpll_component|_clk1" has 72 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0" has 70 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 69 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector40~87" has 66 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~303" has 72 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 71 fan-out(s)
+    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|LessThan0" has 68 fan-out(s)
     Info: Node "dispatch:cmd0|pres_state.fetch" has 66 fan-out(s)
-    Info: Node "~GND" has 54 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector42~87" has 63 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.done" has 54 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]" has 44 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~81" has 44 fan-out(s)
     Info: Node "frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync" has 43 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~722" has 41 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[18]" has 37 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle" has 36 fan-out(s)
-    Info: Node "dispatch:cmd0|Selector31~802" has 36 fan-out(s)
-    Info: Node "fpga_thermo:fpga_thermo0|current_state.wr" has 36 fan-out(s)
-    Info: Node "id_thermo:id_thermo0|wb_ps.send_temp" has 35 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle" has 42 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|binary_counter:addr_gen|count[2]" has 42 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~752" has 41 fan-out(s)
+    Info: Node "~STRATIX_FITTER_CREATED_GND~I" has 39 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[0]" has 35 fan-out(s)
+    Info: Node "id_thermo:id_thermo0|wb_ps.send_temp" has 35 fan-out(s)
+    Info: Node "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~62" has 35 fan-out(s)
+    Info: Node "fpga_thermo:fpga_thermo0|current_state.wr" has 34 fan-out(s)
     Info: Node "id_thermo:id_thermo0|wb_ps.send_id" has 34 fan-out(s)
+    Info: Node "fpga_thermo:fpga_thermo0|Equal0~63" has 34 fan-out(s)
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
-Info: Design Assistant information: finished post-fitting analysis of current design -- generated 121 information messages and 3 warning messages
-Info: Quartus II Design Assistant was successful. 0 errors, 42 warnings
-    Info: Allocated 107 megabytes of memory during processing
-    Info: Processing ended: Fri Jan 25 17:38:40 2008
-    Info: Elapsed time: 00:00:04
+Info: Design Assistant information: finished post-fitting analysis of current design -- generated 118 information messages and 9 warning messages
+Info: Quartus II Design Assistant was successful. 0 errors, 92 warnings
+    Info: Peak virtual memory: 122 megabytes
+    Info: Processing ended: Tue Jul 15 10:45:54 2008
+    Info: Elapsed time: 00:00:11
+    Info: Total CPU time (on all processors): 00:00:10
 
 

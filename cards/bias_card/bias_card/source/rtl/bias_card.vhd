@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.30 2007/12/20 00:39:29 mandana Exp $
+-- $Id: bias_card.vhd,v 1.31 2008/01/26 01:20:33 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -28,8 +28,12 @@
 -- Bias Card top-level file
 --
 -- Revision history:
--- 
+--
 -- $Log: bias_card.vhd,v $
+-- Revision 1.31  2008/01/26 01:20:33  mandana
+-- added all_cards slave to add card_type, scratch and integrate fw_rev and slot_id
+-- rev. 1.4.1
+--
 -- Revision 1.30  2007/12/20 00:39:29  mandana
 -- rev. 1.4.0
 -- added flux_fb_upper command for mceV2
@@ -148,27 +152,27 @@ use work.bc_dac_ctrl_pack.all;
 
 entity bias_card is
    port(
- 
+
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
-      
+
       -- LVDS interface:
       lvds_cmd   : in std_logic;
       lvds_sync  : in std_logic;
       lvds_spare : in std_logic;
       lvds_txa   : out std_logic;
       lvds_txb   : out std_logic;
-      
+
       -- TTL interface:
       ttl_nrx1   : in std_logic;
       ttl_tx1    : out std_logic;
       ttl_txena1 : out std_logic;
-      
+
       ttl_nrx2   : in std_logic;
       ttl_tx2    : out std_logic;
       ttl_txena2 : out std_logic;
-      
+
       ttl_nrx3   : in std_logic;
       ttl_tx3    : out std_logic;
       ttl_txena3 : out std_logic;
@@ -178,16 +182,16 @@ entity bias_card is
       eeprom_so  : out std_logic;
       eeprom_sck : out std_logic;
       eeprom_cs  : out std_logic;
-                  
+
       -- dac interface:
       dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      dac_data      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
+      dac_data      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       lvds_dac_ncs  : out std_logic;
       lvds_dac_sclk : out std_logic;
       lvds_dac_data : out std_logic;
       dac_nclr      : out std_logic; -- add to tcl file
-      
+
       -- miscellaneous ports:
       red_led    : out std_logic;
       ylw_led    : out std_logic;
@@ -199,8 +203,8 @@ entity bias_card is
       card_id    : inout std_logic;
       smb_clk    : out std_logic;
       smb_nalert : in std_logic;
-      smb_data   : inout std_logic;      
-      
+      smb_data   : inout std_logic;
+
       -- debug ports:
       test       : inout std_logic_vector(14 downto 1);
       mictor     : out std_logic_vector(31 downto 0);
@@ -212,11 +216,11 @@ end bias_card;
 
 architecture top of bias_card is
 
--- The REVISION format is RRrrBBBB where 
+-- The REVISION format is RRrrBBBB where
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01040001"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01040002"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -225,7 +229,7 @@ signal all_cards_err           : std_logic;
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
+signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
 -- clocks
 signal clk      : std_logic;
@@ -262,18 +266,18 @@ signal fpga_thermo_ack   : std_logic;
 signal fpga_thermo_err   : std_logic;
 
 -- frame_timing interface
-signal update_bias : std_logic; 
+signal update_bias : std_logic;
 
 signal debug       : std_logic_vector (31 downto 0);
 
 begin
-   
+
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_txena1 <= '1';
    -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_nrx1);
-   
+
    -- This line will be used by clock card to check card presence
    lvds_txb <= '0';
 
@@ -281,27 +285,27 @@ begin
    test (4) <= dac_ncs_temp(0);
    test (6) <= dac_data_temp(0);
    test (8) <= dac_sclk_temp(0);
-      
+
    dac_ncs <= dac_ncs_temp;
    dac_data <= dac_data_temp;
    dac_sclk <= dac_sclk_temp;
-   
+
    pll0: bc_pll
    port map(inclk0 => inclk,
             c0 => clk,
             c1 => comm_clk,
             c2 => clk_n,
             c3 => open);
-            
+
    cmd0: dispatch
-      port map(                                                                  
+      port map(
          clk_i                      => clk,
          comm_clk_i                 => comm_clk,
-         rst_i                      => rst,         
-         
+         rst_i                      => rst,
+
          lvds_cmd_i                 => lvds_cmd,
          lvds_reply_o               => lvds_txa,
-     
+
          dat_o                      => data,
          addr_o                     => addr,
          tga_o                      => tga,
@@ -310,20 +314,20 @@ begin
          cyc_o                      => cyc,
          dat_i                      => slave_data,
          ack_i                      => slave_ack,
-         err_i                      => slave_err,      
+         err_i                      => slave_err,
          wdt_rst_o                  => wdog,
          slot_i                     => slot_id,
          dip_sw3                    => '1',
          dip_sw4                    => '1'
       );
-   
+
    id_thermo0: id_thermo
       port map(
          clk_i                      => clk,
-         rst_i                      => rst,  
-         
+         rst_i                      => rst,
+
          -- Wishbone signals
-         dat_i                      => data, 
+         dat_i                      => data,
          addr_i                     => addr,
          tga_i                      => tga,
          we_i                       => we,
@@ -332,18 +336,18 @@ begin
          err_o                      => id_thermo_err,
          dat_o                      => id_thermo_data,
          ack_o                      => id_thermo_ack,
-            
+
          -- silicon id/temperature chip signals
          data_io                    => card_id
        );
-       
+
    fpga_thermo0: fpga_thermo
       port map(
          clk_i                      => clk,
-         rst_i                      => rst,  
-         
+         rst_i                      => rst,
+
          -- Wishbone signals
-         dat_i                      => data, 
+         dat_i                      => data,
          addr_i                     => addr,
          tga_i                      => tga,
          we_i                       => we,
@@ -352,12 +356,12 @@ begin
          err_o                      => fpga_thermo_err,
          dat_o                      => fpga_thermo_data,
          ack_o                      => fpga_thermo_ack,
-            
+
          -- FPGA temperature chip signals
          smbclk_o                   => smb_clk,
          smbalert_i                 => smb_nalert,
          smbdat_io                  => smb_data);
-       
+
 
    leds_slave: leds
       port map(
@@ -372,18 +376,18 @@ begin
          cyc_i                      => cyc,
          dat_o                      => led_data,
          ack_o                      => led_ack,
-         
+
          power                      => grn_led,
          status                     => ylw_led,
          fault                      => red_led
       );
-   
+
    ----------------------------------------------------------------------------
    -- all_cards registers Instantition
    ----------------------------------------------------------------------------
 
     i_all_cards: all_cards
-       generic map( REVISION => BC_REVISION, 
+       generic map( REVISION => BC_REVISION,
                     CARD_TYPE=> BC_CARD_TYPE
                     )
        port map(
@@ -406,35 +410,35 @@ begin
       port map(
          -- DAC hardware interface:
          -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
-         flux_fb_data_o             => dac_data_temp,      
-         flux_fb_ncs_o              => dac_ncs_temp,     
-         flux_fb_clk_o              => dac_sclk_temp,     
-                                       
+         flux_fb_data_o             => dac_data_temp,
+         flux_fb_ncs_o              => dac_ncs_temp,
+         flux_fb_clk_o              => dac_sclk_temp,
+
          bias_data_o                => lvds_dac_data,
          bias_ncs_o                 => lvds_dac_ncs,
          bias_clk_o                 => lvds_dac_sclk,
-         
+
          dac_nclr_o                 => dac_nclr,
-         
+
          -- wishbone interface:
          dat_i                      => data,
          addr_i                     => addr,
-         tga_i                      => tga, 
-         we_i                       => we,  
-         stb_i                      => stb, 
-         cyc_i                      => cyc, 
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
          dat_o                      => bc_dac_data,
          ack_o                      => bc_dac_ack,
-         
+
          -- frame_timing signals
          update_bias_i              => update_bias,
-         
-         -- Global Signals      
+
+         -- Global Signals
          clk_i                      => clk,
          rst_i                      => rst,
          debug                      => debug
-      );                         
-                                 
+      );
+
    frame_timing_slave: frame_timing
       port map(
          dac_dat_en_o               => open,
@@ -443,12 +447,12 @@ begin
          restart_frame_aligned_o    => open,
          restart_frame_1row_post_o  => open,
          initialize_window_o        => open,
-         
+
          row_switch_o               => open,
          row_en_o                   => open,
-            
+
          update_bias_o              => update_bias,
-         
+
          dat_i                      => data,
          addr_i                     => addr,
          tga_i                      => tga,
@@ -457,40 +461,40 @@ begin
          cyc_i                      => cyc,
          dat_o                      => frame_timing_data,
          ack_o                      => frame_timing_ack,
-         
+
          clk_i                      => clk,
          clk_n_i                    => clk_n,
          rst_i                      => rst,
          sync_i                     => lvds_sync
       );
-   
+
    with addr select
       slave_data <=
-         all_cards_data    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,     
+         all_cards_data    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_data          when LED_ADDR,
          bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
-         fpga_thermo_data  when FPGA_TEMP_ADDR,         
+         fpga_thermo_data  when FPGA_TEMP_ADDR,
          (others => '0')   when others;
 
    with addr select
-      slave_ack <= 
+      slave_ack <=
          all_cards_ack    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_ack          when LED_ADDR,
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
-         fpga_thermo_ack  when FPGA_TEMP_ADDR,         
+         fpga_thermo_ack  when FPGA_TEMP_ADDR,
          '0'              when others;
-         
+
    with addr select
-      slave_err <= 
-         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | FLUX_FB_UPPER_ADDR | 
+      slave_err <=
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | FLUX_FB_UPPER_ADDR |
                                SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          all_cards_err    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err  when FPGA_TEMP_ADDR,
-         '1'              when others;        
-   
+         '1'              when others;
+
 end top;

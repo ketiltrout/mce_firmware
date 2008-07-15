@@ -1,6 +1,6 @@
 Assembler report for bias_card
-Fri Jan 25 17:38:30 2008
-Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
+Tue Jul 15 10:45:31 2008
+Quartus II Version 8.0 Build 215 05/29/2008 SJ Full Version
 
 
 ---------------------
@@ -10,8 +10,8 @@ Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
   2. Assembler Summary
   3. Assembler Settings
   4. Assembler Generated Files
-  5. Assembler Device Options: C:/scuba2_repository/cards/bias_card/bias_card/synth/bias_card.sof
-  6. Assembler Device Options: C:/scuba2_repository/cards/bias_card/bias_card/synth/bias_card.pof
+  5. Assembler Device Options: C:/mce/cards/bias_card/bias_card/synth/bias_card.sof
+  6. Assembler Device Options: C:/mce/cards/bias_card/bias_card/synth/bias_card.pof
   7. Assembler Messages
 
 
@@ -19,7 +19,7 @@ Quartus II Version 7.2 Build 151 09/26/2007 SJ Full Version
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 1991-2007 Altera Corporation
+Copyright (C) 1991-2008 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
 functions, and any output files from any of the foregoing 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Fri Jan 25 17:38:30 2008 ;
+; Assembler Status      ; Successful - Tue Jul 15 10:45:31 2008 ;
 ; Revision Name         ; bias_card                             ;
 ; Top-level Entity Name ; bias_card                             ;
 ; Family                ; Stratix                               ;
@@ -57,11 +57,9 @@ applicable agreement for further details.
 ; Clock source for configuration device                                       ; Internal ; Internal      ;
 ; Clock frequency of the configuration device                                 ; 10 MHZ   ; 10 MHz        ;
 ; Divide clock frequency by                                                   ; 1        ; 1             ;
-; JTAG user code for target device                                            ; Ffffffff ; Ffffffff      ;
 ; Auto user code                                                              ; Off      ; Off           ;
 ; Use configuration device                                                    ; On       ; On            ;
 ; Configuration device                                                        ; Auto     ; Auto          ;
-; JTAG user code for configuration device                                     ; Ffffffff ; Ffffffff      ;
 ; Configuration device auto user code                                         ; Off      ; Off           ;
 ; Auto-increment JTAG user code for multiple configuration devices            ; On       ; On            ;
 ; Disable CONF_DONE and nSTATUS pull-ups on configuration device              ; Off      ; Off           ;
@@ -80,37 +78,37 @@ applicable agreement for further details.
 +-----------------------------------------------------------------------------+----------+---------------+
 
 
-+--------------------------------------------------------------------+
-; Assembler Generated Files                                          ;
-+--------------------------------------------------------------------+
-; File Name                                                          ;
-+--------------------------------------------------------------------+
-; C:/scuba2_repository/cards/bias_card/bias_card/synth/bias_card.sof ;
-; C:/scuba2_repository/cards/bias_card/bias_card/synth/bias_card.pof ;
-+--------------------------------------------------------------------+
++------------------------------------------------------+
+; Assembler Generated Files                            ;
++------------------------------------------------------+
+; File Name                                            ;
++------------------------------------------------------+
+; C:/mce/cards/bias_card/bias_card/synth/bias_card.sof ;
+; C:/mce/cards/bias_card/bias_card/synth/bias_card.pof ;
++------------------------------------------------------+
 
 
-+----------------------------------------------------------------------------------------------+
-; Assembler Device Options: C:/scuba2_repository/cards/bias_card/bias_card/synth/bias_card.sof ;
-+----------------+-----------------------------------------------------------------------------+
-; Option         ; Setting                                                                     ;
-+----------------+-----------------------------------------------------------------------------+
-; Device         ; EP1S10F780C5                                                                ;
-; JTAG usercode  ; 0xFFFFFFFF                                                                  ;
-; Checksum       ; 0x003E30C8                                                                  ;
-+----------------+-----------------------------------------------------------------------------+
++--------------------------------------------------------------------------------+
+; Assembler Device Options: C:/mce/cards/bias_card/bias_card/synth/bias_card.sof ;
++----------------+---------------------------------------------------------------+
+; Option         ; Setting                                                       ;
++----------------+---------------------------------------------------------------+
+; Device         ; EP1S10F780C5                                                  ;
+; JTAG usercode  ; 0xFFFFFFFF                                                    ;
+; Checksum       ; 0x003D8ADE                                                    ;
++----------------+---------------------------------------------------------------+
 
 
-+----------------------------------------------------------------------------------------------+
-; Assembler Device Options: C:/scuba2_repository/cards/bias_card/bias_card/synth/bias_card.pof ;
-+--------------------+-------------------------------------------------------------------------+
-; Option             ; Setting                                                                 ;
-+--------------------+-------------------------------------------------------------------------+
-; Device             ; EPC4                                                                    ;
-; JTAG usercode      ; 0xFFFFFFFF                                                              ;
-; Checksum           ; 0x05EC8701                                                              ;
-; Compression Ratio  ; 1                                                                       ;
-+--------------------+-------------------------------------------------------------------------+
++--------------------------------------------------------------------------------+
+; Assembler Device Options: C:/mce/cards/bias_card/bias_card/synth/bias_card.pof ;
++--------------------+-----------------------------------------------------------+
+; Option             ; Setting                                                   ;
++--------------------+-----------------------------------------------------------+
+; Device             ; EPC4                                                      ;
+; JTAG usercode      ; 0xFFFFFFFF                                                ;
+; Checksum           ; 0x05E9A833                                                ;
+; Compression Ratio  ; 1                                                         ;
++--------------------+-----------------------------------------------------------+
 
 
 +--------------------+
@@ -118,13 +116,14 @@ applicable agreement for further details.
 +--------------------+
 Info: *******************************************************************
 Info: Running Quartus II Assembler
-    Info: Version 7.2 Build 151 09/26/2007 SJ Full Version
-    Info: Processing started: Fri Jan 25 17:38:28 2008
+    Info: Version 8.0 Build 215 05/29/2008 SJ Full Version
+    Info: Processing started: Tue Jul 15 10:45:26 2008
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 Info: Assembler is generating device programming files
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-    Info: Allocated 176 megabytes of memory during processing
-    Info: Processing ended: Fri Jan 25 17:38:31 2008
-    Info: Elapsed time: 00:00:03
+    Info: Peak virtual memory: 185 megabytes
+    Info: Processing ended: Tue Jul 15 10:45:32 2008
+    Info: Elapsed time: 00:00:06
+    Info: Total CPU time (on all processors): 00:00:05
 
 
