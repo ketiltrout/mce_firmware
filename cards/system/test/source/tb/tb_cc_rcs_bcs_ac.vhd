@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.47.2.3 2008/02/09 00:02:10 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.47.2.4 2008/06/19 23:31:24 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.47.2.4  2008/06/19 23:31:24  mandana
+-- raw mode test and flux-jump test added
+--
 -- Revision 1.47.2.3  2008/02/09 00:02:10  mandana
 -- added test cases for ramp function, integrated all_cards including slot_id, scratch, wb fw_rev, modified flux jump test case.
 --
@@ -2378,7 +2381,7 @@ begin
    begin
 
       -- Wait for the BRst to finish, which takes 100us
-      wait for 120 us;
+      wait for 110 us;
 --      do_bclr;
 --      wait for 200 us;
 ------------------------------------------------------
@@ -2592,23 +2595,23 @@ begin
 ------------------------------------------------------
 -- Test case for RC raw-data bugs and rewrite of wbs_frame_data
 ------------------------------------------------------
-      command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-     
-      command <= command_wb;
-      address_id <= rc1_captr_raw_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 150 us;      
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--     
+--      command <= command_wb;
+--      address_id <= rc1_captr_raw_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 150 us;      
 
 --    command <= command_wb;
 --    address_id <= cc_num_rows_reported_cmd;
@@ -2619,41 +2622,41 @@ begin
 --    load_checksum;
 --    wait for 20 us;
 
-      command <= command_wb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-
-      command <= command_rb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"0000000F";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 600 us;
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 10 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"0000000F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
 
 --      command <= command_rb;
 --      address_id <= rc1_data_mode_cmd;
@@ -2664,23 +2667,89 @@ begin
 --      load_checksum;
 --      wait for 10 us;
 
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 600 us;
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 600 us;
 
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
+------------------------------------------------------
+-- Test case for wbs_fb_data "first gainpid readback failing" bug fix
+------------------------------------------------------
+      command <= command_rb;
+      address_id <= rc1_servo_mode_cmd;
       data_valid <= X"00000001";
       data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 600 us;
+
+      wait for 15 us;
+
+      command <= command_wb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000004";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 15 us;
+
+      command <= command_rb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000008";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 15 us;
+
+--------------------------------------------------------
+---- Test case for wbs_fb_data "first gainpid readback failing" bug fix
+--------------------------------------------------------
+--      command <= command_rb;
+--      address_id <= rc1_gainp0_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 15 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_gainp0_cmd;
+--      data_valid <= X"00000004";
+--      data       <= X"00000064";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 15 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_gainp0_cmd;
+--      data_valid <= X"00000004";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 15 us;
     
 ------------------------------------------------------
 --  7:  Testing Fibre Rx.
@@ -3181,12 +3250,6 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 2000 us;
-
-------------------------------------------------------
---  7:  Testing Fibre Rx.
---  This case tests what happens to the fibre_rx block
---  When a byte is missing or extra.
-------------------------------------------------------
 
 
 ------------------------------------------------------
