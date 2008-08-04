@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.75  2008/07/10 18:33:07  mandana
+-- rev. 4.0.a
+-- regenerated ram_8x64 (flx_quanta) and wbs_fb_storage (adc_offset) rams in Quartus to fix pre-reset read failure bug.
+-- reduced servo_mode storage width to 2 bits in misc_banks_admin to relax timing
+-- removed quartus.ini file from synth directory
+--
 -- Revision 1.74  2008/06/27 20:37:15  mandana
 -- rev. 4.0.9
 -- sa_bias/offset DACs only refreshed when new values are written to as oppose to every frame.
@@ -415,7 +421,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000a"; -- 12b pid pars , sa_bias/offset updated only when modified
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000b"; -- 12b pid pars , sa_bias/offset updated only when modified
                                                                      -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
                                                                      -- removed quartus.ini from synth directory
 -- Global signals
