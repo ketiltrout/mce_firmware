@@ -53,9 +53,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2007/10/31 20:30:37 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2008/02/15 22:24:48 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.32  2008/02/15 22:24:48  mandana
+-- data_mode 6 is skipped, as 7 is more elegant
+--
 -- Revision 1.31  2007/10/31 20:30:37  mandana
 -- data mode 8 is replaced by data mode 9 with new windowing of filtered data
 --
@@ -367,6 +370,7 @@ signal fb_flx_cnt_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 -- signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_error_2_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_flx_cnt_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+signal filtfb_flx_cnt_dat2 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
 -- signals for data output multiplexer
@@ -476,7 +480,8 @@ begin
          if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1') then
             if we_i = '0' then
               if (data_mode /= MODE2_FILTERED and data_mode /= MODE6_FILT_ERROR and 
-                  data_mode /=MODE7_FILT_ERROR2 and data_mode /= MODE9_FILT_FLX_CNT) then  
+                  data_mode /=MODE7_FILT_ERROR2 and data_mode /= MODE9_FILT_FLX_CNT and
+                  data_mode /= MODE10_FILT_FLX_CNT) then  
                 next_state <= WSS1;
               
               -- For filter mode data wait for the start of the frame before reading back. In that case row 0 is read before 
@@ -726,6 +731,7 @@ begin
                        --filtfb_error_dat   when "0110", -- 0110 is skipped, as 0111 is a better solution
                        filtfb_error_2_dat when "0111",
                        filtfb_flx_cnt_dat when "1001", -- 1000 is skipped, see note below.
+                       filtfb_flx_cnt_dat2 when "1010",
                        error_dat        when others;
                  
   
@@ -860,6 +866,16 @@ begin
                         filtered_dat_ch6_i(31) & filtered_dat_ch6_i(23 downto 1) & flux_cnt_dat_ch6_i when "110",
                         filtered_dat_ch7_i(31) & filtered_dat_ch7_i(23 downto 1) & flux_cnt_dat_ch7_i when others;
                         
+   with ch_mux_sel select
+      filtfb_flx_cnt_dat2 <= 
+                        filtered_dat_ch0_i(27 downto 3) & flux_cnt_dat_ch0_i(6 downto 0) when "000",
+                        filtered_dat_ch1_i(27 downto 3) & flux_cnt_dat_ch1_i(6 downto 0) when "001",
+                        filtered_dat_ch2_i(27 downto 3) & flux_cnt_dat_ch2_i(6 downto 0) when "010",
+                        filtered_dat_ch3_i(27 downto 3) & flux_cnt_dat_ch3_i(6 downto 0) when "011",
+                        filtered_dat_ch4_i(27 downto 3) & flux_cnt_dat_ch4_i(6 downto 0) when "100",
+                        filtered_dat_ch5_i(27 downto 3) & flux_cnt_dat_ch5_i(6 downto 0) when "101",
+                        filtered_dat_ch6_i(27 downto 3) & flux_cnt_dat_ch6_i(6 downto 0) when "110",
+                        filtered_dat_ch7_i(27 downto 3) & flux_cnt_dat_ch7_i(6 downto 0) when others;
 
 --   with raw_ch_mux_sel select
 --      raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
