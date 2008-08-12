@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.16  2007/12/18 20:25:33  bburger
+-- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
+--
 -- Revision 1.15  2005/12/12 20:48:44  erniel
 -- fixed implicit register on buf_addr_o
 --
@@ -133,18 +136,21 @@ end dispatch_wishbone;
 
 architecture rtl of dispatch_wishbone is
 
-constant WATCHDOG_TIMEOUT_US : integer := 180000;
+   constant WATCHDOG_TIMEOUT_US : integer := 180000;
 
-type master_states is (IDLE, FETCH, WB_CYCLE, DONE, ERROR);
-signal pres_state : master_states;
-signal next_state : master_states;
+   type master_states is (IDLE, FETCH, WB_CYCLE, DONE, ERROR);
+   signal pres_state : master_states;
+   signal next_state : master_states;
 
-signal addr_ena : std_logic;
-signal addr_clr : std_logic;
-signal addr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal addr_ena : std_logic;
+   signal addr_clr : std_logic;
+--   signal addr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
-signal timer_rst : std_logic;
-signal timer     : integer;
+   signal timer_rst : std_logic;
+   signal timer     : integer;
+
+   signal addr       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal addr_count_new   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 begin
 
@@ -152,16 +158,31 @@ begin
    -- Address generator
    ---------------------------------------------------------
 
-   addr_gen : binary_counter
-   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
-   port map(clk_i   => clk_i,
-            rst_i   => rst_i,
-            ena_i   => addr_ena,
-            up_i    => '1',
-            load_i  => '0',
-            clear_i => addr_clr,
-            count_i => (others => '0'),
-            count_o => addr);
+   addr_count_new <= addr + "00000000001";
+   addr_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         addr <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(addr_clr = '1') then
+            addr <= "00000000000";
+         elsif(addr_ena = '1') then
+            addr <= addr_count_new;
+         end if;
+      end if;
+   end process addr_cntr;
+
+
+--   addr_gen : binary_counter
+--   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
+--   port map(clk_i   => clk_i,
+--            rst_i   => rst_i,
+--            ena_i   => addr_ena,
+--            up_i    => '1',
+--            load_i  => '0',
+--            clear_i => addr_clr,
+--            count_i => (others => '0'),
+--            count_o => addr);
 
 
    ---------------------------------------------------------
