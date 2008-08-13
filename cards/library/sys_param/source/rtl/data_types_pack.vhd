@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2008/05/29 21:22:55 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/06/17 17:40:21 $> - <initials $Author: bburger $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.8  2008/06/17 17:40:21  bburger
+-- BB:  added the w14_array41 data type for handling the data busses on the address card.
+--
 -- Revision 1.8  2008/05/29 21:22:55  bburger
 -- BB:  added the w14_array41 data type for handling the data busses on the address card.
 --
@@ -98,5 +101,6 @@ package data_types_pack is
    type w14_array41 is array (40 downto 0) of word14; -- for piping constant/ multiplexed values to the bus arbitrator (Address Card)
    type w32_array32 is array (31 downto 0) of word32; -- for address card bus (new naming convention)
    type w32_array41 is array (40 downto 0) of word32; -- for address card bus (new naming convention)
+   type w32_array64 is array (63 downto 0) of word32; -- for address card bus (new naming convention)
    type int_array41 is array (40 downto 0) of integer; -- for address card rows
 end data_types_pack;
