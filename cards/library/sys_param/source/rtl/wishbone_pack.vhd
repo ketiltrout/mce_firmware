@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/06/12 21:44:21 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/06/17 19:07:42 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.46  2008/06/17 19:07:42  bburger
+-- BB:  Added the const_val39 command, for ac_v02000007
+--
 -- Revision 1.46  2008/06/12 21:44:21  bburger
 -- BB:  Added the const_val39 command, for ac_v02000007
 --
@@ -427,6 +430,8 @@ package wishbone_pack is
    constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
    constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
    constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
+
+   constant STOP_DLY_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B8";
 
    ---------------------------------------------------------------------------------------
    -- Power Card Specific Parameter IDs
