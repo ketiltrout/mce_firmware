@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.76  2008/08/04 12:07:28  mandana
+-- added data_mode 10 for 4.0.b
+--
 -- Revision 1.75  2008/07/10 18:33:07  mandana
 -- rev. 4.0.a
 -- regenerated ram_8x64 (flx_quanta) and wbs_fb_storage (adc_offset) rams in Quartus to fix pre-reset read failure bug.
@@ -421,7 +424,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000b"; -- 12b pid pars , sa_bias/offset updated only when modified
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000c"; -- 12b pid pars , sa_bias/offset updated only when modified
                                                                      -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
                                                                      -- removed quartus.ini from synth directory
 -- Global signals
@@ -590,13 +593,13 @@ begin
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                              RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
       all_cards_data  when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,     
-      id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
-      fpga_thermo_data when  FPGA_TEMP_ADDR,
+--      id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
+--      fpga_thermo_data when  FPGA_TEMP_ADDR,
       (others => '0') when others;        -- default to zero
 
 
    
-   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or all_cards_ack or id_thermo_ack or fpga_thermo_ack;
+   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or all_cards_ack; --or id_thermo_ack or fpga_thermo_ack;
 
  
 
@@ -628,9 +631,9 @@ begin
                                         
     all_cards_err    when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
     
-    id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
+--    id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
     
-    fpga_thermo_err  when   FPGA_TEMP_ADDR,
+--    fpga_thermo_err  when   FPGA_TEMP_ADDR,
         
     '1'              when others;        
    
@@ -921,51 +924,51 @@ begin
    -- id_thermo Instantition
    ----------------------------------------------------------------------------
 
-   i_id_thermo: id_thermo
-      port map(
-         clk_i   => clk,
-         rst_i   => rst,  
-         
-         -- Wishbone signals
-         dat_i   => dispatch_dat_out, 
-         addr_i  => dispatch_addr_out,
-         tga_i   => dispatch_tga_out,
-         we_i    => dispatch_we_out,
-         stb_i   => dispatch_stb_out,
-         cyc_i   => dispatch_cyc_out,
-         err_o   => id_thermo_err,
-         dat_o   => id_thermo_data,
-         ack_o   => id_thermo_ack,
-            
-         -- silicon id/temperature chip signals
-         data_io => card_id
-      );
+--   i_id_thermo: id_thermo
+--      port map(
+--         clk_i   => clk,
+--         rst_i   => rst,  
+--         
+--         -- Wishbone signals
+--         dat_i   => dispatch_dat_out, 
+--         addr_i  => dispatch_addr_out,
+--         tga_i   => dispatch_tga_out,
+--         we_i    => dispatch_we_out,
+--         stb_i   => dispatch_stb_out,
+--         cyc_i   => dispatch_cyc_out,
+--         err_o   => id_thermo_err,
+--         dat_o   => id_thermo_data,
+--         ack_o   => id_thermo_ack,
+--            
+--         -- silicon id/temperature chip signals
+--         data_io => card_id
+--      );
    
    ----------------------------------------------------------------------------
    -- fpga_thermo Instantition
    ----------------------------------------------------------------------------
 
-   i_fpga_thermo: fpga_thermo
-      port map(
-         clk_i   => clk,
-         rst_i   => rst,  
-         
-         -- Wishbone signals
-         dat_i   => dispatch_dat_out, 
-         addr_i  => dispatch_addr_out,
-         tga_i   => dispatch_tga_out,
-         we_i    => dispatch_we_out,
-         stb_i   => dispatch_stb_out,
-         cyc_i   => dispatch_cyc_out,
-         err_o   => fpga_thermo_err,
-         dat_o   => fpga_thermo_data,
-         ack_o   => fpga_thermo_ack,
-            
-         -- FPGA temperature chip signals
-         smbclk_o  => smb_clk,
-         smbalert_i => smb_nalert,
-         smbdat_io => smb_data
-   );
+--   i_fpga_thermo: fpga_thermo
+--      port map(
+--         clk_i   => clk,
+--         rst_i   => rst,  
+--         
+--         -- Wishbone signals
+--         dat_i   => dispatch_dat_out, 
+--         addr_i  => dispatch_addr_out,
+--         tga_i   => dispatch_tga_out,
+--         we_i    => dispatch_we_out,
+--         stb_i   => dispatch_stb_out,
+--         cyc_i   => dispatch_cyc_out,
+--         err_o   => fpga_thermo_err,
+--         dat_o   => fpga_thermo_data,
+--         ack_o   => fpga_thermo_ack,
+--            
+--         -- FPGA temperature chip signals
+--         smbclk_o  => smb_clk,
+--         smbalert_i => smb_nalert,
+--         smbdat_io => smb_data
+--   );
 
    ----------------------------------------------------------------------------
    -- Mictor Connection
