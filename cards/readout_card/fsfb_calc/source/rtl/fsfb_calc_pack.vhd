@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.17  2008/07/08 22:16:47  mandana
+-- added comments for filter coefficients, no code change.
+--
 -- Revision 1.16  2007/03/21 17:26:46  mandana
 -- updated the width of ouput data port on fsfb_proc_ramp
 --
@@ -297,7 +300,7 @@ package fsfb_calc_pack is
          p_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
          i_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
          d_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
-         z_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
+--         z_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
          wn11_dat_i                  : in           std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
          wn12_dat_i                  : in           std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);        
          wn10_dat_o                  : out          std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);

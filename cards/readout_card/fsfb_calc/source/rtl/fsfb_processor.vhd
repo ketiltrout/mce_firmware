@@ -41,6 +41,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.11  2008/02/15 22:11:28  mandana
+-- In ramp mode, initalize to ramp UP and init value for DAC
+-- sign-extend fb_const as oppose to zero extend, this may only matter during initialization.
+--
 -- Revision 1.10  2007/03/21 17:25:48  mandana
 -- changed ramp and const data width to comply with the proper constants
 --
@@ -259,23 +263,24 @@ begin
       update_dat : case servo_mode_i is
          
          -- constant mode setting
-         when "00"   => fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
+         when "00"   => 
+            fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- constant mode setting
-         when "01"   => fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
+         when "01"   => 
+            fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- ramp mode setting
-         when "10"   => fsfb_proc_dat_o <= sxt(ramp_dat_ltch, fsfb_proc_dat_o'length);
+         when "10"   => 
+            fsfb_proc_dat_o <= sxt(ramp_dat_ltch, fsfb_proc_dat_o'length);
         
          -- lock mode setting      
-
          -- obtain sign bit from msb of pidz_sum and append it as bit 31 of result. 
          -- Bit 32 always gets zero as it is ignored in lock mode.  Therefore, the
          -- magnitude only covers bit 30 down to 0.
-         
-         when "11"   => fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & 
-                                           pidz_sum(lock_dat_left downto (lock_dat_left-(FSFB_QUEUE_DATA_WIDTH-2)));
-                        fsfb_proc_fltr_dat_o <= fltr_sum;
+         when "11"   => 
+            fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & pidz_sum(lock_dat_left downto (lock_dat_left-(FSFB_QUEUE_DATA_WIDTH-2)));
+            fsfb_proc_fltr_dat_o <= fltr_sum;
                         
          -- invalid setting
          when others => fsfb_proc_dat_o <= (others => '0');
@@ -302,7 +307,7 @@ begin
          p_dat_i                   => p_dat_i,  
          i_dat_i                   => i_dat_i,  
          d_dat_i                   => d_dat_i,  
-         z_dat_i                   => (others => '0'),  
+--         z_dat_i                   => (others => '0'),  
          wn12_dat_i                => wn12_dat_i,
          wn11_dat_i                => wn11_dat_i,
          wn10_dat_o                => wn10_dat_o,
