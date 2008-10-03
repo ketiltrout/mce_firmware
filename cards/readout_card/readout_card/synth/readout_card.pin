@@ -23,7 +23,6 @@
  ---------------------------------------------------------------------------------
  -- NC            : No Connect. This pin has no internal connection to the device.
  -- DNU           : Do Not Use. This pin MUST NOT be connected.
- -- VCCPGM        : Dedicated power pin for configuration, which MUST be connected to 1.8V, 2.5V or 3.0V depending on the needs of the configuration device.
  -- VCCINT        : Dedicated power pin, which MUST be connected to VCC  (1.5V).
  -- VCCIO         : Dedicated power pin, which MUST be connected to VCC
  --                 of its bank.
@@ -72,7 +71,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 8.0 Build 215 05/29/2008 SJ Full Version
+Quartus II Version 8.0 Build 231 07/10/2008 Service Pack 1 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S40F780C6
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -336,7 +335,7 @@ mictor[18]                   : B8        : output : 3.3-V LVTTL       :         
 mictor[17]                   : B9        : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[4]                    : B10       : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[1]                    : B11       : output : 3.3-V LVTTL       :         : 4         : Y              
-mictor[5]                    : B12       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : B12       :        :                   :         : 4         :                
 mictor[8]                    : B13       : output : 3.3-V LVTTL       :         : 4         : Y              
 TEMPDIODEp                   : B14       :        :                   :         :           :                
 RESERVED_INPUT               : B15       :        :                   :         : 10        :                
@@ -446,7 +445,7 @@ RESERVED_INPUT               : F6        :        :                   :         
 ttl_in1                      : F7        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in2                      : F8        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in3                      : F9        : input  : 3.3-V LVTTL       :         : 4         : Y              
-mictor[6]                    : F10       : output : 3.3-V LVTTL       :         : 4         : N              
+mictor[5]                    : F10       : output : 3.3-V LVTTL       :         : 4         : N              
 ttl_out1                     : F11       : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
 TMS                          : F13       : input  :                   :         : 4         :                
@@ -530,7 +529,7 @@ dac_FB2_dat[10]              : J6        : output : 3.3-V LVTTL       :         
 dac_FB3_dat[2]               : J7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB3_dat[1]               : J8        : output : 3.3-V LVTTL       :         : 5         : Y              
 RESERVED_INPUT               : J9        :        :                   :         : 4         :                
-RESERVED_INPUT               : J10       :        :                   :         : 4         :                
+mictor[6]                    : J10       : output : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : J11       :        :                   :         : 4         :                
 RESERVED_INPUT               : J12       :        :                   :         : 4         :                
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
