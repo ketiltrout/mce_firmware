@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.15.2.7 2008/02/15 22:18:33 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.16 2008/02/15 22:21:46 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.16  2008/02/15 22:21:46  mandana
+-- merged in the branch
+--
 -- Revision 1.15.2.7  2008/02/15 22:18:33  mandana
 -- major bug fix with how m_pres is calculated, refer to documentation for details of the pipeline
 -- fixed the sign extension of pid_prev_reg
@@ -1058,33 +1061,43 @@ begin
       fsfb_ctrl_dat_rdy6 and
       fsfb_ctrl_dat_rdy7;   
   
-   
+   ----------------------------------------------------------------------------
+   -- Outputs
+   ----------------------------------------------------------------------------
    fsfb_ctrl_dat0_o <=
-      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg0(res_b_reg0'length-1) & res_b_reg0(DAC_DAT_WIDTH-2 downto 0);        
+      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else 
+      res_b_reg0(DAC_DAT_WIDTH-1 downto 0);        
+   
    fsfb_ctrl_dat1_o <=
       pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg1(res_b_reg1'length-1) & res_b_reg1(DAC_DAT_WIDTH-2 downto 0);
+      res_b_reg1(DAC_DAT_WIDTH-1 downto 0);        
+   
    fsfb_ctrl_dat2_o <=
       pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg2(res_b_reg2'length-1) & res_b_reg2(DAC_DAT_WIDTH-2 downto 0);
+      res_b_reg2(DAC_DAT_WIDTH-1 downto 0);        
+   
    fsfb_ctrl_dat3_o <=
       pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg3(res_b_reg3'length-1) & res_b_reg3(DAC_DAT_WIDTH-2 downto 0);
+      res_b_reg3(DAC_DAT_WIDTH-1 downto 0);        
+   
    fsfb_ctrl_dat4_o <=
       pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg4(res_b_reg4'length-1) & res_b_reg4(DAC_DAT_WIDTH-2 downto 0);
+      res_b_reg4(DAC_DAT_WIDTH-1 downto 0);        
+   
    fsfb_ctrl_dat5_o <=
       pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg5(res_b_reg5'length-1) & res_b_reg5(DAC_DAT_WIDTH-2 downto 0);
+      res_b_reg5(DAC_DAT_WIDTH-1 downto 0);        
+   
    fsfb_ctrl_dat6_o <=
       pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg6(res_b_reg6'length-1) & res_b_reg6(DAC_DAT_WIDTH-2 downto 0);
+      res_b_reg6(DAC_DAT_WIDTH-1 downto 0);        
+   
    fsfb_ctrl_dat7_o <=
       pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
-      res_b_reg7(res_b_reg7'length-1) & res_b_reg7(DAC_DAT_WIDTH-2 downto 0);
+      res_b_reg7(DAC_DAT_WIDTH-1 downto 0);        
    
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
+   ----------------------------------------------------------------------------
 
    m_pres0 <=
       m_prev_reg0 - 1 when (signed(res_a_reg0) < signed(FSFB_MIN)) and (m_prev_reg0 /= M_MIN) and (flux_quanta_reg0 /= ZERO_QUANTA) else
