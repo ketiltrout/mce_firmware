@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.17  2008/08/12 19:08:59  bburger
+-- BB: replaced the binary_counter block for generating address with discrete implementation.  Simulated the block to ensure that the behaviour was the same.
+--
 -- Revision 1.16  2007/12/18 20:25:33  bburger
 -- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
 --
@@ -259,10 +262,11 @@ begin
       end case;
    end process stateNS;
 
+   tga_o <= "000000000000000000000" & addr;          -- zero-padded to 32-bits by default assignment
    stateOut: process(pres_state, header0_i, header1_i, buf_data_i, dat_i, ack_i, addr)
    begin
       addr_o          <= (others => '0');
-      tga_o           <= (others => '0');
+--      tga_o           <= (others => '0');
       dat_o           <= (others => '0');
       we_o            <= '0';
       cyc_o           <= '0';
@@ -284,7 +288,7 @@ begin
 
          when WB_CYCLE =>
             addr_o        <= header1_i(BB_PARAMETER_ID'range);
-            tga_o(BB_DATA_SIZE_WIDTH-1 downto 0) <= addr;          -- zero-padded to 32-bits by default assignment
+--            tga_o(BB_DATA_SIZE_WIDTH-1 downto 0) <= addr;          -- zero-padded to 32-bits by default assignment
             cyc_o         <= '1';
             stb_o         <= '1';
 
