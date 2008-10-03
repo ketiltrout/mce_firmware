@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.6  2005/12/12 23:53:29  mandana
+-- added filter-related interface
+-- changed fsfb_flux_cnt_queue to flux_cnt_queue for consistancy
+--
 -- Revision 1.5  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -94,7 +98,7 @@ entity fsfb_io_controller is
       num_flux_quanta_pres_i          : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);  -- flux quanta present count    
        
       -- signals from first stage feedback processor block (filter related)
-      fsfb_proc_fltr_update_i         : in     std_logic;					    -- indicates when fsfb_proc_fltr_data_o is valid
+      fsfb_proc_fltr_update_i         : in     std_logic;                   -- indicates when fsfb_proc_fltr_data_o is valid
       fsfb_proc_fltr_dat_i            : in     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- fsfb filter result to be written to filter queue
 
       -- signals from first stage feedback processor block
@@ -251,8 +255,7 @@ begin
          end if;
       end if;
    end process fixed_ramp;
-   
-   
+      
    -- Create a 1row_post version of the initialize_window input
    init_1row_post : process(rst_i, clk_50_i)
    begin
@@ -266,12 +269,10 @@ begin
          end if;
       end if;
    end process init_1row_post;
-   
-   
+      
    -- Extend the initialize window input to the 1row_post boundary
    initialize_window_ext_o <= initialize_window_1row_post or initialize_window_i;
-   
-   
+      
    -- even_odd bank select (even = 0. odd = 1)
    -- Four versions are required
    -- 1) read control for fsfb_corr (even_odd)
@@ -298,7 +299,6 @@ begin
    
    even_odd_inv         <= not(even_odd);
    even_odd_delayed_inv <= not(even_odd_delayed);
-    
    
    -- Write address counter
    -- Upon restart_frame_aligned_i pulse, the write address is set to 40
@@ -316,8 +316,7 @@ begin
          end if;
       end if;
    end process wr_addr_counter;
-   
-   
+      
    fsfb_queue_wr_addr_o <= wr_addr;
    fsfb_fltr_wr_addr_o  <= wr_addr;
    
@@ -328,15 +327,13 @@ begin
    -- Write data control
    -- Directly connect to the data input of queue
    -- The selection mux based on servo mode is embedded inside processor block
-   --
+   
    -- Corner case:  Because wr_addr always starts from row[40] (let's say odd bank)
    -- if we do a write then r[40]b[1] would be written with 0+step, r[0]b[0] <= 0+step,
    -- up to r[39]b[0] <= 0+step; To avoid this, the processor output is locked to zero
    -- during this time frame when operating in ramp mode.
-   fsfb_queue_wr_data_o          <= fsfb_proc_dat_i;
-   
+   fsfb_queue_wr_data_o     <= fsfb_proc_dat_i;
    flux_cnt_queue_wr_data_o <= num_flux_quanta_pres_i;
-   
    
    -- Write enable control
    -- even_odd_delayed_inv bank will determine whether the fsfb_queue_wr_data_o will written to bank 0 or 1
@@ -360,22 +357,23 @@ begin
    -- Dedicated to wishbone slave read operation
 
    -- Directly connect to the rdaddress_a input of fsfb/flux_cnt/fltr queues
-   fsfb_queue_rd_addra_o <= fsfb_ws_addr_i;
-   fsfb_fltr_rd_addr_o   <= fsfb_ws_fltr_addr_i;   
+   fsfb_queue_rd_addra_o     <= fsfb_ws_addr_i;
+   fsfb_fltr_rd_addr_o       <= fsfb_ws_fltr_addr_i;   
    flux_cnt_queue_rd_addra_o <= fsfb_ws_addr_i;
    
    -- Read data control (bank 0 and 1, port a)
-   fsfb_ws_dat_o <= fsfb_queue_rd_dataa_bank1_i(WB_DATA_WIDTH-1 downto 0) when even_odd_delayed = '1' else 
-                    fsfb_queue_rd_dataa_bank0_i(WB_DATA_WIDTH-1 downto 0);
+   fsfb_ws_dat_o <= 
+      fsfb_queue_rd_dataa_bank1_i(WB_DATA_WIDTH-1 downto 0) when even_odd_delayed = '1' else 
+      fsfb_queue_rd_dataa_bank0_i(WB_DATA_WIDTH-1 downto 0);
     
-   fsfb_ws_fltr_dat_o <= fsfb_fltr_rd_data_i; 	  
+   fsfb_ws_fltr_dat_o <= fsfb_fltr_rd_data_i;     
    -- ???? sign extend later
-   -- fsfb_ws_fltr_dat_o (WB_DATA_WIDTH-1 downto FSFB_QUEUE_DATA_WIDTH) <= 
-   --                                                        (others =>fsfb_fltr_rd_data_i(FSFB_QUEUE_DATA_WIDTH-1));
+   -- fsfb_ws_fltr_dat_o (WB_DATA_WIDTH-1 downto FSFB_QUEUE_DATA_WIDTH) <= (others =>fsfb_fltr_rd_data_i(FSFB_QUEUE_DATA_WIDTH-1));
    
    -- Read data control (bank 0 and 1, port a)
-   flux_cnt_ws_dat_o <= flux_cnt_queue_rd_dataa_bank1_i when even_odd = '1' else
-                        flux_cnt_queue_rd_dataa_bank0_i;
+   flux_cnt_ws_dat_o <= 
+      flux_cnt_queue_rd_dataa_bank1_i when even_odd = '1' else
+      flux_cnt_queue_rd_dataa_bank0_i;
                     
    -- Read address control (bank 0 and 1, port b)
    -- Port b is dedicated to control and system read access 
@@ -385,12 +383,10 @@ begin
    -- downstream fsfb control block.
    -- Second read operation is to provide previous frame data of current system row-1 to the
    -- for ramp mode calculation.
-   --
+
    -- Read address counters
    -- There are really two of these:  1 for fsfb_ctrl block and 1 for system processor
    -- But the one for system processor is same as the wr_addr counter
-   -- 
-   -- 
    ctrl_rd_addr_counter : process (rst_i, clk_50_i)
    begin
       if (rst_i = '1') then
@@ -404,9 +400,7 @@ begin
       end if;
    end process ctrl_rd_addr_counter;
    
-   
    sys_rd_addr <= wr_addr;
-   
    
    -- Note that each READ from RAM takes 3 cycles to complete
    -- Cycle 0: Write ctrl address to RAM read addr inputs
@@ -426,7 +420,6 @@ begin
       end if;
    end process read_shifter_proc;
    
-   
    -- Select the correct address for port b of both banks
    -- Selection can be based on delayed row switch input since first read operation belongs to ctrl
    fsfb_queue_rd_addrb_o <= ctrl_rd_addr when read_shifter(0) = '1' else sys_rd_addr;
@@ -434,24 +427,24 @@ begin
    -- No selection is necessary as the read port is dedicated
    flux_cnt_queue_rd_addrb_o <= ctrl_rd_addr;
       
-   
    -- Tap off the ready signals to control and system from the shifter
    ctrl_dat_rdy <= read_shifter(2);
    sys_dat_rdy  <= read_shifter(3);
     
-   
    -- select the read data from bank 1 or 0 based on even_odd switch
-   ctrl_dat_selected <= fsfb_queue_rd_datab_bank1_i(FSFB_QUEUE_DATA_WIDTH-1 downto 0) when even_odd = '1' else 
-                        fsfb_queue_rd_datab_bank0_i(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+   -- Note that this data bus has had its MSB clipped off by specifying "FSFB_QUEUE_DATA_WIDTH-1" = 38
+   ctrl_dat_selected <= 
+      fsfb_queue_rd_datab_bank1_i(FSFB_QUEUE_DATA_WIDTH-1 downto 0) when even_odd = '1' else 
+      fsfb_queue_rd_datab_bank0_i(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
    
    -- used by fsfb_proc_ramp block to determine the next value in a ramp 
-   sys_dat_selected  <= fsfb_queue_rd_datab_bank1_i(FSFB_QUEUE_DATA_WIDTH downto 0) when even_odd_delayed = '1' else 
-                        fsfb_queue_rd_datab_bank0_i(FSFB_QUEUE_DATA_WIDTH downto 0);
+   sys_dat_selected  <= 
+      fsfb_queue_rd_datab_bank1_i(FSFB_QUEUE_DATA_WIDTH downto 0) when even_odd_delayed = '1' else 
+      fsfb_queue_rd_datab_bank0_i(FSFB_QUEUE_DATA_WIDTH downto 0);
    
-   
-   flux_dat_selected <= flux_cnt_queue_rd_datab_bank1_i when even_odd = '1' else
-                        flux_cnt_queue_rd_datab_bank0_i;
-   
+   flux_dat_selected <= 
+      flux_cnt_queue_rd_datab_bank1_i when even_odd = '1' else
+      flux_cnt_queue_rd_datab_bank0_i;
    
    -- Latch the selected read data to control once RAM data is valid
    data_ltches : process (rst_i, clk_50_i)
@@ -473,7 +466,6 @@ begin
       end if;
    end process data_ltches;
    
-   
    -- Delay the ctrl/sys_dat_rdy by 1 clk to line up with the latch outputs
    data_rdy_delayed : process (rst_i, clk_50_i)
    begin
@@ -485,7 +477,6 @@ begin
          sys_dat_rdy_1d <= sys_dat_rdy;
       end if;
    end process data_rdy_delayed;
-
    
    -- Outputs to pid coefficient queue address inputs
    p_addr_o <= wr_addr;
@@ -501,21 +492,13 @@ begin
    -- Outputs to downstream fsfb_ctrl (now fsfb_corr) block
    -- Note that the z_dat_i storing flux quanta unit is ready one clk cycle before the ctrl_dat and flux_cnt as 
    -- it does not involve bank selection
-   fsfb_ctrl_dat_o         <= ctrl_dat when initialize_window_i = '0' else 
-                              conv_std_logic_vector(start_val, FSFB_QUEUE_DATA_WIDTH);
-   num_flux_quanta_prev_o  <= flux_dat when initialize_window_i = '0' else
-                              (others => '0');
-   
-   fsfb_ctrl_dat_rdy_o <= ctrl_dat_rdy_1d;   
-       
+   fsfb_ctrl_dat_o         <= ctrl_dat when initialize_window_i = '0' else conv_std_logic_vector(start_val, FSFB_QUEUE_DATA_WIDTH);
+   num_flux_quanta_prev_o  <= flux_dat when initialize_window_i = '0' else (others => '0');
+   fsfb_ctrl_dat_rdy_o     <= ctrl_dat_rdy_1d;   
    
    -- Outputs to fsfb_processor block for ramp mode calculation
-   --previous_fsfb_dat_o     <= sys_dat when initialize_window_i = '0' else 
-   --                           '0' & conv_std_logic_vector(start_val, FSFB_QUEUE_DATA_WIDTH);
+   --previous_fsfb_dat_o     <= sys_dat when initialize_window_i = '0' else '0' & conv_std_logic_vector(start_val, FSFB_QUEUE_DATA_WIDTH);
    previous_fsfb_dat_o     <= sys_dat;
    previous_fsfb_dat_rdy_o <= sys_dat_rdy_1d;
-   
-   -- 
-   
    
 end rtl;
