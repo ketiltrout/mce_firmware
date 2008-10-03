@@ -53,9 +53,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2008/08/04 12:13:07 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2008/08/15 18:16:08 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.34  2008/08/15 18:16:08  mandana
+-- BB: removed all data modes except for 0,1,4,10
+--
 -- Revision 1.33  2008/08/04 12:13:07  mandana
 -- data mode 10 added for mixed filtfb and flux-jump counter (more filtfb bits for planet observation)
 --
@@ -374,6 +377,7 @@ signal fb_flx_cnt_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_error_2_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_flx_cnt_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_flx_cnt_dat2 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+signal filtfb_flx_cnt_dat3 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
 -- signals for data output multiplexer
@@ -482,16 +486,19 @@ begin
 
          if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1') then
             if we_i = '0' then
-              if (data_mode /= MODE2_FILTERED and data_mode /= MODE6_FILT_ERROR and 
-                  data_mode /=MODE7_FILT_ERROR2 and data_mode /= MODE9_FILT_FLX_CNT and
-                  data_mode /= MODE10_FILT_FLX_CNT) then  
-                next_state <= WSS1;
-              
+
               -- For filter mode data wait for the start of the frame before reading back. In that case row 0 is read before 
               -- being overwritten by this frame data.
-              elsif (restart_frame_1row_post_i = '1') then -- filtered data mode
+              if(data_mode = MODE2_FILTERED or data_mode = MODE6_FILT_ERROR or data_mode = MODE7_FILT_ERROR2 or data_mode = MODE9_FILT_FLX_CNT or data_mode = MODE10_FILT_FLX_CNT) then  
+                 if(restart_frame_1row_post_i = '1') then
+                    next_state <= WSS1;
+                 --else
+                 --   next_state <= IDLE;
+                 end if;
+              else -- filtered data mode
                  next_state <= WSS1;
               end if;               
+
             -- write to ret_dat_addr is invalid  
             else
               next_state <= WB_ER;
@@ -707,7 +714,6 @@ begin
    -- assign counts to address vectors - mode 3
    -- the LS  bits determine the channel
    -- the rest the 'row'.
-   
         
    raw_addr_ch0_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
    raw_addr_ch1_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
@@ -719,229 +725,199 @@ begin
    raw_addr_ch7_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
             
 --------------------------------------------------------------------------------------------
---                  Data OUTPUT Select MUX
+--  Data OUTPUT Select MUX.  These are all the Data Modes present in this firmware!  (key words: data_mode, data mode))
 ---------------------------------------------------------------------------------------------
 -- Note: 1000 or data_mode 8 is skipped for backward compatibility as it was used for different windowing in rc 4.0.4firmware
     dat_out_mux_sel <= data_mode(DAT_MUX_SEL_WIDTH-1 downto 0);
    
-    with dat_out_mux_sel select
-       wbs_data     <= 
-          error_dat           when x"0",
-          unfiltered_dat      when x"1",
-          -- filtered_dat        when x"2",
-          -- raw_dat             when x"3",
-          fb_error_dat        when x"4",
-          -- fb_flx_cnt_dat      when x"5",
-          -- filtfb_error_dat    when x"6", -- 0110 is skipped, as 0111 is a better solution
-          -- filtfb_error_2_dat  when x"7",
-          -- nothing             when x"8",
-          -- filtfb_flx_cnt_dat  when x"9", -- 1000 is skipped, see note below.
-          filtfb_flx_cnt_dat2 when x"A",
-          (others => '0')     when others;
-                 
-  
+    with dat_out_mux_sel select wbs_data <= 
+       error_dat           when x"0",
+       unfiltered_dat      when x"1",
+       filtered_dat        when x"2",
+       -- raw_dat             when x"3",
+       fb_error_dat        when x"4",
+       fb_flx_cnt_dat      when x"5",
+       -- filtfb_error_dat    when x"6", -- 0110 is skipped, as 0111 is a better solution
+       filtfb_error_2_dat  when x"7",
+       -- filtfb_flx_cnt_dat3 when x"8", -- was mixed data: 24b filtered fb + 8b flux-jump counter (revision 4.0.4 only)
+       -- filtfb_flx_cnt_dat  when x"9", 
+       filtfb_flx_cnt_dat2 when x"A",
+       (others => '0')     when others;
  
---------------------------------------------------------------------------------------------
---                 Channel select MUXs
---------------------------------------------------------------------------------------------- 
-                       
-   with ch_mux_sel select     
-      error_dat      <= coadded_dat_ch0_i(31 downto 0) when "000",
-                        coadded_dat_ch1_i(31 downto 0) when "001",
-                        coadded_dat_ch2_i(31 downto 0) when "010",
-                        coadded_dat_ch3_i(31 downto 0) when "011",
-                        coadded_dat_ch4_i(31 downto 0) when "100",
-                        coadded_dat_ch5_i(31 downto 0) when "101",
-                        coadded_dat_ch6_i(31 downto 0) when "110",
-                        coadded_dat_ch7_i(31 downto 0) when others;
+   --------------------------------------------------------------------------------------------
+   --                 Channel select MUXs
+   --------------------------------------------------------------------------------------------
+   -- Data Mode 0
+   with ch_mux_sel select error_dat <= 
+      coadded_dat_ch0_i(31 downto 0) when "000",
+      coadded_dat_ch1_i(31 downto 0) when "001",
+      coadded_dat_ch2_i(31 downto 0) when "010",
+      coadded_dat_ch3_i(31 downto 0) when "011",
+      coadded_dat_ch4_i(31 downto 0) when "100",
+      coadded_dat_ch5_i(31 downto 0) when "101",
+      coadded_dat_ch6_i(31 downto 0) when "110",
+      coadded_dat_ch7_i(31 downto 0) when others;
                         
-   with ch_mux_sel select
-      unfiltered_dat <= fsfb_dat_ch0_i when "000", 
-                        fsfb_dat_ch1_i when "001",
-                        fsfb_dat_ch2_i when "010",
-                        fsfb_dat_ch3_i when "011",
-                        fsfb_dat_ch4_i when "100",
-                        fsfb_dat_ch5_i when "101",
-                        fsfb_dat_ch6_i when "110",
-                        fsfb_dat_ch7_i when others;
-                                               
---   with ch_mux_sel select
---       filtered_dat  <= filtered_dat_ch0_i when "000",
---                        filtered_dat_ch1_i when "001",
---                        filtered_dat_ch2_i when "010",
---                        filtered_dat_ch3_i when "011",
---                        filtered_dat_ch4_i when "100",
---                        filtered_dat_ch5_i when "101",
---                        filtered_dat_ch6_i when "110",
---                        filtered_dat_ch7_i when others;
+   -- Data Mode 1
+   with ch_mux_sel select unfiltered_dat <= 
+      fsfb_dat_ch0_i when "000", 
+      fsfb_dat_ch1_i when "001",
+      fsfb_dat_ch2_i when "010",
+      fsfb_dat_ch3_i when "011",
+      fsfb_dat_ch4_i when "100",
+      fsfb_dat_ch5_i when "101",
+      fsfb_dat_ch6_i when "110",
+      fsfb_dat_ch7_i when others;
 
-   with ch_mux_sel select
-      fb_error_dat   <= fsfb_dat_ch0_i(31) & fsfb_dat_ch0_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
+   -- Data Mode 2
+   with ch_mux_sel select filtered_dat <= 
+      filtered_dat_ch0_i when "000",
+      filtered_dat_ch1_i when "001",
+      filtered_dat_ch2_i when "010",
+      filtered_dat_ch3_i when "011",
+      filtered_dat_ch4_i when "100",
+      filtered_dat_ch5_i when "101",
+      filtered_dat_ch6_i when "110",
+      filtered_dat_ch7_i when others;
+
+   -- Data Mode 3
+--   with raw_ch_mux_sel select raw_dat <= 
+--      sxt(raw_dat_ch0_i, raw_dat'length) when "000",
+--      sxt(raw_dat_ch1_i, raw_dat'length) when "001", 
+--      sxt(raw_dat_ch2_i, raw_dat'length) when "010",
+--      sxt(raw_dat_ch3_i, raw_dat'length) when "011",
+--      sxt(raw_dat_ch4_i, raw_dat'length) when "100",
+--      sxt(raw_dat_ch5_i, raw_dat'length) when "101",
+--      sxt(raw_dat_ch6_i, raw_dat'length) when "110",
+--      sxt(raw_dat_ch7_i, raw_dat'length) when others;
                         
-                        fsfb_dat_ch1_i(31) & fsfb_dat_ch1_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
-                        
-                        fsfb_dat_ch2_i(31) & fsfb_dat_ch2_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
-                        
-                        fsfb_dat_ch3_i(31) & fsfb_dat_ch3_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
-                        
-                        fsfb_dat_ch4_i(31) & fsfb_dat_ch4_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
-                        
-                        fsfb_dat_ch5_i(31) & fsfb_dat_ch5_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
-                        
-                        fsfb_dat_ch6_i(31) & fsfb_dat_ch6_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
-                        
-                        fsfb_dat_ch7_i(31) & fsfb_dat_ch7_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
-                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
+   -- Data Mode 4
+   with ch_mux_sel select fb_error_dat <= 
+      fsfb_dat_ch0_i(31) & fsfb_dat_ch0_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",      
+      fsfb_dat_ch1_i(31) & fsfb_dat_ch1_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",      
+      fsfb_dat_ch2_i(31) & fsfb_dat_ch2_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",      
+      fsfb_dat_ch3_i(31) & fsfb_dat_ch3_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",      
+      fsfb_dat_ch4_i(31) & fsfb_dat_ch4_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",      
+      fsfb_dat_ch5_i(31) & fsfb_dat_ch5_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",      
+      fsfb_dat_ch6_i(31) & fsfb_dat_ch6_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",      
+      fsfb_dat_ch7_i(31) & fsfb_dat_ch7_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
       
---   with ch_mux_sel select       
---      fb_flx_cnt_dat <= fsfb_dat_ch0_i (31 downto 8) & flux_cnt_dat_ch0_i when "000",
---                        fsfb_dat_ch1_i (31 downto 8) & flux_cnt_dat_ch1_i when "001",
---                        fsfb_dat_ch2_i (31 downto 8) & flux_cnt_dat_ch2_i when "010",
---                        fsfb_dat_ch3_i (31 downto 8) & flux_cnt_dat_ch3_i when "011",
---                        fsfb_dat_ch4_i (31 downto 8) & flux_cnt_dat_ch4_i when "100",
---                        fsfb_dat_ch5_i (31 downto 8) & flux_cnt_dat_ch5_i when "101",
---                        fsfb_dat_ch6_i (31 downto 8) & flux_cnt_dat_ch6_i when "110",
---                        fsfb_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
+   -- Data Mode 5
+   with ch_mux_sel select fb_flx_cnt_dat <= 
+      fsfb_dat_ch0_i (31 downto 8) & flux_cnt_dat_ch0_i when "000",
+      fsfb_dat_ch1_i (31 downto 8) & flux_cnt_dat_ch1_i when "001",
+      fsfb_dat_ch2_i (31 downto 8) & flux_cnt_dat_ch2_i when "010",
+      fsfb_dat_ch3_i (31 downto 8) & flux_cnt_dat_ch3_i when "011",
+      fsfb_dat_ch4_i (31 downto 8) & flux_cnt_dat_ch4_i when "100",
+      fsfb_dat_ch5_i (31 downto 8) & flux_cnt_dat_ch5_i when "101",
+      fsfb_dat_ch6_i (31 downto 8) & flux_cnt_dat_ch6_i when "110",
+      fsfb_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
 
---   with ch_mux_sel select
---      filtfb_error_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & 
---                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
---                        
---                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 11) & 
---                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
---                        
---                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 11) & 
---                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
---                        
---                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 11) & 
---                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
---                        
---                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 11) & 
---                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
---                        
---                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 11) & 
---                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
---                        
---                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 11) & 
---                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
---                        
---                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & 
---                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
+   -- Data Mode 6
+--   with ch_mux_sel select filtfb_error_dat <= 
+--      filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
+--      filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 11) & coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
+--      filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 11) & coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
+--      filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 11) & coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
+--      filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 11) & coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
+--      filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 11) & coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
+--      filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 11) & coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
+--      filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
 
---   with ch_mux_sel select
---      filtfb_error_2_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 7) & 
---                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 4) when "000",
---                        
---                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 7) & 
---                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 4) when "001",
---                        
---                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 7) & 
---                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 4) when "010",
---                        
---                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 7) & 
---                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 4) when "011",
---                        
---                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 7) & 
---                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 4) when "100",
---                        
---                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 7) & 
---                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 4) when "101",
---                        
---                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 7) & 
---                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 4) when "110",
---                        
---                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 7) & 
---                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 4) when others;
+   -- Data Mode 7
+   with ch_mux_sel select filtfb_error_2_dat <= 
+      filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 7) & coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 4) when "000",
+      filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 7) & coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 4) when "001",
+      filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 7) & coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 4) when "010",
+      filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 7) & coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 4) when "011",
+      filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 7) & coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 4) when "100",
+      filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 7) & coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 4) when "101",
+      filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 7) & coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 4) when "110",
+      filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 7) & coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 4) when others;
+      
+   -- Data Mode 8
+--   with ch_mux_sel select filtfb_flx_cnt_dat3 <= 
+--      filtered_dat_ch0_i (31 downto 8) & flux_cnt_dat_ch0_i when "000",
+--      filtered_dat_ch1_i (31 downto 8) & flux_cnt_dat_ch1_i when "001",
+--      filtered_dat_ch2_i (31 downto 8) & flux_cnt_dat_ch2_i when "010",
+--      filtered_dat_ch3_i (31 downto 8) & flux_cnt_dat_ch3_i when "011",
+--      filtered_dat_ch4_i (31 downto 8) & flux_cnt_dat_ch4_i when "100",
+--      filtered_dat_ch5_i (31 downto 8) & flux_cnt_dat_ch5_i when "101",
+--      filtered_dat_ch6_i (31 downto 8) & flux_cnt_dat_ch6_i when "110",
+--      filtered_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
+      
 
---   with ch_mux_sel select
---      filtfb_flx_cnt_dat <= 
---                        filtered_dat_ch0_i(31) & filtered_dat_ch0_i(23 downto 1) & flux_cnt_dat_ch0_i when "000",
---                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(23 downto 1) & flux_cnt_dat_ch1_i when "001",
---                        filtered_dat_ch2_i(31) & filtered_dat_ch2_i(23 downto 1) & flux_cnt_dat_ch2_i when "010",
---                        filtered_dat_ch3_i(31) & filtered_dat_ch3_i(23 downto 1) & flux_cnt_dat_ch3_i when "011",
---                        filtered_dat_ch4_i(31) & filtered_dat_ch4_i(23 downto 1) & flux_cnt_dat_ch4_i when "100",
---                        filtered_dat_ch5_i(31) & filtered_dat_ch5_i(23 downto 1) & flux_cnt_dat_ch5_i when "101",
---                        filtered_dat_ch6_i(31) & filtered_dat_ch6_i(23 downto 1) & flux_cnt_dat_ch6_i when "110",
---                        filtered_dat_ch7_i(31) & filtered_dat_ch7_i(23 downto 1) & flux_cnt_dat_ch7_i when others;
-                        
-   with ch_mux_sel select
-      filtfb_flx_cnt_dat2 <= 
-                        filtered_dat_ch0_i(27 downto 3) & flux_cnt_dat_ch0_i(6 downto 0) when "000",
-                        filtered_dat_ch1_i(27 downto 3) & flux_cnt_dat_ch1_i(6 downto 0) when "001",
-                        filtered_dat_ch2_i(27 downto 3) & flux_cnt_dat_ch2_i(6 downto 0) when "010",
-                        filtered_dat_ch3_i(27 downto 3) & flux_cnt_dat_ch3_i(6 downto 0) when "011",
-                        filtered_dat_ch4_i(27 downto 3) & flux_cnt_dat_ch4_i(6 downto 0) when "100",
-                        filtered_dat_ch5_i(27 downto 3) & flux_cnt_dat_ch5_i(6 downto 0) when "101",
-                        filtered_dat_ch6_i(27 downto 3) & flux_cnt_dat_ch6_i(6 downto 0) when "110",
-                        filtered_dat_ch7_i(27 downto 3) & flux_cnt_dat_ch7_i(6 downto 0) when others;
-
---   with raw_ch_mux_sel select
---      raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
---                        sxt(raw_dat_ch1_i, raw_dat'length) when "001", 
---                        sxt(raw_dat_ch2_i, raw_dat'length) when "010",
---                        sxt(raw_dat_ch3_i, raw_dat'length) when "011",
---                        sxt(raw_dat_ch4_i, raw_dat'length) when "100",
---                        sxt(raw_dat_ch5_i, raw_dat'length) when "101",
---                        sxt(raw_dat_ch6_i, raw_dat'length) when "110",
---                        sxt(raw_dat_ch7_i, raw_dat'length) when others;
-                        
--------------------------------------------------------------------------------------------------
---                      Data Mode & Readout Row Index Register
-------------------------------------------------------------------------------------------------  
+   -- Data Mode 9
+--   with ch_mux_sel select filtfb_flx_cnt_dat <= 
+--      filtered_dat_ch0_i(31) & filtered_dat_ch0_i(23 downto 1) & flux_cnt_dat_ch0_i when "000",
+--      filtered_dat_ch1_i(31) & filtered_dat_ch1_i(23 downto 1) & flux_cnt_dat_ch1_i when "001",
+--      filtered_dat_ch2_i(31) & filtered_dat_ch2_i(23 downto 1) & flux_cnt_dat_ch2_i when "010",
+--      filtered_dat_ch3_i(31) & filtered_dat_ch3_i(23 downto 1) & flux_cnt_dat_ch3_i when "011",
+--      filtered_dat_ch4_i(31) & filtered_dat_ch4_i(23 downto 1) & flux_cnt_dat_ch4_i when "100",
+--      filtered_dat_ch5_i(31) & filtered_dat_ch5_i(23 downto 1) & flux_cnt_dat_ch5_i when "101",
+--      filtered_dat_ch6_i(31) & filtered_dat_ch6_i(23 downto 1) & flux_cnt_dat_ch6_i when "110",
+--      filtered_dat_ch7_i(31) & filtered_dat_ch7_i(23 downto 1) & flux_cnt_dat_ch7_i when others;
    
-  data_mode_reg: process(clk_i, rst_i)
-  begin
-     if (rst_i = '1') then 
-        data_mode <= (others => '0');
-     elsif (clk_i'EVENT and clk_i = '1') then
-        if data_mode_wren = '1' then 
-           data_mode <= dat_i;
-        end if;   
-     end if;
-  end process data_mode_reg;
-          
-  readout_row_reg: process(clk_i, rst_i)
-  begin
-     if (rst_i = '1') then 
-        readout_row_index <= (others => '0');
-     elsif (clk_i'EVENT and clk_i = '1') then
-        if readout_row_wren = '1' then 
-           readout_row_index <= dat_i(readout_row_index'length -1 downto 0);
-        end if;   
-     end if;
-  end process readout_row_reg;          
------------------------------------------------------------------------------------------
---                                  Channel Select Delay
------------------------------------------------------------------------------------------
--- register channel select twice to add a pipeline delay 
--- required so taht channel select is in sync with data
----------------------------------------------------------
+   -- Data Mode 10
+   with ch_mux_sel select filtfb_flx_cnt_dat2 <= 
+      filtered_dat_ch0_i(27 downto 3) & flux_cnt_dat_ch0_i(6 downto 0) when "000",
+      filtered_dat_ch1_i(27 downto 3) & flux_cnt_dat_ch1_i(6 downto 0) when "001",
+      filtered_dat_ch2_i(27 downto 3) & flux_cnt_dat_ch2_i(6 downto 0) when "010",
+      filtered_dat_ch3_i(27 downto 3) & flux_cnt_dat_ch3_i(6 downto 0) when "011",
+      filtered_dat_ch4_i(27 downto 3) & flux_cnt_dat_ch4_i(6 downto 0) when "100",
+      filtered_dat_ch5_i(27 downto 3) & flux_cnt_dat_ch5_i(6 downto 0) when "101",
+      filtered_dat_ch6_i(27 downto 3) & flux_cnt_dat_ch6_i(6 downto 0) when "110",
+      filtered_dat_ch7_i(27 downto 3) & flux_cnt_dat_ch7_i(6 downto 0) when others;
+
+   -------------------------------------------------------------------------------------------------
+   --                      Data Mode & Readout Row Index Register
+   ------------------------------------------------------------------------------------------------  
+   data_mode_reg: process(clk_i, rst_i)
+   begin
+      if (rst_i = '1') then 
+         data_mode <= (others => '0');
+      elsif (clk_i'EVENT and clk_i = '1') then
+         if data_mode_wren = '1' then 
+            data_mode <= dat_i;
+         end if;   
+      end if;
+   end process data_mode_reg;
+           
+   readout_row_reg: process(clk_i, rst_i)
+   begin
+      if (rst_i = '1') then 
+         readout_row_index <= (others => '0');
+      elsif (clk_i'EVENT and clk_i = '1') then
+         if readout_row_wren = '1' then 
+            readout_row_index <= dat_i(readout_row_index'length -1 downto 0);
+         end if;   
+      end if;
+   end process readout_row_reg;          
+ 
+   -----------------------------------------------------------------------------------------
+   --                                  Channel Select Delay
+   -----------------------------------------------------------------------------------------
+   -- register channel select twice to add a pipeline delay 
+   -- required so taht channel select is in sync with data
+   ---------------------------------------------------------
+   channel_select_delay: process(clk_i, rst_i)
+   begin
+      if (rst_i = '1') then 
+         ch_mux_sel_dly1     <= (others => '0');  
+         ch_mux_sel          <= (others => '0');  
          
-  channel_select_delay: process(clk_i, rst_i)
-  begin
-     if (rst_i = '1') then 
-        ch_mux_sel_dly1     <= (others => '0');  
-        ch_mux_sel          <= (others => '0');  
-        
-        raw_ch_mux_sel_dly1 <= (others => '0');  
-        raw_ch_mux_sel      <= (others => '0');  
-        
-     elsif (clk_i'EVENT and clk_i = '1') then
-        ch_mux_sel_dly1     <= pix_address(CH_MUX_SEL_WIDTH-1 downto 0);  
-        ch_mux_sel          <= ch_mux_sel_dly1;
-        
-        raw_ch_mux_sel_dly1 <= raw_address(CH_MUX_SEL_WIDTH-1 downto 0);
-        raw_ch_mux_sel      <= raw_ch_mux_sel_dly1;
-        
-     end if;
-  end process channel_select_delay;
+         raw_ch_mux_sel_dly1 <= (others => '0');  
+         raw_ch_mux_sel      <= (others => '0');  
+         
+      elsif (clk_i'EVENT and clk_i = '1') then
+         ch_mux_sel_dly1     <= pix_address(CH_MUX_SEL_WIDTH-1 downto 0);  
+         ch_mux_sel          <= ch_mux_sel_dly1;
+         
+         raw_ch_mux_sel_dly1 <= raw_address(CH_MUX_SEL_WIDTH-1 downto 0);
+         raw_ch_mux_sel      <= raw_ch_mux_sel_dly1;
+         
+      end if;
+   end process channel_select_delay;
           
            
 end rtl;
