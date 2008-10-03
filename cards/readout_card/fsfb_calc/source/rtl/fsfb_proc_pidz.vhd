@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.11  2007/03/21 17:13:00  mandana
+-- removed unused wtemp_reg
+--
 -- Revision 1.10  2007/03/07 21:09:57  mandana
 -- filter_input_width is now used to determine how many bits of pid calc results are passed to the filter
 --
@@ -106,7 +109,7 @@ entity fsfb_proc_pidz is
       p_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- P coefficient input, to be multiplied with current coadded value
       i_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- I coefficient input, to be multiplied with current integral
       d_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- D coefficient input, to be multiplied with current difference
-      z_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- Z coefficient input, to be added to the three multiply results
+--      z_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- Z coefficient input, to be added to the three multiply results
       wn11_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       wn12_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       wn21_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
@@ -411,14 +414,14 @@ begin
       );
    
    -- Sign extended z_dat_i to 64 bits 
-   z_dat_65 <= sxt(z_dat_i, z_dat_65'length);               
-   
-   i_dz_add : fsfb_calc_adder65
-      port map (
-         dataa                              => d_product_reg,
-         datab                              => z_dat_65,
-         result                             => dz_sum
-      );
+--   z_dat_65 <= sxt(z_dat_i, z_dat_65'length);               
+--   
+--   i_dz_add : fsfb_calc_adder65
+--      port map (
+--         dataa                              => d_product_reg,
+--         datab                              => z_dat_65,
+--         result                             => dz_sum
+--      );
       
       
    -- 2nd stage addition
@@ -585,7 +588,7 @@ begin
          -- 1st stage sum
          if (store_1st_add = '1') then
             pi_sum_reg <= pi_sum(pi_sum'left) & pi_sum;
-            dz_sum_reg <= dz_sum(dz_sum'left) & dz_sum;
+            dz_sum_reg <= d_product_reg(d_product_reg'left) & d_product_reg;
          end if;
          
          -- 2nd stage sum
