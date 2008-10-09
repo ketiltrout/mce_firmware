@@ -33,7 +33,7 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "09:38:45  JANUARY 17, 2005"
-set_global_assignment -name LAST_QUARTUS_VERSION "5.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "8.0 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -473,3 +473,28 @@ set_global_assignment -name VHDL_FILE ../../pll/source/rtl/rc_pll.vhd
 set_global_assignment -name VHDL_FILE ../source/rc_noise_test.vhd
 set_location_assignment PIN_G5 -to mictor_clk[0]
 set_location_assignment PIN_C5 -to mictor_clk[1]
+set_location_assignment PIN_F20 -to eeprom_si
+set_location_assignment PIN_F21 -to eeprom_sck
+set_location_assignment PIN_B12 -to tx
+set_location_assignment PIN_C12 -to rx
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz"
+set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
+set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc1_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc1_rdy -to adc1_rdy
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc2_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc2_rdy -to adc2_rdy
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc3_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc3_rdy -to adc3_rdy
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc4_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc4_rdy -to adc4_rdy
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc5_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc5_rdy -to adc5_rdy
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc6_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc6_rdy -to adc6_rdy
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc7_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc7_rdy -to adc7_rdy
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc8_rdy
+set_instance_assignment -name CLOCK_SETTINGS adc8_rdy -to adc8_rdy
