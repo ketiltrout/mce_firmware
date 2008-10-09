@@ -1,0 +1,226 @@
+--------------------------------------------------------------------------------------
+Timing Analyzer Summary
+--------------------------------------------------------------------------------------
+
+Type           : Worst-case tsu
+Slack          : N/A
+Required Time  : None
+Actual Time    : 2.911 ns
+From           : adc3_dat[12]
+To             : dcfifo:adc3_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_datain_reg12
+From Clock     : --
+To Clock       : adc3_rdy
+Failed Paths   : 0
+
+Type           : Worst-case tco
+Slack          : N/A
+Required Time  : None
+Actual Time    : 9.941 ns
+From           : dcfifo:adc2_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~portb_address_reg7
+To             : dac_FB2_dat[4]
+From Clock     : inclk
+To Clock       : --
+Failed Paths   : 0
+
+Type           : Worst-case th
+Slack          : N/A
+Required Time  : None
+Actual Time    : -0.721 ns
+From           : adc4_dat[1]
+To             : dcfifo:adc4_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_datain_reg1
+From Clock     : --
+To Clock       : adc4_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc3_rdy'
+Slack          : 15.233 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 209.78 MHz ( period = 4.767 ns )
+From           : dcfifo:adc3_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[0]
+To             : dcfifo:adc3_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[7]
+From Clock     : adc3_rdy
+To Clock       : adc3_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc2_rdy'
+Slack          : 15.930 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 245.70 MHz ( period = 4.070 ns )
+From           : dcfifo:adc2_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[0]
+To             : dcfifo:adc2_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[7]
+From Clock     : adc2_rdy
+To Clock       : adc2_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc1_rdy'
+Slack          : 16.032 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 252.02 MHz ( period = 3.968 ns )
+From           : dcfifo:adc1_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|parity5
+To             : dcfifo:adc1_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[7]
+From Clock     : adc1_rdy
+To Clock       : adc1_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack          : 16.158 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 260.28 MHz ( period = 3.842 ns )
+From           : dcfifo:adc5_fifo|dcfifo_noq1:auto_generated|dffpipe_fd9:dffpipe_rdbuw|dffe9a[5]
+To             : dcfifo:adc5_fifo|dcfifo_noq1:auto_generated|a_fefifo_gtc:read_state|b_non_empty
+From Clock     : rc_pll:i_rc_pll|altpll:altpll_component|_clk0
+To Clock       : rc_pll:i_rc_pll|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc7_rdy'
+Slack          : 16.366 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 275.18 MHz ( period = 3.634 ns )
+From           : dcfifo:adc7_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[0]
+To             : dcfifo:adc7_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[7]
+From Clock     : adc7_rdy
+To Clock       : adc7_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc8_rdy'
+Slack          : 16.529 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 288.10 MHz ( period = 3.471 ns )
+From           : dcfifo:adc8_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[1]
+To             : dcfifo:adc8_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[5]
+From Clock     : adc8_rdy
+To Clock       : adc8_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc4_rdy'
+Slack          : 16.562 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 290.87 MHz ( period = 3.438 ns )
+From           : dcfifo:adc4_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_datain_reg13
+To             : dcfifo:adc4_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_memory_reg13
+From Clock     : adc4_rdy
+To Clock       : adc4_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc5_rdy'
+Slack          : 16.562 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 290.87 MHz ( period = 3.438 ns )
+From           : dcfifo:adc5_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_datain_reg13
+To             : dcfifo:adc5_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_memory_reg13
+From Clock     : adc5_rdy
+To Clock       : adc5_rdy
+Failed Paths   : 0
+
+Type           : Clock Setup: 'adc6_rdy'
+Slack          : 16.562 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 290.87 MHz ( period = 3.438 ns )
+From           : dcfifo:adc6_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_datain_reg13
+To             : dcfifo:adc6_fifo|dcfifo_noq1:auto_generated|dpram_v5v:fiforam|altsyncram_5qf1:altsyncram7|ram_block8a0~porta_memory_reg13
+From Clock     : adc6_rdy
+To Clock       : adc6_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack          : 0.540 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc2_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_nc8:dffpipe_rs_dgwp|dffpipe_hd9:dffpipe10|dffe11a[0]
+To             : dcfifo:adc2_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_nc8:dffpipe_rs_dgwp|dffpipe_hd9:dffpipe10|dffe12a[0]
+From Clock     : rc_pll:i_rc_pll|altpll:altpll_component|_clk0
+To Clock       : rc_pll:i_rc_pll|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc3_rdy'
+Slack          : 0.542 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc3_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe15a[0]
+To             : dcfifo:adc3_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe16a[0]
+From Clock     : adc3_rdy
+To Clock       : adc3_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc6_rdy'
+Slack          : 0.542 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc6_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe15a[0]
+To             : dcfifo:adc6_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe16a[0]
+From Clock     : adc6_rdy
+To Clock       : adc6_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc1_rdy'
+Slack          : 0.544 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc1_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe15a[0]
+To             : dcfifo:adc1_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe16a[0]
+From Clock     : adc1_rdy
+To Clock       : adc1_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc2_rdy'
+Slack          : 0.544 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc2_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe15a[0]
+To             : dcfifo:adc2_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe16a[0]
+From Clock     : adc2_rdy
+To Clock       : adc2_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc4_rdy'
+Slack          : 0.544 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc4_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe15a[0]
+To             : dcfifo:adc4_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe16a[0]
+From Clock     : adc4_rdy
+To Clock       : adc4_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc5_rdy'
+Slack          : 0.544 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc5_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe15a[0]
+To             : dcfifo:adc5_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe16a[0]
+From Clock     : adc5_rdy
+To Clock       : adc5_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc8_rdy'
+Slack          : 0.544 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc8_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe15a[0]
+To             : dcfifo:adc8_fifo|dcfifo_noq1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe14|dffe16a[0]
+From Clock     : adc8_rdy
+To Clock       : adc8_rdy
+Failed Paths   : 0
+
+Type           : Clock Hold: 'adc7_rdy'
+Slack          : 0.550 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dcfifo:adc7_fifo|dcfifo_noq1:auto_generated|a_graycounter_v16:wrptr_g|counter6a[1]
+To             : dcfifo:adc7_fifo|dcfifo_noq1:auto_generated|write_delay_cycle[1]
+From Clock     : adc7_rdy
+To Clock       : adc7_rdy
+Failed Paths   : 0
+
+Type           : Total number of failed paths
+Slack          : 
+Required Time  : 
+Actual Time    : 
+From           : 
+To             : 
+From Clock     : 
+To Clock       : 
+Failed Paths   : 0
+
+--------------------------------------------------------------------------------------
+
