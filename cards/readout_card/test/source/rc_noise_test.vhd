@@ -32,8 +32,11 @@
 -- customize for the type of the test and the desired channel and recompile
 --
 -- Revision history:
--- -- <date $Date: 2006/04/20 22:43:03 $>    - <initials $Author: bench2 $>
+-- -- <date $Date: 2006/04/24 18:59:12 $>    - <initials $Author: bench2 $>
 -- $Log: rc_noise_test.vhd,v $
+-- Revision 1.7.2.1  2006/04/24 18:59:12  bench2
+-- added a fifo per channel to connect synchronized data to DACs
+--
 -- Revision 1.7  2006/04/20 22:43:03  bench2
 -- MA: A fifo is added to synchronize ADC sample with adc_rdy signal
 --
@@ -202,7 +205,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc1_rdy,
+		wrclk => not(adc1_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
@@ -227,7 +230,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc2_rdy,
+		wrclk => not(adc2_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
@@ -252,7 +255,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc3_rdy,
+		wrclk => not(adc3_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
@@ -277,7 +280,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc4_rdy,
+		wrclk => not(adc4_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
@@ -302,7 +305,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc5_rdy,
+		wrclk => not(adc5_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
@@ -327,7 +330,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc6_rdy,
+		wrclk => not(adc6_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
@@ -352,7 +355,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc7_rdy,
+		wrclk => not(adc7_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
@@ -377,7 +380,7 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc8_rdy,
+		wrclk => not(adc8_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
