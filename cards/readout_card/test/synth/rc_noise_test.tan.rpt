@@ -1,5 +1,5 @@
 Classic Timing Analyzer report for rc_noise_test
-Thu Oct 09 13:32:39 2008
+Thu Oct 09 13:56:05 2008
 Quartus II Version 8.0 Build 231 07/10/2008 Service Pack 1 SJ Full Version
 
 
@@ -4370,7 +4370,7 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Classic Timing Analyzer
     Info: Version 8.0 Build 231 07/10/2008 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Oct 09 13:32:37 2008
+    Info: Processing started: Thu Oct 09 13:56:03 2008
 Info: Command: quartus_tan --read_settings_files=off --write_settings_files=off rc_noise_test -c rc_noise_test --timing_analysis_only
 Warning: Clock latency analysis for PLL offsets is supported for the current device family, but is not enabled
 Info: Found timing assignments -- calculating delays
@@ -4410,11 +4410,11 @@ Info: Slack time is 16.032 ns for clock "adc1_rdy" between source register "dcfi
     Info: Fmax is 252.02 MHz (period= 3.968 ns)
     Info: + Largest register to register requirement is 19.834 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc1_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc1_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc1_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc1_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is 0.000 ns
             Info: + Shortest clock path from clock "adc1_rdy" to destination register is 6.589 ns
@@ -4441,11 +4441,11 @@ Info: Slack time is 15.93 ns for clock "adc2_rdy" between source register "dcfif
     Info: Fmax is 245.7 MHz (period= 4.07 ns)
     Info: + Largest register to register requirement is 19.834 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc2_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc2_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc2_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc2_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is 0.000 ns
             Info: + Shortest clock path from clock "adc2_rdy" to destination register is 6.522 ns
@@ -4471,11 +4471,11 @@ Info: Slack time is 15.233 ns for clock "adc3_rdy" between source register "dcfi
     Info: Fmax is 209.78 MHz (period= 4.767 ns)
     Info: + Largest register to register requirement is 19.834 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc3_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc3_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc3_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc3_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is 0.000 ns
             Info: + Shortest clock path from clock "adc3_rdy" to destination register is 5.848 ns
@@ -4501,11 +4501,11 @@ Info: Slack time is 16.562 ns for clock "adc4_rdy" between source memory "dcfifo
     Info: Fmax is 290.87 MHz (period= 3.438 ns)
     Info: + Largest memory to memory requirement is 19.437 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc4_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc4_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc4_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc4_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is -0.012 ns
             Info: + Shortest clock path from clock "adc4_rdy" to destination memory is 6.761 ns
@@ -4528,11 +4528,11 @@ Info: Slack time is 16.562 ns for clock "adc5_rdy" between source memory "dcfifo
     Info: Fmax is 290.87 MHz (period= 3.438 ns)
     Info: + Largest memory to memory requirement is 19.437 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc5_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc5_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc5_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc5_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is -0.012 ns
             Info: + Shortest clock path from clock "adc5_rdy" to destination memory is 5.725 ns
@@ -4555,11 +4555,11 @@ Info: Slack time is 16.562 ns for clock "adc6_rdy" between source memory "dcfifo
     Info: Fmax is 290.87 MHz (period= 3.438 ns)
     Info: + Largest memory to memory requirement is 19.437 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc6_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc6_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc6_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc6_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is -0.012 ns
             Info: + Shortest clock path from clock "adc6_rdy" to destination memory is 6.050 ns
@@ -4582,11 +4582,11 @@ Info: Slack time is 16.366 ns for clock "adc7_rdy" between source register "dcfi
     Info: Fmax is 275.18 MHz (period= 3.634 ns)
     Info: + Largest register to register requirement is 19.834 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc7_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc7_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc7_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc7_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is 0.000 ns
             Info: + Shortest clock path from clock "adc7_rdy" to destination register is 6.197 ns
@@ -4612,11 +4612,11 @@ Info: Slack time is 16.529 ns for clock "adc8_rdy" between source register "dcfi
     Info: Fmax is 288.1 MHz (period= 3.471 ns)
     Info: + Largest register to register requirement is 19.834 ns
         Info: + Setup relationship between source and destination is 20.000 ns
-            Info: + Latch edge is 30.000 ns
-                Info: Clock period of Destination clock "adc8_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 20.000 ns
+                Info: Clock period of Destination clock "adc8_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc8_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc8_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
         Info: + Largest clock skew is 0.000 ns
             Info: + Shortest clock path from clock "adc8_rdy" to destination register is 6.911 ns
@@ -4675,12 +4675,12 @@ Info: Minimum slack time is 544 ps for clock "adc1_rdy" between source register 
         Info: Total interconnect delay = 0.403 ns ( 82.58 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc1_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc1_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc1_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc1_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4704,12 +4704,12 @@ Info: Minimum slack time is 544 ps for clock "adc2_rdy" between source register 
         Info: Total interconnect delay = 0.403 ns ( 82.58 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc2_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc2_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc2_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc2_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4733,12 +4733,12 @@ Info: Minimum slack time is 542 ps for clock "adc3_rdy" between source register 
         Info: Total interconnect delay = 0.401 ns ( 82.51 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc3_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc3_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc3_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc3_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4762,12 +4762,12 @@ Info: Minimum slack time is 544 ps for clock "adc4_rdy" between source register 
         Info: Total interconnect delay = 0.403 ns ( 82.58 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc4_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc4_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc4_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc4_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4791,12 +4791,12 @@ Info: Minimum slack time is 544 ps for clock "adc5_rdy" between source register 
         Info: Total interconnect delay = 0.403 ns ( 82.58 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc5_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc5_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc5_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc5_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4820,12 +4820,12 @@ Info: Minimum slack time is 542 ps for clock "adc6_rdy" between source register 
         Info: Total interconnect delay = 0.401 ns ( 82.51 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc6_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc6_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc6_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc6_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4849,12 +4849,12 @@ Info: Minimum slack time is 550 ps for clock "adc7_rdy" between source register 
         Info: Total interconnect delay = 0.409 ns ( 82.79 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc7_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc7_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc7_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc7_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4878,12 +4878,12 @@ Info: Minimum slack time is 544 ps for clock "adc8_rdy" between source register 
         Info: Total interconnect delay = 0.403 ns ( 82.58 % )
     Info: - Smallest register to register requirement is -0.056 ns
         Info: + Hold relationship between source and destination is 0.000 ns
-            Info: + Latch edge is 10.000 ns
-                Info: Clock period of Destination clock "adc8_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: + Latch edge is 0.000 ns
+                Info: Clock period of Destination clock "adc8_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Destination register is 1
                 Info: Multicycle Hold factor for Destination register is 1
-            Info: - Launch edge is 10.000 ns
-                Info: Clock period of Source clock "adc8_rdy" is 20.000 ns with inverted offset of 10.000 ns and duty cycle of 50
+            Info: - Launch edge is 0.000 ns
+                Info: Clock period of Source clock "adc8_rdy" is 20.000 ns with  offset of 0.000 ns and duty cycle of 50
                 Info: Multicycle Setup factor for Source register is 1
                 Info: Multicycle Hold factor for Source register is 1
         Info: + Smallest clock skew is 0.000 ns
@@ -4941,7 +4941,7 @@ Info: All timing requirements were met for slow timing model timing analysis. Se
 Warning: Found invalid timing assignments -- see Ignored Timing Assignments report for details
 Info: Quartus II Classic Timing Analyzer was successful. 0 errors, 2 warnings
     Info: Peak virtual memory: 174 megabytes
-    Info: Processing ended: Thu Oct 09 13:32:39 2008
+    Info: Processing ended: Thu Oct 09 13:56:05 2008
     Info: Elapsed time: 00:00:02
     Info: Total CPU time (on all processors): 00:00:02
 

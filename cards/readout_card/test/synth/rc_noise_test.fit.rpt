@@ -1,5 +1,5 @@
 Fitter report for rc_noise_test
-Thu Oct 09 13:32:27 2008
+Thu Oct 09 13:55:53 2008
 Quartus II Version 8.0 Build 231 07/10/2008 Service Pack 1 SJ Full Version
 
 
@@ -63,7 +63,7 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------+
 ; Fitter Summary                                                           ;
 +--------------------------+-----------------------------------------------+
-; Fitter Status            ; Successful - Thu Oct 09 13:32:27 2008         ;
+; Fitter Status            ; Successful - Thu Oct 09 13:55:53 2008         ;
 ; Quartus II Version       ; 8.0 Build 231 07/10/2008 SP 1 SJ Full Version ;
 ; Revision Name            ; rc_noise_test                                 ;
 ; Top-level Entity Name    ; rc_noise_test                                 ;
@@ -3051,7 +3051,7 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 ; LABs with Chains - Fit Attempt 1                                               ; 32             ;
 ; LABs with Multiple Chains - Fit Attempt 1                                      ; 0              ;
 ; Time - Fit Attempt 1                                                           ; 1              ;
-; Time in tsm_tan.dll - Fit Attempt 1                                            ; 0.097          ;
+; Time in tsm_tan.dll - Fit Attempt 1                                            ; 0.089          ;
 +--------------------------------------------------------------------------------+----------------+
 
 
@@ -3074,7 +3074,7 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 ; Peak Regional Wire - Fit Attempt 1  ; 12.292 ;
 ; Auto Fit Point 6 - Fit Attempt 1    ; ff     ;
 ; Time - Fit Attempt 1                ; 1      ;
-; Time in tsm_tan.dll - Fit Attempt 1 ; 0.311  ;
+; Time in tsm_tan.dll - Fit Attempt 1 ; 0.299  ;
 +-------------------------------------+--------+
 
 
@@ -3090,7 +3090,7 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 ; Late Slack - Fit Attempt 1          ; 14593 ;
 ; Late Wire Use - Fit Attempt 1       ; 1     ;
 ; Time - Fit Attempt 1                ; 2     ;
-; Time in tsm_tan.dll - Fit Attempt 1 ; 0.381 ;
+; Time in tsm_tan.dll - Fit Attempt 1 ; 0.383 ;
 +-------------------------------------+-------+
 
 
@@ -3100,7 +3100,7 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 Info: *******************************************************************
 Info: Running Quartus II Fitter
     Info: Version 8.0 Build 231 07/10/2008 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Oct 09 13:31:58 2008
+    Info: Processing started: Thu Oct 09 13:55:25 2008
 Info: Command: quartus_fit --read_settings_files=off --write_settings_files=off rc_noise_test -c rc_noise_test
 Info: Selected device EP1S40F780C5 for design "rc_noise_test"
 Info: Implemented Enhanced for PLL "rc_pll:i_rc_pll|altpll:altpll_component|pll"
@@ -3264,7 +3264,7 @@ Warning: Ignored locations or region assignments to the following nodes
     Warning: Node "tx" is assigned to location or region, but does not exist in design
     Warning: Node "wdog" is assigned to location or region, but does not exist in design
     Warning: Node "ylw_led" is assigned to location or region, but does not exist in design
-Info: Fitter preparation operations ending: elapsed time is 00:00:03
+Info: Fitter preparation operations ending: elapsed time is 00:00:04
 Info: Fitter placement preparation operations beginning
 Info: Fitter placement preparation operations ending: elapsed time is 00:00:01
 Info: Fitter placement operations beginning
@@ -3358,10 +3358,10 @@ Warning: Following 66 pins have nothing, GND, or VCC driving datain port -- chan
     Info: Pin mictor[31] has GND driving its datain port
 Info: Generated suppressed messages file C:/mce/cards/readout_card/test/synth/rc_noise_test.fit.smsg
 Info: Quartus II Fitter was successful. 0 errors, 101 warnings
-    Info: Peak virtual memory: 333 megabytes
-    Info: Processing ended: Thu Oct 09 13:32:27 2008
-    Info: Elapsed time: 00:00:29
-    Info: Total CPU time (on all processors): 00:00:28
+    Info: Peak virtual memory: 334 megabytes
+    Info: Processing ended: Thu Oct 09 13:55:53 2008
+    Info: Elapsed time: 00:00:28
+    Info: Total CPU time (on all processors): 00:00:27
 
 
 +----------------------------+
