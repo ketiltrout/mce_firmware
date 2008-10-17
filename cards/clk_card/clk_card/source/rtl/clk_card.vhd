@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.79 2008/02/03 09:39:35 bburger Exp $
+-- $Id: clk_card.vhd,v 1.80 2008/02/25 19:20:07 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.80  2008/02/25 19:20:07  bburger
+-- BB: cc_v04000009
+--
 -- Revision 1.79  2008/02/03 09:39:35  bburger
 -- BB:  cc_v04000008
 -- - Added support for several new commands:  CARDS_TO_REPORT_ADDR |  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR
@@ -264,7 +267,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"04000009";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0400000a";
 
    -- reset
    signal rst                : std_logic;
@@ -446,10 +449,11 @@ architecture top of clk_card is
    signal step_data_num     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal run_file_id       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal user_writable     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal stop_delay        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
-   signal card_not_present : std_logic_vector(9 downto 0);
-   signal cards_present    : std_logic_vector(9 downto 0);
-   signal rcs_to_report    : std_logic_vector(3 downto 0);
+   signal card_not_present  : std_logic_vector(9 downto 0);
+   signal cards_present     : std_logic_vector(9 downto 0);
+   signal cards_to_report   : std_logic_vector(9 downto 0);
 
 begin
 
@@ -521,12 +525,12 @@ begin
    ----------------------------------------------------------------
    -- Manchester Clock Pll
    ----------------------------------------------------------------
-   manch_pll_block : manch_pll
-   port map (
-      inclk0   => inclk1,
-      c0       => manch_clk,
-      locked   => open
-   );
+--   manch_pll_block : manch_pll
+--   port map (
+--      inclk0   => inclk1,
+--      c0       => manch_clk,
+--      locked   => open
+--   );
 
    ----------------------------------------------------------------
    -- Autonomous Clock Card Reset Block
@@ -589,7 +593,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR | STOP_DLY_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
@@ -613,7 +617,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR | STOP_DLY_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
@@ -637,7 +641,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR | STOP_DLY_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
@@ -731,8 +735,10 @@ begin
       num_rows_to_read_i  => num_rows_to_read,
       run_file_id_i       => run_file_id,
       user_writable_i     => user_writable,
+      stop_delay_i        => stop_delay,
       ret_dat_req_i       => ret_dat_req,
       ret_dat_ack_o       => ret_dat_done,
+      cards_to_report_i   => cards_to_report,
 
       -- dv_rx interface
       external_dv_i       => external_dv,
@@ -1050,7 +1056,7 @@ begin
    port map(
       -- Clock and Reset:
       clk_i               => clk,
-      manch_clk_i         => manch_clk,  -- Manchester Clock Input
+      manch_clk_i         => clk,--manch_clk,  -- Manchester Clock Input
       clk_n_i             => clk_n,
       rst_i               => rst,
 
@@ -1089,13 +1095,14 @@ begin
       step_data_num_o        => step_data_num,
       run_file_id_o          => run_file_id,
       user_writable_o        => user_writable,
+      stop_delay_o           => stop_delay,
       crc_err_en_o           => crc_err_en,
       num_rows_to_read_o     => num_rows_to_read,
       ret_dat_req_o          => ret_dat_req,
       ret_dat_ack_i          => ret_dat_done,
 
       cards_present_i        => cards_present,
-      rcs_to_report_o        => rcs_to_report,
+      cards_to_report_o      => cards_to_report,
 
       -- global interface
       clk_i                  => clk,
