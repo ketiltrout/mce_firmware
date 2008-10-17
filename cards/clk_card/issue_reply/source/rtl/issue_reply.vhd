@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.70 2008/01/28 20:26:15 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.71 2008/02/03 09:45:37 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 --
--- <date $Date: 2008/01/28 20:26:15 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/02/03 09:45:37 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.71  2008/02/03 09:45:37  bburger
+-- BB:
+-- - Removed unused interface signals
+-- - Added interface signals that will be used in the future
+--
 -- Revision 1.70  2008/01/28 20:26:15  bburger
 -- BB:
 -- - added the override_sync_num interface signal to the cmd_translator and cmd_queue
@@ -130,6 +135,7 @@ entity issue_reply is
       data_rate_i            : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       run_file_id_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      stop_delay_i           : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
       step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -142,6 +148,7 @@ entity issue_reply is
       num_rows_to_read_i     : in integer;
       ret_dat_req_i          : in std_logic;
       ret_dat_ack_o          : out std_logic;
+      cards_to_report_i      : in std_logic_vector(9 downto 0);
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -377,6 +384,7 @@ architecture rtl of issue_reply is
       ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      cards_to_report_i   : in std_logic_vector(9 downto 0);
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -422,7 +430,9 @@ architecture rtl of issue_reply is
       rst_i                   : in  std_logic;
       clk_i                   : in  std_logic;
 
+      -- ret_dat_wbs interface
       crc_err_en_i           : in std_logic;
+      stop_delay_i           : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- signals to/from fibre_rx
       cmd_rcvd_er_i           : in  std_logic;
@@ -753,6 +763,7 @@ begin
       ramp_param_id_i     => step_param_id_i,
       run_file_id_i       => run_file_id_i,
       user_writable_i     => user_writable_i,
+      cards_to_report_i   => cards_to_report_i,
 
       -- clk_switchover interface
       active_clk_i        => active_clk_i,
@@ -800,6 +811,7 @@ begin
       rst_i             => rst_i,
       clk_i             => clk_i,
       crc_err_en_i      => crc_err_en_i,
+      stop_delay_i      => stop_delay_i,
 
       -- Signals to/from fibre_rx
       cmd_rcvd_er_i     => cmd_err,
