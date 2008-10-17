@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs_pack.vhd,v 1.7 2006/09/21 16:18:36 bburger Exp $
+-- $Id: ret_dat_wbs_pack.vhd,v 1.8 2007/08/28 23:28:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs_pack.vhd,v $
+-- Revision 1.8  2007/08/28 23:28:56  bburger
+-- BB:  Added the following constants for ramping and frame-rate data:
+-- constant DEFAULT_NUM_ROWS_TO_READ : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000029";  -- 41 Rows by default.
+-- constant DEFAULT_STEP_DATA_NUM    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";  -- Then default number of data words to be send in the ramp command.
+--
 -- Revision 1.7  2006/09/21 16:18:36  bburger
 -- Bryce:  Corrected a comment
 --
@@ -82,11 +87,13 @@ use work.sync_gen_pack.all;
 
 package ret_dat_wbs_pack is
 
--- Data rate is calculated as "1 data packet per x frames".  A smaller x values yields a larger data rate, and vice versa
-constant MIN_DATA_RATE            : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000FFFF";
-constant MAX_DATA_RATE            : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000000";
-constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
-constant DEFAULT_NUM_ROWS_TO_READ : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000029";  -- 41 Rows by default.
-constant DEFAULT_STEP_DATA_NUM    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";  -- Then default number of data words to be send in the ramp command.
+   -- Data rate is calculated as "1 data packet per x frames".  A smaller x values yields a larger data rate, and vice versa
+   constant MIN_DATA_RATE            : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000FFFF";
+   constant MAX_DATA_RATE            : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000000";
+   constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
+   -- constant DEFAULT_RCS_TO_REPORT    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000000F";
+   constant DEFAULT_CARDS_TO_REPORT  : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"000003FF";
+   constant DEFAULT_NUM_ROWS_TO_READ : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000029";  -- 41 Rows by default.
+   constant DEFAULT_STEP_DATA_NUM    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";  -- Then default number of data words to be send in the ramp command.
 
 end package;
