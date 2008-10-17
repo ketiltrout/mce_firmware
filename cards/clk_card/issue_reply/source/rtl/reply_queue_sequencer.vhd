@@ -32,6 +32,10 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.35  2008/01/28 20:28:33  bburger
+-- BB:
+-- - No code content changes.  Just cosmetic re-spacing of if-else statements to make them more readable.
+--
 -- Revision 1.34  2007/12/18 20:36:40  bburger
 -- BB:  Repaired the errno word logic that was reporting both card error and card not present at the same time.
 --
@@ -113,6 +117,7 @@ port(
      lvds_reply_psu_a  : in std_logic;
 
      card_not_present_i  : in std_logic_vector(9 downto 0);
+     cards_to_report_i   : in std_logic_vector(9 downto 0);
 
      card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      -- cmd_translator interface
@@ -200,6 +205,10 @@ signal timer_count     : integer;
 ---------------------------------------------------------
 -- Reply_queue_receiver interface signals
 ---------------------------------------------------------
+signal data_buf_a         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal data_buf_b         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal data_buf_c         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
 signal ac_data_buf        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal bc1_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal bc2_data_buf       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -434,16 +443,16 @@ begin
       -- (a) Timeout because card not present
       -- (b) CRC error or other timeout error
       -- (c) Wishbone execution error
-      card_not_present_i(9) & crc_error(9) & ac_error(0)  &
-      card_not_present_i(8) & crc_error(8) & bc1_error(0) &
-      card_not_present_i(7) & crc_error(7) & bc2_error(0) &
-      card_not_present_i(6) & crc_error(6) & bc3_error(0) &
-      card_not_present_i(5) & crc_error(5) & rc1_error(0) &
-      card_not_present_i(4) & crc_error(4) & rc2_error(0) &
-      card_not_present_i(3) & crc_error(3) & rc3_error(0) &
-      card_not_present_i(2) & crc_error(2) & rc4_error(0) &
-      card_not_present_i(1) & crc_error(1) & cc_error(0)  &
-      card_not_present_i(0) & crc_error(0) & psu_error(0);
+      card_not_present_i(AC)   & crc_error(AC)   & ac_error(0)  &
+      card_not_present_i(BC1)  & crc_error(BC1)  & bc1_error(0) &
+      card_not_present_i(BC2)  & crc_error(BC2)  & bc2_error(0) &
+      card_not_present_i(BC3)  & crc_error(BC3)  & bc3_error(0) &
+      card_not_present_i(RC1)  & crc_error(RC1)  & rc1_error(0) &
+      card_not_present_i(RC2)  & crc_error(RC2)  & rc2_error(0) &
+      card_not_present_i(RC3)  & crc_error(RC3)  & rc3_error(0) &
+      card_not_present_i(RC4)  & crc_error(RC4)  & rc4_error(0) &
+      card_not_present_i(CC)   & crc_error(CC)   & cc_error(0)  &
+      card_not_present_i(PSUC) & crc_error(PSUC) & psu_error(0);
 
    ---------------------------------------------------------
    -- Error FSM
@@ -617,7 +626,7 @@ begin
 
    state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, ack_i, word_count, card_data_size,
       ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy, psu_rdy, cmd_code_i,
-      card_not_present_i)
+      card_not_present_i, cards_to_report_i)
    begin
       -- Default Assignments
       next_state <= pres_state;
@@ -632,44 +641,44 @@ begin
 
          when WAIT_FOR_REPLY =>
             if((card_addr_i = CLOCK_CARD and
-                  (cc_rdy = '1' or card_not_present_i(1) = '1')) or
+                  (cc_rdy = '1'  or card_not_present_i(CC) = '1')) or
                (card_addr_i = POWER_SUPPLY_CARD and
-                  (psu_rdy = '1' or card_not_present_i(0) = '1')) or
+                  (psu_rdy = '1' or card_not_present_i(PSUC) = '1')) or
                (card_addr_i = ADDRESS_CARD and
-                  (ac_rdy = '1' or card_not_present_i(9) = '1')) or
+                  (ac_rdy = '1'  or card_not_present_i(AC) = '1')) or
                (card_addr_i = BIAS_CARD_1 and
-                  (bc1_rdy = '1' or card_not_present_i(8) = '1')) or
+                  (bc1_rdy = '1' or card_not_present_i(BC1) = '1')) or
                (card_addr_i = BIAS_CARD_2 and
-                  (bc2_rdy = '1' or card_not_present_i(7) = '1')) or
+                  (bc2_rdy = '1' or card_not_present_i(BC2) = '1')) or
                (card_addr_i = BIAS_CARD_3 and
-                  (bc3_rdy = '1' or card_not_present_i(6) = '1')) or
+                  (bc3_rdy = '1' or card_not_present_i(BC3) = '1')) or
                (card_addr_i = READOUT_CARD_1 and
-                  (rc1_rdy = '1' or card_not_present_i(5) = '1')) or
+                  (rc1_rdy = '1' or card_not_present_i(RC1) = '1')) or
                (card_addr_i = READOUT_CARD_2 and
-                  (rc2_rdy = '1' or card_not_present_i(4) = '1')) or
+                  (rc2_rdy = '1' or card_not_present_i(RC2) = '1')) or
                (card_addr_i = READOUT_CARD_3 and
-                  (rc3_rdy = '1' or card_not_present_i(3) = '1')) or
+                  (rc3_rdy = '1' or card_not_present_i(RC3) = '1')) or
                (card_addr_i = READOUT_CARD_4 and
-                  (rc4_rdy = '1' or card_not_present_i(2) = '1')) or
+                  (rc4_rdy = '1' or card_not_present_i(RC4) = '1')) or
                (card_addr_i = ALL_BIAS_CARDS and
-                  (bc1_rdy = '1' or card_not_present_i(8) = '1') and
-                  (bc2_rdy = '1' or card_not_present_i(7) = '1') and
-                  (bc3_rdy = '1' or card_not_present_i(6) = '1')) or
+                  (bc1_rdy = '1' or card_not_present_i(BC1) = '1') and
+                  (bc2_rdy = '1' or card_not_present_i(BC2) = '1') and
+                  (bc3_rdy = '1' or card_not_present_i(BC3) = '1')) or
                (card_addr_i = ALL_READOUT_CARDS and
-                  (rc1_rdy = '1' or card_not_present_i(5) = '1') and
-                  (rc2_rdy = '1' or card_not_present_i(4) = '1') and
-                  (rc3_rdy = '1' or card_not_present_i(3) = '1') and
-                  (rc4_rdy = '1' or card_not_present_i(2) = '1')) or
+                  (rc1_rdy = '1' or card_not_present_i(RC1) = '1') and
+                  (rc2_rdy = '1' or card_not_present_i(RC2) = '1') and
+                  (rc3_rdy = '1' or card_not_present_i(RC3) = '1') and
+                  (rc4_rdy = '1' or card_not_present_i(RC4) = '1')) or
                (card_addr_i = ALL_FPGA_CARDS and
-                  (cc_rdy = '1' or card_not_present_i(1) = '1') and
-                  (ac_rdy = '1' or card_not_present_i(9) = '1') and
-                  (bc1_rdy = '1' or card_not_present_i(8) = '1') and
-                  (bc2_rdy = '1' or card_not_present_i(7) = '1') and
-                  (bc3_rdy = '1' or card_not_present_i(6) = '1') and
-                  (rc1_rdy = '1' or card_not_present_i(5) = '1') and
-                  (rc2_rdy = '1' or card_not_present_i(4) = '1') and
-                  (rc3_rdy = '1' or card_not_present_i(3) = '1') and
-                  (rc4_rdy = '1' or card_not_present_i(2) = '1'))) then
+                  (cc_rdy = '1' or card_not_present_i(CC) = '1') and
+                  (ac_rdy = '1' or card_not_present_i(AC) = '1') and
+                  (bc1_rdy = '1' or card_not_present_i(BC1) = '1') and
+                  (bc2_rdy = '1' or card_not_present_i(BC2) = '1') and
+                  (bc3_rdy = '1' or card_not_present_i(BC3) = '1') and
+                  (rc1_rdy = '1' or card_not_present_i(RC1) = '1') and
+                  (rc2_rdy = '1' or card_not_present_i(RC2) = '1') and
+                  (rc3_rdy = '1' or card_not_present_i(RC3) = '1') and
+                  (rc4_rdy = '1' or card_not_present_i(RC4) = '1'))) then
                   next_state <= LATCH_ERROR;
                elsif(timeout = '1') then
                   next_state <= TIMED_OUT;
@@ -696,71 +705,285 @@ begin
                next_state <= STATUS_WORD;
             end if;
 
+         when STATUS_WORD =>
+            -- If the status word is acknowledged
+            if(ack_i = '1') then
+               -- If there is data to read
+               if(cmd_code_i = READ_BLOCK or cmd_code_i = DATA) then
+                  if(card_addr_i = POWER_SUPPLY_CARD and cards_to_report_i(PSUC) = '1') then
+                     next_state <= READ_PSU;
+                  elsif(card_addr_i = CLOCK_CARD and cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  elsif(card_addr_i = BIAS_CARD_1 and cards_to_report_i(BC1) = '1') then
+                     next_state <= READ_BC1;
+                  elsif(card_addr_i = BIAS_CARD_2 and cards_to_report_i(BC2) = '1') then
+                     next_state <= READ_BC2;
+                  elsif(card_addr_i = BIAS_CARD_3 and cards_to_report_i(BC3) = '1') then
+                     next_state <= READ_BC3;
+                  elsif(card_addr_i = ADDRESS_CARD and cards_to_report_i(AC) = '1') then
+                     next_state <= READ_AC;
+                  elsif(card_addr_i = READOUT_CARD_1 and cards_to_report_i(RC1) = '1') then
+                     next_state <= READ_RC1;
+                  elsif(card_addr_i = READOUT_CARD_2 and cards_to_report_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(card_addr_i = READOUT_CARD_3 and cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(card_addr_i = READOUT_CARD_4 and cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(card_addr_i = ALL_BIAS_CARDS) then
+                     if(cards_to_report_i(BC1) = '1') then
+                        next_state <= READ_BC1;
+                     elsif(cards_to_report_i(BC2) = '1') then
+                        next_state <= READ_BC2;
+                     elsif(cards_to_report_i(BC3) = '1') then
+                        next_state <= READ_BC3;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  elsif(card_addr_i = ALL_FPGA_CARDS) then
+                     if(cards_to_report_i(AC) = '1') then
+                        next_state <= READ_AC;
+                     elsif(cards_to_report_i(BC1) = '1') then
+                        next_state <= READ_BC1;
+                     elsif(cards_to_report_i(BC2) = '1') then
+                        next_state <= READ_BC2;
+                     elsif(cards_to_report_i(BC3) = '1') then
+                        next_state <= READ_BC3;
+                     elsif(cards_to_report_i(RC1) = '1') then
+                        next_state <= READ_RC1;
+                     elsif(cards_to_report_i(RC2) = '1') then
+                        next_state <= READ_RC2;
+                     elsif(cards_to_report_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     elsif(cards_to_report_i(CC) = '1') then
+                        next_state <= READ_CC;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  elsif(card_addr_i = ALL_READOUT_CARDS) then
+                     if(cards_to_report_i(RC1) = '1') then
+                        next_state <= READ_RC1;
+                     elsif(cards_to_report_i(RC2) = '1') then
+                        next_state <= READ_RC2;
+                     elsif(cards_to_report_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  -- Otherwise, we are done
+                  else
+                     next_state <= DONE;
+                  end if;
+               else
+                  next_state <= DONE;
+               end if;
+            end if;
+
+         -------------------------------------------------------------------------------
+         -- We get into these states only if there is definitely data to read!
+         -------------------------------------------------------------------------------
          when READ_AC =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_FPGA_CARDS => next_state <= READ_BC1;
-                  when others         => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(BC1) = '1') then
+                     next_state <= READ_BC1;
+                  elsif(cards_to_report_i(BC2) = '1') then
+                     next_state <= READ_BC2;
+                  elsif(cards_to_report_i(BC3) = '1') then
+                     next_state <= READ_BC3;
+                  elsif(cards_to_report_i(RC1) = '1') then
+                     next_state <= READ_RC1;
+                  elsif(cards_to_report_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               else
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_BC1 =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_FPGA_CARDS => next_state <= READ_BC2;
-                  when others         => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(BC2) = '1') then
+                     next_state <= READ_BC2;
+                  elsif(cards_to_report_i(BC3) = '1') then
+                     next_state <= READ_BC3;
+                  elsif(cards_to_report_i(RC1) = '1') then
+                     next_state <= READ_RC1;
+                  elsif(cards_to_report_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(card_addr_i = ALL_BIAS_CARDS) then
+                  if(cards_to_report_i(BC2) = '1') then
+                     next_state <= READ_BC2;
+                  elsif(cards_to_report_i(BC3) = '1') then
+                     next_state <= READ_BC3;
+                  else
+                     next_state <= DONE;
+                  end if;
+               else
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_BC2 =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_FPGA_CARDS => next_state <= READ_BC3;
-                  when others         => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(BC3) = '1') then
+                     next_state <= READ_BC3;
+                  elsif(cards_to_report_i(RC1) = '1') then
+                     next_state <= READ_RC1;
+                  elsif(cards_to_report_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(card_addr_i = ALL_BIAS_CARDS) then
+                  if(cards_to_report_i(BC3) = '1') then
+                     next_state <= READ_BC3;
+                  else
+                     next_state <= DONE;
+                  end if;
+               else
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_BC3 =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_FPGA_CARDS => next_state <= READ_RC1;
-                  when others         => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(RC1) = '1') then
+                     next_state <= READ_RC1;
+                  elsif(cards_to_report_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(card_addr_i = ALL_BIAS_CARDS) then
+                  next_state <= DONE;
+               else
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_RC1 =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_READOUT_CARDS => next_state <= READ_RC2;
-                  when ALL_FPGA_CARDS    => next_state <= READ_RC2;
-                  when others            => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(card_addr_i = ALL_READOUT_CARDS) then
+                  if(cards_to_report_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  else
+                     next_state <= DONE;
+                  end if;
+               else
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_RC2 =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_READOUT_CARDS => next_state <= READ_RC3;
-                  when ALL_FPGA_CARDS    => next_state <= READ_RC3;
-                  when others            => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(card_addr_i = ALL_READOUT_CARDS) then
+                  if(cards_to_report_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  else
+                     next_state <= DONE;
+                  end if;
+               else
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_RC3 =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_READOUT_CARDS => next_state <= READ_RC4;
-                  when ALL_FPGA_CARDS    => next_state <= READ_RC4;
-                  when others            => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(card_addr_i = ALL_READOUT_CARDS) then
+                  if(cards_to_report_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  else
+                     next_state <= DONE;
+                  end if;
+               else
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_RC4 =>
             if(word_count >= card_data_size) then
-               case card_addr_i is
-                  when ALL_FPGA_CARDS => next_state <= READ_CC;
-                  when others         => next_state <= DONE;
-               end case;
+               if(card_addr_i = ALL_FPGA_CARDS) then
+                  if(cards_to_report_i(CC) = '1') then
+                     next_state <= READ_CC;
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(card_addr_i = ALL_READOUT_CARDS) then
+                  next_state <= DONE;
+               end if;
             end if;
 
          when READ_CC =>
@@ -772,44 +995,10 @@ begin
             if(word_count >= card_data_size) then
                next_state <= DONE;
             end if;
+         -------------------------------------------------------------------------------
 
          when TIMED_OUT =>
             next_state <= LATCH_ERROR;
-
-         when STATUS_WORD =>
-            -- If the status word is acknowledged
-            if(ack_i = '1') then
-               -- If there is data to read
-               if(cmd_code_i = READ_BLOCK or cmd_code_i = DATA) then
-                  case card_addr_i is
-                     when POWER_SUPPLY_CARD =>
-                        next_state <= READ_PSU;
-                     when CLOCK_CARD =>
-                        next_state <= READ_CC;
-                     when BIAS_CARD_1 | ALL_BIAS_CARDS =>
-                        next_state <= READ_BC1;
-                     when BIAS_CARD_2 =>
-                        next_state <= READ_BC2;
-                     when BIAS_CARD_3 =>
-                        next_state <= READ_BC3;
-                     when ADDRESS_CARD | ALL_FPGA_CARDS =>
-                        next_state <= READ_AC;
-                     when READOUT_CARD_1 | ALL_READOUT_CARDS =>
-                        next_state <= READ_RC1;
-                     when READOUT_CARD_2 =>
-                        next_state <= READ_RC2;
-                     when READOUT_CARD_3 =>
-                        next_state <= READ_RC3;
-                     when READOUT_CARD_4 =>
-                        next_state <= READ_RC4;
-                     when others =>
-                        next_state <= IDLE;
-                  end case;
-               -- Otherwise, we are done
-               else
-                  next_state <= DONE;
-               end if;
-            end if;
 
          when DONE =>
             next_state <= IDLE;
@@ -826,43 +1015,63 @@ begin
    data_buff: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         ac_data_buf  <= (others => '0');
-         bc1_data_buf <= (others => '0');
-         bc2_data_buf <= (others => '0');
-         bc3_data_buf <= (others => '0');
-         rc1_data_buf <= (others => '0');
-         rc2_data_buf <= (others => '0');
-         rc3_data_buf <= (others => '0');
-         rc4_data_buf <= (others => '0');
-         cc_data_buf  <= (others => '0');
-         psu_data_buf <= (others => '0');
+         data_buf_a <= (others => '0');
+         data_buf_b <= (others => '0');
+         data_buf_c <= (others => '0');
+         data_o     <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
-         ac_data_buf  <= ac_data;
-         bc1_data_buf <= bc1_data;
-         bc2_data_buf <= bc2_data;
-         bc3_data_buf <= bc3_data;
-         rc1_data_buf <= rc1_data;
-         rc2_data_buf <= rc2_data;
-         rc3_data_buf <= rc3_data;
-         rc4_data_buf <= rc4_data;
-         cc_data_buf  <= cc_data;
-         psu_data_buf <= psu_data;
+
+         -- All of the rdy signals may be asserted, but they are looked at in this order.
+         -- They are in groups of 4 because that is how many inputs each LUT has in Stratix FPGAs
+         if (ac_rdy  = '1') then
+            data_buf_a  <= ac_data;
+         elsif (bc1_rdy  = '1') then
+            data_buf_a <= bc1_data;
+         elsif (bc2_rdy  = '1') then
+            data_buf_a <= bc2_data;
+         elsif (bc3_rdy  = '1') then
+            data_buf_a <= bc3_data;
+         end if;
+
+         if (rc1_rdy  = '1') then
+            data_buf_b  <= rc1_data;
+         elsif (rc2_rdy  = '1') then
+            data_buf_b <= rc2_data;
+         elsif (rc3_rdy  = '1') then
+            data_buf_b <= rc3_data;
+         elsif (rc4_rdy  = '1') then
+            data_buf_b <= rc4_data;
+         end if;
+
+         if (cc_rdy  = '1') then
+            data_buf_c  <= cc_data;
+         elsif (psu_rdy  = '1') then
+            data_buf_c <= psu_data;
+         end if;
+
+         if (pres_state = READ_AC) then
+            data_o <= data_buf_a;
+         elsif (pres_state = READ_BC1) then
+            data_o <= data_buf_a;
+         elsif (pres_state = READ_BC2) then
+            data_o <= data_buf_a;
+         elsif (pres_state = READ_BC3) then
+            data_o <= data_buf_a;
+         elsif (pres_state = READ_RC1) then
+            data_o <= data_buf_b;
+         elsif (pres_state = READ_RC2) then
+            data_o <= data_buf_b;
+         elsif (pres_state = READ_RC3) then
+            data_o <= data_buf_b;
+         elsif (pres_state = READ_RC4) then
+            data_o <= data_buf_b;
+         elsif (pres_state = READ_CC) then
+            data_o <= data_buf_c;
+         elsif (pres_state = READ_PSU) then
+            data_o <= data_buf_c;
+         end if;
       end if;
    end process data_buff;
-
-
-   data_o <=
-      ac_data_buf  when ac_rdy  = '1' else
-      bc1_data_buf when bc1_rdy = '1' else
-      bc2_data_buf when bc2_rdy = '1' else
-      bc3_data_buf when bc3_rdy = '1' else
-      rc1_data_buf when rc1_rdy = '1' else
-      rc2_data_buf when rc2_rdy = '1' else
-      rc3_data_buf when rc3_rdy = '1' else
-      rc4_data_buf when rc4_rdy = '1' else
-      cc_data_buf  when cc_rdy  = '1' else
-      psu_data_buf when psu_rdy = '1' else
-      (others => '0');
 
    state_Out: process(pres_state, ack_i, word_count, card_data_size)
    begin
@@ -924,7 +1133,7 @@ begin
             -- Keep rdy_o asserted throughout
             rdy_o <= '1';
             -- If the number of words to output has been met
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                -- Clear the word counter
                word_count_clr <= '1';
             else
@@ -936,7 +1145,7 @@ begin
 
          when READ_BC1 =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -947,7 +1156,7 @@ begin
 
          when READ_BC2 =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -958,7 +1167,7 @@ begin
 
          when READ_BC3 =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -969,7 +1178,7 @@ begin
 
          when READ_RC1 =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -980,7 +1189,7 @@ begin
 
          when READ_RC2 =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -991,7 +1200,7 @@ begin
 
          when READ_RC3 =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -1002,7 +1211,7 @@ begin
 
          when READ_RC4 =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -1013,7 +1222,7 @@ begin
 
          when READ_CC =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
@@ -1024,7 +1233,7 @@ begin
 
          when READ_PSU =>
             rdy_o <= '1';
-            if(word_count >= card_data_size) then
+            if(word_count = card_data_size) then
                word_count_clr <= '1';
             else
                if(ack_i = '1') then
