@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.46 2007/10/18 22:40:10 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.47 2008/02/03 09:47:07 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.47  2008/02/03 09:47:07  bburger
+-- BB:  removed stop_bit_o and last_frame_bit_o and cmd_sent_i interface signals.  They are unused.
+--
 -- Revision 1.46  2007/10/18 22:40:10  bburger
 -- BB:  Added card-not-present interfaces
 --
@@ -132,6 +135,7 @@ entity reply_queue is
       ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      cards_to_report_i   : in std_logic_vector(9 downto 0);
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -197,6 +201,7 @@ architecture behav of reply_queue is
       lvds_reply_psu_a  : in std_logic;
 
       card_not_present_i  : in std_logic_vector(9 downto 0);
+      cards_to_report_i   : in std_logic_vector(9 downto 0);
 
       -- fibre interface:
 --      size_o            : out integer;
@@ -359,6 +364,17 @@ architecture behav of reply_queue is
    signal clr_reset           : std_logic;
 
    signal rc_bit_encoding : std_logic_vector(3 downto 0);
+
+   signal psu_slv : std_logic_vector(3 downto 0);
+   signal cc_slv  : std_logic_vector(3 downto 0);
+   signal rc4_slv : std_logic_vector(3 downto 0);
+   signal rc3_slv : std_logic_vector(3 downto 0);
+   signal rc2_slv : std_logic_vector(3 downto 0);
+   signal rc1_slv : std_logic_vector(3 downto 0);
+   signal bc3_slv : std_logic_vector(3 downto 0);
+   signal bc2_slv : std_logic_vector(3 downto 0);
+   signal bc1_slv : std_logic_vector(3 downto 0);
+   signal ac_slv  : std_logic_vector(3 downto 0);
 
 begin
 
@@ -529,34 +545,71 @@ begin
    -------------------------------------------------------------------
    -- data size calculation logic and registers
    -------------------------------------------------------------------
+   psu_slv <= "000" & cards_to_report_i(PSUC);
+   cc_slv  <= "000" & cards_to_report_i(CC);
+   rc4_slv <= "000" & cards_to_report_i(RC4);
+   rc3_slv <= "000" & cards_to_report_i(RC3);
+   rc2_slv <= "000" & cards_to_report_i(RC2);
+   rc1_slv <= "000" & cards_to_report_i(RC1);
+   bc3_slv <= "000" & cards_to_report_i(BC3);
+   bc2_slv <= "000" & cards_to_report_i(BC2);
+   bc1_slv <= "000" & cards_to_report_i(BC1);
+   ac_slv  <= "000" & cards_to_report_i(AC);
+
    num_cards_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          num_cards <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(num_cards_reg_en = '1') then
-            if(card_addr = NO_CARDS) then
-               num_cards <= x"0";
-            elsif((card_addr = POWER_SUPPLY_CARD) or
-                  (card_addr = CLOCK_CARD) or
-                  (card_addr = READOUT_CARD_1) or
-                  (card_addr = READOUT_CARD_2) or
-                  (card_addr = READOUT_CARD_3) or
-                  (card_addr = READOUT_CARD_4) or
-                  (card_addr = BIAS_CARD_1) or
-                  (card_addr = BIAS_CARD_2) or
-                  (card_addr = BIAS_CARD_3) or
-                  (card_addr = ADDRESS_CARD)) then
-               num_cards <= x"1";
-            elsif(card_addr = ALL_BIAS_CARDS) then
-               num_cards <= x"3";
-            elsif(card_addr = ALL_READOUT_CARDS) then
-               num_cards <= x"4";
-            elsif(card_addr = ALL_FPGA_CARDS) then
-               num_cards <= x"9";
-            else
-               num_cards <= x"0";
-            end if;
+--            if(cmd_code = DATA) then
+--               if(cards_to_report_i(5 downto 2) = "0000") then
+--                  num_cards <= x"0";
+--               elsif(cards_to_report_i(5 downto 2) = "1111") then
+--                  num_cards <= x"4";
+--               elsif(cards_to_report_i(5 downto 2) = "1000" or cards_to_report_i(5 downto 2) = "0100" or
+--                  cards_to_report_i(5 downto 2) = "0010" or cards_to_report_i(5 downto 2) = "0001") then
+--                  num_cards <= x"1";
+--               elsif(cards_to_report_i(5 downto 2) = "0111" or cards_to_report_i(5 downto 2) = "1011" or
+--                  cards_to_report_i(5 downto 2) = "1101" or cards_to_report_i(5 downto 2) = "1110") then
+--                  num_cards <= x"3";
+--               else
+--                  num_cards <= x"2";
+--               end if;
+--            else
+               if(card_addr = NO_CARDS) then
+                  num_cards <= x"0";
+               elsif(card_addr = POWER_SUPPLY_CARD) then
+                  num_cards <= psu_slv;
+               elsif(card_addr = CLOCK_CARD) then
+                  num_cards <= cc_slv;
+               elsif(card_addr = READOUT_CARD_1) then
+                  num_cards <= rc1_slv;
+               elsif(card_addr = READOUT_CARD_2) then
+                  num_cards <= rc2_slv;
+               elsif(card_addr = READOUT_CARD_3) then
+                  num_cards <= rc3_slv;
+               elsif(card_addr = READOUT_CARD_4) then
+                  num_cards <= rc4_slv;
+               elsif(card_addr = BIAS_CARD_1) then
+                  num_cards <= bc1_slv;
+               elsif(card_addr = BIAS_CARD_2) then
+                  num_cards <= bc2_slv;
+               elsif(card_addr = BIAS_CARD_3) then
+                  num_cards <= bc3_slv;
+               elsif(card_addr = ADDRESS_CARD) then
+--                  num_cards <= x"1";
+                  num_cards <= ac_slv;
+               elsif(card_addr = ALL_BIAS_CARDS) then
+                  num_cards <= bc1_slv + bc2_slv + bc3_slv;
+               elsif(card_addr = ALL_READOUT_CARDS) then
+                  num_cards <= rc1_slv + rc2_slv + rc3_slv + rc4_slv;
+               elsif(card_addr = ALL_FPGA_CARDS) then
+                  num_cards <= bc1_slv + bc2_slv + bc3_slv + rc1_slv + rc2_slv + rc3_slv + rc4_slv + cc_slv + ac_slv;
+               else
+                  num_cards <= x"0";
+               end if;
+--            end if;
          end if;
       end if;
    end process num_cards_reg;
@@ -1166,7 +1219,8 @@ begin
          lvds_reply_cc_a   => lvds_reply_cc_a,
          lvds_reply_psu_a  => lvds_reply_psu_a,
 
-         card_not_present_i =>card_not_present_i,
+         card_not_present_i => card_not_present_i,
+         cards_to_report_i  => cards_to_report_i,
 
          card_data_size_i  => data_size_t,  -- Add this to the pack file
          -- cmd_translator interface
