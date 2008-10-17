@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.55 2007/10/18 22:38:43 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.56 2008/01/28 20:27:24 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.56  2008/01/28 20:27:24  bburger
+-- BB:
+-- - moved the constant called STATUS_WORD_WARNING_MASK from issue_reply_pack to reply_translator, where it is used locally
+--
 -- Revision 1.55  2007/10/18 22:38:43  bburger
 -- BB:  added a parameter that characterizes the data propagation delay of the data pipeline from reply_queue_receive to reply_translator.  This will help make adjustments more quickly in the future.
 --
@@ -119,11 +123,9 @@ package issue_reply_pack is
    -- Measured in clock cycles, CMD_TIMEOUT_LIMIT is slightly more than the amount of cycles necessary for an internal/ simple command to execute
    -- For a 58-word WB command, 100 us are required from receiving the last word of the command to sending the last word of the reply
    -- For a 58-word RB command, 105 us are required from receiving the last word of the command to sending the last word of the reply.
---   constant CMD_TIMEOUT_LIMIT : integer := 110; --us
    constant CMD_TIMEOUT_LIMIT : integer := 150; --us
 
    -- This should be dependent on row_len and num_rows!
---   constant DATA_TIMEOUT_LIMIT : integer := 650; --us
    constant DATA_TIMEOUT_LIMIT : integer := 1000; --us
 
    -- The minimum window for transmitting an internal command needs to be slightly more than CMD_TIMEOUT_LIMIT
@@ -132,6 +134,18 @@ package issue_reply_pack is
 
    -- Period of internal commands
    constant HOUSEKEEPING_COMMAND_PERIOD : integer := 1000000;
+
+   -- Offsets in the cards_to_report word
+   constant AC   : integer := 9;
+   constant BC1  : integer := 8;
+   constant BC2  : integer := 7;
+   constant BC3  : integer := 6;
+   constant RC1  : integer := 5;
+   constant RC2  : integer := 4;
+   constant RC3  : integer := 3;
+   constant RC4  : integer := 2;
+   constant CC   : integer := 1;
+   constant PSUC : integer := 0;
 
    -- Data sizes for internal commands
    constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
@@ -150,6 +164,6 @@ package issue_reply_pack is
    constant BOX_TEMP_SIZE   : integer :=  2; -- Includes space for fpga_temp errno word
 
    -- This is the data pipeline propagation delay setting for the reply_translator
-   constant DATA_PROPAGATION_DELAY : integer := 2;
+   constant DATA_PROPAGATION_DELAY : integer := 3;
 
 end issue_reply_pack;
