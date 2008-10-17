@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.56 2008/07/07 17:58:46 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.57 2008/07/08 02:08:50 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -30,7 +30,7 @@
 -- Description:  This module is the fibre command translator.
 --
 -- Revision history:
--- <date $Date: 2008/07/07 17:58:46 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/07/08 02:08:50 $> -     <text>      - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -147,15 +147,25 @@ architecture rtl of cmd_translator is
    -- For indicating the start of a data run
    signal ret_dat_start       : std_logic;
    signal ret_dat_done        : std_logic;
+
    -- For indicating a continuous data run
    signal ret_dat_in_progress : std_logic;
 
-   signal f_rx_ret_dat_ack : std_logic;
+   -- For ack'ing a data run
+   signal f_rx_ret_dat_ack       : std_logic;
+
+   signal f_rx_ret_dat_card_addr : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal f_rx_ret_dat_param_id  : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+   signal f_rx_ret_dat_data      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal f_rx_ret_dat_cmd_code  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal f_rx_ret_dat_num_data  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+
    signal f_rx_card_addr   : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal f_rx_param_id    : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
    signal f_rx_data        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal f_rx_cmd_code    : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal f_rx_num_data    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+
    signal external_dv_num  : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -237,11 +247,19 @@ begin
          tes_bias_toggle_req  <= '0';
          next_toggle_sync     <= (others => '0');
          internal_cmd_mode_delayed    <= "00";
-         f_rx_data            <= (others=>'0');
-         f_rx_param_id        <= (others=>'0');
+
+         f_rx_ret_dat_card_addr <= (others=>'0');
+         f_rx_ret_dat_param_id  <= (others=>'0');
+         f_rx_ret_dat_data      <= (others=>'0');
+         f_rx_ret_dat_cmd_code  <= (others=>'0');
+         f_rx_ret_dat_num_data  <= (others=>'0');
+
          f_rx_card_addr       <= (others=>'0');
+         f_rx_param_id        <= (others=>'0');
+         f_rx_data            <= (others=>'0');
          f_rx_cmd_code        <= (others=>'0');
          f_rx_num_data        <= (others=>'0');
+
          external_dv_num      <= (others=>'0');
          sync_num             <= (others=>'0');
          seq_num              <= (others=>'0');
@@ -293,15 +311,30 @@ begin
          end if;
 
          -- Latch important command information response to the cmd_queue's cmd_rdy signal
-         -- There may be some problems with this, particularly if new commands come in and overwrite the old
-         -- This is possible if a data acquisition is started and then a stop command is sent too quickly afterward, maybe.
+         -- The information for ret_dat commands is latched seperately from simple commands
+         -- This is so that simple command information does not corrupt the ret_dat information if it comes during a data run.
          if(cmd_rdy_i = '1') then
-            f_rx_param_id  <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
-            f_rx_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-            -- I'm not sure why I need this here
-            f_rx_data      <= cmd_data_i;
-            f_rx_cmd_code  <= cmd_code_i;
-            f_rx_num_data  <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
+            if(param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
+               f_rx_ret_dat_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+               f_rx_ret_dat_param_id  <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
+               f_rx_ret_dat_data      <= cmd_data_i;
+               f_rx_ret_dat_cmd_code  <= cmd_code_i;
+               f_rx_ret_dat_num_data  <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
+            else
+               f_rx_card_addr         <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+               f_rx_param_id          <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
+               f_rx_data              <= cmd_data_i;
+               f_rx_cmd_code          <= cmd_code_i;
+               f_rx_num_data          <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
+            end if;
+
+-- Fixing the ret_dat bug
+--            f_rx_param_id  <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
+--            f_rx_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+--            -- I'm not sure why I need this here
+--            f_rx_data      <= cmd_data_i;
+--            f_rx_cmd_code  <= cmd_code_i;
+--            f_rx_num_data  <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
          end if;
 
          -- Track ret_dat commands
@@ -399,7 +432,7 @@ begin
    -------------------------------------------------------------------------------------------
    process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
       internal_cmd_mode_i, internal_status_req, internal_cmd_id, tes_bias_toggle_req,
-      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress)
+      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress, ret_dat_stop_req)
    begin
       next_state    <= current_state;
       ret_dat_start <= '0';
@@ -420,6 +453,20 @@ begin
                   -- Issue the first ret_dat immediately
                   next_state <= PROCESSING_RET_DAT;
                end if;
+            -------------------------------------------------------------------------------------------
+            -- Aside:
+            -- Q: How do you differentiate between a STOP command when a data process has started from a STOP command when a process hasn't?
+            -- A: A STOP immediately de-asserts ret_dat_req during a data acquisition, but leaves ret_dat_in_progress asserted.
+            --    But when a data process is not in progress, ret_dat_in_progress = '0'.
+            -------------------------------------------------------------------------------------------
+            -- If a STOP command arrives before the first DV pulse arrives during an acquisition.
+            elsif(ret_dat_stop_req = '1' and ret_dat_in_progress = '1') then
+               -- Issue one last ret_dat.
+               next_state <= UPDATE_FOR_NEXT;
+            -- If a STOP command arrives and no data process was active.
+            elsif(ret_dat_stop_req = '1' and ret_dat_in_progress = '0') then
+               -- Stay in IDLE
+               next_state <= IDLE;
             -- If there is a simple command
             elsif(simple_cmd_req = '1') then
                -- Issue the simple command
@@ -440,23 +487,23 @@ begin
                elsif(internal_cmd_id = BOX_TEMPERATURE) then
                   next_state <= BOX_TEMP;
                end if;
-            -- If a STOP command arrives before the first DV pulse arrives.
-            -- Note: a STOP immediately de-asserts ret_dat_req
-            elsif(ret_dat_in_progress = '1' and ret_dat_req = '0') then
-               -- Issue one last ret_dat command with the stop bit set, and close off the acquisition.
-               next_state <= UPDATE_FOR_NEXT;
             end if;
 
          when PROCESSING_RET_DAT =>
             -- This state determines if there are more frames to go, and acts accordingly.
             -- If there are more frames, it checks to see if there are any internal commands to process first before issuing the next ret_dat
-            -- if there are no more frames, it loops back to IDLE
+            -- If there are no more frames, it loops to IDLE
             -- This state lasts only one clock cycle.
 
             -- If there are more data frames to go:
             if(ack_i = '1' and seq_num /= stop_seq_num_i) then
-               -- Before moving on to UPDATE_FOR_NEXT, let's check for pending internal commands
-               if(internal_cmd_mode_i = INTERNAL_RAMP and tes_bias_toggle_req = '1') then
+               -- Before moving on to UPDATE_FOR_NEXT, let's check for pending commands
+               -- If there is a simple command
+               if(simple_cmd_req = '1') then
+                  -- Issue the simple command
+                  next_state <= SIMPLE;
+               -- If there is a TES toggling command
+               elsif(internal_cmd_mode_i = INTERNAL_RAMP and tes_bias_toggle_req = '1') then
                   next_state <= TES_BIAS;
                -- If toggling is enabled, internal commands are disabled to preserve the timing of the toggle commands
                elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
@@ -480,27 +527,29 @@ begin
             end if;
 
          when UPDATE_FOR_NEXT =>
-            -- This state determines if at STOP command has occurred or not, and either holds here, or forwards on to the next state
-            -- We stay in this state for one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
+            -- This state determines if a STOP command was received or not, and either holds here, or forwards on to the right 'issue' state
+            -- This state takes one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
 
             -- If we are sourcing DV pulses internally
             if(dv_mode_i = DV_INTERNAL) then
-               -- If there still is an outstanding ret_dat request, then issue a ret_dat command
+               -- If there still is an outstanding ret_dat request
                if(ret_dat_req = '1') then
+                  -- Issue a ret_dat command
                   next_state <= PROCESSING_RET_DAT;
                -- Otherwise, if the ret_dat request is not asserted, a STOP command has occurred
                elsif(ret_dat_req = '0') then
+                  -- Issue the last ret_dat command
                   next_state <= REQ_LAST_DATA_PACKET;
                end if;
             -- Otherwise, if we are sourcing DV pulses externally
             elsif(dv_mode_i /= DV_INTERNAL) then
                -- If a stop command has been received
                if(ret_dat_req = '0') then
-                  -- issue the last ret_dat immediately
+                  -- Issue the last ret_dat immediately
                   next_state <= REQ_LAST_DATA_PACKET;
-               -- Otherwise, wait in this state for the next DV to come in.
+               -- Otherwise, if the data run is still in progress, wait in this state for the next DV to come in.
                elsif(ret_dat_req = '1' and external_dv_i = '1') then
-                  -- If there still is an outstanding ret_dat request, then issue a ret_dat command
+                  -- When a DV comes in, issue a ret_dat command
                   next_state <= PROCESSING_RET_DAT;
                end if;
             end if;
@@ -513,7 +562,12 @@ begin
 
          when SIMPLE =>
             if(ack_i = '1') then
-               next_state <= IDLE;
+               if(ret_dat_in_progress = '1') then
+                  next_state <= UPDATE_FOR_NEXT;
+               else
+                  next_state <= IDLE;
+               end if;
+--               next_state <= IDLE;
             end if;
 
          when TES_BIAS =>
@@ -569,9 +623,10 @@ begin
    -------------------------------------------------------------------------------------------
    -- Output logic:  signals that go to cmd_queue
    -------------------------------------------------------------------------------------------
-   process(current_state, f_rx_card_addr, f_rx_param_id, data_size, f_rx_data, cmd_data_i, tes_bias_toggle_req,
-      internal_status_req, f_rx_cmd_code, f_rx_num_data, data_clk_i, step_card_addr_i, step_param_id_i, ramp_value,
-      step_data_num_i)
+   process(f_rx_card_addr, f_rx_param_id, f_rx_cmd_code, f_rx_num_data,
+      f_rx_ret_dat_card_addr, f_rx_ret_dat_param_id, f_rx_ret_dat_data,
+      internal_status_req, data_clk_i, step_card_addr_i, step_param_id_i, ramp_value,
+      step_data_num_i, cmd_data_i, current_state, tes_bias_toggle_req, data_size)
    begin
       -- Default assignments for signals that are common for all commands
       card_addr_o      <= (others => '0');
@@ -583,14 +638,21 @@ begin
       data_o           <= (others => '0');
 
       case current_state is
+         -- Note that the f_rx_... variables are shared between ret_dat and simple commands
+         -- This introduces a bug whereby if a simple command is received during a data run, the run gets corrupted
+         -- Instead of asking for data from the data slave, the CC asks for data from whichever other slave the simple command referred to.
          when UPDATE_FOR_NEXT | PROCESSING_RET_DAT | REQ_LAST_DATA_PACKET =>
-            card_addr_o          <= f_rx_card_addr;
-            param_id_o           <= f_rx_param_id;
+            card_addr_o          <= f_rx_ret_dat_card_addr;
+--            card_addr_o          <= f_rx_card_addr;
+            param_id_o           <= f_rx_ret_dat_param_id;
+--            param_id_o           <= f_rx_param_id;
             cmd_code_o           <= DATA;
             data_size_o          <= data_size;
             data_clk_o           <= '0';
             internal_cmd_o       <= '0';
-            data_o               <= f_rx_data;
+            -- Does this really need to be a registered value.  Do i really care what is passed for ret_dat commands?  Oh..  Yes..  I think so..
+            data_o               <= f_rx_ret_dat_data;
+--            data_o               <= f_rx_data;
 
          when SIMPLE =>
             card_addr_o          <= f_rx_card_addr;
@@ -676,7 +738,8 @@ begin
    -- Control logic:  control signals used internally for book-keeping
    -------------------------------------------------------------------------------------------
    process(current_state, ret_dat_req, stop_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
-      tes_bias_toggle_req, simple_cmd_req, internal_cmd_mode_i, ret_dat_stop_req, cmd_rdy_i)
+      tes_bias_toggle_req, simple_cmd_req, internal_cmd_mode_i, cmd_rdy_i,
+      internal_status_req, internal_cmd_id, ret_dat_stop_req, ret_dat_in_progress)
    begin
       -- default assignments
       increment_sync_num   <= '0';
@@ -725,14 +788,36 @@ begin
                elsif(dv_mode_i /= DV_INTERNAL and cmd_rdy_i = '1') then
                   f_rx_ret_dat_ack <= '1';
                end if;
-            -- If we get a stop command while ret_dat_req is not asserted
-            elsif(ret_dat_stop_req = '1') then
+            -- If a STOP command arrives before the first DV pulse arrives during an acquisition.
+            elsif(ret_dat_stop_req = '1' and ret_dat_in_progress = '1') then
+               -- Do not acknowledge yet (this is done in REQ_LAST_DATA_PACKET)
+               -- Return a single data packet
+               null;
+            -- If a STOP command arrives and no data process was active.
+            elsif(ret_dat_stop_req = '1' and ret_dat_in_progress = '0') then
+               -- Acknowledge the command and reply -- but do not return any data packets
                ret_dat_ack <= '1';
                f_rx_ret_dat_ack <= '1';
-            elsif(tes_bias_toggle_req = '1') then
+            -- If there is a simple command
+            elsif(simple_cmd_req = '1') then
+               null;
+            -- If it is time to toggle the bias
+            elsif(internal_cmd_mode_i = INTERNAL_RAMP and tes_bias_toggle_req = '1') then
                -- If we aren't waiting to send the cmd_queue a ret_dat command, and if tes_bias_toggle_req is asserted
                -- then update the next toggle sync number.
                update_nts <= '1';
+            -- If toggling is disabled and it is time to issue an internal command
+            elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
+               -- Issue the next internal command (happens in a cycle)
+               if(internal_cmd_id = FPGA_TEMPERATURE) then
+                  null;
+               elsif(internal_cmd_id = CARD_TEMPERATURE) then
+                  null;
+               elsif(internal_cmd_id = PSUC_STATUS) then
+                  null;
+               elsif(internal_cmd_id = BOX_TEMPERATURE) then
+                  null;
+               end if;
             end if;
 
          when PROCESSING_RET_DAT =>
