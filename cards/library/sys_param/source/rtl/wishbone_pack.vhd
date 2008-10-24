@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/06/17 19:07:42 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/08/13 20:53:21 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.47  2008/08/13 20:53:21  bburger
+-- BB:  Added STOP_DLY_ADDR command
+--
 -- Revision 1.46  2008/06/17 19:07:42  bburger
 -- BB:  Added the const_val39 command, for ac_v02000007
 --
@@ -40,7 +43,7 @@
 -- BB:  added const_mode_addr and const_val_addr constants
 --
 -- Revision 1.44  2008/02/03 09:53:26  bburger
--- BB:  Added parameter id's for the following commands:  CARDS_PRESENT_ADDR, CARDS_TO_REPORT_ADDR, SRAM_ADDR_ADDR, RET_DAT_CARD_ADDR_ADDR
+-- BB:  Added parameter id's for the following commands:  CARDS_PRESENT_ADDR, CARDS_TO_REPORT_ADDR, SRAM_ADDR_ADDR, RCS_TO_REPORT_ADDR
 --
 -- Revision 1.43  2008/01/26 01:15:59  mandana
 -- added scratch!
@@ -406,7 +409,7 @@ package wishbone_pack is
    constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
    constant RET_DAT_REQ_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
    constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
-   constant RET_DAT_CARD_ADDR_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
+   constant RCS_TO_REPORT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
 
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
@@ -430,7 +433,6 @@ package wishbone_pack is
    constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
    constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
    constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
-
    constant STOP_DLY_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B8";
 
    ---------------------------------------------------------------------------------------
