@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.36  2008/10/17 00:33:29  bburger
+-- BB:  modified the logic for reading the data from the reply queues; modified the logic for determining when to stop readout from a card queue to ease timing constraints.
+--
 -- Revision 1.35  2008/01/28 20:28:33  bburger
 -- BB:
 -- - No code content changes.  Just cosmetic re-spacing of if-else statements to make them more readable.
@@ -118,6 +121,7 @@ port(
 
      card_not_present_i  : in std_logic_vector(9 downto 0);
      cards_to_report_i   : in std_logic_vector(9 downto 0);
+     rcs_to_report_data_i : in std_logic_vector(9 downto 0);
 
      card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      -- cmd_translator interface
@@ -626,7 +630,7 @@ begin
 
    state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, ack_i, word_count, card_data_size,
       ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy, psu_rdy, cmd_code_i,
-      card_not_present_i, cards_to_report_i)
+      card_not_present_i, cards_to_report_i, rcs_to_report_data_i)
    begin
       -- Default Assignments
       next_state <= pres_state;
@@ -709,7 +713,7 @@ begin
             -- If the status word is acknowledged
             if(ack_i = '1') then
                -- If there is data to read
-               if(cmd_code_i = READ_BLOCK or cmd_code_i = DATA) then
+               if(cmd_code_i = READ_BLOCK) then
                   if(card_addr_i = POWER_SUPPLY_CARD and cards_to_report_i(PSUC) = '1') then
                      next_state <= READ_PSU;
                   elsif(card_addr_i = CLOCK_CARD and cards_to_report_i(CC) = '1') then
@@ -770,6 +774,31 @@ begin
                      elsif(cards_to_report_i(RC3) = '1') then
                         next_state <= READ_RC3;
                      elsif(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  -- Otherwise, we are done
+                  else
+                     next_state <= DONE;
+                  end if;
+               elsif(cmd_code_i = DATA) then
+                  if(card_addr_i = READOUT_CARD_1 and rcs_to_report_data_i(RC1) = '1') then
+                     next_state <= READ_RC1;
+                  elsif(card_addr_i = READOUT_CARD_2 and rcs_to_report_data_i(RC2) = '1') then
+                     next_state <= READ_RC2;
+                  elsif(card_addr_i = READOUT_CARD_3 and rcs_to_report_data_i(RC3) = '1') then
+                     next_state <= READ_RC3;
+                  elsif(card_addr_i = READOUT_CARD_4 and rcs_to_report_data_i(RC4) = '1') then
+                     next_state <= READ_RC4;
+                  elsif(card_addr_i = ALL_READOUT_CARDS) then
+                     if(rcs_to_report_data_i(RC1) = '1') then
+                        next_state <= READ_RC1;
+                     elsif(rcs_to_report_data_i(RC2) = '1') then
+                        next_state <= READ_RC2;
+                     elsif(rcs_to_report_data_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(rcs_to_report_data_i(RC4) = '1') then
                         next_state <= READ_RC4;
                      else
                         next_state <= DONE;
@@ -900,88 +929,137 @@ begin
 
          when READ_RC1 =>
             if(word_count >= card_data_size) then
-               if(card_addr_i = ALL_FPGA_CARDS) then
-                  if(cards_to_report_i(RC2) = '1') then
-                     next_state <= READ_RC2;
-                  elsif(cards_to_report_i(RC3) = '1') then
-                     next_state <= READ_RC3;
-                  elsif(cards_to_report_i(RC4) = '1') then
-                     next_state <= READ_RC4;
-                  elsif(cards_to_report_i(CC) = '1') then
-                     next_state <= READ_CC;
+               if(cmd_code_i = READ_BLOCK) then
+                  if(card_addr_i = ALL_FPGA_CARDS) then
+                     if(cards_to_report_i(RC2) = '1') then
+                        next_state <= READ_RC2;
+                     elsif(cards_to_report_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     elsif(cards_to_report_i(CC) = '1') then
+                        next_state <= READ_CC;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  elsif(card_addr_i = ALL_READOUT_CARDS) then
+                     if(cards_to_report_i(RC2) = '1') then
+                        next_state <= READ_RC2;
+                     elsif(cards_to_report_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
                   else
                      next_state <= DONE;
                   end if;
-               elsif(card_addr_i = ALL_READOUT_CARDS) then
-                  if(cards_to_report_i(RC2) = '1') then
-                     next_state <= READ_RC2;
-                  elsif(cards_to_report_i(RC3) = '1') then
-                     next_state <= READ_RC3;
-                  elsif(cards_to_report_i(RC4) = '1') then
-                     next_state <= READ_RC4;
+               else -- if (cmd_code_i = DATA)
+                  if(card_addr_i = ALL_READOUT_CARDS) then
+                     if(rcs_to_report_data_i(RC2) = '1') then
+                        next_state <= READ_RC2;
+                     elsif(rcs_to_report_data_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(rcs_to_report_data_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  -- Otherwise, we are done
                   else
                      next_state <= DONE;
                   end if;
-               else
-                  next_state <= DONE;
                end if;
             end if;
 
          when READ_RC2 =>
             if(word_count >= card_data_size) then
-               if(card_addr_i = ALL_FPGA_CARDS) then
-                  if(cards_to_report_i(RC3) = '1') then
-                     next_state <= READ_RC3;
-                  elsif(cards_to_report_i(RC4) = '1') then
-                     next_state <= READ_RC4;
-                  elsif(cards_to_report_i(CC) = '1') then
-                     next_state <= READ_CC;
+               if(cmd_code_i = READ_BLOCK) then
+                  if(card_addr_i = ALL_FPGA_CARDS) then
+                     if(cards_to_report_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     elsif(cards_to_report_i(CC) = '1') then
+                        next_state <= READ_CC;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  elsif(card_addr_i = ALL_READOUT_CARDS) then
+                     if(cards_to_report_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
                   else
                      next_state <= DONE;
                   end if;
-               elsif(card_addr_i = ALL_READOUT_CARDS) then
-                  if(cards_to_report_i(RC3) = '1') then
-                     next_state <= READ_RC3;
-                  elsif(cards_to_report_i(RC4) = '1') then
-                     next_state <= READ_RC4;
+               else -- if (cmd_code_i = DATA)
+                  if(card_addr_i = ALL_READOUT_CARDS) then
+                     if(rcs_to_report_data_i(RC3) = '1') then
+                        next_state <= READ_RC3;
+                     elsif(rcs_to_report_data_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  -- Otherwise, we are done
                   else
                      next_state <= DONE;
                   end if;
-               else
-                  next_state <= DONE;
                end if;
             end if;
 
          when READ_RC3 =>
             if(word_count >= card_data_size) then
-               if(card_addr_i = ALL_FPGA_CARDS) then
-                  if(cards_to_report_i(RC4) = '1') then
-                     next_state <= READ_RC4;
-                  elsif(cards_to_report_i(CC) = '1') then
-                     next_state <= READ_CC;
+               if(cmd_code_i = READ_BLOCK) then
+                  if(card_addr_i = ALL_FPGA_CARDS) then
+                     if(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     elsif(cards_to_report_i(CC) = '1') then
+                        next_state <= READ_CC;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  elsif(card_addr_i = ALL_READOUT_CARDS) then
+                     if(cards_to_report_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
                   else
                      next_state <= DONE;
                   end if;
-               elsif(card_addr_i = ALL_READOUT_CARDS) then
-                  if(cards_to_report_i(RC4) = '1') then
-                     next_state <= READ_RC4;
+               else -- if (cmd_code_i = DATA)
+                  if(card_addr_i = ALL_READOUT_CARDS) then
+                     if(rcs_to_report_data_i(RC4) = '1') then
+                        next_state <= READ_RC4;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  -- Otherwise, we are done
                   else
                      next_state <= DONE;
                   end if;
-               else
-                  next_state <= DONE;
                end if;
             end if;
 
          when READ_RC4 =>
             if(word_count >= card_data_size) then
-               if(card_addr_i = ALL_FPGA_CARDS) then
-                  if(cards_to_report_i(CC) = '1') then
-                     next_state <= READ_CC;
-                  else
+               if(cmd_code_i = READ_BLOCK) then
+                  if(card_addr_i = ALL_FPGA_CARDS) then
+                     if(cards_to_report_i(CC) = '1') then
+                        next_state <= READ_CC;
+                     else
+                        next_state <= DONE;
+                     end if;
+                  elsif(card_addr_i = ALL_READOUT_CARDS) then
                      next_state <= DONE;
                   end if;
-               elsif(card_addr_i = ALL_READOUT_CARDS) then
+               else -- if (cmd_code_i = DATA)
                   next_state <= DONE;
                end if;
             end if;

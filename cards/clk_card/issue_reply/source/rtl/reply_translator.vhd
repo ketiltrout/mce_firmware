@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.60 2008/02/03 09:49:33 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.61 2008/10/17 00:34:02 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,7 +30,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2008/02/03 09:49:33 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2008/10/17 00:34:02 $> - <text> - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -82,8 +82,8 @@ port(
 
    -- We may choose to remove these signals once we move to the new protocol.
 --   last_frame_i        : in std_logic;
-   frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   frame_status_word_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--   frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--   frame_status_word_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
    -- input from the cmd_queue
 --   busy_i              : in std_logic;
@@ -123,8 +123,8 @@ architecture rtl of reply_translator is
    constant SERVICING_REPLY        : std_logic := '1';
 
    -- reply word registers
-   signal frame_status   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
-   signal frame_seq_num  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
+--   signal frame_status   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
+--   signal frame_seq_num  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
    signal ok_or_er       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
    signal crd_add_par_id : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 2 byte 0
    signal status         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 3 byte 0
@@ -549,8 +549,8 @@ begin
          ok_or_er       <= (others => '0');
          crd_add_par_id <= (others => '0');
          status         <= (others => '0');
-         frame_status   <= (others => '0');
-         frame_seq_num  <= (others => '0');
+--         frame_status   <= (others => '0');
+--         frame_seq_num  <= (others => '0');
          c_or_r         <= SERVICING_COMMAND;
 
       elsif(clk_i'event and clk_i = '1') then
@@ -613,12 +613,15 @@ begin
          elsif(translator_current_state = DATA_PACKET) then
             packet_size    <= conv_std_logic_vector(data_packet_size,PACKET_WORD_WIDTH);
             packet_type    <= DATA;
-            crd_add_par_id <= frame_seq_num_i;
             ok_or_er       <= (others => '0');
             status         <= (others => '0');
 --            frame_status   <= "000000000000000000000000000000" & cmd_stop_i & last_frame_i;
-            frame_status   <= frame_status_word_i;
-            frame_seq_num  <= frame_seq_num_i;
+
+            -- I think that the following signals are not used at all during data packets.
+--            crd_add_par_id <= frame_seq_num_i;
+--            frame_status   <= frame_status_word_i;
+--            frame_seq_num  <= frame_seq_num_i;
+
             c_or_r         <= SERVICING_REPLY;
 
          else

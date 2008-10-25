@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.71 2008/02/03 09:45:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.72 2008/10/17 00:31:20 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2008/02/03 09:45:37 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/10/17 00:31:20 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.72  2008/10/17 00:31:20  bburger
+-- BB:  added support for the stop_dly and cards_to_report commands
+--
 -- Revision 1.71  2008/02/03 09:45:37  bburger
 -- BB:
 -- - Removed unused interface signals
@@ -149,6 +152,7 @@ entity issue_reply is
       ret_dat_req_i          : in std_logic;
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -375,8 +379,8 @@ architecture rtl of issue_reply is
       card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 --      stop_bit_o          : out std_logic;
 --      last_frame_bit_o    : out std_logic;
-      frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  : in integer;
@@ -385,6 +389,7 @@ architecture rtl of issue_reply is
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -461,8 +466,8 @@ architecture rtl of issue_reply is
 -- not how much the reply_transator thinks it needs!
 --      mop_ack_o               : out std_logic;
 --      last_frame_i            : in std_logic;
-      frame_status_word_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_status_word_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- input from the cmd_queue
 --      busy_i                  : in std_logic;
@@ -549,8 +554,8 @@ architecture rtl of issue_reply is
    signal num_fibre_words     : integer;
    signal fibre_word_ack      : std_logic;
    signal fibre_word_rdy      : std_logic;
-   signal reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal frame_status_word   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--   signal reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--   signal frame_status_word   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
    -- reply_translator to fibre_tx interface
    signal fibre_tx_dat        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -753,17 +758,18 @@ begin
       card_addr_o         => r_card_addr,
 --      stop_bit_o          => reply_cmd_stop,
 --      last_frame_bit_o    => reply_last_frame,
-      frame_seq_num_o     => reply_frame_seq_num,
-      frame_status_word_o => frame_status_word,
+--      frame_seq_num_o     => reply_frame_seq_num,
+--      frame_status_word_o => frame_status_word,
 
       -- ret_dat_wbs interface
-      data_rate_i         => data_rate_i,
-      num_rows_to_read_i  => num_rows_to_read_i,
-      ramp_card_addr_i    => step_card_addr_i,
-      ramp_param_id_i     => step_param_id_i,
-      run_file_id_i       => run_file_id_i,
-      user_writable_i     => user_writable_i,
-      cards_to_report_i   => cards_to_report_i,
+      data_rate_i          => data_rate_i,
+      num_rows_to_read_i   => num_rows_to_read_i,
+      ramp_card_addr_i     => step_card_addr_i,
+      ramp_param_id_i      => step_param_id_i,
+      run_file_id_i        => run_file_id_i,
+      user_writable_i      => user_writable_i,
+      cards_to_report_i    => cards_to_report_i,
+      rcs_to_report_data_i => rcs_to_report_data_i,
 
       -- clk_switchover interface
       active_clk_i        => active_clk_i,
@@ -838,8 +844,8 @@ begin
 -- not how much the reply_transator thinks it needs!
 --      mop_ack_o         => m_op_ack,
 --      last_frame_i      => reply_last_frame,
-      frame_status_word_i => frame_status_word,
-      frame_seq_num_i   => reply_frame_seq_num,
+--      frame_status_word_i => frame_status_word,
+--      frame_seq_num_i   => reply_frame_seq_num,
 
       -- Signals from cmd_queue
 --      busy_i            => busy,

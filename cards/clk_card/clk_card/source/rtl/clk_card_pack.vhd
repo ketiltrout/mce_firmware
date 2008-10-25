@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.10 2008/02/03 09:40:29 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.11 2008/10/17 00:30:29 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,9 +29,12 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.11  2008/10/17 00:30:29  bburger
+-- BB:  added support for the stop_dly and cards_to_report commands
+--
 -- Revision 1.10  2008/02/03 09:40:29  bburger
 -- BB:
--- - Added interface signals to ret_dat_wbs to support for several new commands:  CARDS_TO_REPORT_ADDR |  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR
+-- - Added interface signals to ret_dat_wbs to support for several new commands:  CARDS_TO_REPORT_ADDR |  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_ADDR
 --
 -- Revision 1.9  2007/10/18 22:34:37  bburger
 -- BB:  Added a manchester pll declaration
@@ -314,6 +317,7 @@ package clk_card_pack is
       num_rows_to_read_o     : out integer;
       cards_present_i        : in std_logic_vector(9 downto 0);
       cards_to_report_o      : out std_logic_vector(9 downto 0);
+      rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
 
@@ -435,6 +439,7 @@ package clk_card_pack is
       ret_dat_req_i          : in std_logic;
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;

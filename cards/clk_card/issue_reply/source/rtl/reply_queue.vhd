@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.47 2008/02/03 09:47:07 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.48 2008/10/17 00:33:10 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.48  2008/10/17 00:33:10  bburger
+-- BB:  modified the logic for calculating the reply data size because of the cards_to_report command
+--
 -- Revision 1.47  2008/02/03 09:47:07  bburger
 -- BB:  removed stop_bit_o and last_frame_bit_o and cmd_sent_i interface signals.  They are unused.
 --
@@ -126,8 +129,8 @@ entity reply_queue is
       card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 --      stop_bit_o          : out std_logic;
 --      last_frame_bit_o    : out std_logic;
-      frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  : in integer;
@@ -136,6 +139,7 @@ entity reply_queue is
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i : in std_logic_vector(9 downto 0);
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -202,6 +206,7 @@ architecture behav of reply_queue is
 
       card_not_present_i  : in std_logic_vector(9 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i : in std_logic_vector(9 downto 0);
 
       -- fibre interface:
 --      size_o            : out integer;
@@ -364,6 +369,7 @@ architecture behav of reply_queue is
    signal clr_reset           : std_logic;
 
    signal rc_bit_encoding : std_logic_vector(3 downto 0);
+   signal rcs_responding  : std_logic_vector(3 downto 0);
 
    signal psu_slv : std_logic_vector(3 downto 0);
    signal cc_slv  : std_logic_vector(3 downto 0);
@@ -562,21 +568,21 @@ begin
          num_cards <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(num_cards_reg_en = '1') then
---            if(cmd_code = DATA) then
---               if(cards_to_report_i(5 downto 2) = "0000") then
---                  num_cards <= x"0";
---               elsif(cards_to_report_i(5 downto 2) = "1111") then
---                  num_cards <= x"4";
---               elsif(cards_to_report_i(5 downto 2) = "1000" or cards_to_report_i(5 downto 2) = "0100" or
---                  cards_to_report_i(5 downto 2) = "0010" or cards_to_report_i(5 downto 2) = "0001") then
---                  num_cards <= x"1";
---               elsif(cards_to_report_i(5 downto 2) = "0111" or cards_to_report_i(5 downto 2) = "1011" or
---                  cards_to_report_i(5 downto 2) = "1101" or cards_to_report_i(5 downto 2) = "1110") then
---                  num_cards <= x"3";
---               else
---                  num_cards <= x"2";
---               end if;
---            else
+            if(cmd_code = DATA) then
+               if(rcs_to_report_data_i(5 downto 2) = "0000") then
+                  num_cards <= x"0";
+               elsif(rcs_to_report_data_i(5 downto 2) = "1111") then
+                  num_cards <= x"4";
+               elsif(rcs_to_report_data_i(5 downto 2) = "1000" or rcs_to_report_data_i(5 downto 2) = "0100" or
+                  rcs_to_report_data_i(5 downto 2) = "0010" or rcs_to_report_data_i(5 downto 2) = "0001") then
+                  num_cards <= x"1";
+               elsif(rcs_to_report_data_i(5 downto 2) = "0111" or rcs_to_report_data_i(5 downto 2) = "1011" or
+                  rcs_to_report_data_i(5 downto 2) = "1101" or rcs_to_report_data_i(5 downto 2) = "1110") then
+                  num_cards <= x"3";
+               else
+                  num_cards <= x"2";
+               end if;
+            else
                if(card_addr = NO_CARDS) then
                   num_cards <= x"0";
                elsif(card_addr = POWER_SUPPLY_CARD) then
@@ -598,7 +604,6 @@ begin
                elsif(card_addr = BIAS_CARD_3) then
                   num_cards <= bc3_slv;
                elsif(card_addr = ADDRESS_CARD) then
---                  num_cards <= x"1";
                   num_cards <= ac_slv;
                elsif(card_addr = ALL_BIAS_CARDS) then
                   num_cards <= bc1_slv + bc2_slv + bc3_slv;
@@ -609,7 +614,7 @@ begin
                else
                   num_cards <= x"0";
                end if;
---            end if;
+            end if;
          end if;
       end if;
    end process num_cards_reg;
@@ -664,21 +669,25 @@ begin
    -- When the DAS protocol is updated to handle uniform replies, i think that these interface signals will be removed?
 --   stop_bit_o       <= bit_status(1);
 --   last_frame_bit_o <= bit_status(0);
-   frame_status_word_o <= bit_status;
+--   frame_status_word_o <= bit_status;
 
    rc_bit_encoding <=
-      "0001" when card_addr_i = READOUT_CARD_1 else
-      "0010" when card_addr_i = READOUT_CARD_2 else
-      "0100" when card_addr_i = READOUT_CARD_3 else
-      "1000" when card_addr_i = READOUT_CARD_4 else
+      "0001" when card_addr_i = READOUT_CARD_1    else
+      "0010" when card_addr_i = READOUT_CARD_2    else
+      "0100" when card_addr_i = READOUT_CARD_3    else
+      "1000" when card_addr_i = READOUT_CARD_4    else
       "1111" when card_addr_i = ALL_READOUT_CARDS else
       "0000";
+
+   -- This is a special piece of logic that integrates the cards address with the rcs_to_report_data register.
+   -- This encoding must reflect the content of the data packets as put together by the reply_queue_sequencer.
+   rcs_responding <= rc_bit_encoding and rcs_to_report_data_i(RC4) & rcs_to_report_data_i(RC3) & rcs_to_report_data_i(RC2) & rcs_to_report_data_i(RC1);
 
    -- This status bits are monitored in snapshots.
    -- They are included in the status header of every data frame
    -- What happens in between each frame is not recorded, except for resets and errors (i.e. Clock Card reset, or Sync Box error).
-   bit_status_i <= x"0000" & "00" & rc_bit_encoding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
-   frame_status <= bit_status;
+   bit_status_i <= x"0000" & "00" & rcs_responding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
+
    bit_status_reg: reg
       generic map(
          WIDTH      => BIT_STATUS_SIZE
@@ -691,6 +700,7 @@ begin
          reg_o      => bit_status
       );
 
+   frame_status <= bit_status;
    -------------------------------------------------------------------
    -- Miscellaneous Registers
    -------------------------------------------------------------------
@@ -739,7 +749,7 @@ begin
    -- Some of the outputs to reply_translator and lvds_rx fifo's
    cmd_code_o          <= cmd_code;
    card_addr_o         <= card_addr;
-   frame_seq_num_o     <= frame_seq_num;
+--   frame_seq_num_o     <= frame_seq_num;
    param_id_o          <= par_id;
 
    ---------------------------------------------------------
@@ -1221,6 +1231,7 @@ begin
 
          card_not_present_i => card_not_present_i,
          cards_to_report_i  => cards_to_report_i,
+         rcs_to_report_data_i  => rcs_to_report_data_i,
 
          card_data_size_i  => data_size_t,  -- Add this to the pack file
          -- cmd_translator interface

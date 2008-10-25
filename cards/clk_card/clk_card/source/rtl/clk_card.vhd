@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.80 2008/02/25 19:20:07 bburger Exp $
+-- $Id: clk_card.vhd,v 1.81 2008/10/17 00:30:08 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,12 +29,15 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.81  2008/10/17 00:30:08  bburger
+-- BB:  incremented the firmware version number, and added cards_to_report interface signals; added support for the stop_dly and cards_to_report commands
+--
 -- Revision 1.80  2008/02/25 19:20:07  bburger
 -- BB: cc_v04000009
 --
 -- Revision 1.79  2008/02/03 09:39:35  bburger
 -- BB:  cc_v04000008
--- - Added support for several new commands:  CARDS_TO_REPORT_ADDR |  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR
+-- - Added support for several new commands:  CARDS_TO_REPORT_ADDR |  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_ADDR
 --
 -- Revision 1.78  2007/12/18 20:59:35  bburger
 -- BB:  cc_v04000007
@@ -438,22 +441,22 @@ architecture top of clk_card is
    signal reset_event    : std_logic;
    signal reset_ack      : std_logic;
 
-   signal num_rows_to_read  : integer;
-   signal internal_cmd_mode : std_logic_vector(1 downto 0);
-   signal step_period       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_minimum      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_size         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_maximum      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_param_id     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_card_addr    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_data_num     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal run_file_id       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal user_writable     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal stop_delay        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
-   signal card_not_present  : std_logic_vector(9 downto 0);
-   signal cards_present     : std_logic_vector(9 downto 0);
-   signal cards_to_report   : std_logic_vector(9 downto 0);
+   signal num_rows_to_read   : integer;
+   signal internal_cmd_mode  : std_logic_vector(1 downto 0);
+   signal step_period        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_minimum       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_size          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_maximum       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_param_id      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_card_addr     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_data_num      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal run_file_id        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal user_writable      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal stop_delay         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal card_not_present   : std_logic_vector(9 downto 0);
+   signal cards_present      : std_logic_vector(9 downto 0);
+   signal cards_to_report    : std_logic_vector(9 downto 0);
+   signal rcs_to_report_data : std_logic_vector(9 downto 0);
 
 begin
 
@@ -593,7 +596,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
@@ -617,7 +620,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
@@ -641,7 +644,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RET_DAT_CARD_ADDR_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
@@ -720,48 +723,49 @@ begin
       lvds_cmd_o        => cmd,
 
       -- ret_dat signals (from ret_dat_wbs)
-      start_seq_num_i     => start_seq_num,
-      stop_seq_num_i      => stop_seq_num,
-      data_rate_i         => data_rate,
-      internal_cmd_mode_i => internal_cmd_mode,
-      step_period_i       => step_period,
-      step_minimum_i      => step_minimum,
-      step_size_i         => step_size,
-      step_maximum_i      => step_maximum,
-      step_param_id_i     => step_param_id,
-      step_card_addr_i    => step_card_addr,
-      step_data_num_i     => step_data_num,
-      crc_err_en_i        => crc_err_en,
-      num_rows_to_read_i  => num_rows_to_read,
-      run_file_id_i       => run_file_id,
-      user_writable_i     => user_writable,
-      stop_delay_i        => stop_delay,
-      ret_dat_req_i       => ret_dat_req,
-      ret_dat_ack_o       => ret_dat_done,
-      cards_to_report_i   => cards_to_report,
+      start_seq_num_i      => start_seq_num,
+      stop_seq_num_i       => stop_seq_num,
+      data_rate_i          => data_rate,
+      internal_cmd_mode_i  => internal_cmd_mode,
+      step_period_i        => step_period,
+      step_minimum_i       => step_minimum,
+      step_size_i          => step_size,
+      step_maximum_i       => step_maximum,
+      step_param_id_i      => step_param_id,
+      step_card_addr_i     => step_card_addr,
+      step_data_num_i      => step_data_num,
+      crc_err_en_i         => crc_err_en,
+      num_rows_to_read_i   => num_rows_to_read,
+      run_file_id_i        => run_file_id,
+      user_writable_i      => user_writable,
+      stop_delay_i         => stop_delay,
+      ret_dat_req_i        => ret_dat_req,
+      ret_dat_ack_o        => ret_dat_done,
+      cards_to_report_i    => cards_to_report,
+      rcs_to_report_data_i => rcs_to_report_data,
 
       -- dv_rx interface
-      external_dv_i       => external_dv,
-      external_dv_num_i   => external_dv_num,
-      sync_box_err_i      => sync_box_err,
-      sync_box_err_ack_o  => sync_box_err_ack,
-      sync_box_free_run_i => sync_box_free_run,
+      external_dv_i        => external_dv,
+      external_dv_num_i    => external_dv_num,
+      sync_box_err_i       => sync_box_err,
+      sync_box_err_ack_o   => sync_box_err_ack,
+      sync_box_free_run_i  => sync_box_free_run,
 
       -- cc_reset interface
-      reset_event_i => reset_event,
-      reset_ack_o => reset_ack,
+      reset_event_i        => reset_event,
+      reset_ack_o          => reset_ack,
 
       -- clk_switchover interface
-      active_clk_i        => active_clk,
+      active_clk_i         => active_clk,
 
       -- sync_gen interface
-      dv_mode_i          => dv_mode,
-      row_len_i          => row_len,
-      num_rows_i         => num_rows,
+      dv_mode_i            => dv_mode,
+      row_len_i            => row_len,
+      num_rows_i           => num_rows,
 
       -- frame_timing interface
-      sync_pulse_i       => sync,
-      sync_number_i      => sync_num
+      sync_pulse_i         => sync,
+      sync_number_i        => sync_num
    );
 
    i_all_cards: all_cards
@@ -1103,6 +1107,7 @@ begin
 
       cards_present_i        => cards_present,
       cards_to_report_o      => cards_to_report,
+      rcs_to_report_data_o   => rcs_to_report_data,
 
       -- global interface
       clk_i                  => clk,
