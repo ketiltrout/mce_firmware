@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/08/13 20:53:21 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/10/24 23:55:11 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.48  2008/10/24 23:55:11  bburger
+-- BB: Renamed RET_DAT_CARD_ADDR_ADDR to RCS_TO_REPORT_ADDR
+--
 -- Revision 1.47  2008/08/13 20:53:21  bburger
 -- BB:  Added STOP_DLY_ADDR command
 --
@@ -409,7 +412,7 @@ package wishbone_pack is
    constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
    constant RET_DAT_REQ_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
    constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
-   constant RCS_TO_REPORT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
+   constant RCS_TO_REPORT_DATA_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
 
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
