@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: parallel_crc.vhd,v $
+-- Revision 1.3  2005/09/09 19:13:55  erniel
+-- modified behaviour for clear_i
+-- (clear_i no longer requires ena_i asserted)
+--
 -- Revision 1.2  2005/09/06 21:21:53  erniel
 -- added a comment about DATA_WIDTH parameter
 --
@@ -93,7 +97,7 @@ signal crc_temp : temp_results;
 
 signal valid_temp : std_logic_vector(1 to POLY_WIDTH-1);
 
-signal word_count : integer;
+signal word_count : integer range 0 to 4096; -- BB_DATA_SIZE_WIDTH - 1  
 
 begin
    
