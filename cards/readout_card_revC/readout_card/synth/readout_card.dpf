@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<pin_planner>
+	<pin_info>
+		<pin name="lvds_cmd" direction="Input" source="Hierarchy Database" diff_pair_node="lvds_cmd(n)" >
+		</pin>
+		<pin name="lvds_spare" direction="Input" source="Hierarchy Database" diff_pair_node="lvds_spare(n)" >
+		</pin>
+		<pin name="lvds_sync" direction="Input" source="Hierarchy Database" diff_pair_node="lvds_sync(n)" >
+		</pin>
+		<pin name="lvds_txa" direction="Output" source="Hierarchy Database" diff_pair_node="lvds_txa(n)" >
+		</pin>
+		<pin name="lvds_txb" direction="Output" source="Hierarchy Database" diff_pair_node="lvds_txb(n)" >
+		</pin>
+		<pin name="mem_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk_n[0]" >
+		</pin>
+		<pin name="mem_clk_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk[0]" >
+		</pin>
+		<pin name="mem_dqs[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqsn[1]" >
+		</pin>
+		<pin name="mem_dqs[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqsn[0]" >
+		</pin>
+		<pin name="mem_dqsn[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[1]" >
+		</pin>
+		<pin name="mem_dqsn[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[0]" >
+		</pin>
+	</pin_info>
+	<buses>
+	</buses>
+	<group_file_association>
+	</group_file_association>
+	<pin_planner_file_specifies>
+	</pin_planner_file_specifies>
+</pin_planner>

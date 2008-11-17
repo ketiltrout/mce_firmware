@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Mon Nov 17 15:23:03 2008
+Quartus II Version : 8.1 Build 163 10/28/2008 SJ Full Version
+Revision Name : readout_card
+Top-level Entity Name : readout_card
+Family : Stratix III
+Logic utilization : N/A
+    Combinational ALUTs : 18,589
+    Memory ALUTs : 80
+    Dedicated logic registers : 16,596
+Total registers : 16720
+Total pins : 396
+Total virtual pins : 0
+Total block memory bits : 407,808
+DSP block 18-bit elements : 40
+Total PLLs : 2
+Total DLLs : 1
