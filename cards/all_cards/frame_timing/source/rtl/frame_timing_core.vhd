@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.13 2008/05/29 21:22:01 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.13 2008/06/17 18:46:30 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.13  2008/06/17 18:46:30  bburger
+-- BB:  Added the error_o interface which is asserted if there is a slip in the timing of sync pulses, caused by missing a sync pulse, or receiving a spurrious one.
+--
 -- Revision 1.13  2008/05/29 21:22:01  bburger
 -- BB:  Added the error_o interface which is asserted if there is a slip in the timing of sync pulses, caused by missing a sync pulse, or receiving a spurrious one.
 --
@@ -145,12 +148,13 @@ architecture beh of frame_timing_core is
    constant ONE_CYCLE_LATENCY     : integer := 1;
    constant TWO_CYCLE_LATENCY     : integer := 2;
 
-   signal frame_count_int         : integer;
-   signal frame_count_new         : integer;
+   signal frame_count_int         : integer range 0 to 1023; -- 4294967295; --2**32 -1
+   signal frame_count_new         : integer range 0 to 1023; -- 4294967295;
    signal frame_count_a           : integer;
    signal frame_count_b           : integer;
-   signal row_count_int           : integer;
-   signal row_count_new           : integer;
+   signal row_count_int           : integer range 0 to 1024;
+   signal row_count_new           : integer range 0 to 1024;
+
    signal enable_counters         : std_logic;
    signal sync_received           : std_logic;
 
