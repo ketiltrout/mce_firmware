@@ -1,0 +1,12 @@
+Analysis & Synthesis Status : Successful - Thu Oct 16 01:11:49 2008
+Quartus II Version : 8.0 Build 231 07/10/2008 SP 1 SJ Full Version
+Revision Name : rc_noise_test
+Top-level Entity Name : rc_noise_test
+Family : Stratix
+Total logic elements : 1,144
+Total pins : 326
+Total virtual pins : 0
+Total memory bits : 28,672
+DSP block 9-bit elements : 0
+Total PLLs : 1
+Total DLLs : 0
