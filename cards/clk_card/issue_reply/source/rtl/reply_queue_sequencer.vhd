@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.37  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.36  2008/10/17 00:33:29  bburger
 -- BB:  modified the logic for reading the data from the reply queues; modified the logic for determining when to stop readout from a card queue to ease timing constraints.
 --
@@ -1056,7 +1059,7 @@ begin
                      else
                         next_state <= DONE;
                      end if;
-                  elsif(card_addr_i = ALL_READOUT_CARDS) then
+                  else -- card_addr_i = ALL_READOUT_CARDS or card_addr_i = RC4
                      next_state <= DONE;
                   end if;
                else -- if (cmd_code_i = DATA)
