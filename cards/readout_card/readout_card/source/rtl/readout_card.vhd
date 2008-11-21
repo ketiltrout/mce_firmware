@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.78  2008/10/03 00:39:27  mandana
+-- BB:  Re-integrated the id_thermo and fpga_thermo block in the readout_card.vhd top level that was removed in 4.0.c.
+--
 -- Revision 1.77  2008/08/15 18:14:44  mandana
 -- BB:  rc_v0400000c_15aug2008
 --
@@ -590,12 +593,37 @@ begin
       id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
       fpga_thermo_data when  FPGA_TEMP_ADDR,
       (others => '0') when others;        -- default to zero
-
-
    
-   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or all_cards_ack; --or id_thermo_ack or fpga_thermo_ack;
-
- 
+--   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or all_cards_ack; --or id_thermo_ack or fpga_thermo_ack;
+   with dispatch_addr_out select
+     dispatch_ack_in <=
+      ack_fb          when   GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
+                             GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
+                             GAINP6_ADDR | GAINP7_ADDR |
+                             GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
+                             GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
+                             GAINI6_ADDR | GAINI7_ADDR |
+                             GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
+                             GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
+                             GAIND6_ADDR | GAIND7_ADDR |
+                             FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
+                             FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR |
+                             ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
+                             ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
+                             ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
+                             ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
+                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
+                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
+                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
+      ack_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR,
+      ack_led         when   LED_ADDR,
+      ack_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
+                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
+                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
+      all_cards_ack   when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,     
+      id_thermo_ack   when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
+      fpga_thermo_ack when   FPGA_TEMP_ADDR,
+      '0'             when others;        -- default to zero 
 
    with dispatch_addr_out select
      dispatch_err_in <=
@@ -624,8 +652,7 @@ begin
                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
     all_cards_err    when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
     id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
-    fpga_thermo_err  when   FPGA_TEMP_ADDR,
-        
+    fpga_thermo_err  when   FPGA_TEMP_ADDR,        
     '1'              when others;        
    
    ----------------------------------------------------------------------------
