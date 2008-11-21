@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.16 2008/10/17 00:34:22 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.17 2008/10/25 00:24:54 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -645,8 +645,8 @@ begin
          when RD =>
             if(next_state /= IDLE) then
                ack_o <= '1';
-            end if;
 
+            end if;
          when others =>
 
       end case;
@@ -659,7 +659,7 @@ begin
    dat_o <=
       start_data             when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
       stop_data              when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
-      ret_dat_card_addr_data when (addr_i = RCS_TO_REPORT_DATA_ADDR) else
+      rcs_to_report_data     when (addr_i = RCS_TO_REPORT_DATA_ADDR) else
       ret_dat_req_data       when (addr_i = RET_DAT_REQ_ADDR) else
       data_rate_data         when (addr_i = DATA_RATE_ADDR) else
       tes_tgl_en_data        when (addr_i = TES_TGL_EN_ADDR) else
