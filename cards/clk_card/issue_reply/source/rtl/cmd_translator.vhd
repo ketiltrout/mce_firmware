@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.57 2008/07/08 02:08:50 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.58 2008/10/17 00:32:31 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -30,7 +30,7 @@
 -- Description:  This module is the fibre command translator.
 --
 -- Revision history:
--- <date $Date: 2008/07/08 02:08:50 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/10/17 00:32:31 $> -     <text>      - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -109,6 +109,7 @@ port(
       last_frame_o          : out std_logic;
       internal_cmd_o        : out std_logic;
       num_rows_to_read_i    : in integer;
+      num_cols_to_read_i    : in integer;
       override_sync_num_o   : out std_logic;
 
       -- input from the cmd_queue
@@ -233,7 +234,7 @@ begin
    frame_sync_num_o <= sync_num; -- when override_sync_num_o = '0' else sync_number_i;
 
    -- Size calculation logic for data packets
-   data_size_int          <= NO_CHANNELS * num_rows_to_read_i;
+   data_size_int          <= num_cols_to_read_i * num_rows_to_read_i;
    data_size              <= conv_std_logic_vector(data_size_int,BB_DATA_SIZE_WIDTH);
 
    -------------------------------------------------------------------------------------------
