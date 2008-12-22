@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.29  2008/06/17 19:03:20  bburger
+-- BB:  Added support for const_val39, for revision ac_v02000007
+--
 -- Revision 1.29  2008/06/12 21:43:12  bburger
 -- BB:  Added support for const_val39, for revision ac_v02000007
 --
@@ -144,7 +147,7 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000007";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"05000000";
 
    -- clocks
    signal clk      : std_logic;
@@ -253,10 +256,6 @@ begin
    -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_nrx1);
 
-   -- This bit (active high) is used by the Clock Card to determine if this card is NOT present in the subrack.
-   -- '1': Not present; '0': present
-   lvds_txb <= '0';
-
    pll0: ac_pll
    port map(
       inclk0 => inclk,
@@ -273,7 +272,8 @@ begin
       rst_i        => rst,
 
       lvds_cmd_i   => lvds_cmd,
-      lvds_reply_o => lvds_txa,
+      lvds_replya_o => lvds_txa,
+      lvds_replyb_o => lvds_txb,
 
       dat_o        => data,
       addr_o       => addr,

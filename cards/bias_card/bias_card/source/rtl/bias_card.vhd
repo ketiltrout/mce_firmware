@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.31 2008/01/26 01:20:33 mandana Exp $
+-- $Id: bias_card.vhd,v 1.32 2008/07/15 17:48:58 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.32  2008/07/15 17:48:58  bburger
+-- BB: bc_v01040002
+--
 -- Revision 1.31  2008/01/26 01:20:33  mandana
 -- added all_cards slave to add card_type, scratch and integrate fw_rev and slot_id
 -- rev. 1.4.1
@@ -220,7 +223,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01040002"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000000"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -278,9 +281,6 @@ begin
    -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_nrx1);
 
-   -- This line will be used by clock card to check card presence
-   lvds_txb <= '0';
-
    mictor   <= debug;
    test (4) <= dac_ncs_temp(0);
    test (6) <= dac_data_temp(0);
@@ -291,182 +291,186 @@ begin
    dac_sclk <= dac_sclk_temp;
 
    pll0: bc_pll
-   port map(inclk0 => inclk,
-            c0 => clk,
-            c1 => comm_clk,
-            c2 => clk_n,
-            c3 => open);
+   port map(
+      inclk0 => inclk,
+      c0 => clk,
+      c1 => comm_clk,
+      c2 => clk_n,
+      c3 => open
+   );
 
    cmd0: dispatch
-      port map(
-         clk_i                      => clk,
-         comm_clk_i                 => comm_clk,
-         rst_i                      => rst,
+   port map(
+      clk_i                      => clk,
+      comm_clk_i                 => comm_clk,
+      rst_i                      => rst,
 
-         lvds_cmd_i                 => lvds_cmd,
-         lvds_reply_o               => lvds_txa,
+      lvds_cmd_i                 => lvds_cmd,
+      lvds_replya_o              => lvds_txa,
+      lvds_replyb_o              => lvds_txb,
 
-         dat_o                      => data,
-         addr_o                     => addr,
-         tga_o                      => tga,
-         we_o                       => we,
-         stb_o                      => stb,
-         cyc_o                      => cyc,
-         dat_i                      => slave_data,
-         ack_i                      => slave_ack,
-         err_i                      => slave_err,
-         wdt_rst_o                  => wdog,
-         slot_i                     => slot_id,
-         dip_sw3                    => '1',
-         dip_sw4                    => '1'
-      );
+      dat_o                      => data,
+      addr_o                     => addr,
+      tga_o                      => tga,
+      we_o                       => we,
+      stb_o                      => stb,
+      cyc_o                      => cyc,
+      dat_i                      => slave_data,
+      ack_i                      => slave_ack,
+      err_i                      => slave_err,
+      wdt_rst_o                  => wdog,
+      slot_i                     => slot_id,
+      dip_sw3                    => '1',
+      dip_sw4                    => '1'
+   );
 
    id_thermo0: id_thermo
-      port map(
-         clk_i                      => clk,
-         rst_i                      => rst,
+   port map(
+      clk_i                      => clk,
+      rst_i                      => rst,
 
-         -- Wishbone signals
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         err_o                      => id_thermo_err,
-         dat_o                      => id_thermo_data,
-         ack_o                      => id_thermo_ack,
+      -- Wishbone signals
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      err_o                      => id_thermo_err,
+      dat_o                      => id_thermo_data,
+      ack_o                      => id_thermo_ack,
 
-         -- silicon id/temperature chip signals
-         data_io                    => card_id
-       );
+      -- silicon id/temperature chip signals
+      data_io                    => card_id
+   );
 
    fpga_thermo0: fpga_thermo
-      port map(
-         clk_i                      => clk,
-         rst_i                      => rst,
+   port map(
+      clk_i                      => clk,
+      rst_i                      => rst,
 
-         -- Wishbone signals
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         err_o                      => fpga_thermo_err,
-         dat_o                      => fpga_thermo_data,
-         ack_o                      => fpga_thermo_ack,
+      -- Wishbone signals
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      err_o                      => fpga_thermo_err,
+      dat_o                      => fpga_thermo_data,
+      ack_o                      => fpga_thermo_ack,
 
-         -- FPGA temperature chip signals
-         smbclk_o                   => smb_clk,
-         smbalert_i                 => smb_nalert,
-         smbdat_io                  => smb_data);
+      -- FPGA temperature chip signals
+      smbclk_o                   => smb_clk,
+      smbalert_i                 => smb_nalert,
+      smbdat_io                  => smb_data
+   );
 
 
    leds_slave: leds
-      port map(
-         clk_i                      => clk,
-         rst_i                      => rst,
+   port map(
+      clk_i                      => clk,
+      rst_i                      => rst,
 
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => led_data,
-         ack_o                      => led_ack,
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      dat_o                      => led_data,
+      ack_o                      => led_ack,
 
-         power                      => grn_led,
-         status                     => ylw_led,
-         fault                      => red_led
-      );
+      power                      => grn_led,
+      status                     => ylw_led,
+      fault                      => red_led
+   );
 
    ----------------------------------------------------------------------------
    -- all_cards registers Instantition
    ----------------------------------------------------------------------------
 
     i_all_cards: all_cards
-       generic map( REVISION => BC_REVISION,
-                    CARD_TYPE=> BC_CARD_TYPE
-                    )
-       port map(
-          clk_i  => clk,
-          rst_i  => rst,
+    generic map(
+       REVISION => BC_REVISION,
+       CARD_TYPE=> BC_CARD_TYPE)
+    port map(
+       clk_i  => clk,
+       rst_i  => rst,
 
-          dat_i  => data,
-          addr_i => addr,
-          tga_i  => tga,
-          we_i   => we,
-          stb_i  => stb,
-          cyc_i  => cyc,
-          slot_id_i => slot_id,
-          err_all_cards_o  => all_cards_err,
-          qa_all_cards_o   => all_cards_data,
-          ack_all_cards_o  => all_cards_ack
-     );
+       dat_i  => data,
+       addr_i => addr,
+       tga_i  => tga,
+       we_i   => we,
+       stb_i  => stb,
+       cyc_i  => cyc,
+       slot_id_i => slot_id,
+       err_all_cards_o  => all_cards_err,
+       qa_all_cards_o   => all_cards_data,
+       ack_all_cards_o  => all_cards_ack
+    );
 
    bc_dac_ctrl_slave: bc_dac_ctrl
-      port map(
-         -- DAC hardware interface:
-         -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
-         flux_fb_data_o             => dac_data_temp,
-         flux_fb_ncs_o              => dac_ncs_temp,
-         flux_fb_clk_o              => dac_sclk_temp,
+   port map(
+      -- DAC hardware interface:
+      -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
+      flux_fb_data_o             => dac_data_temp,
+      flux_fb_ncs_o              => dac_ncs_temp,
+      flux_fb_clk_o              => dac_sclk_temp,
 
-         bias_data_o                => lvds_dac_data,
-         bias_ncs_o                 => lvds_dac_ncs,
-         bias_clk_o                 => lvds_dac_sclk,
+      bias_data_o                => lvds_dac_data,
+      bias_ncs_o                 => lvds_dac_ncs,
+      bias_clk_o                 => lvds_dac_sclk,
 
-         dac_nclr_o                 => dac_nclr,
+      dac_nclr_o                 => dac_nclr,
 
-         -- wishbone interface:
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => bc_dac_data,
-         ack_o                      => bc_dac_ack,
+      -- wishbone interface:
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      dat_o                      => bc_dac_data,
+      ack_o                      => bc_dac_ack,
 
-         -- frame_timing signals
-         update_bias_i              => update_bias,
+      -- frame_timing signals
+      update_bias_i              => update_bias,
 
-         -- Global Signals
-         clk_i                      => clk,
-         rst_i                      => rst,
-         debug                      => debug
-      );
+      -- Global Signals
+      clk_i                      => clk,
+      rst_i                      => rst,
+      debug                      => debug
+   );
 
    frame_timing_slave: frame_timing
-      port map(
-         dac_dat_en_o               => open,
-         adc_coadd_en_o             => open,
-         restart_frame_1row_prev_o  => open,
-         restart_frame_aligned_o    => open,
-         restart_frame_1row_post_o  => open,
-         initialize_window_o        => open,
+   port map(
+      dac_dat_en_o               => open,
+      adc_coadd_en_o             => open,
+      restart_frame_1row_prev_o  => open,
+      restart_frame_aligned_o    => open,
+      restart_frame_1row_post_o  => open,
+      initialize_window_o        => open,
 
-         row_switch_o               => open,
-         row_en_o                   => open,
+      row_switch_o               => open,
+      row_en_o                   => open,
 
-         update_bias_o              => update_bias,
+      update_bias_o              => update_bias,
 
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => frame_timing_data,
-         ack_o                      => frame_timing_ack,
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      dat_o                      => frame_timing_data,
+      ack_o                      => frame_timing_ack,
 
-         clk_i                      => clk,
-         clk_n_i                    => clk_n,
-         rst_i                      => rst,
-         sync_i                     => lvds_sync
-      );
+      clk_i                      => clk,
+      clk_n_i                    => clk_n,
+      rst_i                      => rst,
+      sync_i                     => lvds_sync
+   );
 
    with addr select
       slave_data <=
