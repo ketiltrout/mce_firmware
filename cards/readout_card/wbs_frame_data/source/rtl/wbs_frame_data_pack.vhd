@@ -26,12 +26,15 @@
 -- Organisation:        UKATC
 --
 -- Description:
--- 
+--
 --
 -- Revision history:
--- <date $Date: 2007/10/31 20:30:37 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2008/08/04 12:13:07 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.14  2008/08/04 12:13:07  mandana
+-- data mode 10 added for mixed filtfb and flux-jump counter (more filtfb bits for planet observation)
+--
 -- Revision 1.13  2007/10/31 20:30:37  mandana
 -- data mode 8 is replaced by data mode 9 with new windowing of filtered data
 --
@@ -76,7 +79,7 @@
 --
 
 --
--- 
+--
 -----------------------------------------------------------------------------
 
 library ieee;
@@ -100,6 +103,7 @@ constant PIXEL_ADDR_MAX    : integer := NO_CHANNELS * NUM_OF_ROWS;
 
 constant RAW_ADDR_MAX      : integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
 
+-- This is now obsolete.  This parameter is set by the user.
 constant CH_MUX_INIT       : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0) := (others => '0');
 
 constant MODE0_ERROR       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
