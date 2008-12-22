@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/07/25 19:27:34 $>    - <initials $Author: bburger $>
+-- <date $Date: 2008/01/26 01:10:10 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.5  2008/01/26 01:10:10  mandana
+-- added all_cards slave to integrate fw_rev, slot_id, card_type, scratch
+--
 -- Revision 1.4  2007/07/25 19:27:34  bburger
 -- BB:  Cosmetic changes
 --
@@ -69,7 +72,7 @@ package all_cards_pack is
    -- all_cards component
    -----------------------------------------------------------------------------
    component all_cards
-   generic ( REVISION: std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"01010000"; 
+   generic ( REVISION: std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"01010000";
              CARD_TYPE: std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := b"111"
              );
    port(clk_i   : in std_logic;
@@ -88,7 +91,7 @@ package all_cards_pack is
         ack_all_cards_o   : out std_logic
       );
    end component;
-   
+
    -----------------------------------------------------------------------------
    -- LED Component
    -----------------------------------------------------------------------------
@@ -169,7 +172,8 @@ package all_cards_pack is
 
       -- bus backplane interface (LVDS)
       lvds_cmd_i   : in std_logic;
-      lvds_reply_o : out std_logic;
+      lvds_replya_o : out std_logic;
+      lvds_replyb_o : out std_logic;
 
       -- wishbone slave interface
       dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
