@@ -29,8 +29,11 @@
 -- Readout Card top-level file
 --
 -- Revision history:
--- 
+--
 -- $Log: readout_card.vhd,v $
+-- Revision 1.79  2008/11/21 18:09:37  bburger
+-- BB:  v04040001, which fixes a bug with the fpga_thermo and id_thermo blocks where the ack signal wasn't being routed back properly.
+--
 -- Revision 1.78  2008/10/03 00:39:27  mandana
 -- BB:  Re-integrated the id_thermo and fpga_thermo block in the readout_card.vhd top level that was removed in 4.0.c.
 --
@@ -295,7 +298,7 @@
 -- Initial Version
 --
 --
--- 
+--
 --
 -----------------------------------------------------------------------------
 
@@ -321,7 +324,7 @@ port(
 
   -- PLL Interface
   inclk           : in std_logic;
-  
+
   -- ADC Interface
   adc1_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
   adc2_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
@@ -366,13 +369,13 @@ port(
   dac_FB7_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   dac_FB8_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   dac_FB_clk      : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-  
+
   -- Sa_bias and Offset_ctrl Interface
   dac_clk         : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
   dac_dat         : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
   bias_dac_ncs    : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
   offset_dac_ncs  : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-  
+
   -- LVDS interface:
   lvds_cmd        : in std_logic;
   lvds_sync       : in std_logic;
@@ -384,11 +387,11 @@ port(
   ttl_dir1        : out std_logic;
   ttl_in1         : in std_logic;
   ttl_out1        : out std_logic;
-  
+
   ttl_dir2        : out std_logic;
   ttl_in2         : in std_logic;
   ttl_out2        : out std_logic;
-  
+
   ttl_dir3        : out std_logic;
   ttl_in3         : in std_logic;
   ttl_out3        : out std_logic;
@@ -397,22 +400,22 @@ port(
   red_led         : out std_logic;
   ylw_led         : out std_logic;
   grn_led         : out std_logic;
-  
+
   -- miscellaneous ports
   dip_sw3         : in std_logic;
   dip_sw4         : in std_logic;
   wdog            : out std_logic;
 
-  -- slot_id interface  
+  -- slot_id interface
   slot_id         : in std_logic_vector(3 downto 0);
 
   -- silicon_id/temperature interface
   card_id         : inout std_logic;
-  
+
   -- fpga_thermo serial interface
   smb_clk         : out std_logic;
   smb_nalert      : in std_logic;
-  smb_data        : inout std_logic;      
+  smb_data        : inout std_logic;
 
   -- Debug ports
   mictor          : out std_logic_vector(31 downto 0)
@@ -422,20 +425,20 @@ end readout_card;
 
 architecture top of readout_card is
 
-   -- The REVISION format is RRrrBBBB where 
+   -- The REVISION format is RRrrBBBB where
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION: std_logic_vector (31 downto 0) := X"04040000";
-                                                                        
+   constant RC_REVISION: std_logic_vector (31 downto 0) := X"05000000";
+
    -- Global signals
    signal clk                     : std_logic;  -- system clk
    signal comm_clk                : std_logic;  -- communication clk
    signal spi_clk                 : std_logic;  -- spi clk
    signal rst                     : std_logic;
    signal clk_n                   : std_logic;
-   
-   -- dispatch interface signals 
+
+   -- dispatch interface signals
    signal dispatch_dat_out        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal dispatch_addr_out       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
    signal dispatch_tga_out        : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
@@ -444,11 +447,11 @@ architecture top of readout_card is
    signal dispatch_cyc_out        : std_logic;
    signal dispatch_err_in         : std_logic;
    signal dispatch_lvds_txa       : std_logic;
-   
+
    -- WBS MUX output siganls
    signal dispatch_dat_in         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal dispatch_ack_in         : std_logic;
-   
+
    -- frame_timing output signals
    signal dac_dat_en              : std_logic;
    signal adc_coadd_en            : std_logic;
@@ -460,7 +463,7 @@ architecture top of readout_card is
    signal row_switch              : std_logic;
    signal dat_ft                  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ack_ft                  : std_logic;
-   
+
    -- flux_loop output signals
    signal dat_frame               : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal dat_fb                  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -482,21 +485,21 @@ architecture top of readout_card is
    signal offset_dac_spi_ch5      : std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
    signal offset_dac_spi_ch6      : std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
    signal offset_dac_spi_ch7      : std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-   
+
    -- LED output signals
    signal ack_led                 : std_logic;
    signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   
+
    -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
    signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal all_cards_ack           : std_logic;
    signal all_cards_err           : std_logic;
-   
+
    -- id_thermo signals
    signal id_thermo_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal id_thermo_ack           : std_logic;
    signal id_thermo_err           : std_logic;
-   
+
    -- fpga_thermo signals
    signal fpga_thermo_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fpga_thermo_ack         : std_logic;
@@ -509,7 +512,7 @@ begin
    ttl_dir1 <= '1';
    -- The ttl_in1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_in1);
- 
+
    -- This line will be used by clock card to check card presence
    lvds_txb <= '0';
 
@@ -525,47 +528,47 @@ begin
          c3     => spi_clk,
          c4     => clk_n);
 
-   
+
    ----------------------------------------------------------------------------
    -- Dispatch Instantiation
    ----------------------------------------------------------------------------
    i_dispatch: dispatch
-     port map (
-         clk_i        => clk,
-         comm_clk_i   => comm_clk,
-         rst_i        => rst,
-         lvds_cmd_i   => lvds_cmd,
-         lvds_reply_o => dispatch_lvds_txa,
-         dat_o        => dispatch_dat_out,
-         addr_o       => dispatch_addr_out,
-         tga_o        => dispatch_tga_out,
-         we_o         => dispatch_we_out,
-         stb_o        => dispatch_stb_out,
-         cyc_o        => dispatch_cyc_out,
-         dat_i        => dispatch_dat_in,
-         ack_i        => dispatch_ack_in,
-         err_i        => dispatch_err_in,
-         wdt_rst_o    => wdog,
-         slot_i       => slot_id,
-         dip_sw3      => '1',--dip_sw3,
-         dip_sw4      => '1'--dip_sw4
-         );
+   port map (
+      clk_i        => clk,
+      comm_clk_i   => comm_clk,
+      rst_i        => rst,
+      lvds_cmd_i   => lvds_cmd,
+      lvds_replya_o => lvds_txa,
+      lvds_replyb_o => lvds_txb,
+      dat_o        => dispatch_dat_out,
+      addr_o       => dispatch_addr_out,
+      tga_o        => dispatch_tga_out,
+      we_o         => dispatch_we_out,
+      stb_o        => dispatch_stb_out,
+      cyc_o        => dispatch_cyc_out,
+      dat_i        => dispatch_dat_in,
+      ack_i        => dispatch_ack_in,
+      err_i        => dispatch_err_in,
+      wdt_rst_o    => wdog,
+      slot_i       => slot_id,
+      dip_sw3      => '1',--dip_sw3,
+      dip_sw4      => '1'--dip_sw4
+   );
 
 
-  lvds_txa <= dispatch_lvds_txa;-- when dip_sw3 = '1' else '1';  -- multiplexer for disabling the RC output during test of issue_reply
-  
-  -----------------------------------------------------------------------------
-  -- Output MUX to Dispatch:
-  -- 
-  -- 1. dispatch_addr_out selects which wbs is sending its output to the
-  -- dispatch.  The defulat connection is to data=0.
-  --
-  -- 2. Acknowlege is ORing of the acknowledge signals from all Admins.
-  --
-  -- 3. Generate dispatch_err_in signal based on dispatch_addr_out.
-  -----------------------------------------------------------------------------
-   with dispatch_addr_out select
-     dispatch_dat_in <=
+   --lvds_txa <= dispatch_lvds_txa;-- when dip_sw3 = '1' else '1';  -- multiplexer for disabling the RC output during test of issue_reply
+
+   -----------------------------------------------------------------------------
+   -- Output MUX to Dispatch:
+   --
+   -- 1. dispatch_addr_out selects which wbs is sending its output to the
+   -- dispatch.  The defulat connection is to data=0.
+   --
+   -- 2. Acknowlege is ORing of the acknowledge signals from all Admins.
+   --
+   -- 3. Generate dispatch_err_in signal based on dispatch_addr_out.
+   -----------------------------------------------------------------------------
+   with dispatch_addr_out select dispatch_dat_in <=
       dat_fb          when   GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
                              GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
                              GAINP6_ADDR | GAINP7_ADDR |
@@ -584,19 +587,19 @@ begin
                              FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                              SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
-      dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR,
+      dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
+                             READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       dat_led         when   LED_ADDR,
       dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                              RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
-      all_cards_data  when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,     
-      id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
+      all_cards_data  when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
+      id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_data when  FPGA_TEMP_ADDR,
       (others => '0') when others;        -- default to zero
-   
+
 --   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or all_cards_ack; --or id_thermo_ack or fpga_thermo_ack;
-   with dispatch_addr_out select
-     dispatch_ack_in <=
+   with dispatch_addr_out select dispatch_ack_in <=
       ack_fb          when   GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
                              GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
                              GAINP6_ADDR | GAINP7_ADDR |
@@ -615,18 +618,18 @@ begin
                              FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                              SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
-      ack_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR,
+      ack_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
+                             READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       ack_led         when   LED_ADDR,
       ack_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                              RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
-      all_cards_ack   when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,     
-      id_thermo_ack   when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
+      all_cards_ack   when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
+      id_thermo_ack   when   CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_ack when   FPGA_TEMP_ADDR,
-      '0'             when others;        -- default to zero 
+      '0'             when others;        -- default to zero
 
-   with dispatch_addr_out select
-     dispatch_err_in <=
+   with dispatch_addr_out select dispatch_err_in <=
      '0'             when   GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
                             GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
                             GAINP6_ADDR | GAINP7_ADDR |
@@ -646,15 +649,16 @@ begin
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
                             DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
+                            READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR |
                             LED_ADDR |
                             ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
     all_cards_err    when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
     id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
-    fpga_thermo_err  when   FPGA_TEMP_ADDR,        
-    '1'              when others;        
-   
+    fpga_thermo_err  when   FPGA_TEMP_ADDR,
+    '1'              when others;
+
    ----------------------------------------------------------------------------
    -- Frame_timing Instantiation
    ----------------------------------------------------------------------------
@@ -683,8 +687,8 @@ begin
          clk_n_i                   => clk_n,
          rst_i                     => rst,
          sync_i                    => lvds_sync);
-   
-   
+
+
    ----------------------------------------------------------------------------
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
@@ -778,7 +782,7 @@ begin
          offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
          offset_dac_spi_ch7_o      => offset_dac_spi_ch7);
 
-   
+
     -- Chip select signal assignment
     bias_dac_ncs(0) <= sa_bias_dac_spi_ch0(2);
     bias_dac_ncs(1) <= sa_bias_dac_spi_ch1(2);
@@ -799,7 +803,7 @@ begin
     offset_dac_ncs(5)  <= offset_dac_spi_ch5(2);
     offset_dac_ncs(6)  <= offset_dac_spi_ch6(2);
     offset_dac_ncs(7)  <= offset_dac_spi_ch7(2);
-   
+
 
     -- MUX for slecting dac_dat or dac_clk from offset or sa_bias based on the
     -- chip select from sa_bias.  Note that we are assuming mutually exclusive
@@ -812,9 +816,9 @@ begin
                             offset_dac_spi_ch2, offset_dac_spi_ch3,
                             offset_dac_spi_ch4, offset_dac_spi_ch5,
                             offset_dac_spi_ch6, offset_dac_spi_ch7)
-     
+
     begin  -- process i_MUX_dac_dat
-     
+
        case sa_bias_dac_spi_ch0(2) is
           when '0' =>
              dac_dat(0) <= sa_bias_dac_spi_ch0(0);
@@ -841,7 +845,7 @@ begin
              dac_dat(2) <= offset_dac_spi_ch2(0);
              dac_clk(2) <= offset_dac_spi_ch2(1);
        end case;
-     
+
        case sa_bias_dac_spi_ch3(2) is
           when '0' =>
              dac_dat(3) <= sa_bias_dac_spi_ch3(0);
@@ -913,7 +917,7 @@ begin
    ----------------------------------------------------------------------------
 
     i_all_cards: all_cards
-       generic map( REVISION => RC_REVISION, 
+       generic map( REVISION => RC_REVISION,
                     CARD_TYPE=> RC_CARD_TYPE
                     )
        port map(
@@ -931,7 +935,7 @@ begin
           qa_all_cards_o   => all_cards_data,
           ack_all_cards_o  => all_cards_ack
      );
-   
+
    ----------------------------------------------------------------------------
    -- id_thermo Instantition
    ----------------------------------------------------------------------------
@@ -939,10 +943,10 @@ begin
    i_id_thermo: id_thermo
       port map(
          clk_i   => clk,
-         rst_i   => rst,  
-         
+         rst_i   => rst,
+
          -- Wishbone signals
-         dat_i   => dispatch_dat_out, 
+         dat_i   => dispatch_dat_out,
          addr_i  => dispatch_addr_out,
          tga_i   => dispatch_tga_out,
          we_i    => dispatch_we_out,
@@ -951,11 +955,11 @@ begin
          err_o   => id_thermo_err,
          dat_o   => id_thermo_data,
          ack_o   => id_thermo_ack,
-            
+
          -- silicon id/temperature chip signals
          data_io => card_id
       );
-   
+
    ----------------------------------------------------------------------------
    -- fpga_thermo Instantition
    ----------------------------------------------------------------------------
@@ -963,10 +967,10 @@ begin
    i_fpga_thermo: fpga_thermo
       port map(
          clk_i   => clk,
-         rst_i   => rst,  
-         
+         rst_i   => rst,
+
          -- Wishbone signals
-         dat_i   => dispatch_dat_out, 
+         dat_i   => dispatch_dat_out,
          addr_i  => dispatch_addr_out,
          tga_i   => dispatch_tga_out,
          we_i    => dispatch_we_out,
@@ -975,7 +979,7 @@ begin
          err_o   => fpga_thermo_err,
          dat_o   => fpga_thermo_data,
          ack_o   => fpga_thermo_ack,
-            
+
          -- FPGA temperature chip signals
          smbclk_o  => smb_clk,
          smbalert_i => smb_nalert,
@@ -985,7 +989,7 @@ begin
    ----------------------------------------------------------------------------
    -- Mictor Connection
    ----------------------------------------------------------------------------
-   
+
 --   mictor(0)  <= clk;
 --   mictor(1)  <= dac_dat_en;
 --   mictor(2)  <= adc_coadd_en;
@@ -1018,5 +1022,5 @@ begin
 --   mictor(29) <= ack_led;
 --   mictor(30) <= fw_rev_ack;
 --   mictor(31) <= rst;
-   
+
 end top;
