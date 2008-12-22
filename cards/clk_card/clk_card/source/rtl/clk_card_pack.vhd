@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.11 2008/10/17 00:30:29 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.12 2008/10/25 00:24:54 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.12  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.11  2008/10/17 00:30:29  bburger
 -- BB:  added support for the stop_dly and cards_to_report commands
 --
@@ -315,6 +318,7 @@ package clk_card_pack is
       stop_delay_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
       num_rows_to_read_o     : out integer;
+      num_cols_to_read_o     : out integer;
       cards_present_i        : in std_logic_vector(9 downto 0);
       cards_to_report_o      : out std_logic_vector(9 downto 0);
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
@@ -387,16 +391,19 @@ package clk_card_pack is
       comm_clk_i             : in std_logic;
 
       -- inputs from the bus backplane
-      lvds_reply_ac_a        : in std_logic;
-      lvds_reply_bc1_a       : in std_logic;
-      lvds_reply_bc2_a       : in std_logic;
-      lvds_reply_bc3_a       : in std_logic;
-      lvds_reply_rc1_a       : in std_logic;
-      lvds_reply_rc2_a       : in std_logic;
-      lvds_reply_rc3_a       : in std_logic;
-      lvds_reply_rc4_a       : in std_logic;
-      lvds_reply_cc_a        : in std_logic;
-      lvds_reply_psu_a       : in std_logic;
+      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
+      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
+
+--      lvds_reply_ac_a        : in std_logic;
+--      lvds_reply_bc1_a       : in std_logic;
+--      lvds_reply_bc2_a       : in std_logic;
+--      lvds_reply_bc3_a       : in std_logic;
+--      lvds_reply_rc1_a       : in std_logic;
+--      lvds_reply_rc2_a       : in std_logic;
+--      lvds_reply_rc3_a       : in std_logic;
+--      lvds_reply_rc4_a       : in std_logic;
+--      lvds_reply_cc_a        : in std_logic;
+--      lvds_reply_psu_a       : in std_logic;
 
       card_not_present_i     : in std_logic_vector(9 downto 0);
 
@@ -436,6 +443,7 @@ package clk_card_pack is
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
       num_rows_to_read_i     : in integer;
+      num_cols_to_read_i     : in integer;
       ret_dat_req_i          : in std_logic;
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
