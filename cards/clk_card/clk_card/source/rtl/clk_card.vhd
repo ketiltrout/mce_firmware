@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.81 2008/10/17 00:30:08 bburger Exp $
+-- $Id: clk_card.vhd,v 1.82 2008/10/25 00:24:54 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.82  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.81  2008/10/17 00:30:08  bburger
 -- BB:  incremented the firmware version number, and added cards_to_report interface signals; added support for the stop_dly and cards_to_report commands
 --
@@ -136,6 +139,7 @@ entity clk_card is
       lvds_sync         : out std_logic;
       lvds_spare        : out std_logic;
       lvds_clk          : out std_logic;
+
       lvds_reply_ac_a   : in std_logic;
       lvds_reply_ac_b   : in std_logic;
       lvds_reply_bc1_a  : in std_logic;
@@ -270,7 +274,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0400000a";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000000";
 
    -- reset
    signal rst                : std_logic;
@@ -419,6 +423,10 @@ architecture top of clk_card is
    -- lvds_rx interface
    signal lvds_reply_cc_a  : std_logic;
    signal lvds_reply_psu_a : std_logic;
+   signal lvds_reply_cc_b  : std_logic;
+   signal lvds_reply_psu_b : std_logic;
+   signal lvds_reply_all_a : std_logic_vector(9 downto 0);
+   signal lvds_reply_all_b : std_logic_vector(9 downto 0);
 
    -- For testing
    signal debug       : std_logic_vector(31 downto 0);
@@ -442,6 +450,7 @@ architecture top of clk_card is
    signal reset_ack      : std_logic;
 
    signal num_rows_to_read   : integer;
+   signal num_cols_to_read   : integer;
    signal internal_cmd_mode  : std_logic_vector(1 downto 0);
    signal step_period        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_minimum       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -490,7 +499,6 @@ begin
    ttl_tx1 <= not mce_bclr;
    rst     <= cc_bclr or mce_bclr;
 
-
    -- LVDS line outputs
    lvds_sync <= encoded_sync;
    lvds_cmd  <= cmd;
@@ -511,6 +519,28 @@ begin
    sram0_ce2  <= sram_ce2;
    sram1_ce2  <= sram_ce2;
 
+   lvds_reply_all_a(AC)   <= lvds_reply_ac_a;
+   lvds_reply_all_a(BC1)  <= lvds_reply_bc1_a;
+   lvds_reply_all_a(BC2)  <= lvds_reply_bc2_a;
+   lvds_reply_all_a(BC3)  <= lvds_reply_bc3_a;
+   lvds_reply_all_a(RC1)  <= lvds_reply_rc1_a;
+   lvds_reply_all_a(RC2)  <= lvds_reply_rc2_a;
+   lvds_reply_all_a(RC3)  <= lvds_reply_rc3_a;
+   lvds_reply_all_a(RC4)  <= lvds_reply_rc4_a;
+   lvds_reply_all_a(CC)   <= lvds_reply_cc_a;
+   lvds_reply_all_a(PSUC) <= lvds_reply_psu_a;
+
+   lvds_reply_all_b(AC)   <= lvds_reply_ac_b;
+   lvds_reply_all_b(BC1)  <= lvds_reply_bc1_b;
+   lvds_reply_all_b(BC2)  <= lvds_reply_bc2_b;
+   lvds_reply_all_b(BC3)  <= lvds_reply_bc3_b;
+   lvds_reply_all_b(RC1)  <= lvds_reply_rc1_b;
+   lvds_reply_all_b(RC2)  <= lvds_reply_rc2_b;
+   lvds_reply_all_b(RC3)  <= lvds_reply_rc3_b;
+   lvds_reply_all_b(RC4)  <= lvds_reply_rc4_b;
+   lvds_reply_all_b(CC)   <= lvds_reply_cc_b;
+   lvds_reply_all_b(PSUC) <= lvds_reply_psu_b;
+
    -- Bits are active-high
    card_not_present <=
       lvds_reply_ac_b &
@@ -523,17 +553,6 @@ begin
       lvds_reply_rc4_b &
       '0' & -- Clock Card
       '0';  -- PSUC
-
-
-   ----------------------------------------------------------------
-   -- Manchester Clock Pll
-   ----------------------------------------------------------------
---   manch_pll_block : manch_pll
---   port map (
---      inclk0   => inclk1,
---      c0       => manch_clk,
---      locked   => open
---   );
 
    ----------------------------------------------------------------
    -- Autonomous Clock Card Reset Block
@@ -596,7 +615,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR | NUM_COLS_TO_READ_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
@@ -620,7 +639,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR | NUM_COLS_TO_READ_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
@@ -644,7 +663,7 @@ begin
                                   NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR | NUM_COLS_TO_READ_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
@@ -654,7 +673,9 @@ begin
    cc_dispatch_block: dispatch
    port map(
       lvds_cmd_i   => cmd,
-      lvds_reply_o => lvds_reply_cc_a,
+
+      lvds_replya_o => lvds_reply_cc_a,
+      lvds_replyb_o => lvds_reply_cc_b,
 
       --  Global signals
       clk_i        => clk,
@@ -690,17 +711,8 @@ begin
       comm_clk_i        => comm_clk,
 
       -- bus backplane interface
-      lvds_reply_ac_a   => lvds_reply_ac_a,
-      lvds_reply_bc1_a  => lvds_reply_bc1_a,
-      lvds_reply_bc2_a  => lvds_reply_bc2_a,
-      lvds_reply_bc3_a  => lvds_reply_bc3_a,
-      lvds_reply_rc1_a  => lvds_reply_rc1_a,
-      lvds_reply_rc2_a  => lvds_reply_rc2_a,
-      lvds_reply_rc3_a  => lvds_reply_rc3_a,
-      lvds_reply_rc4_a  => lvds_reply_rc4_a,
-      lvds_reply_cc_a   => lvds_reply_cc_a,
-      lvds_reply_psu_a  => lvds_reply_psu_a,
-
+      lvds_reply_all_a_i => lvds_reply_all_a,
+      lvds_reply_all_b_i => lvds_reply_all_b,
       card_not_present_i => card_not_present,
 
       -- fibre receiver interface
@@ -736,6 +748,7 @@ begin
       step_data_num_i      => step_data_num,
       crc_err_en_i         => crc_err_en,
       num_rows_to_read_i   => num_rows_to_read,
+      num_cols_to_read_i   => num_cols_to_read,
       run_file_id_i        => run_file_id,
       user_writable_i      => user_writable,
       stop_delay_i         => stop_delay,
@@ -1102,6 +1115,7 @@ begin
       stop_delay_o           => stop_delay,
       crc_err_en_o           => crc_err_en,
       num_rows_to_read_o     => num_rows_to_read,
+      num_cols_to_read_o     => num_cols_to_read,
       ret_dat_req_o          => ret_dat_req,
       ret_dat_ack_i          => ret_dat_done,
 
@@ -1147,7 +1161,9 @@ begin
    psuc_dispatch_block: dispatch
    port map(
       lvds_cmd_i   => cmd,
-      lvds_reply_o => lvds_reply_psu_a,
+
+      lvds_replya_o => lvds_reply_psu_a,
+      lvds_replyb_o => lvds_reply_psu_b,
 
       --  Global signals
       clk_i        => clk,
