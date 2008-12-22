@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.48 2008/10/17 00:33:10 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.49 2008/10/25 00:24:54 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.49  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.48  2008/10/17 00:33:10  bburger
 -- BB:  modified the logic for calculating the reply data size because of the cards_to_report command
 --
@@ -134,6 +137,7 @@ entity reply_queue is
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  : in integer;
+      num_cols_to_read_i  : in integer;
       ramp_card_addr_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -155,16 +159,8 @@ entity reply_queue is
       external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- Bus Backplane interface
-      lvds_reply_ac_a     : in std_logic;
-      lvds_reply_bc1_a    : in std_logic;
-      lvds_reply_bc2_a    : in std_logic;
-      lvds_reply_bc3_a    : in std_logic;
-      lvds_reply_rc1_a    : in std_logic;
-      lvds_reply_rc2_a    : in std_logic;
-      lvds_reply_rc3_a    : in std_logic;
-      lvds_reply_rc4_a    : in std_logic;
-      lvds_reply_cc_a     : in std_logic;
-      lvds_reply_psu_a    : in std_logic;
+      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
+      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
 
       card_not_present_i  : in std_logic_vector(9 downto 0);
 
@@ -193,16 +189,8 @@ architecture behav of reply_queue is
       par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
       -- Bus Backplane interface
-      lvds_reply_ac_a   : in std_logic;
-      lvds_reply_bc1_a  : in std_logic;
-      lvds_reply_bc2_a  : in std_logic;
-      lvds_reply_bc3_a  : in std_logic;
-      lvds_reply_rc1_a  : in std_logic;
-      lvds_reply_rc2_a  : in std_logic;
-      lvds_reply_rc3_a  : in std_logic;
-      lvds_reply_rc4_a  : in std_logic;
-      lvds_reply_cc_a   : in std_logic;
-      lvds_reply_psu_a  : in std_logic;
+      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
+      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
 
       card_not_present_i  : in std_logic_vector(9 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
@@ -941,6 +929,7 @@ begin
          frame_status                                  when TX_FRAME_STATUS,
          frame_seq_num                                 when TX_FRAME_SEQUENCE_NUM,
          conv_std_logic_vector(row_len_i,32)           when TX_ROW_LEN,
+         -- Should we embed num_cols_to_read in the header too?
          conv_std_logic_vector(num_rows_to_read_i, 32) when TX_NUM_ROWS_TO_READ,
          data_rate_i                                   when TX_DATA_RATE,
          issue_sync_num                                when TX_SYNC_NUM,
@@ -1218,16 +1207,8 @@ begin
          rst_i             => rst_i,
 
          -- Bus Backplane interface
-         lvds_reply_ac_a   => lvds_reply_ac_a,
-         lvds_reply_bc1_a  => lvds_reply_bc1_a,
-         lvds_reply_bc2_a  => lvds_reply_bc2_a,
-         lvds_reply_bc3_a  => lvds_reply_bc3_a,
-         lvds_reply_rc1_a  => lvds_reply_rc1_a,
-         lvds_reply_rc2_a  => lvds_reply_rc2_a,
-         lvds_reply_rc3_a  => lvds_reply_rc3_a,
-         lvds_reply_rc4_a  => lvds_reply_rc4_a,
-         lvds_reply_cc_a   => lvds_reply_cc_a,
-         lvds_reply_psu_a  => lvds_reply_psu_a,
+         lvds_reply_all_a_i => lvds_reply_all_a_i,
+         lvds_reply_all_b_i => lvds_reply_all_b_i,
 
          card_not_present_i => card_not_present_i,
          cards_to_report_i  => cards_to_report_i,

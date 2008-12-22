@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.72 2008/10/17 00:31:20 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.73 2008/10/25 00:24:54 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2008/10/17 00:31:20 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/10/25 00:24:54 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.73  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.72  2008/10/17 00:31:20  bburger
 -- BB:  added support for the stop_dly and cards_to_report commands
 --
@@ -100,17 +103,8 @@ entity issue_reply is
       comm_clk_i             : in std_logic;
 
       -- inputs from the bus backplane
-      lvds_reply_ac_a        : in std_logic;
-      lvds_reply_bc1_a       : in std_logic;
-      lvds_reply_bc2_a       : in std_logic;
-      lvds_reply_bc3_a       : in std_logic;
-      lvds_reply_rc1_a       : in std_logic;
-      lvds_reply_rc2_a       : in std_logic;
-      lvds_reply_rc3_a       : in std_logic;
-      lvds_reply_rc4_a       : in std_logic;
-      lvds_reply_cc_a        : in std_logic;
-      lvds_reply_psu_a       : in std_logic;
-
+      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
+      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
       card_not_present_i     : in std_logic_vector(9 downto 0);
 
       -- inputs from the fibre receiver
@@ -149,6 +143,7 @@ entity issue_reply is
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
       num_rows_to_read_i     : in integer;
+      num_cols_to_read_i     : in integer;
       ret_dat_req_i          : in std_logic;
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
@@ -269,6 +264,7 @@ architecture rtl of issue_reply is
       last_frame_o          : out std_logic;
       internal_cmd_o        : out std_logic;
       num_rows_to_read_i    : in integer;
+      num_cols_to_read_i    : in integer;
       override_sync_num_o   : out std_logic;
 
       -- input from the cmd_queue
@@ -384,6 +380,7 @@ architecture rtl of issue_reply is
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  : in integer;
+      num_cols_to_read_i  : in integer;
       ramp_card_addr_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -405,17 +402,8 @@ architecture rtl of issue_reply is
       external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- Bus Backplane interface
-      lvds_reply_ac_a     : in std_logic;
-      lvds_reply_bc1_a    : in std_logic;
-      lvds_reply_bc2_a    : in std_logic;
-      lvds_reply_bc3_a    : in std_logic;
-      lvds_reply_rc1_a    : in std_logic;
-      lvds_reply_rc2_a    : in std_logic;
-      lvds_reply_rc3_a    : in std_logic;
-      lvds_reply_rc4_a    : in std_logic;
-      lvds_reply_cc_a     : in std_logic;
-      lvds_reply_psu_a    : in std_logic;
-
+      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
+      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
       card_not_present_i  : in std_logic_vector(9 downto 0);
 
       -- Global signals
@@ -651,6 +639,7 @@ begin
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  => num_rows_to_read_i,
+      num_cols_to_read_i  => num_cols_to_read_i,
       internal_cmd_mode_i => internal_cmd_mode_i,
       step_period_i       => step_period_i,
       step_minimum_i      => step_minimum_i,
@@ -764,6 +753,7 @@ begin
       -- ret_dat_wbs interface
       data_rate_i          => data_rate_i,
       num_rows_to_read_i   => num_rows_to_read_i,
+      num_cols_to_read_i   => num_cols_to_read_i,
       ramp_card_addr_i     => step_card_addr_i,
       ramp_param_id_i      => step_param_id_i,
       run_file_id_i        => run_file_id_i,
@@ -785,17 +775,8 @@ begin
       external_dv_num_i   => external_dv_num_i,
 
       -- Bus Backplane interface
-      lvds_reply_ac_a     => lvds_reply_ac_a,
-      lvds_reply_bc1_a    => lvds_reply_bc1_a,
-      lvds_reply_bc2_a    => lvds_reply_bc2_a,
-      lvds_reply_bc3_a    => lvds_reply_bc3_a,
-      lvds_reply_rc1_a    => lvds_reply_rc1_a,
-      lvds_reply_rc2_a    => lvds_reply_rc2_a,
-      lvds_reply_rc3_a    => lvds_reply_rc3_a,
-      lvds_reply_rc4_a    => lvds_reply_rc4_a,
-      lvds_reply_cc_a     => lvds_reply_cc_a,
-      lvds_reply_psu_a    => lvds_reply_psu_a,
-
+      lvds_reply_all_a_i  => lvds_reply_all_a_i,
+      lvds_reply_all_b_i  => lvds_reply_all_b_i,
       card_not_present_i  => card_not_present_i,
 
       -- Global signals
