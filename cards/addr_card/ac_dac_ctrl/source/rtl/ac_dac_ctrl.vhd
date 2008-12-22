@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.16 2008/06/12 21:43:12 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.16 2008/06/17 19:02:25 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.16  2008/06/17 19:02:25  bburger
+-- BB:  Added support for const_val39, for revision ac_v02000007. Now adding a comment in the history.  This is a test.
+--
 -- Revision 1.16  2008/06/12 21:43:12  bburger
 -- BB:  Added support for const_val39, for revision ac_v02000007
 --
@@ -170,7 +173,8 @@ architecture rtl of ac_dac_ctrl is
    signal pre_reg_data        : w14_array41;
    signal fast_dac_data       : w14_array41;
    signal dataa               : w32_array41;
-   signal datab               : w32_array41;
+   -- datab needs to be a vector of 64 signals, because its addressed using ROW_ADDR_WIDTH, which is 6 bits wide: 2^6 = 64
+   signal datab               : w32_array64;
 
    signal mode_wren_vec       : w1_array41;
    signal val_wren_vec        : w1_array41;
