@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.16  2007/12/18 20:26:33  bburger
+-- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
+--
 -- Revision 1.15  2005/03/23 01:56:11  erniel
 -- added "when others" statements to FSMs
 --
@@ -95,78 +98,86 @@ library components;
 use components.component_pack.all;
 
 entity lvds_tx is
-port(clk_i      : in std_logic;
-     rst_i      : in std_logic;
-
-     dat_i      : in std_logic_vector(31 downto 0);
-     rdy_i      : in std_logic;
-     busy_o     : out std_logic;
-
-     lvds_o     : out std_logic);
+port(
+   clk_i      : in std_logic;
+   rst_i      : in std_logic;
+   dat_i      : in std_logic_vector(31 downto 0);
+   rdy_i      : in std_logic;
+   busy_o     : out std_logic;
+   lvds_o     : out std_logic
+);
 end lvds_tx;
 
 architecture rtl of lvds_tx is
 
-signal bit_count     : integer range 0 to 67;
-signal bit_count_ena : std_logic;
-signal bit_count_clr : std_logic;
+   signal bit_count     : integer range 0 to 67;
+   signal bit_count_ena : std_logic;
+   signal bit_count_clr : std_logic;
 
-signal buf_data : std_logic_vector(31 downto 0);
-signal buf_read : std_logic;
-signal buf_empty : std_logic;
-signal buf_full : std_logic;
+   signal buf_data : std_logic_vector(31 downto 0);
+   signal buf_read : std_logic;
+   signal buf_empty : std_logic;
+   signal buf_full : std_logic;
 
-signal tx_ena  : std_logic;
-signal tx_ld   : std_logic;
-signal tx_bit  : std_logic;
-signal tx_data : std_logic_vector(33 downto 0);
+   signal tx_ena  : std_logic;
+   signal tx_ld   : std_logic;
+   signal tx_bit  : std_logic;
+   signal tx_data : std_logic_vector(33 downto 0);
 
-type states is (IDLE, SETUP, SEND, DONE);
-signal pres_state : states;
-signal next_state : states;
+   type states is (IDLE, SETUP, SEND, DONE);
+   signal pres_state : states;
+   signal next_state : states;
 
 begin
 
    bit_counter: counter
-   generic map(MAX => 67,
-               WRAP_AROUND => '0')
-   port map(clk_i   => clk_i,
-            rst_i   => rst_i,
-            ena_i   => bit_count_ena,
-            load_i  => bit_count_clr,
-            count_i => 0,
-            count_o => bit_count);
+   generic map(
+      MAX => 67,
+      WRAP_AROUND => '0')
+   port map(
+      clk_i   => clk_i,
+      rst_i   => rst_i,
+      ena_i   => bit_count_ena,
+      load_i  => bit_count_clr,
+      count_i => 0,
+      count_o => bit_count);
 
    data_buffer: fifo
-   generic map(DATA_WIDTH => 32,
-               ADDR_WIDTH => 4)
-   port map(clk_i     => clk_i,
-            rst_i     => rst_i,
-            data_i    => dat_i,
-            data_o    => buf_data,
-            read_i    => buf_read,
-            write_i   => rdy_i,
-            clear_i   => '0',
-            empty_o   => buf_empty,
-            full_o    => buf_full,
-            error_o   => open,
-            used_o    => open);
+   generic map(
+      DATA_WIDTH => 32,
+      ADDR_WIDTH => 4)
+   port map(
+      clk_i     => clk_i,
+      rst_i     => rst_i,
+      data_i    => dat_i,
+      data_o    => buf_data,
+      read_i    => buf_read,
+      write_i   => rdy_i,
+      clear_i   => '0',
+      empty_o   => buf_empty,
+      full_o    => buf_full,
+      error_o   => open,
+      used_o    => open);
 
    busy_o <= buf_full;
 
    tx_buffer: shift_reg
-   generic map(WIDTH => 34)
-   port map(clk_i      => clk_i,
-            rst_i      => rst_i,
-            ena_i      => tx_ena,
-            load_i     => tx_ld,
-            clr_i      => '0',
-            shr_i      => '1',
-            serial_i   => '1',
-            serial_o   => tx_bit,
-            parallel_i => tx_data,
-            parallel_o => open);
+   generic map(
+      WIDTH => 34)
+   port map(
+      clk_i      => clk_i,
+      rst_i      => rst_i,
+      ena_i      => tx_ena,
+      load_i     => tx_ld,
+      clr_i      => '0',
+      shr_i      => '1',
+      serial_i   => '1',
+      serial_o   => tx_bit,
+      parallel_i => tx_data,
+      parallel_o => open);
 
+   -- The LVDS words are transmitted LSB-first, which means that '1' is the first bit out.
+--   tx_data <= '1' & buf_data & '1';
    tx_data <= '1' & buf_data & '0';
 
    stateFF: process(rst_i, clk_i)
@@ -183,23 +194,29 @@ begin
       next_state <= pres_state;
 
       case pres_state is
-         when IDLE =>   if(buf_empty = '0') then
-                           next_state <= SETUP;
-                        else
-                           next_state <= IDLE;
-                        end if;
+         when IDLE =>
+            if(buf_empty = '0') then
+               next_state <= SETUP;
+            else
+               next_state <= IDLE;
+            end if;
 
-         when SETUP =>  next_state <= SEND;
+         when SETUP =>
+            next_state <= SEND;
 
-         when SEND =>   if(bit_count = 67) then
-                           next_state <= DONE;
-                        else
-                           next_state <= SEND;
-                        end if;
+         when SEND =>
+            if(bit_count = 67) then
+               next_state <= DONE;
+            else
+               next_state <= SEND;
+            end if;
 
-         when DONE =>   next_state <= IDLE;
+         when DONE =>
+            next_state <= IDLE;
 
-         when others => next_state <= IDLE;
+         when others =>
+            next_state <= IDLE;
+
       end case;
    end process stateNS;
 
@@ -210,29 +227,39 @@ begin
       buf_read      <= '0';
       tx_ena        <= '0';
       tx_ld         <= '0';
-      lvds_o        <= '1';
+      -- Manchester encoding is not necessary here.  It adds a level of complexity that is unnecessary.
+      -- This was changed so that the default card-inserted state ('0') is different than the default card-not-inserted state ('1').
+      lvds_o        <= '0';
 
       case pres_state is
-         when IDLE =>   bit_count_ena <= '1';
-                        bit_count_clr <= '1';
+         when IDLE =>
+            bit_count_ena <= '1';
+            bit_count_clr <= '1';
 
-         when SETUP =>  tx_ena        <= '1';
-                        tx_ld         <= '1';
+         when SETUP =>
+            tx_ena        <= '1';
+            tx_ld         <= '1';
 
-         when SEND =>   bit_count_ena <= '1';
-                        if(bit_count = 1  or bit_count = 3  or bit_count = 5  or bit_count = 7  or bit_count = 9  or
-                           bit_count = 11 or bit_count = 13 or bit_count = 15 or bit_count = 17 or bit_count = 19 or
-                           bit_count = 21 or bit_count = 23 or bit_count = 25 or bit_count = 27 or bit_count = 29 or
-                           bit_count = 31 or bit_count = 33 or bit_count = 35 or bit_count = 37 or bit_count = 39 or
-                           bit_count = 41 or bit_count = 43 or bit_count = 45 or bit_count = 47 or bit_count = 49 or
-                           bit_count = 51 or bit_count = 53 or bit_count = 55 or bit_count = 57 or bit_count = 59 or
-                           bit_count = 61 or bit_count = 63 or bit_count = 65 or bit_count = 67) then tx_ena <= '1';
-                        end if;
-                        lvds_o <= tx_bit;
+         when SEND =>
+            bit_count_ena <= '1';
+            if(bit_count = 1  or bit_count = 3  or bit_count = 5  or bit_count = 7  or bit_count = 9  or
+               bit_count = 11 or bit_count = 13 or bit_count = 15 or bit_count = 17 or bit_count = 19 or
+               bit_count = 21 or bit_count = 23 or bit_count = 25 or bit_count = 27 or bit_count = 29 or
+               bit_count = 31 or bit_count = 33 or bit_count = 35 or bit_count = 37 or bit_count = 39 or
+               bit_count = 41 or bit_count = 43 or bit_count = 45 or bit_count = 47 or bit_count = 49 or
+               bit_count = 51 or bit_count = 53 or bit_count = 55 or bit_count = 57 or bit_count = 59 or
+               bit_count = 61 or bit_count = 63 or bit_count = 65 or bit_count = 67) then tx_ena <= '1';
+            end if;
+            -- The default start bit was '0', but that didn't work so hot when the default state of the signal was changed to '0'!
+            lvds_o <= not tx_bit;
+--            lvds_o <= tx_bit;
 
-         when DONE =>   buf_read      <= '1';
+         when DONE =>
+            buf_read      <= '1';
 
-         when others => null;
+         when others =>
+            null;
+
       end case;
    end process stateOut;
 
