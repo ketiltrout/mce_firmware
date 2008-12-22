@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.17 2008/10/25 00:24:54 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.18 2008/11/21 18:57:21 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -64,6 +64,7 @@ entity ret_dat_wbs is
       stop_delay_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
       num_rows_to_read_o     : out integer;
+      num_cols_to_read_o     : out integer;
       cards_present_i        : in std_logic_vector(9 downto 0);
       cards_to_report_o      : out std_logic_vector(9 downto 0);
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
@@ -112,10 +113,11 @@ architecture rtl of ret_dat_wbs is
    signal step_card_addr_wren    : std_logic;
    signal step_data_num_wren     : std_logic;
    signal num_rows_to_read_wren  : std_logic;
+   signal num_cols_to_read_wren  : std_logic;
    signal run_file_id_wren       : std_logic;
    signal user_writable_wren     : std_logic;
    signal cards_present_wren     : std_logic;
-   signal cards_to_report_wren     : std_logic;
+   signal cards_to_report_wren   : std_logic;
    signal ret_dat_req_wren       : std_logic;
    signal stop_delay_wren        : std_logic;
    signal rcs_to_report_wren     : std_logic;
@@ -138,6 +140,7 @@ architecture rtl of ret_dat_wbs is
    signal step_card_addr_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_data_num_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal num_rows_to_read_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal num_cols_to_read_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal run_file_id_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal user_writable_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal cards_present_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -298,7 +301,7 @@ begin
          reg_o             => step_card_addr_data
       );
 
-   -- Custom register that gets set to DEFAULT_NUM_ROWS_TO_READ upon reset
+   -- Custom register that gets set to DEFAULT_STEP_DATA_NUM upon reset
    step_data_num_o <= step_data_num_data;
    step_data_num_reg: process(clk_i, rst_i)
    begin
@@ -437,6 +440,19 @@ begin
       end if;
    end process num_rows_to_read_reg;
 
+   -- Custom register that gets set to DEFAULT_NUM_COLS_TO_READ upon reset
+   num_cols_to_read_o <= conv_integer(unsigned(num_cols_to_read_data));
+   num_cols_to_read_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         num_cols_to_read_data <= DEFAULT_NUM_COLS_TO_READ;
+      elsif(clk_i'event and clk_i = '1') then
+         if(num_cols_to_read_wren = '1') then
+            num_cols_to_read_data <= dat_i;
+         end if;
+      end if;
+   end process num_cols_to_read_reg;
+
    ret_dat_req_data <= "0000000000000000000000000000000" & ret_dat_req;
    ret_dat_req_o <= ret_dat_req;
    process(rst_i, clk_i)
@@ -544,6 +560,7 @@ begin
       step_card_addr_wren    <= '0';
       step_data_num_wren     <= '0';
       num_rows_to_read_wren  <= '0';
+      num_cols_to_read_wren  <= '0';
       run_file_id_wren       <= '0';
       user_writable_wren     <= '0';
       cards_present_wren     <= '0';
@@ -639,6 +656,9 @@ begin
                elsif(addr_i = STOP_DLY_ADDR) then
                   stop_delay_wren <= '1';
                   ack_o <= '1';
+               elsif(addr_i = NUM_COLS_TO_READ_ADDR) then
+                  num_cols_to_read_wren <= '1';
+                  ack_o <= '1';
                end if;
             end if;
 
@@ -669,6 +689,7 @@ begin
       int_cmd_en_data        when (addr_i = INT_CMD_EN_ADDR) else
       crc_err_en_data        when (addr_i = CRC_ERR_EN_ADDR) else
       num_rows_to_read_data  when (addr_i = NUM_ROWS_TO_READ_ADDR) else
+      num_cols_to_read_data  when (addr_i = NUM_COLS_TO_READ_ADDR) else
       internal_cmd_mode_data when (addr_i = INTERNAL_CMD_MODE_ADDR) else
       step_period_data       when (addr_i = RAMP_STEP_PERIOD_ADDR) else
       step_minimum_data      when (addr_i = RAMP_MIN_VAL_ADDR) else
@@ -695,6 +716,7 @@ begin
        addr_i = TES_TGL_MIN_ADDR or
        addr_i = TES_TGL_RATE_ADDR or
        addr_i = NUM_ROWS_TO_READ_ADDR or
+       addr_i = NUM_COLS_TO_READ_ADDR or
        addr_i = INTERNAL_CMD_MODE_ADDR or
        addr_i = RAMP_STEP_PERIOD_ADDR or
        addr_i = RAMP_MIN_VAL_ADDR or
@@ -722,6 +744,7 @@ begin
        addr_i = TES_TGL_MIN_ADDR or
        addr_i = TES_TGL_RATE_ADDR or
        addr_i = NUM_ROWS_TO_READ_ADDR or
+       addr_i = NUM_COLS_TO_READ_ADDR or
        addr_i = INTERNAL_CMD_MODE_ADDR or
        addr_i = RAMP_STEP_PERIOD_ADDR or
        addr_i = RAMP_MIN_VAL_ADDR or
