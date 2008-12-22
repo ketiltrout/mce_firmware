@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs_pack.vhd,v 1.9 2008/10/17 00:34:38 bburger Exp $
+-- $Id: ret_dat_wbs_pack.vhd,v 1.10 2008/10/25 00:24:54 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs_pack.vhd,v $
+-- Revision 1.10  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.9  2008/10/17 00:34:38  bburger
 -- BB:  added the constant DEFAULT_CARDS_TO_REPORT
 --
@@ -97,6 +100,7 @@ package ret_dat_wbs_pack is
    constant DEFAULT_RCS_TO_REPORT    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000000F";
    constant DEFAULT_CARDS_TO_REPORT  : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"000003FF";
    constant DEFAULT_NUM_ROWS_TO_READ : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000029";  -- 41 Rows by default.
+   constant DEFAULT_NUM_COLS_TO_READ : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000008";  -- 41 Rows by default.
    constant DEFAULT_STEP_DATA_NUM    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";  -- Then default number of data words to be send in the ramp command.
 
 end package;
