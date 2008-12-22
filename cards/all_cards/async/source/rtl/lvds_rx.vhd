@@ -29,8 +29,15 @@
 -- LVDS receive module
 --
 -- Revision history:
--- 
+--
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.19  2006/03/01 01:02:55  erniel
+-- reduced comm_clk_i frequency from 200 MHz to 100 MHz
+-- modified datapath to work with new comm_clk frequency
+--      (performs 4x oversampling instead of 8x)
+-- replaced datapath and interface FSMs with simple status flags and logic
+--      (optimized control logic)
+--
 -- Revision 1.18  2006/02/15 09:57:43  erniel
 -- manual optimization of FIFO write logic (attempt at reducing number of levels of logic)
 --
@@ -112,145 +119,177 @@ entity lvds_rx is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
-     
+
      dat_o      : out std_logic_vector(31 downto 0);
      rdy_o      : out std_logic;
+     pres_n_o   : out std_logic;
      ack_i      : in std_logic;
-     
+
      lvds_i     : in std_logic);
 end lvds_rx;
 
 architecture rtl of lvds_rx is
 
-signal lvds      : std_logic;
-signal lvds_temp : std_logic;
+   signal lvds      : std_logic;
+   signal lvds_temp : std_logic;
 
-signal sample_count     : std_logic_vector(7 downto 0);
-signal sample_count_ena : std_logic;
-signal sample_count_clr : std_logic;
+   signal sample_count     : std_logic_vector(7 downto 0);
+   signal sample_count_ena : std_logic;
+   signal sample_count_clr : std_logic;
 
-signal sample_buf     : std_logic_vector(2 downto 0);
-signal sample_buf_ena : std_logic;
-signal sample_buf_clr : std_logic;
+   signal sample_buf     : std_logic_vector(2 downto 0);
+   signal sample_buf_ena : std_logic;
+   signal sample_buf_clr : std_logic;
 
-signal rx_bit     : std_logic;
-signal rx_buf     : std_logic_vector(33 downto 0);
-signal rx_buf_ena : std_logic;
-signal rx_buf_clr : std_logic;
+   signal rx_bit     : std_logic;
+   signal rx_buf     : std_logic_vector(33 downto 0);
+   signal rx_buf_ena : std_logic;
+   signal rx_buf_clr : std_logic;
 
-signal data_buf_write : std_logic;
-signal data_buf_read  : std_logic;
-signal data_buf_full  : std_logic;
-signal data_buf_empty : std_logic;
+   signal data_buf_write : std_logic;
+   signal data_buf_read  : std_logic;
+   signal data_buf_full  : std_logic;
+   signal data_buf_empty : std_logic;
 
-signal lvds_receiving : std_logic;
-signal data_ready     : std_logic;
+   signal lvds_receiving : std_logic;
+   signal data_ready     : std_logic;
+
+   constant START_TIME : integer := 1023;
+   signal reverted_dat : std_logic;
+   signal time_new  : integer range -1 to START_TIME;
+   signal time      : integer range 0 to START_TIME;
 
 begin
-   
+
+   -------------------------------------------------------------------------------------------
+   -- Timer for determining if cards are not present.
+   -------------------------------------------------------------------------------------------
+   time_new <= time - 1;
+   timer: process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         time <= START_TIME;
+      elsif(clk_i'event and clk_i = '1') then
+         if(lvds_i = '1') then
+            if(time > 0) then
+               time <= time_new;
+            else
+               time <= 0;
+            end if;
+         else
+            time <= START_TIME;
+         end if;
+      end if;
+   end process timer;
+
+   reverted_dat <= not lvds_i;
+--   reverted_dat <= lvds_i;
+   pres_n_o <= '1' when time = 0 else '0';
+
    -- bring lvds_i into comm_clk domain from asynch domain using a synchronizer:
    process(rst_i, comm_clk_i)
    begin
-      if(rst_i = '1') then   
+      if(rst_i = '1') then
          lvds_temp <= '1';   -- idle state of lvds line is high
          lvds      <= '1';
       elsif(comm_clk_i'event and comm_clk_i = '1') then
-         lvds_temp <= lvds_i;
+         lvds_temp <= reverted_dat;
          lvds      <= lvds_temp;
       end if;
    end process;
-    
+
    sample_counter: binary_counter
    generic map(WIDTH => 8)
-   port map(clk_i   => comm_clk_i,
-            rst_i   => rst_i,
-            ena_i   => sample_count_ena,
-            up_i    => '1',
-            load_i  => '0',
-            clear_i => sample_count_clr,
-            count_i => (others => '0'),
-            count_o => sample_count);
-   
+   port map(
+      clk_i   => comm_clk_i,
+      rst_i   => rst_i,
+      ena_i   => sample_count_ena,
+      up_i    => '1',
+      load_i  => '0',
+      clear_i => sample_count_clr,
+      count_i => (others => '0'),
+      count_o => sample_count);
+
    sample_count_ena <= lvds_receiving;
    sample_count_clr <= not lvds_receiving;
-   
-            
+
    rx_sample: shift_reg
    generic map(WIDTH => 3)
    port map(clk_i      => comm_clk_i,
-            rst_i      => rst_i,
-            ena_i      => sample_buf_ena,
-            load_i     => '0',
-            clr_i      => sample_buf_clr,
-            shr_i      => '1',
-            serial_i   => lvds,
-            serial_o   => open,
-            parallel_i => (others => '0'),
-            parallel_o => sample_buf);
-   
+      rst_i      => rst_i,
+      ena_i      => sample_buf_ena,
+      load_i     => '0',
+      clr_i      => sample_buf_clr,
+      shr_i      => '1',
+      serial_i   => lvds,
+      serial_o   => open,
+      parallel_i => (others => '0'),
+      parallel_o => sample_buf);
+
    sample_buf_ena <= lvds_receiving;
    sample_buf_clr <= not lvds_receiving;
-   
-            
+
    -- received bit is majority function of sample buffer
    rx_bit <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
-   
+
    rx_buffer: shift_reg
-   generic map(WIDTH => 34)
-   port map(clk_i      => comm_clk_i,
-            rst_i      => rst_i,
-            ena_i      => rx_buf_ena,
-            load_i     => '0',
-            clr_i      => rx_buf_clr,
-            shr_i      => '1',
-            serial_i   => rx_bit,
-            serial_o   => open,
-            parallel_i => (others => '0'),
-            parallel_o => rx_buf);
-            
+   generic map(
+      WIDTH => 34)
+   port map(
+      clk_i      => comm_clk_i,
+      rst_i      => rst_i,
+      ena_i      => rx_buf_ena,
+      load_i     => '0',
+      clr_i      => rx_buf_clr,
+      shr_i      => '1',
+      serial_i   => rx_bit,
+      serial_o   => open,
+      parallel_i => (others => '0'),
+      parallel_o => rx_buf);
+
    rx_buf_ena <= '1' when sample_count(1 downto 0) = "10" else '0';
    rx_buf_clr <= not lvds_receiving;
-   
-            
-   data_buffer: dcfifo
-   generic map(intended_device_family  => "Stratix",
-               lpm_width               => 32,
-               lpm_numwords            => 16,
-               lpm_widthu              => 4,
-               clocks_are_synchronized => "TRUE",
-               lpm_type                => "dcfifo",
-               lpm_showahead           => "OFF",
-               overflow_checking       => "ON",
-               underflow_checking      => "ON",
-               use_eab                 => "ON",
-               add_ram_output_register => "ON",
-               lpm_hint                => "RAM_BLOCK_TYPE=AUTO")
-   port map(wrclk   => comm_clk_i,
-            rdclk   => clk_i,
-            wrreq   => data_buf_write,
-            rdreq   => data_buf_read,
-            data    => rx_buf(32 downto 1),
-            q       => dat_o,
-            aclr    => rst_i,
-            wrfull  => data_buf_full,
-            rdempty => data_buf_empty); 
 
-   data_buf_write <= not data_buf_full when sample_count = 135 else '0';   
-   data_buf_read <= not data_buf_empty and not data_ready;    
-   
-   
+   data_buffer: dcfifo
+   generic map(
+      intended_device_family  => "Stratix",
+      lpm_width               => 32,
+      lpm_numwords            => 16,
+      lpm_widthu              => 4,
+      clocks_are_synchronized => "TRUE",
+      lpm_type                => "dcfifo",
+      lpm_showahead           => "OFF",
+      overflow_checking       => "ON",
+      underflow_checking      => "ON",
+      use_eab                 => "ON",
+      add_ram_output_register => "ON",
+      lpm_hint                => "RAM_BLOCK_TYPE=AUTO")
+   port map(
+      wrclk   => comm_clk_i,
+      rdclk   => clk_i,
+      wrreq   => data_buf_write,
+      rdreq   => data_buf_read,
+      data    => rx_buf(32 downto 1),
+      q       => dat_o,
+      aclr    => rst_i,
+      wrfull  => data_buf_full,
+      rdempty => data_buf_empty);
+
+   data_buf_write <= not data_buf_full when sample_count = 135 else '0';
+   data_buf_read <= not data_buf_empty and not data_ready;
+
    -- lvds_receiving flag (high when a transfer is in progress):
    process(rst_i, comm_clk_i)
    begin
       if(rst_i = '1') then
          lvds_receiving <= '0';
       elsif(comm_clk_i'event and comm_clk_i = '1') then
+         -- The leading bit must be '0' and the trailing bit must be '1'
          if((lvds = '0' and lvds_receiving = '0') or (sample_count = 135 and lvds_receiving = '1')) then
             lvds_receiving <= not lvds_receiving;
          end if;
       end if;
    end process;
-
 
    -- data_ready flag (high when a datum is output and waiting for an ack):
    process(rst_i, clk_i)
@@ -263,7 +302,7 @@ begin
          end if;
       end if;
    end process;
-   
-   rdy_o <= data_ready; 
-             
+
+   rdy_o <= data_ready;
+
 end rtl;
