@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.49 2008/10/25 00:24:54 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.50 2008/12/22 20:48:25 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.50  2008/12/22 20:48:25  bburger
+-- BB:  Added interface signals for dual LVDS lines from each card, and for supporting column data from the Readout Cards
+--
 -- Revision 1.49  2008/10/25 00:24:54  bburger
 -- BB:  Added support for RCS_TO_REPORT_DATA command
 --
@@ -162,7 +165,7 @@ entity reply_queue is
       lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
       lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
 
-      card_not_present_i  : in std_logic_vector(9 downto 0);
+      card_not_present_o  : out std_logic_vector(9 downto 0);
 
       -- Global signals
       clk_i               : in std_logic;
@@ -192,7 +195,7 @@ architecture behav of reply_queue is
       lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
       lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
 
-      card_not_present_i  : in std_logic_vector(9 downto 0);
+      card_not_present_o  : out std_logic_vector(9 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
       rcs_to_report_data_i : in std_logic_vector(9 downto 0);
 
@@ -292,6 +295,7 @@ architecture behav of reply_queue is
    signal word_ack             : std_logic;
 
    -- Register Signals
+   signal num_cols_reported    : std_logic_vector(3 downto 0);
    signal cmd_code             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
    signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
    signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
@@ -557,19 +561,24 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          if(num_cards_reg_en = '1') then
             if(cmd_code = DATA) then
-               if(rcs_to_report_data_i(5 downto 2) = "0000") then
-                  num_cards <= x"0";
-               elsif(rcs_to_report_data_i(5 downto 2) = "1111") then
-                  num_cards <= x"4";
-               elsif(rcs_to_report_data_i(5 downto 2) = "1000" or rcs_to_report_data_i(5 downto 2) = "0100" or
-                  rcs_to_report_data_i(5 downto 2) = "0010" or rcs_to_report_data_i(5 downto 2) = "0001") then
-                  num_cards <= x"1";
-               elsif(rcs_to_report_data_i(5 downto 2) = "0111" or rcs_to_report_data_i(5 downto 2) = "1011" or
-                  rcs_to_report_data_i(5 downto 2) = "1101" or rcs_to_report_data_i(5 downto 2) = "1110") then
-                  num_cards <= x"3";
+               if(card_addr = ALL_READOUT_CARDS) then
+                  if(rcs_to_report_data_i(5 downto 2) = "0000") then
+                     num_cards <= x"0";
+                  elsif(rcs_to_report_data_i(5 downto 2) = "1111") then
+                     num_cards <= x"4";
+                  elsif(rcs_to_report_data_i(5 downto 2) = "1000" or rcs_to_report_data_i(5 downto 2) = "0100" or
+                     rcs_to_report_data_i(5 downto 2) = "0010" or rcs_to_report_data_i(5 downto 2) = "0001") then
+                     num_cards <= x"1";
+                  elsif(rcs_to_report_data_i(5 downto 2) = "0111" or rcs_to_report_data_i(5 downto 2) = "1011" or
+                     rcs_to_report_data_i(5 downto 2) = "1101" or rcs_to_report_data_i(5 downto 2) = "1110") then
+                     num_cards <= x"3";
+                  else
+                     num_cards <= x"2";
+                  end if;
+               -- Otherwise, if the card_addr is RC1/ RC2/ RC3/ RC4.
                else
-                  num_cards <= x"2";
-               end if;
+                  num_cards <= x"1";
+               end if;           
             else
                if(card_addr = NO_CARDS) then
                   num_cards <= x"0";
@@ -674,7 +683,8 @@ begin
    -- This status bits are monitored in snapshots.
    -- They are included in the status header of every data frame
    -- What happens in between each frame is not recorded, except for resets and errors (i.e. Clock Card reset, or Sync Box error).
-   bit_status_i <= x"0000" & "00" & rcs_responding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
+   num_cols_reported <= conv_std_logic_vector(num_cols_to_read_i, 4);   
+   bit_status_i <= x"000" & num_cols_reported & "00" & rcs_responding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
 
    bit_status_reg: reg
       generic map(
@@ -1210,9 +1220,9 @@ begin
          lvds_reply_all_a_i => lvds_reply_all_a_i,
          lvds_reply_all_b_i => lvds_reply_all_b_i,
 
-         card_not_present_i => card_not_present_i,
+         card_not_present_o => card_not_present_o,
          cards_to_report_i  => cards_to_report_i,
-         rcs_to_report_data_i  => rcs_to_report_data_i,
+         rcs_to_report_data_i => rcs_to_report_data_i,
 
          card_data_size_i  => data_size_t,  -- Add this to the pack file
          -- cmd_translator interface
