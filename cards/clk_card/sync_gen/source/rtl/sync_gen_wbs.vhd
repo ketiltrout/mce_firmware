@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.8 2006/05/29 23:11:00 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.9 2007/07/25 18:43:44 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.9  2007/07/25 18:43:44  bburger
+-- BB:  Removed the unused master_wait signal from the sync_gen_wbs interface
+--
 -- Revision 1.8  2006/05/29 23:11:00  bburger
 -- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
 --
@@ -81,8 +84,8 @@ entity sync_gen_wbs is
       -- sync_gen interface:
       dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       sync_mode_o         : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
-      row_len_o           : out integer;
-      num_rows_o          : out integer;
+--      row_len_o           : out integer;
+--      num_rows_o          : out integer;
 
       -- wishbone interface:
       dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -111,10 +114,10 @@ architecture rtl of sync_gen_wbs is
    signal dv_mode_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal sync_mode_wren  : std_logic;
    signal sync_mode_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal row_length_wren : std_logic;
-   signal row_length_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal num_rows_wren   : std_logic;
-   signal num_rows_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--   signal row_length_wren : std_logic;
+--   signal row_length_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--   signal num_rows_wren   : std_logic;
+--   signal num_rows_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 
    -- WBS states:
@@ -148,32 +151,32 @@ begin
          reg_o             => sync_mode_data
       );
 
-   -- Custom register that gets set to MUX_LINE_PERIOD upon reset
-   row_len_reg: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         row_length_data <= std_logic_vector(conv_unsigned(MUX_LINE_PERIOD, PACKET_WORD_WIDTH));  -- 64 time-steps
-      elsif(clk_i'event and clk_i = '1') then
-         if(row_length_wren = '1') then
-            row_length_data <= dat_i;
-         end if;
-      end if;
-   end process row_len_reg;
+--   -- Custom register that gets set to MUX_LINE_PERIOD upon reset
+--   row_len_reg: process(clk_i, rst_i)
+--   begin
+--      if(rst_i = '1') then
+--         row_length_data <= std_logic_vector(conv_unsigned(MUX_LINE_PERIOD, PACKET_WORD_WIDTH));  -- 64 time-steps
+--      elsif(clk_i'event and clk_i = '1') then
+--         if(row_length_wren = '1') then
+--            row_length_data <= dat_i;
+--         end if;
+--      end if;
+--   end process row_len_reg;
+--
+--   -- Custom register that gets set to NUM_OF_ROWS upon reset
+--   num_rows_reg: process(clk_i, rst_i)
+--   begin
+--      if(rst_i = '1') then
+--         num_rows_data <= std_logic_vector(conv_unsigned(NUM_OF_ROWS, PACKET_WORD_WIDTH));
+--      elsif(clk_i'event and clk_i = '1') then
+--         if(num_rows_wren = '1') then
+--            num_rows_data <= dat_i;
+--         end if;
+--      end if;
+--   end process num_rows_reg;
 
-   -- Custom register that gets set to NUM_OF_ROWS upon reset
-   num_rows_reg: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         num_rows_data <= std_logic_vector(conv_unsigned(NUM_OF_ROWS, PACKET_WORD_WIDTH));
-      elsif(clk_i'event and clk_i = '1') then
-         if(num_rows_wren = '1') then
-            num_rows_data <= dat_i;
-         end if;
-      end if;
-   end process num_rows_reg;
-
-   row_len_o   <= conv_integer(row_length_data);
-   num_rows_o  <= conv_integer(num_rows_data);
+--   row_len_o   <= conv_integer(row_length_data);
+--   num_rows_o  <= conv_integer(num_rows_data);
    dv_mode_o   <= dv_mode_data(DV_SELECT_WIDTH-1 downto 0);
    sync_mode_o <= sync_mode_data(SYNC_SELECT_WIDTH-1 downto 0);
 
@@ -227,8 +230,8 @@ begin
       -- Default assignments
       ack_o           <= '0';
       dv_mode_wren    <= '0';
-      row_length_wren <= '0';
-      num_rows_wren   <= '0';
+--      row_length_wren <= '0';
+--      num_rows_wren   <= '0';
       sync_mode_wren  <= '0';
 
       case current_state is
@@ -240,10 +243,10 @@ begin
             if(stb_i = '1') then
                if(addr_i = USE_DV_ADDR) then
                   dv_mode_wren <= '1';
-               elsif(addr_i = ROW_LEN_ADDR) then
-                  row_length_wren <= '1';
-               elsif(addr_i = NUM_ROWS_ADDR) then
-                  num_rows_wren <= '1';
+--               elsif(addr_i = ROW_LEN_ADDR) then
+--                  row_length_wren <= '1';
+--               elsif(addr_i = NUM_ROWS_ADDR) then
+--                  num_rows_wren <= '1';
                elsif(addr_i = USE_SYNC_ADDR) then
                   sync_mode_wren <= '1';
                end if;
@@ -262,8 +265,8 @@ begin
    ------------------------------------------------------------
    with addr_i select dat_o <=
       dv_mode_data    when USE_DV_ADDR,
-      row_length_data when ROW_LEN_ADDR,
-      num_rows_data   when NUM_ROWS_ADDR,
+--      row_length_data when ROW_LEN_ADDR,
+--      num_rows_data   when NUM_ROWS_ADDR,
       sync_mode_data  when USE_SYNC_ADDR,
       (others => '0') when others;
 
@@ -271,10 +274,12 @@ begin
 
    rd_cmd  <= '1' when
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and
-      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0';
+--      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0';
+      (addr_i = USE_DV_ADDR or addr_i = USE_SYNC_ADDR) else '0';
 
    wr_cmd  <= '1' when
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and
-      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0';
+--      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0';
+      (addr_i = USE_DV_ADDR or addr_i = USE_SYNC_ADDR) else '0';
 
 end rtl;

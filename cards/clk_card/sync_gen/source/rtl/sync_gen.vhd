@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.17  2007/07/25 18:41:45  bburger
+-- BB: Added library declarations
+--
 -- Revision 1.16  2006/03/17 17:06:18  bburger
 -- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
 --
@@ -117,8 +120,8 @@ entity sync_gen is
       sync_mode_o          : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       encoded_sync_o       : out std_logic;
       external_sync_i      : in std_logic;
-      row_len_o            : out integer;
-      num_rows_o           : out integer;
+      row_len_i            : in integer;
+      num_rows_i           : in integer;
 
       -- Wishbone interface
       dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -171,8 +174,8 @@ architecture beh of sync_gen is
       -- sync_gen interface:
       dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       sync_mode_o         : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
-      row_len_o           : out integer;
-      num_rows_o          : out integer;
+--      row_len_o           : out integer;
+--      num_rows_o          : out integer;
 
       -- wishbone interface:
       dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -194,15 +197,15 @@ begin
 
    dv_mode_o <= dv_mode;
    sync_mode_o <= sync_mode;
-   row_len_o <= row_len;
-   num_rows_o <= num_rows;
+--   row_len_o <= row_len;
+--   num_rows_o <= num_rows;
 
    wbi: sync_gen_wbs
       port map(
          dv_mode_o   => dv_mode,
          sync_mode_o => sync_mode,
-         row_len_o   => row_len,
-         num_rows_o  => num_rows,
+--         row_len_o   => row_len,
+--         num_rows_o  => num_rows,
 
          dat_i       => dat_i,
          addr_i      => addr_i,
@@ -222,8 +225,8 @@ begin
          -- Wishbone Interface
          dv_mode_i            => dv_mode,
          sync_mode_i          => sync_mode,
-         row_len_i            => row_len,
-         num_rows_i           => num_rows,
+         row_len_i            => row_len_i,
+         num_rows_i           => num_rows_i,
 
          -- Inputs/Outputs
          external_sync_i      => external_sync_i,
