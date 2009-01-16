@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.73 2008/10/25 00:24:54 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.74 2008/12/22 20:47:59 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2008/10/25 00:24:54 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2008/12/22 20:47:59 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.74  2008/12/22 20:47:59  bburger
+-- BB:  Added interface signals for dual LVDS lines from each card, and for supporting column data from the Readout Cards
+--
 -- Revision 1.73  2008/10/25 00:24:54  bburger
 -- BB:  Added support for RCS_TO_REPORT_DATA command
 --
@@ -105,7 +108,7 @@ entity issue_reply is
       -- inputs from the bus backplane
       lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
       lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
-      card_not_present_i     : in std_logic_vector(9 downto 0);
+      card_not_present_o     : out std_logic_vector(9 downto 0);
 
       -- inputs from the fibre receiver
       fibre_clkr_i           : in std_logic;
@@ -404,7 +407,7 @@ architecture rtl of issue_reply is
       -- Bus Backplane interface
       lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
       lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
-      card_not_present_i  : in std_logic_vector(9 downto 0);
+      card_not_present_o  : out std_logic_vector(9 downto 0);
 
       -- Global signals
       clk_i               : in std_logic;
@@ -777,7 +780,7 @@ begin
       -- Bus Backplane interface
       lvds_reply_all_a_i  => lvds_reply_all_a_i,
       lvds_reply_all_b_i  => lvds_reply_all_b_i,
-      card_not_present_i  => card_not_present_i,
+      card_not_present_o  => card_not_present_o,
 
       -- Global signals
       clk_i               => clk_i,
