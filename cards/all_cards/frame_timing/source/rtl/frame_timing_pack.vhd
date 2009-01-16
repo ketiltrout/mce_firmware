@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.9 2006/02/09 20:32:59 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.10 2006/03/22 19:25:12 mandana Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2006/02/09 20:32:59 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/03/22 19:25:12 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.10  2006/03/22 19:25:12  mandana
+-- moved constant definitions from sync_gen_pack to frame_timing_pack
+--
 -- Revision 1.9  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -135,6 +138,9 @@ package frame_timing_pack is
    constant UPDATE_BIAS : integer := 0;
    
    ------------------------------------------------------------------------------------
-   -- Frame Timing Interface
+   -- For data readout
+   constant DEFAULT_NUM_ROWS_REPORTED : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000029";  -- 41 Rows by default.
+   constant DEFAULT_NUM_COLS_REPORTED : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000008";  -- 41 Rows by default.
+
 
 end frame_timing_pack;
