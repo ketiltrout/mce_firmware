@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.32 2008/07/15 17:48:58 bburger Exp $
+-- $Id: bias_card.vhd,v 1.33 2008/12/22 20:36:59 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.33  2008/12/22 20:36:59  bburger
+-- BB:  Added a second LVDS reply channel to dispatch
+--
 -- Revision 1.32  2008/07/15 17:48:58  bburger
 -- BB: bc_v01040002
 --
@@ -405,9 +408,9 @@ begin
        stb_i  => stb,
        cyc_i  => cyc,
        slot_id_i => slot_id,
-       err_all_cards_o  => all_cards_err,
-       qa_all_cards_o   => all_cards_data,
-       ack_all_cards_o  => all_cards_ack
+       err_o           => all_cards_err,
+       dat_o           => all_cards_data,
+       ack_o           => all_cards_ack
     );
 
    bc_dac_ctrl_slave: bc_dac_ctrl
@@ -477,7 +480,7 @@ begin
          all_cards_data    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_data          when LED_ADDR,
          bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
-         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
          (others => '0')   when others;
@@ -487,15 +490,15 @@ begin
          all_cards_ack    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_ack          when LED_ADDR,
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
-         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_ack  when FPGA_TEMP_ADDR,
          '0'              when others;
 
    with addr select
       slave_err <=
-         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | FLUX_FB_UPPER_ADDR |
-                               SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | 
+                               ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          all_cards_err    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err  when FPGA_TEMP_ADDR,
