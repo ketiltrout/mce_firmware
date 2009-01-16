@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.30  2008/12/22 20:36:45  bburger
+-- BB:  Added a second LVDS reply channel to dispatch
+--
 -- Revision 1.29  2008/06/17 19:03:20  bburger
 -- BB:  Added support for const_val39, for revision ac_v02000007
 --
@@ -307,9 +310,9 @@ begin
       stb_i           => stb,
       cyc_i           => cyc,
       slot_id_i       => slot_id,
-      err_all_cards_o => all_cards_err,
-      qa_all_cards_o  => all_cards_data,
-      ack_all_cards_o => all_cards_ack
+      err_o           => all_cards_err,
+      dat_o           => all_cards_data,
+      ack_o           => all_cards_ack
    );
 
    leds_slave: leds
@@ -449,7 +452,7 @@ begin
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                 FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
                                 FB_COL40_ADDR,
-         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
          (others => '0')   when others;
@@ -464,7 +467,7 @@ begin
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                 FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
                                 FB_COL40_ADDR,
-         frame_timing_ack  when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         frame_timing_ack  when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
          '0'               when others;
@@ -472,8 +475,7 @@ begin
    with addr select
       slave_err <=
          '0'               when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | CONST_MODE_ADDR | CONST_VAL_ADDR | CONST_VAL39_ADDR |
-                                ROW_LEN_ADDR | NUM_ROWS_ADDR |
-                                SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR |
+                                ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
                                 FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
                                 FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
