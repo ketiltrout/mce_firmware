@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.12 2008/10/25 00:24:54 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.13 2008/12/22 20:39:14 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.13  2008/12/22 20:39:14  bburger
+-- BB:  Added interface signals for dual LVDS lines from each card, and for supporting column data from the Readout Cards
+--
 -- Revision 1.12  2008/10/25 00:24:54  bburger
 -- BB:  Added support for RCS_TO_REPORT_DATA command
 --
@@ -254,8 +257,8 @@ package clk_card_pack is
       sync_mode_o          : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       encoded_sync_o       : out std_logic;
       external_sync_i      : in std_logic;
-      row_len_o            : out integer;
-      num_rows_o           : out integer;
+      row_len_i            : in integer;
+      num_rows_i           : in integer;
 
       -- Wishbone interface
       dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -317,8 +320,8 @@ package clk_card_pack is
       user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_delay_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
-      num_rows_to_read_o     : out integer;
-      num_cols_to_read_o     : out integer;
+--      num_rows_to_read_o     : out integer;
+--      num_cols_to_read_o     : out integer;
       cards_present_i        : in std_logic_vector(9 downto 0);
       cards_to_report_o      : out std_logic_vector(9 downto 0);
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
@@ -405,7 +408,7 @@ package clk_card_pack is
 --      lvds_reply_cc_a        : in std_logic;
 --      lvds_reply_psu_a       : in std_logic;
 
-      card_not_present_i     : in std_logic_vector(9 downto 0);
+      card_not_present_o     : out std_logic_vector(9 downto 0);
 
       -- inputs from the fibre receiver
       fibre_clkr_i           : in std_logic;
