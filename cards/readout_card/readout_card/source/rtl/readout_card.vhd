@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.80  2008/12/22 20:33:06  bburger
+-- BB: Added a second LVDS line, and added support for reading column data.
+--
 -- Revision 1.79  2008/11/21 18:09:37  bburger
 -- BB:  v04040001, which fixes a bug with the fpga_thermo and id_thermo blocks where the ack signal wasn't being routed back properly.
 --
@@ -504,6 +507,11 @@ architecture top of readout_card is
    signal fpga_thermo_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fpga_thermo_ack         : std_logic;
    signal fpga_thermo_err         : std_logic;
+   
+   -- frame_timing : wbs_frame_data interface
+   signal num_rows                : integer;
+   signal num_rows_reported       : integer;
+   signal num_cols_reported       : integer;
 
 begin
 
@@ -514,20 +522,20 @@ begin
    rst <= (not rst_n) or (ttl_in1);
 
    -- This line will be used by clock card to check card presence
-   lvds_txb <= '0';
+   --lvds_txb <= '0';
 
    ----------------------------------------------------------------------------
    -- PLL Instantiation
    ----------------------------------------------------------------------------
    i_rc_pll: rc_pll
-     port map (
-         inclk0 => inclk,
-         c0     => clk,
-         c1     => open,
-         c2     => comm_clk,
-         c3     => spi_clk,
-         c4     => clk_n);
-
+   port map (
+      inclk0 => inclk,
+      c0     => clk,
+      c1     => open,
+      c2     => comm_clk,
+      c3     => spi_clk,
+      c4     => clk_n
+   );
 
    ----------------------------------------------------------------------------
    -- Dispatch Instantiation
@@ -551,8 +559,8 @@ begin
       err_i        => dispatch_err_in,
       wdt_rst_o    => wdog,
       slot_i       => slot_id,
-      dip_sw3      => '1',--dip_sw3,
-      dip_sw4      => '1'--dip_sw4
+      dip_sw3      => '1',
+      dip_sw4      => '1'
    );
 
 
@@ -592,7 +600,7 @@ begin
       dat_led         when   LED_ADDR,
       dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
+                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
       all_cards_data  when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_data when  FPGA_TEMP_ADDR,
@@ -623,7 +631,7 @@ begin
       ack_led         when   LED_ADDR,
       ack_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
+                             RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
       all_cards_ack   when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_ack   when   CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_ack when   FPGA_TEMP_ADDR,
@@ -653,8 +661,8 @@ begin
                             LED_ADDR |
                             ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
-    all_cards_err    when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
+                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+    all_cards_err    when   FW_REV_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
     id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
     fpga_thermo_err  when   FPGA_TEMP_ADDR,
     '1'              when others;
@@ -662,328 +670,332 @@ begin
    ----------------------------------------------------------------------------
    -- Frame_timing Instantiation
    ----------------------------------------------------------------------------
-
-    i_frame_timing: frame_timing
-      port map (
-         dac_dat_en_o              => dac_dat_en,
-         adc_coadd_en_o            => adc_coadd_en,
-         restart_frame_1row_prev_o => restart_frame_1row_prev,
-         restart_frame_aligned_o   => restart_frame_aligned,
-         restart_frame_1row_post_o => restart_frame_1row_post,
-         initialize_window_o       => initialize_window,
-         fltr_rst_o                => fltr_rst,
-         row_switch_o              => row_switch,
-         row_en_o                  => open,
-         update_bias_o             => open,
-         dat_i                     => dispatch_dat_out,
-         addr_i                    => dispatch_addr_out,
-         tga_i                     => dispatch_tga_out,
-         we_i                      => dispatch_we_out,
-         stb_i                     => dispatch_stb_out,
-         cyc_i                     => dispatch_cyc_out,
-         dat_o                     => dat_ft,
-         ack_o                     => ack_ft,
-         clk_i                     => clk,
-         clk_n_i                   => clk_n,
-         rst_i                     => rst,
-         sync_i                    => lvds_sync);
+   i_frame_timing: frame_timing
+   port map (
+      dac_dat_en_o              => dac_dat_en,
+      adc_coadd_en_o            => adc_coadd_en,
+      restart_frame_1row_prev_o => restart_frame_1row_prev,
+      restart_frame_aligned_o   => restart_frame_aligned,
+      restart_frame_1row_post_o => restart_frame_1row_post,
+      initialize_window_o       => initialize_window,
+      fltr_rst_o                => fltr_rst,
+      num_rows_o                => num_rows,
+      num_rows_reported_o       => num_rows_reported,
+      num_cols_reported_o       => num_cols_reported,
+      
+      row_switch_o              => row_switch,
+      row_en_o                  => open,
+      
+      update_bias_o             => open,
+      
+      dat_i                     => dispatch_dat_out,
+      addr_i                    => dispatch_addr_out,
+      tga_i                     => dispatch_tga_out,
+      we_i                      => dispatch_we_out,
+      stb_i                     => dispatch_stb_out,
+      cyc_i                     => dispatch_cyc_out,
+      dat_o                     => dat_ft,
+      ack_o                     => ack_ft,
+      clk_i                     => clk,
+      clk_n_i                   => clk_n,
+      rst_i                     => rst,
+      sync_i                    => lvds_sync
+   );
 
 
    ----------------------------------------------------------------------------
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
+   i_flux_loop: flux_loop
+   port map (
+      clk_50_i                  => clk,
+      clk_25_i                  => spi_clk,
+      rst_i                     => rst,
+      num_rows_i                => num_rows,
+      num_rows_reported_i       => num_rows_reported,
+      num_cols_reported_i       => num_cols_reported,
+      adc_coadd_en_i            => adc_coadd_en,
+      restart_frame_1row_prev_i => restart_frame_1row_prev,
+      restart_frame_aligned_i   => restart_frame_aligned,
+      restart_frame_1row_post_i => restart_frame_1row_post,
+      row_switch_i              => row_switch,
+      initialize_window_i       => initialize_window,
+      fltr_rst_i                => fltr_rst,
+      num_rows_sub1_i           => (others => '0'),
+      dac_dat_en_i              => dac_dat_en,
+      dat_i                     => dispatch_dat_out,
+      addr_i                    => dispatch_addr_out,
+      tga_i                     => dispatch_tga_out,
+      we_i                      => dispatch_we_out,
+      stb_i                     => dispatch_stb_out,
+      cyc_i                     => dispatch_cyc_out,
+      dat_frame_o               => dat_frame,
+      ack_frame_o               => ack_frame,
+      dat_fb_o                  => dat_fb,
+      ack_fb_o                  => ack_fb,
+      adc_dat_ch0_i             => adc1_dat,
+      adc_dat_ch1_i             => adc2_dat,
+      adc_dat_ch2_i             => adc3_dat,
+      adc_dat_ch3_i             => adc4_dat,
+      adc_dat_ch4_i             => adc5_dat,
+      adc_dat_ch5_i             => adc6_dat,
+      adc_dat_ch6_i             => adc7_dat,
+      adc_dat_ch7_i             => adc8_dat,
+      adc_ovr_ch0_i             => adc1_ovr,
+      adc_ovr_ch1_i             => adc2_ovr,
+      adc_ovr_ch2_i             => adc3_ovr,
+      adc_ovr_ch3_i             => adc4_ovr,
+      adc_ovr_ch4_i             => adc5_ovr,
+      adc_ovr_ch5_i             => adc6_ovr,
+      adc_ovr_ch6_i             => adc7_ovr,
+      adc_ovr_ch7_i             => adc8_ovr,
+      adc_rdy_ch0_i             => adc1_rdy,
+      adc_rdy_ch1_i             => adc2_rdy,
+      adc_rdy_ch2_i             => adc3_rdy,
+      adc_rdy_ch3_i             => adc4_rdy,
+      adc_rdy_ch4_i             => adc5_rdy,
+      adc_rdy_ch5_i             => adc6_rdy,
+      adc_rdy_ch6_i             => adc7_rdy,
+      adc_rdy_ch7_i             => adc8_rdy,
+      adc_clk_ch0_o             => adc1_clk,
+      adc_clk_ch1_o             => adc2_clk,
+      adc_clk_ch2_o             => adc3_clk,
+      adc_clk_ch3_o             => adc4_clk,
+      adc_clk_ch4_o             => adc5_clk,
+      adc_clk_ch5_o             => adc6_clk,
+      adc_clk_ch6_o             => adc7_clk,
+      adc_clk_ch7_o             => adc8_clk,
+      dac_dat_ch0_o             => dac_FB1_dat,
+      dac_dat_ch1_o             => dac_FB2_dat,
+      dac_dat_ch2_o             => dac_FB3_dat,
+      dac_dat_ch3_o             => dac_FB4_dat,
+      dac_dat_ch4_o             => dac_FB5_dat,
+      dac_dat_ch5_o             => dac_FB6_dat,
+      dac_dat_ch6_o             => dac_FB7_dat,
+      dac_dat_ch7_o             => dac_FB8_dat,
+      dac_clk_ch0_o             => dac_FB_clk(0),
+      dac_clk_ch1_o             => dac_FB_clk(1),
+      dac_clk_ch2_o             => dac_FB_clk(2),
+      dac_clk_ch3_o             => dac_FB_clk(3),
+      dac_clk_ch4_o             => dac_FB_clk(4),
+      dac_clk_ch5_o             => dac_FB_clk(5),
+      dac_clk_ch6_o             => dac_FB_clk(6),
+      dac_clk_ch7_o             => dac_FB_clk(7),
+      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
+      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
+      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
+      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
+      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
+      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
+      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
+      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
+      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
+      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
+      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
+      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
+      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
+      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
+      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
+      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
+   );               
 
-    i_flux_loop: flux_loop
-      port map (
-         clk_50_i                  => clk,
-         clk_25_i                  => spi_clk,
-         rst_i                     => rst,
-         adc_coadd_en_i            => adc_coadd_en,
-         restart_frame_1row_prev_i => restart_frame_1row_prev,
-         restart_frame_aligned_i   => restart_frame_aligned,
-         restart_frame_1row_post_i => restart_frame_1row_post,
-         row_switch_i              => row_switch,
-         initialize_window_i       => initialize_window,
-         fltr_rst_i                => fltr_rst,
-         num_rows_sub1_i           => (others => '0'),
-         dac_dat_en_i              => dac_dat_en,
-         dat_i                     => dispatch_dat_out,
-         addr_i                    => dispatch_addr_out,
-         tga_i                     => dispatch_tga_out,
-         we_i                      => dispatch_we_out,
-         stb_i                     => dispatch_stb_out,
-         cyc_i                     => dispatch_cyc_out,
-         dat_frame_o               => dat_frame,
-         ack_frame_o               => ack_frame,
-         dat_fb_o                  => dat_fb,
-         ack_fb_o                  => ack_fb,
-         adc_dat_ch0_i             => adc1_dat,
-         adc_dat_ch1_i             => adc2_dat,
-         adc_dat_ch2_i             => adc3_dat,
-         adc_dat_ch3_i             => adc4_dat,
-         adc_dat_ch4_i             => adc5_dat,
-         adc_dat_ch5_i             => adc6_dat,
-         adc_dat_ch6_i             => adc7_dat,
-         adc_dat_ch7_i             => adc8_dat,
-         adc_ovr_ch0_i             => adc1_ovr,
-         adc_ovr_ch1_i             => adc2_ovr,
-         adc_ovr_ch2_i             => adc3_ovr,
-         adc_ovr_ch3_i             => adc4_ovr,
-         adc_ovr_ch4_i             => adc5_ovr,
-         adc_ovr_ch5_i             => adc6_ovr,
-         adc_ovr_ch6_i             => adc7_ovr,
-         adc_ovr_ch7_i             => adc8_ovr,
-         adc_rdy_ch0_i             => adc1_rdy,
-         adc_rdy_ch1_i             => adc2_rdy,
-         adc_rdy_ch2_i             => adc3_rdy,
-         adc_rdy_ch3_i             => adc4_rdy,
-         adc_rdy_ch4_i             => adc5_rdy,
-         adc_rdy_ch5_i             => adc6_rdy,
-         adc_rdy_ch6_i             => adc7_rdy,
-         adc_rdy_ch7_i             => adc8_rdy,
-         adc_clk_ch0_o             => adc1_clk,
-         adc_clk_ch1_o             => adc2_clk,
-         adc_clk_ch2_o             => adc3_clk,
-         adc_clk_ch3_o             => adc4_clk,
-         adc_clk_ch4_o             => adc5_clk,
-         adc_clk_ch5_o             => adc6_clk,
-         adc_clk_ch6_o             => adc7_clk,
-         adc_clk_ch7_o             => adc8_clk,
-         dac_dat_ch0_o             => dac_FB1_dat,
-         dac_dat_ch1_o             => dac_FB2_dat,
-         dac_dat_ch2_o             => dac_FB3_dat,
-         dac_dat_ch3_o             => dac_FB4_dat,
-         dac_dat_ch4_o             => dac_FB5_dat,
-         dac_dat_ch5_o             => dac_FB6_dat,
-         dac_dat_ch6_o             => dac_FB7_dat,
-         dac_dat_ch7_o             => dac_FB8_dat,
-         dac_clk_ch0_o             => dac_FB_clk(0),
-         dac_clk_ch1_o             => dac_FB_clk(1),
-         dac_clk_ch2_o             => dac_FB_clk(2),
-         dac_clk_ch3_o             => dac_FB_clk(3),
-         dac_clk_ch4_o             => dac_FB_clk(4),
-         dac_clk_ch5_o             => dac_FB_clk(5),
-         dac_clk_ch6_o             => dac_FB_clk(6),
-         dac_clk_ch7_o             => dac_FB_clk(7),
-         sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
-         sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
-         sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
-         sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
-         sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
-         sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
-         sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
-         sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
-         offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
-         offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
-         offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
-         offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
-         offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
-         offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
-         offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
-         offset_dac_spi_ch7_o      => offset_dac_spi_ch7);
+   -- Chip select signal assignment
+   bias_dac_ncs(0) <= sa_bias_dac_spi_ch0(2);
+   bias_dac_ncs(1) <= sa_bias_dac_spi_ch1(2);
+   bias_dac_ncs(2) <= sa_bias_dac_spi_ch2(2);
+   bias_dac_ncs(3) <= sa_bias_dac_spi_ch3(2);
+   bias_dac_ncs(4) <= sa_bias_dac_spi_ch4(2);
+   bias_dac_ncs(5) <= sa_bias_dac_spi_ch5(2);
+   bias_dac_ncs(6) <= sa_bias_dac_spi_ch6(2);
+   bias_dac_ncs(7) <= sa_bias_dac_spi_ch7(2);
 
+   -- Chip select signal assignment
+   offset_dac_ncs(0)  <= offset_dac_spi_ch0(2);
+   offset_dac_ncs(1)  <= offset_dac_spi_ch1(2);
+   offset_dac_ncs(2)  <= offset_dac_spi_ch2(2);
+   offset_dac_ncs(3)  <= offset_dac_spi_ch3(2);
+   offset_dac_ncs(4)  <= offset_dac_spi_ch4(2);
+   offset_dac_ncs(5)  <= offset_dac_spi_ch5(2);
+   offset_dac_ncs(6)  <= offset_dac_spi_ch6(2);
+   offset_dac_ncs(7)  <= offset_dac_spi_ch7(2);
 
-    -- Chip select signal assignment
-    bias_dac_ncs(0) <= sa_bias_dac_spi_ch0(2);
-    bias_dac_ncs(1) <= sa_bias_dac_spi_ch1(2);
-    bias_dac_ncs(2) <= sa_bias_dac_spi_ch2(2);
-    bias_dac_ncs(3) <= sa_bias_dac_spi_ch3(2);
-    bias_dac_ncs(4) <= sa_bias_dac_spi_ch4(2);
-    bias_dac_ncs(5) <= sa_bias_dac_spi_ch5(2);
-    bias_dac_ncs(6) <= sa_bias_dac_spi_ch6(2);
-    bias_dac_ncs(7) <= sa_bias_dac_spi_ch7(2);
+   -- MUX for slecting dac_dat or dac_clk from offset or sa_bias based on the
+   -- chip select from sa_bias.  Note that we are assuming mutually exclusive
+   -- chip select for sa_bias and offset.
+   i_MUX_dac: process (sa_bias_dac_spi_ch0, sa_bias_dac_spi_ch1,
+                           sa_bias_dac_spi_ch2, sa_bias_dac_spi_ch3,
+                           sa_bias_dac_spi_ch4, sa_bias_dac_spi_ch5,
+                           sa_bias_dac_spi_ch6, sa_bias_dac_spi_ch7,
+                           offset_dac_spi_ch0, offset_dac_spi_ch1,
+                           offset_dac_spi_ch2, offset_dac_spi_ch3,
+                           offset_dac_spi_ch4, offset_dac_spi_ch5,
+                           offset_dac_spi_ch6, offset_dac_spi_ch7)
 
+   begin  -- process i_MUX_dac_dat
 
-    -- Chip select signal assignment
-    offset_dac_ncs(0)  <= offset_dac_spi_ch0(2);
-    offset_dac_ncs(1)  <= offset_dac_spi_ch1(2);
-    offset_dac_ncs(2)  <= offset_dac_spi_ch2(2);
-    offset_dac_ncs(3)  <= offset_dac_spi_ch3(2);
-    offset_dac_ncs(4)  <= offset_dac_spi_ch4(2);
-    offset_dac_ncs(5)  <= offset_dac_spi_ch5(2);
-    offset_dac_ncs(6)  <= offset_dac_spi_ch6(2);
-    offset_dac_ncs(7)  <= offset_dac_spi_ch7(2);
+      case sa_bias_dac_spi_ch0(2) is
+         when '0' =>
+            dac_dat(0) <= sa_bias_dac_spi_ch0(0);
+            dac_clk(0) <= sa_bias_dac_spi_ch0(1);
+         when others =>
+            dac_dat(0) <= offset_dac_spi_ch0(0);
+            dac_clk(0) <= offset_dac_spi_ch0(1);
+      end case;
 
+      case sa_bias_dac_spi_ch1(2) is
+         when '0' =>
+            dac_dat(1) <= sa_bias_dac_spi_ch1(0);
+            dac_clk(1) <= sa_bias_dac_spi_ch1(1);
+         when others =>
+            dac_dat(1) <= offset_dac_spi_ch1(0);
+            dac_clk(1) <= offset_dac_spi_ch1(1);
+      end case;
 
-    -- MUX for slecting dac_dat or dac_clk from offset or sa_bias based on the
-    -- chip select from sa_bias.  Note that we are assuming mutually exclusive
-    -- chip select for sa_bias and offset.
-    i_MUX_dac: process (sa_bias_dac_spi_ch0, sa_bias_dac_spi_ch1,
-                            sa_bias_dac_spi_ch2, sa_bias_dac_spi_ch3,
-                            sa_bias_dac_spi_ch4, sa_bias_dac_spi_ch5,
-                            sa_bias_dac_spi_ch6, sa_bias_dac_spi_ch7,
-                            offset_dac_spi_ch0, offset_dac_spi_ch1,
-                            offset_dac_spi_ch2, offset_dac_spi_ch3,
-                            offset_dac_spi_ch4, offset_dac_spi_ch5,
-                            offset_dac_spi_ch6, offset_dac_spi_ch7)
+      case sa_bias_dac_spi_ch2(2) is
+         when '0' =>
+            dac_dat(2) <= sa_bias_dac_spi_ch2(0);
+            dac_clk(2) <= sa_bias_dac_spi_ch2(1);
+         when others =>
+            dac_dat(2) <= offset_dac_spi_ch2(0);
+            dac_clk(2) <= offset_dac_spi_ch2(1);
+      end case;
 
-    begin  -- process i_MUX_dac_dat
+      case sa_bias_dac_spi_ch3(2) is
+         when '0' =>
+            dac_dat(3) <= sa_bias_dac_spi_ch3(0);
+            dac_clk(3) <= sa_bias_dac_spi_ch3(1);
+         when others =>
+            dac_dat(3) <= offset_dac_spi_ch3(0);
+            dac_clk(3) <= offset_dac_spi_ch3(1);
+      end case;
 
-       case sa_bias_dac_spi_ch0(2) is
-          when '0' =>
-             dac_dat(0) <= sa_bias_dac_spi_ch0(0);
-             dac_clk(0) <= sa_bias_dac_spi_ch0(1);
-          when others =>
-             dac_dat(0) <= offset_dac_spi_ch0(0);
-             dac_clk(0) <= offset_dac_spi_ch0(1);
-       end case;
+      case sa_bias_dac_spi_ch4(2) is
+         when '0' =>
+            dac_dat(4) <= sa_bias_dac_spi_ch4(0);
+            dac_clk(4) <= sa_bias_dac_spi_ch4(1);
+         when others =>
+            dac_dat(4) <= offset_dac_spi_ch4(0);
+            dac_clk(4) <= offset_dac_spi_ch4(1);
+      end case;
 
-       case sa_bias_dac_spi_ch1(2) is
-          when '0' =>
-             dac_dat(1) <= sa_bias_dac_spi_ch1(0);
-             dac_clk(1) <= sa_bias_dac_spi_ch1(1);
-          when others =>
-             dac_dat(1) <= offset_dac_spi_ch1(0);
-             dac_clk(1) <= offset_dac_spi_ch1(1);
-       end case;
+      case sa_bias_dac_spi_ch5(2) is
+         when '0' =>
+            dac_dat(5) <= sa_bias_dac_spi_ch5(0);
+            dac_clk(5) <= sa_bias_dac_spi_ch5(1);
+         when others =>
+            dac_dat(5) <= offset_dac_spi_ch5(0);
+            dac_clk(5) <= offset_dac_spi_ch5(1);
+      end case;
 
-       case sa_bias_dac_spi_ch2(2) is
-          when '0' =>
-             dac_dat(2) <= sa_bias_dac_spi_ch2(0);
-             dac_clk(2) <= sa_bias_dac_spi_ch2(1);
-          when others =>
-             dac_dat(2) <= offset_dac_spi_ch2(0);
-             dac_clk(2) <= offset_dac_spi_ch2(1);
-       end case;
+      case sa_bias_dac_spi_ch6(2) is
+         when '0' =>
+            dac_dat(6) <= sa_bias_dac_spi_ch6(0);
+            dac_clk(6) <= sa_bias_dac_spi_ch6(1);
+         when others =>
+            dac_dat(6) <= offset_dac_spi_ch6(0);
+            dac_clk(6) <= offset_dac_spi_ch6(1);
+      end case;
 
-       case sa_bias_dac_spi_ch3(2) is
-          when '0' =>
-             dac_dat(3) <= sa_bias_dac_spi_ch3(0);
-             dac_clk(3) <= sa_bias_dac_spi_ch3(1);
-          when others =>
-             dac_dat(3) <= offset_dac_spi_ch3(0);
-             dac_clk(3) <= offset_dac_spi_ch3(1);
-       end case;
-
-       case sa_bias_dac_spi_ch4(2) is
-          when '0' =>
-             dac_dat(4) <= sa_bias_dac_spi_ch4(0);
-             dac_clk(4) <= sa_bias_dac_spi_ch4(1);
-          when others =>
-             dac_dat(4) <= offset_dac_spi_ch4(0);
-             dac_clk(4) <= offset_dac_spi_ch4(1);
-       end case;
-
-       case sa_bias_dac_spi_ch5(2) is
-          when '0' =>
-             dac_dat(5) <= sa_bias_dac_spi_ch5(0);
-             dac_clk(5) <= sa_bias_dac_spi_ch5(1);
-          when others =>
-             dac_dat(5) <= offset_dac_spi_ch5(0);
-             dac_clk(5) <= offset_dac_spi_ch5(1);
-       end case;
-
-       case sa_bias_dac_spi_ch6(2) is
-          when '0' =>
-             dac_dat(6) <= sa_bias_dac_spi_ch6(0);
-             dac_clk(6) <= sa_bias_dac_spi_ch6(1);
-          when others =>
-             dac_dat(6) <= offset_dac_spi_ch6(0);
-             dac_clk(6) <= offset_dac_spi_ch6(1);
-       end case;
-
-       case sa_bias_dac_spi_ch7(2) is
-          when '0' =>
-             dac_dat(7) <= sa_bias_dac_spi_ch7(0);
-             dac_clk(7) <= sa_bias_dac_spi_ch7(1);
-          when others =>
-             dac_dat(7) <= offset_dac_spi_ch7(0);
-             dac_clk(7) <= offset_dac_spi_ch7(1);
-       end case;
-    end process i_MUX_dac;
+      case sa_bias_dac_spi_ch7(2) is
+         when '0' =>
+            dac_dat(7) <= sa_bias_dac_spi_ch7(0);
+            dac_clk(7) <= sa_bias_dac_spi_ch7(1);
+         when others =>
+            dac_dat(7) <= offset_dac_spi_ch7(0);
+            dac_clk(7) <= offset_dac_spi_ch7(1);
+      end case;
+   end process i_MUX_dac;
 
    ----------------------------------------------------------------------------
    -- LED Instantition
    ----------------------------------------------------------------------------
-
    i_LED: leds
-     port map (
-         clk_i  => clk,
-         rst_i  => rst,
-         dat_i  => dispatch_dat_out,
-         addr_i => dispatch_addr_out,
-         tga_i  => dispatch_tga_out,
-         we_i   => dispatch_we_out,
-         stb_i  => dispatch_stb_out,
-         cyc_i  => dispatch_cyc_out,
-         dat_o  => dat_led,
-         ack_o  => ack_led,
-         power  => grn_led,
-         status => ylw_led,
-         fault  => red_led);
+   port map (
+       clk_i  => clk,
+       rst_i  => rst,
+       dat_i  => dispatch_dat_out,
+       addr_i => dispatch_addr_out,
+       tga_i  => dispatch_tga_out,
+       we_i   => dispatch_we_out,
+       stb_i  => dispatch_stb_out,
+       cyc_i  => dispatch_cyc_out,
+       dat_o  => dat_led,
+       ack_o  => ack_led,
+       power  => grn_led,
+       status => ylw_led,
+       fault  => red_led
+   );
 
    ----------------------------------------------------------------------------
    -- all_cards registers Instantition
    ----------------------------------------------------------------------------
+   i_all_cards: all_cards
+   generic map( 
+      REVISION => RC_REVISION,
+      CARD_TYPE=> RC_CARD_TYPE
+   )
+   port map(
+      clk_i     => clk,
+      rst_i     => rst,
 
-    i_all_cards: all_cards
-       generic map( REVISION => RC_REVISION,
-                    CARD_TYPE=> RC_CARD_TYPE
-                    )
-       port map(
-          clk_i  => clk,
-          rst_i  => rst,
-
-          dat_i  => dispatch_dat_out,
-          addr_i => dispatch_addr_out,
-          tga_i  => dispatch_tga_out,
-          we_i   => dispatch_we_out,
-          stb_i  => dispatch_stb_out,
-          cyc_i  => dispatch_cyc_out,
-          slot_id_i => slot_id,
-          err_all_cards_o  => all_cards_err,
-          qa_all_cards_o   => all_cards_data,
-          ack_all_cards_o  => all_cards_ack
-     );
+      dat_i     => dispatch_dat_out,
+      addr_i    => dispatch_addr_out,
+      tga_i     => dispatch_tga_out,
+      we_i      => dispatch_we_out,
+      stb_i     => dispatch_stb_out,
+      cyc_i     => dispatch_cyc_out,
+      slot_id_i => slot_id,
+      err_o     => all_cards_err,
+      dat_o     => all_cards_data,
+      ack_o     => all_cards_ack
+   );
 
    ----------------------------------------------------------------------------
    -- id_thermo Instantition
    ----------------------------------------------------------------------------
-
    i_id_thermo: id_thermo
-      port map(
-         clk_i   => clk,
-         rst_i   => rst,
+   port map(
+      clk_i   => clk,
+      rst_i   => rst,
 
-         -- Wishbone signals
-         dat_i   => dispatch_dat_out,
-         addr_i  => dispatch_addr_out,
-         tga_i   => dispatch_tga_out,
-         we_i    => dispatch_we_out,
-         stb_i   => dispatch_stb_out,
-         cyc_i   => dispatch_cyc_out,
-         err_o   => id_thermo_err,
-         dat_o   => id_thermo_data,
-         ack_o   => id_thermo_ack,
+      -- Wishbone signals
+      dat_i   => dispatch_dat_out,
+      addr_i  => dispatch_addr_out,
+      tga_i   => dispatch_tga_out,
+      we_i    => dispatch_we_out,
+      stb_i   => dispatch_stb_out,
+      cyc_i   => dispatch_cyc_out,
+      err_o   => id_thermo_err,
+      dat_o   => id_thermo_data,
+      ack_o   => id_thermo_ack,
 
-         -- silicon id/temperature chip signals
-         data_io => card_id
-      );
+      -- silicon id/temperature chip signals
+      data_io => card_id
+   );
 
    ----------------------------------------------------------------------------
    -- fpga_thermo Instantition
    ----------------------------------------------------------------------------
-
    i_fpga_thermo: fpga_thermo
-      port map(
-         clk_i   => clk,
-         rst_i   => rst,
+   port map(
+      clk_i   => clk,
+      rst_i   => rst,
 
-         -- Wishbone signals
-         dat_i   => dispatch_dat_out,
-         addr_i  => dispatch_addr_out,
-         tga_i   => dispatch_tga_out,
-         we_i    => dispatch_we_out,
-         stb_i   => dispatch_stb_out,
-         cyc_i   => dispatch_cyc_out,
-         err_o   => fpga_thermo_err,
-         dat_o   => fpga_thermo_data,
-         ack_o   => fpga_thermo_ack,
+      -- Wishbone signals
+      dat_i   => dispatch_dat_out,
+      addr_i  => dispatch_addr_out,
+      tga_i   => dispatch_tga_out,
+      we_i    => dispatch_we_out,
+      stb_i   => dispatch_stb_out,
+      cyc_i   => dispatch_cyc_out,
+      err_o   => fpga_thermo_err,
+      dat_o   => fpga_thermo_data,
+      ack_o   => fpga_thermo_ack,
 
-         -- FPGA temperature chip signals
-         smbclk_o  => smb_clk,
-         smbalert_i => smb_nalert,
-         smbdat_io => smb_data
+      -- FPGA temperature chip signals
+      smbclk_o  => smb_clk,
+      smbalert_i => smb_nalert,
+      smbdat_io => smb_data
    );
 
    ----------------------------------------------------------------------------

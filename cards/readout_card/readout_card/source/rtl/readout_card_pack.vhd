@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.8  2006/06/29 18:47:54  mandana
+-- DAC_INIT_VAL added
+--
 -- Revision 1.7  2006/05/05 19:58:31  mandana
 -- moved all all_cards components to all_cards_pack.vhd
 --
@@ -76,30 +79,32 @@ use sys_param.wishbone_pack.all;
 library work;
 
 package readout_card_pack is
+ 
+   -----------------------------------------------------------------------------
+   -- Constants 
+   -----------------------------------------------------------------------------
 
-  
-  -----------------------------------------------------------------------------
-  -- Constants 
-  -----------------------------------------------------------------------------
+   constant ROW_ADDR_WIDTH         :  integer := 6;
+   constant FSFB_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- address width of first stage feedback queue 
 
-  constant ROW_ADDR_WIDTH         :  integer := 6;
-  constant FSFB_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- address width of first stage feedback queue 
+   constant ADC_DAT_WIDTH          : integer := 14;
+   constant DAC_DAT_WIDTH          : integer := 14;
+   constant DAC_INIT_VAL           : integer := -8192;
+   constant SA_BIAS_SPI_DATA_WIDTH : integer := 3;         -- data width of SPI interface 
+   constant OFFSET_SPI_DATA_WIDTH  : integer := 3;         -- data width of SPI interface 
 
-  constant ADC_DAT_WIDTH          : integer := 14;
-  constant DAC_DAT_WIDTH          : integer := 14;
-  constant DAC_INIT_VAL           : integer := -8192;
-  constant SA_BIAS_SPI_DATA_WIDTH : integer := 3;         -- data width of SPI interface 
-  constant OFFSET_SPI_DATA_WIDTH  : integer := 3;         -- data width of SPI interface 
+   -----------------------------------------------------------------------------
+   -- Flux Loop Component
+   -----------------------------------------------------------------------------
 
-  -----------------------------------------------------------------------------
-  -- Flux Loop Component
-  -----------------------------------------------------------------------------
-
-  component flux_loop
-    port (
+   component flux_loop
+   port (
       clk_50_i                  : in  std_logic;
       clk_25_i                  : in  std_logic;
       rst_i                     : in  std_logic;
+      num_rows_i                : in  integer;
+      num_rows_reported_i       : in integer;
+      num_cols_reported_i       : in integer;
       adc_coadd_en_i            : in  std_logic;
       restart_frame_1row_prev_i : in  std_logic;
       restart_frame_aligned_i   : in  std_logic;
@@ -182,22 +187,23 @@ package readout_card_pack is
       offset_dac_spi_ch4_o      : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
       offset_dac_spi_ch5_o      : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
       offset_dac_spi_ch6_o      : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-      offset_dac_spi_ch7_o      : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0));
-  end component;
+      offset_dac_spi_ch7_o      : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0)
+   );
+   end component;
 
-  -----------------------------------------------------------------------------
-  -- PLL Component
-  -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
+   -- PLL Component
+   -----------------------------------------------------------------------------
 
-  component rc_pll
-    port (
-      inclk0 : IN  STD_LOGIC := '0';
-      c0     : OUT STD_LOGIC;
-      c1     : OUT STD_LOGIC;
-      c2     : OUT STD_LOGIC;
-      c3     : OUT STD_LOGIC;
-      c4     : OUT STD_LOGIC);
-  end component;
-      
+   component rc_pll
+     port (
+       inclk0 : IN  STD_LOGIC := '0';
+       c0     : OUT STD_LOGIC;
+       c1     : OUT STD_LOGIC;
+       c2     : OUT STD_LOGIC;
+       c3     : OUT STD_LOGIC;
+       c4     : OUT STD_LOGIC);
+   end component;
+       
 end readout_card_pack;
 
