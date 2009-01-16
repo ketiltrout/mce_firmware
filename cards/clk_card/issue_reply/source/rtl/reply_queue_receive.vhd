@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.20  2008/12/22 20:49:28  bburger
+-- BB:  Added a second LVDS receiver, and modified the FSM to support receiving interleaved data.
+--
 -- Revision 1.19  2007/12/18 20:33:23  bburger
 -- BB:  Added a signal called bad_preamble_o that will all signaltap to trigger when the receiver gets a starting word that does not match the preamble
 --
@@ -428,6 +431,8 @@ begin
                if(lvds_rx_data_a(BB_PREAMBLE'range) /= BB_PREAMBLE) then
                   crc_clr        <= '1';         -- reset CRC calculation during resynchronization
                   bad_preamble_o <= '1';
+                  -- In the case of a bad preamble, strobe both lvds_rx_ack_a and lvds_rx_ack_b, to clear out both buffers.
+                  lvds_rx_ack_b  <= '1';
                end if;
                lvds_rx_ack_a     <= '1';
                crc_ena           <= '1';
