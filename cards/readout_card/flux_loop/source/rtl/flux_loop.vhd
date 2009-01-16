@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.16  2007/10/31 20:11:13  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
+--
 -- Revision 1.15  2006/12/11 18:05:02  mandana
 -- Added per-column servo-mode ports for fsfb_corr interface
 --
@@ -89,409 +92,405 @@ use sys_param.wishbone_pack.all;
 
 
 entity flux_loop is
-
-  port (
-
-    -- Global signals 
-    clk_50_i                  : in  std_logic;
-    clk_25_i                  : in  std_logic;
-    rst_i                     : in  std_logic;
+port (
+   -- Global signals 
+   clk_50_i                  : in std_logic;
+   clk_25_i                  : in std_logic;
+   rst_i                     : in std_logic;
  
-    -- Frame timing signals
-    adc_coadd_en_i            : in  std_logic;
-    restart_frame_1row_prev_i : in  std_logic;
-    restart_frame_aligned_i   : in  std_logic;
-    restart_frame_1row_post_i : in  std_logic;
-    row_switch_i              : in  std_logic;
-    initialize_window_i       : in  std_logic;
-    num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
-    dac_dat_en_i              : in  std_logic;
-    fltr_rst_i                : in  std_logic;
+   -- Frame timing signals
+   adc_coadd_en_i            : in std_logic;
+   restart_frame_1row_prev_i : in std_logic;
+   restart_frame_aligned_i   : in std_logic;
+   restart_frame_1row_post_i : in std_logic;
+   row_switch_i              : in std_logic;
+   initialize_window_i       : in std_logic;
+   num_rows_sub1_i           : in std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
+   dac_dat_en_i              : in std_logic;
+   fltr_rst_i                : in std_logic;
+   num_rows_i                : in integer;
+   num_rows_reported_i       : in integer;
+   num_cols_reported_i       : in integer;
 
-    -- signals to/from dispatch  (wishbone interface)
-    dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
-    addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);       -- wishbone address in
-    tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);   -- 
-    we_i                    : in std_logic;                                        -- write//read enable
-    stb_i                   : in std_logic;                                        -- strobe 
-    cyc_i                   : in std_logic;                                        -- cycle
-    dat_frame_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
-    ack_frame_o             : out std_logic;                                       -- acknowledge out
-    dat_fb_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
-    ack_fb_o                : out std_logic;                                       -- acknowledge out
+   -- signals to/from dispatch  (wishbone interface)
+   dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
+   addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);       -- wishbone address in
+   tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);   -- 
+   we_i                    : in std_logic;                                        -- write//read enable
+   stb_i                   : in std_logic;                                        -- strobe 
+   cyc_i                   : in std_logic;                                        -- cycle
+   dat_frame_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
+   ack_frame_o             : out std_logic;                                       -- acknowledge out
+   dat_fb_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
+   ack_fb_o                : out std_logic;                                       -- acknowledge out
  
-    -- ADC interface signals
-    adc_dat_ch0_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_dat_ch1_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_dat_ch2_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_dat_ch3_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_dat_ch4_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_dat_ch5_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_dat_ch6_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_dat_ch7_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   -- ADC interface signals
+   adc_dat_ch0_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   adc_dat_ch1_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   adc_dat_ch2_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   adc_dat_ch3_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   adc_dat_ch4_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   adc_dat_ch5_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   adc_dat_ch6_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+   adc_dat_ch7_i           : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
 
-    adc_ovr_ch0_i           : in  std_logic;
-    adc_ovr_ch1_i           : in  std_logic;
-    adc_ovr_ch2_i           : in  std_logic;
-    adc_ovr_ch3_i           : in  std_logic;
-    adc_ovr_ch4_i           : in  std_logic;
-    adc_ovr_ch5_i           : in  std_logic;
-    adc_ovr_ch6_i           : in  std_logic;
-    adc_ovr_ch7_i           : in  std_logic;
+   adc_ovr_ch0_i           : in  std_logic;
+   adc_ovr_ch1_i           : in  std_logic;
+   adc_ovr_ch2_i           : in  std_logic;
+   adc_ovr_ch3_i           : in  std_logic;
+   adc_ovr_ch4_i           : in  std_logic;
+   adc_ovr_ch5_i           : in  std_logic;
+   adc_ovr_ch6_i           : in  std_logic;
+   adc_ovr_ch7_i           : in  std_logic;
 
-    adc_rdy_ch0_i           : in  std_logic;
-    adc_rdy_ch1_i           : in  std_logic;
-    adc_rdy_ch2_i           : in  std_logic;
-    adc_rdy_ch3_i           : in  std_logic;
-    adc_rdy_ch4_i           : in  std_logic;
-    adc_rdy_ch5_i           : in  std_logic;
-    adc_rdy_ch6_i           : in  std_logic;
-    adc_rdy_ch7_i           : in  std_logic;
+   adc_rdy_ch0_i           : in  std_logic;
+   adc_rdy_ch1_i           : in  std_logic;
+   adc_rdy_ch2_i           : in  std_logic;
+   adc_rdy_ch3_i           : in  std_logic;
+   adc_rdy_ch4_i           : in  std_logic;
+   adc_rdy_ch5_i           : in  std_logic;
+   adc_rdy_ch6_i           : in  std_logic;
+   adc_rdy_ch7_i           : in  std_logic;
 
-    adc_clk_ch0_o           : out std_logic;
-    adc_clk_ch1_o           : out std_logic;
-    adc_clk_ch2_o           : out std_logic;
-    adc_clk_ch3_o           : out std_logic;
-    adc_clk_ch4_o           : out std_logic;
-    adc_clk_ch5_o           : out std_logic;
-    adc_clk_ch6_o           : out std_logic;
-    adc_clk_ch7_o           : out std_logic;
+   adc_clk_ch0_o           : out std_logic;
+   adc_clk_ch1_o           : out std_logic;
+   adc_clk_ch2_o           : out std_logic;
+   adc_clk_ch3_o           : out std_logic;
+   adc_clk_ch4_o           : out std_logic;
+   adc_clk_ch5_o           : out std_logic;
+   adc_clk_ch6_o           : out std_logic;
+   adc_clk_ch7_o           : out std_logic;
 
-    -- DAC Interface
-    dac_dat_ch0_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_dat_ch1_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_dat_ch2_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_dat_ch3_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_dat_ch4_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_dat_ch5_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_dat_ch6_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_dat_ch7_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   -- DAC Interface
+   dac_dat_ch0_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   dac_dat_ch1_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   dac_dat_ch2_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   dac_dat_ch3_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   dac_dat_ch4_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   dac_dat_ch5_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   dac_dat_ch6_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+   dac_dat_ch7_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
 
-    dac_clk_ch0_o           : out std_logic;
-    dac_clk_ch1_o           : out std_logic;
-    dac_clk_ch2_o           : out std_logic;
-    dac_clk_ch3_o           : out std_logic;
-    dac_clk_ch4_o           : out std_logic;
-    dac_clk_ch5_o           : out std_logic;
-    dac_clk_ch6_o           : out std_logic;
-    dac_clk_ch7_o           : out std_logic;
+   dac_clk_ch0_o           : out std_logic;
+   dac_clk_ch1_o           : out std_logic;
+   dac_clk_ch2_o           : out std_logic;
+   dac_clk_ch3_o           : out std_logic;
+   dac_clk_ch4_o           : out std_logic;
+   dac_clk_ch5_o           : out std_logic;
+   dac_clk_ch6_o           : out std_logic;
+   dac_clk_ch7_o           : out std_logic;
 
-    -- spi DAC Interface
-    sa_bias_dac_spi_ch0_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    sa_bias_dac_spi_ch1_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    sa_bias_dac_spi_ch2_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    sa_bias_dac_spi_ch3_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    sa_bias_dac_spi_ch4_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    sa_bias_dac_spi_ch5_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    sa_bias_dac_spi_ch6_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    sa_bias_dac_spi_ch7_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   -- spi DAC Interface
+   sa_bias_dac_spi_ch0_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   sa_bias_dac_spi_ch1_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   sa_bias_dac_spi_ch2_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   sa_bias_dac_spi_ch3_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   sa_bias_dac_spi_ch4_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   sa_bias_dac_spi_ch5_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   sa_bias_dac_spi_ch6_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+   sa_bias_dac_spi_ch7_o   : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
 
-    offset_dac_spi_ch0_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_ch1_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_ch2_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_ch3_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_ch4_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_ch5_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_ch6_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_ch7_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0));
-  
+   offset_dac_spi_ch0_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+   offset_dac_spi_ch1_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+   offset_dac_spi_ch2_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+   offset_dac_spi_ch3_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+   offset_dac_spi_ch4_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+   offset_dac_spi_ch5_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+   offset_dac_spi_ch6_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+   offset_dac_spi_ch7_o    : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0)
+); 
 end flux_loop;
-
-
 
 architecture struct of flux_loop is
 
+   -- Signals Interface between wbs_frame_data and flux_loop_ctrl  
+   signal filtered_addr_ch0 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch0  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch0     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch0      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch0 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch0  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch0   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch0      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch0       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch0       : std_logic;
+   signal raw_ack_ch0       : std_logic;
+   signal filtered_addr_ch1 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch1  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch1     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch1      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch1 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch1  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch1   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch1      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch1       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch1       : std_logic;
+   signal raw_ack_ch1       : std_logic;
+   signal filtered_addr_ch2 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch2  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch2     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch2      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch2 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch2  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch2   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch2      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch2       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch2       : std_logic;
+   signal raw_ack_ch2       : std_logic;
+   signal filtered_addr_ch3 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch3  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch3     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch3      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch3 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch3  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch3   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch3      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch3       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch3       : std_logic;
+   signal raw_ack_ch3       : std_logic;
+   signal filtered_addr_ch4 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch4  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch4     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch4      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch4 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch4  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch4   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch4      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch4       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch4       : std_logic;
+   signal raw_ack_ch4       : std_logic;
+   signal filtered_addr_ch5 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch5  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch5     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch5      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch5 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch5  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch5   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch5      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch5       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch5       : std_logic;
+   signal raw_ack_ch5       : std_logic;
+   signal filtered_addr_ch6 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch6  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch6     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch6      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch6 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch6  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch6   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch6      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch6       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch6       : std_logic;
+   signal raw_ack_ch6       : std_logic;
+   signal filtered_addr_ch7 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal filtered_dat_ch7  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fsfb_addr_ch7     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal fsfb_dat_ch7      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_cnt_ws_dat_ch7 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal coadded_addr_ch7  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
+   signal coadded_dat_ch7   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal raw_addr_ch7      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   signal raw_dat_ch7       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
+   signal raw_req_ch7       : std_logic;
+   signal raw_ack_ch7       : std_logic;
+
+   signal sa_bias_dat_rdy       : std_logic_vector (7 downto 0);
+   signal offset_dat_rdy    : std_logic_vector (7 downto 0);
 
 
-  -- Signals Interface between wbs_frame_data and flux_loop_ctrl
+   -- Signals Interface between wbs_fb_data and flux_loop_ctrl
 
-  signal filtered_addr_ch0 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch0  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch0     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch0      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch0 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch0  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch0   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch0      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch0       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch0       : std_logic;
-  signal raw_ack_ch0       : std_logic;
-  signal filtered_addr_ch1 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch1  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch1     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch1      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch1 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch1  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch1   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch1      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch1       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch1       : std_logic;
-  signal raw_ack_ch1       : std_logic;
-  signal filtered_addr_ch2 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch2  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch2     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch2      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch2 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch2  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch2   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch2      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch2       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch2       : std_logic;
-  signal raw_ack_ch2       : std_logic;
-  signal filtered_addr_ch3 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch3  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch3     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch3      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch3 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch3  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch3   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch3      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch3       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch3       : std_logic;
-  signal raw_ack_ch3       : std_logic;
-  signal filtered_addr_ch4 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch4  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch4     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch4      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch4 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch4  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch4   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch4      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch4       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch4       : std_logic;
-  signal raw_ack_ch4       : std_logic;
-  signal filtered_addr_ch5 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch5  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch5     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch5      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch5 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch5  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch5   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch5      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch5       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch5       : std_logic;
-  signal raw_ack_ch5       : std_logic;
-  signal filtered_addr_ch6 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch6  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch6     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch6      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch6 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch6  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch6   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch6      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch6       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch6       : std_logic;
-  signal raw_ack_ch6       : std_logic;
-  signal filtered_addr_ch7 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal filtered_dat_ch7  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal fsfb_addr_ch7     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal fsfb_dat_ch7      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal flux_cnt_ws_dat_ch7 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-  signal coadded_addr_ch7  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
-  signal coadded_dat_ch7   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-  signal raw_addr_ch7      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-  signal raw_dat_ch7       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-  signal raw_req_ch7       : std_logic;
-  signal raw_ack_ch7       : std_logic;
+   signal adc_offset_dat_ch0    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch0   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch0   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch0  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch0       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch0        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch0         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch0        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal adc_offset_dat_ch1    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch1   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch1   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch1  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch1       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch1        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch1         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch1        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal adc_offset_dat_ch2    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch2   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch2   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch2  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch2       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch2        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch2         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch2        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal adc_offset_dat_ch3    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch3   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch3   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch3  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch3       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch3        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch3         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch3        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal adc_offset_dat_ch4    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch4   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch4   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch4  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch4       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch4        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch4         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch4        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal adc_offset_dat_ch5    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch5   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch5   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch5  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch5       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch5        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch5         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch5        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal adc_offset_dat_ch6    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch6   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch6   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch6  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch6       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch6        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch6         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch6        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal adc_offset_dat_ch7    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   signal adc_offset_addr_ch7   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal p_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal p_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal i_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal i_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal d_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal d_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal flux_quanta_dat_ch7   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_quanta_addr_ch7  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+   signal sa_bias_dat_ch7       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal offset_dat_ch7        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal const_val_ch7         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
+   signal servo_mode_ch7        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
+   signal filter_coeff0         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal filter_coeff1         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal filter_coeff2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal filter_coeff3         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal filter_coeff4         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal filter_coeff5         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal filter_coeff6         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ramp_step_size        : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
+   signal ramp_amp              : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
+   signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);  
+   
+   
+   -- Signals Interface between fsfb_corr and flux_loop_ctrl
+   signal flux_jumping_en           : std_logic;    
+   signal num_flux_quanta_pres_rdy  : std_logic;                                             
+   signal fsfb_ctrl_corr_rdy        : std_logic;                                                
+   
+   signal flux_quanta0              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat0            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat0_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr0           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en0        : std_logic;                                             
 
-  signal sa_bias_dat_rdy       : std_logic_vector (7 downto 0);
-  signal offset_dat_rdy    : std_logic_vector (7 downto 0);
+   signal flux_quanta1              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat1            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat1_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr1           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en1        : std_logic;                                             
 
+   signal flux_quanta2              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat2            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat2_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr2           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en2        : std_logic;                                             
 
-  -- Signals Interface between wbs_fb_data and flux_loop_ctrl
+   signal flux_quanta3              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat3            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat3_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr3           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en3        : std_logic;                                             
 
-  signal adc_offset_dat_ch0    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch0   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch0   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch0  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch0       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch0        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch0         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch0        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal adc_offset_dat_ch1    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch1   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch1   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch1  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch1       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch1        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch1         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch1        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal adc_offset_dat_ch2    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch2   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch2   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch2  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch2       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch2        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch2         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch2        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal adc_offset_dat_ch3    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch3   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch3   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch3  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch3       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch3        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch3         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch3        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal adc_offset_dat_ch4    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch4   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch4   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch4  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch4       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch4        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch4         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch4        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal adc_offset_dat_ch5    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch5   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch5   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch5  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch5       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch5        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch5         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch5        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal adc_offset_dat_ch6    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch6   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch6   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch6  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch6       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch6        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch6         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch6        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal adc_offset_dat_ch7    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-  signal adc_offset_addr_ch7   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-  signal p_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal p_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal i_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal i_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal d_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal d_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal flux_quanta_dat_ch7   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal flux_quanta_addr_ch7  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal sa_bias_dat_ch7       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal offset_dat_ch7        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal const_val_ch7         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal servo_mode_ch7        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
-  signal filter_coeff0         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff1         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff3         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff4         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff5         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff6         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal ramp_step_size        : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
-  signal ramp_amp              : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
-  signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);  
-  
-  
-  -- Signals Interface between fsfb_corr and flux_loop_ctrl
-  signal flux_jumping_en           : std_logic;    
-  signal num_flux_quanta_pres_rdy  : std_logic;                                             
-  signal fsfb_ctrl_corr_rdy        : std_logic;                                                
-  
-  signal flux_quanta0              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat0            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat0_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr0           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en0        : std_logic;                                             
+   signal flux_quanta4              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat4            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat4_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr4           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en4        : std_logic;                                             
 
-  signal flux_quanta1              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat1            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat1_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr1           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en1        : std_logic;                                             
+   signal flux_quanta5              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat5            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat5_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr5           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en5        : std_logic;                                             
 
-  signal flux_quanta2              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat2            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat2_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr2           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en2        : std_logic;                                             
+   signal flux_quanta6              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat6            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat6_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr6           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en6        : std_logic;                                             
 
-  signal flux_quanta3              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat3            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat3_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr3           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en3        : std_logic;                                             
-
-  signal flux_quanta4              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat4            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat4_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr4           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en4        : std_logic;                                             
-
-  signal flux_quanta5              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat5            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat5_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr5           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en5        : std_logic;                                             
-
-  signal flux_quanta6              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat6            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat6_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr6           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en6        : std_logic;                                             
-
-  signal flux_quanta7              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
-  signal fsfb_ctrl_dat7            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-  signal num_flux_quanta_prev7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal num_flux_quanta_pres7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-  signal fsfb_ctrl_dat7_rdy        : std_logic;                                             
-  signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
-  signal fsfb_ctrl_lock_en7        : std_logic;                                             
+   signal flux_quanta7              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   signal fsfb_ctrl_dat7            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+   signal num_flux_quanta_prev7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal num_flux_quanta_pres7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fsfb_ctrl_dat7_rdy        : std_logic;                                             
+   signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+   signal fsfb_ctrl_lock_en7        : std_logic;                                             
 
   
 begin  -- struct
@@ -1198,6 +1197,9 @@ begin  -- struct
     port map (
         rst_i               => rst_i,
         clk_i               => clk_50_i,
+        num_rows_i          => num_rows_i,
+        num_rows_reported_i => num_rows_reported_i,
+        num_cols_reported_i => num_cols_reported_i,
         restart_frame_1row_post_i => restart_frame_1row_post_i,        
         filtered_addr_ch0_o => filtered_addr_ch0,
         filtered_dat_ch0_i  => filtered_dat_ch0,

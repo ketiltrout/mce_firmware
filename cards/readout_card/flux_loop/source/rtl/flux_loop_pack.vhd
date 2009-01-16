@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.15  2008/06/27 20:11:11  mandana
+-- merged with pid_ram12 branch where pid_ram width is increased to 12 bits
+--
 -- Revision 1.14  2007/10/31 20:11:13  mandana
 -- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
 --
@@ -95,59 +98,57 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 package flux_loop_pack is
+   
+   -----------------------------------------------------------------------------
+   -- Constants 
+   -----------------------------------------------------------------------------
 
-  
-  -----------------------------------------------------------------------------
-  -- Constants 
-  -----------------------------------------------------------------------------
+   -- Wishbone fb data specific
+   constant ADC_OFFSET_DAT_WIDTH   : integer := 16;                   -- 2 MSB not used
+   constant ADC_OFFSET_ADDR_WIDTH  : integer := 6;                    -- memory used has 2**6 locations 
+   
+   constant PIDZ_ADDR_WIDTH        : integer := 6;                    -- Note that same memory storage element is used for PIDZ and ADC_OFFSET and FLUX_QUANTA
+   constant PIDZ_DATA_WIDTH        : integer := 12;
+   constant PIDZ_MAX               : integer := (2**(PIDZ_DATA_WIDTH-1))-1;
+   constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
+   
+   constant SERVO_MODE_SEL_WIDTH   : integer := WB_DATA_WIDTH-30;     -- data width of servo mode selection
 
-  -- Wishbone fb data specific
-  constant ADC_OFFSET_DAT_WIDTH   : integer := 16;                   -- 2 MSB not used
-  constant ADC_OFFSET_ADDR_WIDTH  : integer := 6;                    -- memory used has 2**6 locations 
-  
-  constant PIDZ_ADDR_WIDTH        : integer := 6;                    -- Note that same memory storage element is used for PIDZ and ADC_OFFSET and FLUX_QUANTA
-  constant PIDZ_DATA_WIDTH        : integer := 12;
-  constant PIDZ_MAX               : integer := (2**(PIDZ_DATA_WIDTH-1))-1;
-  constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
-  
-  constant SERVO_MODE_SEL_WIDTH   : integer := WB_DATA_WIDTH-30;     -- data width of servo mode selection
+   constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH;     -- data width of constant value
+   constant RAMP_STEP_WIDTH        : integer := CONST_VAL_WIDTH;     -- data width of ramp step size
+   constant RAMP_AMP_WIDTH         : integer := CONST_VAL_WIDTH;     -- data width of ramp peak amplitude
+   constant RAMP_CYC_WIDTH         : integer := CONST_VAL_WIDTH;        -- data width of ramp frame cycle number
+   
+   constant FLUX_QUANTA_ADDR_WIDTH : integer := 6;
+   constant FLUX_QUANTA_DATA_WIDTH : integer := 14;
+   constant FLUX_QUANTA_MAX        : integer := (2**(FLUX_QUANTA_DATA_WIDTH))-1;
+   constant FLUX_QUANTA_MIN        : integer := 0;  -- Flux Quanta are always positive numbers.
+   
+   -- Wishbone frame data specific
+   constant RAW_DATA_WIDTH         : integer := 16;
+   constant RAW_ADDR_WIDTH         : integer := 13;                   -- enough for two frame
+   
+   -- Flux Loop Control Specific
+   constant RAW_DAT_WIDTH          : integer := RAW_DATA_WIDTH;       -- two bytes
+   constant COADD_ADDR_WIDTH       : integer := ROW_ADDR_WIDTH;
+   constant FLUX_QUANTA_CNT_WIDTH  : integer := 8;
 
-  constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH;     -- data width of constant value
-  constant RAMP_STEP_WIDTH        : integer := CONST_VAL_WIDTH;     -- data width of ramp step size
-  constant RAMP_AMP_WIDTH         : integer := CONST_VAL_WIDTH;     -- data width of ramp peak amplitude
-  constant RAMP_CYC_WIDTH         : integer := CONST_VAL_WIDTH;        -- data width of ramp frame cycle number
-  
-  constant FLUX_QUANTA_ADDR_WIDTH : integer := 6;
-  constant FLUX_QUANTA_DATA_WIDTH : integer := 14;
-  constant FLUX_QUANTA_MAX        : integer := (2**(FLUX_QUANTA_DATA_WIDTH))-1;
-  constant FLUX_QUANTA_MIN        : integer := 0;  -- Flux Quanta are always positive numbers.
-  
-  -- Wishbone frame data specific
-  constant RAW_DATA_WIDTH         : integer := 16;
-  constant RAW_ADDR_WIDTH         : integer := 13;                   -- enough for two frame
-  
-  -- Flux Loop Control Specific
-  constant RAW_DAT_WIDTH          : integer := RAW_DATA_WIDTH;       -- two bytes
-  constant COADD_ADDR_WIDTH       : integer := ROW_ADDR_WIDTH;
-  constant FLUX_QUANTA_CNT_WIDTH  : integer := 8;
+   -- The following is for debug and will be taken out in the final version 
+   constant FSFB_QUEUE_DATA_WIDTH  : integer := 39;---8;        -- data width of first stage feedback queue
+   constant COEFF_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;        -- data width of PIDZ coefficient queue
+   constant COEFF_QUEUE_ADDR_WIDTH : integer := PIDZ_ADDR_WIDTH;      -- address width of PIDZ coefficient queue
 
-  -- The following is for debug and will be taken out in the final version 
-  constant FSFB_QUEUE_DATA_WIDTH  : integer := 39;---8;        -- data width of first stage feedback queue
-  constant COEFF_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;        -- data width of PIDZ coefficient queue
-  constant COEFF_QUEUE_ADDR_WIDTH : integer := PIDZ_ADDR_WIDTH;      -- address width of PIDZ coefficient queue
+   -- filter related 
+   constant FLTR_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of the filter results storage
+   constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
+   constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
-  -- filter related 
-  constant FLTR_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of the filter results storage
-  constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
-  constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
-
-  
-  -----------------------------------------------------------------------------
-  -- Flux Loop Control Block
-  -----------------------------------------------------------------------------
-
-  component flux_loop_ctrl
-    port (
+   
+   -----------------------------------------------------------------------------
+   -- Flux Loop Control Block
+   -----------------------------------------------------------------------------
+   component flux_loop_ctrl
+   port (
       adc_dat_i                   : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
       adc_ovr_i                   : in  std_logic;
       adc_rdy_i                   : in  std_logic;
@@ -218,16 +219,15 @@ package flux_loop_pack is
       num_flux_quanta_pres_i      : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
       fsfb_ctrl_dat_rdy_i         : in  std_logic;                                             
       fsfb_ctrl_dat_i             : in  std_logic_vector(DAC_DAT_WIDTH-1 downto 0)             
-    );
-  end component;
+   );
+   end component;
 
 
-  -----------------------------------------------------------------------------
-  -- First Stage Feedback Correction Block (for Flux Jumping)
-  -----------------------------------------------------------------------------
-
-  component fsfb_corr        
-    port (
+   -----------------------------------------------------------------------------
+   -- First Stage Feedback Correction Block (for Flux Jumping)
+   -----------------------------------------------------------------------------
+   component fsfb_corr        
+   port (
       -- fsfb_calc interface
       flux_jumping_en_i          : in std_logic;
 
@@ -300,18 +300,21 @@ package flux_loop_pack is
       
       -- Global Signals      
       clk_i                      : in std_logic;
-      rst_i                      : in std_logic);     
-  end component;
+      rst_i                      : in std_logic
+   );     
+   end component;
 
  
-  -----------------------------------------------------------------------------
-  -- Wishbone Frame Data Block
-  -----------------------------------------------------------------------------
-
-  component wbs_frame_data
-    port (
+   -----------------------------------------------------------------------------
+   -- Wishbone Frame Data Block
+   -----------------------------------------------------------------------------
+   component wbs_frame_data
+   port (
       rst_i               : in  std_logic;
       clk_i               : in  std_logic;
+      num_rows_i          : in  integer;
+      num_rows_reported_i : in integer;
+      num_cols_reported_i : in integer;
       restart_frame_1row_post_i : in  std_logic;      
       filtered_addr_ch0_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch0_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
@@ -408,16 +411,16 @@ package flux_loop_pack is
       stb_i               : in  std_logic;
       cyc_i               : in  std_logic;
       dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o               : out std_logic);
-  end component;
-  
-  
-  -----------------------------------------------------------------------------
-  -- Wishbone Feedback Data Block
-  -----------------------------------------------------------------------------
+      ack_o               : out std_logic
+   );
+   end component;   
+   
+   -----------------------------------------------------------------------------
+   -- Wishbone Feedback Data Block
+   -----------------------------------------------------------------------------
 
-  component wbs_fb_data
-    port (
+   component wbs_fb_data
+   port (
       clk_50_i                : in  std_logic;
       rst_i                   : in  std_logic;
       adc_offset_dat_ch0_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -566,8 +569,9 @@ package flux_loop_pack is
       stb_i                   : in  std_logic;
       cyc_i                   : in  std_logic;
       dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                   : out std_logic);
-  end component;
+      ack_o                   : out std_logic
+   );
+   end component;
 
 end flux_loop_pack;
 
