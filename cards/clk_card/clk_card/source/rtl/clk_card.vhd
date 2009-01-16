@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.82 2008/10/25 00:24:54 bburger Exp $
+-- $Id: clk_card.vhd,v 1.83 2008/12/22 20:38:09 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.83  2008/12/22 20:38:09  bburger
+-- BB:  Added a second LVDS input for the reply path from each card
+--
 -- Revision 1.82  2008/10/25 00:24:54  bburger
 -- BB:  Added support for RCS_TO_REPORT_DATA command
 --
@@ -541,18 +544,18 @@ begin
    lvds_reply_all_b(CC)   <= lvds_reply_cc_b;
    lvds_reply_all_b(PSUC) <= lvds_reply_psu_b;
 
-   -- Bits are active-high
-   card_not_present <=
-      lvds_reply_ac_b &
-      lvds_reply_bc1_b &
-      lvds_reply_bc2_b &
-      lvds_reply_bc3_b &
-      lvds_reply_rc1_b &
-      lvds_reply_rc2_b &
-      lvds_reply_rc3_b &
-      lvds_reply_rc4_b &
-      '0' & -- Clock Card
-      '0';  -- PSUC
+--   -- Bits are active-high
+--   card_not_present <=
+--      lvds_reply_ac_b &
+--      lvds_reply_bc1_b &
+--      lvds_reply_bc2_b &
+--      lvds_reply_bc3_b &
+--      lvds_reply_rc1_b &
+--      lvds_reply_rc2_b &
+--      lvds_reply_rc3_b &
+--      lvds_reply_rc4_b &
+--      '0' & -- Clock Card
+--      '0';  -- PSUC
 
    ----------------------------------------------------------------
    -- Autonomous Clock Card Reset Block
@@ -601,21 +604,20 @@ begin
    -- Wishbone signals
    with addr select
       slave_data <=
+         frame_timing_data   when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          led_data            when LED_ADDR,
-         sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+--         sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+         sync_gen_data       when USE_DV_ADDR | USE_SYNC_ADDR,
          config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_data     when SELECT_CLK_ADDR,
          sram_ctrl_data      when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
-         -- The following two selections will be replaced by all_cards once it is bug-free
---         fw_rev_data         when FW_REV_ADDR,
---         slot_id_data        when SLOT_ID_ADDR,
          all_cards_data      when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_data        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
-                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR | NUM_COLS_TO_READ_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR ,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
@@ -625,21 +627,20 @@ begin
 
    with addr select
       slave_ack <=
+         frame_timing_ack    when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          led_ack             when LED_ADDR,
-         sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+--         sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+         sync_gen_ack        when USE_DV_ADDR | USE_SYNC_ADDR,
          config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_ack      when SELECT_CLK_ADDR,
          sram_ctrl_ack       when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
-         -- The following two selections will be replaced by all_cards once it is bug-free
---         fw_rev_ack          when FW_REV_ADDR,
---         slot_id_ack         when SLOT_ID_ADDR,
          all_cards_ack       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_ack         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
-                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR | NUM_COLS_TO_READ_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
@@ -649,21 +650,20 @@ begin
 
    with addr select
       slave_err <=
-         '0'                 when LED_ADDR |
-                                  USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR |
+         '0'                 when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
+                                  LED_ADDR |
+--                                  USE_DV_ADDR | USE_SYNC_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR |
+                                  USE_DV_ADDR | USE_SYNC_ADDR | 
                                   CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
                                   SELECT_CLK_ADDR |
                                   SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
-         -- The following two selections will be replaced by all_cards once it is bug-free
---         fw_rev_err          when FW_REV_ADDR,
---         slot_id_err         when SLOT_ID_ADDR,
          all_cards_err       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_err         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
-                                  NUM_ROWS_TO_READ_ADDR | INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR | NUM_COLS_TO_READ_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
@@ -713,7 +713,7 @@ begin
       -- bus backplane interface
       lvds_reply_all_a_i => lvds_reply_all_a,
       lvds_reply_all_b_i => lvds_reply_all_b,
-      card_not_present_i => card_not_present,
+      card_not_present_o => card_not_present,
 
       -- fibre receiver interface
       fibre_clkr_i      => fibre_rx_clkr,
@@ -782,23 +782,23 @@ begin
    );
 
    i_all_cards: all_cards
-      generic map(
-         REVISION => CC_REVISION,
-         CARD_TYPE=> CC_CARD_TYPE)
-      port map(
-         clk_i  => clk,
-         rst_i  => rst,
+   generic map(
+      REVISION => CC_REVISION,
+      CARD_TYPE=> CC_CARD_TYPE)
+   port map(
+      clk_i  => clk,
+      rst_i  => rst,
 
-         dat_i  => data,
-         addr_i => addr,
-         tga_i  => tga,
-         we_i   => we,
-         stb_i  => stb,
-         cyc_i  => cyc,
-         slot_id_i => slot_id,
-         err_all_cards_o  => all_cards_err,
-         qa_all_cards_o   => all_cards_data,
-         ack_all_cards_o  => all_cards_ack
+      dat_i  => data,
+      addr_i => addr,
+      tga_i  => tga,
+      we_i   => we,
+      stb_i  => stb,
+      cyc_i  => cyc,
+      slot_id_i => slot_id,
+      err_o           => all_cards_err,
+      dat_o           => all_cards_data,
+      ack_o           => all_cards_ack
    );
 
    slot_id_slave : bp_slot_id
@@ -1021,8 +1021,8 @@ begin
       sync_mode_o          => sync_mode,
       encoded_sync_o       => encoded_sync,
       external_sync_i      => external_sync,
-      row_len_o            => row_len,
-      num_rows_o           => num_rows,
+      row_len_i            => row_len,
+      num_rows_i           => num_rows,
 
       -- Wishbone interface
       dat_i                => data,
@@ -1039,6 +1039,8 @@ begin
       rst_i                => rst
    );
 
+   -- Move the row_len and num_rows storage space from sync_gen to frame timing!!!
+   -- Frame_timing is taking on a new nature.  It is sort of the global timing and readout slave.
    frame_timing_slave: frame_timing
    port map(
       dac_dat_en_o               => open,
@@ -1047,21 +1049,25 @@ begin
       restart_frame_aligned_o    => sync,
       restart_frame_1row_post_o  => open,
       initialize_window_o        => open,
+      row_len_o                  => row_len,
+      num_rows_o                 => num_rows,
       sync_num_o                 => sync_num,
+      num_rows_reported_o        => num_rows_to_read,
+      num_cols_reported_o        => num_cols_to_read,
 
       row_switch_o               => open,
       row_en_o                   => open,
 
       update_bias_o              => open,
 
-      dat_i                      => data_dummy,
-      addr_i                     => addr_dummy,
-      tga_i                      => tga_dummy,
-      we_i                       => we_dummy,
-      stb_i                      => stb_dummy,
-      cyc_i                      => cyc_dummy,
-      dat_o                      => open,
-      ack_o                      => open,
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      dat_o                      => frame_timing_data,
+      ack_o                      => frame_timing_ack,
 
       clk_i                      => clk,
       clk_n_i                    => clk_n,
@@ -1114,8 +1120,8 @@ begin
       user_writable_o        => user_writable,
       stop_delay_o           => stop_delay,
       crc_err_en_o           => crc_err_en,
-      num_rows_to_read_o     => num_rows_to_read,
-      num_cols_to_read_o     => num_cols_to_read,
+--      num_rows_to_read_o     => num_rows_to_read,
+--      num_cols_to_read_o     => num_cols_to_read,
       ret_dat_req_o          => ret_dat_req,
       ret_dat_ack_i          => ret_dat_done,
 
