@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.8 2006/03/08 22:57:22 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.9 2006/03/17 23:17:10 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.9  2006/03/17 23:17:10  mandana
+-- sync_gen_pack removed, constants are added to frame_timing_pack instead
+--
 -- Revision 1.8  2006/03/08 22:57:22  bburger
 -- Bryce:
 -- - removed component delclarations from frame_timing pack files
@@ -87,6 +90,10 @@ entity frame_timing is
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
       sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      row_len_o                  : out integer;
+      num_rows_o                 : out integer;
+      num_rows_reported_o        : out integer;
+      num_cols_reported_o        : out integer;
       
       -- Address Card interface
       row_switch_o               : out std_logic;
@@ -173,41 +180,48 @@ architecture beh of frame_timing is
       port
       (
          -- frame_timing interface:
-         row_len_o          : out integer;
-         num_rows_o         : out integer;
-         sample_delay_o     : out integer;
-         sample_num_o       : out integer;
-         feedback_delay_o   : out integer;
-         address_on_delay_o : out integer;
-         resync_ack_i       : in std_logic;      
-         resync_req_o       : out std_logic;
-         init_window_ack_i  : in std_logic;
-         init_window_req_o  : out std_logic;
-         fltr_rst_ack_i     : in std_logic; 
-         fltr_rst_req_o     : out std_logic; 
+         row_len_o           : out integer;
+         num_rows_o          : out integer;
+         num_rows_reported_o : out integer;
+         num_cols_reported_o : out integer;
+         sample_delay_o      : out integer;
+         sample_num_o        : out integer;
+         feedback_delay_o    : out integer;
+         address_on_delay_o  : out integer;
+         resync_ack_i        : in std_logic;      
+         resync_req_o        : out std_logic;
+         init_window_ack_i   : in std_logic;
+         init_window_req_o   : out std_logic;
+         fltr_rst_ack_i      : in std_logic; 
+         fltr_rst_req_o      : out std_logic; 
 
          -- wishbone interface:
-         dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-         tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-         we_i               : in std_logic;
-         stb_i              : in std_logic;
-         cyc_i              : in std_logic;
-         dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         ack_o              : out std_logic;
+         dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+         tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+         we_i                : in std_logic;
+         stb_i               : in std_logic;
+         cyc_i               : in std_logic;
+         dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         ack_o               : out std_logic;
 
          -- global interface
-         clk_i              : in std_logic;
-         rst_i              : in std_logic 
+         clk_i               : in std_logic;
+         rst_i               : in std_logic 
       );     
    end component;
 
 begin
    
+   num_rows_o <= num_rows;
+   row_len_o <= row_len;
+   
    wbi: frame_timing_wbs       
       port map(
          row_len_o          => row_len,         
-         num_rows_o         => num_rows,        
+         num_rows_o         => num_rows,   
+         num_rows_reported_o => num_rows_reported_o,
+         num_cols_reported_o => num_cols_reported_o,
          sample_delay_o     => sample_delay,    
          sample_num_o       => sample_num,      
          feedback_delay_o   => feedback_delay,  
