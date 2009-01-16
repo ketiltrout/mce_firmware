@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.7 2006/02/09 20:32:59 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.8 2006/05/29 23:11:00 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.8  2006/05/29 23:11:00  bburger
+-- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
+--
 -- Revision 1.7  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -89,32 +92,34 @@ entity frame_timing_wbs is
    port
    (
       -- frame_timing interface:
-      row_len_o          : out integer;
-      num_rows_o         : out integer;
-      sample_delay_o     : out integer;
-      sample_num_o       : out integer;
-      feedback_delay_o   : out integer;
-      address_on_delay_o : out integer;
-      resync_ack_i       : in std_logic;      
-      resync_req_o       : out std_logic;
-      init_window_ack_i  : in std_logic;
-      init_window_req_o  : out std_logic;
-      fltr_rst_ack_i     : in std_logic; 
-      fltr_rst_req_o     : out std_logic; 
+      row_len_o           : out integer;
+      num_rows_o          : out integer;
+      num_rows_reported_o : out integer;
+      num_cols_reported_o : out integer;
+      sample_delay_o      : out integer;
+      sample_num_o        : out integer;
+      feedback_delay_o    : out integer;
+      address_on_delay_o  : out integer;
+      resync_ack_i        : in std_logic;      
+      resync_req_o        : out std_logic;
+      init_window_ack_i   : in std_logic;
+      init_window_req_o   : out std_logic;
+      fltr_rst_ack_i      : in std_logic; 
+      fltr_rst_req_o      : out std_logic; 
 
       -- wishbone interface:
-      dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i               : in std_logic;
-      stb_i              : in std_logic;
-      cyc_i              : in std_logic;
-      dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o              : out std_logic;
+      dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                : in std_logic;
+      stb_i               : in std_logic;
+      cyc_i               : in std_logic;
+      dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o               : out std_logic;
 
       -- global interface
-      clk_i              : in std_logic;
-      rst_i              : in std_logic 
+      clk_i               : in std_logic;
+      rst_i               : in std_logic 
    );     
 end frame_timing_wbs;
 
@@ -144,6 +149,10 @@ architecture rtl of frame_timing_wbs is
    signal init_window_req_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fltr_rst_req_wren     : std_logic;
    signal fltr_rst_req_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal num_rows_to_read_wren : std_logic;
+   signal num_rows_to_read_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal num_cols_to_read_wren : std_logic;
+   signal num_cols_to_read_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
    type states is (IDLE, WR, RD); 
@@ -248,6 +257,32 @@ begin
          reg_o             => resync_req_data
       );
 
+   -- Custom register that gets set to DEFAULT_NUM_ROWS_TO_READ upon reset
+   num_rows_reported_o <= conv_integer(unsigned(num_rows_to_read_data));
+   num_rows_to_read_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         num_rows_to_read_data <= DEFAULT_NUM_ROWS_REPORTED;
+      elsif(clk_i'event and clk_i = '1') then
+         if(num_rows_to_read_wren = '1') then
+            num_rows_to_read_data <= dat_i;
+         end if;
+      end if;
+   end process num_rows_to_read_reg;
+
+   -- Custom register that gets set to DEFAULT_NUM_COLS_TO_READ upon reset
+   num_cols_reported_o <= conv_integer(unsigned(num_cols_to_read_data));
+   num_cols_to_read_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         num_cols_to_read_data <= DEFAULT_NUM_COLS_REPORTED;
+      elsif(clk_i'event and clk_i = '1') then
+         if(num_cols_to_read_wren = '1') then
+            num_cols_to_read_data <= dat_i;
+         end if;
+      end if;
+   end process num_cols_to_read_reg;
+
    -- Custom registers
    init_window_req_reg: process(clk_i, rst_i)
    begin
@@ -337,6 +372,8 @@ begin
       resync_req_wren       <= '0';
       init_window_req_wren  <= '0';
       fltr_rst_req_wren     <= '0';
+      num_rows_to_read_wren  <= '0';
+      num_cols_to_read_wren  <= '0';
       
       case current_state is         
          when IDLE  =>                   
@@ -363,6 +400,10 @@ begin
                   init_window_req_wren  <= '1';
                elsif(addr_i = FLTR_RST_ADDR) then
                   fltr_rst_req_wren     <= '1';
+               elsif(addr_i = NUM_ROWS_REPORTED_ADDR) then
+                  num_rows_to_read_wren <= '1';
+               elsif(addr_i = NUM_COLS_REPORTED_ADDR) then
+                  num_cols_to_read_wren <= '1';
                end if;
             end if;
          
@@ -388,6 +429,8 @@ begin
 ------------------------------------------------------------
   
    with addr_i select dat_o <=
+      num_rows_to_read_data when NUM_ROWS_REPORTED_ADDR,
+      num_cols_to_read_data when NUM_COLS_REPORTED_ADDR,
       row_length_data       when ROW_LEN_ADDR,
       num_rows_data         when NUM_ROWS_ADDR,
       sample_delay_data     when SAMPLE_DLY_ADDR,
@@ -399,16 +442,14 @@ begin
       fltr_rst_req_data     when FLTR_RST_ADDR,
       (others => '0') when others;
    
---   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
-           
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or 
+      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or addr_i = NUM_ROWS_REPORTED_ADDR or addr_i = NUM_COLS_REPORTED_ADDR or
        addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or 
+      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or addr_i = NUM_ROWS_REPORTED_ADDR or addr_i = NUM_COLS_REPORTED_ADDR or
        addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR) else '0'; 
       
 end rtl;
