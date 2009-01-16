@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.39  2008/12/22 20:56:42  bburger
+-- BB:  Added a second LVDS receiver for each card receiver block.
+--
 -- Revision 1.38  2008/11/21 20:14:10  bburger
 -- BB: fixed a bug that would hang the FSM when sending commands to RC4
 --
@@ -116,7 +119,7 @@ port(
     -- Bus Backplane interface
     lvds_reply_all_a_i : in std_logic_vector(9 downto 0);
     lvds_reply_all_b_i : in std_logic_vector(9 downto 0);
-    card_not_present_i : in std_logic_vector(9 downto 0);
+    card_not_present_o : out std_logic_vector(9 downto 0);
     cards_to_report_i  : in std_logic_vector(9 downto 0);
     rcs_to_report_data_i : in std_logic_vector(9 downto 0);
 
@@ -177,7 +180,7 @@ architecture rtl of reply_queue_sequencer is
    signal card_ready        : std_logic_vector(9 downto 0);
    signal cards_addressed   : std_logic_vector(9 downto 0);
    --signal no_reply_yet     : std_logic_vector(9 downto 0);
-   signal wrong_card_error      : std_logic_vector(9 downto 0);
+--   signal wrong_card_error      : std_logic_vector(9 downto 0);
    -- Timeout:  Card Not Populated
    --signal card_not_populated  : std_logic_vector(9 downto 0);
    -- Timeout:  Execution Error
@@ -186,7 +189,7 @@ architecture rtl of reply_queue_sequencer is
    signal half_done_error     : std_logic_vector(9 downto 0);
    signal crc_error           : std_logic_vector(9 downto 0);
    signal update_status       : std_logic;
-   signal card_rdy_or_np      : std_logic_vector(9 downto 0);
+--   signal card_rdy_or_np      : std_logic_vector(9 downto 0);
    signal card_should_reply   : std_logic_vector(9 downto 0);
    signal card_not_present    : std_logic_vector(9 downto 0);
 
@@ -222,63 +225,72 @@ architecture rtl of reply_queue_sequencer is
    signal ac_rdy             : std_logic;
    signal ac_ack             : std_logic;
    signal ac_clear           : std_logic;
+   signal ac_pres_n          : std_logic;
 
    signal bc1_error          : std_logic_vector(2 downto 0);
    signal bc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc1_rdy            : std_logic;
    signal bc1_ack            : std_logic;
    signal bc1_clear          : std_logic;
+   signal bc1_pres_n         : std_logic;
 
    signal bc2_error          : std_logic_vector(2 downto 0);
    signal bc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc2_rdy            : std_logic;
    signal bc2_ack            : std_logic;
    signal bc2_clear          : std_logic;
+   signal bc2_pres_n         : std_logic;
 
    signal bc3_error          : std_logic_vector(2 downto 0);
    signal bc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc3_rdy            : std_logic;
    signal bc3_ack            : std_logic;
    signal bc3_clear          : std_logic;
+   signal bc3_pres_n         : std_logic;
 
    signal rc1_error          : std_logic_vector(2 downto 0);
    signal rc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc1_rdy            : std_logic;
    signal rc1_ack            : std_logic;
    signal rc1_clear          : std_logic;
+   signal rc1_pres_n         : std_logic;
 
    signal rc2_error          : std_logic_vector(2 downto 0);
    signal rc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc2_rdy            : std_logic;
    signal rc2_ack            : std_logic;
    signal rc2_clear          : std_logic;
+   signal rc2_pres_n         : std_logic;
 
    signal rc3_error          : std_logic_vector(2 downto 0);
    signal rc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc3_rdy            : std_logic;
    signal rc3_ack            : std_logic;
    signal rc3_clear          : std_logic;
+   signal rc3_pres_n         : std_logic;
 
    signal rc4_error          : std_logic_vector(2 downto 0);
    signal rc4_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc4_rdy            : std_logic;
    signal rc4_ack            : std_logic;
    signal rc4_clear          : std_logic;
+   signal rc4_pres_n         : std_logic;
 
    signal cc_error           : std_logic_vector(2 downto 0);
    signal cc_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal cc_rdy             : std_logic;
    signal cc_ack             : std_logic;
    signal cc_clear           : std_logic;
+   signal cc_pres_n          : std_logic;
 
    signal psu_error          : std_logic_vector(2 downto 0);
    signal psu_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal psu_rdy            : std_logic;
    signal psu_ack            : std_logic;
    signal psu_clear          : std_logic;
+   signal psu_pres_n         : std_logic;
 
 begin
-
    ---------------------------------------------------------
    -- Receive FIFO Instantiations
    ---------------------------------------------------------
@@ -287,12 +299,13 @@ begin
          clk_i          => clk_i,
          comm_clk_i     => comm_clk_i,
          rst_i          => rst_i,
+         -- Note:  One can only make partial assignments like this for outputs
          lvds_reply_a_i => lvds_reply_all_a_i(AC),
          lvds_reply_b_i => lvds_reply_all_b_i(AC),
          error_o        => ac_error,
          data_o         => ac_data,
          rdy_o          => ac_rdy,
-         pres_n_o       => card_not_present(AC),
+         pres_n_o       => ac_pres_n,
          ack_i          => ac_ack,
          clear_i        => ac_clear
       );
@@ -307,7 +320,7 @@ begin
          error_o        => bc1_error,
          data_o         => bc1_data,
          rdy_o          => bc1_rdy,
-         pres_n_o       => card_not_present(BC1),
+         pres_n_o       => bc1_pres_n,
          ack_i          => bc1_ack,
          clear_i        => bc1_clear
       );
@@ -322,7 +335,7 @@ begin
          error_o        => bc2_error,
          data_o         => bc2_data,
          rdy_o          => bc2_rdy,
-         pres_n_o       => card_not_present(BC2),
+         pres_n_o       => bc2_pres_n,
          ack_i          => bc2_ack,
          clear_i        => bc2_clear
       );
@@ -337,7 +350,7 @@ begin
          error_o        => bc3_error,
          data_o         => bc3_data,
          rdy_o          => bc3_rdy,
-         pres_n_o       => card_not_present(BC3),
+         pres_n_o       => bc3_pres_n,
          ack_i          => bc3_ack,
          clear_i        => bc3_clear
       );
@@ -352,7 +365,7 @@ begin
          error_o        => rc1_error,
          data_o         => rc1_data,
          rdy_o          => rc1_rdy,
-         pres_n_o       => card_not_present(RC1),
+         pres_n_o       => rc1_pres_n,
          ack_i          => rc1_ack,
          clear_i        => rc1_clear
       );
@@ -367,7 +380,7 @@ begin
          error_o        => rc2_error,
          data_o         => rc2_data,
          rdy_o          => rc2_rdy,
-         pres_n_o       => card_not_present(RC2),
+         pres_n_o       => rc2_pres_n,
          ack_i          => rc2_ack,
          clear_i        => rc2_clear
       );
@@ -382,7 +395,7 @@ begin
          error_o        => rc3_error,
          data_o         => rc3_data,
          rdy_o          => rc3_rdy,
-         pres_n_o       => card_not_present(RC3),
+         pres_n_o       => rc3_pres_n,
          ack_i          => rc3_ack,
          clear_i        => rc3_clear
       );
@@ -397,7 +410,7 @@ begin
          error_o        => rc4_error,
          data_o         => rc4_data,
          rdy_o          => rc4_rdy,
-         pres_n_o       => card_not_present(RC4),
+         pres_n_o       => rc4_pres_n,
          ack_i          => rc4_ack,
          clear_i        => rc4_clear
       );
@@ -412,7 +425,7 @@ begin
          error_o        => cc_error,
          data_o         => cc_data,
          rdy_o          => cc_rdy,
-         pres_n_o       => card_not_present(CC),
+         pres_n_o       => cc_pres_n,
          ack_i          => cc_ack,
          clear_i        => cc_clear
       );
@@ -427,7 +440,7 @@ begin
          error_o        => psu_error,
          data_o         => psu_data,
          rdy_o          => psu_rdy,
-         pres_n_o       => card_not_present(PSUC),
+         pres_n_o       => psu_pres_n,
          ack_i          => psu_ack,
          clear_i        => psu_clear
       );
@@ -440,16 +453,16 @@ begin
       -- (a) Timeout because card not present
       -- (b) CRC error or other timeout error
       -- (c) Wishbone execution error
-      card_not_present_i(AC)   & crc_error(AC)   & ac_error(0)  &
-      card_not_present_i(BC1)  & crc_error(BC1)  & bc1_error(0) &
-      card_not_present_i(BC2)  & crc_error(BC2)  & bc2_error(0) &
-      card_not_present_i(BC3)  & crc_error(BC3)  & bc3_error(0) &
-      card_not_present_i(RC1)  & crc_error(RC1)  & rc1_error(0) &
-      card_not_present_i(RC2)  & crc_error(RC2)  & rc2_error(0) &
-      card_not_present_i(RC3)  & crc_error(RC3)  & rc3_error(0) &
-      card_not_present_i(RC4)  & crc_error(RC4)  & rc4_error(0) &
-      card_not_present_i(CC)   & crc_error(CC)   & cc_error(0)  &
-      card_not_present_i(PSUC) & crc_error(PSUC) & psu_error(0);
+      card_not_present(AC)   & crc_error(AC)   & ac_error(0)  &
+      card_not_present(BC1)  & crc_error(BC1)  & bc1_error(0) &
+      card_not_present(BC2)  & crc_error(BC2)  & bc2_error(0) &
+      card_not_present(BC3)  & crc_error(BC3)  & bc3_error(0) &
+      card_not_present(RC1)  & crc_error(RC1)  & rc1_error(0) &
+      card_not_present(RC2)  & crc_error(RC2)  & rc2_error(0) &
+      card_not_present(RC3)  & crc_error(RC3)  & rc3_error(0) &
+      card_not_present(RC4)  & crc_error(RC4)  & rc4_error(0) &
+      card_not_present(CC)   & crc_error(CC)   & cc_error(0)  &
+      card_not_present(PSUC) & crc_error(PSUC) & psu_error(0);
 
    ---------------------------------------------------------
    -- Error FSM
@@ -492,7 +505,7 @@ begin
 --            wrong_card_error  <= ((half_done_error or card_ready) and (not cards_addressed));
 
             -- card_should_reply is asserted when the card has been addressed by a command, and the Clock Card detects that is is populated in the subrack
-            card_should_reply <= cards_addressed and (not card_not_present_i);
+            card_should_reply <= cards_addressed and (not card_not_present);
 
          elsif(pres_state = ERROR_WAIT1) then
             -- timeout_error indicates that the receiver has not received an answer from a card is populated and has been addressed.
@@ -511,6 +524,30 @@ begin
       end if;
    end process;
 
+   card_not_present_o <= card_not_present;
+   card_not_present <=
+      ac_pres_n &
+      bc1_pres_n &
+      bc2_pres_n &
+      bc3_pres_n &
+      rc1_pres_n &
+      rc2_pres_n &
+      rc3_pres_n &
+      rc4_pres_n &
+      cc_pres_n &
+      psu_pres_n;
+  
+--   card_not_present(AC)
+--   card_not_present(BC1)
+--   card_not_present(BC2)
+--   card_not_present(BC3)
+--   card_not_present(RC1)
+--   card_not_present(RC2)
+--   card_not_present(RC3)
+--   card_not_present(RC4)
+--   card_not_present(CC)
+--   card_not_present(PSUC)
+   
    -- The card-error bit is set if the receiver has detected a CRC error over the backplane in either direction
    detected_crc_error <=
       ac_error(1) &
@@ -623,7 +660,7 @@ begin
 
    state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, ack_i, word_count, card_data_size,
       ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy, psu_rdy, cmd_code_i,
-      card_not_present_i, cards_to_report_i, rcs_to_report_data_i)
+      card_not_present, cards_to_report_i, rcs_to_report_data_i)
    begin
       -- Default Assignments
       next_state <= pres_state;
@@ -638,44 +675,44 @@ begin
 
          when WAIT_FOR_REPLY =>
             if((card_addr_i = CLOCK_CARD and
-                  (cc_rdy = '1'  or card_not_present_i(CC) = '1')) or
+                  (cc_rdy = '1'  or card_not_present(CC) = '1')) or
                (card_addr_i = POWER_SUPPLY_CARD and
-                  (psu_rdy = '1' or card_not_present_i(PSUC) = '1')) or
+                  (psu_rdy = '1' or card_not_present(PSUC) = '1')) or
                (card_addr_i = ADDRESS_CARD and
-                  (ac_rdy = '1'  or card_not_present_i(AC) = '1')) or
+                  (ac_rdy = '1'  or card_not_present(AC) = '1')) or
                (card_addr_i = BIAS_CARD_1 and
-                  (bc1_rdy = '1' or card_not_present_i(BC1) = '1')) or
+                  (bc1_rdy = '1' or card_not_present(BC1) = '1')) or
                (card_addr_i = BIAS_CARD_2 and
-                  (bc2_rdy = '1' or card_not_present_i(BC2) = '1')) or
+                  (bc2_rdy = '1' or card_not_present(BC2) = '1')) or
                (card_addr_i = BIAS_CARD_3 and
-                  (bc3_rdy = '1' or card_not_present_i(BC3) = '1')) or
+                  (bc3_rdy = '1' or card_not_present(BC3) = '1')) or
                (card_addr_i = READOUT_CARD_1 and
-                  (rc1_rdy = '1' or card_not_present_i(RC1) = '1')) or
+                  (rc1_rdy = '1' or card_not_present(RC1) = '1')) or
                (card_addr_i = READOUT_CARD_2 and
-                  (rc2_rdy = '1' or card_not_present_i(RC2) = '1')) or
+                  (rc2_rdy = '1' or card_not_present(RC2) = '1')) or
                (card_addr_i = READOUT_CARD_3 and
-                  (rc3_rdy = '1' or card_not_present_i(RC3) = '1')) or
+                  (rc3_rdy = '1' or card_not_present(RC3) = '1')) or
                (card_addr_i = READOUT_CARD_4 and
-                  (rc4_rdy = '1' or card_not_present_i(RC4) = '1')) or
+                  (rc4_rdy = '1' or card_not_present(RC4) = '1')) or
                (card_addr_i = ALL_BIAS_CARDS and
-                  (bc1_rdy = '1' or card_not_present_i(BC1) = '1') and
-                  (bc2_rdy = '1' or card_not_present_i(BC2) = '1') and
-                  (bc3_rdy = '1' or card_not_present_i(BC3) = '1')) or
+                  (bc1_rdy = '1' or card_not_present(BC1) = '1') and
+                  (bc2_rdy = '1' or card_not_present(BC2) = '1') and
+                  (bc3_rdy = '1' or card_not_present(BC3) = '1')) or
                (card_addr_i = ALL_READOUT_CARDS and
-                  (rc1_rdy = '1' or card_not_present_i(RC1) = '1') and
-                  (rc2_rdy = '1' or card_not_present_i(RC2) = '1') and
-                  (rc3_rdy = '1' or card_not_present_i(RC3) = '1') and
-                  (rc4_rdy = '1' or card_not_present_i(RC4) = '1')) or
+                  (rc1_rdy = '1' or card_not_present(RC1) = '1') and
+                  (rc2_rdy = '1' or card_not_present(RC2) = '1') and
+                  (rc3_rdy = '1' or card_not_present(RC3) = '1') and
+                  (rc4_rdy = '1' or card_not_present(RC4) = '1')) or
                (card_addr_i = ALL_FPGA_CARDS and
-                  (cc_rdy = '1' or card_not_present_i(CC) = '1') and
-                  (ac_rdy = '1' or card_not_present_i(AC) = '1') and
-                  (bc1_rdy = '1' or card_not_present_i(BC1) = '1') and
-                  (bc2_rdy = '1' or card_not_present_i(BC2) = '1') and
-                  (bc3_rdy = '1' or card_not_present_i(BC3) = '1') and
-                  (rc1_rdy = '1' or card_not_present_i(RC1) = '1') and
-                  (rc2_rdy = '1' or card_not_present_i(RC2) = '1') and
-                  (rc3_rdy = '1' or card_not_present_i(RC3) = '1') and
-                  (rc4_rdy = '1' or card_not_present_i(RC4) = '1'))) then
+                  (cc_rdy = '1' or card_not_present(CC) = '1') and
+                  (ac_rdy = '1' or card_not_present(AC) = '1') and
+                  (bc1_rdy = '1' or card_not_present(BC1) = '1') and
+                  (bc2_rdy = '1' or card_not_present(BC2) = '1') and
+                  (bc3_rdy = '1' or card_not_present(BC3) = '1') and
+                  (rc1_rdy = '1' or card_not_present(RC1) = '1') and
+                  (rc2_rdy = '1' or card_not_present(RC2) = '1') and
+                  (rc3_rdy = '1' or card_not_present(RC3) = '1') and
+                  (rc4_rdy = '1' or card_not_present(RC4) = '1'))) then
                   next_state <= LATCH_ERROR;
                elsif(timeout = '1') then
                   next_state <= TIMED_OUT;
