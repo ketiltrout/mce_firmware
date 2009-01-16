@@ -1,14 +1,14 @@
-Fitter Status : Successful - Tue Jul 15 10:45:17 2008
-Quartus II Version : 8.0 Build 215 05/29/2008 SJ Full Version
+Fitter Status : Successful - Wed Jan 14 11:19:37 2009
+Quartus II Version : 8.1 Build 163 10/28/2008 SJ Full Version
 Revision Name : bias_card
 Top-level Entity Name : bias_card
 Family : Stratix
 Device : EP1S10F780C5
 Timing Models : Final
-Total logic elements : 3,020 / 10,570 ( 29 % )
+Total logic elements : 3,356 / 10,570 ( 32 % )
 Total pins : 187 / 427 ( 44 % )
 Total virtual pins : 0
-Total memory bits : 69,632 / 920,448 ( 8 % )
+Total memory bits : 70,144 / 920,448 ( 8 % )
 DSP block 9-bit elements : 0 / 48 ( 0 % )
 Total PLLs : 1 / 6 ( 17 % )
 Total DLLs : 0 / 2 ( 0 % )
