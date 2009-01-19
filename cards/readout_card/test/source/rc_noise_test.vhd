@@ -32,8 +32,17 @@
 -- customize for the type of the test and the desired channel and recompile
 --
 -- Revision history:
--- -- <date $Date: 2006/04/12 23:02:22 $>    - <initials $Author: mandana $>
+-- -- <date $Date: 2008/10/09 20:50:59 $>    - <initials $Author: mandana $>
 -- $Log: rc_noise_test.vhd,v $
+-- Revision 1.7.2.2  2008/10/09 20:50:59  mandana
+-- change fifo wrclk to negative edge adcx_rdy
+--
+-- Revision 1.7.2.1  2006/04/24 18:59:12  bench2
+-- added a fifo per channel to connect synchronized data to DACs
+--
+-- Revision 1.7  2006/04/20 22:43:03  bench2
+-- MA: A fifo is added to synchronize ADC sample with adc_rdy signal
+--
 -- Revision 1.6  2006/04/12 23:02:22  mandana
 -- now uses the regular rc_pll model
 -- mictor_clk pins added (new in Rev. B readout card)
@@ -160,6 +169,14 @@ architecture behaviour of rc_noise_test is
    signal nclk: std_logic;
    signal wrfull : std_logic;
    signal rdempty: std_logic;
+   signal adc1_sync_dat: std_logic_vector(13 downto 0);
+   signal adc2_sync_dat: std_logic_vector(13 downto 0);
+   signal adc3_sync_dat: std_logic_vector(13 downto 0);
+   signal adc4_sync_dat: std_logic_vector(13 downto 0);
+   signal adc5_sync_dat: std_logic_vector(13 downto 0);
+   signal adc6_sync_dat: std_logic_vector(13 downto 0);
+   signal adc7_sync_dat: std_logic_vector(13 downto 0);
+   signal adc8_sync_dat: std_logic_vector(13 downto 0);   
    
 begin
    
@@ -176,7 +193,7 @@ begin
          c3     => open,
          c4     => nclk);
          
-    adc_fifo : dcfifo
+    adc1_fifo : dcfifo
 	GENERIC MAP (
 --		add_ram_output_register => "ON",
 		clocks_are_synchronized => "FALSE",
@@ -191,19 +208,191 @@ begin
 		use_eab => "ON"
 	)
 	PORT MAP (
-		wrclk => adc8_rdy,
+		wrclk => not(adc1_rdy),
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc1_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => adc1_sync_dat
+	);
+
+    adc2_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => not(adc2_rdy),
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc2_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => adc2_sync_dat
+	);
+
+    adc3_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => not(adc3_rdy),
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc3_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => adc3_sync_dat
+	);
+
+    adc4_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => not(adc4_rdy),
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc4_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => adc4_sync_dat
+	);
+
+    adc5_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => not(adc5_rdy),
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc5_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => adc5_sync_dat
+	);
+
+    adc6_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => not(adc6_rdy),
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc6_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => adc6_sync_dat
+	);
+
+    adc7_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => not(adc7_rdy),
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc7_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => adc7_sync_dat
+	);
+
+    adc8_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => not(adc8_rdy),
 		rdreq => '1',
 		rdclk => clk,
 		wrreq => '1',
 		data  => adc8_dat(13 downto 0),
 		rdempty => rdempty,
 		wrfull  => wrfull,
-		q     => mictor(13 downto 0)
+		q     => adc8_sync_dat
 	);
 
-   mictor_clk(0) <= clk;
-   mictor_clk(1) <= clk;
-   
    adc1_clk <= clk;
    adc2_clk <= clk;
    adc3_clk <= clk;
@@ -213,6 +402,35 @@ begin
    adc7_clk <= clk;
    adc8_clk <= clk;
    
+   dac_FB1_dat(12 downto 0) <= adc1_sync_dat(12 downto 0);
+   dac_FB2_dat(12 downto 0) <= adc2_sync_dat(12 downto 0);
+   dac_FB3_dat(12 downto 0) <= adc3_sync_dat(12 downto 0);
+   dac_FB4_dat(12 downto 0) <= adc4_sync_dat(12 downto 0);
+   dac_FB5_dat(12 downto 0) <= adc5_sync_dat(12 downto 0);
+   dac_FB6_dat(12 downto 0) <= adc6_sync_dat(12 downto 0);
+   dac_FB7_dat(12 downto 0) <= adc7_sync_dat(12 downto 0);
+   dac_FB8_dat(12 downto 0) <= adc8_sync_dat(12 downto 0);
+ 
+   dac_FB1_dat(13) <= not(adc1_sync_dat(13)); --adc is signed
+   dac_FB2_dat(13) <= not(adc2_sync_dat(13)); --adc is signed
+   dac_FB3_dat(13) <= not(adc3_sync_dat(13)); --adc is signed
+   dac_FB4_dat(13) <= not(adc4_sync_dat(13)); --adc is signed
+   dac_FB5_dat(13) <= not(adc5_sync_dat(13)); --adc is signed
+   dac_FB6_dat(13) <= not(adc6_sync_dat(13)); --adc is signed
+   dac_FB7_dat(13) <= not(adc7_sync_dat(13)); --adc is signed
+   dac_FB8_dat(13) <= not(adc8_sync_dat(13)); --adc is signed
+   
+   dac_FB_clk(0) <= nclk;
+   dac_FB_clk(1) <= nclk;
+   dac_FB_clk(2) <= nclk;
+   dac_FB_clk(3) <= nclk;
+   dac_FB_clk(4) <= nclk;
+   dac_FB_clk(5) <= nclk;
+   dac_FB_clk(6) <= nclk;
+   dac_FB_clk(7) <= nclk;
+   
+   mictor_clk(0) <= clk;
+   mictor_clk(1) <= clk;
    -- map different channels to mictor
 --   mictor (13 downto 0) <= adc7_dat(13 downto 0);
 --   mictor (14)          <= adc7_ovr;
