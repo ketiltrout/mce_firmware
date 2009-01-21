@@ -1,5 +1,5 @@
 Flow report for readout_card
-Mon Nov 17 15:46:54 2008
+Tue Dec 09 17:20:47 2008
 Quartus II Version 8.1 Build 163 10/28/2008 SJ Full Version
 
 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------+
 ; Flow Summary                                                             ;
 +-------------------------------+------------------------------------------+
-; Flow Status                   ; Successful - Mon Nov 17 15:46:54 2008    ;
+; Flow Status                   ; Successful - Tue Dec 09 17:20:47 2008    ;
 ; Quartus II Version            ; 8.1 Build 163 10/28/2008 SJ Full Version ;
 ; Revision Name                 ; readout_card                             ;
 ; Top-level Entity Name         ; readout_card                             ;
@@ -47,10 +47,10 @@ applicable agreement for further details.
 ; Timing Models                 ; Preliminary                              ;
 ; Met timing requirements       ; N/A                                      ;
 ; Logic utilization             ; 67 %                                     ;
-;     Combinational ALUTs       ; 18,609 / 38,000 ( 49 % )                 ;
+;     Combinational ALUTs       ; 18,610 / 38,000 ( 49 % )                 ;
 ;     Memory ALUTs              ; 80 / 19,000 ( < 1 % )                    ;
-;     Dedicated logic registers ; 16,336 / 38,000 ( 43 % )                 ;
-; Total registers               ; 16476                                    ;
+;     Dedicated logic registers ; 16,342 / 38,000 ( 43 % )                 ;
+; Total registers               ; 16482                                    ;
 ; Total pins                    ; 398 / 488 ( 82 % )                       ;
 ; Total virtual pins            ; 0                                        ;
 ; Total block memory bits       ; 407,808 / 5,455,872 ( 7 % )              ;
@@ -65,7 +65,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 11/17/2008 15:14:27 ;
+; Start date & time ; 12/09/2008 16:41:40 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; readout_card        ;
 +-------------------+---------------------+
@@ -88,7 +88,7 @@ applicable agreement for further details.
 ; AUTO_PACKED_REGISTERS_MAXII                     ; Normal                                                          ; Auto                         ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIX                   ; Normal                                                          ; Auto                         ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIXII                 ; Normal                                                          ; Auto                         ; --          ; --             ;
-; COMPILER_SIGNATURE_ID                           ; 134142558187.122693126707568                                    ; --                           ; --          ; --             ;
+; COMPILER_SIGNATURE_ID                           ; 134142558187.122883730008716                                    ; --                           ; --          ; --             ;
 ; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION      ; On                                                              ; --                           ; --          ; eda_simulation ;
 ; EDA_OUTPUT_DATA_FORMAT                          ; Vhdl                                                            ; --                           ; --          ; eda_simulation ;
 ; EDA_SIMULATION_TOOL                             ; ModelSim-Altera (VHDL)                                          ; <None>                       ; --          ; --             ;
@@ -155,13 +155,13 @@ applicable agreement for further details.
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis      ; 00:08:37     ; 1.0                     ; 434 MB              ; 00:07:36                           ;
-; Fitter                    ; 00:17:29     ; 1.2                     ; 767 MB              ; 00:18:38                           ;
-; Assembler                 ; 00:00:21     ; 1.0                     ; 363 MB              ; 00:00:19                           ;
-; TimeQuest Timing Analyzer ; 00:02:38     ; 1.1                     ; 539 MB              ; 00:02:34                           ;
-; Design Assistant          ; 00:01:26     ; 1.0                     ; 380 MB              ; 00:01:20                           ;
-; EDA Netlist Writer        ; 00:01:06     ; 1.0                     ; 406 MB              ; 00:01:03                           ;
-; Total                     ; 00:31:37     ; --                      ; --                  ; 00:31:30                           ;
+; Analysis & Synthesis      ; 00:08:46     ; 1.0                     ; 434 MB              ; 00:07:07                           ;
+; Fitter                    ; 00:23:40     ; 1.2                     ; 776 MB              ; 00:21:52                           ;
+; Assembler                 ; 00:00:22     ; 1.0                     ; 364 MB              ; 00:00:17                           ;
+; TimeQuest Timing Analyzer ; 00:02:58     ; 1.1                     ; 539 MB              ; 00:02:44                           ;
+; Design Assistant          ; 00:01:25     ; 1.0                     ; 384 MB              ; 00:01:09                           ;
+; EDA Netlist Writer        ; 00:01:07     ; 1.0                     ; 409 MB              ; 00:00:55                           ;
+; Total                     ; 00:38:18     ; --                      ; --                  ; 00:34:04                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

@@ -1,5 +1,5 @@
 EDA Netlist Writer report for readout_card
-Mon Nov 17 15:46:54 2008
+Tue Dec 09 17:20:47 2008
 Quartus II Version 8.1 Build 163 10/28/2008 SJ Full Version
 
 
@@ -36,7 +36,7 @@ applicable agreement for further details.
 +-------------------------------------------------------------------+
 ; EDA Netlist Writer Summary                                        ;
 +---------------------------+---------------------------------------+
-; EDA Netlist Writer Status ; Successful - Mon Nov 17 15:46:54 2008 ;
+; EDA Netlist Writer Status ; Successful - Tue Dec 09 17:20:47 2008 ;
 ; Revision Name             ; readout_card                          ;
 ; Top-level Entity Name     ; readout_card                          ;
 ; Family                    ; Stratix III                           ;
@@ -83,7 +83,7 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II EDA Netlist Writer
     Info: Version 8.1 Build 163 10/28/2008 SJ Full Version
-    Info: Processing started: Mon Nov 17 15:45:48 2008
+    Info: Processing started: Tue Dec 09 17:19:40 2008
 Info: Command: quartus_eda --read_settings_files=off --write_settings_files=off readout_card -c readout_card
 Warning: Double data rate (DDR) timing delays reported by third party timing simulation are preliminary. Run the TimeQuest Timing Analyzer for analyzing delays on paths through the DDR.
 Info: Generated file readout_card_4_1100mv_85c_vhd_slow.sdo in folder "C:/mce/cards/readout_card/readout_card/synth/simulation/modelsim/" for EDA simulation tool
@@ -94,9 +94,9 @@ Info: Generated file readout_card_min_1100mv_0c_vhd_fast.sdo in folder "C:/mce/c
 Warning: Double data rate (DDR) timing delays reported by third party timing simulation are preliminary. Run the TimeQuest Timing Analyzer for analyzing delays on paths through the DDR.
 Info: Generated file readout_card_vhd.sdo in folder "C:/mce/cards/readout_card/readout_card/synth/simulation/modelsim/" for EDA simulation tool
 Info: Quartus II EDA Netlist Writer was successful. 0 errors, 4 warnings
-    Info: Peak virtual memory: 406 megabytes
-    Info: Processing ended: Mon Nov 17 15:46:56 2008
+    Info: Peak virtual memory: 409 megabytes
+    Info: Processing ended: Tue Dec 09 17:20:48 2008
     Info: Elapsed time: 00:01:08
-    Info: Total CPU time (on all processors): 00:01:04
+    Info: Total CPU time (on all processors): 00:00:56
 
 

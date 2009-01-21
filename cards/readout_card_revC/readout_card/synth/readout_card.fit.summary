@@ -1,4 +1,4 @@
-Fitter Status : Successful - Mon Nov 17 15:40:40 2008
+Fitter Status : Successful - Tue Dec 09 17:14:14 2008
 Quartus II Version : 8.1 Build 163 10/28/2008 SJ Full Version
 Revision Name : readout_card
 Top-level Entity Name : readout_card
@@ -6,10 +6,10 @@ Family : Stratix III
 Device : EP3SE50F780C4
 Timing Models : Preliminary
 Logic utilization : 67 %
-    Combinational ALUTs : 18,609 / 38,000 ( 49 % )
+    Combinational ALUTs : 18,610 / 38,000 ( 49 % )
     Memory ALUTs : 80 / 19,000 ( < 1 % )
-    Dedicated logic registers : 16,336 / 38,000 ( 43 % )
-Total registers : 16476
+    Dedicated logic registers : 16,342 / 38,000 ( 43 % )
+Total registers : 16482
 Total pins : 398 / 488 ( 82 % )
 Total virtual pins : 0
 Total block memory bits : 407,808 / 5,455,872 ( 7 % )
