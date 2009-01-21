@@ -321,7 +321,7 @@ END SYN;
 -- Retrieval info:      <PRIVATE name = "mem_dll_en" value="Yes"  type="STRING"  enable="1" />
 -- Retrieval info:      <PRIVATE name = "ac_phase" value="240"  type="STRING"  enable="1" />
 -- Retrieval info:      <PRIVATE name = "mem_drv_str" value="Normal"  type="STRING"  enable="1" />
--- Retrieval info:      <PRIVATE name = "mem_if_oct_en" value="false"  type="STRING"  enable="1" />
+-- Retrieval info:      <PRIVATE name = "mem_if_oct_en" value="true"  type="STRING"  enable="1" />
 -- Retrieval info:      <PRIVATE name = "input_period" value="0"  type="STRING"  enable="1" />
 -- Retrieval info:      <PRIVATE name = "mem_tcl_60_fmax" value="333.333"  type="STRING"  enable="1" />
 -- Retrieval info:      <PRIVATE name = "board_skew_ps" value="20"  type="STRING"  enable="1" />
