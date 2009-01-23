@@ -32,34 +32,6 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
--- Revision 1.8  2006/06/29 18:47:54  mandana
--- DAC_INIT_VAL added
---
--- Revision 1.7  2006/05/05 19:58:31  mandana
--- moved all all_cards components to all_cards_pack.vhd
---
--- Revision 1.6  2006/02/15 21:55:06  mandana
--- added frame_timing component declaration
---
--- Revision 1.5  2006/01/18 21:42:08  mandana
--- component declaration added for dispatch, dispactch_pack.vhd is obsolete now.
---
--- Revision 1.4  2005/09/14 23:51:49  bburger
--- bburger:
--- Integrated flux-jumping into flux_loop
---
--- Revision 1.3  2005/05/06 20:02:31  bburger
--- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
--- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
---
--- Revision 1.2  2005/03/18 01:28:19  mohsen
--- Added comments for fv_rev blk component.
---
--- Revision 1.1  2004/12/07 20:22:21  mohsen
--- Anthony & Mohsen: Initial release
---
---
---
 --
 ------------------------------------------------------------------------
 
@@ -96,7 +68,6 @@ package readout_card_pack is
    -----------------------------------------------------------------------------
    -- Flux Loop Component
    -----------------------------------------------------------------------------
-
    component flux_loop
    port (
       clk_50_i                  : in  std_logic;
@@ -194,16 +165,120 @@ package readout_card_pack is
    -----------------------------------------------------------------------------
    -- PLL Component
    -----------------------------------------------------------------------------
-
    component rc_pll
-     port (
-       inclk0 : IN  STD_LOGIC := '0';
-       c0     : OUT STD_LOGIC;
-       c1     : OUT STD_LOGIC;
-       c2     : OUT STD_LOGIC;
-       c3     : OUT STD_LOGIC;
-       c4     : OUT STD_LOGIC);
+   port (
+      inclk0 : IN  STD_LOGIC := '0';
+      c0     : OUT STD_LOGIC;
+      c1     : OUT STD_LOGIC;
+      c2     : OUT STD_LOGIC;
+      c3     : OUT STD_LOGIC;
+      c4     : OUT STD_LOGIC);
    end component;
+
+   component rc_pll_stratix_iii
+   port (
+      inclk0 : IN  STD_LOGIC := '0';
+      c0     : OUT STD_LOGIC;
+      c1     : OUT STD_LOGIC;
+      c2     : OUT STD_LOGIC;
+      c3     : OUT STD_LOGIC;
+      c4     : OUT STD_LOGIC);
+   end component;
+
+  -----------------------------------------------------------------------------
+  -- DDR2 Controller Component
+  -----------------------------------------------------------------------------
+  component micron_ctrl
+  PORT (
+     local_address  : IN STD_LOGIC_VECTOR (22 DOWNTO 0);
+     local_write_req   : IN STD_LOGIC;
+     local_read_req : IN STD_LOGIC;
+     local_burstbegin  : IN STD_LOGIC;
+     local_wdata : IN STD_LOGIC_VECTOR (63 DOWNTO 0);
+     local_be : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+     local_size  : IN STD_LOGIC;
+     oct_ctl_rs_value  : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+     oct_ctl_rt_value  : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+     global_reset_n : IN STD_LOGIC;
+     pll_ref_clk : IN STD_LOGIC;
+     soft_reset_n   : IN STD_LOGIC;
+     local_ready : OUT STD_LOGIC;
+     local_rdata : OUT STD_LOGIC_VECTOR (63 DOWNTO 0);
+     local_rdata_valid : OUT STD_LOGIC;
+     reset_request_n   : OUT STD_LOGIC;
+     mem_odt  : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+     mem_cs_n : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+     mem_cke  : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+     mem_addr : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
+     mem_ba   : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+     mem_ras_n   : OUT STD_LOGIC;
+     mem_cas_n   : OUT STD_LOGIC;
+     mem_we_n : OUT STD_LOGIC;
+     mem_dm   : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+     local_refresh_ack : OUT STD_LOGIC;
+     local_wdata_req   : OUT STD_LOGIC;
+     local_init_done   : OUT STD_LOGIC;
+     reset_phy_clk_n   : OUT STD_LOGIC;
+     phy_clk  : OUT STD_LOGIC;
+     aux_full_rate_clk : OUT STD_LOGIC;
+     aux_half_rate_clk : OUT STD_LOGIC;
+     mem_clk  : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+     mem_clk_n   : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+     mem_dq   : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+     mem_dqs  : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+     mem_dqsn : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0)
+  );
+  end component;
+  
+  -----------------------------------------------------------------------------
+  -- DDR2 Controller PLL Component
+  -----------------------------------------------------------------------------
+  component micron_ctrl_phy_alt_mem_phy_pll
+  PORT (
+     areset      : IN STD_LOGIC  := '0';
+     inclk0      : IN STD_LOGIC  := '0';
+     phasecounterselect      : IN STD_LOGIC_VECTOR (3 DOWNTO 0) :=  (OTHERS => '0');
+     phasestep      : IN STD_LOGIC  := '0';
+     phaseupdown    : IN STD_LOGIC  := '0';
+     scanclk     : IN STD_LOGIC  := '1';
+     c0    : OUT STD_LOGIC ;
+     c1    : OUT STD_LOGIC ;
+     c2    : OUT STD_LOGIC ;
+     c3    : OUT STD_LOGIC ;
+     c4    : OUT STD_LOGIC ;
+     c5    : OUT STD_LOGIC ;
+     c6    : OUT STD_LOGIC ;
+     locked      : OUT STD_LOGIC ;
+     phasedone      : OUT STD_LOGIC 
+  );
+  end component;
+
+  -----------------------------------------------------------------------------
+  -- DDR2 Controller Example Driver
+  -----------------------------------------------------------------------------
+  component micron_ctrl_example_driver is
+  PORT (
+      signal local_size : OUT STD_LOGIC;
+      signal pnf_persist : OUT STD_LOGIC;
+      signal local_cs_addr : OUT STD_LOGIC;
+      signal local_bank_addr : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+      signal local_read_req : OUT STD_LOGIC;
+      signal local_wdata : OUT STD_LOGIC_VECTOR (63 DOWNTO 0);
+      signal local_be : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+      signal test_status : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+      signal local_write_req : OUT STD_LOGIC;
+      signal local_col_addr : OUT STD_LOGIC_VECTOR (9 DOWNTO 0);
+      signal local_row_addr : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
+      signal test_complete : OUT STD_LOGIC;
+      signal pnf_per_byte : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+      signal local_rdata_valid : IN STD_LOGIC;
+      signal local_rdata : IN STD_LOGIC_VECTOR (63 DOWNTO 0);
+      signal clk : IN STD_LOGIC;
+      signal reset_n : IN STD_LOGIC;
+      signal local_ready : IN STD_LOGIC
+  );
+  end component micron_ctrl_example_driver;
+
        
 end readout_card_pack;
 
