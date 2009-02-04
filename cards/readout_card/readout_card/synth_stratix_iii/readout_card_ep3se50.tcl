@@ -16,9 +16,11 @@
 # File: C:\mce\cards\readout_card\readout_card\synth\readout_card.tcl
 # Generated on: Thu Nov 27 22:24:55 2008
 
+# $Id$
+
 # print welcome message
-puts "\n\nReadout Card Rev C Pin Assignment Script v1.0"
-puts "--------------------------------------------------"
+puts "\n\nReadout Card Rev C Pin Assignment Script"
+puts "--------------------------------------------"
 
 # include Quartus Tcl API
 package require ::quartus::project
@@ -142,188 +144,16 @@ set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[0]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[1]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[0]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[1]
-#set_location_assignment PIN_F17 -to adc1_ovr
-#set_location_assignment PIN_B25 -to adc2_ovr
-#set_location_assignment PIN_D23 -to adc3_ovr
-#set_location_assignment PIN_AE7 -to adc4_ovr
-#set_location_assignment PIN_C12 -to adc5_ovr
-#set_location_assignment PIN_AB3 -to adc6_ovr
-#set_location_assignment PIN_R1 -to adc7_ovr
-#set_location_assignment PIN_E13 -to adc8_ovr
-#set_location_assignment PIN_B19 -to adc1_rdy
-#set_location_assignment PIN_H20 -to adc2_rdy
-#set_location_assignment PIN_D24 -to adc3_rdy
-#set_location_assignment PIN_AE5 -to adc4_rdy
-#set_location_assignment PIN_D20 -to adc5_rdy
-#set_location_assignment PIN_D13 -to adc6_rdy
-#set_location_assignment PIN_AC7 -to adc7_rdy
-#set_location_assignment PIN_AF5 -to adc8_rdy
-#set_location_assignment PIN_AE4 -to adc1_clk
-#set_location_assignment PIN_A22 -to adc2_clk
-#set_location_assignment PIN_D16 -to adc3_clk
-#set_location_assignment PIN_Y6 -to adc4_clk
-#set_location_assignment PIN_E17 -to adc5_clk
-#set_location_assignment PIN_C19 -to adc6_clk
-#set_location_assignment PIN_C18 -to adc7_clk
-#set_location_assignment PIN_G16 -to adc8_clk
-#################################################
-set_location_assignment PIN_AB11 -to adc1_clk
-set_location_assignment PIN_AH2  -to adc1_dat[0]           
-set_location_assignment PIN_Y4   -to adc1_dat[10]          
-set_location_assignment PIN_Y5   -to adc1_dat[11]          
-set_location_assignment PIN_AA4  -to adc1_dat[12]          
-set_location_assignment PIN_Y7   -to adc1_dat[13]          
-set_location_assignment PIN_AH5  -to adc1_dat[1]           
-set_location_assignment PIN_AH4  -to adc1_dat[2]           
-set_location_assignment PIN_J12  -to adc1_dat[3]           
-set_location_assignment PIN_J11  -to adc1_dat[4]           
-set_location_assignment PIN_AB7  -to adc1_dat[5]           
-set_location_assignment PIN_M27  -to adc1_dat[6]           
-set_location_assignment PIN_W5   -to adc1_dat[7]           
-set_location_assignment PIN_W9   -to adc1_dat[8]           
-set_location_assignment PIN_W8   -to adc1_dat[9]           
-set_location_assignment PIN_B10  -to adc1_ovr              
-set_location_assignment PIN_C13  -to adc1_rdy              
-set_location_assignment PIN_AC10 -to adc2_clk              
-set_location_assignment PIN_H10  -to adc2_dat[0]           
-set_location_assignment PIN_K4   -to adc2_dat[10]          
-set_location_assignment PIN_K5   -to adc2_dat[11]          
-set_location_assignment PIN_K6   -to adc2_dat[12]          
-set_location_assignment PIN_K7   -to adc2_dat[13]          
-set_location_assignment PIN_F10  -to adc2_dat[1]           
-set_location_assignment PIN_E10  -to adc2_dat[2]           
-set_location_assignment PIN_D9   -to adc2_dat[3]           
-set_location_assignment PIN_D8   -to adc2_dat[4]           
-set_location_assignment PIN_AC7  -to adc2_dat[5]           
-set_location_assignment PIN_K28  -to adc2_dat[6]           
-set_location_assignment PIN_L8   -to adc2_dat[7]           
-set_location_assignment PIN_L9   -to adc2_dat[8]           
-set_location_assignment PIN_J4   -to adc2_dat[9]           
-set_location_assignment PIN_C10  -to adc2_ovr              
-set_location_assignment PIN_D12  -to adc2_rdy              
-set_location_assignment PIN_Y10  -to adc3_clk              
-set_location_assignment PIN_Y9   -to adc3_dat[0]           
-set_location_assignment PIN_W4   -to adc3_dat[10]          
-set_location_assignment PIN_V7   -to adc3_dat[11]          
-set_location_assignment PIN_V6   -to adc3_dat[12]          
-set_location_assignment PIN_W6   -to adc3_dat[13]          
-set_location_assignment PIN_AB9  -to adc3_dat[1]           
-set_location_assignment PIN_AA9  -to adc3_dat[2]           
-set_location_assignment PIN_AC9  -to adc3_dat[3]           
-set_location_assignment PIN_AD9  -to adc3_dat[4]           
-set_location_assignment PIN_M23  -to adc3_dat[5]           
-set_location_assignment PIN_N23  -to adc3_dat[6]           
-set_location_assignment PIN_P9   -to adc3_dat[7]           
-set_location_assignment PIN_P1   -to adc3_dat[8]           
-set_location_assignment PIN_P2   -to adc3_dat[9]           
-set_location_assignment PIN_A10  -to adc3_ovr              
-set_location_assignment PIN_G12  -to adc3_rdy              
-set_location_assignment PIN_Y11  -to adc4_clk              
-set_location_assignment PIN_J10  -to adc4_dat[0]           
-set_location_assignment PIN_H5   -to adc4_dat[10]          
-set_location_assignment PIN_J6   -to adc4_dat[11]          
-set_location_assignment PIN_K8   -to adc4_dat[12]          
-set_location_assignment PIN_K9   -to adc4_dat[13]          
-set_location_assignment PIN_H11  -to adc4_dat[1]           
-set_location_assignment PIN_E11  -to adc4_dat[2]           
-set_location_assignment PIN_D10  -to adc4_dat[3]           
-set_location_assignment PIN_G10  -to adc4_dat[4]           
-set_location_assignment PIN_AD7  -to adc4_dat[5]           
-set_location_assignment PIN_M28  -to adc4_dat[6]           
-set_location_assignment PIN_Y6   -to adc4_dat[7]           
-set_location_assignment PIN_G5   -to adc4_dat[8]           
-set_location_assignment PIN_H6   -to adc4_dat[9]           
-set_location_assignment PIN_B11  -to adc4_ovr              
-set_location_assignment PIN_F12  -to adc4_rdy              
-set_location_assignment PIN_AG9  -to adc5_clk              
-set_location_assignment PIN_F9   -to adc5_dat[0]           
-set_location_assignment PIN_AC16 -to adc5_dat[10]          
-set_location_assignment PIN_AB17 -to adc5_dat[11]          
-set_location_assignment PIN_AE17 -to adc5_dat[12]          
-set_location_assignment PIN_AF16 -to adc5_dat[13]          
-set_location_assignment PIN_D5   -to adc5_dat[1]           
-set_location_assignment PIN_E5   -to adc5_dat[2]           
-set_location_assignment PIN_D6   -to adc5_dat[3]           
-set_location_assignment PIN_F8   -to adc5_dat[4]           
-set_location_assignment PIN_AC8  -to adc5_dat[5]           
-set_location_assignment PIN_M20  -to adc5_dat[6]           
-set_location_assignment PIN_AG15 -to adc5_dat[7]           
-set_location_assignment PIN_AH16 -to adc5_dat[8]           
-set_location_assignment PIN_AA15 -to adc5_dat[9]           
-set_location_assignment PIN_C12  -to adc5_ovr              
-set_location_assignment PIN_F13  -to adc5_rdy              
-set_location_assignment PIN_AH8  -to adc6_clk              
-set_location_assignment PIN_C14  -to adc6_dat[0]           
-set_location_assignment PIN_N26  -to adc6_dat[10]          
-set_location_assignment PIN_N27  -to adc6_dat[11]          
-set_location_assignment PIN_P19  -to adc6_dat[12]          
-set_location_assignment PIN_P20  -to adc6_dat[13]          
-set_location_assignment PIN_B14  -to adc6_dat[1]           
-set_location_assignment PIN_A14  -to adc6_dat[2]           
-set_location_assignment PIN_B13  -to adc6_dat[3]           
-set_location_assignment PIN_A13  -to adc6_dat[4]           
-set_location_assignment PIN_AF5  -to adc6_dat[5]           
-set_location_assignment PIN_L25  -to adc6_dat[6]           
-set_location_assignment PIN_AF19 -to adc6_dat[7]           
-set_location_assignment PIN_P28  -to adc6_dat[8]           
-set_location_assignment PIN_N28  -to adc6_dat[9]           
-set_location_assignment PIN_D11  -to adc6_ovr              
-set_location_assignment PIN_G13  -to adc6_rdy              
-set_location_assignment PIN_AH9  -to adc7_clk              
-set_location_assignment PIN_AE5  -to adc7_dat[0]           
-set_location_assignment PIN_N8   -to adc7_dat[10]          
-set_location_assignment PIN_N6   -to adc7_dat[11]          
-set_location_assignment PIN_N7   -to adc7_dat[12]          
-set_location_assignment PIN_P8   -to adc7_dat[13]          
-set_location_assignment PIN_AE7  -to adc7_dat[1]           
-set_location_assignment PIN_AE4  -to adc7_dat[2]           
-set_location_assignment PIN_AE6  -to adc7_dat[3]           
-set_location_assignment PIN_AA10 -to adc7_dat[4]           
-set_location_assignment PIN_M22  -to adc7_dat[5]           
-set_location_assignment PIN_P25  -to adc7_dat[6]           
-set_location_assignment PIN_R9   -to adc7_dat[7]           
-set_location_assignment PIN_T9   -to adc7_dat[8]           
-set_location_assignment PIN_U9   -to adc7_dat[9]           
-set_location_assignment PIN_E13  -to adc7_ovr              
-set_location_assignment PIN_H14  -to adc7_rdy              
-set_location_assignment PIN_AE9  -to adc8_clk              
-set_location_assignment PIN_E8   -to adc8_dat[0]           
-set_location_assignment PIN_AH18 -to adc8_dat[10]          
-set_location_assignment PIN_AG18 -to adc8_dat[11]          
-set_location_assignment PIN_AH19 -to adc8_dat[12]          
-set_location_assignment PIN_AG19 -to adc8_dat[13]          
-set_location_assignment PIN_G9   -to adc8_dat[1]           
-set_location_assignment PIN_G8   -to adc8_dat[2]           
-set_location_assignment PIN_E7   -to adc8_dat[3]           
-set_location_assignment PIN_D14  -to adc8_dat[4]           
-set_location_assignment PIN_AB8  -to adc8_dat[5]           
-set_location_assignment PIN_M21  -to adc8_dat[6]           
-set_location_assignment PIN_AE16 -to adc8_dat[7]           
-set_location_assignment PIN_AE18 -to adc8_dat[8]           
-set_location_assignment PIN_AF17 -to adc8_dat[9]           
-set_location_assignment PIN_D13  -to adc8_ovr              
-set_location_assignment PIN_J14  -to adc8_rdy              
 
-####################################################
+
+#############################################################
+# Everything in this section has be updated for Stratix III.
+#############################################################
+
+
 set_location_assignment PIN_V26 -to dip_sw3
 set_location_assignment PIN_T21 -to dip_sw4
 set_location_assignment PIN_AG3 -to wdog
-set_location_assignment PIN_A11 -to mictor[0]
-#set_location_assignment PIN_E16 -to mictor[1]
-#set_location_assignment PIN_G20 -to mictor[2]
-#set_location_assignment PIN_C24 -to mictor[3]
-set_location_assignment PIN_AF6 -to mictor[4]
-set_location_assignment PIN_AC3 -to mictor[5]
-set_location_assignment PIN_A17 -to mictor[6]
-set_location_assignment PIN_AD6 -to mictor[7]
-set_location_assignment PIN_A18 -to mictor[8]
-#set_location_assignment PIN_A21 -to mictor[9]
-set_location_assignment PIN_A16 -to mictor[10]
-#set_location_assignment PIN_A25 -to mictor[11]
-#set_location_assignment PIN_E20 -to mictor[12]
-#set_location_assignment PIN_G21 -to mictor[13]
-#set_location_assignment PIN_A19 -to mictor[14]
-#set_location_assignment PIN_D15 -to mictor[15]
 set_location_assignment PIN_Y19 -to mem_addr[0]
 set_location_assignment PIN_AE20 -to mem_addr[1]
 set_location_assignment PIN_AF21 -to mem_addr[2]
@@ -411,6 +241,41 @@ set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATIO
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
 
+
+# Assign ADC pins
+cmp add_assignment $top_name "" adc0_lvds_n LOCATION "Pin_AH2"
+cmp add_assignment $top_name "" adc0_lvds_p LOCATION "Pin_AG3"
+cmp add_assignment $top_name "" adc1_lvds_n LOCATION "Pin_AH3"
+cmp add_assignment $top_name "" adc1_lvds_p LOCATION "Pin_AG4"
+cmp add_assignment $top_name "" adc2_lvds_n LOCATION "Pin_AH7"
+cmp add_assignment $top_name "" adc2_lvds_p LOCATION "Pin_AG7"
+cmp add_assignment $top_name "" adc3_lvds_n LOCATION "Pin_AF9"
+cmp add_assignment $top_name "" adc3_lvds_p LOCATION "Pin_AE9"
+cmp add_assignment $top_name "" adc4_lvds_n LOCATION "Pin_AH8"
+cmp add_assignment $top_name "" adc4_lvds_p LOCATION "Pin_AG8"
+cmp add_assignment $top_name "" adc5_lvds_n LOCATION "Pin_AC10"
+cmp add_assignment $top_name "" adc5_lvds_p LOCATION "Pin_AB11"
+cmp add_assignment $top_name "" adc6_lvds_n LOCATION "Pin_AB1"
+cmp add_assignment $top_name "" adc6_lvds_p LOCATION "Pin_AB2"
+cmp add_assignment $top_name "" adc7_lvds_n LOCATION "Pin_AF6"
+cmp add_assignment $top_name "" adc7_lvds_p LOCATION "Pin_AE6"
+cmp add_assignment $top_name "" adc_fco_n LOCATION "Pin_AD7"
+cmp add_assignment $top_name "" adc_fco_p LOCATION "Pin_AC7"
+cmp add_assignment $top_name "" adc_clk_n LOCATION "Pin_AC3"
+cmp add_assignment $top_name "" adc_clk_p LOCATION "Pin_AC4"
+cmp add_assignment $top_name "" adc_sclk LOCATION "Pin_AH19"
+cmp add_assignment $top_name "" adc_sdio LOCATION "Pin_AE16"
+cmp add_assignment $top_name "" adc_csb_n LOCATION "Pin_AE17"
+cmp add_assignment $top_name "" adc_pwd_n LOCATION "Pin_AF17"
+cmp add_assignment $top_name "" adc_dco_n LOCATION "Pin_AF5"
+cmp add_assignment $top_name "" adc_dco_p LOCATION "Pin_AE5"
+
+
+#############################################################
+# Everything below this has not be updated for Stratix III yet.
+#############################################################
+
+
 # assign rst_n
 cmp add_assignment $top_name "" rst_n LOCATION "Pin_N24"
 puts "   Assigned: RST_N pin."
@@ -433,7 +298,7 @@ puts "   Assigned: LED pins."
 #puts "   Assigned: Watchdog pin."
 
 
-### reply lines to clock card (brx7a, brx7b)
+# reply lines to clock card (brx7a, brx7b)
 cmp add_assignment $top_name "" lvds_txa LOCATION "Pin_AE12"
 cmp add_assignment $top_name "" lvds_txb LOCATION "Pin_AG12"
 cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_AD12"
