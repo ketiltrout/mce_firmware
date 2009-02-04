@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.18  2008/10/03 00:32:14  mandana
+-- BB: Removed the z_dat_i port in fsfb_processor.vhd and fsfb_calc_pack.vhd to the fsfb_proc_pidz block, in an effort to make it clearer within that block that the z-term is always = 0.
+--
 -- Revision 1.17  2008/07/08 22:16:47  mandana
 -- added comments for filter coefficients, no code change.
 --
@@ -127,7 +130,7 @@ package fsfb_calc_pack is
    constant FILTER_LOCK_LSB_POS    : integer := 12;            -- scaling factor for the input to the filter chain
                                                                -- a sliding window of the 66b result is used as the filter input
    constant FILTER_SCALE_LSB       : integer := 1;
-   constant FILTER_GAIN_WIDTH      : integer := 11;            -- 1/2^11 is the gain scaling between two filter stages.
+   constant FILTER_GAIN_WIDTH      : integer := 18;            -- 1/2^11 is the gain scaling between two filter stages.
  
    constant FILTER_INPUT_WIDTH     : integer := 18;            -- number of bits in the input NOT USED 
    constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
@@ -150,22 +153,35 @@ package fsfb_calc_pack is
    -- for princeton act fc/fs=100/12195, SOS: 1  2  1  1  -1.9587428340882587  0.96134553442399129 (1st biquad)       
    --                                         1  2  1  1  -1.9066292518523014  0.90916270571237567 (2nd biquad)       
    --                           Scale Values: 0.00065067508393319923                                       
-   --                                         0.00063336346501859835       
+   --                                         0.00063336346501859835   
+   -------------------------------------------------------------------------------------------------------------
+   -- for bicep2 fc/fs=5/15151           SOS: 1  2  1  1  -1.99841001115392 0.998414306952047
+   --                                         1  2  1  1  -1.99617179493117 0.996176085918005
+   -- FilterStructure: 'Direct-Form II, Second-Order Sections'
+   -- Arithmetic: 'double'
+   -- num1: 1 2 1
+   -- den1: 1 -1.99841001115392 0.998414306952047
+   -- 
+   -- num2: 1 2 1
+   -- den2: 1 -1.99617179493117 0.996176085918005]
+   -- gain1: 1.07394953103628e-06
+   -- gain2: 1.07274670916821e-06
+   -------------------------------------------------------------------------------------------------------------    
+   
    -- To convert to signed binary fractional, multiply the number by 2^14 and convert to hex. 
                                                                                          
-   constant FILTER_B11_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "111110101011100"; -- SBF 1.14, 0x7D5C, -1.9587428340882587
-                                                                                      --"111101001010001"; -- SBF 1.14, 0x7A51, -1.9111970674260732 
-                                                                                      --"111111010000010"; -- SBF 1.14, 0x7e82, -1.976684937589464
-                                                                                      --"11111101001010"; --SBF 1.13, 0x3f4a = 1.977786483(dec)
+   constant FILTER_B11_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "111111111100101"; -- SBF 1.14  0x7fe5, -1.99841001115392 for bicep2
+                                                                                      --"111110101011100"; -- SBF 1.14, 0x7D5C, -1.9587428340882587
    
 
-   constant FILTER_B12_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "011110110000110"; -- SBF 1.14, 0x3D86, 0.96134553442399129
-                                                                                      --"011101010001110"; -- SBF 1.14, 0x3a8e, 0.91497583480143374   
-                                                                                      --"011111010000110"; -- SBF 1.14, 0x3e86, 0.97695361953638415  
-                                                                                      --"01111101001100"; --SBF 1.13, 0x1f4c = 0.97803050849
+   constant FILTER_B12_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "011111111100110"; -- SBF 1.14, 0x3fe6, 0.998414306952047 for bicep2
+                                                                                      --"011110110000110"; -- SBF 1.14, 0x3D86, 0.96134553442399129
 
-   constant FILTER_B21_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "111101000000110"; -- SBF 1.14, 0x7A06, -1.9066292518523014
-   constant FILTER_B22_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "011101000101111"; -- SBF 1.14, 0x3A2F, 0.90916270571237567   
+   constant FILTER_B21_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "111111111000001"; -- SBF 1.14, 0x7Fc1  -1.99617179493117 for bicep2
+                                                                                      --"111101000000110"; -- SBF 1.14, 0x7A06, -1.9066292518523014
+                                                                                      
+   constant FILTER_B22_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "011111111000001"; -- SBF 1.14, 0x3FC1, 0.996176085918005 for bicep2
+                                                                                      --"011101000101111"; -- SBF 1.14, 0x3A2F, 0.90916270571237567   
                                                                                        
    ---------------------------------------------------------------------------------
    -- First stage feedback input output controller component
@@ -367,8 +383,23 @@ package fsfb_calc_pack is
       qa          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
       qb          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0));
   end component;
+
+   ---------------------------------------------------------------------------------------
+   -- First stage pidz queue component, generated by ALTERA megafunction
+   ---------------------------------------------------------------------------------------
    
-          
+  component pid_ram
+    port (
+      data        : IN  STD_LOGIC_VECTOR (PIDZ_DATA_WIDTH-1 DOWNTO 0);
+      wraddress   : IN  STD_LOGIC_VECTOR (PIDZ_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_a : IN  STD_LOGIC_VECTOR (PIDZ_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_b : IN  STD_LOGIC_VECTOR (PIDZ_ADDR_WIDTH-1 DOWNTO 0);
+      wren        : IN  STD_LOGIC := '1';
+      clock       : IN  STD_LOGIC;
+      qa          : OUT STD_LOGIC_VECTOR (PIDZ_DATA_WIDTH-1 DOWNTO 0);
+      qb          : OUT STD_LOGIC_VECTOR (PIDZ_DATA_WIDTH-1 DOWNTO 0));
+  end component;
+        
    ---------------------------------------------------------------------------------
    -- First stage feedback multiplier component, generated by ALTERA megafunction
    ---------------------------------------------------------------------------------
