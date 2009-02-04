@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.8  2006/07/28 17:44:53  mandana
+-- modified impulse to 50000 to test for dynamic input range of the filter
+--
 -- Revision 1.7  2006/02/17 21:12:59  mandana
 -- added fltr_rst
 -- accomodated flux_quanta properly
@@ -264,10 +267,10 @@ architecture test of tb_fsfb_calc is
       signal i_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       signal d_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       signal flux_quanta_addr_o: out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
-      signal p_dat_o  : out std_logic_vector(7 downto 0);
-      signal i_dat_o  : out std_logic_vector(7 downto 0);        
-      signal d_dat_o  : out std_logic_vector(7 downto 0);           
-      signal flux_quanta_dat_o  : out std_logic_vector(13 downto 0);           
+      signal p_dat_o  : out std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+      signal i_dat_o  : out std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);        
+      signal d_dat_o  : out std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);           
+      signal flux_quanta_dat_o  : out std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0);           
       signal p_wren_o : out std_logic;
       signal i_wren_o : out std_logic;
       signal d_wren_o : out std_logic;
@@ -516,7 +519,7 @@ begin
          dat <= dat + 1;
       end if;
       if (dat > 2481 and dat<3294) then -- to generate an impulse after init_window is done and only for one frame period
-        impulse <= 50000;
+        impulse <= 5000;
       else 
         impulse <= 0;
       end if;  
@@ -610,7 +613,7 @@ begin
       
 
    -- Instantiate P coefficient queue
-   p_queue : ram_8x64 
+   p_queue : pid_ram 
       port map (
          data                     => pq_wrdata_i,
          wraddress                => pq_wraddr_i,
@@ -625,7 +628,7 @@ begin
 
    
    -- Instantiate I coefficient queue
-   i_queue : ram_8x64
+   i_queue : pid_ram
       port map (
          data                     => iq_wrdata_i,
          wraddress                => iq_wraddr_i,
@@ -640,7 +643,7 @@ begin
 
    
    -- Instantiate D coefficient queue
-   d_queue : ram_8x64 
+   d_queue : pid_ram 
       port map (
          data                     => dq_wrdata_i,
          wraddress                => dq_wraddr_i,
