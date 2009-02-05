@@ -90,14 +90,14 @@ dac_FB3_dat[4]               : A7        : output : 3.3-V LVTTL       :         
 dac_FB3_dat[5]               : A8        : output : 3.3-V LVTTL       :         : 7A        : Y              
 dac_FB3_dat[6]               : A9        : output : 3.3-V LVTTL       :         : 7A        : Y              
 adc3_ovr                     : A10       : input  : 3.3-V LVTTL       :         : 7C        : Y              
-mictor[0]                    : A11       : output : 3.3-V LVTTL       :         : 7C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : A11       :        :                   :         : 7C        :                
 test_status[5]               : A12       : output : 3.3-V LVTTL       :         : 7C        : Y              
 adc6_dat[4]                  : A13       : input  : 3.3-V LVTTL       :         : 7C        : Y              
 adc6_dat[2]                  : A14       : input  : 3.3-V LVTTL       :         : 7C        : Y              
 dac_FB_clk[1]                : A15       : output : 3.3-V LVTTL       :         : 8C        : Y              
-mictor[10]                   : A16       : output : 3.3-V LVTTL       :         : 8C        : Y              
-mictor[6]                    : A17       : output : 3.3-V LVTTL       :         : 8C        : Y              
-mictor[8]                    : A18       : output : 3.3-V LVTTL       :         : 8C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : A16       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A17       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A18       :        :                   :         : 8C        :                
 dac_FB2_dat[3]               : A19       : output : 3.3-V LVTTL       :         : 8C        : Y              
 dac_FB_clk[3]                : A20       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac_FB4_dat[3]               : A21       : output : 3.3-V LVTTL       :         : 8A        : Y              
@@ -165,7 +165,7 @@ RESERVED_INPUT_WITH_WEAK_PULLUP : AB27      :        :                   :      
 RESERVED_INPUT_WITH_WEAK_PULLUP : AB28      :        :                   :         : 2A        :                
 dac_FB7_dat[3]               : AC1       : output : 3.3-V LVTTL       :         : 5A        : Y              
 dac_FB7_dat[9]               : AC2       : output : 3.3-V LVTTL       :         : 5A        : Y              
-mictor[5]                    : AC3       : output : 3.3-V LVTTL       :         : 5A        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC3       :        :                   :         : 5A        :                
 dac_dat[6]                   : AC4       : output : 3.3-V LVTTL       :         : 5A        : Y              
 DCLK                         : AC5       :        :                   :         : 1A        :                
 VCCIO4A                      : AC6       : power  :                   : 3.3V    : 4A        :                
@@ -196,7 +196,7 @@ GND                          : AD2       : gnd    :                   :         
 VCCIO5A                      : AD3       : power  :                   : 3.3V    : 5A        :                
 nCSO                         : AD4       :        :                   :         : 1A        :                
 GND                          : AD5       : gnd    :                   :         :           :                
-mictor[7]                    : AD6       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD6       :        :                   :         : 4A        :                
 adc4_dat[5]                  : AD7       : input  : 3.3-V LVTTL       :         : 4A        : Y              
 GND                          : AD8       : gnd    :                   :         :           :                
 adc3_dat[4]                  : AD9       : input  : 3.3-V LVTTL       :         : 4A        : Y              
@@ -252,9 +252,9 @@ dac_FB7_dat[8]               : AF2       : output : 3.3-V LVTTL       :         
 GND                          : AF3       : gnd    :                   :         :           :                
 VCCIO4A                      : AF4       : power  :                   : 3.3V    : 4A        :                
 adc6_dat[5]                  : AF5       : input  : 3.3-V LVTTL       :         : 4A        : Y              
-mictor[4]                    : AF6       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF6       :        :                   :         : 4A        :                
 VCCIO4A                      : AF7       : power  :                   : 3.3V    : 4A        :                
-mictor[3]                    : AF8       : output : 3.3-V LVTTL       :         : 4A        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF8       :        :                   :         : 4A        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : AF9       :        :                   :         : 4A        :                
 slot_id[3]                   : AF10      : input  : 3.3-V LVTTL       :         : 4C        : Y              
 slot_id[2]                   : AF11      : input  : 3.3-V LVTTL       :         : 4C        : Y              
@@ -313,9 +313,9 @@ adc6_clk                     : AH8       : output : 3.3-V LVTTL       :         
 adc7_clk                     : AH9       : output : 3.3-V LVTTL       :         : 4A        : Y              
 ttl_in2                      : AH10      : input  : 3.3-V LVTTL       :         : 4C        : Y              
 ttl_in1                      : AH11      : input  : 3.3-V LVTTL       :         : 4C        : Y              
-mictor[13]                   : AH12      : output : 3.3-V LVTTL       :         : 4C        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH12      :        :                   :         : 4C        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : AH13      :        :                   :         : 4C        :                
-mictor[11]                   : AH14      : output : 3.3-V LVTTL       :         : 4C        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH14      :        :                   :         : 4C        :                
 test_status[3]               : AH15      : output : 3.3-V LVTTL       :         : 3C        : Y              
 adc5_dat[8]                  : AH16      : input  : 3.3-V LVTTL       :         : 3C        : Y              
 pnf_per_byte[5]              : AH17      : output : 3.3-V LVTTL       :         : 3C        : Y              
@@ -744,8 +744,8 @@ RESERVED_INPUT_WITH_WEAK_PULLUP : T20       :        :                   :      
 dip_sw4                      : T21       : input  : 3.3-V LVTTL       :         : 2C        : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : T22       :        :                   :         : 2C        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : T23       :        :                   :         : 2C        :                
-mictor[9]                    : T24       : output : 3.3-V LVTTL       :         : 2C        : N              
-mictor[12]                   : T25       : output : 3.3-V LVTTL       :         : 2C        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : T24       :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T25       :        :                   :         : 2C        :                
 VCCIO2C                      : T26       : power  :                   : 3.3V    : 2C        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : T27       :        :                   :         : 2C        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : T28       :        :                   :         : 2C        :                
@@ -774,7 +774,7 @@ VREFB2CN0                    : U22       : power  :                   :         
 RESERVED_INPUT_WITH_WEAK_PULLUP : U23       :        :                   :         : 2C        :                
 GND                          : U24       : gnd    :                   :         :           :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : U25       :        :                   :         : 2C        :                
-mictor[2]                    : U26       : output : 3.3-V LVTTL       :         : 2C        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : U26       :        :                   :         : 2C        :                
 GND                          : U27       : gnd    :                   :         :           :                
 inclk_ddr                    : U28       : input  : 3.3-V LVTTL       :         : 2C        : Y              
 dac_FB8_dat[0]               : V1        : output : 3.3-V LVTTL       :         : 5C        : Y              
@@ -832,7 +832,7 @@ RESERVED_INPUT_WITH_WEAK_PULLUP : W24       :        :                   :      
 RESERVED_INPUT_WITH_WEAK_PULLUP : W25       :        :                   :         : 2A        :                
 VCCIO2A                      : W26       : power  :                   : 1.8V    : 2A        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : W27       :        :                   :         : 2C        :                
-mictor[1]                    : W28       : output : 3.3-V LVTTL       :         : 2C        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : W28       :        :                   :         : 2C        :                
 dac_FB7_dat[6]               : Y1        : output : 3.3-V LVTTL       :         : 5A        : Y              
 dac_FB7_dat[11]              : Y2        : output : 3.3-V LVTTL       :         : 5A        : Y              
 offset_dac_ncs[6]            : Y3        : output : 3.3-V LVTTL       :         : 5A        : Y              
