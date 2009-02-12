@@ -107,7 +107,7 @@ BEGIN
 		indata_aclr => "OFF",
 		indata_reg => "INCLOCK",
 		intended_device_family => "Stratix",
-		lpm_file => "C:/scuba2_repository/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.hex",
+		lpm_file => "C:/mce/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.hex",
 		lpm_type => "alt3pram",
 		outdata_aclr_a => "OFF",
 		outdata_aclr_b => "OFF",
@@ -161,7 +161,7 @@ END SYN;
 -- Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 -- Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 -- Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
--- Retrieval info: PRIVATE: MIFfilename STRING "C:/scuba2_repository/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.hex"
+-- Retrieval info: PRIVATE: MIFfilename STRING "C:/mce/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.hex"
 -- Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
 -- Retrieval info: PRIVATE: REGdata NUMERIC "1"
 -- Retrieval info: PRIVATE: REGqa NUMERIC "1"
@@ -179,7 +179,7 @@ END SYN;
 -- Retrieval info: CONSTANT: INDATA_ACLR STRING "OFF"
 -- Retrieval info: CONSTANT: INDATA_REG STRING "INCLOCK"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
--- Retrieval info: CONSTANT: LPM_FILE STRING "C:/scuba2_repository/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.hex"
+-- Retrieval info: CONSTANT: LPM_FILE STRING "C:/mce/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.hex"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "alt3pram"
 -- Retrieval info: CONSTANT: OUTDATA_ACLR_A STRING "OFF"
 -- Retrieval info: CONSTANT: OUTDATA_ACLR_B STRING "OFF"
