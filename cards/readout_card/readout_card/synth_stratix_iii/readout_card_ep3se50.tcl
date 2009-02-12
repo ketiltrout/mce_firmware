@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth\readout_card.tcl
 # Generated on: Thu Nov 27 22:24:55 2008
 
-# $Id: readout_card_ep3se50.tcl,v 1.2 2009/02/04 00:03:47 bburger Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.3 2009/02/11 16:16:15 mandana Exp $
 
 # print welcome message
 puts "\n\nReadout Card Rev C Pin Assignment Script"
@@ -263,6 +263,8 @@ puts "   Assigned: DDR test pins."
 # PLL_L2 in     = CLK2       (from crystal via CPLD)
 # PLL_R1_in     = CLK9
 cmp add_assignment $top_name "" inclk LOCATION "Pin_U2"
+# inclk_ddr assigned in ddr section
+# cmp add_assignment $top_name "" inclk_ddr LOCATION "Pin_U28"
 cmp add_assignment $top_name "" "pll_l2_out\[0\]" LOCATION "Pin_P19"
 puts "   Assigned: PLL pins."
 
@@ -323,6 +325,14 @@ cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_AD12"
 cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_AE11"
 cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_AE12"
 puts "   Assigned: LVDS pins."
+
+# assign rs232 interface
+cmp add_assignment $top_name "" tx LOCATION "Pin_M23"
+cmp add_assignment $top_name "" rx LOCATION "Pin_M22"
+puts "   Assigned: RS232 pins."
+
+# assign mictor connector header
+puts "   Assigned: Mictor header pins: to be COMPLETED!"
 
 # assign SMB pins to read fpga temperature
 cmp add_assignment $top_name "" smb_clk LOCATION "Pin_L28"
