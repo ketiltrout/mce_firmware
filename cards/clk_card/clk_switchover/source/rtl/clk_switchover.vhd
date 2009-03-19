@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_switchover.vhd,v 1.5 2006/08/16 17:52:53 bburger Exp $
+-- $Id: clk_switchover.vhd,v 1.6 2007/07/25 19:02:36 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_switchover.vhd,v $
+-- Revision 1.6  2007/07/25 19:02:36  bburger
+-- BB: added checking in the block for bad manchester or crystal clocks, and automoatic switchover if this occurs.
+--
 -- Revision 1.5  2006/08/16 17:52:53  bburger
 -- Bryce:  Fixed a bug -- the clockswitch signal is now asserted until activeclk changes state
 --
@@ -276,7 +279,7 @@ begin
                end if;
             end if;
 
-         -- This state is required because it takes 2 clock cycles for clkswitch being asserted to trigger a switch
+         -- This state is required because it takes 3 clock cycles for clkswitch being asserted to trigger a switch
          when SWITCHING_2_MANCHESTER =>
             if(activeclock = MANCH_CLK) then
                ns <= MANCHESTER_CLK;
@@ -293,7 +296,7 @@ begin
                end if;
             end if;
 
-         -- This state is required because it takes 2 clock cycles for clkswitch being asserted to trigger a switch
+         -- This state is required because it takes 3 clock cycles for clkswitch being asserted to trigger a switch
          when SWITCHING_2_CRYSTAL =>
             if(activeclock = XTAL_CLK) then
                ns <= CRYSTAL_CLK;
