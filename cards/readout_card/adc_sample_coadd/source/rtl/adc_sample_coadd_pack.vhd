@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.6  2008/06/19 23:50:15  mandana
+-- increased USED_RAW_DAT_WIDTH to 14 and use it to make definitions parametric
+--
 -- Revision 1.5  2005/06/23 17:26:51  mohsen
 -- MA/BB: RAW_DATA_POSITION_POINTER changed from 8 to 14
 --
@@ -72,7 +75,6 @@ package adc_sample_coadd_pack is
   -----------------------------------------------------------------------------
 
   
-  constant ADC_LATENCY               : integer := 4;  
   constant TOTAL_ROW_NO              : integer := 64;
   constant FSFB_DONE_DLY             : integer := 6;
   constant NUMB_RAW_FRM_TO_GRAB      : integer := 2;                    -- =#of raw frames to grab
