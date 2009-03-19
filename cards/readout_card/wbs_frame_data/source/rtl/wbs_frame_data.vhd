@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2008/12/22 20:35:03 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2009/01/16 02:18:24 $> - <text> - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -646,26 +646,26 @@ begin
    raw_addr_ch6_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
    raw_addr_ch7_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
 
---------------------------------------------------------------------------------------------
---  Data OUTPUT Select MUX.  These are all the Data Modes present in this firmware!  (key words: data_mode, data mode))
----------------------------------------------------------------------------------------------
--- Note: 1000 or data_mode 8 is skipped for backward compatibility as it was used for different windowing in rc 4.0.4firmware
-    dat_out_mux_sel <= data_mode(DAT_MUX_SEL_WIDTH-1 downto 0);
+   --------------------------------------------------------------------------------------------
+   --  Data OUTPUT Select MUX.  These are all the Data Modes present in this firmware!  (key words: data_mode, data mode))
+   ---------------------------------------------------------------------------------------------
+   -- Note: 1000 or data_mode 8 is skipped for backward compatibility as it was used for different windowing in rc 4.0.4firmware
+   dat_out_mux_sel <= data_mode(DAT_MUX_SEL_WIDTH-1 downto 0);
 
-    with dat_out_mux_sel select wbs_data <=
-       error_dat           when x"0",
-       unfiltered_dat      when x"1",
-       filtered_dat        when x"2",
-       -- raw_dat             when x"3",
-       fb_error_dat        when x"4",
-       fb_flx_cnt_dat      when x"5",
-       -- filtfb_error_dat    when x"6", -- mod 6 is skipped, as 7 is a better solution
-       filtfb_error_2_dat  when x"7",
-       -- filtfb_flx_cnt_dat3 when x"8", -- was mixed data: 24b filtered fb + 8b flux-jump counter (revision 4.0.4 only)
-       -- filtfb_flx_cnt_dat  when x"9",
-       filtfb_flx_cnt_dat2 when x"A",
-       "00000000000000000000000" & pix_address_dly2    when x"B",
-       (others => '0')     when others;
+   with dat_out_mux_sel select wbs_data <=
+      error_dat           when x"0",
+      unfiltered_dat      when x"1",
+      filtered_dat        when x"2",
+      -- raw_dat             when x"3",
+      fb_error_dat        when x"4",
+      fb_flx_cnt_dat      when x"5",
+      -- filtfb_error_dat    when x"6", -- mod 6 is skipped, as 7 is a better solution
+      filtfb_error_2_dat  when x"7",
+      -- filtfb_flx_cnt_dat3 when x"8", -- was mixed data: 24b filtered fb + 8b flux-jump counter (revision 4.0.4 only)
+      -- filtfb_flx_cnt_dat  when x"9",
+      filtfb_flx_cnt_dat2 when x"A",
+      "00000000000000000000000" & pix_address_dly2    when x"B",
+      (others => '0')     when others;
 
    --------------------------------------------------------------------------------------------
    --                 Channel select MUXs
@@ -791,6 +791,10 @@ begin
       filtered_dat_ch5_i(27 downto 3) & flux_cnt_dat_ch5_i(6 downto 0) when "101",
       filtered_dat_ch6_i(27 downto 3) & flux_cnt_dat_ch6_i(6 downto 0) when "110",
       filtered_dat_ch7_i(27 downto 3) & flux_cnt_dat_ch7_i(6 downto 0) when others;
+      
+   -- Data Mode 11
+   -- Consists of the pixel address:  6-bit row index, 3-bit column index.
+   -- The data output is taken care of by the wbs_data multiplexer. 
 
    -------------------------------------------------------------------------------------------------
    --                      Data Mode & Readout Row Index Register
