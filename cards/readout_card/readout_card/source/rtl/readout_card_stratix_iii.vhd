@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log: readout_card.vhd,v $
+-- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.1  2009/01/23 23:49:36  bburger
+-- BB:  Adding new files for Readout Card rev. C.  Also regenerated the following RAM blocks for the new revision:  pid_ram, ram_14x64, wbs_fb_storage.
+--
 --
 -----------------------------------------------------------------------------
 -- turn off superfluous VHDL processor warnings 
@@ -55,6 +58,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.readout_card_pack.all;
 use work.all_cards_pack.all;
+use work.adc_sample_coadd_pack.all;
 
 entity readout_card_stratix_iii is
 generic(
@@ -67,39 +71,23 @@ port(
    inclk           : in std_logic;
    inclk_ddr       : in std_logic;
    
-   -- ADC Interface
-   adc1_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc2_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc3_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc4_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc5_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc6_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc7_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc8_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-   adc1_ovr        : in  std_logic;
-   adc2_ovr        : in  std_logic;
-   adc3_ovr        : in  std_logic;
-   adc4_ovr        : in  std_logic;
-   adc5_ovr        : in  std_logic;
-   adc6_ovr        : in  std_logic;
-   adc7_ovr        : in  std_logic;
-   adc8_ovr        : in  std_logic;
-   adc1_rdy        : in  std_logic;
-   adc2_rdy        : in  std_logic;
-   adc3_rdy        : in  std_logic;
-   adc4_rdy        : in  std_logic;
-   adc5_rdy        : in  std_logic;
-   adc6_rdy        : in  std_logic;
-   adc7_rdy        : in  std_logic;
-   adc8_rdy        : in  std_logic;
-   adc1_clk        : out std_logic;
-   adc2_clk        : out std_logic;
-   adc3_clk        : out std_logic;
-   adc4_clk        : out std_logic;
-   adc5_clk        : out std_logic;
-   adc6_clk        : out std_logic;
-   adc7_clk        : out std_logic;
-   adc8_clk        : out std_logic;
+   -- ADC Interface for Readout Card Rev. C 
+   -- How do I instantiate and LVDS receiver?
+   adc0_lvds_p : in std_logic; 
+   adc1_lvds_p : in std_logic; 
+   adc2_lvds_p : in std_logic; 
+   adc3_lvds_p : in std_logic; 
+   adc4_lvds_p : in std_logic; 
+   adc5_lvds_p : in std_logic; 
+   adc6_lvds_p : in std_logic; 
+   adc7_lvds_p : in std_logic; 
+   adc_fco_p   : in std_logic;
+   adc_clk_p   : out std_logic; 
+   adc_sclk    : out std_logic;
+   adc_sdio    : inout std_logic; 
+   adc_csb_n   : out std_logic; 
+   adc_pdwn    : out std_logic;
+   adc_dco_p   : in std_logic;
 
    -- DAC Interface
    dac_FB1_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
@@ -159,10 +147,6 @@ port(
    smb_nalert      : in std_logic;
    smb_data        : inout std_logic;      
 
-   -- Debug ports
-   -- the other 18 mictor connections are dedicated ddr test pins, see pnf* and test_* ports
-   mictor          : out std_logic_vector(13 downto 0); 
-   
    -- DDR2 interface
    -- outputs:
    mem_addr : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
@@ -194,17 +178,48 @@ architecture top of readout_card_stratix_iii is
    --               rr is the minor revision number
    --               BBBB is the build number
    
-   constant RC_REVISION: std_logic_vector (31 downto 0) := X"05000001"; -- 12b pid pars , sa_bias/offset updated only when modified
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000001"; -- 12b pid pars , sa_bias/offset updated only when modified
                                                                         -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
                                                                         -- removed quartus.ini from synth directory
    -- Global signals
-   signal clk                     : std_logic;  -- system clk
-   signal comm_clk                : std_logic;  -- communication clk
-   signal spi_clk                 : std_logic;  -- spi clk
+   signal clk                     : std_logic; -- system clk
+   signal comm_clk                : std_logic; -- communication clk
+   signal spi_clk                 : std_logic; -- spi clk
    signal rst                     : std_logic;
    signal clk_n                   : std_logic;
+   signal samp_clk                : std_logic; -- ADC sampling clock
+   signal serial_clk              : std_logic;
+   signal sync_clk1               : std_logic;
+   signal sync_clk2               : std_logic;
+   signal sync_clk3               : std_logic;
+
+   -- Readout Card Rev. C ADC Signals
+   signal clk0        : std_logic;
+   signal clk1        : std_logic;
+   signal clk2        : std_logic;
+   signal clk3        : std_logic;
+   signal clk4        : std_logic;
+   signal locked      : std_logic;
    
-   -- dispatch interface signals 
+   signal adc_dat     : std_logic_vector(7 downto 0);
+   signal serdes_dat0 : std_logic_vector(55 downto 0);
+   signal serdes_dat1 : std_logic_vector(55 downto 0);
+   signal serdes_dat2 : std_logic_vector(55 downto 0);
+   signal serdes_dat3 : std_logic_vector(111 downto 0);
+   signal serdes_dat4 : std_logic_vector(111 downto 0);
+   signal serdes_dat5 : std_logic_vector(111 downto 0);
+   signal serdes_dat6 : std_logic_vector(111 downto 0);
+   
+   signal adc_dat0    : std_logic_vector(13 downto 0);
+   signal adc_dat1    : std_logic_vector(13 downto 0);
+   signal adc_dat2    : std_logic_vector(13 downto 0);
+   signal adc_dat3    : std_logic_vector(13 downto 0);
+   signal adc_dat4    : std_logic_vector(13 downto 0);
+   signal adc_dat5    : std_logic_vector(13 downto 0);
+   signal adc_dat6    : std_logic_vector(13 downto 0);
+   signal adc_dat7    : std_logic_vector(13 downto 0);
+  
+   -- Dispatch interface signals 
    signal dispatch_dat_out        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal dispatch_addr_out       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
    signal dispatch_tga_out        : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
@@ -312,6 +327,19 @@ architecture top of readout_card_stratix_iii is
 
 begin
 
+   -- Default assignments for ADC control pins
+   adc_sclk  <= '0';  --: out std_logic;
+   adc_sdio  <= '0';  --: inout std_logic; 
+   adc_csb_n <= '0';  --: out std_logic; 
+   adc_pdwn  <= '0';  --: out std_logic;   
+   
+   -- Default assignments to get rid of synthesis warnings.
+   ttl_out1 <= '0';
+   ttl_dir2 <= '0';
+   ttl_out2 <= '0';
+   ttl_dir3 <= '0';
+   ttl_out3 <= '0';
+   
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_dir1 <= '1';
@@ -331,9 +359,108 @@ begin
       c1     => open,
       c2     => comm_clk,
       c3     => spi_clk,
-      c4     => clk_n
+      c4     => clk_n,
+      c5     => adc_clk_p
    );
    
+   ----------------------------------------------------------------------------
+   -- ADC Receiver Instantiation.  
+   ----------------------------------------------------------------------------
+   -- This ADC receiver logic has a 2-cycle latency in it's throughput (i.e. Two 50-MHz clock cycles).
+   -- That is, it takes 2 clock cycles from the start of the first bit received to the expression of the whole 14-bit word on adc_dat0..7
+   -- For information on this logic, see:  http://www.altera.com/support/examples/functionality/pll-clocking-stratix3.html
+   -- In addition to this, the ADC has an inherant latency of 8 clock cycles + t_fco (~2.3ns) + t_board (~ 0.5ns)
+   -- For information on this, see p. of http://www.analog.com/static/imported-files/data_sheets/AD9252.pdf
+   -- Thus, the total latency from ADC to servo input is = 2 + 8 + 2.3ns/20ns + 0.5/20ns = 10.14 clock cycles
+   -- Therefore we must wait 11 clock cycles from the beginning of the frame period to be sampling data from that frame period.
+   -- This has to be built into the firmware in the same manner that the 4-cycle delay is built in for Rev A/B.
+   i_adc_pll: adc_pll_stratix_iii
+   port map (
+      -- adc_fco_p is the framing signal from the ADC
+      inclk0 => adc_fco_p,
+      -- clk0: 700.00 MHz, phase shift = -180.00 degrees, duty cycle = 50.00%, fully compensated
+      c0     => clk0,
+      -- clk1: 100.00 MHz, phase shift = +128.57 degrees, duty cycle = 21.42%
+      c1     => clk1,
+      -- clk2: 050.00 MHz, phase shift = +295.71 degrees, duty cycle = 50.00%  [Note: phase shift = (9/28)*360]
+      c2     => clk2,
+      -- clk3: 050.00 MHz, phase shift = +115.71 degrees, duty cycle = 50.00%  [Note: phase shift = ([9+14]/28)*360]
+      c3     => clk3,
+      -- clk4: 050.00 MHz, phase shift = +141.42 degrees, duty cycle = 50.00%  [Note: phase shift = (11/28)*360]
+      c4     => clk4,
+      locked => locked
+   );
+
+   adc_dat <= adc7_lvds_p & adc6_lvds_p & adc5_lvds_p & adc4_lvds_p & adc3_lvds_p & adc2_lvds_p & adc1_lvds_p & adc0_lvds_p;
+   i_adc_serdes: adc_serdes 
+   port map (
+      rx_enable  => clk1, -- This is always enabled to see what the running output of the deserializer is.
+      rx_in      => adc_dat,    
+      rx_inclock => clk0,    
+      rx_out     => serdes_dat0   
+   );
+  
+   i_adc_serdes_flipflop1: flipflop_56
+   port map (
+      clock      => clk2,
+      data       => serdes_dat0,
+      q          => serdes_dat1
+   );
+   
+   i_adc_serdes_flipflop2: flipflop_56
+   port map (
+      clock      => clk3,
+      data       => serdes_dat0,
+      q          => serdes_dat2
+   );   
+   
+   serdes_dat3 <= 
+      serdes_dat1(55 downto 49) & serdes_dat2(55 downto 49) &
+      serdes_dat1(48 downto 42) & serdes_dat2(48 downto 42) &
+      serdes_dat1(41 downto 35) & serdes_dat2(41 downto 35) &
+      serdes_dat1(34 downto 28) & serdes_dat2(34 downto 28) &
+      serdes_dat1(27 downto 21) & serdes_dat2(27 downto 21) &
+      serdes_dat1(20 downto 14) & serdes_dat2(20 downto 14) &
+      serdes_dat1(13 downto  7) & serdes_dat2(13 downto  7) &
+      serdes_dat1(6  downto  0) & serdes_dat2(6  downto  0);
+
+   i_adc_serdes_flipflop3: flipflop_112
+   port map (
+      clock      => clk4,
+      data       => serdes_dat3,
+      q          => serdes_dat4
+   );   
+   
+   ---------------------------------------------------------
+   -- Double Synchronizer for ADC Data
+   ---------------------------------------------------------
+   process(rst, clk_n)
+   begin
+      if(rst = '1') then
+         serdes_dat5 <= (others => '0');
+      elsif(clk_n'event and clk_n = '1') then
+         serdes_dat5 <= serdes_dat4;
+      end if;
+   end process;
+
+   process(rst, clk)
+   begin
+      if(rst = '1') then
+         serdes_dat6 <= (others => '0');
+      elsif(clk'event and clk = '1') then
+         serdes_dat6 <= serdes_dat5;
+      end if;
+   end process;
+   
+   adc_dat0 <=  serdes_dat6(13  downto 0);
+   adc_dat1 <=  serdes_dat6(27  downto 14);
+   adc_dat2 <=  serdes_dat6(41  downto 28);
+   adc_dat3 <=  serdes_dat6(55  downto 42);
+   adc_dat4 <=  serdes_dat6(69  downto 56);
+   adc_dat5 <=  serdes_dat6(83  downto 70);
+   adc_dat6 <=  serdes_dat6(97  downto 84);
+   adc_dat7 <=  serdes_dat6(111 downto 98);
+
    ----------------------------------------------------------------------------
    -- Dispatch Instantiation
    ----------------------------------------------------------------------------
@@ -435,34 +562,34 @@ begin
       '0'             when others;        -- default to zero
 
    with dispatch_addr_out select dispatch_err_in <=
-     '0'             when GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
-                          GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
-                          GAINP6_ADDR | GAINP7_ADDR |
-                          GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
-                          GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
-                          GAINI6_ADDR | GAINI7_ADDR |
-                          GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
-                          GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
-                          GAIND6_ADDR | GAIND7_ADDR |
-                          FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
-                          FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR |
-                          ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
-                          ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
-                          ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
-                          ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
-                          FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
-                          RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                          SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
-                          DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
-                          READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR |
-                          LED_ADDR |
-                          ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
-                          SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                          RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
-    all_cards_err    when FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
-    id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
-    fpga_thermo_err  when FPGA_TEMP_ADDR,
-    '1'              when others;        
+      '0'             when GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
+                           GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
+                           GAINP6_ADDR | GAINP7_ADDR |
+                           GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
+                           GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
+                           GAINI6_ADDR | GAINI7_ADDR |
+                           GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
+                           GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
+                           GAIND6_ADDR | GAIND7_ADDR |
+                           FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
+                           FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR |
+                           ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
+                           ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
+                           ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
+                           ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
+                           FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
+                           RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
+                           SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
+                           DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
+                           READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR |
+                           LED_ADDR |
+                           ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
+                           SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
+                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+      all_cards_err   when FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
+      id_thermo_err   when CARD_ID_ADDR | CARD_TEMP_ADDR,
+      fpga_thermo_err when FPGA_TEMP_ADDR,
+      '1'             when others;        
    
    ----------------------------------------------------------------------------
    -- Frame_timing Instantiation
@@ -504,6 +631,7 @@ begin
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
    i_flux_loop: flux_loop
+   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
    port map (
       clk_50_i                  => clk,
       clk_25_i                  => spi_clk,
@@ -530,38 +658,60 @@ begin
       ack_frame_o               => ack_frame,
       dat_fb_o                  => dat_fb,
       ack_fb_o                  => ack_fb,
-      adc_dat_ch0_i             => adc1_dat,
-      adc_dat_ch1_i             => adc2_dat,
-      adc_dat_ch2_i             => adc3_dat,
-      adc_dat_ch3_i             => adc4_dat,
-      adc_dat_ch4_i             => adc5_dat,
-      adc_dat_ch5_i             => adc6_dat,
-      adc_dat_ch6_i             => adc7_dat,
-      adc_dat_ch7_i             => adc8_dat,
-      adc_ovr_ch0_i             => adc1_ovr,
-      adc_ovr_ch1_i             => adc2_ovr,
-      adc_ovr_ch2_i             => adc3_ovr,
-      adc_ovr_ch3_i             => adc4_ovr,
-      adc_ovr_ch4_i             => adc5_ovr,
-      adc_ovr_ch5_i             => adc6_ovr,
-      adc_ovr_ch6_i             => adc7_ovr,
-      adc_ovr_ch7_i             => adc8_ovr,
-      adc_rdy_ch0_i             => adc1_rdy,
-      adc_rdy_ch1_i             => adc2_rdy,
-      adc_rdy_ch2_i             => adc3_rdy,
-      adc_rdy_ch3_i             => adc4_rdy,
-      adc_rdy_ch4_i             => adc5_rdy,
-      adc_rdy_ch5_i             => adc6_rdy,
-      adc_rdy_ch6_i             => adc7_rdy,
-      adc_rdy_ch7_i             => adc8_rdy,
-      adc_clk_ch0_o             => adc1_clk,
-      adc_clk_ch1_o             => adc2_clk,
-      adc_clk_ch2_o             => adc3_clk,
-      adc_clk_ch3_o             => adc4_clk,
-      adc_clk_ch4_o             => adc5_clk,
-      adc_clk_ch5_o             => adc6_clk,
-      adc_clk_ch6_o             => adc7_clk,
-      adc_clk_ch7_o             => adc8_clk,
+      
+      ------------------------------------
+      -- Readout Card Rev. A/AA/B
+      ------------------------------------
+      adc_dat_ch0_i             => adc_dat0,
+      adc_dat_ch1_i             => adc_dat1,
+      adc_dat_ch2_i             => adc_dat2,
+      adc_dat_ch3_i             => adc_dat3,
+      adc_dat_ch4_i             => adc_dat4,
+      adc_dat_ch5_i             => adc_dat5,
+      adc_dat_ch6_i             => adc_dat6,
+      adc_dat_ch7_i             => adc_dat7,
+--      adc_ovr_ch0_i             => '0',
+--      adc_ovr_ch1_i             => '0',
+--      adc_ovr_ch2_i             => '0',
+--      adc_ovr_ch3_i             => '0',
+--      adc_ovr_ch4_i             => '0',
+--      adc_ovr_ch5_i             => '0',
+--      adc_ovr_ch6_i             => '0',
+--      adc_ovr_ch7_i             => '0',
+--      adc_rdy_ch0_i             => '0',
+--      adc_rdy_ch1_i             => '0',
+--      adc_rdy_ch2_i             => '0',
+--      adc_rdy_ch3_i             => '0',
+--      adc_rdy_ch4_i             => '0',
+--      adc_rdy_ch5_i             => '0',
+--      adc_rdy_ch6_i             => '0',
+--      adc_rdy_ch7_i             => '0',
+--
+--      ------------------------------------
+--      -- For Readout Card Rev. C
+--      ------------------------------------
+--      -- Must be fully compensated, and 180 degrees out of phase with samp_clk
+--      adc_dat0_i                => adc_dat0,   
+--      adc_dat1_i                => adc_dat1,   
+--      adc_dat2_i                => adc_dat2,   
+--      adc_dat3_i                => adc_dat3,   
+--      adc_dat4_i                => adc_dat4,   
+--      adc_dat5_i                => adc_dat5,   
+--      adc_dat6_i                => adc_dat6,   
+--      adc_dat7_i                => adc_dat7,   
+--      
+--      samp_clk_i  => samp_clk,
+--      adc_frame_i => adc_dco_p,
+--      adc0_lvds_i => adc0_lvds_p,  
+--      adc1_lvds_i => adc1_lvds_p,  
+--      adc2_lvds_i => adc2_lvds_p,  
+--      adc3_lvds_i => adc3_lvds_p,  
+--      adc4_lvds_i => adc4_lvds_p,  
+--      adc5_lvds_i => adc5_lvds_p,  
+--      adc6_lvds_i => adc6_lvds_p,  
+--      adc7_lvds_i => adc7_lvds_p,
+--      ------------------------------------
+      
       dac_dat_ch0_o             => dac_FB1_dat,
       dac_dat_ch1_o             => dac_FB2_dat,
       dac_dat_ch2_o             => dac_FB3_dat,
@@ -726,10 +876,10 @@ begin
    -- all_cards registers Instantition
    ----------------------------------------------------------------------------
    i_all_cards: all_cards
-   generic map( 
+   generic map ( 
       REVISION => RC_REVISION,
       CARD_TYPE=> RC_CARD_TYPE)
-   port map(
+   port map (
       clk_i  => clk,
       rst_i  => rst,
       dat_i  => dispatch_dat_out,
