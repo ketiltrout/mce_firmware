@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.13 2008/05/29 21:22:01 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.13 2008/06/17 18:46:30 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.13  2008/06/17 18:46:30  bburger
+-- BB:  Added the error_o interface which is asserted if there is a slip in the timing of sync pulses, caused by missing a sync pulse, or receiving a spurrious one.
+--
 -- Revision 1.13  2008/05/29 21:22:01  bburger
 -- BB:  Added the error_o interface which is asserted if there is a slip in the timing of sync pulses, caused by missing a sync pulse, or receiving a spurrious one.
 --
@@ -145,12 +148,19 @@ architecture beh of frame_timing_core is
    constant ONE_CYCLE_LATENCY     : integer := 1;
    constant TWO_CYCLE_LATENCY     : integer := 2;
 
-   signal frame_count_int         : integer;
-   signal frame_count_new         : integer;
-   signal frame_count_a           : integer;
-   signal frame_count_b           : integer;
-   signal row_count_int           : integer;
-   signal row_count_new           : integer;
+   -- type INTEGER has a maximum range of –2147483647 (i.e. -[2^31 - 1]) to 2147483647 (2^31 - 1)
+   -- This is the length of a frame (row_len * num_rows)
+   signal frame_count_int         : integer range 0 to 2147483647;
+   signal frame_count_new         : integer range 0 to 2147483647; 
+   
+   -- These are one-behind and two_behind versions of the variables above.
+   signal frame_count_a           : integer range 0 to 2147483647;
+   signal frame_count_b           : integer range 0 to 2147483647;
+   
+   -- This counts the length of a row (row_len)
+   signal row_count_int           : integer range 0 to (2**16)-1;
+   signal row_count_new           : integer range 0 to (2**16)-1;
+   
    signal enable_counters         : std_logic;
    signal sync_received           : std_logic;
 
