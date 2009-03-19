@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.82  2009/01/23 23:49:36  bburger
+-- BB:  Adding new files for Readout Card rev. C.  Also regenerated the following RAM blocks for the new revision:  pid_ram, ram_14x64, wbs_fb_storage.
+--
 --
 -----------------------------------------------------------------------------
 -- turn off superfluous VHDL processor warnings 
@@ -49,6 +52,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.readout_card_pack.all;
 use work.all_cards_pack.all;
+use work.adc_sample_coadd_pack.all;
 
 entity readout_card is
 generic(
@@ -163,7 +167,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION: std_logic_vector (31 downto 0) := X"05000000";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000000";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
@@ -243,8 +247,24 @@ architecture top of readout_card is
    signal num_rows                : integer;
    signal num_rows_reported       : integer;
    signal num_cols_reported       : integer;
-
+  
 begin
+
+   -- Default assignments to get rid of synthesis warnings.
+   ttl_out1 <= '0';
+   ttl_dir2 <= '0';
+   ttl_out2 <= '0';
+   ttl_dir3 <= '0';
+   ttl_out3 <= '0';
+
+   adc1_clk <= clk;
+   adc2_clk <= clk; 
+   adc3_clk <= clk; 
+   adc4_clk <= clk; 
+   adc5_clk <= clk; 
+   adc6_clk <= clk; 
+   adc7_clk <= clk; 
+   adc8_clk <= clk; 
 
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
@@ -369,34 +389,34 @@ begin
       '0'             when others;        -- default to zero
 
    with dispatch_addr_out select dispatch_err_in <=
-     '0'             when GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
-                          GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
-                          GAINP6_ADDR | GAINP7_ADDR |
-                          GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
-                          GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
-                          GAINI6_ADDR | GAINI7_ADDR |
-                          GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
-                          GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
-                          GAIND6_ADDR | GAIND7_ADDR |
-                          FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
-                          FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR |
-                          ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
-                          ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
-                          ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
-                          ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
-                          FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
-                          RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                          SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
-                          DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
-                          READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR |
-                          LED_ADDR |
-                          ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
-                          SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                          RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
-    all_cards_err    when FW_REV_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
-    id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
-    fpga_thermo_err  when FPGA_TEMP_ADDR,
-    '1'              when others;
+      '0'             when GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
+                           GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
+                           GAINP6_ADDR | GAINP7_ADDR |
+                           GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
+                           GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
+                           GAINI6_ADDR | GAINI7_ADDR |
+                           GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
+                           GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
+                           GAIND6_ADDR | GAIND7_ADDR |
+                           FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
+                           FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR |
+                           ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
+                           ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
+                           ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
+                           ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
+                           FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
+                           RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
+                           SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
+                           DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
+                           READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR |
+                           LED_ADDR |
+                           ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
+                           SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
+                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+      all_cards_err   when FW_REV_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
+      id_thermo_err   when CARD_ID_ADDR | CARD_TEMP_ADDR,
+      fpga_thermo_err when FPGA_TEMP_ADDR,
+      '1'             when others;
 
    ----------------------------------------------------------------------------
    -- Frame_timing Instantiation
@@ -438,6 +458,7 @@ begin
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
    i_flux_loop: flux_loop
+   generic map (ADC_LATENCY => ADC_LATENCY_REVA)
    port map (
       clk_50_i                  => clk,
       clk_25_i                  => spi_clk,
@@ -472,30 +493,6 @@ begin
       adc_dat_ch5_i             => adc6_dat,
       adc_dat_ch6_i             => adc7_dat,
       adc_dat_ch7_i             => adc8_dat,
-      adc_ovr_ch0_i             => adc1_ovr,
-      adc_ovr_ch1_i             => adc2_ovr,
-      adc_ovr_ch2_i             => adc3_ovr,
-      adc_ovr_ch3_i             => adc4_ovr,
-      adc_ovr_ch4_i             => adc5_ovr,
-      adc_ovr_ch5_i             => adc6_ovr,
-      adc_ovr_ch6_i             => adc7_ovr,
-      adc_ovr_ch7_i             => adc8_ovr,
-      adc_rdy_ch0_i             => adc1_rdy,
-      adc_rdy_ch1_i             => adc2_rdy,
-      adc_rdy_ch2_i             => adc3_rdy,
-      adc_rdy_ch3_i             => adc4_rdy,
-      adc_rdy_ch4_i             => adc5_rdy,
-      adc_rdy_ch5_i             => adc6_rdy,
-      adc_rdy_ch6_i             => adc7_rdy,
-      adc_rdy_ch7_i             => adc8_rdy,
-      adc_clk_ch0_o             => adc1_clk,
-      adc_clk_ch1_o             => adc2_clk,
-      adc_clk_ch2_o             => adc3_clk,
-      adc_clk_ch3_o             => adc4_clk,
-      adc_clk_ch4_o             => adc5_clk,
-      adc_clk_ch5_o             => adc6_clk,
-      adc_clk_ch6_o             => adc7_clk,
-      adc_clk_ch7_o             => adc8_clk,
       dac_dat_ch0_o             => dac_FB1_dat,
       dac_dat_ch1_o             => dac_FB2_dat,
       dac_dat_ch2_o             => dac_FB3_dat,
@@ -660,10 +657,10 @@ begin
    -- all_cards registers Instantition
    ----------------------------------------------------------------------------
    i_all_cards: all_cards
-   generic map( 
+   generic map ( 
       REVISION => RC_REVISION,
       CARD_TYPE=> RC_CARD_TYPE)
-   port map(
+   port map (
       clk_i     => clk,
       rst_i     => rst,
       dat_i     => dispatch_dat_out,
