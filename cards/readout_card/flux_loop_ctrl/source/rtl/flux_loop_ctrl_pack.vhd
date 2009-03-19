@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.9  2007/10/31 20:12:01  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
+--
 -- Revision 1.8  2006/02/15 21:35:14  mandana
 -- added fltr_rst_i
 --
@@ -107,11 +110,9 @@ package flux_loop_ctrl_pack is
   -----------------------------------------------------------------------------
 
   component adc_sample_coadd
-    port (
+  generic (ADC_LATENCY         : integer);
+  port (
       adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-      adc_ovr_i                 : in  std_logic;
-      adc_rdy_i                 : in  std_logic;
-      adc_clk_o                 : out std_logic;
       clk_50_i                  : in  std_logic;
       rst_i                     : in  std_logic;
       adc_coadd_en_i            : in  std_logic;
