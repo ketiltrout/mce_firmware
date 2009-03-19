@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.33 2008/12/22 20:36:59 bburger Exp $
+-- $Id: bias_card.vhd,v 1.34 2009/01/16 01:36:22 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.34  2009/01/16 01:36:22  bburger
+-- BB:  v05000000 again, due to a signal name change and new commands added
+--
 -- Revision 1.33  2008/12/22 20:36:59  bburger
 -- BB:  Added a second LVDS reply channel to dispatch
 --
@@ -277,6 +280,13 @@ signal update_bias : std_logic;
 signal debug       : std_logic_vector (31 downto 0);
 
 begin
+
+   -- Default assignments to get rid of synthesis warnings.
+   ttl_tx1    <= '0';
+   ttl_txena2 <= '0';
+   ttl_tx2    <= '0';
+   ttl_txena3 <= '0';
+   ttl_tx3    <= '0';
 
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.

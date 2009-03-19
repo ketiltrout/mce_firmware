@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.31  2009/01/16 01:27:01  bburger
+-- BB:  v05000000 again, due to a signal name change in addr_card.vhd
+--
 -- Revision 1.30  2008/12/22 20:36:45  bburger
 -- BB:  Added a second LVDS reply channel to dispatch
 --
@@ -251,6 +254,13 @@ architecture top of addr_card is
    end component;
 
 begin
+
+   -- Default assignments to get rid of synthesis warnings.
+   ttl_tx1 <= '0';
+   ttl_txena2 <= '0';
+   ttl_tx2 <= '0';
+   ttl_txena3 <= '0';
+   ttl_tx3 <= '0';
 
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
