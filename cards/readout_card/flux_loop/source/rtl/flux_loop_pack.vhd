@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.16  2009/01/16 02:10:48  bburger
+-- BB:  Added interface signals to wbs_frame_data for column readout
+--
 -- Revision 1.15  2008/06/27 20:11:11  mandana
 -- merged with pid_ram12 branch where pid_ram width is increased to 12 bits
 --
@@ -148,11 +151,16 @@ package flux_loop_pack is
    -- Flux Loop Control Block
    -----------------------------------------------------------------------------
    component flux_loop_ctrl
+   generic (ADC_LATENCY         : integer);
    port (
+--      -- For Readout Card Rev. C
+--      samp_clk_i                  : in  std_logic;
+--      adc_frame_i                 : in  std_logic; 
+--      adc_lvds_i                  : in  std_logic;      
+      -- For Readout Card Rev. A/AA/B
       adc_dat_i                   : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-      adc_ovr_i                   : in  std_logic;
-      adc_rdy_i                   : in  std_logic;
-      adc_clk_o                   : out std_logic;
+--      adc_ovr_i                   : in  std_logic;
+--      adc_rdy_i                   : in  std_logic;
       clk_50_i                    : in  std_logic;
       clk_25_i                    : in  std_logic;
       rst_i                       : in  std_logic;
@@ -418,7 +426,6 @@ package flux_loop_pack is
    -----------------------------------------------------------------------------
    -- Wishbone Feedback Data Block
    -----------------------------------------------------------------------------
-
    component wbs_fb_data
    port (
       clk_50_i                : in  std_logic;
