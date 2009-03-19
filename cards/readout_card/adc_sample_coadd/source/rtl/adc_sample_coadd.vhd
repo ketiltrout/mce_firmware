@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.7  2008/06/20 17:14:05  mandana
+-- merging from 1.6.2.3 raw_dat width
+--
 -- Revision 1.6.2.3  2008/06/19 23:48:14  mandana
 -- increase raw_dat from 8 bit to 14 bit
 --
@@ -140,10 +143,12 @@
 --
 ------------------------------------------------------------------------
 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+
+library sys_param;
+use sys_param.wishbone_pack.all;
 
 library work;
 use work.adc_sample_coadd_pack.all;
@@ -155,179 +160,155 @@ use work.readout_card_pack.all;
 
 
 entity adc_sample_coadd is
+generic (ADC_LATENCY         : integer);
+port (
+   -- ADC interface signals
+   adc_dat_i                 : in std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+    
+   -- Global signals 
+   clk_50_i                  : in  std_logic;
+   rst_i                     : in  std_logic;
 
-  port (
-    -- ADC interface signals
-    adc_dat_i                 : in std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_ovr_i                 : in std_logic;
-    adc_rdy_i                 : in std_logic;
-    adc_clk_o                 : out std_logic;
+   -- Frame timing signals
+   adc_coadd_en_i            : in  std_logic;
+   restart_frame_1row_prev_i : in  std_logic;
+   restart_frame_aligned_i   : in  std_logic;
+   row_switch_i              : in  std_logic;
+   initialize_window_i       : in  std_logic;
 
-    -- Global signals 
-    clk_50_i                  : in  std_logic;
-    rst_i                     : in  std_logic;
+   -- Wishbone Slave (wbs) Frame Data signals
+   coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+   coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+   raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+   raw_req_i                 : in  std_logic;
+   raw_ack_o                 : out std_logic;
 
-    -- Frame timing signals
-    adc_coadd_en_i            : in  std_logic;
-    restart_frame_1row_prev_i : in  std_logic;
-    restart_frame_aligned_i   : in  std_logic;
-    row_switch_i              : in  std_logic;
-    initialize_window_i       : in  std_logic;
+   -- First Stage Feedback Calculation (fsfb_calc) block signals
+   coadd_done_o              : out std_logic;
+   current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+   current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+   current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
 
-    -- Wishbone Slave (wbs) Frame Data signals
-    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
-    coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
-    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-    raw_req_i                 : in  std_logic;
-    raw_ack_o                 : out std_logic;
-
-    -- First Stage Feedback Calculation (fsfb_calc) block signals
-    coadd_done_o              : out std_logic;
-    current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
-    current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
-    current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
-
-    -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0));
-  
-
+   -- Wishbove Slave (wbs) Feedback (fb) Data Signals
+   adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+   adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0)
+);
 end adc_sample_coadd;
 
-
-
 architecture struct of adc_sample_coadd is
-
-
   
-  constant GROUNDED_ADDR        : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
-  constant ZERO_PAD             : std_logic_vector((RAW_DAT_WIDTH - USED_RAW_DAT_WIDTH)-1 downto 0) := (others => '0');
+   constant GROUNDED_ADDR        : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
+   constant ZERO_PAD             : std_logic_vector((RAW_DAT_WIDTH - USED_RAW_DAT_WIDTH)-1 downto 0) := (others => '0');
+   
+   -- Signals name change from outside the block
+   signal raw_dat                : std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
 
-  
-  -- Signals name change from outside the block
-  signal raw_dat                : std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
+   -- signals from raw_dat_bank
+   signal raw_dat_out            : std_logic_vector( USED_RAW_DAT_WIDTH-1 downto 0);
+   
+   -- signals from raw_dat_manager_data_path 
+   signal raw_write_addr         : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
 
-  -- signals from raw_dat_bank
-  signal raw_dat_out            : std_logic_vector( USED_RAW_DAT_WIDTH-1 downto 0);
-  
-  -- signals from raw_dat_manager_data_path 
-  signal raw_write_addr         : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+   -- signals from raw_dat_manager_ctrl
+   signal clr_raw_addr_index     : std_logic;
+   signal raw_wren               : std_logic;
+   
+   -- signals from coadd storage bank 0 and 1
+   signal coadd_dat_porta_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   signal coadd_dat_portb_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   signal coadd_dat_porta_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   signal coadd_dat_portb_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
-  -- signals from raw_dat_manager_ctrl
-  signal clr_raw_addr_index     : std_logic;
-  signal raw_wren               : std_logic;
-  
-  -- signals from coadd storage bank 0 and 1
-  signal coadd_dat_porta_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-  signal coadd_dat_portb_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-  signal coadd_dat_porta_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-  signal coadd_dat_portb_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   -- signlas from dynamic data storage bank 0 and 1
+   signal intgrl_dat_portb_bank0 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   signal intgrl_dat_portb_bank1 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
-  -- signlas from dynamic data storage bank 0 and 1
-  signal intgrl_dat_portb_bank0 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-  signal intgrl_dat_portb_bank1 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   -- signals from coadd_manager_data_path
+   signal adc_coadd_en_5delay    : std_logic;
+   signal adc_coadd_en_4delay    : std_logic;
+   signal samples_coadd_reg      : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   signal coadd_write_addr       : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0);
 
-  -- signals from coadd_manager_data_path
-  signal adc_coadd_en_5delay    : std_logic;
-  signal adc_coadd_en_4delay    : std_logic;
-  signal samples_coadd_reg      : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-  signal coadd_write_addr       : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0);
+   -- signals from coadd_dynamic_manager_ctrl
+   signal clr_samples_coadd_reg  : std_logic;
+   signal address_count_en       : std_logic;
+   signal clr_address_count      : std_logic;
+   signal wren_bank0             : std_logic;
+   signal wren_bank1             : std_logic;
+   signal wren_for_fsfb          : std_logic;
+   signal current_bank           : std_logic;
 
-  -- signals from coadd_dynamic_manager_ctrl
-  signal clr_samples_coadd_reg  : std_logic;
-  signal address_count_en       : std_logic;
-  signal clr_address_count      : std_logic;
-  signal wren_bank0             : std_logic;
-  signal wren_bank1             : std_logic;
-  signal wren_for_fsfb          : std_logic;
-  signal current_bank           : std_logic;
+   -- signals from dynamic_dat_manager_data_path
+   signal integral_result        : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
-  -- signals from dynamic_dat_manager_data_path
-  signal integral_result        : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-
-  
-
-  
+   
 begin  -- struc
+     
+   -- The following statement is used to select part of the accuracy of the ADC.
+   -- Based on the value of RAW_DATA_POSITION_POINTER, we select part of the
+   -- ADC 14-bit output
+   raw_dat   <= adc_dat_i; --(ADC_DAT_WIDTH-1) & adc_dat_i(RAW_DATA_POSITION_POINTER-2 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
+   raw_dat_o <= sxt(raw_dat_out, raw_dat_o'length);  -- sign extend to match the width expected by wbs_frame_data
 
-  
-  adc_clk_o <= clk_50_i;                -- get data on each clk edge (4 cycles)
-                                        -- latency according to ADC data sheet
-  
-  -- The following statement is used to select part of the accuracy of the ADC.
-  -- Based on the value of RAW_DATA_POSITION_POINTER, we select part of the
-  -- ADC 14-bit output
-  raw_dat   <= adc_dat_i; --(ADC_DAT_WIDTH-1) & adc_dat_i(RAW_DATA_POSITION_POINTER-2 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
-  
-  raw_dat_o <= sxt(raw_dat_out, raw_dat_o'length);  -- sign extend to match the width expected by wbs_frame_data
+   
+   -----------------------------------------------------------------------------
+   -- Instantiate MUX for coadded data output to wishbone frame data slave
+   -- Note: wbs_frame_data block reads the previous set of values.  Hence, when
+   -- current_bank is 0, vlaue from bank1 is read and vice versa.
+   -----------------------------------------------------------------------------
+   coadded_dat_o <= coadd_dat_porta_bank1 when current_bank='0' else coadd_dat_porta_bank0;
 
-  
-  -----------------------------------------------------------------------------
-  -- Instantiate MUX for coadded data output to wishbone frame data slave
-  -- Note: wbs_frame_data block reads the previous set of values.  Hence, when
-  -- current_bank is 0, vlaue from bank1 is read and vice versa.
-  -----------------------------------------------------------------------------
-  
-  coadded_dat_o <=
-    coadd_dat_porta_bank1 when current_bank='0' else
-    coadd_dat_porta_bank0;
-
-  
-  -----------------------------------------------------------------------------
-  -- Instantiation of the Raw data bank
-  -----------------------------------------------------------------------------
-
---  i_raw_dat_bank: raw_dat_bank
---
---    port map (
---    data      => raw_dat,               -- system input modified
---    wren      => raw_wren,              -- from raw controller
---    wraddress => raw_write_addr,        -- from raw data path
---    rdaddress => raw_addr_i,            -- system input
---    clock     => clk_50_i,              -- system input
---    q         => raw_dat_out);
+   
+   -----------------------------------------------------------------------------
+   -- Instantiation of the Raw data bank
+   -- Uncomment this if you want to enable raw data mode
+   -- Be sure to comment out the filter block in fsfb_calc if you uncomment this.
+   -----------------------------------------------------------------------------
+--   i_raw_dat_bank: raw_dat_bank
+--   port map (
+--      data      => raw_dat,               -- system input modified
+--      wren      => raw_wren,              -- from raw controller
+--      wraddress => raw_write_addr,        -- from raw data path
+--      rdaddress => raw_addr_i,            -- system input
+--      clock     => clk_50_i,              -- system input
+--      q         => raw_dat_out
+--   );
 
 
-  -----------------------------------------------------------------------------
-  -- Instantiation of Raw Data Manager Data Path
-  -----------------------------------------------------------------------------
-
-  i_raw_dat_manager_data_path : raw_dat_manager_data_path
-
-    generic map (
-    ADDR_WIDTH => RAW_ADDR_WIDTH)
-
-    port map (
-    rst_i        => rst_i,               -- system input
-    clk_i        => clk_50_i,            -- system input
-    clr_index_i  => clr_raw_addr_index,  -- from raw controller
-    addr_index_o => raw_write_addr);    
+   -----------------------------------------------------------------------------
+   -- Instantiation of Raw Data Manager Data Path
+   -----------------------------------------------------------------------------
+   i_raw_dat_manager_data_path : raw_dat_manager_data_path
+   generic map (ADDR_WIDTH => RAW_ADDR_WIDTH)
+   port map (
+      rst_i        => rst_i,               -- system input
+      clk_i        => clk_50_i,            -- system input
+      clr_index_i  => clr_raw_addr_index,  -- from raw controller
+      addr_index_o => raw_write_addr
+   );    
 
 
-  -----------------------------------------------------------------------------
-  -- Instantiation of Raw Data Manager Controller
-  -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
+   -- Instantiation of Raw Data Manager Controller
+   -----------------------------------------------------------------------------
+   i_raw_dat_manager_ctrl : raw_dat_manager_ctrl
+   port map (
+      rst_i                   => rst_i,                    -- system input
+      clk_i                   => clk_50_i,                 -- system input
+      restart_frame_aligned_i => restart_frame_aligned_i,  -- system input
+      raw_req_i               => raw_req_i,                -- system input
+      clr_raw_addr_index_o    => clr_raw_addr_index,  
+      raw_wren_o              => raw_wren,
+      raw_ack_o               => raw_ack_o
+   );
 
-  i_raw_dat_manager_ctrl : raw_dat_manager_ctrl
 
-    port map (
-    rst_i                   => rst_i,                    -- system input
-    clk_i                   => clk_50_i,                 -- system input
-    restart_frame_aligned_i => restart_frame_aligned_i,  -- system input
-    raw_req_i               => raw_req_i,                -- system input
-    clr_raw_addr_index_o    => clr_raw_addr_index,  
-    raw_wren_o              => raw_wren,
-    raw_ack_o               => raw_ack_o);
-
-
-  -----------------------------------------------------------------------------
-  -- Instantiation of Coadd Data Bank 0
-  -----------------------------------------------------------------------------
-
-  i_coadd_dat_bank0 : coadd_storage
-
-    port map (
+   -----------------------------------------------------------------------------
+   -- Instantiation of Coadd Data Bank 0
+   -----------------------------------------------------------------------------
+   i_coadd_dat_bank0 : coadd_storage
+   port map (
       data        => samples_coadd_reg,  -- from coadd data path
       wraddress   => coadd_write_addr,   -- from coadd data path
       rdaddress_a => coadded_addr_i,     -- system input
@@ -335,71 +316,66 @@ begin  -- struc
       wren        => wren_bank0,         -- from coadd/dynamic controller
       clock       => clk_50_i,           -- system input
       qa          => coadd_dat_porta_bank0,
-      qb          => coadd_dat_portb_bank0);
+      qb          => coadd_dat_portb_bank0
+   );
 
 
-  -----------------------------------------------------------------------------
-  -- Instantiation of Coadd Data Bank 1
-  -----------------------------------------------------------------------------
-
-  i_coadd_dat_bank1 : coadd_storage
-
-    port map (
-    data        => samples_coadd_reg,   -- from coadd data path
-    wraddress   => coadd_write_addr,    -- from coadd data path
-    rdaddress_a => coadded_addr_i,      -- system input
-    rdaddress_b => coadd_write_addr,    -- from coadd data path
-    wren        => wren_bank1,          -- from coadd/dynamic controller
-    clock       => clk_50_i,            -- system input
-    qa          => coadd_dat_porta_bank1,
-    qb          => coadd_dat_portb_bank1);
-
-
-  -----------------------------------------------------------------------------
-  -- Instantiation of Integral Data Bank 0
-  -----------------------------------------------------------------------------
-
-  i_intgrl_dat_bank0 : coadd_storage
-
-    port map (
-    data        => integral_result,     -- from dynamic data path
-    wraddress   => coadd_write_addr,    -- from coadd data path
-    rdaddress_a => GROUNDED_ADDR,       -- grounded(not used)
-    rdaddress_b => coadd_write_addr,    -- from coadd data path
-    wren        => wren_bank0,          -- from coadd/dynamic controller
-    clock       => clk_50_i,            -- system input
-    qa          => open,
-    qb          => intgrl_dat_portb_bank0);
+   -----------------------------------------------------------------------------
+   -- Instantiation of Coadd Data Bank 1
+   -----------------------------------------------------------------------------
+   i_coadd_dat_bank1 : coadd_storage
+   port map (
+      data        => samples_coadd_reg,   -- from coadd data path
+      wraddress   => coadd_write_addr,    -- from coadd data path
+      rdaddress_a => coadded_addr_i,      -- system input
+      rdaddress_b => coadd_write_addr,    -- from coadd data path
+      wren        => wren_bank1,          -- from coadd/dynamic controller
+      clock       => clk_50_i,            -- system input
+      qa          => coadd_dat_porta_bank1,
+      qb          => coadd_dat_portb_bank1
+   );
 
 
-  -----------------------------------------------------------------------------
-  -- Instantiation of Integral Data Bank 1
-  -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
+   -- Instantiation of Integral Data Bank 0
+   -----------------------------------------------------------------------------
+   i_intgrl_dat_bank0 : coadd_storage
+   port map (
+      data        => integral_result,     -- from dynamic data path
+      wraddress   => coadd_write_addr,    -- from coadd data path
+      rdaddress_a => GROUNDED_ADDR,       -- grounded(not used)
+      rdaddress_b => coadd_write_addr,    -- from coadd data path
+      wren        => wren_bank0,          -- from coadd/dynamic controller
+      clock       => clk_50_i,            -- system input
+      qa          => open,
+      qb          => intgrl_dat_portb_bank0
+   );
 
-  i_intgrl_dat_bank1 : coadd_storage
 
-    port map (
-    data        => integral_result,     -- from dynamic data path
-    wraddress   => coadd_write_addr,    -- from coadd data path
-    rdaddress_a => GROUNDED_ADDR,       -- grounded (not used)
-    rdaddress_b => coadd_write_addr,    -- from coadd data path
-    wren        => wren_bank1,          -- from coadd/dynamic controller
-    clock       => clk_50_i,            -- system input
-    qa          => open,
-    qb          => intgrl_dat_portb_bank1);
-  
-  
-  -----------------------------------------------------------------------------
-  -- Instantiation of Coadd Manager Data Path
-  -----------------------------------------------------------------------------
-
-  i_coadd_manager_data_path : coadd_manager_data_path
-    
-    generic map (
+   -----------------------------------------------------------------------------
+   -- Instantiation of Integral Data Bank 1
+   -----------------------------------------------------------------------------
+   i_intgrl_dat_bank1 : coadd_storage
+   port map (
+      data        => integral_result,     -- from dynamic data path
+      wraddress   => coadd_write_addr,    -- from coadd data path
+      rdaddress_a => GROUNDED_ADDR,       -- grounded (not used)
+      rdaddress_b => coadd_write_addr,    -- from coadd data path
+      wren        => wren_bank1,          -- from coadd/dynamic controller
+      clock       => clk_50_i,            -- system input
+      qa          => open,
+      qb          => intgrl_dat_portb_bank1
+   );
+   
+   
+   -----------------------------------------------------------------------------
+   -- Instantiation of Coadd Manager Data Path
+   -----------------------------------------------------------------------------
+   i_coadd_manager_data_path : coadd_manager_data_path
+   generic map (
       MAX_COUNT => TOTAL_ROW_NO,
       MAX_SHIFT => ADC_LATENCY+1)
-
-    port map (
+   port map (
       rst_i                   => rst_i,                  -- system input
       clk_i                   => clk_50_i,               -- system input
       adc_dat_i               => adc_dat_i,              -- system input
@@ -412,22 +388,18 @@ begin  -- struc
       samples_coadd_reg_o     => samples_coadd_reg,
       address_count_en_i      => address_count_en,       -- from coadd control
       clr_address_count_i     => clr_address_count,      -- from coadd control
-      coadd_write_addr_o      => coadd_write_addr);
+      coadd_write_addr_o      => coadd_write_addr
+   );
 
 
-
-
-  -----------------------------------------------------------------------------
-  -- Instantiation of Coadd & dynamic Manager Controller
-  -----------------------------------------------------------------------------
-
-  i_coadd_dynamic_manager_ctrl : coadd_dynamic_manager_ctrl
-
-    generic map (
+   -----------------------------------------------------------------------------
+   -- Instantiation of Coadd & dynamic Manager Controller
+   -----------------------------------------------------------------------------
+   i_coadd_dynamic_manager_ctrl : coadd_dynamic_manager_ctrl
+   generic map (
       COADD_DONE_MAX_COUNT => FSFB_DONE_DLY+1,
       MAX_SHIFT            => ADC_LATENCY+1)
-
-    port map (
+   port map (
       rst_i                     => rst_i,                      -- system input
       clk_i                     => clk_50_i,                   -- system input
       restart_frame_1row_prev_i => restart_frame_1row_prev_i,  -- system input
@@ -443,19 +415,17 @@ begin  -- struc
       wren_bank1_o              => wren_bank1,
       wren_for_fsfb_o           => wren_for_fsfb,
       coadd_done_o              => coadd_done_o,
-      current_bank_o            => current_bank);
+      current_bank_o            => current_bank
+   );
 
 
-  -----------------------------------------------------------------------------
-  -- Instantiation of Dynamic Manager Data Path
-  -----------------------------------------------------------------------------
-
-  i_dynamic_manager_data_path : dynamic_manager_data_path
-
-    generic map (
-    MAX_SHIFT => ADC_LATENCY+1)
-    
-    port map (
+   -----------------------------------------------------------------------------
+   -- Instantiation of Dynamic Manager Data Path
+   -----------------------------------------------------------------------------
+   i_dynamic_manager_data_path : dynamic_manager_data_path
+   generic map (
+      MAX_SHIFT => ADC_LATENCY+1)
+   port map (
       rst_i                  => rst_i,                  -- system input
       clk_i                  => clk_50_i,               -- system input
       initialize_window_i    => initialize_window_i,    -- system input
@@ -469,14 +439,7 @@ begin  -- struc
       current_coadd_dat_o    => current_coadd_dat_o,  
       current_diff_dat_o     => current_diff_dat_o,
       current_integral_dat_o => current_integral_dat_o,
-      integral_result_o      => integral_result);
-
-
-  
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-
-
+      integral_result_o      => integral_result
+   );
 
 end struct;
