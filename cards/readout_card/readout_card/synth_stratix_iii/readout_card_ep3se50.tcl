@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth\readout_card.tcl
 # Generated on: Thu Nov 27 22:24:55 2008
 
-# $Id: readout_card_ep3se50.tcl,v 1.3 2009/02/11 16:16:15 mandana Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.4 2009/02/12 00:30:46 mandana Exp $
 
 # print welcome message
 puts "\n\nReadout Card Rev C Pin Assignment Script"
@@ -228,21 +228,21 @@ set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATIO
 puts "   Assigned: DDR pins."
             
 # Assign DDR test pins
-set_location_assignment PIN_AG16 -to pnf
+set_location_assignment PIN_AH7 -to pnf
 set_location_assignment PIN_AG13 -to pnf_per_byte[0]
-set_location_assignment PIN_AB16 -to pnf_per_byte[1]
+set_location_assignment PIN_AG4 -to pnf_per_byte[1]
 set_location_assignment PIN_AE8 -to pnf_per_byte[2]
-set_location_assignment PIN_AE15 -to pnf_per_byte[3]
-set_location_assignment PIN_AD16 -to pnf_per_byte[4]
-set_location_assignment PIN_AH17 -to pnf_per_byte[5]
-set_location_assignment PIN_Y15 -to pnf_per_byte[6]
-set_location_assignment PIN_AC17 -to pnf_per_byte[7]
+set_location_assignment PIN_AF9 -to pnf_per_byte[3]
+set_location_assignment PIN_AG3 -to pnf_per_byte[4]
+set_location_assignment PIN_AF5 -to pnf_per_byte[5]
+set_location_assignment PIN_AH8 -to pnf_per_byte[6]
+set_location_assignment PIN_AE4 -to pnf_per_byte[7]
 
 set_location_assignment PIN_AG6 -to test_complete
 set_location_assignment PIN_AF14 -to test_status[0]
 set_location_assignment PIN_J15 -to test_status[1]
-set_location_assignment PIN_AF15 -to test_status[2]
-set_location_assignment PIN_AH15 -to test_status[3]
+set_location_assignment PIN_AG7 -to test_status[2]
+set_location_assignment PIN_AG9 -to test_status[3]
 set_location_assignment PIN_C20 -to test_status[4]
 set_location_assignment PIN_A12 -to test_status[5]
 set_location_assignment PIN_R6 -to test_status[6]
@@ -253,10 +253,11 @@ puts "   Assigned: DDR test pins."
 # CLK0 N26
 # CLK1 P28
 # CLK2 U28   --> inclk_ddr
-# CLK5 AG15
-# CLK8 R1
+# CLK3 R27
+# --CLK5 AG15-- removed in latest pcb
+# --CLK8 R1 -- removed in latest pcb
 # CLK9 U2    --> inclk
-# CLK10 P2
+# --CLK10 P2-- removed in latest pcb
 # CLK12 D14
 # CLK13 B14
 
@@ -269,32 +270,32 @@ cmp add_assignment $top_name "" "pll_l2_out\[0\]" LOCATION "Pin_P19"
 puts "   Assigned: PLL pins."
 
 # Assign ADC pins
-cmp add_assignment $top_name "" adc0_lvds_n LOCATION "Pin_AH2"
-cmp add_assignment $top_name "" adc0_lvds_p LOCATION "Pin_AG3"
-cmp add_assignment $top_name "" adc1_lvds_n LOCATION "Pin_AH3"
-cmp add_assignment $top_name "" adc1_lvds_p LOCATION "Pin_AG4"
-cmp add_assignment $top_name "" adc2_lvds_n LOCATION "Pin_AH7"
-cmp add_assignment $top_name "" adc2_lvds_p LOCATION "Pin_AG7"
-cmp add_assignment $top_name "" adc3_lvds_n LOCATION "Pin_AF9"
-cmp add_assignment $top_name "" adc3_lvds_p LOCATION "Pin_AE9"
-cmp add_assignment $top_name "" adc4_lvds_n LOCATION "Pin_AH8"
-cmp add_assignment $top_name "" adc4_lvds_p LOCATION "Pin_AG9"
-cmp add_assignment $top_name "" adc5_lvds_n LOCATION "Pin_AC10"
-cmp add_assignment $top_name "" adc5_lvds_p LOCATION "Pin_AB11"
-cmp add_assignment $top_name "" adc6_lvds_n LOCATION "Pin_AB1"
-cmp add_assignment $top_name "" adc6_lvds_p LOCATION "Pin_AB2"
-cmp add_assignment $top_name "" adc7_lvds_n LOCATION "Pin_AF6"
-cmp add_assignment $top_name "" adc7_lvds_p LOCATION "Pin_AE6"
-cmp add_assignment $top_name "" adc_fco_n LOCATION "Pin_AD7"
-cmp add_assignment $top_name "" adc_fco_p LOCATION "Pin_AC7"
-cmp add_assignment $top_name "" adc_clk_n LOCATION "Pin_AC3"
-cmp add_assignment $top_name "" adc_clk_p LOCATION "Pin_AC4"
-cmp add_assignment $top_name "" adc_sclk LOCATION "Pin_AH19"
-cmp add_assignment $top_name "" adc_sdio LOCATION "Pin_AE16"
-cmp add_assignment $top_name "" adc_csb_n LOCATION "Pin_AE17"
-cmp add_assignment $top_name "" adc_pwdn LOCATION "Pin_AF17"
-cmp add_assignment $top_name "" adc_dco_n LOCATION "Pin_AF5"
-cmp add_assignment $top_name "" adc_dco_p LOCATION "Pin_AE5"
+cmp add_assignment $top_name "" adc0_lvds_n LOCATION "Pin_W3"
+cmp add_assignment $top_name "" adc0_lvds_p LOCATION "Pin_W4"
+cmp add_assignment $top_name "" adc1_lvds_n LOCATION "Pin_Y1"
+cmp add_assignment $top_name "" adc1_lvds_p LOCATION "Pin_W2"
+cmp add_assignment $top_name "" adc2_lvds_n LOCATION "Pin_AA1"
+cmp add_assignment $top_name "" adc2_lvds_p LOCATION "Pin_Y2"
+cmp add_assignment $top_name "" adc3_lvds_n LOCATION "Pin_AB1"
+cmp add_assignment $top_name "" adc3_lvds_p LOCATION "Pin_AB2"
+cmp add_assignment $top_name "" adc4_lvds_n LOCATION "Pin_AC1"
+cmp add_assignment $top_name "" adc4_lvds_p LOCATION "Pin_AC2"
+cmp add_assignment $top_name "" adc5_lvds_n LOCATION "Pin_AE1"
+cmp add_assignment $top_name "" adc5_lvds_p LOCATION "Pin_AD1"
+cmp add_assignment $top_name "" adc6_lvds_n LOCATION "Pin_AF1"
+cmp add_assignment $top_name "" adc6_lvds_p LOCATION "Pin_AE2"
+cmp add_assignment $top_name "" adc7_lvds_n LOCATION "Pin_AG1"
+cmp add_assignment $top_name "" adc7_lvds_p LOCATION "Pin_AF2"
+cmp add_assignment $top_name "" adc_fco_n LOCATION "Pin_P1"
+cmp add_assignment $top_name "" adc_fco_p LOCATION "Pin_P2"
+cmp add_assignment $top_name "" adc_clk_n LOCATION "Pin_AA15"
+cmp add_assignment $top_name "" adc_clk_p LOCATION "Pin_Y15"
+cmp add_assignment $top_name "" adc_sclk LOCATION "Pin_AF28"
+cmp add_assignment $top_name "" adc_sdio LOCATION "Pin_AC25"
+cmp add_assignment $top_name "" adc_csb_n LOCATION "Pin_AC26"
+cmp add_assignment $top_name "" adc_pwdn LOCATION "Pin_AB27"
+cmp add_assignment $top_name "" adc_dco_n LOCATION "Pin_T1"
+cmp add_assignment $top_name "" adc_dco_p LOCATION "Pin_R1"
 puts "   Assigned: ADC pins."
 
 # assign rst_n (this is assigned to DEV_CLRn (PIN_N24) and a global clock (R27/R28)
@@ -308,14 +309,14 @@ cmp add_assignment $top_name "" grn_led LOCATION "Pin_AH13"
 puts "   Assigned: LED pins."
 
 # assign dip switches
-cmp add_assignment $top_name "" dip0 LOCATION "Pin_AH18"
+cmp add_assignment $top_name "" dip0 LOCATION "Pin_AE9"
 cmp add_assignment $top_name "" dip1 LOCATION "Pin_U26"
 cmp add_assignment $top_name "" dip2 LOCATION "Pin_V26"
-cmp add_assignment $top_name "" dip3 LOCATION "Pin_AH16"
+cmp add_assignment $top_name "" dip3 LOCATION "Pin_AH9"
 #puts "   Assigned: DIP switch pins."
 
 # assign watchdog
-cmp add_assignment $top_name "" wdog LOCATION "Pin_AF19"
+cmp add_assignment $top_name "" wdog LOCATION "Pin_AF10"
 #puts "   Assigned: Watchdog pin."
 
 # reply lines to clock card (brx7a, brx7b)
@@ -343,7 +344,7 @@ puts "   Assigned: SMB interface pins."
 # assign EEPROM pins
 cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_M20"
 cmp add_assignment $top_name "" eeprom_so LOCATION "Pin_K28"
-cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_M21"
+cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_N20"
 cmp add_assignment $top_name "" eeprom_cs LOCATION "Pin_L25"
 puts "   Assigned: EEPROM pins."
 
@@ -372,7 +373,7 @@ puts "   Assigned: Spare TTL pins."
 
 # assign serial DAC
 #dac_clr_n clears parallel and serial dacs
-cmp add_assignment $top_name "" "dac_clr_n" LOCATION "Pin_W5"
+cmp add_assignment $top_name "" "dac_clr_n" LOCATION "Pin_AH6"
 
 cmp add_assignment $top_name "" "dac_clk\[0\]" LOCATION "Pin_J4"
 cmp add_assignment $top_name "" "dac_clk\[1\]" LOCATION "Pin_G5"
@@ -394,18 +395,18 @@ cmp add_assignment $top_name "" "bias_dac_ncs\[0\]" LOCATION "Pin_M6"
 cmp add_assignment $top_name "" "bias_dac_ncs\[1\]" LOCATION "Pin_D5"
 cmp add_assignment $top_name "" "bias_dac_ncs\[2\]" LOCATION "Pin_T6"
 cmp add_assignment $top_name "" "bias_dac_ncs\[3\]" LOCATION "Pin_L3"
-cmp add_assignment $top_name "" "bias_dac_ncs\[4\]" LOCATION "Pin_W3"
+cmp add_assignment $top_name "" "bias_dac_ncs\[4\]" LOCATION "Pin_AE6"
 cmp add_assignment $top_name "" "bias_dac_ncs\[5\]" LOCATION "Pin_T4"
-cmp add_assignment $top_name "" "bias_dac_ncs\[6\]" LOCATION "Pin_AB3"
-cmp add_assignment $top_name "" "bias_dac_ncs\[7\]" LOCATION "Pin_AB4"
+cmp add_assignment $top_name "" "bias_dac_ncs\[6\]" LOCATION "Pin_AH4"
+cmp add_assignment $top_name "" "bias_dac_ncs\[7\]" LOCATION "Pin_AH5"
 cmp add_assignment $top_name "" "offset_dac_ncs\[0\]" LOCATION "Pin_C3"
 cmp add_assignment $top_name "" "offset_dac_ncs\[1\]" LOCATION "Pin_N5"
 cmp add_assignment $top_name "" "offset_dac_ncs\[2\]" LOCATION "Pin_L4"
 cmp add_assignment $top_name "" "offset_dac_ncs\[3\]" LOCATION "Pin_P3"
 cmp add_assignment $top_name "" "offset_dac_ncs\[4\]" LOCATION "Pin_R4"
 cmp add_assignment $top_name "" "offset_dac_ncs\[5\]" LOCATION "Pin_V4"
-cmp add_assignment $top_name "" "offset_dac_ncs\[6\]" LOCATION "Pin_AA4"
-cmp add_assignment $top_name "" "offset_dac_ncs\[7\]" LOCATION "Pin_Y6"
+cmp add_assignment $top_name "" "offset_dac_ncs\[6\]" LOCATION "Pin_AH3"
+cmp add_assignment $top_name "" "offset_dac_ncs\[7\]" LOCATION "Pin_AH2"
 puts "   Assigned: Serial DAC pins."
 
 # assign parallel DAC
@@ -493,7 +494,7 @@ cmp add_assignment $top_name "" "dac_FB5_dat\[13\]" LOCATION "Pin_C18"
 cmp add_assignment $top_name "" "dac_FB_clk\[5\]" LOCATION "Pin_G2"
 cmp add_assignment $top_name "" "dac_FB6_dat\[0\]" LOCATION "Pin_V1"
 cmp add_assignment $top_name "" "dac_FB6_dat\[1\]" LOCATION "Pin_U1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[2\]" LOCATION "Pin_T2"
+cmp add_assignment $top_name "" "dac_FB6_dat\[2\]" LOCATION "Pin_P4"
 cmp add_assignment $top_name "" "dac_FB6_dat\[3\]" LOCATION "Pin_N1"
 cmp add_assignment $top_name "" "dac_FB6_dat\[4\]" LOCATION "Pin_N2"
 cmp add_assignment $top_name "" "dac_FB6_dat\[5\]" LOCATION "Pin_M1"
@@ -522,28 +523,28 @@ cmp add_assignment $top_name "" "dac_FB7_dat\[11\]" LOCATION "Pin_G4"
 cmp add_assignment $top_name "" "dac_FB7_dat\[12\]" LOCATION "Pin_H3"
 cmp add_assignment $top_name "" "dac_FB7_dat\[13\]" LOCATION "Pin_H4"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[7\]" LOCATION "Pin_W2"
-cmp add_assignment $top_name "" "dac_FB8_dat\[0\]" LOCATION "Pin_AG1"
-cmp add_assignment $top_name "" "dac_FB8_dat\[1\]" LOCATION "Pin_AF1"
-cmp add_assignment $top_name "" "dac_FB8_dat\[2\]" LOCATION "Pin_AF2"
-cmp add_assignment $top_name "" "dac_FB8_dat\[3\]" LOCATION "Pin_AE1"
-cmp add_assignment $top_name "" "dac_FB8_dat\[4\]" LOCATION "Pin_AE2"
-cmp add_assignment $top_name "" "dac_FB8_dat\[5\]" LOCATION "Pin_AD1"
-cmp add_assignment $top_name "" "dac_FB8_dat\[6\]" LOCATION "Pin_AC1"
-cmp add_assignment $top_name "" "dac_FB8_dat\[7\]" LOCATION "Pin_AC2"
+cmp add_assignment $top_name "" "dac_FB_clk\[7\]" LOCATION "Pin_H6"
+cmp add_assignment $top_name "" "dac_FB8_dat\[0\]" LOCATION "Pin_D9"
+cmp add_assignment $top_name "" "dac_FB8_dat\[1\]" LOCATION "Pin_D8"
+cmp add_assignment $top_name "" "dac_FB8_dat\[2\]" LOCATION "Pin_D6"
+cmp add_assignment $top_name "" "dac_FB8_dat\[3\]" LOCATION "Pin_E7"
+cmp add_assignment $top_name "" "dac_FB8_dat\[4\]" LOCATION "Pin_R10"
+cmp add_assignment $top_name "" "dac_FB8_dat\[5\]" LOCATION "Pin_N9"
+cmp add_assignment $top_name "" "dac_FB8_dat\[6\]" LOCATION "Pin_N8"
+cmp add_assignment $top_name "" "dac_FB8_dat\[7\]" LOCATION "Pin_K8"
 cmp add_assignment $top_name "" "dac_FB8_dat\[8\]" LOCATION "Pin_N7"
 cmp add_assignment $top_name "" "dac_FB8_dat\[9\]" LOCATION "Pin_N6"
-cmp add_assignment $top_name "" "dac_FB8_dat\[10\]" LOCATION "Pin_AA1"
-cmp add_assignment $top_name "" "dac_FB8_dat\[11\]" LOCATION "Pin_Y1"
-cmp add_assignment $top_name "" "dac_FB8_dat\[12\]" LOCATION "Pin_Y2"
-cmp add_assignment $top_name "" "dac_FB8_dat\[13\]" LOCATION "Pin_W1"
+cmp add_assignment $top_name "" "dac_FB8_dat\[10\]" LOCATION "Pin_K6"
+cmp add_assignment $top_name "" "dac_FB8_dat\[11\]" LOCATION "Pin_K7"
+cmp add_assignment $top_name "" "dac_FB8_dat\[12\]" LOCATION "Pin_J6"
+cmp add_assignment $top_name "" "dac_FB8_dat\[13\]" LOCATION "Pin_H5"
 puts "   Assigned: Parallel DAC pins."
 
 # Assign misc pins
 set_location_assignment PIN_N21 -to ~ALTERA_DATA0~
 set_location_assignment PIN_P23 -to ~ALTERA_CRC_ERROR~
 #cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_P23"
-cmp add_assignment $top_name "" crc_error_in LOCATION "Pin_P25"
-cmp add_assignment $top_name "" critical_error LOCATION "Pin_N23"
+cmp add_assignment $top_name "" crc_error_in LOCATION "Pin_T23"
+cmp add_assignment $top_name "" critical_error LOCATION "Pin_M24"
 cmp add_assignment $top_name "" extend_n LOCATION "Pin_AH12"
 puts "   Assigned: miscellaneous pins."
