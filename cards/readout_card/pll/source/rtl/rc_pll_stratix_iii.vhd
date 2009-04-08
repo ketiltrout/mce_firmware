@@ -47,7 +47,8 @@ ENTITY rc_pll_stratix_iii IS
 		c1		: OUT STD_LOGIC ;
 		c2		: OUT STD_LOGIC ;
 		c3		: OUT STD_LOGIC ;
-		c4		: OUT STD_LOGIC 
+		c4		: OUT STD_LOGIC ;
+		c5		: OUT STD_LOGIC 
 	);
 END rc_pll_stratix_iii;
 
@@ -61,9 +62,10 @@ ARCHITECTURE SYN OF rc_pll_stratix_iii IS
 	SIGNAL sub_wire4	: STD_LOGIC ;
 	SIGNAL sub_wire5	: STD_LOGIC ;
 	SIGNAL sub_wire6	: STD_LOGIC ;
-	SIGNAL sub_wire7	: STD_LOGIC_VECTOR (1 DOWNTO 0);
-	SIGNAL sub_wire8_bv	: BIT_VECTOR (0 DOWNTO 0);
-	SIGNAL sub_wire8	: STD_LOGIC_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire7	: STD_LOGIC ;
+	SIGNAL sub_wire8	: STD_LOGIC_VECTOR (1 DOWNTO 0);
+	SIGNAL sub_wire9_bv	: BIT_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire9	: STD_LOGIC_VECTOR (0 DOWNTO 0);
 
 
 
@@ -90,6 +92,10 @@ ARCHITECTURE SYN OF rc_pll_stratix_iii IS
 		clk4_duty_cycle		: NATURAL;
 		clk4_multiply_by		: NATURAL;
 		clk4_phase_shift		: STRING;
+		clk5_divide_by		: NATURAL;
+		clk5_duty_cycle		: NATURAL;
+		clk5_multiply_by		: NATURAL;
+		clk5_phase_shift		: STRING;
 		compensate_clock		: STRING;
 		inclk0_input_frequency		: NATURAL;
 		intended_device_family		: STRING;
@@ -148,8 +154,9 @@ ARCHITECTURE SYN OF rc_pll_stratix_iii IS
 	END COMPONENT;
 
 BEGIN
-	sub_wire8_bv(0 DOWNTO 0) <= "0";
-	sub_wire8    <= To_stdlogicvector(sub_wire8_bv);
+	sub_wire9_bv(0 DOWNTO 0) <= "0";
+	sub_wire9    <= To_stdlogicvector(sub_wire9_bv);
+	sub_wire6    <= sub_wire0(5);
 	sub_wire5    <= sub_wire0(4);
 	sub_wire4    <= sub_wire0(3);
 	sub_wire3    <= sub_wire0(2);
@@ -160,8 +167,9 @@ BEGIN
 	c2    <= sub_wire3;
 	c3    <= sub_wire4;
 	c4    <= sub_wire5;
-	sub_wire6    <= inclk0;
-	sub_wire7    <= sub_wire8(0 DOWNTO 0) & sub_wire6;
+	c5    <= sub_wire6;
+	sub_wire7    <= inclk0;
+	sub_wire8    <= sub_wire9(0 DOWNTO 0) & sub_wire7;
 
 	altpll_component : altpll
 	GENERIC MAP (
@@ -186,6 +194,10 @@ BEGIN
 		clk4_duty_cycle => 50,
 		clk4_multiply_by => 2,
 		clk4_phase_shift => "10000",
+		clk5_divide_by => 1,
+		clk5_duty_cycle => 50,
+		clk5_multiply_by => 28,
+		clk5_phase_shift => "0",
 		compensate_clock => "CLK0",
 		inclk0_input_frequency => 40000,
 		intended_device_family => "Stratix III",
@@ -223,7 +235,7 @@ BEGIN
 		port_clk2 => "PORT_USED",
 		port_clk3 => "PORT_USED",
 		port_clk4 => "PORT_USED",
-		port_clk5 => "PORT_UNUSED",
+		port_clk5 => "PORT_USED",
 		port_clk6 => "PORT_UNUSED",
 		port_clk7 => "PORT_UNUSED",
 		port_clk8 => "PORT_UNUSED",
@@ -238,7 +250,7 @@ BEGIN
 		width_clock => 10
 	)
 	PORT MAP (
-		inclk => sub_wire7,
+		inclk => sub_wire8,
 		clk => sub_wire0
 	);
 
@@ -270,11 +282,13 @@ END SYN;
 -- Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "1"
 -- Retrieval info: PRIVATE: DIV_FACTOR3 NUMERIC "2"
 -- Retrieval info: PRIVATE: DIV_FACTOR4 NUMERIC "1"
+-- Retrieval info: PRIVATE: DIV_FACTOR5 NUMERIC "1"
 -- Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
 -- Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
 -- Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
 -- Retrieval info: PRIVATE: DUTY_CYCLE3 STRING "50.00000000"
 -- Retrieval info: PRIVATE: DUTY_CYCLE4 STRING "50.00000000"
+-- Retrieval info: PRIVATE: DUTY_CYCLE5 STRING "50.00000000"
 -- Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 -- Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 -- Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -299,28 +313,33 @@ END SYN;
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT2 STRING "ps"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT3 STRING "ps"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT4 STRING "ps"
+-- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT5 STRING "ps"
 -- Retrieval info: PRIVATE: MIG_DEVICE_SPEED_GRADE STRING "Any"
 -- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "1"
 -- Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "1"
 -- Retrieval info: PRIVATE: MULT_FACTOR3 NUMERIC "1"
 -- Retrieval info: PRIVATE: MULT_FACTOR4 NUMERIC "1"
+-- Retrieval info: PRIVATE: MULT_FACTOR5 NUMERIC "1"
 -- Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "50.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "25.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ4 STRING "50.00000000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ5 STRING "700.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE2 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE3 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE4 STRING "1"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE5 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT1 STRING "MHz"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT2 STRING "MHz"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT3 STRING "MHz"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT4 STRING "MHz"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT5 STRING "MHz"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
@@ -328,12 +347,14 @@ END SYN;
 -- Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "0.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "0.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT4 STRING "180.00000000"
+-- Retrieval info: PRIVATE: PHASE_SHIFT5 STRING "0.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT0 STRING "deg"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT1 STRING "deg"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT2 STRING "deg"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT3 STRING "deg"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT4 STRING "deg"
+-- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT5 STRING "ps"
 -- Retrieval info: PRIVATE: PLL_ADVANCED_PARAM_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "1"
@@ -360,6 +381,7 @@ END SYN;
 -- Retrieval info: PRIVATE: STICKY_CLK2 STRING "1"
 -- Retrieval info: PRIVATE: STICKY_CLK3 STRING "1"
 -- Retrieval info: PRIVATE: STICKY_CLK4 STRING "1"
+-- Retrieval info: PRIVATE: STICKY_CLK5 STRING "1"
 -- Retrieval info: PRIVATE: SWITCHOVER_COUNT_EDIT NUMERIC "1"
 -- Retrieval info: PRIVATE: SWITCHOVER_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
@@ -368,6 +390,7 @@ END SYN;
 -- Retrieval info: PRIVATE: USE_CLK2 STRING "1"
 -- Retrieval info: PRIVATE: USE_CLK3 STRING "1"
 -- Retrieval info: PRIVATE: USE_CLK4 STRING "1"
+-- Retrieval info: PRIVATE: USE_CLK5 STRING "1"
 -- Retrieval info: PRIVATE: USE_MIL_SPEED_GRADE NUMERIC "0"
 -- Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
@@ -392,6 +415,10 @@ END SYN;
 -- Retrieval info: CONSTANT: CLK4_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK4_MULTIPLY_BY NUMERIC "2"
 -- Retrieval info: CONSTANT: CLK4_PHASE_SHIFT STRING "10000"
+-- Retrieval info: CONSTANT: CLK5_DIVIDE_BY NUMERIC "1"
+-- Retrieval info: CONSTANT: CLK5_DUTY_CYCLE NUMERIC "50"
+-- Retrieval info: CONSTANT: CLK5_MULTIPLY_BY NUMERIC "28"
+-- Retrieval info: CONSTANT: CLK5_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
 -- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "40000"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix III"
@@ -429,7 +456,7 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_clk2 STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_clk3 STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_clk4 STRING "PORT_USED"
--- Retrieval info: CONSTANT: PORT_clk5 STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_clk5 STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_clk6 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clk7 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clk8 STRING "PORT_UNUSED"
@@ -449,6 +476,7 @@ END SYN;
 -- Retrieval info: USED_PORT: c2 0 0 0 0 OUTPUT_CLK_EXT VCC "c2"
 -- Retrieval info: USED_PORT: c3 0 0 0 0 OUTPUT_CLK_EXT VCC "c3"
 -- Retrieval info: USED_PORT: c4 0 0 0 0 OUTPUT_CLK_EXT VCC "c4"
+-- Retrieval info: USED_PORT: c5 0 0 0 0 OUTPUT_CLK_EXT VCC "c5"
 -- Retrieval info: USED_PORT: inclk0 0 0 0 0 INPUT_CLK_EXT GND "inclk0"
 -- Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
 -- Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0
@@ -456,6 +484,7 @@ END SYN;
 -- Retrieval info: CONNECT: c3 0 0 0 0 @clk 0 0 1 3
 -- Retrieval info: CONNECT: c2 0 0 0 0 @clk 0 0 1 2
 -- Retrieval info: CONNECT: c4 0 0 0 0 @clk 0 0 1 4
+-- Retrieval info: CONNECT: c5 0 0 0 0 @clk 0 0 1 5
 -- Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL rc_pll_stratix_iii.vhd TRUE FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL rc_pll_stratix_iii.ppf TRUE FALSE
