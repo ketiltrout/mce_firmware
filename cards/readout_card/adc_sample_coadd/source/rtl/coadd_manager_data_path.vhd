@@ -113,6 +113,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_manager_data_path.vhd,v $
+-- Revision 1.4  2004/12/13 21:50:22  mohsen
+-- To avoid synthesis complication, changed the construct to generate shift register.
+--
 -- Revision 1.3  2004/11/26 18:25:54  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -144,7 +147,7 @@ entity coadd_manager_data_path is
 
   generic (
     MAX_COUNT                 : integer := TOTAL_ROW_NO;
-    MAX_SHIFT                 : integer := ADC_LATENCY+1); -- = Delay stages
+    MAX_SHIFT                 : integer); -- = Delay stages
                                                            -- for coadd enable
                                                            -- signals
                                                             

@@ -21,7 +21,7 @@
 --
 -- coadd_dynamic_manager_ctrl.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -129,6 +129,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_dynamic_manager_ctrl.vhd,v $
+-- Revision 1.3  2004/12/13 21:50:22  mohsen
+-- To avoid synthesis complication, changed the construct to generate shift register.
+--
 -- Revision 1.2  2004/10/29 01:52:12  mohsen
 -- Sorted out library use and use parameters
 --
@@ -151,7 +154,7 @@ entity coadd_dynamic_manager_ctrl is
 
   generic (
     COADD_DONE_MAX_COUNT : integer := 7;  -- = max delay+1 for coadd_done 
-    MAX_SHIFT            : integer := ADC_LATENCY+1); -- = Delay stages for the
+    MAX_SHIFT            : integer); -- = Delay stages for the
                                                       -- coadd enable signal 
  
   port (

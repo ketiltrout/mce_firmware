@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.7  2009/03/19 21:24:41  bburger
+-- BB: Split up the constant ADC_LATENCY into ADC_LATENCY_REVA/C and moved them into readout_card_pack.vhd
+--
 -- Revision 1.6  2008/06/19 23:50:15  mandana
 -- increased USED_RAW_DAT_WIDTH to 14 and use it to make definitions parametric
 --
@@ -154,7 +157,7 @@ package adc_sample_coadd_pack is
 
     generic (
       MAX_COUNT                 : integer := TOTAL_ROW_NO; 
-      MAX_SHIFT                 : integer := ADC_LATENCY+1);
+      MAX_SHIFT                 : integer);
     
     port (
       rst_i                     : in  std_logic;
@@ -183,7 +186,7 @@ package adc_sample_coadd_pack is
 
     generic (
       COADD_DONE_MAX_COUNT : integer := FSFB_DONE_DLY;
-      MAX_SHIFT            : integer := ADC_LATENCY+1);
+      MAX_SHIFT            : integer);
  
     port (
       rst_i                     : in  std_logic;
@@ -213,7 +216,7 @@ package adc_sample_coadd_pack is
   component dynamic_manager_data_path
     
     generic (
-      MAX_SHIFT : integer := ADC_LATENCY+1);   
+      MAX_SHIFT : integer);   
 
   
     port (
