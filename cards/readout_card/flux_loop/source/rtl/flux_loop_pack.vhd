@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.15  2008/06/27 20:11:11  mandana
+-- merged with pid_ram12 branch where pid_ram width is increased to 12 bits
+--
 -- Revision 1.14  2007/10/31 20:11:13  mandana
 -- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
 --
@@ -141,7 +144,34 @@ package flux_loop_pack is
   constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
   constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
-  
+   -----------------------------------------------------------------------------
+   -- Raw Data/ Rectangle Mode RAM Bank
+   -----------------------------------------------------------------------------
+   constant RAW_DATA_RAM_DATA_WIDTH : integer := 16;
+   constant RAW_DATA_RAM_ADDR_WIDTH : integer := 16;
+
+   component ram_16x65536
+   port (
+      clock    : IN STD_LOGIC ;
+      data     : IN STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0);
+      rdaddress      : IN STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
+      wraddress      : IN STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
+      wren     : IN STD_LOGIC  := '1';
+      q     : OUT STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0)
+   );
+   end component;
+   
+--  component ram_18xalot_initer_meminit_auj 
+--     PORT ( 
+--           clock       : IN STD_LOGIC ;
+--           dataout     :  OUT  STD_LOGIC_VECTOR (17 DOWNTO 0);
+--           init        :  IN  STD_LOGIC;
+--           init_busy   :  OUT  STD_LOGIC;
+--           ram_address :  OUT  STD_LOGIC_VECTOR (8 DOWNTO 0);
+--           ram_wren    :  OUT  STD_LOGIC
+--     ); 
+--  end component;
+
   -----------------------------------------------------------------------------
   -- Flux Loop Control Block
   -----------------------------------------------------------------------------
