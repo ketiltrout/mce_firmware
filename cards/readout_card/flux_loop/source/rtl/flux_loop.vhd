@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.16  2007/10/31 20:11:13  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
+--
 -- Revision 1.15  2006/12/11 18:05:02  mandana
 -- Added per-column servo-mode ports for fsfb_corr interface
 --
@@ -72,6 +75,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library work;
 
@@ -493,10 +497,106 @@ architecture struct of flux_loop is
   signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
   signal fsfb_ctrl_lock_en7        : std_logic;                                             
 
+
+   signal patch_data_in : STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0);
+   signal patch_rd_addr : STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
+   signal patch_wr_addr : STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
+   signal patch_wren    : STD_LOGIC  := '1';
+   signal patch_dat_out : STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0);
+   signal patch_init : std_logic;
+
+   type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);
+   signal current_state, next_state : states;
   
 begin  -- struct
 
+   -----------------------------------------------------------------------------
+   -- Instantiation of Raw Data/ Rectangle Mode RAM block
+   -----------------------------------------------------------------------------
+   rectangle_mode_ram: ram_16x65536
+   port map (
+      clock     => clk_50_i,     
+      data      => patch_data_in,  
+      rdaddress => patch_rd_addr,  
+      wraddress => patch_wr_addr,  
+      wren      => patch_wren,     
+      q         => patch_dat_out   
+   );
+   
+--   state_FF: process(clk_50_i, rst_i)
+--   begin
+--      if(rst_i = '1') then
+--         current_state <= IDLE;
+--         patch_wr_addr <= (others => '0');
+--         patch_rd_addr <= (others => '0');
+--      elsif(clk_50_i'event and clk_50_i = '1') then
+--         current_state <= next_state;
+--         patch_wr_addr <= patch_wr_addr + 1;
+--         patch_rd_addr <= patch_rd_addr + 2;
+--      end if;
+--   end process state_FF;
+--   
+--   state_NS: process(current_state)
+--   begin
+--      next_state <= current_state;
+--      case current_state is
+--         when IDLE =>
+--            next_state <= GOT_BIT0;
+--         when GOT_BIT0 =>
+--            next_state <= GOT_BIT1;
+--         when GOT_BIT1 =>
+--            next_state <= GOT_BIT2;
+--         when GOT_BIT2 =>
+--            next_state <= GOT_BIT3;
+--         when GOT_BIT3 =>
+--            next_state <= GOT_SYNC;
+--         when GOT_SYNC =>
+--            next_state <= IDLE;
+--         when others =>
+--            next_state <= IDLE;
+--      end case;
+--   end process state_NS;
+--   
+--   state_out: process(current_state)
+--   begin
+--      patch_data_in <= (others => '0'); --: STD_LOGIC_VECTOR (17 DOWNTO 0);
+--      patch_wren    <= '0'; --: STD_LOGIC  := '1';
+--      patch_init    <= '0';
+--      case current_state is
+--         when IDLE =>
+--            patch_wren    <= '0';
+--            patch_data_in <= "0000000000000001";
+--         when GOT_BIT0 =>
+--            patch_init <= '1';
+--            patch_wren    <= '1';
+--            patch_data_in <= "0000000000000010";
+--         when GOT_BIT1 =>
+--            patch_wren    <= '1';
+--            patch_data_in <= "0000000000000011";
+--         when GOT_BIT2 =>
+--            patch_wren    <= '1';
+--            patch_data_in <= "0000000000000100";
+--         when GOT_BIT3 =>
+--            patch_wren    <= '1';
+--            patch_data_in <= patch_dat_out;
+--         when GOT_SYNC =>
+--            patch_wren    <= '1';
+--            patch_data_in <= patch_dat_out;
+--         when others => NULL;
+--      end case;
+--   end process state_out;
 
+
+--   intiter: ram_18xalot_initer_meminit_auj 
+--   PORT MAP ( 
+--         clock       => clk_50_i,
+--         dataout     => patch_data_in, --:  OUT  STD_LOGIC_VECTOR (17 DOWNTO 0);
+--         init        => patch_init,--:  IN  STD_LOGIC;
+--         init_busy   => open,--:  OUT  STD_LOGIC;
+--         ram_address => patch_wr_addr,--:  OUT  STD_LOGIC_VECTOR (8 DOWNTO 0);
+--         ram_wren    => patch_wren--:  OUT  STD_LOGIC
+--   ); 
+--   
   
   -----------------------------------------------------------------------------
   -- Instantiation of Flux Loop Control
