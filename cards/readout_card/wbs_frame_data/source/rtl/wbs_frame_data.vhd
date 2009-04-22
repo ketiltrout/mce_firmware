@@ -53,9 +53,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2008/08/04 12:13:07 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2008/08/15 18:16:08 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.34  2008/08/15 18:16:08  mandana
+-- BB: removed all data modes except for 0,1,4,10
+--
 -- Revision 1.33  2008/08/04 12:13:07  mandana
 -- data mode 10 added for mixed filtfb and flux-jump counter (more filtfb bits for planet observation)
 --
@@ -225,6 +228,10 @@ port(
      restart_frame_1row_post_i : in std_logic;  
      
      -- signals to/from flux_loop_ctrl    
+     raw_addr_o                : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
+     raw_dat_i                 : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 0
+     raw_req_o                 : out std_logic;                                        -- raw data request - channel 0
+     raw_ack_i                 : in  std_logic;                                        -- raw data acknowledgement - channel 0
 
      filtered_addr_ch0_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 0
      filtered_dat_ch0_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 0
@@ -233,12 +240,6 @@ port(
      flux_cnt_dat_ch0_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch0_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 0
      coadded_dat_ch0_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 0
-     raw_addr_ch0_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
-     raw_dat_ch0_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 0
-     raw_req_ch0_o             : out std_logic;                                        -- raw data request - channel 0
-     raw_ack_ch0_i             : in  std_logic;                                        -- raw data acknowledgement - channel 0
-
-
 
      filtered_addr_ch1_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 1
      filtered_dat_ch1_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 1
@@ -247,10 +248,6 @@ port(
      flux_cnt_dat_ch1_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch1_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 1
      coadded_dat_ch1_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 1
-     raw_addr_ch1_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 1
-     raw_dat_ch1_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 1
-     raw_req_ch1_o             : out std_logic;                                        -- raw data request - channel 1
-     raw_ack_ch1_i             : in  std_logic;                                        -- raw data acknowledgement - channel 1
       
      filtered_addr_ch2_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 2
      filtered_dat_ch2_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 2
@@ -259,10 +256,6 @@ port(
      flux_cnt_dat_ch2_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch2_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 2
      coadded_dat_ch2_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 2
-     raw_addr_ch2_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 2
-     raw_dat_ch2_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 2
-     raw_req_ch2_o             : out std_logic;                                        -- raw data request - channel 2
-     raw_ack_ch2_i             : in  std_logic;                                        -- raw data acknowledgement - channel 2
    
      filtered_addr_ch3_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 3
      filtered_dat_ch3_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 3
@@ -271,10 +264,6 @@ port(
      flux_cnt_dat_ch3_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch3_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 3
      coadded_dat_ch3_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 3
-     raw_addr_ch3_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 3
-     raw_dat_ch3_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 3
-     raw_req_ch3_o             : out std_logic;                                        -- raw data request - channel 3
-     raw_ack_ch3_i             : in  std_logic;                                        -- raw data acknowledgement - channel 3
    
      filtered_addr_ch4_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 4
      filtered_dat_ch4_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 4
@@ -283,10 +272,6 @@ port(
      flux_cnt_dat_ch4_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch4_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 4
      coadded_dat_ch4_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 4
-     raw_addr_ch4_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 4
-     raw_dat_ch4_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);   -- raw data - channel 4
-     raw_req_ch4_o             : out std_logic;                                        -- raw data request - channel 4
-     raw_ack_ch4_i             : in  std_logic;                                        -- raw data acknowledgement - channel 4
 
      filtered_addr_ch5_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 5
      filtered_dat_ch5_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 5
@@ -295,10 +280,6 @@ port(
      flux_cnt_dat_ch5_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch5_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 5
      coadded_dat_ch5_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 5
-     raw_addr_ch5_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 5
-     raw_dat_ch5_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 5
-     raw_req_ch5_o             : out std_logic;                                        -- raw data request - channel 5
-     raw_ack_ch5_i             : in  std_logic;                                        -- raw data acknowledgement - channel 5
    
      filtered_addr_ch6_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 6
      filtered_dat_ch6_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 6
@@ -307,10 +288,6 @@ port(
      flux_cnt_dat_ch6_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch6_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 6
      coadded_dat_ch6_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 6
-     raw_addr_ch6_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 6
-     raw_dat_ch6_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 6
-     raw_req_ch6_o             : out std_logic;                                        -- raw data request - channel 6
-     raw_ack_ch6_i             : in  std_logic;                                        -- raw data acknowledgement - channel 6
    
      filtered_addr_ch7_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 7
      filtered_dat_ch7_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 7
@@ -319,15 +296,8 @@ port(
      flux_cnt_dat_ch7_i        : in  std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
      coadded_addr_ch7_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 7
      coadded_dat_ch7_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 7
-     raw_addr_ch7_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 7
-     raw_dat_ch7_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 7
-     raw_req_ch7_o             : out std_logic;                                        -- raw data request - channel 7
-     raw_ack_ch7_i             : in  std_logic;                                        -- raw data acknowledgement - channel 7
-   
-   
     
      -- signals to/from dispatch  (wishbone interface)
-  
      dat_i                     : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
      addr_i                    : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);       -- wishbone address in
      tga_i                     : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);   -- 
@@ -429,17 +399,19 @@ begin
 --                       raw-mode handshake signals
 ------------------------------------------------------------------------------------------------  
      
-   raw_ack       <= raw_ack_ch0_i and raw_ack_ch1_i and raw_ack_ch2_i and  raw_ack_ch3_i and
-                    raw_ack_ch4_i and raw_ack_ch5_i and raw_ack_ch6_i and  raw_ack_ch7_i ;
+--   raw_ack       <= raw_ack_ch0_i and raw_ack_ch1_i and raw_ack_ch2_i and  raw_ack_ch3_i and
+--                    raw_ack_ch4_i and raw_ack_ch5_i and raw_ack_ch6_i and  raw_ack_ch7_i ;
+   raw_ack <= raw_ack_i;
   
-   raw_req_ch0_o <= raw_req;
-   raw_req_ch1_o <= raw_req;
-   raw_req_ch2_o <= raw_req;
-   raw_req_ch3_o <= raw_req;
-   raw_req_ch4_o <= raw_req;
-   raw_req_ch5_o <= raw_req;
-   raw_req_ch6_o <= raw_req;
-   raw_req_ch7_o <= raw_req; 
+--   raw_req_ch0_o <= raw_req;
+--   raw_req_ch1_o <= raw_req;
+--   raw_req_ch2_o <= raw_req;
+--   raw_req_ch3_o <= raw_req;
+--   raw_req_ch4_o <= raw_req;
+--   raw_req_ch5_o <= raw_req;
+--   raw_req_ch6_o <= raw_req;
+--   raw_req_ch7_o <= raw_req;
+   raw_req_o <= raw_req;
       
 -------------------------------------------------------------------------------------------------
 --                                  Wishbone FSM
@@ -482,16 +454,19 @@ begin
 
          if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1') then
             if we_i = '0' then
-              if (data_mode /= MODE2_FILTERED and data_mode /= MODE6_FILT_ERROR and 
-                  data_mode /=MODE7_FILT_ERROR2 and data_mode /= MODE9_FILT_FLX_CNT and
-                  data_mode /= MODE10_FILT_FLX_CNT) then  
-                next_state <= WSS1;
               
               -- For filter mode data wait for the start of the frame before reading back. In that case row 0 is read before 
               -- being overwritten by this frame data.
-              elsif (restart_frame_1row_post_i = '1') then -- filtered data mode
+              if(data_mode = MODE2_FILTERED or data_mode = MODE6_FILT_ERROR or data_mode = MODE7_FILT_ERROR2 or data_mode = MODE9_FILT_FLX_CNT or data_mode = MODE10_FILT_FLX_CNT) then
+                 if(restart_frame_1row_post_i = '1') then
                  next_state <= WSS1;
+                 --else
+                 --   next_state <= IDLE;
               end if;               
+              else -- filtered data mode
+                 next_state <= WSS1;
+              end if;
+
             -- write to ret_dat_addr is invalid  
             else
               next_state <= WB_ER;
@@ -582,21 +557,21 @@ begin
       when WR_REG =>
          if addr_i = DATA_MODE_ADDR then
             data_mode_wren <= '1';
-         else
+         elsif(addr_i = READOUT_ROW_INDEX_ADDR) then
             readout_row_wren <= '1'; 
          end if;   
             
       when RD_REG =>
-         if addr_i = DATA_MODE_ADDR then
+         if(addr_i = DATA_MODE_ADDR) then
             dat_o <= data_mode;
-         else
+         elsif(addr_i = READOUT_ROW_INDEX_ADDR) then
             dat_o <= ext(readout_row_index, WB_DATA_WIDTH);
          end if;   
          
       when WB_ACK_NOW =>   
          if (addr_i = DATA_MODE_ADDR) then
             dat_o <= data_mode;
-         else 
+         elsif(addr_i = READOUT_ROW_INDEX_ADDR) then 
             dat_o <= ext(readout_row_index, WB_DATA_WIDTH);            
          end if;   
          
@@ -709,14 +684,15 @@ begin
    -- the rest the 'row'.
    
         
-   raw_addr_ch0_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
-   raw_addr_ch1_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
-   raw_addr_ch2_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
-   raw_addr_ch3_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
-   raw_addr_ch4_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
-   raw_addr_ch5_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
-   raw_addr_ch6_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
-   raw_addr_ch7_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+--   raw_addr_ch0_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
+--   raw_addr_ch1_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+--   raw_addr_ch2_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+--   raw_addr_ch3_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+--   raw_addr_ch4_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+--   raw_addr_ch5_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+--   raw_addr_ch6_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+--   raw_addr_ch7_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   raw_addr_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
             
 --------------------------------------------------------------------------------------------
 --                  Data OUTPUT Select MUX
@@ -728,8 +704,8 @@ begin
        wbs_data     <= 
           error_dat           when x"0",
           unfiltered_dat      when x"1",
-          -- filtered_dat        when x"2",
-          -- raw_dat             when x"3",
+          filtered_dat        when x"2",
+          raw_dat             when x"3",
           fb_error_dat        when x"4",
           -- fb_flx_cnt_dat      when x"5",
           -- filtfb_error_dat    when x"6", -- 0110 is skipped, as 0111 is a better solution
@@ -765,15 +741,15 @@ begin
                         fsfb_dat_ch6_i when "110",
                         fsfb_dat_ch7_i when others;
                                                
---   with ch_mux_sel select
---       filtered_dat  <= filtered_dat_ch0_i when "000",
---                        filtered_dat_ch1_i when "001",
---                        filtered_dat_ch2_i when "010",
---                        filtered_dat_ch3_i when "011",
---                        filtered_dat_ch4_i when "100",
---                        filtered_dat_ch5_i when "101",
---                        filtered_dat_ch6_i when "110",
---                        filtered_dat_ch7_i when others;
+   with ch_mux_sel select
+       filtered_dat  <= filtered_dat_ch0_i when "000",
+                        filtered_dat_ch1_i when "001",
+                        filtered_dat_ch2_i when "010",
+                        filtered_dat_ch3_i when "011",
+                        filtered_dat_ch4_i when "100",
+                        filtered_dat_ch5_i when "101",
+                        filtered_dat_ch6_i when "110",
+                        filtered_dat_ch7_i when others;
 
    with ch_mux_sel select
       fb_error_dat   <= fsfb_dat_ch0_i(31) & fsfb_dat_ch0_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
@@ -811,7 +787,7 @@ begin
 --                        fsfb_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
 
 --   with ch_mux_sel select
---      filtfb_error_dat<= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & 
+--      filtfb_error_dat <= filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & 
 --                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
 --                        
 --                        filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 11) & 
@@ -882,6 +858,7 @@ begin
                         filtered_dat_ch6_i(27 downto 3) & flux_cnt_dat_ch6_i(6 downto 0) when "110",
                         filtered_dat_ch7_i(27 downto 3) & flux_cnt_dat_ch7_i(6 downto 0) when others;
 
+   raw_dat <= sxt(raw_dat_i, raw_dat'length);
 --   with raw_ch_mux_sel select
 --      raw_dat        <= sxt(raw_dat_ch0_i, raw_dat'length) when "000",
 --                        sxt(raw_dat_ch1_i, raw_dat'length) when "001", 
