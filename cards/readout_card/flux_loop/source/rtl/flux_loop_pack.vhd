@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.15.2.3  2009/04/22 01:17:03  bburger
+-- BB:  Fixes associated with RAM_RAW_DAT_WIDTH, RAW_DAT_WIDTH, RAW_ADDR_WIDTH
+--
 -- Revision 1.15.2.2  2009/04/22 00:39:48  bburger
 -- BB: moved USED_RAW_DAT_WIDTH from adc_sample_coadd_pack; renamed ram_16x65536 to raw_dat_ram; replaced the x8 raw_data interfaces with one.
 --
@@ -133,7 +136,7 @@ package flux_loop_pack is
   
   -- Wishbone frame data specific
   constant RAW_DATA_WIDTH         : integer := 13;
-  constant RAW_ADDR_WIDTH         : integer := 12;                   -- enough for two frame
+  constant RAW_ADDR_WIDTH         : integer := 13;                   -- enough for two frame
   constant RAM_RAW_DAT_WIDTH      : integer := 14;                   -- Number of ADC output bits to be saved
 
   
