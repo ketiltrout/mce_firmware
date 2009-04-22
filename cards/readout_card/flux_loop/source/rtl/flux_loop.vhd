@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.16.2.2  2009/04/22 00:38:25  bburger
+-- BB: replaced the x8 raw_data interfaces between flux_loop_ctrl and wbs_frame_data with one.
+--
 -- Revision 1.16.2.1  2009/04/18 06:28:16  bburger
 -- BB: instantiated ram_16x65536
 --
@@ -465,19 +468,16 @@ architecture struct of flux_loop is
   signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
   signal fsfb_ctrl_lock_en7        : std_logic;                                             
 
-
---  signal raw_addr      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
---  signal raw_dat       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
---  signal raw_req       : std_logic;
---  signal raw_ack       : std_logic;
    signal adc_dat     : STD_LOGIC_VECTOR (ADC_DAT_WIDTH-1 DOWNTO 0);
-   signal adc_dat_sxt : STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0);
-   signal raw_rd_addr : STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
-   signal raw_wr_addr : STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
+   signal adc_dat_sxt : STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0);
+   signal raw_rd_addr : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+   signal raw_wr_addr : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
    signal raw_wren    : STD_LOGIC  := '1';
-   signal raw_dat     : STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0);
+   signal raw_dat     : STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0);
    signal raw_init    : std_logic;
    signal raw_chan    : integer range 0 to NO_CHANNELS-1;
+   signal raw_dat_req : std_logic;
+   signal raw_dat_ack : std_logic;
 
    type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);
    signal current_state, next_state : states;
@@ -497,7 +497,7 @@ begin  -- struct
       adc_dat_ch6_i when raw_chan = 6 else
       adc_dat_ch7_i when raw_chan = 7;
       
-   adc_dat_sxt <= sxt(adc_dat, RAW_DATA_RAM_DATA_WIDTH);
+   adc_dat_sxt <= sxt(adc_dat, RAM_RAW_DAT_WIDTH);
    
    rectangle_mode_ram: raw_ram_bank
    port map (
@@ -1256,15 +1256,14 @@ begin  -- struct
   -----------------------------------------------------------------------------
   -- Instantiation of wbs_frame_data
   -----------------------------------------------------------------------------
-
   i_wbs_frame_data: wbs_frame_data
     port map (
         rst_i               => rst_i,
         clk_i               => clk_50_i,
-        raw_addr_o          => open,       
-        raw_dat_i           => "0000000000000000",     
-        raw_req_o           => open,     
-        raw_ack_i           => '0',     
+        raw_addr_o          => raw_rd_addr,       
+        raw_dat_i           => raw_dat,     
+        raw_req_o           => raw_dat_req,     
+        raw_ack_i           => raw_dat_ack,     
         restart_frame_1row_post_i => restart_frame_1row_post_i,        
         filtered_addr_ch0_o => filtered_addr_ch0,
         filtered_dat_ch0_i  => filtered_dat_ch0,

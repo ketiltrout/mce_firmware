@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.6.2.1  2009/04/22 00:37:00  bburger
+-- BB: moved USED_RAW_DAT_WIDTH to flux_loop_pack
+--
 -- Revision 1.6  2008/06/19 23:50:15  mandana
 -- increased USED_RAW_DAT_WIDTH to 14 and use it to make definitions parametric
 --
@@ -89,12 +92,12 @@ package adc_sample_coadd_pack is
 
   component raw_dat_bank
     port (
-      data      : in  std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
+      data      : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1 downto 0);
       wren      : in  std_logic;
       wraddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
       rdaddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
       clock     : in  std_logic;
-      q         : out std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0));
+      q         : out std_logic_vector (RAM_RAW_DAT_WIDTH-1 downto 0));
   end component;
 
   

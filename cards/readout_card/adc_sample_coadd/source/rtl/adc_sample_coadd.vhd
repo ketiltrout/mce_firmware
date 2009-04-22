@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.7.2.1  2009/04/22 00:36:04  bburger
+-- BB: Removed raw data interfaces and blocks.  Now located in flux_loop.
+--
 -- Revision 1.7  2008/06/20 17:14:05  mandana
 -- merging from 1.6.2.3 raw_dat width
 --
@@ -205,8 +208,8 @@ architecture struct of adc_sample_coadd is
 
   
   constant GROUNDED_ADDR        : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
-  constant ZERO_PAD             : std_logic_vector((RAW_DAT_WIDTH - USED_RAW_DAT_WIDTH)-1 downto 0) := (others => '0');
- 
+--  constant ZERO_PAD             : std_logic_vector((RAW_DAT_WIDTH - USED_RAW_DAT_WIDTH)-1 downto 0) := (others => '0');
+-- 
 --  -- Signals name change from outside the block
 --  signal raw_dat                : std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
 --

@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.15.2.2  2009/04/22 00:39:48  bburger
+-- BB: moved USED_RAW_DAT_WIDTH from adc_sample_coadd_pack; renamed ram_16x65536 to raw_dat_ram; replaced the x8 raw_data interfaces with one.
+--
 -- Revision 1.15.2.1  2009/04/18 06:28:54  bburger
 -- BB: added a component declaration for ram_16x65536
 --
@@ -129,9 +132,9 @@ package flux_loop_pack is
   constant FLUX_QUANTA_MIN        : integer := 0;  -- Flux Quanta are always positive numbers.
   
   -- Wishbone frame data specific
-  constant RAW_DATA_WIDTH         : integer := 16;
-  constant RAW_ADDR_WIDTH         : integer := 13;                   -- enough for two frame
-  constant USED_RAW_DAT_WIDTH     : integer := 14;                    -- Number of ADC output bits to be saved
+  constant RAW_DATA_WIDTH         : integer := 13;
+  constant RAW_ADDR_WIDTH         : integer := 12;                   -- enough for two frame
+  constant RAM_RAW_DAT_WIDTH      : integer := 14;                   -- Number of ADC output bits to be saved
 
   
   -- Flux Loop Control Specific
@@ -152,17 +155,17 @@ package flux_loop_pack is
    -----------------------------------------------------------------------------
    -- Raw Data/ Rectangle Mode RAM Bank
    -----------------------------------------------------------------------------
-   constant RAW_DATA_RAM_DATA_WIDTH : integer := 13;
-   constant RAW_DATA_RAM_ADDR_WIDTH : integer := 12;
+--   constant RAW_DATA_RAM_DATA_WIDTH : integer := 13;
+--   constant RAW_DATA_RAM_ADDR_WIDTH : integer := 12;
 
    component raw_ram_bank
    port (
       clock    : IN STD_LOGIC ;
-      data     : IN STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0);
-      rdaddress      : IN STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
-      wraddress      : IN STD_LOGIC_VECTOR (RAW_DATA_RAM_ADDR_WIDTH-1 DOWNTO 0);
+      data     : IN STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0);
+      rdaddress      : IN STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+      wraddress      : IN STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
       wren     : IN STD_LOGIC  := '1';
-      q     : OUT STD_LOGIC_VECTOR (RAW_DATA_RAM_DATA_WIDTH-1 DOWNTO 0)
+      q     : OUT STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0)
    );
    end component;
    
@@ -333,7 +336,7 @@ package flux_loop_pack is
       rst_i               : in  std_logic;
       clk_i               : in  std_logic;
       raw_addr_o                : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
-      raw_dat_i                 : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 0
+      raw_dat_i                 : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1    downto 0);  -- raw data - channel 0
       raw_req_o                 : out std_logic;                                        -- raw data request - channel 0
       raw_ack_i                 : in  std_logic;                                        -- raw data acknowledgement - channel 0
       restart_frame_1row_post_i : in  std_logic;      

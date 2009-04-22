@@ -53,9 +53,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2008/08/15 18:16:08 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2009/04/22 00:45:05 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.34.2.1  2009/04/22 00:45:05  bburger
+-- BB: replaced the x8 signals from the old raw_mode with x1 signals for the new raw_mode
+--
 -- Revision 1.34  2008/08/15 18:16:08  mandana
 -- BB: removed all data modes except for 0,1,4,10
 --
@@ -229,7 +232,7 @@ port(
      
      -- signals to/from flux_loop_ctrl    
      raw_addr_o                : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
-     raw_dat_i                 : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 0
+     raw_dat_i                 : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1    downto 0);  -- raw data - channel 0
      raw_req_o                 : out std_logic;                                        -- raw data request - channel 0
      raw_ack_i                 : in  std_logic;                                        -- raw data acknowledgement - channel 0
 
