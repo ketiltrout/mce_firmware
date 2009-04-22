@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.8  2006/06/29 18:47:54  mandana
+-- DAC_INIT_VAL added
+--
 -- Revision 1.7  2006/05/05 19:58:31  mandana
 -- moved all all_cards components to all_cards_pack.vhd
 --
@@ -82,7 +85,9 @@ package readout_card_pack is
   -- Constants 
   -----------------------------------------------------------------------------
 
-  constant ROW_ADDR_WIDTH         :  integer := 6;
+  constant ROW_ADDR_WIDTH         : integer := 6;
+  constant COL_ADDR_WIDTH         : integer := 3;
+  
   constant FSFB_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- address width of first stage feedback queue 
 
   constant ADC_DAT_WIDTH          : integer := 14;
