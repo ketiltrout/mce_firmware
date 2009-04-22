@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.9  2007/10/31 20:12:01  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
+--
 -- Revision 1.8  2006/02/15 21:35:14  mandana
 -- added fltr_rst_i
 --
@@ -121,10 +124,6 @@ package flux_loop_ctrl_pack is
       initialize_window_i       : in  std_logic;
       coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
       coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
-      raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-      raw_req_i                 : in  std_logic;
-      raw_ack_o                 : out std_logic;
       coadd_done_o              : out std_logic;
       current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
       current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
