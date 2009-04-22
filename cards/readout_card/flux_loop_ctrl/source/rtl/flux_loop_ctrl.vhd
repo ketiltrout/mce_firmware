@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.14  2007/10/31 20:12:01  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
+--
 -- Revision 1.13  2006/02/15 21:35:14  mandana
 -- added fltr_rst_i
 --
@@ -135,10 +138,6 @@ entity flux_loop_ctrl is
     -- Wishbone Slave (wbs) Frame Data signals
     coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-    raw_req_i                 : in  std_logic;
-    raw_ack_o                 : out std_logic;
 
     fsfb_addr_i               : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
     fsfb_dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
@@ -238,10 +237,6 @@ begin  -- struct
     initialize_window_i       => initialize_window_i,
     coadded_addr_i            => coadded_addr_i,
     coadded_dat_o             => coadded_dat_o,
-    raw_addr_i                => raw_addr_i,
-    raw_dat_o                 => raw_dat_o,
-    raw_req_i                 => raw_req_i,
-    raw_ack_o                 => raw_ack_o,
     coadd_done_o              => coadd_done,
     current_coadd_dat_o       => current_coadd_dat,
     current_diff_dat_o        => current_diff_dat,
