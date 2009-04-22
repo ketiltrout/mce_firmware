@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.15.2.4  2009/04/22 01:26:04  bburger
+-- BB:  Corrected an error in the RAW_ADDR_WIDTH constant
+--
 -- Revision 1.15.2.3  2009/04/22 01:17:03  bburger
 -- BB:  Fixes associated with RAM_RAW_DAT_WIDTH, RAW_DAT_WIDTH, RAW_ADDR_WIDTH
 --
@@ -338,10 +341,11 @@ package flux_loop_pack is
     port (
       rst_i               : in  std_logic;
       clk_i               : in  std_logic;
-      raw_addr_o                : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
-      raw_dat_i                 : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1    downto 0);  -- raw data - channel 0
-      raw_req_o                 : out std_logic;                                        -- raw data request - channel 0
-      raw_ack_i                 : in  std_logic;                                        -- raw data acknowledgement - channel 0
+      raw_addr_o          : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address 
+      raw_dat_i           : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1 downto 0);  -- raw data 
+      raw_req_o           : out std_logic;                                        -- raw data request 
+      raw_ack_i           : in  std_logic;                                        -- raw data acknowledgement 
+      readout_col_index_o : out std_logic_vector (COL_ADDR_WIDTH-1 downto 0);     -- readout column index for column-readout mode (raw)      
       restart_frame_1row_post_i : in  std_logic;      
       filtered_addr_ch0_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch0_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
