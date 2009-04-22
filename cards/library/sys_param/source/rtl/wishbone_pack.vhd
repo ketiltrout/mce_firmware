@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/06/17 19:07:42 $> - <initials $Author: bburger $>
+-- <date $Date: 2008/08/13 20:53:21 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.47  2008/08/13 20:53:21  bburger
+-- BB:  Added STOP_DLY_ADDR command
+--
 -- Revision 1.46  2008/06/17 19:07:42  bburger
 -- BB:  Added the const_val39 command, for ac_v02000007
 --
@@ -232,7 +235,7 @@ package wishbone_pack is
 
    constant CONST_MODE_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
    constant CONST_VAL_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
-   constant CONST_VAL39_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"08";
+   constant CONST_VAL39_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"08";
 
    ---------------------------------------------------------------------------------------
    -- Address Card Specific Parameter IDs
@@ -289,6 +292,7 @@ package wishbone_pack is
    constant OFFSET_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"11";
    constant COL_MAP_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"12";
    constant READOUT_ROW_INDEX_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"13";
+   constant RAW_DATA_CHAN_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
 
    constant GAINP0_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"70";
    constant GAINP1_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"71";
