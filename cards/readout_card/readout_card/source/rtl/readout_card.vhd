@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.77  2008/08/15 18:14:44  mandana
+-- BB:  rc_v0400000c_15aug2008
+--
 -- Revision 1.76  2008/08/04 12:07:28  mandana
 -- added data_mode 10 for 4.0.b
 --
@@ -424,7 +427,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000c"; -- 12b pid pars , sa_bias/offset updated only when modified
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000d"; -- 12b pid pars , sa_bias/offset updated only when modified
                                                                      -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
                                                                      -- removed quartus.ini from synth directory
 -- Global signals
