@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.7  2008/06/20 17:14:05  mandana
+-- merging from 1.6.2.3 raw_dat width
+--
 -- Revision 1.6.2.3  2008/06/19 23:48:14  mandana
 -- increase raw_dat from 8 bit to 14 bit
 --
@@ -177,10 +180,10 @@ entity adc_sample_coadd is
     -- Wishbone Slave (wbs) Frame Data signals
     coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
-    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-    raw_req_i                 : in  std_logic;
-    raw_ack_o                 : out std_logic;
+--    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+--    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+--    raw_req_i                 : in  std_logic;
+--    raw_ack_o                 : out std_logic;
 
     -- First Stage Feedback Calculation (fsfb_calc) block signals
     coadd_done_o              : out std_logic;
@@ -203,20 +206,19 @@ architecture struct of adc_sample_coadd is
   
   constant GROUNDED_ADDR        : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
   constant ZERO_PAD             : std_logic_vector((RAW_DAT_WIDTH - USED_RAW_DAT_WIDTH)-1 downto 0) := (others => '0');
-
-  
-  -- Signals name change from outside the block
-  signal raw_dat                : std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
-
-  -- signals from raw_dat_bank
-  signal raw_dat_out            : std_logic_vector( USED_RAW_DAT_WIDTH-1 downto 0);
-  
-  -- signals from raw_dat_manager_data_path 
-  signal raw_write_addr         : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-
-  -- signals from raw_dat_manager_ctrl
-  signal clr_raw_addr_index     : std_logic;
-  signal raw_wren               : std_logic;
+ 
+--  -- Signals name change from outside the block
+--  signal raw_dat                : std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
+--
+--  -- signals from raw_dat_bank
+--  signal raw_dat_out            : std_logic_vector( USED_RAW_DAT_WIDTH-1 downto 0);
+--  
+--  -- signals from raw_dat_manager_data_path 
+--  signal raw_write_addr         : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+--
+--  -- signals from raw_dat_manager_ctrl
+--  signal clr_raw_addr_index     : std_logic;
+--  signal raw_wren               : std_logic;
   
   -- signals from coadd storage bank 0 and 1
   signal coadd_dat_porta_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
@@ -246,9 +248,6 @@ architecture struct of adc_sample_coadd is
   -- signals from dynamic_dat_manager_data_path
   signal integral_result        : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
-  
-
-  
 begin  -- struc
 
   
@@ -258,9 +257,9 @@ begin  -- struc
   -- The following statement is used to select part of the accuracy of the ADC.
   -- Based on the value of RAW_DATA_POSITION_POINTER, we select part of the
   -- ADC 14-bit output
-  raw_dat   <= adc_dat_i; --(ADC_DAT_WIDTH-1) & adc_dat_i(RAW_DATA_POSITION_POINTER-2 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
+--  raw_dat   <= adc_dat_i; --(ADC_DAT_WIDTH-1) & adc_dat_i(RAW_DATA_POSITION_POINTER-2 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
   
-  raw_dat_o <= sxt(raw_dat_out, raw_dat_o'length);  -- sign extend to match the width expected by wbs_frame_data
+--  raw_dat_o <= sxt(raw_dat_out, raw_dat_o'length);  -- sign extend to match the width expected by wbs_frame_data
 
   
   -----------------------------------------------------------------------------
@@ -293,32 +292,32 @@ begin  -- struc
   -- Instantiation of Raw Data Manager Data Path
   -----------------------------------------------------------------------------
 
-  i_raw_dat_manager_data_path : raw_dat_manager_data_path
-
-    generic map (
-    ADDR_WIDTH => RAW_ADDR_WIDTH)
-
-    port map (
-    rst_i        => rst_i,               -- system input
-    clk_i        => clk_50_i,            -- system input
-    clr_index_i  => clr_raw_addr_index,  -- from raw controller
-    addr_index_o => raw_write_addr);    
+--  i_raw_dat_manager_data_path : raw_dat_manager_data_path
+--
+--    generic map (
+--    ADDR_WIDTH => RAW_ADDR_WIDTH)
+--
+--    port map (
+--    rst_i        => rst_i,               -- system input
+--    clk_i        => clk_50_i,            -- system input
+--    clr_index_i  => clr_raw_addr_index,  -- from raw controller
+--    addr_index_o => raw_write_addr);    
 
 
   -----------------------------------------------------------------------------
   -- Instantiation of Raw Data Manager Controller
   -----------------------------------------------------------------------------
 
-  i_raw_dat_manager_ctrl : raw_dat_manager_ctrl
-
-    port map (
-    rst_i                   => rst_i,                    -- system input
-    clk_i                   => clk_50_i,                 -- system input
-    restart_frame_aligned_i => restart_frame_aligned_i,  -- system input
-    raw_req_i               => raw_req_i,                -- system input
-    clr_raw_addr_index_o    => clr_raw_addr_index,  
-    raw_wren_o              => raw_wren,
-    raw_ack_o               => raw_ack_o);
+--  i_raw_dat_manager_ctrl : raw_dat_manager_ctrl
+--
+--    port map (
+--    rst_i                   => rst_i,                    -- system input
+--    clk_i                   => clk_50_i,                 -- system input
+--    restart_frame_aligned_i => restart_frame_aligned_i,  -- system input
+--    raw_req_i               => raw_req_i,                -- system input
+--    clr_raw_addr_index_o    => clr_raw_addr_index,  
+--    raw_wren_o              => raw_wren,
+--    raw_ack_o               => raw_ack_o);
 
 
   -----------------------------------------------------------------------------
