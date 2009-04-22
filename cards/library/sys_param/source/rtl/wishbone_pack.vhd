@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/08/13 20:53:21 $> - <initials $Author: bburger $>
+-- <date $Date: 2009/04/22 00:34:32 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.47.2.1  2009/04/22 00:34:32  bburger
+-- BB: Added RAW_DATA_CHAN_ADDR
+--
 -- Revision 1.47  2008/08/13 20:53:21  bburger
 -- BB:  Added STOP_DLY_ADDR command
 --
@@ -292,7 +295,7 @@ package wishbone_pack is
    constant OFFSET_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"11";
    constant COL_MAP_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"12";
    constant READOUT_ROW_INDEX_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"13";
-   constant RAW_DATA_CHAN_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
+   constant READOUT_COL_INDEX_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
 
    constant GAINP0_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"70";
    constant GAINP1_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"71";
