@@ -35,6 +35,7 @@
 -- data_mode :    ParId="0x31" 
 -- captr_raw :    ParId="0x1F" 
 -- readout_row_index: ParId="0x13"
+-- readout_col_index: ParId="0x19"
 --
 -- It's main function is to collect data from the flux loop control blocks
 -- to be read by the wishbone master (dispatch)
@@ -53,9 +54,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2009/04/22 00:45:05 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2009/04/22 01:17:03 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.34.2.2  2009/04/22 01:17:03  bburger
+-- BB:  Fixes associated with RAM_RAW_DAT_WIDTH, RAW_DAT_WIDTH, RAW_ADDR_WIDTH
+--
 -- Revision 1.34.2.1  2009/04/22 00:45:05  bburger
 -- BB: replaced the x8 signals from the old raw_mode with x1 signals for the new raw_mode
 --
@@ -231,11 +235,12 @@ port(
      restart_frame_1row_post_i : in std_logic;  
      
      -- signals to/from flux_loop_ctrl    
-     raw_addr_o                : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
-     raw_dat_i                 : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1    downto 0);  -- raw data - channel 0
-     raw_req_o                 : out std_logic;                                        -- raw data request - channel 0
-     raw_ack_i                 : in  std_logic;                                        -- raw data acknowledgement - channel 0
-
+     raw_addr_o                : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address
+     raw_dat_i                 : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1 downto 0);  -- raw data 
+     raw_req_o                 : out std_logic;                                        -- raw data request 
+     raw_ack_i                 : in  std_logic;                                        -- raw data acknowledgement 
+     readout_col_index_o       : out std_logic_vector (COL_ADDR_WIDTH-1    downto 0);  -- readout column index for column-readout mode (raw)
+          
      filtered_addr_ch0_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 0
      filtered_dat_ch0_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 0
      fsfb_addr_ch0_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 0   
@@ -337,6 +342,10 @@ signal data_mode_wren      : std_logic ;
 signal readout_row_index      : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
 signal readout_row_wren       : std_logic;
 
+-- the column index for frame-rate wishbone data read (raw mode only for now)
+signal readout_col_index      : std_logic_vector (COL_ADDR_WIDTH-1 downto 0);
+signal readout_col_wren       : std_logic;
+
 -- different types of data read from flux_loop_cntr blocks
 signal error_dat           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal unfiltered_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
@@ -404,16 +413,7 @@ begin
      
 --   raw_ack       <= raw_ack_ch0_i and raw_ack_ch1_i and raw_ack_ch2_i and  raw_ack_ch3_i and
 --                    raw_ack_ch4_i and raw_ack_ch5_i and raw_ack_ch6_i and  raw_ack_ch7_i ;
-   raw_ack <= raw_ack_i;
-  
---   raw_req_ch0_o <= raw_req;
---   raw_req_ch1_o <= raw_req;
---   raw_req_ch2_o <= raw_req;
---   raw_req_ch3_o <= raw_req;
---   raw_req_ch4_o <= raw_req;
---   raw_req_ch5_o <= raw_req;
---   raw_req_ch6_o <= raw_req;
---   raw_req_ch7_o <= raw_req;
+   raw_ack <= raw_ack_i;  
    raw_req_o <= raw_req;
       
 -------------------------------------------------------------------------------------------------
@@ -439,7 +439,8 @@ begin
      case current_state is
        
       when IDLE =>               
-         if ((addr_i = DATA_MODE_ADDR or addr_i = READOUT_ROW_INDEX_ADDR) and stb_i = '1' and cyc_i = '1') then
+         if ((addr_i = DATA_MODE_ADDR or addr_i = READOUT_ROW_INDEX_ADDR or addr_i = READOUT_COL_INDEX_ADDR) 
+                                                                                   and stb_i = '1' and cyc_i = '1') then
             if (we_i = '1') then
                next_state <= WR_REG;
             else
@@ -495,7 +496,8 @@ begin
        
       when READ_DATA =>
          if data_mode = MODE3_RAW then
-            if cyc_i = '0' or raw_address >= RAW_ADDR_MAX-1 or pix_address >= PIXEL_ADDR_MAX+1 then
+            -- not sure if we need the pixel_addres check maybe instead with that param
+            if cyc_i = '0' or raw_address >= RAW_ADDR_MAX-1 then -- or pix_address >= PIXEL_ADDR_MAX+1 then 
               next_state <= WB_ACK_NOW;
             end if;  
          else
@@ -518,9 +520,9 @@ begin
          
     end process nextstate_fsm;
     
-   -------------------------------------------------------------- ------------------------------
-   output_fsm: process (current_state, wbs_data, data_mode, readout_row_index, addr_i, stb_i, cyc_i)
-   ---------------------------------------------------------------------------------------------
+   -------------------------------------------------------------- ------------------------------------------------------
+   output_fsm: process (current_state, wbs_data, data_mode, readout_row_index, readout_col_index, addr_i, stb_i, cyc_i)
+   ---------------------------------------------------------------------------------------------------------------------
    begin
       -- default states
       pix_addr_clr   <= '0';
@@ -562,6 +564,8 @@ begin
             data_mode_wren <= '1';
          elsif(addr_i = READOUT_ROW_INDEX_ADDR) then
             readout_row_wren <= '1'; 
+         elsif(addr_i = READOUT_COL_INDEX_ADDR) then
+            readout_col_wren <= '1';             
          end if;   
             
       when RD_REG =>
@@ -569,6 +573,8 @@ begin
             dat_o <= data_mode;
          elsif(addr_i = READOUT_ROW_INDEX_ADDR) then
             dat_o <= ext(readout_row_index, WB_DATA_WIDTH);
+         elsif(addr_i = READOUT_COL_INDEX_ADDR) then
+            dat_o <= ext(readout_col_index, WB_DATA_WIDTH);
          end if;   
          
       when WB_ACK_NOW =>   
@@ -576,11 +582,13 @@ begin
             dat_o <= data_mode;
          elsif(addr_i = READOUT_ROW_INDEX_ADDR) then 
             dat_o <= ext(readout_row_index, WB_DATA_WIDTH);            
+         elsif(addr_i = READOUT_COL_INDEX_ADDR) then 
+            dat_o <= ext(readout_col_index, WB_DATA_WIDTH);            
          end if;   
          
-         if (addr_i /= RET_DAT_ADDR) then -- both rw for datamode & readout_row_index, only read for captr_raw
+         if (addr_i /= RET_DAT_ADDR) then -- both rw for datamode & readout_row_index & readout_col_index, only read for captr_raw
             wb_ack <= (stb_i and cyc_i);
-         else        
+         -- else   this is the fix from raw_mode_enabled branch in rc 4.3.7     
             dec_raw_addr <= '1';
          end if;
          
@@ -897,6 +905,18 @@ begin
         end if;   
      end if;
   end process readout_row_reg;          
+  
+  readout_col_reg: process(clk_i, rst_i)
+  begin
+     if (rst_i = '1') then 
+        readout_col_index <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        if readout_col_wren = '1' then 
+           readout_col_index <= dat_i(readout_col_index'length -1 downto 0);
+        end if;   
+     end if;
+  end process readout_col_reg;          
+  readout_col_index_o <= readout_col_index;
 -----------------------------------------------------------------------------------------
 --                                  Channel Select Delay
 -----------------------------------------------------------------------------------------
