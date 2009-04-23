@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.16.2.3  2009/04/22 01:17:03  bburger
+-- BB:  Fixes associated with RAM_RAW_DAT_WIDTH, RAW_DAT_WIDTH, RAW_ADDR_WIDTH
+--
 -- Revision 1.16.2.2  2009/04/22 00:38:25  bburger
 -- BB: replaced the x8 raw_data interfaces between flux_loop_ctrl and wbs_frame_data with one.
 --
@@ -468,18 +471,18 @@ architecture struct of flux_loop is
   signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
   signal fsfb_ctrl_lock_en7        : std_logic;                                             
 
-   signal adc_dat     : STD_LOGIC_VECTOR (ADC_DAT_WIDTH-1 DOWNTO 0);
-   signal adc_dat_sxt : STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0);
-   signal raw_rd_addr : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
-   signal raw_wr_addr : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
-   signal raw_wren    : STD_LOGIC  := '1';
-   signal raw_dat     : STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0);
-   signal raw_init    : std_logic;
-   signal raw_chan    : integer range 0 to NO_CHANNELS-1;
-   signal raw_dat_req : std_logic;
-   signal raw_dat_ack : std_logic;
+   signal adc_dat      : STD_LOGIC_VECTOR (ADC_DAT_WIDTH-1 DOWNTO 0);
+   signal adc_dat_sxt  : STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0);
+   signal raw_rd_addr  : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+   signal raw_wr_addr  : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+   signal raw_wren     : STD_LOGIC  := '1';
+   signal raw_dat      : STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0);
+   signal raw_chan     : std_logic_vector (COL_ADDR_WIDTH-1    downto 0);
+   signal raw_dat_req  : std_logic;
+   signal raw_dat_ack  : std_logic;
+--   signal raw_addr_clr : std_logic;
 
-   type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);
+   type states is (IDLE, REQ_RECEIVED, STORE_RAW, DONE);
    signal current_state, next_state : states;
   
 begin  -- struct
@@ -488,16 +491,16 @@ begin  -- struct
    -- Instantiation of Raw Data/ Rectangle Mode RAM block
    -----------------------------------------------------------------------------
    adc_dat <= 
-      adc_dat_ch0_i when raw_chan = 0 else
-      adc_dat_ch1_i when raw_chan = 1 else
-      adc_dat_ch2_i when raw_chan = 2 else
-      adc_dat_ch3_i when raw_chan = 3 else
-      adc_dat_ch4_i when raw_chan = 4 else
-      adc_dat_ch5_i when raw_chan = 5 else
-      adc_dat_ch6_i when raw_chan = 6 else
-      adc_dat_ch7_i when raw_chan = 7;
+      adc_dat_ch0_i when raw_chan = "000" else
+      adc_dat_ch1_i when raw_chan = "001" else
+      adc_dat_ch2_i when raw_chan = "010" else
+      adc_dat_ch3_i when raw_chan = "011" else
+      adc_dat_ch4_i when raw_chan = "100" else
+      adc_dat_ch5_i when raw_chan = "101" else
+      adc_dat_ch6_i when raw_chan = "110" else
+      adc_dat_ch7_i when raw_chan = "111";
       
-   adc_dat_sxt <= sxt(adc_dat, RAM_RAW_DAT_WIDTH);
+   adc_dat_sxt <= sxt(adc_dat, RAW_RAM_WIDTH);
    
    rectangle_mode_ram: raw_ram_bank
    port map (
@@ -508,95 +511,72 @@ begin  -- struct
       wren      => raw_wren,     
       q         => raw_dat   
    );
-   
---   raw_write_addr_counter: process (clk_50_i, rst_i)
---   begin
---     if(rst_i = '1') then
---       raw_addr_ch0_rep <= (others=> '0');
---     elsif clk_50_i'event and clk_50_i = '1' then
---       raw_addr_ch0_rep <= raw_addr_ch0_rep + 1;
---     end if;  
---   end process raw_write_addr_counter;  
-   
---   state_FF: process(clk_50_i, rst_i)
---   begin
---      if(rst_i = '1') then
---         current_state <= IDLE;
---         raw_wr_addr <= (others => '0');
---         raw_rd_addr <= (others => '0');
---      elsif(clk_50_i'event and clk_50_i = '1') then
---         current_state <= next_state;
---         raw_wr_addr <= raw_wr_addr + 1;
---         raw_rd_addr <= raw_rd_addr + 2;
---      end if;
---   end process state_FF;
---   
---   state_NS: process(current_state)
---   begin
---      next_state <= current_state;
---      case current_state is
---         when IDLE =>
---            next_state <= GOT_BIT0;
---         when GOT_BIT0 =>
---            next_state <= GOT_BIT1;
---         when GOT_BIT1 =>
---            next_state <= GOT_BIT2;
---         when GOT_BIT2 =>
---            next_state <= GOT_BIT3;
---         when GOT_BIT3 =>
---            next_state <= GOT_SYNC;
---         when GOT_SYNC =>
---            next_state <= IDLE;
---         when others =>
---            next_state <= IDLE;
---      end case;
---   end process state_NS;
---   
---   state_out: process(current_state)
---   begin
---      adc_dat <= (others => '0'); --: STD_LOGIC_VECTOR (17 DOWNTO 0);
---      raw_wren    <= '0'; --: STD_LOGIC  := '1';
---      raw_init    <= '0';
---      case current_state is
---         when IDLE =>
---            raw_wren    <= '0';
---            adc_dat <= "0000000000000001";
---         when GOT_BIT0 =>
---            raw_init <= '1';
---            raw_wren    <= '1';
---            adc_dat <= "0000000000000010";
---         when GOT_BIT1 =>
---            raw_wren    <= '1';
---            adc_dat <= "0000000000000011";
---         when GOT_BIT2 =>
---            raw_wren    <= '1';
---            adc_dat <= "0000000000000100";
---         when GOT_BIT3 =>
---            raw_wren    <= '1';
---            adc_dat <= raw_dat;
---         when GOT_SYNC =>
---            raw_wren    <= '1';
---            adc_dat <= raw_dat;
---         when others => NULL;
---      end case;
---   end process state_out;
 
+   increment_addr: process (clk_50_i, rst_i)
+   begin  -- process i_count_up
+      if(rst_i = '1') then                 -- asynchronous reset (active high)
+         raw_wr_addr <= (others => '0');
+      elsif(clk_50_i'event and clk_50_i = '1') then  -- rising clock edge
+         if(raw_wren = '1') then 
+            raw_wr_addr <= raw_wr_addr + 1;
+         elsif(raw_wren = '0') then
+            raw_wr_addr <= (others => '0');
+         end if;
+      end if;
+   end process increment_addr;
+  
+   state_FF: process(clk_50_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         current_state <= IDLE;
+      elsif(clk_50_i'event and clk_50_i = '1') then
+         current_state <= next_state;
+      end if;
+   end process state_FF;
+   
+   state_NS: process(current_state, restart_frame_aligned_i, raw_dat_req, raw_wr_addr)
+   begin
+      next_state <= current_state;
+      case current_state is
+         when IDLE =>
+            if(raw_dat_req = '1') then 
+               next_state <= REQ_RECEIVED;
+            end if;
+         when REQ_RECEIVED =>
+            if(restart_frame_aligned_i = '1') then
+               next_state <= STORE_RAW;
+            end if;
+         when STORE_RAW =>
+            if(raw_wr_addr = RAW_ADDR_MAX) then
+               next_state <= DONE;
+            end if;
+         when DONE =>
+            next_state <= IDLE;
+         when others =>
+            next_state <= IDLE;
+      end case;
+   end process state_NS;
+   
+   state_out: process(current_state)
+   begin
+      raw_wren    <= '0';
+      raw_dat_ack <= '0';
 
---   intiter: ram_18xalot_initer_meminit_auj 
---   PORT MAP ( 
---         clock       => clk_50_i,
---         dataout     => adc_dat, --:  OUT  STD_LOGIC_VECTOR (17 DOWNTO 0);
---         init        => raw_init,--:  IN  STD_LOGIC;
---         init_busy   => open,--:  OUT  STD_LOGIC;
---         ram_address => raw_wr_addr,--:  OUT  STD_LOGIC_VECTOR (8 DOWNTO 0);
---         ram_wren    => raw_wren--:  OUT  STD_LOGIC
---   ); 
---   
+      case current_state is
+         when IDLE =>
+         when REQ_RECEIVED =>
+         when STORE_RAW =>
+            raw_wren    <= '1';
+         when DONE =>
+            raw_dat_ack <= '1';
+         when others => 
+            NULL;
+      end case;
+   end process state_out;
   
   -----------------------------------------------------------------------------
   -- Instantiation of Flux Loop Control
   -----------------------------------------------------------------------------
-
   i_flux_loop_ctrl_ch0: flux_loop_ctrl
      port map (
         adc_dat_i                 => adc_dat_ch0_i,
@@ -1264,6 +1244,7 @@ begin  -- struct
         raw_dat_i           => raw_dat,     
         raw_req_o           => raw_dat_req,     
         raw_ack_i           => raw_dat_ack,     
+        readout_col_index_o => raw_chan,
         restart_frame_1row_post_i => restart_frame_1row_post_i,        
         filtered_addr_ch0_o => filtered_addr_ch0,
         filtered_dat_ch0_i  => filtered_dat_ch0,
@@ -1333,7 +1314,6 @@ begin  -- struct
   -----------------------------------------------------------------------------
   -- Instantiation of wbs_fb_data
   -----------------------------------------------------------------------------
-
   i_wbs_fb_data: wbs_fb_data
     port map (
         clk_50_i                => clk_50_i,
