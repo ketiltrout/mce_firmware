@@ -21,7 +21,7 @@
 --
 -- tb1_flux_loop_ctrl.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi & Anthony Ko
 -- Organisation:  UBC
 --
@@ -77,6 +77,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.7  2005/12/12 23:45:15  mandana
+-- Interfaces updated with latest flux-jump and filter features added, so the testbench compiles. But the testbench has to be updated later to test the newly added features.
+--
 -- Revision 1.6  2004/12/07 19:44:57  mohsen
 -- Anthony & Mohsen: Miscellanous updates
 --
@@ -162,7 +165,7 @@ architecture beh of tb1_flux_loop_ctrl is
     coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
     raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+    raw_dat_o                 : out std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
     raw_req_i                 : in  std_logic;
     raw_ack_o                 : out std_logic;
 
@@ -234,7 +237,7 @@ architecture beh of tb1_flux_loop_ctrl is
     signal coadded_addr_i            : std_logic_vector (COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
     signal coadded_dat_o             : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
     signal raw_addr_i                : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0) := "1010001111111";
-    signal raw_dat_o                 : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+    signal raw_dat_o                 : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
     signal raw_req_i                 : std_logic :='0';
     signal raw_ack_o                 : std_logic;
 
@@ -371,7 +374,7 @@ architecture beh of tb1_flux_loop_ctrl is
   signal address_index_plus1  : integer :=1;      -- points to row in memory
   signal addr_plus1_inc_ok    : boolean := true;  -- flags wrap around for address_index_plus1
   
-  												   
+                                       
 
 
  
@@ -444,7 +447,7 @@ architecture beh of tb1_flux_loop_ctrl is
          -- lock mode setting and invalid
          when others => const_val_o         <= (others => 'X');
                         ramp_step_size_o    <= (others => 'X');
-		        ramp_amp_o          <= (others => 'X');
+              ramp_amp_o          <= (others => 'X');
                         ramp_frame_cycles_o <= (others => 'X');
       end case sel;
    end procedure cfg_test_mode;
