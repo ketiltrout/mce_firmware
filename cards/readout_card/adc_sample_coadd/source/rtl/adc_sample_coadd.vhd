@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.7.2.2  2009/04/22 01:17:02  bburger
+-- BB:  Fixes associated with RAM_RAW_DAT_WIDTH, RAW_DAT_WIDTH, RAW_ADDR_WIDTH
+--
 -- Revision 1.7.2.1  2009/04/22 00:36:04  bburger
 -- BB: Removed raw data interfaces and blocks.  Now located in flux_loop.
 --
@@ -183,10 +186,6 @@ entity adc_sample_coadd is
     -- Wishbone Slave (wbs) Frame Data signals
     coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
---    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
---    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
---    raw_req_i                 : in  std_logic;
---    raw_ack_o                 : out std_logic;
 
     -- First Stage Feedback Calculation (fsfb_calc) block signals
     coadd_done_o              : out std_logic;
@@ -208,20 +207,6 @@ architecture struct of adc_sample_coadd is
 
   
   constant GROUNDED_ADDR        : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
---  constant ZERO_PAD             : std_logic_vector((RAW_DAT_WIDTH - USED_RAW_DAT_WIDTH)-1 downto 0) := (others => '0');
--- 
---  -- Signals name change from outside the block
---  signal raw_dat                : std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
---
---  -- signals from raw_dat_bank
---  signal raw_dat_out            : std_logic_vector( USED_RAW_DAT_WIDTH-1 downto 0);
---  
---  -- signals from raw_dat_manager_data_path 
---  signal raw_write_addr         : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
---
---  -- signals from raw_dat_manager_ctrl
---  signal clr_raw_addr_index     : std_logic;
---  signal raw_wren               : std_logic;
   
   -- signals from coadd storage bank 0 and 1
   signal coadd_dat_porta_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
@@ -275,54 +260,7 @@ begin  -- struc
     coadd_dat_porta_bank1 when current_bank='0' else
     coadd_dat_porta_bank0;
 
-  
-  -----------------------------------------------------------------------------
-  -- Instantiation of the Raw data bank
-  -----------------------------------------------------------------------------
-
---  i_raw_dat_bank: raw_dat_bank
---
---    port map (
---    data      => raw_dat,               -- system input modified
---    wren      => raw_wren,              -- from raw controller
---    wraddress => raw_write_addr,        -- from raw data path
---    rdaddress => raw_addr_i,            -- system input
---    clock     => clk_50_i,              -- system input
---    q         => raw_dat_out);
-
-
-  -----------------------------------------------------------------------------
-  -- Instantiation of Raw Data Manager Data Path
-  -----------------------------------------------------------------------------
-
---  i_raw_dat_manager_data_path : raw_dat_manager_data_path
---
---    generic map (
---    ADDR_WIDTH => RAW_ADDR_WIDTH)
---
---    port map (
---    rst_i        => rst_i,               -- system input
---    clk_i        => clk_50_i,            -- system input
---    clr_index_i  => clr_raw_addr_index,  -- from raw controller
---    addr_index_o => raw_write_addr);    
-
-
-  -----------------------------------------------------------------------------
-  -- Instantiation of Raw Data Manager Controller
-  -----------------------------------------------------------------------------
-
---  i_raw_dat_manager_ctrl : raw_dat_manager_ctrl
---
---    port map (
---    rst_i                   => rst_i,                    -- system input
---    clk_i                   => clk_50_i,                 -- system input
---    restart_frame_aligned_i => restart_frame_aligned_i,  -- system input
---    raw_req_i               => raw_req_i,                -- system input
---    clr_raw_addr_index_o    => clr_raw_addr_index,  
---    raw_wren_o              => raw_wren,
---    raw_ack_o               => raw_ack_o);
-
-
+ 
   -----------------------------------------------------------------------------
   -- Instantiation of Coadd Data Bank 0
   -----------------------------------------------------------------------------
