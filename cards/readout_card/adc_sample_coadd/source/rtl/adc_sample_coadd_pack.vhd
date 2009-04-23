@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.6.2.2  2009/04/22 01:17:03  bburger
+-- BB:  Fixes associated with RAM_RAW_DAT_WIDTH, RAW_DAT_WIDTH, RAW_ADDR_WIDTH
+--
 -- Revision 1.6.2.1  2009/04/22 00:37:00  bburger
 -- BB: moved USED_RAW_DAT_WIDTH to flux_loop_pack
 --
@@ -85,53 +88,6 @@ package adc_sample_coadd_pack is
   constant RAW_DATA_POSITION_POINTER : integer := 13;--USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
   
 
-  
-  -----------------------------------------------------------------------------
-  -- Raw data storage component
-  -----------------------------------------------------------------------------
-
-  component raw_dat_bank
-    port (
-      data      : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1 downto 0);
-      wren      : in  std_logic;
-      wraddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      rdaddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      clock     : in  std_logic;
-      q         : out std_logic_vector (RAM_RAW_DAT_WIDTH-1 downto 0));
-  end component;
-
-  
-  -----------------------------------------------------------------------------
-  -- Raw Data Manager Data Path.
-  -----------------------------------------------------------------------------
-
-  component raw_dat_manager_data_path
-    generic (
-      ADDR_WIDTH : integer := RAW_ADDR_WIDTH);
-    port (
-      rst_i        : in  std_logic;
-      clk_i        : in  std_logic;
-      clr_index_i  : in  std_logic;
-      addr_index_o : out std_logic_vector (ADDR_WIDTH-1 downto 0));
-  end component;
-
-
-  -----------------------------------------------------------------------------
-  -- Raw Data Manager Controller
-  -----------------------------------------------------------------------------
-
-  component raw_dat_manager_ctrl
-    port (
-      rst_i                   : in  std_logic;
-      clk_i                   : in  std_logic;
-      restart_frame_aligned_i : in  std_logic;
-      raw_req_i               : in  std_logic;
-      clr_raw_addr_index_o    : out std_logic;
-      raw_wren_o              : out std_logic;
-      raw_ack_o               : out std_logic);
-  end component;
-
-  
   -----------------------------------------------------------------------------
   -- Coadd Manager and Dynamic Data Manager Storage Component
   -----------------------------------------------------------------------------
