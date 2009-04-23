@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.15.2.5  2009/04/22 16:26:15  mandana
+-- added readout_col_index_o interface for raw mode readout
+--
 -- Revision 1.15.2.4  2009/04/22 01:26:04  bburger
 -- BB:  Corrected an error in the RAW_ADDR_WIDTH constant
 --
@@ -138,13 +141,12 @@ package flux_loop_pack is
   constant FLUX_QUANTA_MIN        : integer := 0;  -- Flux Quanta are always positive numbers.
   
   -- Wishbone frame data specific
-  constant RAW_DATA_WIDTH         : integer := 13;
-  constant RAW_ADDR_WIDTH         : integer := 13;                   -- enough for two frame
-  constant RAM_RAW_DAT_WIDTH      : integer := 14;                   -- Number of ADC output bits to be saved
-
+  constant RAW_DATA_WIDTH         : integer := ADC_DAT_WIDTH;
+  constant RAW_ADDR_WIDTH         : integer := 16;                   
+  constant RAW_RAM_WIDTH          : integer := 14;                  
+  constant RAW_ADDR_MAX           : std_logic_vector(RAW_ADDR_WIDTH-1 DOWNTO 0) := (others => '1');
   
   -- Flux Loop Control Specific
-  constant RAW_DAT_WIDTH          : integer := RAW_DATA_WIDTH;       -- two bytes
   constant COADD_ADDR_WIDTH       : integer := ROW_ADDR_WIDTH;
   constant FLUX_QUANTA_CNT_WIDTH  : integer := 8;
 
@@ -167,18 +169,17 @@ package flux_loop_pack is
    component raw_ram_bank
    port (
       clock    : IN STD_LOGIC ;
-      data     : IN STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0);
+      data     : IN STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0);
       rdaddress      : IN STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
       wraddress      : IN STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
       wren     : IN STD_LOGIC  := '1';
-      q     : OUT STD_LOGIC_VECTOR (RAM_RAW_DAT_WIDTH-1 DOWNTO 0)
+      q     : OUT STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0)
    );
    end component;
-   
+
   -----------------------------------------------------------------------------
   -- Flux Loop Control Block
   -----------------------------------------------------------------------------
-
   component flux_loop_ctrl
     port (
       adc_dat_i                   : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
@@ -342,7 +343,7 @@ package flux_loop_pack is
       rst_i               : in  std_logic;
       clk_i               : in  std_logic;
       raw_addr_o          : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address 
-      raw_dat_i           : in  std_logic_vector (RAM_RAW_DAT_WIDTH-1 downto 0);  -- raw data 
+      raw_dat_i           : in  std_logic_vector (RAW_RAM_WIDTH-1 downto 0);  -- raw data 
       raw_req_o           : out std_logic;                                        -- raw data request 
       raw_ack_i           : in  std_logic;                                        -- raw data acknowledgement 
       readout_col_index_o : out std_logic_vector (COL_ADDR_WIDTH-1 downto 0);     -- readout column index for column-readout mode (raw)      
