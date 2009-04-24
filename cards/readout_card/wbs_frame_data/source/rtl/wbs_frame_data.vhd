@@ -54,9 +54,12 @@
 
 --
 -- Revision history:
--- <date $Date: 2009/04/22 16:24:26 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2009/04/23 00:03:48 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.34.2.4  2009/04/23 00:03:48  bburger
+-- BB: reworked the raw ram readout to suit one channel instead of 8.
+--
 -- Revision 1.34.2.3  2009/04/22 16:24:26  mandana
 -- added readout_col_index wishbone register and exposed the interface
 -- merged in an earlier fix to raw_addr counter from raw_mode_enabled branch, rc 4.3.7
@@ -322,17 +325,6 @@ port(
      );      
 end wbs_frame_data;
 
-
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
-
-library sys_param;
-use sys_param.command_pack.all;
-use sys_param.wishbone_pack.all;
-
-
 architecture rtl of wbs_frame_data is
 
 -- wishbone read request enable
@@ -355,11 +347,12 @@ signal error_dat           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal unfiltered_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtered_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal fb_error_dat        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-signal fb_flx_cnt_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
--- signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-signal filtfb_error_2_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-signal filtfb_flx_cnt_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal fb_flx_cnt_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+--signal filtfb_error_dat    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal filtfb_error_2_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal filtfb_flx_cnt_dat  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal filtfb_flx_cnt_dat2 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal filtfb_flx_cnt_dat3 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
 -- signals for data output multiplexer
@@ -371,10 +364,11 @@ signal inc_addr        : std_logic;
 
 -- address used for all modes except raw mode (mode 3)
 signal pix_address     : std_logic_vector (ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
+   signal pix_address_dly1    : std_logic_vector (ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
+   signal pix_address_dly2    : std_logic_vector (ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
 signal pix_addr_clr    : std_logic;
 signal ch_mux_sel      : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 0 --> 7
 
-    
 -- channel select needs to be delayed by 2 clock cycles as that the time it take to update data
 -- so an extra register stage...
 signal ch_mux_sel_dly1 : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);   
@@ -414,9 +408,6 @@ begin
 -------------------------------------------------------------------------------------------------
 --                       raw-mode handshake signals
 ------------------------------------------------------------------------------------------------  
-     
---   raw_ack       <= raw_ack_ch0_i and raw_ack_ch1_i and raw_ack_ch2_i and  raw_ack_ch3_i and
---                    raw_ack_ch4_i and raw_ack_ch5_i and raw_ack_ch6_i and  raw_ack_ch7_i ;
    raw_ack <= raw_ack_i;  
    raw_req_o <= raw_req;
       
@@ -498,7 +489,7 @@ begin
          next_state <= READ_DATA;                                 
        
       when READ_DATA =>
-         if data_mode = MODE3_RAW then
+         if data_mode = MODE3_RAW or data_mode = MODE12_RAW_1_COL then
             -- not sure if we need the pixel_addres check maybe instead with that param
             if cyc_i = '0' then --or raw_address >= RAW_ADDR_MAX_INT then
               next_state <= WB_ACK_NOW;
@@ -529,16 +520,18 @@ begin
    ---------------------------------------------------------------------------------------------------------------------
    begin
       -- default states
-      pix_addr_clr   <= '0';
-      dat_rdy        <= '0';
-      data_mode_wren <= '0';
+      pix_addr_clr     <= '0';
+      dat_rdy          <= '0';
+      data_mode_wren   <= '0';
       readout_row_wren <= '0';
-      wb_ack         <= '0';
-      dat_o          <= (others => '0');
-      raw_req        <= '0';
-      raw_addr_clr   <= '0';
-      dec_raw_addr   <= '0';
-      inc_addr       <= '0';
+      readout_col_wren <= '0';
+      wb_ack           <= '0';
+      dat_o            <= (others => '0');
+      raw_req          <= '0';
+      raw_addr_clr     <= '0';
+      dec_raw_addr     <= '0';
+      inc_addr         <= '0';
+      err_o            <= '0';
 
       case current_state is
       
@@ -629,13 +622,13 @@ begin
          raw_address  <= (others => '0');
       elsif (clk_i'EVENT AND clk_i = '1') then        
          -- raw-mode address counter
-         if raw_addr_clr = '1' then                 -- synchronous reset 
+         if (raw_addr_clr = '1') then                 -- synchronous reset 
             raw_address <= (others => '0');
-         elsif inc_addr = '1' and data_mode = MODE3_RAW then
-            if (raw_address < RAW_ADDR_MAX_INT+1) then
-               raw_address <= raw_address+1;  -- synchronous increment by 1
+         elsif (inc_addr = '1' and (data_mode = MODE3_RAW or data_mode = MODE12_RAW_1_COL)) then
+            if (raw_address /= RAW_ADDR_MAX + RAW_OFFSET_MAX) then
+               raw_address <= raw_address + 1;  -- synchronous increment by 1
             end if;   
-         elsif dec_raw_addr = '1' and data_mode = MODE3_RAW then
+         elsif (dec_raw_addr = '1' and (data_mode = MODE3_RAW or data_mode = MODE12_RAW_1_COL)) then
             if (raw_address > 3) then 
                raw_address <= raw_address-3;  -- this prevents address overrun due to dispatch delay in grabbing data, prepares raw_addr_cnt for next frame grab.
             end if;   
@@ -701,25 +694,26 @@ begin
    raw_addr_o <= raw_address(RAW_ADDR_WIDTH-1 downto 0);
             
 --------------------------------------------------------------------------------------------
---                  Data OUTPUT Select MUX
+   --  Data OUTPUT Select MUX.  These are all the Data Modes present in this firmware!  (key words: data_mode, data mode))
 ---------------------------------------------------------------------------------------------
 -- Note: 1000 or data_mode 8 is skipped for backward compatibility as it was used for different windowing in rc 4.0.4firmware
     dat_out_mux_sel <= data_mode(DAT_MUX_SEL_WIDTH-1 downto 0);
    
-    with dat_out_mux_sel select
-       wbs_data     <= 
-          error_dat           when x"0",
-          unfiltered_dat      when x"1",
-          filtered_dat        when x"2",
-          raw_dat             when x"3",
-          fb_error_dat        when x"4",
-          -- fb_flx_cnt_dat      when x"5",
-          -- filtfb_error_dat    when x"6", -- 0110 is skipped, as 0111 is a better solution
-          -- filtfb_error_2_dat  when x"7",
-          -- nothing             when x"8",
-          -- filtfb_flx_cnt_dat  when x"9", -- 1000 is skipped, see note below.
-          filtfb_flx_cnt_dat2 when x"A",
-          (others => '0')     when others;
+   with dat_out_mux_sel select wbs_data <=
+      error_dat           when x"0",
+      unfiltered_dat      when x"1",
+      filtered_dat        when x"2",
+      RAW_NULL_DATA       when x"3",    -- Old raw mode (1 column only)
+      fb_error_dat        when x"4",    
+      -- fb_flx_cnt_dat      when x"5",
+      -- filtfb_error_dat    when x"6", -- 6 is skipped, as 7 is a better solution
+      -- filtfb_error_2_dat  when x"7",
+      -- nothing             when x"8",
+      -- filtfb_flx_cnt_dat  when x"9", -- was mixed data: 24b filtered fb + 8b flux-jump counter (revision 4.0.4 only)
+      filtfb_flx_cnt_dat2 when x"A",
+      "00000000000000000000000" & pix_address_dly2    when x"B",
+      raw_dat             when x"C",    -- New raw mode (1 column only)
+      x"00000000"         when others;
                  
   
  
@@ -864,7 +858,7 @@ begin
                         filtered_dat_ch6_i(27 downto 3) & flux_cnt_dat_ch6_i(6 downto 0) when "110",
                         filtered_dat_ch7_i(27 downto 3) & flux_cnt_dat_ch7_i(6 downto 0) when others;
 
-   raw_dat <= x"A0000000" when raw_address = RAW_ADDR_MAX_INT+1 else sxt(raw_dat_i, raw_dat'length);
+   raw_dat <= sxt(raw_dat_i, raw_dat'length) when raw_address /= RAW_ADDR_MAX + RAW_OFFSET_MAX else RAW_NULL_DATA;
                         
 -------------------------------------------------------------------------------------------------
 --                      Data Mode & Readout Row Index Register
@@ -916,18 +910,17 @@ begin
         ch_mux_sel_dly1     <= (others => '0');  
         ch_mux_sel          <= (others => '0');  
         
---        raw_ch_mux_sel_dly1 <= (others => '0');  
---        raw_ch_mux_sel      <= (others => '0');  
+         pix_address_dly1    <= (others => '0');
+         pix_address_dly2    <= (others => '0');
         
      elsif (clk_i'EVENT and clk_i = '1') then
         ch_mux_sel_dly1     <= pix_address(CH_MUX_SEL_WIDTH-1 downto 0);  
         ch_mux_sel          <= ch_mux_sel_dly1;
         
-        -- I don't know what's necessary here.  BB
---        raw_ch_mux_sel_dly1 <= raw_address(CH_MUX_SEL_WIDTH-1 downto 0);
---        raw_ch_mux_sel      <= raw_ch_mux_sel_dly1;
-        
-     end if;
+         pix_address_dly1    <= pix_address;
+         pix_address_dly2    <= pix_address_dly1;        
+
+    end if;
   end process channel_select_delay;
           
            
