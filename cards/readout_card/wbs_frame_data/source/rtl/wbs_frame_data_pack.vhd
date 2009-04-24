@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2008/08/04 12:13:07 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2009/04/23 00:02:36 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.14.2.1  2009/04/23 00:02:36  bburger
+-- BB: renamed a constant to RAW_ADDR_MAX_INT, as the integer copy of a slv constant.
+--
 -- Revision 1.14  2008/08/04 12:13:07  mandana
 -- data mode 10 added for mixed filtfb and flux-jump counter (more filtfb bits for planet observation)
 --
@@ -97,24 +100,26 @@ use sys_param.wishbone_pack.all;
 
 package wbs_frame_data_pack is
 
-constant CH_MUX_SEL_WIDTH  : integer := 3;
-constant DAT_MUX_SEL_WIDTH : integer := 4;
+constant CH_MUX_SEL_WIDTH    : integer := 3;
+constant DAT_MUX_SEL_WIDTH   : integer := 4;
+ 
+constant PIXEL_ADDR_MAX      : integer := NO_CHANNELS * NUM_OF_ROWS;
+ 
+--constant RAW_ADDR_MAX_INT    : integer := conv_integer(RAW_ADDR_MAX);--integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
+ 
+constant CH_MUX_INIT         : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0) := (others => '0');
 
-constant PIXEL_ADDR_MAX    : integer := NO_CHANNELS * NUM_OF_ROWS;
-
-constant RAW_ADDR_MAX_INT  : integer := conv_integer(RAW_ADDR_MAX);--integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
-
-constant CH_MUX_INIT       : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0) := (others => '0');
-
-constant MODE0_ERROR       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
-constant MODE1_UNFILTERED  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
-constant MODE2_FILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000002";
-constant MODE3_RAW         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000003";
-constant MODE4_FB_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000004";
-constant MODE5_FB_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
-constant MODE6_FILT_ERROR  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
-constant MODE7_FILT_ERROR2 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000007";
-constant MODE9_FILT_FLX_CNT: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000009";
-constant MODE10_FILT_FLX_CNT: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000a";
+constant MODE0_ERROR         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
+constant MODE1_UNFILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
+constant MODE2_FILTERED      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000002";
+constant MODE3_RAW           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000003";
+constant MODE4_FB_ERROR      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000004";
+constant MODE5_FB_FLX_CNT    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
+constant MODE6_FILT_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
+constant MODE7_FILT_ERROR2   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000007";
+constant MODE9_FILT_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000009";
+constant MODE10_FILT_FLX_CNT : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000a";
+constant MODE11_PIXEL_ADDR   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000b";
+constant MODE12_RAW_1_COL    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000c";
 
 end package;
