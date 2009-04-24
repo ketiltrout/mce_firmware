@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.16.2.4  2009/04/23 00:05:54  bburger
+-- BB: wrote the raw storage FSM.
+--
 -- Revision 1.16.2.3  2009/04/22 01:17:03  bburger
 -- BB:  Fixes associated with RAM_RAW_DAT_WIDTH, RAW_DAT_WIDTH, RAW_ADDR_WIDTH
 --
@@ -480,7 +483,6 @@ architecture struct of flux_loop is
    signal raw_chan     : std_logic_vector (COL_ADDR_WIDTH-1    downto 0);
    signal raw_dat_req  : std_logic;
    signal raw_dat_ack  : std_logic;
---   signal raw_addr_clr : std_logic;
 
    type states is (IDLE, REQ_RECEIVED, STORE_RAW, DONE);
    signal current_state, next_state : states;
@@ -498,7 +500,8 @@ begin  -- struct
       adc_dat_ch4_i when raw_chan = "100" else
       adc_dat_ch5_i when raw_chan = "101" else
       adc_dat_ch6_i when raw_chan = "110" else
-      adc_dat_ch7_i when raw_chan = "111";
+      adc_dat_ch7_i when raw_chan = "111" else
+      adc_dat_ch0_i;
       
    adc_dat_sxt <= sxt(adc_dat, RAW_RAM_WIDTH);
    
@@ -513,10 +516,10 @@ begin  -- struct
    );
 
    increment_addr: process (clk_50_i, rst_i)
-   begin  -- process i_count_up
-      if(rst_i = '1') then                 -- asynchronous reset (active high)
+   begin  
+      if(rst_i = '1') then                
          raw_wr_addr <= (others => '0');
-      elsif(clk_50_i'event and clk_50_i = '1') then  -- rising clock edge
+      elsif(clk_50_i'event and clk_50_i = '1') then
          if(raw_wren = '1') then 
             raw_wr_addr <= raw_wr_addr + 1;
          elsif(raw_wren = '0') then
