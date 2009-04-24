@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.77.2.1  2009/04/22 00:43:34  bburger
+-- BB: version 0400000d
+--
 -- Revision 1.77  2008/08/15 18:14:44  mandana
 -- BB:  rc_v0400000c_15aug2008
 --
@@ -590,7 +593,7 @@ begin
                              FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                              SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
-      dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR,
+      dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR | READOUT_COL_INDEX_ADDR,
       dat_led         when   LED_ADDR,
       dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
@@ -626,18 +629,14 @@ begin
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
-                            DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
+                            DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR | READOUT_COL_INDEX_ADDR |
                             LED_ADDR |
                             ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
-                                        
+                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,                                        
     all_cards_err    when   FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
-    
 --    id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
-    
 --    fpga_thermo_err  when   FPGA_TEMP_ADDR,
-        
     '1'              when others;        
    
    ----------------------------------------------------------------------------
