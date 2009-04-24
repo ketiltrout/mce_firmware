@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.15.2.6  2009/04/23 00:05:16  bburger
+-- BB: reworked the raw constant declarations, eliminating one redundant one.
+--
 -- Revision 1.15.2.5  2009/04/22 16:26:15  mandana
 -- added readout_col_index_o interface for raw mode readout
 --
@@ -144,7 +147,10 @@ package flux_loop_pack is
   constant RAW_DATA_WIDTH         : integer := ADC_DAT_WIDTH;
   constant RAW_ADDR_WIDTH         : integer := 16;                   
   constant RAW_RAM_WIDTH          : integer := 14;                  
-  constant RAW_ADDR_MAX           : std_logic_vector(RAW_ADDR_WIDTH-1 DOWNTO 0) := (others => '1');
+  constant RAW_ADDR_MAX           : std_logic_vector(RAW_ADDR_WIDTH DOWNTO 0) := "01111111111111111";
+  -- This is the offset buy which the raw data address preceeds the raw data output register = 2
+  constant RAW_OFFSET_MAX         : std_logic_vector(RAW_ADDR_WIDTH DOWNTO 0) := "00000000000000011";
+  constant RAW_NULL_DATA          : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"80000000";
   
   -- Flux Loop Control Specific
   constant COADD_ADDR_WIDTH       : integer := ROW_ADDR_WIDTH;
