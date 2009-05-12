@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.50 2008/12/22 20:48:25 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.51 2009/01/16 01:51:03 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.51  2009/01/16 01:51:03  bburger
+-- BB: fixed a card_not_present logic error
+--
 -- Revision 1.50  2008/12/22 20:48:25  bburger
 -- BB:  Added interface signals for dual LVDS lines from each card, and for supporting column data from the Readout Cards
 --
@@ -114,6 +117,7 @@ entity reply_queue is
       issue_sync_i        : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       cmd_code_i          : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
       step_value_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_timing_err_i   : in std_logic;
 
       -- cmd_translator interface
       over_temperature_o  : out std_logic;
@@ -684,7 +688,7 @@ begin
    -- They are included in the status header of every data frame
    -- What happens in between each frame is not recorded, except for resets and errors (i.e. Clock Card reset, or Sync Box error).
    num_cols_reported <= conv_std_logic_vector(num_cols_to_read_i, 4);   
-   bit_status_i <= x"000" & num_cols_reported & "00" & rcs_responding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
+   bit_status_i <= "00000000000" & data_timing_err_i & num_cols_reported & "00" & rcs_responding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
 
    bit_status_reg: reg
       generic map(
@@ -950,7 +954,9 @@ begin
          external_dv_num_i                             when TX_DV_NUM,
          run_file_id_i                                 when TX_RUN_FILE_ID,
          user_writable_i                               when TX_USER_WRITABLE,
+-- Temporary change for debugging the stop command problems
          head_data                                     when TX_HEADER,
+--         (others => '1')                               when TX_HEADER,
          (others => '0')                               when others;
 
 
