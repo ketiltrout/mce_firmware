@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.104 2008/01/28 20:22:47 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.105 2008/02/03 09:43:29 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,65 +29,7 @@
 -- on the clock card.
 --
 -- Revision history:
--- $Log: cmd_queue.vhd,v $
--- Revision 1.104  2008/01/28 20:22:47  bburger
--- BB:  Added an interface signal called override_sync_num_i which tells the cmd_queue to issues a final ret_dat command immediately, in response to a stop command
---
--- Revision 1.103  2007/08/28 23:16:40  bburger
--- Bryce:  Added a register to store the step value of the cmd_translator ramp.
---
--- Revision 1.102  2007/07/24 22:08:19  bburger
--- BB:
--- - added rdy_for_data_o to cmd_queue interface.
--- - now rdy_for_data_o indicates that the cmd_queue is ready for data and mop_ack_o indicates that the mop transaction is done.
---
--- Revision 1.101  2006/11/08 00:06:34  bburger
--- Bryce:  Cleaned up the file.
---
--- Revision 1.100  2006/11/07 23:47:19  bburger
--- Bryce:  fixed a poorly coded conditiont that checked param_id instead of cmd_code
---
--- Revision 1.99  2006/11/03 01:10:53  bburger
--- Bryce:  Added support for the DATA cmd_code
---
--- Revision 1.98  2006/09/26 02:14:19  bburger
--- Bryce:  Added the busy_o inteface to delay the arbiter in priming itself with a new ret_dat command -- which will allow us to issued infrequent commands like internal commands at timed intervals without interference from ret_dat fsm
---
--- Revision 1.97  2006/09/21 16:08:38  bburger
--- Bryce:  Added support for the TES Bias Step internal commands
---
--- Revision 1.96  2006/09/07 22:25:22  bburger
--- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
---
--- Revision 1.95  2006/07/11 00:45:15  bburger
--- Bryce:  Added an interlock to the cmd_queue with the reply_queue_sequencer so that the cmd_queue doesn't send out a command before the previous reply is received.
---
--- Revision 1.94  2006/07/07 00:40:34  bburger
--- Bryce:  Removed unused signal uop_ack_i from a sensitivity list
---
--- Revision 1.93  2006/07/04 22:48:13  bburger
--- Bryce:  The cmd_queue no longer waits for a command to retire before issuing the next.
---
--- Revision 1.92  2006/06/30 22:11:39  bburger
--- Bryce:  removed the unused signal par_id from the sensitivity list
---
--- Revision 1.91  2006/06/23 18:12:01  bburger
--- Bryce:  removed the dependance on the sync number for all commands, except ret_dat which must be timed appropriately
---
--- Revision 1.90  2006/05/29 23:11:00  bburger
--- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
---
--- Revision 1.89  2006/03/09 00:55:07  bburger
--- Bryce:  Added an issue_sync_o signal to the interface so that the reply_queue can include this information in data headers
---
--- Revision 1.88  2006/02/02 00:26:24  mandana
--- added range to integer bit_ctr_coun
---
--- Revision 1.87  2006/01/16 18:07:33  bburger
--- Bryce:  Brand new version of the cmd_queue.  It only queue's up a single command at a time.
---
--- Revision 1.86  2005/11/15 03:17:22  bburger
--- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
+-- See CVS records.
 --
 ------------------------------------------------------------------------
 
@@ -123,6 +65,7 @@ entity cmd_queue is
       par_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
       data_size_o     : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
       cmd_code_o        : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      data_timing_err_o : out std_logic;
 
       -- indicates a STOP command was recieved
       cmd_stop_o      : out std_logic;
@@ -154,6 +97,7 @@ entity cmd_queue is
 --      tes_bias_step_level_i : in std_logic;
       step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       override_sync_num_i : in std_logic;
+      ret_dat_in_progress_i : in std_logic;
 
       -- lvds_tx interface
       tx_o            : out std_logic;
@@ -171,7 +115,24 @@ architecture behav of cmd_queue is
 
    constant ADDR_ZERO          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '0');
    constant ADDR_FULL_SCALE    : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '1');
-   constant TIMEOUT_LEN        : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)   := x"00000001";  -- Defines the window during which an instruction can be issued
+   
+   -- Defines the window during which an instruction can be issued
+   constant TIMEOUT_LEN        : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)     := x"00000001"; 
+   
+   -----------------------------------------------------
+   -- For 'how far wrapped is OK', the mce_max_data_frame_rates.xls spreadsheet predicts a maximum number of frame periods required for processing one data packet.
+   -- This number corresponds to the maximum number of frame periods that the CC may fall behind by from one data frame.
+   -- Number of rows multiplexed = 1
+   -- Number of rows reported = 41
+   -- Number of columns reported = 8
+   -- Number of RC's returning data = 4
+   -- Row length = 1
+   -- Number of words in the data packet header = 48
+   -- = 23564 frame periods spent processing a data packet (max)   
+   constant MAX_PACKET_TIME    : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)     := x"00005C0D"; -- 23564 + 1
+   -----------------------------------------------------
+
+   constant MAX_SYNC_COUNT     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)     := x"FFFFFFFF";
    constant HIGH               : std_logic := '1';
    constant LOW                : std_logic := '0';
    constant INT_ZERO           : integer   :=  0;
@@ -228,11 +189,14 @@ architecture behav of cmd_queue is
    signal sh_reg_serial_o      : std_logic;
 
    -- Miscellaneous Signals
-   signal uop_send_expired     : std_logic;
+   signal data_req_expired     : std_logic;
    signal timeout_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal update_prev_state    : std_logic;
    signal timer_clr            : std_logic;
    signal timer_count          : integer;
+
+   -- Data Timing Error Signals
+   signal data_timing_err : std_logic;
 
    -- Control FSM
    type states is (IDLE, STORE_CMD_PARAM, IS_THERE_DATA, STROBE_DETECT, LATCH_DATA, DONE_STORE, WAIT_TO_ISSUE,
@@ -247,9 +211,17 @@ begin
    -----------------------------------------------------
    -- Combinatorial Logic
    -----------------------------------------------------
-   uop_send_expired <= '1' when (sync_num_i = timeout_sync) else '0';
-   timeout_sync     <= issue_sync + TIMEOUT_LEN;
+   timeout_sync <= issue_sync + TIMEOUT_LEN;
 
+   -- This signal is only garanteed to be valid during the WAIT_TO_ISSUE state.
+   -- The logic below determines whether the timeout_sync has wrapped wrt the issue_sync.
+   -- Based on that, the logic used appropriate arithmetic to determine if the command has timed-out or not.
+   data_req_expired <= 
+      '0' when 
+         (present_state /= WAIT_TO_ISSUE) or 
+         (cmd_code /= DATA) or 
+         (issue_sync < timeout_sync and timeout_sync - sync_num_i < MAX_PACKET_TIME) or 
+         (issue_sync > timeout_sync and MAX_SYNC_COUNT - sync_num_i + timeout_sync < MAX_PACKET_TIME) else '1';
 
    -- For hardware integration with the logic analyzer
    debug_o(31 downto 0)  <=  lvds_tx_word(31 downto 1) & lvds_tx_busy;
@@ -265,6 +237,7 @@ begin
    last_frame_o          <= bit_status(0);
    cmd_stop_o            <= bit_status(1);
    internal_cmd_o        <= bit_status(2);
+   -- No longer used; but present so this bit is not used for anything else.
 --   tes_bias_step_level_o <= bit_status(3);
    frame_seq_num_o       <= frame_seq_num;
    step_value_o          <= step_value;
@@ -467,8 +440,7 @@ begin
    end process;
 
    state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i,
-   uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state,
-   override_sync_num_i)
+   data_req_expired, lvds_tx_busy, bit_ctr_count, previous_state, override_sync_num_i, issue_sync, sync_num_i)
    begin
       next_state <= present_state;
       case present_state is
@@ -523,28 +495,26 @@ begin
          -----------------------------------------------------
          -- Issue Command
          -----------------------------------------------------
+         -- issue the next ret_dat with the correct timing
+         -- Bug fix: allow the cmd_translator to continue issuing data commands even if the data_rate 
+         -- is too fast and the CC falls behind because it can't process data packets fast enough.
+         -- If this occurs, a timing-error flag should be asserted in the status word until the end of the data run.
+         -----------------------------------------------------
          when WAIT_TO_ISSUE =>
             if(cmd_code /= DATA) then
                next_state <= HEADER_A;
--- If a data command has timed out, then a flag must be included in the header
--- This is to indicate that the timing has jitter..
-            elsif(uop_send_expired = '1') then
-               -- If the u-op has expired, it is still issued.  This may have to change
+            -- If a data command has timed out, then a flag is included in the header
+            -- This is to indicate that the timing has jitter..
+            elsif(data_req_expired = '1') then
+               -- If the u-op has expired, it is still issued.
                -- uops typically will not expire while waiting in the cmd_queue, because the the command queue can issue uops faster than mops will be received from the cmd_translator (assuming the internal commanding rate is reasonable).
                --next_send_state <= NEXT_UOP;
                next_state <= HEADER_A;
-            -- Determine whether the current sync period is between the issue sync and the timeout sync.  If so, the u-op should be issued.
             elsif(override_sync_num_i = '1') then
+               -- If a STOP command is being executed, issue the last data frame immediately
                next_state <= HEADER_A;
-            elsif(issue_sync < timeout_sync) then
-               if(sync_num_i >= issue_sync and sync_num_i < timeout_sync) then
-                  next_state <= HEADER_A;
-               end if;
-            -- The timeout_sync can have wrapped with respect to the issue_sync
-            elsif(issue_sync > timeout_sync) then
-               if(sync_num_i >= issue_sync or sync_num_i < timeout_sync) then
-                  next_state <= HEADER_A;
-               end if;
+            elsif(issue_sync = sync_num_i) then
+               next_state <= HEADER_A;
             else
                -- If the u-op is still good, but isn't supposed to be issued yet, stay in LOAD
                next_state <= WAIT_TO_ISSUE;
@@ -613,6 +583,7 @@ begin
 
    bb_cmd_code <= READ_CMD when (cmd_code = READ_BLOCK or cmd_code = DATA) else WRITE_CMD;
 
+   data_timing_err_o <= data_timing_err;
    data_size_int_t <= conv_integer(data_size);
    misc_registers: process(clk_i, rst_i)
    begin
@@ -620,9 +591,18 @@ begin
          lvds_tx_word    <= (others => '0');
          crc_num_bits    <= 0;
          crc_reg         <= (others => '0');
+         data_timing_err <= '0';
 
       elsif(clk_i'event and clk_i = '1') then
 
+         if(data_req_expired = '1' and ret_dat_in_progress_i = '1') then
+            data_timing_err <= '1';
+         elsif(ret_dat_in_progress_i = '0') then
+            data_timing_err <= '0';
+         else
+            data_timing_err <= data_timing_err;
+         end if;
+         
          if(crc_done = '1') then
             crc_reg <= crc_checksum;
          else
