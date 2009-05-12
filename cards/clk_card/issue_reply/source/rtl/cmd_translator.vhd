@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.58 2008/10/17 00:32:31 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.59 2008/12/22 20:39:51 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -30,7 +30,7 @@
 -- Description:  This module is the fibre command translator.
 --
 -- Revision history:
--- <date $Date: 2008/10/17 00:32:31 $> -     <text>      - <initials $Author: bburger $>
+-- See CVS.
 --
 -----------------------------------------------------------------------------
 
@@ -68,8 +68,8 @@ port(
       param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
 
       -- interface with reply_translator
-      stop_reply_req_o      : out std_logic;
-      stop_reply_ack_i      : in std_logic;
+--      stop_reply_req_o      : out std_logic;
+--      stop_reply_ack_i      : in std_logic;
 
       -- output to fibre_rx
       ack_o                 : out std_logic;
@@ -111,10 +111,12 @@ port(
       num_rows_to_read_i    : in integer;
       num_cols_to_read_i    : in integer;
       override_sync_num_o   : out std_logic;
+      ret_dat_in_progress_o : out std_logic;
 
       -- input from the cmd_queue
       ack_i                 : in std_logic;
       rdy_for_data_i        : in std_logic;
+      data_timing_err_i     : in std_logic;
 
       -- outputs to the cmd_queue
       frame_seq_num_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -169,10 +171,13 @@ architecture rtl of cmd_translator is
 
    signal external_dv_num  : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
-   signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal issue_sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal seq_num          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   
    signal increment_sync_num : std_logic;
    signal jump_sync_num    : std_logic;
+--   signal delay_sync_num   : std_logic;
+   
    signal load_seq_num     : std_logic;
    signal next_seq_num     : std_logic;
 
@@ -192,6 +197,8 @@ architecture rtl of cmd_translator is
    constant INTERNAL_OFF           : integer := 0;
    constant INTERNAL_HOUSEKEEPING  : integer := 1;
    constant INTERNAL_RAMP          : integer := 2;
+   
+--   constant STOP_DELAY             : integer := 2;
 
    signal internal_status_req : std_logic;
    signal internal_status_ack : std_logic;
@@ -229,13 +236,15 @@ begin
    ack_o <= f_rx_ret_dat_ack or simple_cmd_ack;
 
    -- Registered outputs to cmd_queue
-   step_value_o <= ramp_value;
-   frame_seq_num_o <= seq_num;
-   frame_sync_num_o <= sync_num; -- when override_sync_num_o = '0' else sync_number_i;
+   step_value_o     <= ramp_value;
+   frame_seq_num_o  <= seq_num;
+   frame_sync_num_o <= issue_sync_num; -- when override_sync_num_o = '0' else sync_number_i;
 
    -- Size calculation logic for data packets
    data_size_int          <= num_cols_to_read_i * num_rows_to_read_i;
    data_size              <= conv_std_logic_vector(data_size_int,BB_DATA_SIZE_WIDTH);
+
+   ret_dat_in_progress_o <= ret_dat_in_progress;
 
    -------------------------------------------------------------------------------------------
    -- Registers
@@ -262,7 +271,7 @@ begin
          f_rx_num_data        <= (others=>'0');
 
          external_dv_num      <= (others=>'0');
-         sync_num             <= (others=>'0');
+         issue_sync_num       <= (others=>'0');
          seq_num              <= (others=>'0');
          ret_dat_req          <= '0';
          ret_dat_stop_req     <= '0';
@@ -371,13 +380,16 @@ begin
                simple_cmd_req <= '1';
             end if;
          end if;
-
+         
          -- Manage sync number
          if(increment_sync_num = '1') then
             -- issue ret_dat on the following frame period
-            sync_num <= sync_number_i + 1;
+            issue_sync_num <= sync_number_i + 1;
          elsif(jump_sync_num = '1') then
-            sync_num <= sync_num + data_rate_i;
+            issue_sync_num <= issue_sync_num + data_rate_i;
+--         elsif(delay_sync_num = '1') then
+--            -- delay the issue of the last data command on a STOP to give the PCI card time
+--            issue_sync_num <= sync_number_i + STOP_DELAY;
          end if;
 
          -- Manage sequence number
@@ -433,7 +445,7 @@ begin
    -------------------------------------------------------------------------------------------
    process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
       internal_cmd_mode_i, internal_status_req, internal_cmd_id, tes_bias_toggle_req,
-      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress, ret_dat_stop_req)
+      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress, ret_dat_stop_req, data_timing_err_i)
    begin
       next_state    <= current_state;
       ret_dat_start <= '0';
@@ -517,7 +529,7 @@ begin
                   elsif(internal_cmd_id = BOX_TEMPERATURE) then
                      next_state <= BOX_TEMP;
                   end if;
-               -- If there are no pending internal commands, then we move on
+               -- If there are no pending internal commands, then we move on to the next data frame
                else
                   next_state <= UPDATE_FOR_NEXT;
                end if;
@@ -531,8 +543,11 @@ begin
             -- This state determines if a STOP command was received or not, and either holds here, or forwards on to the right 'issue' state
             -- This state takes one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
 
+            -- If there has been a frame timing error, close off the data acquisition
+            if(data_timing_err_i = '1') then
+               next_state <= REQ_LAST_DATA_PACKET;
             -- If we are sourcing DV pulses internally
-            if(dv_mode_i = DV_INTERNAL) then
+            elsif(dv_mode_i = DV_INTERNAL) then
                -- If there still is an outstanding ret_dat request
                if(ret_dat_req = '1') then
                   -- Issue a ret_dat command
@@ -745,7 +760,8 @@ begin
       -- default assignments
       increment_sync_num   <= '0';
       jump_sync_num        <= '0';
-      override_sync_num_o    <= '0';
+--      delay_sync_num       <= '0';
+      override_sync_num_o  <= '0';
 
       load_seq_num         <= '0';
       next_seq_num         <= '0';
@@ -767,7 +783,7 @@ begin
       simple_cmd_ack       <= '0';
       f_rx_ret_dat_ack     <= '0';
 
-      stop_reply_req_o     <= '0';
+--      stop_reply_req_o     <= '0';
 
       case current_state is
          when IDLE =>
@@ -863,7 +879,6 @@ begin
                elsif(ret_dat_req = '1' and external_dv_i = '1') then
                   null;
                end if;
-
             end if;
 
          when REQ_LAST_DATA_PACKET =>
