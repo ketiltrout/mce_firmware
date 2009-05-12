@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.59 2008/12/22 20:39:51 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.60 2009/05/12 18:46:07 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -884,12 +884,15 @@ begin
          when REQ_LAST_DATA_PACKET =>
             instr_rdy_o       <= '1';
             last_frame_o      <= '1';
-            cmd_stop_o        <= '1';
-
-            -- override_sync_num_o is asserted to notify the cmd_queue to issue the command immediately,
-            -- without waiting for the next sync pulse, which may never arrive if the reason that the
-            -- MCE data acquisition has frozen is because the Sync Box fibre is broken/ disconnected.
-            override_sync_num_o <= '1';
+            
+            -- Assert the following signals if a STOP command has been received:
+            if(ret_dat_stop_req = '1') then
+               cmd_stop_o          <= '1';
+               -- override_sync_num_o is asserted to notify the cmd_queue to issue the command immediately,
+               -- without waiting for the next sync pulse, which may never arrive if the reason that the
+               -- MCE data acquisition has frozen is because the Sync Box fibre is broken/ disconnected.
+               override_sync_num_o <= '1';
+            end if;
 
             if(ack_i = '1') then
                -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to STOP command
