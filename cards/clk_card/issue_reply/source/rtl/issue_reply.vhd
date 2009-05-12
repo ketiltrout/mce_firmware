@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.75 2009/01/16 01:49:36 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.76 2009/05/12 18:47:12 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2009/01/16 01:49:36 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2009/05/12 18:47:12 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.76  2009/05/12 18:47:12  bburger
+-- BB: Added new and removed unused interface signals.
+--
 -- Revision 1.75  2009/01/16 01:49:36  bburger
 -- BB:  Interface signal direction changes
 --
@@ -448,7 +451,7 @@ architecture rtl of issue_reply is
       -- signals to/from cmd_translator
 --      stop_reply_req_i      : in std_logic;
 --      stop_reply_ack_o      : out std_logic;
-      last_ret_dat_i        : in std_logic;
+      cmd_stop_i              : in std_logic;
 
       -- signals to/from reply queue
       r_cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
@@ -834,7 +837,7 @@ begin
       -- Signals to/from cmd_translator
 --      stop_reply_req_i => c_stop_reply_req,
 --      stop_reply_ack_o => c_stop_reply_ack,
-      last_ret_dat_i   => cmd_stop,
+      cmd_stop_i   => cmd_stop,
 
       -- Signals to/from reply queue
       r_cmd_code_i      => r_cmd_code,
