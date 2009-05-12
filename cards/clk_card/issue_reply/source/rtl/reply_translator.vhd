@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.62 2008/10/25 00:24:54 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.63 2009/05/12 19:26:40 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -123,7 +123,6 @@ architecture rtl of reply_translator is
    -- Reply Structure
    constant NUM_REPLY_WORDS        : integer := 4;
    constant NUM_FRAME_HEAD_WORDS   : integer := 41;
-   constant STOP_REPLY_WAIT_PERIOD : integer := 10000;  -- u-seconds
    constant SERVICING_COMMAND      : std_logic := '0';
    constant SERVICING_REPLY        : std_logic := '1';
 
