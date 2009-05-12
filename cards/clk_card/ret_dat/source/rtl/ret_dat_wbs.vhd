@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.19 2008/12/22 20:51:06 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.20 2009/01/16 01:55:31 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -87,6 +87,9 @@ entity ret_dat_wbs is
 end ret_dat_wbs;
 
 architecture rtl of ret_dat_wbs is
+
+   constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
+   constant STOP_REPLY_WAIT_PERIOD   : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00002710";  -- 10000 u-seconds
 
    -- FSM inputs
    signal wr_cmd            : std_logic;
@@ -160,7 +163,7 @@ begin
       "10" when internal_cmd_mode_data = x"00000002" else
       "11" when internal_cmd_mode_data = x"00000003" else "00";
 
-   -- Custom register that gets set to DEFAULT_DATA_RATE upon reset
+   -- Custom register
    cards_to_report_o <= cards_to_report_data(9 downto 0);
    cards_to_report_reg: process(clk_i, rst_i)
    begin
@@ -173,7 +176,7 @@ begin
       end if;
    end process cards_to_report_reg;
 
-   -- Custom register that gets set to DEFAULT_DATA_RATE upon reset
+   -- Custom register
    rcs_to_report_data_o <= rcs_to_report_data(9 downto 0);
    rcs_to_report_reg: process(clk_i, rst_i)
    begin
@@ -295,7 +298,7 @@ begin
          reg_o             => step_card_addr_data
       );
 
-   -- Custom register that gets set to DEFAULT_STEP_DATA_NUM upon reset
+   -- Custom register
    step_data_num_o <= step_data_num_data;
    step_data_num_reg: process(clk_i, rst_i)
    begin
@@ -331,16 +334,18 @@ begin
          reg_o             => stop_data
       );
 
+   -- Custom register
    stop_delay_o <= stop_delay_data;
-   stop_delay_reg : reg
-      generic map(WIDTH => WB_DATA_WIDTH)
-      port map(
-         clk_i             => clk_i,
-         rst_i             => rst_i,
-         ena_i             => stop_delay_wren,
-         reg_i             => dat_i,
-         reg_o             => stop_delay_data
-      );
+   stop_delay_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         stop_delay_data <= STOP_REPLY_WAIT_PERIOD;
+      elsif(clk_i'event and clk_i = '1') then
+         if(stop_delay_wren = '1') then
+            stop_delay_data <= dat_i;
+         end if;
+      end if;
+   end process stop_delay_reg;
 
    crc_err_en_o <= '0' when crc_err_en_data = x"00000000" else '1';
    crc_error_enable_reg : reg
