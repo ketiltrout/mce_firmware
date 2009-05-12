@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs_pack.vhd,v 1.11 2008/12/22 20:51:50 bburger Exp $
+-- $Id: ret_dat_wbs_pack.vhd,v 1.12 2009/01/16 01:57:09 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs_pack.vhd,v $
+-- Revision 1.12  2009/01/16 01:57:09  bburger
+-- BB: Added new constants
+--
 -- Revision 1.11  2008/12/22 20:51:50  bburger
 -- BB:  Added a constant for reading out column data from the Readout Cards.
 --
@@ -99,7 +102,7 @@ package ret_dat_wbs_pack is
    -- Data rate is calculated as "1 data packet per x frames".  A smaller x values yields a larger data rate, and vice versa
    constant MIN_DATA_RATE            : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000FFFF";
    constant MAX_DATA_RATE            : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";
-   constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
+
    -- All four RCs are set to report by default
    constant DEFAULT_RCS_TO_REPORT    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000003C";
    constant DEFAULT_CARDS_TO_REPORT  : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"000003FF";
