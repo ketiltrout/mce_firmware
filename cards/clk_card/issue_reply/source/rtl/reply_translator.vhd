@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.61 2008/10/17 00:34:02 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.62 2008/10/25 00:24:54 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,7 +30,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2008/10/17 00:34:02 $> - <text> - <initials $Author: bburger $>
+-- Refer to CVS.
 --
 -----------------------------------------------------------------------------
 
@@ -65,8 +65,9 @@ port(
    c_cmd_code_i        : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    c_card_addr_i       : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
    c_param_id_i        : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
-   stop_reply_req_i    : in std_logic;
-   stop_reply_ack_o    : out std_logic;
+--   stop_reply_req_i    : in std_logic;
+--   stop_reply_ack_o    : out std_logic;
+   cmd_stop_i          : in std_logic;
 
    -- signals to/from reply queue
    r_cmd_code_i        : in std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
@@ -87,6 +88,10 @@ port(
 
    -- input from the cmd_queue
 --   busy_i              : in std_logic;
+
+   checksum_repeated_o   : out std_logic;
+   checksum_prev1_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
+   checksum_prev2_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
 
    -- signals to/ from fibre_tx (interface to a FIFO)
    fibre_tx_rdy_o      : out std_logic;                                               -- transmit fifo full
@@ -118,18 +123,19 @@ architecture rtl of reply_translator is
    -- Reply Structure
    constant NUM_REPLY_WORDS        : integer := 4;
    constant NUM_FRAME_HEAD_WORDS   : integer := 41;
---   constant STOP_REPLY_WAIT_PERIOD : integer := 25;
+   constant STOP_REPLY_WAIT_PERIOD : integer := 10000;  -- u-seconds
    constant SERVICING_COMMAND      : std_logic := '0';
    constant SERVICING_REPLY        : std_logic := '1';
 
    -- reply word registers
---   signal frame_status   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
---   signal frame_seq_num  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
    signal ok_or_er       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 1 byte 0
    signal crd_add_par_id : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 2 byte 0
    signal status         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 3 byte 0
    signal checksum       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- checksum word (output from checksum calculator)
 
+   signal checksum_prev1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
+   signal checksum_prev2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
+   signal update_checksum_history : std_logic;
    ----------------------------------------------------------------------------------------------------------------
    --                             FIBRE PACKET FSM
    ----------------------------------------------------------------------------------------------------------------
@@ -139,7 +145,7 @@ architecture rtl of reply_translator is
    type translator_state is
       (TRANSLATOR_IDLE, CMD_ERROR_REPLY, QUICK_REPLY, QUICK_REPLY_PAUSE, STANDARD_REPLY, DATA_PACKET, LD_PREAMBLE1,  LD_PREAMBLE2,
        LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, WAIT_Q_WORD2,
-       WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, SKIP_COMMAND, SKIP_REPLY);
+       WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, SKIP_COMMAND, SKIP_REPLY, DATA_PACKET_PAUSE);
 
    signal translator_current_state : translator_state;
    signal translator_next_state    : translator_state;
@@ -191,6 +197,7 @@ begin
    -- timer for delaying replies after a ST reply has been sent out
    ----------------------------------------------------------------------------
    stop_delay <= conv_integer(stop_delay_i);
+--   stop_delay <= STOP_REPLY_WAIT_PERIOD; -- u-seconds
    timer : us_timer
    port map(
       clk           => clk_i,
@@ -318,8 +325,8 @@ begin
       end if;
    end process fsm_state_forwarder;
 
-   translator_fsm_nextstate : process (translator_current_state, c_cmd_rdy, c_cmd_err, c_or_r,
-      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy, ok_or_er, timer_count, stop_delay)
+   translator_fsm_nextstate : process (translator_current_state, c_cmd_rdy, c_cmd_err, c_or_r, cmd_stop_i,
+      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy, timer_count, stop_delay)
    begin
       -- Default Assignments
       translator_next_state <= translator_current_state;
@@ -352,10 +359,10 @@ begin
          elsif(r_cmd_rdy = '1' and r_cmd_code = DATA) then
             -- Housekeeping header required
             -- Note that it doesn't matter what the Errno word is, we return xxOK.
-            translator_next_state <= DATA_PACKET;
+            translator_next_state <= DATA_PACKET_PAUSE;
          elsif(r_cmd_rdy = '1') then
-            -- Clear other possible commands (like STOP, RS) and stay in this state
-            -- STOP and RS commands should never make to the reply_translator through this route, but just to be safe.
+            -- Clear other possible commands (like STOP, RS) that would otherwise clog the reply_translator and stay in this state
+            -- STOP and RS commands should never make to the reply_translator through this route, so this is just to be safe.
             translator_next_state <= SKIP_REPLY;
          end if;
 
@@ -365,26 +372,35 @@ begin
       when SKIP_REPLY =>
          translator_next_state <= TRANSLATOR_IDLE;
 
-      when CMD_ERROR_REPLY | STANDARD_REPLY | DATA_PACKET =>
+      when CMD_ERROR_REPLY =>
+         translator_next_state <= LD_PREAMBLE1;
+      
+      when STANDARD_REPLY =>
          translator_next_state <= LD_PREAMBLE1;
 
+      when DATA_PACKET_PAUSE =>
+         -- A delay here only occurs if a stop command has come in, and we want to give the PCI card a little time to process its buffer before sending the last packet.
+         -- Delaying the last data packet does not change the timing of the packet collected -- only the fibre response time.
+         if (cmd_stop_i = '1') then
+            if(timer_count <= stop_delay) then
+               translator_next_state <= DATA_PACKET_PAUSE;
+            else
+               translator_next_state <= DATA_PACKET;
+            end if;
+         else
+            translator_next_state <= DATA_PACKET;
+         end if;
+
+      when DATA_PACKET =>
+         translator_next_state <= LD_PREAMBLE1;
+         
       when QUICK_REPLY =>
          translator_next_state <= QUICK_REPLY_PAUSE;
 
       when QUICK_REPLY_PAUSE =>
-         -- If we were servicing a ST reply, then pause here to give the DSP chip on the PCI card timer_count to recover
-         if(ok_or_er = STOP_OK or ok_or_er = STOP_ERR) then
-            -- If we've haven't waited for 1 ms
-            if(timer_count <= stop_delay) then
-               translator_next_state <= QUICK_REPLY_PAUSE;
-            -- If we have waited for 1 ms.
-            else
-               translator_next_state <= LD_PREAMBLE1;
-            end if;
-         -- Otherwise, head straight back to IDLE
-         else
-            translator_next_state <= LD_PREAMBLE1;
-         end if;
+         -- A pause is not necessary here because the problem that we were having was not enough spacing between the last two data packets.
+         -- This means that the reply to the STOP command can go out right on the heels of the 2nd-to-last data packet, as long as the last data packet doesn't happen to fast
+         translator_next_state <= LD_PREAMBLE1;
 
       ----------------------------------------
       -- Preamble 1
@@ -517,19 +533,7 @@ begin
          end if;
 
       when DONE =>
-         -- If we were servicing a ST reply, then pause here to give the DSP chip on the PCI card timer_count to recover
-         if(ok_or_er = STOP_OK or ok_or_er = STOP_ERR) then
-            -- If we've haven't waited for 1 ms
-            if(timer_count <= stop_delay) then
-               translator_next_state <= DONE;
-            -- If we have waited for 1 ms.
-            else
-               translator_next_state <= TRANSLATOR_IDLE;
-            end if;
-         -- Otherwise, head straight back to IDLE
-         else
-            translator_next_state <= TRANSLATOR_IDLE;
-         end if;
+         translator_next_state <= TRANSLATOR_IDLE;
 
       when OTHERS =>
         translator_next_state <= TRANSLATOR_IDLE;
@@ -604,18 +608,15 @@ begin
             else
                ok_or_er <= r_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
             end if;
---            ok_or_er       <= (r_cmd_code(15 downto 0) & ASCII_O & ASCII_K);
-            -- this will be error code x"00" - i.e. success.
 
             status         <= mop_error_code_i;
             c_or_r         <= SERVICING_REPLY;
 
-         elsif(translator_current_state = DATA_PACKET) then
+         elsif(translator_current_state = DATA_PACKET or translator_current_state = DATA_PACKET_PAUSE) then
             packet_size    <= conv_std_logic_vector(data_packet_size,PACKET_WORD_WIDTH);
             packet_type    <= DATA;
             ok_or_er       <= (others => '0');
             status         <= (others => '0');
---            frame_status   <= "000000000000000000000000000000" & cmd_stop_i & last_frame_i;
 
             -- I think that the following signals are not used at all during data packets.
 --            crd_add_par_id <= frame_seq_num_i;
@@ -637,7 +638,7 @@ begin
    end process register_packet;
 
    translator_fsm_output : process (translator_current_state, ok_or_er, fibre_tx_busy_i,
-      c_or_r, packet_type, timer_count, stop_delay) --, c_cmd_code, c_cmd_rdy, timer_count)
+      c_or_r, packet_type) --, c_cmd_rdy, c_cmd_code)
    begin
       fibre_tx_rdy_o   <= '0';
       fibre_word_ack_o <= '0';
@@ -646,9 +647,10 @@ begin
       mop_ack_o        <= '0'; -- For commands from reply_queue
       c_cmd_ack        <= '0'; -- For commands from cmd_translator
       r_cmd_ack        <= '0'; -- For commands from cmd_translator
-      stop_reply_ack_o <= '0';
+--      stop_reply_ack_o <= '0';
       timer_clr        <= '1';
-
+      update_checksum_history <= '0';
+      
       case translator_current_state is
 
       -- Idle state - no packets to process
@@ -669,25 +671,22 @@ begin
       -- From fibre_rx
       -- command is RS, GO, or ST -- so generate an instant reply
       when QUICK_REPLY =>
-         -- Moved this to the DONE state, so that I don't include frame data in the ST reply.
-         -- c_cmd_ack <= '1'; -- go to CMD_ERROR_REPLY
-
+         -- Bug Fix:  moved this to the DONE state, so that I don't include frame data in the ST reply.
+         -- c_cmd_ack <= '1'; 
+         
+      -- This delay now occurs before the last data packet, not before the quick reply.
       when QUICK_REPLY_PAUSE =>
-         -- If we were servicing a ST reply, then pause here to give the DSP chip on the PCI card timer_count to recover
-         if(ok_or_er = STOP_OK or ok_or_er = STOP_ERR) then
-            timer_clr <= '0';
-         -- Otherwise, head straight back to IDLE
-         else
-            timer_clr <= '1';
-         end if;
 
       -- From reply_queue
       when STANDARD_REPLY =>
-         r_cmd_ack <= '1'; -- go to DATA_PACKET
+         r_cmd_ack <= '1';
 
+      when DATA_PACKET_PAUSE =>
+         timer_clr <= '0';
+      
       -- From reply_queue
       when DATA_PACKET =>
-         r_cmd_ack <= '1'; -- go to DATA_PACKET
+         r_cmd_ack <= '1';
 
       ----------------------------------------
       -- Preamble 1
@@ -793,7 +792,7 @@ begin
          if(fibre_tx_busy_i = '0') then
             fibre_word_ack_o <= '1';
             -- Do not transmit a data word if an "RB" was unsuccessful
-            -- The only timer_count an "xxER" occurs is when there is a checksum error over the fibre
+            -- The only time an "xxER" occurs is when there is a checksum error over the fibre
             -- Otherwise, replies will always indicate "xxOK" and an error flag will be set is any errors have occurred in the MCE
             if(c_or_r = SERVICING_REPLY and ok_or_er = x"52424552") then
                fibre_tx_rdy_o <= '0';
@@ -810,6 +809,7 @@ begin
       when LD_CKSUM =>
          if(fibre_tx_busy_i = '0') then
             fibre_tx_rdy_o <= '1';
+            update_checksum_history <= '1';
          end if;
 
       when WAIT_Q_WORD1  =>
@@ -818,25 +818,34 @@ begin
       when WAIT_Q_WORD4  =>
 
       when DONE =>
-         -- If we were servicing a ST reply, then pause here to give the DSP chip on the PCI card timer_count to recover
-         if(ok_or_er = STOP_OK or ok_or_er = STOP_ERR) then
-            -- If we've haven't waited for 1 ms
-            if(timer_count <= stop_delay) then
-               timer_clr <= '0';
-            -- If we have waited for 1 ms.
-            else
-               c_cmd_ack <= '1';
-               stop_reply_ack_o <= '1';
-            end if;
-         -- Otherwise, if the command was a GO or RS, head straight back to IDLE
-         elsif(ok_or_er = GO_OK or ok_or_er = GO_ERR or ok_or_er = RESET_OK or ok_or_er = RESET_ERR) then
+         -- This statement ack's the command that was received.
+         -- Only STOP, GO, and RESET are ack'ed here.  The others are acked at the front end because they may have data associated with them.
+         if(ok_or_er = STOP_OK or ok_or_er = STOP_ERR or ok_or_er = GO_OK or ok_or_er = GO_ERR or ok_or_er = RESET_OK or ok_or_er = RESET_ERR) then
             c_cmd_ack <= '1';
          end if;
-
+         
       when others =>
-
       end case;
-
    end process translator_fsm_output;
+
+   ----------------------------------------------------------------------------
+   -- process for monitoring consecutive checksums
+   ----------------------------------------------------------------------------
+   checksum_repeated_o <= '1' when checksum_prev1 = checksum_prev2 else '0';
+   checksum_prev1_o <= checksum_prev1;  
+   checksum_prev2_o <= checksum_prev2;  
+   
+   checksum_historizer: process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         checksum_prev1 <= (others => '0');
+         checksum_prev2 <= (others => '1');
+      elsif(clk_i'EVENT and clk_i = '1') then
+         if(update_checksum_history = '1') then
+            checksum_prev1 <= checksum;
+            checksum_prev2 <= checksum_prev1;
+         end if;
+      end if;
+   end process checksum_historizer;
 
 end rtl;
