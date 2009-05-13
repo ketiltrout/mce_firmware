@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.66 2009/01/16 02:04:39 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.67 2009/05/12 19:44:57 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.67  2009/05/12 19:44:57  bburger
+-- BB: STOP command testing.
+--
 -- Revision 1.66  2009/01/16 02:04:39  bburger
 -- BB:  New test commands for column data from Readout Cards
 --
@@ -2573,15 +2576,6 @@ begin
       wait for 50 us;
 
       command <= command_wb;
-      address_id <= cc_stop_delay_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000100";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
       address_id <= cc_ret_dat_s_cmd;
       data_valid <= X"00000002";
       data       <= X"00000000";
@@ -2590,15 +2584,15 @@ begin
       load_checksum;
       wait for 50 us;
 
-      command <= command_wb;
-      address_id <= rc1_sample_num_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
+--      command <= command_wb;
+--      address_id <= rc1_sample_num_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
 --      command <= command_wb;
 --      address_id <= rc1_data_mode_cmd;
 --      data_valid <= X"00000001";
@@ -2607,6 +2601,15 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_stop_delay_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000010";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
 
       command <= command_go;
       address_id <= rc1_ret_dat_cmd;
