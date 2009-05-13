@@ -671,33 +671,31 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=6553
 set_global_assignment -name SIGNALTAP_FILE stop_commands_without_fsm_states_b.stp
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|current_state.REQ_LAST_DATA_PACKET" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|ret_dat_stop_req" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_clk_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_nena_o" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|current_state.REQ_LAST_DATA_PACKET" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|ret_dat_stop_req" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_clk_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_nena_o" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=12" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=12" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=102" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=1326" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=15413" -section_id auto_signaltap_0
 set_global_assignment -name SIGNALTAP_FILE stop_commands_without_fsm_states_c.stp
 set_global_assignment -name SIGNALTAP_FILE stop_commands_without_fsm_states_d.stp
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_nena_o" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_data_o[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|fibre_nena_o" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=11" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=11" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=96" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=33729" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=31110" -section_id auto_signaltap_0
