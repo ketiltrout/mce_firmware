@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.60 2009/05/12 18:46:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.61 2009/05/12 19:18:34 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -134,7 +134,7 @@ architecture rtl of cmd_translator is
    constant CURRENT_NUM_PLUS_1_SEL : std_logic := '0';
 
    type state is (IDLE, SIMPLE, FPGA_TEMP, CARD_TEMP, PSC_STATUS, BOX_TEMP, TES_BIAS, LATCH_TES_BIAS_DATA,
-      DONE, UPDATE_FOR_NEXT, PROCESSING_RET_DAT, ONE_MORE, REQ_LAST_DATA_PACKET);--, REQ_STOP_REPLY, REQ_DATA_PACKET);
+      ADVANCE_INTERNAL_CMD_INDEX, UPDATE_FOR_NEXT, PROCESSING_RET_DAT, ONE_MORE, REQ_LAST_DATA_PACKET);--, REQ_STOP_REPLY, REQ_DATA_PACKET);
 
    signal current_state : state;
    signal next_state    : state;
@@ -146,7 +146,7 @@ architecture rtl of cmd_translator is
    -- For acknowledging requests
    signal ret_dat_ack         : std_logic;
 
-   -- If a ret_dat command comes in during an internal command, the cmd_translator messes up in the DONE state.
+   -- If a ret_dat command comes in during an internal command, the cmd_translator messes up in the ADVANCE_INTERNAL_CMD_INDEX state.
    -- For indicating the start of a data run
    signal ret_dat_start       : std_logic;
    signal ret_dat_done        : std_logic;
@@ -387,6 +387,7 @@ begin
             issue_sync_num <= sync_number_i + 1;
          elsif(jump_sync_num = '1') then
             issue_sync_num <= issue_sync_num + data_rate_i;
+-- No delay is necessary here, because the reply_translator takes of delaying the reply to the PCI card
 --         elsif(delay_sync_num = '1') then
 --            -- delay the issue of the last data command on a STOP to give the PCI card time
 --            issue_sync_num <= sync_number_i + STOP_DELAY;
@@ -505,6 +506,10 @@ begin
          when PROCESSING_RET_DAT =>
             -- This state determines if there are more frames to go, and acts accordingly.
             -- If there are more frames, it checks to see if there are any internal commands to process first before issuing the next ret_dat
+            -- This state is entered on the heels of returning the last data packet to the PC, so internal commands are processed immediatly following a data packet
+            -- This is to give the MCE as much time as possible before the next data packet is required to be issued.
+            -- Upon finishing a simple/ internal command, the FSM moves direcly to UPDATE_FOR_NEXT.
+            -- Note that internal commands/ simple commands are issued asynchronously to sync_number, i.e. anytime.
             -- If there are no more frames, it loops to IDLE
             -- This state lasts only one clock cycle.
 
@@ -571,6 +576,7 @@ begin
             end if;
 
          when REQ_LAST_DATA_PACKET =>
+            -- We remain in this state until the last data packet is complete.
             if(ack_i = '1') then
                next_state <= IDLE;
                ret_dat_done <= '1';
@@ -583,7 +589,6 @@ begin
                else
                   next_state <= IDLE;
                end if;
---               next_state <= IDLE;
             end if;
 
          when TES_BIAS =>
@@ -594,7 +599,6 @@ begin
          when LATCH_TES_BIAS_DATA =>
             if(ack_i = '1') then
                -- If there was no ret_dat request before issuing the internal command, then we
---               if(ret_dat_req = '1') then
                if(ret_dat_in_progress = '1') then
                   next_state <= UPDATE_FOR_NEXT;
                else
@@ -604,27 +608,27 @@ begin
 
          when FPGA_TEMP =>
             if(ack_i = '1') then
-               next_state <= DONE;
+               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
             end if;
 
          when CARD_TEMP =>
             if(ack_i = '1') then
-               next_state <= DONE;
+               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
             end if;
 
          when PSC_STATUS =>
             if(ack_i = '1') then
-               next_state <= DONE;
+               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
             end if;
 
          when BOX_TEMP =>
             if(ack_i = '1') then
-               next_state <= DONE;
+               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
             end if;
 
-         when DONE =>
-            -- The DONE state is used to advance the index for which internal command to execute next
---               if(ret_dat_req = '1') then
+         when ADVANCE_INTERNAL_CMD_INDEX =>
+            -- The ADVANCE_INTERNAL_CMD_INDEX state is used to advance the index for which internal command to execute next
+            -- It is not used for anything else
             if(ret_dat_in_progress = '1') then
                next_state <= UPDATE_FOR_NEXT;
             else
@@ -895,12 +899,10 @@ begin
             end if;
 
             if(ack_i = '1') then
-               -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to STOP command
                -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
+               instr_rdy_o <= '0';
                ret_dat_ack <= '1';
                f_rx_ret_dat_ack <= '1';
-               --ret_dat_ack <= '1';
-               instr_rdy_o <= '0';
             end if;
 
          when SIMPLE =>
@@ -950,7 +952,7 @@ begin
                internal_status_ack <= '1';
             end if;
 
-         when DONE =>
+         when ADVANCE_INTERNAL_CMD_INDEX =>
             internal_status_ack <= '1';
             internal_cmd_ack <= '1';
 
