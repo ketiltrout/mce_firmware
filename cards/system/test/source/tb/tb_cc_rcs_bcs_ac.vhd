@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.68 2009/05/13 00:50:56 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.69 2009/05/27 01:34:57 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.69  2009/05/27 01:34:57  bburger
+-- BB: Readout Card testing
+--
 -- Revision 1.68  2009/05/13 00:50:56  bburger
 -- BB:  STOP commands again
 --
@@ -589,9 +592,11 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_adc_offset0_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & ADC_OFFSET0_ADDR;
    constant rc1_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & LED_ADDR;
    constant rc1_fpga_temp_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FPGA_TEMP_ADDR;
-   constant rc1_readout_priority_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & READOUT_PRIORITY_ADDR;
-   constant rc1_readout_col_index_cmd : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & READOUT_COL_INDEX_ADDR;
+   constant rc1_readout_priority_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & READOUT_PRIORITY_ADDR;
+   constant rc1_readout_col_index_cmd : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & READOUT_COL_INDEX_ADDR;
    constant rc1_readout_row_index_cmd : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & READOUT_ROW_INDEX_ADDR;
+   constant rc1_num_rows_reported_cmd : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & NUM_ROWS_REPORTED_ADDR;
+   constant rc1_num_cols_reported_cmd : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & NUM_COLS_REPORTED_ADDR;
 
    constant rc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_2    & x"00" & LED_ADDR;
    constant rc2_ret_dat_cmd         : std_logic_vector(31 downto 0) := X"00040016";  -- card_addr=READOUT_CARD_2, param_id=RET_DAT_ADDR
@@ -661,6 +666,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_run_id_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & RUN_ID_ADDR;
    constant cc_user_writable_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USER_WRITABLE_ADDR;
    constant cc_cards_to_report      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & CARDS_TO_REPORT_ADDR;
+   constant cc_num_rows_reported_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD       & x"00" & NUM_ROWS_REPORTED_ADDR;
+   constant cc_num_cols_reported_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD       & x"00" & NUM_COLS_REPORTED_ADDR;
 --   constant cc_run_id_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & RUN_ID_ADDR;
 --   constant cc_user_writable_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USER_WRITABLE_ADDR;
 
@@ -717,7 +724,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ac_fb_col38_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & FB_COL38_ADDR;
    constant ac_fb_col39_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & FB_COL39_ADDR;
    constant ac_fb_col40_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & FB_COL40_ADDR;
-
    constant ac_led_cmd              : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & LED_ADDR;
    constant ac_on_bias_cmd          : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & ON_BIAS_ADDR;
    constant ac_off_bias_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & OFF_BIAS_ADDR;
@@ -734,7 +740,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant bc1_bias_cmd            : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & BIAS_ADDR;
    constant bc1_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & ROW_LEN_ADDR;
    constant bc1_num_rows_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & NUM_ROWS_ADDR;
-
    constant bc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_2       & x"00" & LED_ADDR;
 
    constant all_led_cmd             : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & LED_ADDR;
@@ -2572,34 +2577,43 @@ begin
       command <= command_wb;
       address_id <= rc1_readout_col_index_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_rb;
-      address_id <= rc1_readout_col_index_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;
 
       command <= command_wb;
-      address_id <= rc1_captr_raw_cmd;
+      address_id <= rc1_readout_row_index_cmd;
       data_valid <= X"00000001";
       data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 1500 us;
+      wait for 50 us;
+      
+      command <= command_wb;
+      address_id <= rc1_num_cols_reported_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000004";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_num_rows_reported_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;      
 
       command <= command_wb;
       address_id <= rc1_data_mode_cmd;
       data_valid <= X"00000001";
-      data       <= X"0000000C";
+      data       <= X"0000000B";
       load_preamble;
       load_command;
       load_checksum;
@@ -2608,7 +2622,7 @@ begin
       command <= command_wb;
       address_id <= cc_data_rate_cmd;
       data_valid <= X"00000001";
-      data       <= X"0000000F";
+      data       <= X"00000029";
       load_preamble;
       load_command;
       load_checksum;
@@ -2630,7 +2644,7 @@ begin
       load_preamble;
       load_command;
       load_checksum;
-      wait for 1500 us;
+      wait for 10000 us;
 
 
 ------------------------------------------------------
