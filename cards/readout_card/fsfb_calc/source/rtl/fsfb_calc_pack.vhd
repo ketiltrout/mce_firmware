@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.18  2008/10/03 00:32:14  mandana
+-- BB: Removed the z_dat_i port in fsfb_processor.vhd and fsfb_calc_pack.vhd to the fsfb_proc_pidz block, in an effort to make it clearer within that block that the z-term is always = 0.
+--
 -- Revision 1.17  2008/07/08 22:16:47  mandana
 -- added comments for filter coefficients, no code change.
 --
@@ -210,8 +213,8 @@ package fsfb_calc_pack is
          previous_fsfb_dat_rdy_o     : out          std_logic;
          previous_fsfb_dat_o         : out          std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
          fsfb_fltr_wr_data_o         : out          std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    
-         fsfb_fltr_wr_addr_o         : out          std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  
-         fsfb_fltr_rd_addr_o         : out          std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  
+         fsfb_fltr_wr_addr_o         : out          std_logic_vector(FLTR_QUEUE_ADDR_WIDTH downto 0);  
+         fsfb_fltr_rd_addr_o         : out          std_logic_vector(FLTR_QUEUE_ADDR_WIDTH downto 0);  
          fsfb_fltr_wr_en_o           : out          std_logic;                                           
          fsfb_fltr_rd_data_i         : in           std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  
          fsfb_queue_wr_data_o        : out          std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    
@@ -510,8 +513,8 @@ package fsfb_calc_pack is
       (
     data    : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
     wren    : IN STD_LOGIC  := '1';
-    wraddress     : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-    rdaddress     : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+    wraddress     : IN STD_LOGIC_VECTOR (6 DOWNTO 0);
+    rdaddress     : IN STD_LOGIC_VECTOR (6 DOWNTO 0);
     clock      : IN STD_LOGIC ;
     q    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
       );
