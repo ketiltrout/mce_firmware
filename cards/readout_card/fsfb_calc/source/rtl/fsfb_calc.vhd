@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.11  2006/03/14 22:49:24  mandana
+-- interface change to accomodate 4-pole filter
+--
 -- Revision 1.10  2006/02/15 21:40:57  mandana
 -- registers can now be reset by either fltr_rst_i or initialize_window_i
 --
@@ -182,8 +185,11 @@ architecture struct of fsfb_calc is
    
    -- filter related signals
    signal fsfb_fltr_wr_data_o         : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- write data to the fsfb filtered queue 
-   signal fsfb_fltr_wr_addr_o         : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);     -- write address to the fsfb filtered queue 
-   signal fsfb_fltr_rd_addr_o         : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address to the fsfb filter queue 
+   
+   -- Increased the width of the addresses by 1 to make filtered data available on demand
+   signal fsfb_fltr_wr_addr_o         : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH downto 0);     -- write address to the fsfb filtered queue 
+   signal fsfb_fltr_rd_addr_o         : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH downto 0);     -- read address to the fsfb filter queue 
+   
    signal fsfb_fltr_wr_en_o           : std_logic;                                              -- write enable to the fsfb filter queue
    signal fsfb_fltr_rd_data_i         : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- read data from the fsfb filter queue
    signal wn_addr_o                   : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);     -- address for wn set of filter registers
@@ -361,7 +367,7 @@ begin
    
    -- filter output storage      
    -- Queue is 32-bit wide
-   i_fsfb_filter_storage : fsfb_filter_storage
+   i_fsfb_filter_storage0 : fsfb_filter_storage
       port map (
          data                         => fsfb_fltr_wr_data_o,
          wraddress                    => fsfb_fltr_wr_addr_o,
@@ -371,6 +377,17 @@ begin
          q                            => fsfb_fltr_rd_data_i
       );   
    
+   -- Try to make this part of the other queue, and switch between the first and second halves with msb for the address.
+--   i_fsfb_filter_storage1 : fsfb_filter_storage
+--      port map (
+--         data                         => ,
+--         wraddress                    => ,
+--         rdaddress                    => ,
+--         wren                         => ,
+--         clock                        => clk_50_i,
+--         q                            => 
+--      );   
+
    -- filter wn storage (set of registers)
    i_fsfb_fltr_regs: fsfb_fltr_regs
       port map (
@@ -390,17 +407,7 @@ begin
    -- reset wn registers when either of fltr_rst or initialize_window are asserted
    fltr_rst <= fltr_rst_i or initialize_window_i;
    
---   row1_fltr_data_reg: process (clk_50_i, rst_i)
---   begin
---      if (rst_i = '1') then
---         row1_fltr_data <= (others => '0');
---      elsif ( clk_50_i'event and clk_50_i = '1') then
---         if (conv_integer(unsigned(fsfb_fltr_rd_addr_o)) = 1) then
---            row1_fltr_data <= fsfb_fltr_rd_data_i;
---         end if;
---      end if;   
---   end process row1_fltr_data_reg;
-   
+
    -- flux quanta counter queues
    -- Bank 0 (even)
    -- Queue is 8-bit wide: 2's complement -- 7 (sign); 6:0 (magnitude) 
