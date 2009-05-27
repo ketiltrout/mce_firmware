@@ -33,44 +33,7 @@
 --
 -- 
 -- Revision history:
---
---
--- $Log: flux_loop.vhd,v $
--- Revision 1.17  2009/01/16 02:10:22  bburger
--- BB:  Added interface signals to wbs_frame_data for column readout
---
--- Revision 1.16  2007/10/31 20:11:13  mandana
--- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
---
--- Revision 1.15  2006/12/11 18:05:02  mandana
--- Added per-column servo-mode ports for fsfb_corr interface
---
--- Revision 1.14  2006/12/05 22:43:57  mandana
--- split the servo_mode to be column specific. Note that flux_jump will still get enabled based on column 0 servo_mode!
---
--- Revision 1.13  2006/11/24 21:03:57  mandana
--- splitted fb_const to be channel specific
---
--- Revision 1.12  2006/02/15 21:34:23  mandana
--- added fltr_rst_i port
---
--- Revision 1.11  2005/12/12 22:18:14  mandana
--- removed the unused flux_jumping_en_i port
---
--- Revision 1.10  2005/11/29 18:30:13  mandana
--- added restart_frame_1row_post_i to wbs_frame_data interface in order to read filter data with precise timing. Now, filter data is read with one frame delay to avoid double-buffering the filter storage.
---
--- Revision 1.9  2005/10/07 21:38:07  bburger
--- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
---
--- Revision 1.8  2005/09/14 23:48:39  bburger
--- bburger:
--- Integrated flux-jumping into flux_loop
---
--- Revision 1.7  2004/12/04 03:08:24  mohsen
--- Initial Release
---
---
+-- See CVS Record
 --
 ------------------------------------------------------------------------
 
@@ -78,16 +41,20 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library work;
 
 -- Own Library
 use work.flux_loop_pack.all;
+
+-- Call Parent Library
 use work.readout_card_pack.all;
 use work.adc_sample_coadd_pack.all;
 
--- System Library
 library sys_param;
+
+-- System Library
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
@@ -187,10 +154,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch0 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch0  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch0   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch0      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch0       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch0       : std_logic;
-   signal raw_ack_ch0       : std_logic;
    signal filtered_addr_ch1 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal filtered_dat_ch1  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal fsfb_addr_ch1     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -198,10 +161,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch1 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch1  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch1   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch1      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch1       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch1       : std_logic;
-   signal raw_ack_ch1       : std_logic;
    signal filtered_addr_ch2 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal filtered_dat_ch2  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal fsfb_addr_ch2     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -209,10 +168,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch2 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch2  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch2   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch2      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch2       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch2       : std_logic;
-   signal raw_ack_ch2       : std_logic;
    signal filtered_addr_ch3 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal filtered_dat_ch3  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal fsfb_addr_ch3     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -220,10 +175,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch3 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch3  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch3   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch3      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch3       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch3       : std_logic;
-   signal raw_ack_ch3       : std_logic;
    signal filtered_addr_ch4 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal filtered_dat_ch4  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal fsfb_addr_ch4     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -231,10 +182,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch4 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch4  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch4   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch4      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch4       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch4       : std_logic;
-   signal raw_ack_ch4       : std_logic;
    signal filtered_addr_ch5 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal filtered_dat_ch5  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal fsfb_addr_ch5     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -242,10 +189,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch5 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch5  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch5   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch5      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch5       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch5       : std_logic;
-   signal raw_ack_ch5       : std_logic;
    signal filtered_addr_ch6 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal filtered_dat_ch6  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal fsfb_addr_ch6     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -253,10 +196,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch6 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch6  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch6   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch6      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch6       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch6       : std_logic;
-   signal raw_ack_ch6       : std_logic;
    signal filtered_addr_ch7 : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal filtered_dat_ch7  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal fsfb_addr_ch7     : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -264,10 +203,6 @@ architecture struct of flux_loop is
    signal flux_cnt_ws_dat_ch7 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal coadded_addr_ch7  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch7   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal raw_addr_ch7      : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-   signal raw_dat_ch7       : std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-   signal raw_req_ch7       : std_logic;
-   signal raw_ack_ch7       : std_logic;
 
    signal sa_bias_dat_rdy       : std_logic_vector (7 downto 0);
    signal offset_dat_rdy    : std_logic_vector (7 downto 0);
@@ -468,10 +403,110 @@ architecture struct of flux_loop is
    signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en7        : std_logic;                                             
 
+   signal adc_dat      : STD_LOGIC_VECTOR (ADC_DAT_WIDTH-1 DOWNTO 0);
+   signal adc_dat_sxt  : STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0);
+   signal raw_rd_addr  : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+   signal raw_wr_addr  : STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+   signal raw_wren     : STD_LOGIC  := '1';
+   signal raw_dat      : STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0);
+   signal raw_chan     : std_logic_vector (COL_ADDR_WIDTH-1    downto 0);
+   signal raw_dat_req  : std_logic;
+   signal raw_dat_ack  : std_logic;
+
+   type states is (IDLE, REQ_RECEIVED, STORE_RAW, DONE);
+   signal current_state, next_state : states;
   
 begin  -- struct
   
    -----------------------------------------------------------------------------
+   -- Instantiation of Raw Data/ Rectangle Mode RAM block
+   -----------------------------------------------------------------------------
+   adc_dat <= 
+      adc_dat_ch0_i when raw_chan = "000" else
+      adc_dat_ch1_i when raw_chan = "001" else
+      adc_dat_ch2_i when raw_chan = "010" else
+      adc_dat_ch3_i when raw_chan = "011" else
+      adc_dat_ch4_i when raw_chan = "100" else
+      adc_dat_ch5_i when raw_chan = "101" else
+      adc_dat_ch6_i when raw_chan = "110" else
+      adc_dat_ch7_i when raw_chan = "111" else
+      adc_dat_ch0_i;
+      
+   adc_dat_sxt <= sxt(adc_dat, RAW_RAM_WIDTH);
+   
+   rectangle_mode_ram: raw_ram_bank
+   port map (
+      clock     => clk_50_i,     
+      data      => adc_dat_sxt,  
+      rdaddress => raw_rd_addr,  
+      wraddress => raw_wr_addr,  
+      wren      => raw_wren,     
+      q         => raw_dat   
+   );
+
+   increment_addr: process (clk_50_i, rst_i)
+   begin  
+      if(rst_i = '1') then                
+         raw_wr_addr <= (others => '0');
+      elsif(clk_50_i'event and clk_50_i = '1') then
+         if(raw_wren = '1') then 
+            raw_wr_addr <= raw_wr_addr + 1;
+         elsif(raw_wren = '0') then
+            raw_wr_addr <= (others => '0');
+         end if;
+      end if;
+   end process increment_addr;
+  
+   state_FF: process(clk_50_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         current_state <= IDLE;
+      elsif(clk_50_i'event and clk_50_i = '1') then
+         current_state <= next_state;
+      end if;
+   end process state_FF;
+   
+   state_NS: process(current_state, restart_frame_aligned_i, raw_dat_req, raw_wr_addr)
+   begin
+      next_state <= current_state;
+      case current_state is
+         when IDLE =>
+            if(raw_dat_req = '1') then 
+               next_state <= REQ_RECEIVED;
+            end if;
+         when REQ_RECEIVED =>
+            if(restart_frame_aligned_i = '1') then
+               next_state <= STORE_RAW;
+            end if;
+         when STORE_RAW =>
+            if(raw_wr_addr = RAW_ADDR_MAX) then
+               next_state <= DONE;
+            end if;
+         when DONE =>
+            next_state <= IDLE;
+         when others =>
+            next_state <= IDLE;
+      end case;
+   end process state_NS;
+   
+   state_out: process(current_state)
+   begin
+      raw_wren    <= '0';
+      raw_dat_ack <= '0';
+
+      case current_state is
+         when IDLE =>
+         when REQ_RECEIVED =>
+         when STORE_RAW =>
+            raw_wren    <= '1';
+         when DONE =>
+            raw_dat_ack <= '1';
+         when others => 
+            NULL;
+      end case;
+   end process state_out;
+  
+  -----------------------------------------------------------------------------
    -- Instantiation of Flux Loop Control
    -----------------------------------------------------------------------------
    i_flux_loop_ctrl_ch0: flux_loop_ctrl
@@ -492,10 +527,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch0,
       coadded_dat_o             => coadded_dat_ch0,
-      raw_addr_i                => raw_addr_ch0,
-      raw_dat_o                 => raw_dat_ch0,
-      raw_req_i                 => raw_req_ch0,
-      raw_ack_o                 => raw_ack_ch0,
       fsfb_addr_i               => fsfb_addr_ch0,
       fsfb_dat_o                => fsfb_dat_ch0,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch0,
@@ -565,10 +596,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch1,
       coadded_dat_o             => coadded_dat_ch1,
-      raw_addr_i                => raw_addr_ch1,
-      raw_dat_o                 => raw_dat_ch1,
-      raw_req_i                 => raw_req_ch1,
-      raw_ack_o                 => raw_ack_ch1,
       fsfb_addr_i               => fsfb_addr_ch1,
       fsfb_dat_o                => fsfb_dat_ch1,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch1,
@@ -638,10 +665,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch2,
       coadded_dat_o             => coadded_dat_ch2,
-      raw_addr_i                => raw_addr_ch2,
-      raw_dat_o                 => raw_dat_ch2,
-      raw_req_i                 => raw_req_ch2,
-      raw_ack_o                 => raw_ack_ch2,
       fsfb_addr_i               => fsfb_addr_ch2,
       fsfb_dat_o                => fsfb_dat_ch2,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch2,
@@ -711,10 +734,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch3,
       coadded_dat_o             => coadded_dat_ch3,
-      raw_addr_i                => raw_addr_ch3,
-      raw_dat_o                 => raw_dat_ch3,
-      raw_req_i                 => raw_req_ch3,
-      raw_ack_o                 => raw_ack_ch3,
       fsfb_addr_i               => fsfb_addr_ch3,
       fsfb_dat_o                => fsfb_dat_ch3,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch3,
@@ -784,10 +803,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch4,
       coadded_dat_o             => coadded_dat_ch4,
-      raw_addr_i                => raw_addr_ch4,
-      raw_dat_o                 => raw_dat_ch4,
-      raw_req_i                 => raw_req_ch4,
-      raw_ack_o                 => raw_ack_ch4,
       fsfb_addr_i               => fsfb_addr_ch4,
       fsfb_dat_o                => fsfb_dat_ch4,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch4,
@@ -857,10 +872,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch5,
       coadded_dat_o             => coadded_dat_ch5,
-      raw_addr_i                => raw_addr_ch5,
-      raw_dat_o                 => raw_dat_ch5,
-      raw_req_i                 => raw_req_ch5,
-      raw_ack_o                 => raw_ack_ch5,
       fsfb_addr_i               => fsfb_addr_ch5,
       fsfb_dat_o                => fsfb_dat_ch5,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch5,
@@ -930,10 +941,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch6,
       coadded_dat_o             => coadded_dat_ch6,
-      raw_addr_i                => raw_addr_ch6,
-      raw_dat_o                 => raw_dat_ch6,
-      raw_req_i                 => raw_req_ch6,
-      raw_ack_o                 => raw_ack_ch6,
       fsfb_addr_i               => fsfb_addr_ch6,
       fsfb_dat_o                => fsfb_dat_ch6,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch6,
@@ -1003,10 +1010,6 @@ begin  -- struct
       dac_dat_en_i              => dac_dat_en_i,
       coadded_addr_i            => coadded_addr_ch7,
       coadded_dat_o             => coadded_dat_ch7,
-      raw_addr_i                => raw_addr_ch7,
-      raw_dat_o                 => raw_dat_ch7,
-      raw_req_i                 => raw_req_ch7,
-      raw_ack_o                 => raw_ack_ch7,
       fsfb_addr_i               => fsfb_addr_ch7,
       fsfb_dat_o                => fsfb_dat_ch7,
       flux_cnt_ws_dat_o         => flux_cnt_ws_dat_ch7,
@@ -1149,6 +1152,13 @@ begin  -- struct
       num_rows_i          => num_rows_i,
       num_rows_reported_i => num_rows_reported_i,
       num_cols_reported_i => num_cols_reported_i,
+      raw_addr_o          => raw_rd_addr,       
+      raw_dat_i           => raw_dat,     
+      raw_req_o           => raw_dat_req,     
+      raw_ack_i           => raw_dat_ack,     
+      readout_col_index_o => raw_chan,
+      restart_frame_aligned_i => restart_frame_aligned_i,
+
       restart_frame_1row_post_i => restart_frame_1row_post_i,        
       filtered_addr_ch0_o => filtered_addr_ch0,
       filtered_dat_ch0_i  => filtered_dat_ch0,
@@ -1157,10 +1167,6 @@ begin  -- struct
       flux_cnt_dat_ch0_i  => flux_cnt_ws_dat_ch0,
       coadded_addr_ch0_o  => coadded_addr_ch0,
       coadded_dat_ch0_i   => coadded_dat_ch0,
-      raw_addr_ch0_o      => raw_addr_ch0,
-      raw_dat_ch0_i       => raw_dat_ch0,
-      raw_req_ch0_o       => raw_req_ch0,
-      raw_ack_ch0_i       => raw_ack_ch0,
       filtered_addr_ch1_o => filtered_addr_ch1,
       filtered_dat_ch1_i  => filtered_dat_ch1,
       fsfb_addr_ch1_o     => fsfb_addr_ch1,
@@ -1168,10 +1174,6 @@ begin  -- struct
       flux_cnt_dat_ch1_i  => flux_cnt_ws_dat_ch1,
       coadded_addr_ch1_o  => coadded_addr_ch1,
       coadded_dat_ch1_i   => coadded_dat_ch1,
-      raw_addr_ch1_o      => raw_addr_ch1,
-      raw_dat_ch1_i       => raw_dat_ch1,
-      raw_req_ch1_o       => raw_req_ch1,
-      raw_ack_ch1_i       => raw_ack_ch1,
       filtered_addr_ch2_o => filtered_addr_ch2,
       filtered_dat_ch2_i  => filtered_dat_ch2,
       fsfb_addr_ch2_o     => fsfb_addr_ch2,
@@ -1179,10 +1181,6 @@ begin  -- struct
       flux_cnt_dat_ch2_i  => flux_cnt_ws_dat_ch2,
       coadded_addr_ch2_o  => coadded_addr_ch2,
       coadded_dat_ch2_i   => coadded_dat_ch2,
-      raw_addr_ch2_o      => raw_addr_ch2,
-      raw_dat_ch2_i       => raw_dat_ch2,
-      raw_req_ch2_o       => raw_req_ch2,
-      raw_ack_ch2_i       => raw_ack_ch2,
       filtered_addr_ch3_o => filtered_addr_ch3,
       filtered_dat_ch3_i  => filtered_dat_ch3,
       fsfb_addr_ch3_o     => fsfb_addr_ch3,
@@ -1190,10 +1188,6 @@ begin  -- struct
       flux_cnt_dat_ch3_i  => flux_cnt_ws_dat_ch3,
       coadded_addr_ch3_o  => coadded_addr_ch3,
       coadded_dat_ch3_i   => coadded_dat_ch3,
-      raw_addr_ch3_o      => raw_addr_ch3,
-      raw_dat_ch3_i       => raw_dat_ch3,
-      raw_req_ch3_o       => raw_req_ch3,
-      raw_ack_ch3_i       => raw_ack_ch3,
       filtered_addr_ch4_o => filtered_addr_ch4,
       filtered_dat_ch4_i  => filtered_dat_ch4,
       fsfb_addr_ch4_o     => fsfb_addr_ch4,
@@ -1201,10 +1195,6 @@ begin  -- struct
       flux_cnt_dat_ch4_i  => flux_cnt_ws_dat_ch4,
       coadded_addr_ch4_o  => coadded_addr_ch4,
       coadded_dat_ch4_i   => coadded_dat_ch4,
-      raw_addr_ch4_o      => raw_addr_ch4,
-      raw_dat_ch4_i       => raw_dat_ch4,
-      raw_req_ch4_o       => raw_req_ch4,
-      raw_ack_ch4_i       => raw_ack_ch4,
       filtered_addr_ch5_o => filtered_addr_ch5,
       filtered_dat_ch5_i  => filtered_dat_ch5,
       fsfb_addr_ch5_o     => fsfb_addr_ch5,
@@ -1212,10 +1202,6 @@ begin  -- struct
       flux_cnt_dat_ch5_i  => flux_cnt_ws_dat_ch5,
       coadded_addr_ch5_o  => coadded_addr_ch5,
       coadded_dat_ch5_i   => coadded_dat_ch5,
-      raw_addr_ch5_o      => raw_addr_ch5,
-      raw_dat_ch5_i       => raw_dat_ch5,
-      raw_req_ch5_o       => raw_req_ch5,
-      raw_ack_ch5_i       => raw_ack_ch5,
       filtered_addr_ch6_o => filtered_addr_ch6,
       filtered_dat_ch6_i  => filtered_dat_ch6,
       fsfb_addr_ch6_o     => fsfb_addr_ch6,
@@ -1223,10 +1209,6 @@ begin  -- struct
       flux_cnt_dat_ch6_i  => flux_cnt_ws_dat_ch6,
       coadded_addr_ch6_o  => coadded_addr_ch6,
       coadded_dat_ch6_i   => coadded_dat_ch6,
-      raw_addr_ch6_o      => raw_addr_ch6,
-      raw_dat_ch6_i       => raw_dat_ch6,
-      raw_req_ch6_o       => raw_req_ch6,
-      raw_ack_ch6_i       => raw_ack_ch6,
       filtered_addr_ch7_o => filtered_addr_ch7,
       filtered_dat_ch7_i  => filtered_dat_ch7,
       fsfb_addr_ch7_o     => fsfb_addr_ch7,
@@ -1234,10 +1216,6 @@ begin  -- struct
       flux_cnt_dat_ch7_i  => flux_cnt_ws_dat_ch7,
       coadded_addr_ch7_o  => coadded_addr_ch7,
       coadded_dat_ch7_i   => coadded_dat_ch7,
-      raw_addr_ch7_o      => raw_addr_ch7,
-      raw_dat_ch7_i       => raw_dat_ch7,
-      raw_req_ch7_o       => raw_req_ch7,
-      raw_ack_ch7_i       => raw_ack_ch7,
       dat_i               => dat_i,
       addr_i              => addr_i,
       tga_i               => tga_i,
