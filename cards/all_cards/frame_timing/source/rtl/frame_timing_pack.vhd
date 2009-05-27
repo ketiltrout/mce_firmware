@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.10 2006/03/22 19:25:12 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.11 2009/01/16 01:33:39 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2006/03/22 19:25:12 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2009/01/16 01:33:39 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.11  2009/01/16 01:33:39  bburger
+-- BB: Added two default constants (DEFAULT_NUM_ROWS_REPORTED, DEFAULT_NUM_COLS_REPORTED)
+--
 -- Revision 1.10  2006/03/22 19:25:12  mandana
 -- moved constant definitions from sync_gen_pack to frame_timing_pack
 --
@@ -140,7 +143,7 @@ package frame_timing_pack is
    ------------------------------------------------------------------------------------
    -- For data readout
    constant DEFAULT_NUM_ROWS_REPORTED : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000029";  -- 41 Rows by default.
-   constant DEFAULT_NUM_COLS_REPORTED : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000008";  -- 41 Rows by default.
+   constant DEFAULT_NUM_COLS_REPORTED : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000008";  -- 8 Columns by default.
 
 
 end frame_timing_pack;
