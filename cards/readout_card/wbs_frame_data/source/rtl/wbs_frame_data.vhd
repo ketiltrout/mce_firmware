@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2009/03/19 22:15:09 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2009/05/27 01:34:01 $> - <text> - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -87,6 +87,7 @@ port(
    num_rows_i                : in integer;
    num_rows_reported_i       : in integer;
    num_cols_reported_i       : in integer;
+   data_size_i               : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
    -- signal from frame_timing
    restart_frame_1row_post_i : in std_logic;
@@ -250,7 +251,6 @@ architecture rtl of wbs_frame_data is
    signal rect_dat         : std_logic_vector(RECT_RAM_WIDTH-1 DOWNTO 0);
    signal data_size_int    : integer range 0 to 2**RECT_ADDR_WIDTH;
    signal data_size        : std_logic_vector(RECT_ADDR_WIDTH-1 DOWNTO 0);
-   signal rect_rd_addr_dec : std_logic;
    
    ------------------------------------------------------------------------------------------------
    -- Signals used for reading data out from the raw_mode_ram
@@ -518,8 +518,11 @@ begin
       q         => rect_dat   
    );
 
-   data_size_int     <= num_rows_reported_i * num_cols_reported_i;
-   data_size         <= conv_std_logic_vector(data_size_int, RECT_ADDR_WIDTH);
+--   data_size_int     <= num_rows_reported_i * num_cols_reported_i;
+--   data_size         <= conv_std_logic_vector(data_size_int, RECT_ADDR_WIDTH);
+   
+   -- data_size determines the start index of the readout pointer.
+   data_size <= data_size_i(RECT_ADDR_WIDTH-1 downto 0);
    -- The next read index is the one that is behind by data_size.
    -- rect_rd_addr may need some special handling to handle latency from the ram and to back up by a rectangle of indexes when read comes in....
    -- Actually not!  Latency is taken into account by the Wishbone interface!  It assumes that there is 1-cycle delay between the assertion of an address and valid data output
@@ -766,7 +769,6 @@ begin
    output_fsm: process (current_state, addr_i, stb_i, cyc_i, data_mode)
    begin
       -- default states
-      rect_rd_addr_dec      <= '0';
       data_mode_wren        <= '0';
       readout_row_wren      <= '0';
       readout_col_wren      <= '0';
@@ -778,7 +780,6 @@ begin
 
       case current_state is
       when IDLE  => 
-         rect_rd_addr_dec <= '1';
          
       when WR =>
          ack_o <= '1';
