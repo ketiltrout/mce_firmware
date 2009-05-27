@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.12  2008/10/03 00:34:16  mandana
+-- BB: Removed the z-term sign extension in fsfb_proc_pidz.vhd, and the [d-term + z-term] adder to free up DSP resources since the z-term is always = 0.
+--
 -- Revision 1.11  2007/03/21 17:13:00  mandana
 -- removed unused wtemp_reg
 --
@@ -644,10 +647,14 @@ begin
    
    -- Output results 
    fsfb_proc_pidz_sum_o    <= pidz_sum_reg;
-   fsfb_proc_pidz_update_o <= calc_shift_state(6) when lock_mode_en_i = '1' else '0';      
-   
+   fsfb_proc_pidz_update_o <= calc_shift_state(6) when lock_mode_en_i = '1' else '0';
    fsfb_proc_fltr_sum_o    <= fltr2_sum_reg;
-   fsfb_proc_fltr_update_o <= calc_shift_state(11) when lock_mode_en_i = '1' else '0';
+   
+   -- This had a pointless control signal choking it.
+   -- The filter does alter the feedback and therefore values can be writted to regardless of being in lock mode or not.
+   -- We clear the filter when servo mode changes, and when the servo is off, zero inputs effectively null the servo.
+   fsfb_proc_fltr_update_o <= calc_shift_state(11); -- when lock_mode_en_i = '1' else '0';
+   
    wn10_dat_o              <= wn10_reg(FILTER_DLY_WIDTH-1 downto 0);
    wn20_dat_o              <= wn20_reg(FILTER_DLY_WIDTH-1 downto 0);
 end rtl;
