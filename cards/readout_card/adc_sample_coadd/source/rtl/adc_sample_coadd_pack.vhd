@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.8  2009/04/09 19:10:44  bburger
+-- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
+--
 -- Revision 1.7  2009/03/19 21:24:41  bburger
 -- BB: Split up the constant ADC_LATENCY into ADC_LATENCY_REVA/C and moved them into readout_card_pack.vhd
 --
@@ -81,57 +84,9 @@ package adc_sample_coadd_pack is
   constant TOTAL_ROW_NO              : integer := 64;
   constant FSFB_DONE_DLY             : integer := 6;
   constant NUMB_RAW_FRM_TO_GRAB      : integer := 2;                    -- =#of raw frames to grab
-  constant USED_RAW_DAT_WIDTH        : integer := 14;                    -- Number of ADC output bits to be saved
   constant RAW_DATA_POSITION_POINTER : integer := 13;--USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
   
 
-  
-  -----------------------------------------------------------------------------
-  -- Raw data storage component
-  -----------------------------------------------------------------------------
-
-  component raw_dat_bank
-    port (
-      data      : in  std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
-      wren      : in  std_logic;
-      wraddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      rdaddress : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      clock     : in  std_logic;
-      q         : out std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0));
-  end component;
-
-  
-  -----------------------------------------------------------------------------
-  -- Raw Data Manager Data Path.
-  -----------------------------------------------------------------------------
-
-  component raw_dat_manager_data_path
-    generic (
-      ADDR_WIDTH : integer := RAW_ADDR_WIDTH);
-    port (
-      rst_i        : in  std_logic;
-      clk_i        : in  std_logic;
-      clr_index_i  : in  std_logic;
-      addr_index_o : out std_logic_vector (ADDR_WIDTH-1 downto 0));
-  end component;
-
-
-  -----------------------------------------------------------------------------
-  -- Raw Data Manager Controller
-  -----------------------------------------------------------------------------
-
-  component raw_dat_manager_ctrl
-    port (
-      rst_i                   : in  std_logic;
-      clk_i                   : in  std_logic;
-      restart_frame_aligned_i : in  std_logic;
-      raw_req_i               : in  std_logic;
-      clr_raw_addr_index_o    : out std_logic;
-      raw_wren_o              : out std_logic;
-      raw_ack_o               : out std_logic);
-  end component;
-
-  
   -----------------------------------------------------------------------------
   -- Coadd Manager and Dynamic Data Manager Storage Component
   -----------------------------------------------------------------------------
