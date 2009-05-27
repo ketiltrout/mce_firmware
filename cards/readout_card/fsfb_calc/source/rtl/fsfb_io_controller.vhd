@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.7  2008/10/03 00:32:57  mandana
+-- BB: Adjusted the indentation in fsfb_io_controller.vhd to make the file more readable.
+--
 -- Revision 1.6  2005/12/12 23:53:29  mandana
 -- added filter-related interface
 -- changed fsfb_flux_cnt_queue to flux_cnt_queue for consistancy
@@ -142,8 +145,9 @@ entity fsfb_io_controller is
 
       -- fsbfb_fltr (filter) interface
       fsfb_fltr_wr_data_o             : out    std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- write data to the filter queue
-      fsfb_fltr_wr_addr_o             : out    std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  -- write address to the filter queue
-      fsfb_fltr_rd_addr_o             : out    std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  -- read address to the filter queue
+      -- Increased the width of the addresses by 1 to make filtered data available on demand
+      fsfb_fltr_wr_addr_o             : out    std_logic_vector(FLTR_QUEUE_ADDR_WIDTH downto 0);  -- write address to the filter queue
+      fsfb_fltr_rd_addr_o             : out    std_logic_vector(FLTR_QUEUE_ADDR_WIDTH downto 0);  -- read address to the filter queue
       fsfb_fltr_wr_en_o               : out    std_logic;                                           -- write enable to the fsfb filter queue
       fsfb_fltr_rd_data_i             : in     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- read data from the filter queue
 
@@ -318,7 +322,6 @@ begin
    end process wr_addr_counter;
       
    fsfb_queue_wr_addr_o <= wr_addr;
-   fsfb_fltr_wr_addr_o  <= wr_addr;
    
    -- The write address output of the flux cnt queue is same as that of the fsfb_ctrl; this is because
    -- the written data (newly updated flux cnt) corresponds to the same row the fsfb_ctrl currently processes
@@ -358,8 +361,11 @@ begin
 
    -- Directly connect to the rdaddress_a input of fsfb/flux_cnt/fltr queues
    fsfb_queue_rd_addra_o     <= fsfb_ws_addr_i;
-   fsfb_fltr_rd_addr_o       <= fsfb_ws_fltr_addr_i;   
    flux_cnt_queue_rd_addra_o <= fsfb_ws_addr_i;
+
+   -- BB: to make filtered data available on demand
+   fsfb_fltr_wr_addr_o <= even_odd_delayed_inv & wr_addr;
+   fsfb_fltr_rd_addr_o <= even_odd             & fsfb_ws_fltr_addr_i;   
    
    -- Read data control (bank 0 and 1, port a)
    fsfb_ws_dat_o <= 
