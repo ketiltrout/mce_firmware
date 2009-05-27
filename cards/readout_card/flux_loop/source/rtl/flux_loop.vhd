@@ -80,6 +80,7 @@ port (
    num_rows_i                : in integer;
    num_rows_reported_i       : in integer;
    num_cols_reported_i       : in integer;
+   data_size_i               : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
    -- signals to/from dispatch  (wishbone interface)
    dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
@@ -1152,13 +1153,13 @@ begin  -- struct
       num_rows_i          => num_rows_i,
       num_rows_reported_i => num_rows_reported_i,
       num_cols_reported_i => num_cols_reported_i,
+      data_size_i         => data_size_i,
       raw_addr_o          => raw_rd_addr,       
       raw_dat_i           => raw_dat,     
       raw_req_o           => raw_dat_req,     
       raw_ack_i           => raw_dat_ack,     
       readout_col_index_o => raw_chan,
       restart_frame_aligned_i => restart_frame_aligned_i,
-
       restart_frame_1row_post_i => restart_frame_1row_post_i,        
       filtered_addr_ch0_o => filtered_addr_ch0,
       filtered_dat_ch0_i  => filtered_dat_ch0,

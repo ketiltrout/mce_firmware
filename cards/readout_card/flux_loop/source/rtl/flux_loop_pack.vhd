@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.18  2009/05/27 01:24:40  bburger
+-- BB: Added raw-data components, new to v5.x from 4.0.d
+--
 -- Revision 1.17  2009/03/19 21:31:53  bburger
 -- BB:
 -- - Added the ADC_LATENCY generic to generalize this block for Readout Card Rev. C
@@ -344,6 +347,7 @@ package flux_loop_pack is
       num_rows_i          : in  integer;
       num_rows_reported_i : in integer;
       num_cols_reported_i : in integer;
+      data_size_i         : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
       raw_addr_o          : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address 
       raw_dat_i           : in  std_logic_vector (RAW_RAM_WIDTH-1 downto 0);  -- raw data 
       raw_req_o           : out std_logic;                                        -- raw data request 

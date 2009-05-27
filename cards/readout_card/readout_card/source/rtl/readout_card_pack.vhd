@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.12  2009/05/27 01:31:27  bburger
+-- BB: Added constant COL_ADDR_WIDTH
+--
 -- Revision 1.11  2009/03/19 22:06:34  bburger
 -- BB:
 -- - Added constants ADC_LATENCY_REVA/C
@@ -86,6 +89,7 @@ package readout_card_pack is
       num_rows_i                : in  integer;
       num_rows_reported_i       : in integer;
       num_cols_reported_i       : in integer;
+      data_size_i               : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
       adc_coadd_en_i            : in  std_logic;
       restart_frame_1row_prev_i : in  std_logic;
       restart_frame_aligned_i   : in  std_logic;
