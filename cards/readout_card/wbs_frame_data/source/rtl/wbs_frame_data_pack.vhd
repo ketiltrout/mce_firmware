@@ -29,9 +29,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/08/04 12:13:07 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2008/12/22 20:35:44 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.15  2008/12/22 20:35:44  bburger
+-- BB:  Added a comment concerning a constant that is not used anymore.
+--
 -- Revision 1.14  2008/08/04 12:13:07  mandana
 -- data mode 10 added for mixed filtfb and flux-jump counter (more filtfb bits for planet observation)
 --
@@ -84,6 +87,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
 
 library work;
 use work.readout_card_pack.all;
@@ -96,25 +100,44 @@ use sys_param.wishbone_pack.all;
 
 package wbs_frame_data_pack is
 
-constant CH_MUX_SEL_WIDTH  : integer := 3;
-constant DAT_MUX_SEL_WIDTH : integer := 4;
+   constant CH_MUX_SEL_WIDTH  : integer := 3;
+   
+   ------------------------------------------------------------------------------------------------
+   -- Data Modes
+   ------------------------------------------------------------------------------------------------
+   constant MODE0_ERROR         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
+   constant MODE1_UNFILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
+   constant MODE2_FILTERED      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000002";
+   -- Mode 3 is the old raw mode (all 8 columns)
+   constant MODE3_RAW           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000003";
+   constant MODE4_FB_ERROR      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000004";
+   constant MODE5_FB_FLX_CNT    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
+   -- Mode 6 is obsolete because mode 7 is a better solution
+   constant MODE6_FILT_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
+   constant MODE7_FILT_ERROR2   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000007";
+   -- Mode 8 was mixed data: 24b filtered fb + 8b flux-jump counter (revision 4.0.4 only)
+   constant MODE8_FILT_ERROR3   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000008";
+   constant MODE9_FILT_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000009";
+   constant MODE10_FILT_FLX_CNT : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000a";
+   constant MODE11_PIXEL_ADDR   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000b";
+   -- Mode 12 is the new raw mode (1 column)
+   constant MODE12_RAW_1_COL    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000c";
 
-constant PIXEL_ADDR_MAX    : integer := NO_CHANNELS * NUM_OF_ROWS;
+   ------------------------------------------------------------------------------------------------
+   -- Rectangle Mode Storage RAM
+   ------------------------------------------------------------------------------------------------
+   constant RECT_ADDR_WIDTH         : integer := 11;                   
+   constant RECT_RAM_WIDTH          : integer := 32;                  
 
-constant RAW_ADDR_MAX      : integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
-
--- This is now obsolete.  This parameter is set by the user.
-constant CH_MUX_INIT       : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0) := (others => '0');
-
-constant MODE0_ERROR       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
-constant MODE1_UNFILTERED  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
-constant MODE2_FILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000002";
-constant MODE3_RAW         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000003";
-constant MODE4_FB_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000004";
-constant MODE5_FB_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
-constant MODE6_FILT_ERROR  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
-constant MODE7_FILT_ERROR2 : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000007";
-constant MODE9_FILT_FLX_CNT: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000009";
-constant MODE10_FILT_FLX_CNT: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"0000000a";
+   component rectangle_ram_bank
+   PORT (
+      clock    : IN STD_LOGIC ;
+      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+      rdaddress      : IN STD_LOGIC_VECTOR (10 DOWNTO 0);
+      wraddress      : IN STD_LOGIC_VECTOR (10 DOWNTO 0);
+      wren     : IN STD_LOGIC  := '1';
+      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+   );
+   END component;
 
 end package;
