@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch.vhd,v $
+-- Revision 1.15  2008/12/22 20:29:13  bburger
+-- BB:  Added a second LVDS reply channel to dispatch
+--
 -- Revision 1.14  2007/12/18 20:21:06  bburger
 -- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
 --
@@ -119,8 +122,9 @@ port(
    err_i  : in std_logic;
 
    -- misc. external interface
-   wdt_rst_o : out std_logic;
-   slot_i    : in std_logic_vector(3 downto 0);
+   wdt_rst_o   : out std_logic;
+   slot_i      : in std_logic_vector(3 downto 0);
+   data_size_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
    -- test interface
    dip_sw3 : in std_logic;
@@ -302,6 +306,7 @@ begin
    -- Storage for Headers and Data
    ---------------------------------------------------------
 
+   data_size_o <= cmd_header0(BB_DATA_SIZE'range);
    hdr0 : reg
    generic map(WIDTH => 32)
    port map(

@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/12/22 20:26:29 $>    - <initials $Author: bburger $>
+-- <date $Date: 2009/01/16 01:31:20 $>    - <initials $Author: bburger $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.7  2009/01/16 01:31:20  bburger
+-- BB: renamed some output signals on all_cards to conform to the wishbone standard.
+--
 -- Revision 1.6  2008/12/22 20:26:29  bburger
 -- BB:  Added a second LVDS reply channel to dispatch
 --
@@ -149,7 +152,7 @@ package all_cards_pack is
 
    -----------------------------------------------------------------------------
    -- slot_id component
-   -- OBSOLETE: use all_cards instead!
+   -- OBSOLETE: use all_cards bp_slot_id instead!
    -----------------------------------------------------------------------------
    component bp_slot_id
       port (
@@ -199,6 +202,7 @@ package all_cards_pack is
          -- misc. external interface
          wdt_rst_o : out std_logic;
          slot_i    : in std_logic_vector(3 downto 0);
+         data_size_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
          dip_sw3 : in std_logic;
          dip_sw4 : in std_logic
