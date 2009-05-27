@@ -32,6 +32,11 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.17  2009/03/19 21:31:53  bburger
+-- BB:
+-- - Added the ADC_LATENCY generic to generalize this block for Readout Card Rev. C
+-- - Removed unused signals adc_ovr_i, adc_rdy_i, adc_clk_o from interface
+--
 -- Revision 1.16  2009/01/16 02:10:48  bburger
 -- BB:  Added interface signals to wbs_frame_data for column readout
 --
@@ -128,11 +133,15 @@ package flux_loop_pack is
    constant FLUX_QUANTA_MIN        : integer := 0;  -- Flux Quanta are always positive numbers.
    
    -- Wishbone frame data specific
-   constant RAW_DATA_WIDTH         : integer := 16;
-   constant RAW_ADDR_WIDTH         : integer := 13;                   -- enough for two frame
+   constant RAW_DATA_WIDTH         : integer := ADC_DAT_WIDTH;
+   constant RAW_ADDR_WIDTH         : integer := 16;                   
+   constant RAW_RAM_WIDTH          : integer := 14;                  
+   constant RAW_ADDR_MAX           : std_logic_vector(RAW_ADDR_WIDTH DOWNTO 0) := "01111111111111111";
+   -- This is the offset buy which the raw data address preceeds the raw data output register = 2
+   constant RAW_OFFSET_MAX         : std_logic_vector(RAW_ADDR_WIDTH DOWNTO 0) := "00000000000000001";
+   constant RAW_NULL_DATA          : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"80000000";
    
    -- Flux Loop Control Specific
-   constant RAW_DAT_WIDTH          : integer := RAW_DATA_WIDTH;       -- two bytes
    constant COADD_ADDR_WIDTH       : integer := ROW_ADDR_WIDTH;
    constant FLUX_QUANTA_CNT_WIDTH  : integer := 8;
 
@@ -146,6 +155,22 @@ package flux_loop_pack is
    constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
    constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
+   -----------------------------------------------------------------------------
+   -- Raw Data/ Rectangle Mode RAM Bank
+   -----------------------------------------------------------------------------
+--   constant RAW_DATA_RAM_DATA_WIDTH : integer := 13;
+--   constant RAW_DATA_RAM_ADDR_WIDTH : integer := 12;
+
+   component raw_ram_bank
+   port (
+      clock    : IN STD_LOGIC ;
+      data     : IN STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0);
+      rdaddress      : IN STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+      wraddress      : IN STD_LOGIC_VECTOR (RAW_ADDR_WIDTH-1 DOWNTO 0);
+      wren     : IN STD_LOGIC  := '1';
+      q     : OUT STD_LOGIC_VECTOR (RAW_RAM_WIDTH-1 DOWNTO 0)
+   );
+   end component;
    
    -----------------------------------------------------------------------------
    -- Flux Loop Control Block
@@ -175,10 +200,6 @@ package flux_loop_pack is
       dac_dat_en_i                : in  std_logic;
       coadded_addr_i              : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
       coadded_dat_o               : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-      raw_addr_i                  : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_o                   : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-      raw_req_i                   : in  std_logic;
-      raw_ack_o                   : out std_logic;
       fsfb_addr_i                 : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
       fsfb_dat_o                  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       flux_cnt_ws_dat_o           : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
@@ -323,6 +344,12 @@ package flux_loop_pack is
       num_rows_i          : in  integer;
       num_rows_reported_i : in integer;
       num_cols_reported_i : in integer;
+      raw_addr_o          : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address 
+      raw_dat_i           : in  std_logic_vector (RAW_RAM_WIDTH-1 downto 0);  -- raw data 
+      raw_req_o           : out std_logic;                                        -- raw data request 
+      raw_ack_i           : in  std_logic;                                        -- raw data acknowledgement 
+      readout_col_index_o : out std_logic_vector (COL_ADDR_WIDTH-1 downto 0);     -- readout column index for column-readout mode (raw)      
+      restart_frame_aligned_i : in std_logic;
       restart_frame_1row_post_i : in  std_logic;      
       filtered_addr_ch0_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch0_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
@@ -331,10 +358,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch0_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch0_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch0_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch0_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch0_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch0_o       : out std_logic;
-      raw_ack_ch0_i       : in  std_logic;
       filtered_addr_ch1_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch1_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch1_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -342,10 +365,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch1_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch1_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch1_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch1_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch1_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch1_o       : out std_logic;
-      raw_ack_ch1_i       : in  std_logic;
       filtered_addr_ch2_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch2_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch2_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -353,10 +372,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch2_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch2_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch2_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch2_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch2_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch2_o       : out std_logic;
-      raw_ack_ch2_i       : in  std_logic;
       filtered_addr_ch3_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch3_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch3_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -364,10 +379,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch3_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch3_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch3_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch3_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch3_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch3_o       : out std_logic;
-      raw_ack_ch3_i       : in  std_logic;
       filtered_addr_ch4_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch4_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch4_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -375,10 +386,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch4_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch4_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch4_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch4_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch4_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch4_o       : out std_logic;
-      raw_ack_ch4_i       : in  std_logic;
       filtered_addr_ch5_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch5_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch5_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -386,10 +393,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch5_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch5_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch5_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch5_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch5_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch5_o       : out std_logic;
-      raw_ack_ch5_i       : in  std_logic;
       filtered_addr_ch6_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch6_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch6_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -397,10 +400,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch6_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch6_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch6_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch6_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch6_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch6_o       : out std_logic;
-      raw_ack_ch6_i       : in  std_logic;
       filtered_addr_ch7_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch7_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch7_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
@@ -408,10 +407,6 @@ package flux_loop_pack is
       flux_cnt_dat_ch7_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch7_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch7_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      raw_addr_ch7_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-      raw_dat_ch7_i       : in  std_logic_vector (RAW_DATA_WIDTH-1 downto 0);
-      raw_req_ch7_o       : out std_logic;
-      raw_ack_ch7_i       : in  std_logic;
       dat_i               : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i              : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
       tga_i               : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
