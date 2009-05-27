@@ -32,6 +32,13 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.11  2009/03/19 22:06:34  bburger
+-- BB:
+-- - Added constants ADC_LATENCY_REVA/C
+-- - Added generic ADC_LATENCY to flux_loop interface
+-- - Removed unused signals adc_ovr, adc_rdy, adc_clk from flux_loop interface
+-- - Added components adc_pll_stratix_iii, adc_serdes, flipflop_56, flipflop_112
+--
 -- Revision 1.10  2009/01/23 23:49:36  bburger
 -- BB:  Adding new files for Readout Card rev. C.  Also regenerated the following RAM blocks for the new revision:  pid_ram, ram_14x64, wbs_fb_storage.
 --
@@ -57,6 +64,8 @@ package readout_card_pack is
    constant ADC_LATENCY_REVC          : integer := 11;  
 
    constant ROW_ADDR_WIDTH         :  integer := 6;
+   constant COL_ADDR_WIDTH         : integer := 3;
+  
    constant FSFB_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- address width of first stage feedback queue 
 
    constant ADC_DAT_WIDTH          : integer := 14;
