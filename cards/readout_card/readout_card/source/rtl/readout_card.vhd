@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.77.2.2  2009/04/24 03:56:37  bburger
+-- BB:  Added cases for READOUT_COL_INDEX_ADDR to the wishbone glue logic
+--
 -- Revision 1.77.2.1  2009/04/22 00:43:34  bburger
 -- BB: version 0400000d
 --
@@ -430,7 +433,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000d"; -- 12b pid pars , sa_bias/offset updated only when modified
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000e"; -- 12b pid pars , sa_bias/offset updated only when modified
                                                                      -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
                                                                      -- removed quartus.ini from synth directory
 -- Global signals
