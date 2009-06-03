@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.48 2008/10/17 00:33:10 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.49 2008/10/25 00:24:54 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.49  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.48  2008/10/17 00:33:10  bburger
 -- BB:  modified the logic for calculating the reply data size because of the cards_to_report command
 --
@@ -108,6 +111,7 @@ entity reply_queue is
       issue_sync_i        : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       cmd_code_i          : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
       step_value_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_timing_err_i   : in std_logic;
 
       -- cmd_translator interface
       over_temperature_o  : out std_logic;
@@ -134,6 +138,7 @@ entity reply_queue is
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  : in integer;
+      num_cols_to_read_i  : in integer;
       ramp_card_addr_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -304,6 +309,7 @@ architecture behav of reply_queue is
    signal word_ack             : std_logic;
 
    -- Register Signals
+   signal num_cols_reported    : std_logic_vector(3 downto 0);
    signal cmd_code             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
    signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
    signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
@@ -569,6 +575,7 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          if(num_cards_reg_en = '1') then
             if(cmd_code = DATA) then
+               if(card_addr = ALL_READOUT_CARDS) then
                if(rcs_to_report_data_i(5 downto 2) = "0000") then
                   num_cards <= x"0";
                elsif(rcs_to_report_data_i(5 downto 2) = "1111") then
@@ -582,6 +589,10 @@ begin
                else
                   num_cards <= x"2";
                end if;
+               -- Otherwise, if the card_addr is RC1/ RC2/ RC3/ RC4.
+            else
+                  num_cards <= x"1";
+               end if;           
             else
                if(card_addr = NO_CARDS) then
                   num_cards <= x"0";
@@ -686,7 +697,8 @@ begin
    -- This status bits are monitored in snapshots.
    -- They are included in the status header of every data frame
    -- What happens in between each frame is not recorded, except for resets and errors (i.e. Clock Card reset, or Sync Box error).
-   bit_status_i <= x"0000" & "00" & rcs_responding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
+   num_cols_reported <= conv_std_logic_vector(num_cols_to_read_i, 4);   
+   bit_status_i <= "00000000000" & data_timing_err_i & num_cols_reported & "00" & rcs_responding & "00000" & active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
 
    bit_status_reg: reg
       generic map(
@@ -941,6 +953,7 @@ begin
          frame_status                                  when TX_FRAME_STATUS,
          frame_seq_num                                 when TX_FRAME_SEQUENCE_NUM,
          conv_std_logic_vector(row_len_i,32)           when TX_ROW_LEN,
+         -- Should we embed num_cols_to_read in the header too?
          conv_std_logic_vector(num_rows_to_read_i, 32) when TX_NUM_ROWS_TO_READ,
          data_rate_i                                   when TX_DATA_RATE,
          issue_sync_num                                when TX_SYNC_NUM,
@@ -951,7 +964,9 @@ begin
          external_dv_num_i                             when TX_DV_NUM,
          run_file_id_i                                 when TX_RUN_FILE_ID,
          user_writable_i                               when TX_USER_WRITABLE,
+-- Temporary change for debugging the stop command problems
          head_data                                     when TX_HEADER,
+--         (others => '1')                               when TX_HEADER,
          (others => '0')                               when others;
 
 

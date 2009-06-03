@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.11 2008/10/17 00:30:29 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.12 2008/10/25 00:24:54 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.12  2008/10/25 00:24:54  bburger
+-- BB:  Added support for RCS_TO_REPORT_DATA command
+--
 -- Revision 1.11  2008/10/17 00:30:29  bburger
 -- BB:  added support for the stop_dly and cards_to_report commands
 --
@@ -251,8 +254,8 @@ package clk_card_pack is
       sync_mode_o          : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       encoded_sync_o       : out std_logic;
       external_sync_i      : in std_logic;
-      row_len_o            : out integer;
-      num_rows_o           : out integer;
+      row_len_i            : in integer;
+      num_rows_i           : in integer;
 
       -- Wishbone interface
       dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -314,7 +317,8 @@ package clk_card_pack is
       user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_delay_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
-      num_rows_to_read_o     : out integer;
+--      num_rows_to_read_o     : out integer;
+--      num_cols_to_read_o     : out integer;
       cards_present_i        : in std_logic_vector(9 downto 0);
       cards_to_report_o      : out std_logic_vector(9 downto 0);
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
@@ -436,6 +440,7 @@ package clk_card_pack is
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
       num_rows_to_read_i     : in integer;
+      num_cols_to_read_i     : in integer;
       ret_dat_req_i          : in std_logic;
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);

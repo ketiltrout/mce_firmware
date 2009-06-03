@@ -1,4 +1,0 @@
-".\output\SCUBA2PS.obj" 
-TO ".\output\PSC_3p2" 
-PRINT(".\output\PSC_3p2.m51") RAMSIZE(256) 
-XDATA( 0X0000-0X03FF )

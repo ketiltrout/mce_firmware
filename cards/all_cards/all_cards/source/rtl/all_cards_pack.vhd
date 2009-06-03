@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2007/07/25 19:27:34 $>    - <initials $Author: bburger $>
+-- <date $Date: 2008/01/26 01:10:10 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.5  2008/01/26 01:10:10  mandana
+-- added all_cards slave to integrate fw_rev, slot_id, card_type, scratch
+--
 -- Revision 1.4  2007/07/25 19:27:34  bburger
 -- BB:  Cosmetic changes
 --
@@ -69,10 +72,12 @@ package all_cards_pack is
    -- all_cards component
    -----------------------------------------------------------------------------
    component all_cards
-   generic ( REVISION: std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"01010000"; 
+      generic( 
+         REVISION: std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"01010000";
              CARD_TYPE: std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := b"111"
              );
-   port(clk_i   : in std_logic;
+      port(
+         clk_i   : in std_logic;
         rst_i   : in std_logic;
 
         -- Wishbone signals
@@ -83,9 +88,9 @@ package all_cards_pack is
         stb_i   : in std_logic;
         cyc_i   : in std_logic;
         slot_id_i         : in std_logic_vector(SLOT_ID_BITS-1 downto 0);
-        err_all_cards_o   : out std_logic;
-        qa_all_cards_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-        ack_all_cards_o   : out std_logic
+         err_o   : out std_logic;
+         dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         ack_o   : out std_logic
       );
    end component;
    
@@ -110,7 +115,8 @@ package all_cards_pack is
       -- LED outputs
       power   : out std_logic;
       status  : out std_logic;
-      fault   : out std_logic);
+         fault   : out std_logic
+      );
    end component;
 
    -----------------------------------------------------------------------------
@@ -118,8 +124,11 @@ package all_cards_pack is
    -- OBSOLETE: use all_cards instead!
    -----------------------------------------------------------------------------
    component fw_rev
-   generic ( REVISION: std_logic_vector(31 downto 0) := X"01010000");
-   port(clk_i   : in std_logic;
+      generic(
+         REVISION: std_logic_vector(31 downto 0) := X"01010000"
+      );
+      port(
+         clk_i   : in std_logic;
         rst_i   : in std_logic;
 
         -- Wishbone signals
@@ -137,7 +146,7 @@ package all_cards_pack is
 
    -----------------------------------------------------------------------------
    -- slot_id component
-   -- OBSOLETE: use all_cards instead!
+   -- OBSOLETE: use all_cards bp_slot_id instead!
    -----------------------------------------------------------------------------
    component bp_slot_id
    port (
@@ -155,7 +164,8 @@ package all_cards_pack is
       cyc_i   : in std_logic;
       err_o   : out std_logic;
       dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o   : out std_logic);
+         ack_o   : out std_logic
+      );
    end component;
 
    -----------------------------------------------------------------------------
@@ -187,7 +197,8 @@ package all_cards_pack is
       slot_i    : in std_logic_vector(3 downto 0);
 
       dip_sw3 : in std_logic;
-      dip_sw4 : in std_logic);
+         dip_sw4 : in std_logic
+      );
    end component;
 
    -----------------------------------------------------------------------------
@@ -204,6 +215,10 @@ package all_cards_pack is
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
       sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+         row_len_o                  : out integer;
+         num_rows_o                 : out integer;
+         num_rows_reported_o     : out integer;
+         num_cols_reported_o     : out integer;
 
       -- Address Card interface
       row_switch_o               : out std_logic;
@@ -226,7 +241,8 @@ package all_cards_pack is
       clk_i                      : in std_logic;
       clk_n_i                    : in std_logic;
       rst_i                      : in std_logic;
-      sync_i                     : in std_logic);
+         sync_i                     : in std_logic
+      );
    end component;
 
    -----------------------------------------------------------------------------
@@ -251,7 +267,8 @@ package all_cards_pack is
       -- SMBus temperature sensor signals
       smbclk_o : out std_logic;
       smbalert_i : in std_logic;
-      smbdat_io : inout std_logic);
+         smbdat_io : inout std_logic
+      );
    end component;
 
    -----------------------------------------------------------------------------
@@ -273,7 +290,8 @@ package all_cards_pack is
       dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic;
 
-      data_io : inout std_logic);
+         data_io : inout std_logic
+      );
    end component;
 
 end all_cards_pack;
