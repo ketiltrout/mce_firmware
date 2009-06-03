@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch.vhd,v $
+-- Revision 1.14  2007/12/18 20:21:06  bburger
+-- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
+--
 -- Revision 1.13  2006/04/03 19:38:52  mandana
 -- make mainline adhere Rev. C backplane slot ids
 --
@@ -94,7 +97,8 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 entity dispatch is
-port(clk_i      : in std_logic;
+port(
+   clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
 
@@ -116,16 +120,19 @@ port(clk_i      : in std_logic;
      -- misc. external interface
      wdt_rst_o : out std_logic;
      slot_i    : in std_logic_vector(3 downto 0);
+   data_size_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
      -- test interface
      dip_sw3 : in std_logic;
-     dip_sw4 : in std_logic);
+   dip_sw4 : in std_logic
+);
 end dispatch;
 
 architecture rtl of dispatch is
 
 component dispatch_cmd_receive
-port(clk_i       : in std_logic;
+   port(
+      clk_i       : in std_logic;
      comm_clk_i  : in std_logic;
      rst_i       : in std_logic;
      lvds_cmd_i  : in std_logic;
@@ -137,11 +144,13 @@ port(clk_i       : in std_logic;
      buf_data_o  : out std_logic_vector(31 downto 0);
      buf_addr_o  : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      buf_wren_o  : out std_logic;
-     dip_sw      : in std_logic);
+      dip_sw      : in std_logic
+   );
 end component;
 
 component dispatch_wishbone
-port(clk_i           : in std_logic;
+   port(
+      clk_i           : in std_logic;
      rst_i           : in std_logic;
      header0_i       : in std_logic_vector(31 downto 0);
      header1_i       : in std_logic_vector(31 downto 0);
@@ -161,20 +170,29 @@ port(clk_i           : in std_logic;
      dat_i           : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i           : in std_logic;
      err_i           : in std_logic;
-     wdt_rst_o       : out std_logic);
+      wdt_rst_o       : out std_logic
+   );
 end component;
 
 component dispatch_reply_transmit
-port(clk_i         : in std_logic;
+   port(
+      clk_i      : in std_logic;
      rst_i         : in std_logic;
      lvds_tx_o     : out std_logic;
      reply_start_i : in std_logic;
      reply_done_o  : out std_logic;
+
+      -- Command header words:
      header0_i     : in std_logic_vector(31 downto 0);
      header1_i     : in std_logic_vector(31 downto 0);
+
+      -- Buffer interface:
      buf_data_i    : in std_logic_vector(31 downto 0);
      buf_addr_o    : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-     dip_sw        : in std_logic);
+
+      -- test interface
+      dip_sw : in std_logic
+   );
 end component;
 
 type dispatch_states is (INITIALIZE, FETCH, EXECUTE, REPLY, DUMMY);
@@ -220,7 +238,8 @@ signal card : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 begin
 
    receiver : dispatch_cmd_receive
-   port map(clk_i        => clk_i,
+   port map(
+      clk_i        => clk_i,
             comm_clk_i   => comm_clk_i,
             rst_i        => rst_i,
             lvds_cmd_i   => lvds_cmd_i,
@@ -232,10 +251,12 @@ begin
             buf_data_o   => cmd_buf_data,
             buf_addr_o   => cmd_buf_addr,
             buf_wren_o   => cmd_buf_wren,
-            dip_sw       => dip_sw3);
+      dip_sw       => dip_sw3
+   );
 
    wishbone : dispatch_wishbone
-   port map(clk_i           => clk_i,
+   port map(
+      clk_i           => clk_i,
             rst_i           => rst_i,
             header0_i       => cmd_header0,
             header1_i       => cmd_header1,
@@ -255,10 +276,12 @@ begin
             dat_i           => dat_i,
             ack_i           => ack_i,
             err_i           => err_i,
-            wdt_rst_o       => wdt_rst_o);
+      wdt_rst_o       => wdt_rst_o
+   );
 
    transmitter : dispatch_reply_transmit
-   port map(clk_i         => clk_i,
+   port map(
+      clk_i         => clk_i,
             rst_i         => rst_i,
             lvds_tx_o     => lvds_reply_o,
             reply_start_i => reply_start,
@@ -267,31 +290,37 @@ begin
             header1_i     => reply_header1,
             buf_data_i    => buf_rddata,
             buf_addr_o    => reply_buf_addr,
-            dip_sw        => dip_sw4);
-
+      dip_sw        => dip_sw4
+   );
 
    ---------------------------------------------------------
    -- Storage for Headers and Data
    ---------------------------------------------------------
 
+   data_size_o <= cmd_header0(BB_DATA_SIZE'range);
    hdr0 : reg
    generic map(WIDTH => 32)
-   port map(clk_i => clk_i,
+   port map(
+      clk_i => clk_i,
             rst_i => rst_i,
             ena_i => header_ld,
             reg_i => rx_header0,
-            reg_o => cmd_header0);
+      reg_o => cmd_header0
+   );
 
    hdr1 : reg
    generic map(WIDTH => 32)
-   port map(clk_i => clk_i,
+   port map(
+      clk_i => clk_i,
             rst_i => rst_i,
             ena_i => header_ld,
             reg_i => rx_header1,
-            reg_o => cmd_header1);
+      reg_o => cmd_header1
+   );
 
    buf : altsyncram
-   generic map(operation_mode         => "DUAL_PORT",
+   generic map(
+      operation_mode         => "DUAL_PORT",
                width_a                => 32,
                widthad_a              => BB_DATA_SIZE_WIDTH,
                width_b                => 32,
@@ -307,12 +336,14 @@ begin
                outdata_aclr_b         => "NONE",
                ram_block_type         => "AUTO",
                intended_device_family => "Stratix")
-   port map(clock0    => clk_i,
+   port map(
+      clock0    => clk_i,
             wren_a    => buf_wren,
             address_a => buf_wraddr,
             data_a    => buf_wrdata,
             address_b => buf_rdaddr,
-            q_b       => buf_rddata);
+      q_b       => buf_rddata
+   );
 
 
    ---------------------------------------------------------
