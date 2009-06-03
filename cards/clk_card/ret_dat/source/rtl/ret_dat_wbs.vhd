@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.20 2009/01/16 01:55:31 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.21 2009/05/12 19:41:10 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -703,8 +703,6 @@ begin
        addr_i = TES_TGL_MAX_ADDR or
        addr_i = TES_TGL_MIN_ADDR or
        addr_i = TES_TGL_RATE_ADDR or
-       addr_i = NUM_ROWS_REPORTED_ADDR or
-       addr_i = NUM_COLS_REPORTED_ADDR or
        addr_i = INTERNAL_CMD_MODE_ADDR or
        addr_i = RAMP_STEP_PERIOD_ADDR or
        addr_i = RAMP_MIN_VAL_ADDR or
