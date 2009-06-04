@@ -1,14 +1,14 @@
-Fitter Status : Successful - Tue May 12 16:12:06 2009
+Fitter Status : Successful - Wed Jun 03 15:35:18 2009
 Quartus II Version : 8.1 Build 163 10/28/2008 SJ Full Version
 Revision Name : clk_card
 Top-level Entity Name : clk_card
 Family : Stratix
 Device : EP1S30F780C5
 Timing Models : Final
-Total logic elements : 18,286 / 32,470 ( 56 % )
-Total pins : 259 / 598 ( 43 % )
+Total logic elements : 15,023 / 32,470 ( 46 % )
+Total pins : 254 / 598 ( 42 % )
 Total virtual pins : 0
-Total memory bits : 1,537,536 / 3,317,184 ( 46 % )
+Total memory bits : 812,544 / 3,317,184 ( 24 % )
 DSP block 9-bit elements : 10 / 96 ( 10 % )
 Total PLLs : 1 / 6 ( 17 % )
 Total DLLs : 0 / 2 ( 0 % )
