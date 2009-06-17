@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.2  2009/03/19 22:13:38  bburger
+-- BB: Added the logic for the ADC deserializer, and removed the ADC signals that are no longer used.
+--
 -- Revision 1.1  2009/01/23 23:49:36  bburger
 -- BB:  Adding new files for Readout Card rev. C.  Also regenerated the following RAM blocks for the new revision:  pid_ram, ram_14x64, wbs_fb_storage.
 --
@@ -177,10 +180,8 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000001";
    
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000001"; -- 12b pid pars , sa_bias/offset updated only when modified
-                                                                        -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
-                                                                        -- removed quartus.ini from synth directory
    -- Global signals
    signal clk                     : std_logic; -- system clk
    signal comm_clk                : std_logic; -- communication clk
@@ -290,6 +291,8 @@ architecture top of readout_card_stratix_iii is
    signal num_rows                : integer;
    signal num_rows_reported       : integer;
    signal num_cols_reported       : integer;
+
+   signal data_size               : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
    
    -- DDR2 signals as copied from micro_ctrl_example_top.vhd generated from MegaWizard DDR2 SDRAM CTRL HP 8.1
    signal internal_mem_addr :  STD_LOGIC_VECTOR (12 DOWNTO 0);
@@ -483,6 +486,7 @@ begin
       err_i        => dispatch_err_in,
       wdt_rst_o    => wdog,
       slot_i       => slot_id,
+      data_size_o  => data_size,
       dip_sw3      => '1',
       dip_sw4      => '1'
    );
@@ -639,6 +643,7 @@ begin
       num_rows_i                => num_rows,
       num_rows_reported_i       => num_rows_reported,
       num_cols_reported_i       => num_cols_reported,
+      data_size_i               => data_size,
       adc_coadd_en_i            => adc_coadd_en,
       restart_frame_1row_prev_i => restart_frame_1row_prev,
       restart_frame_aligned_i   => restart_frame_aligned,
