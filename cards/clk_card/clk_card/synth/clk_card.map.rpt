@@ -1,5 +1,5 @@
 Analysis & Synthesis report for clk_card
-Tue Jun 16 13:19:57 2009
+Tue Jun 16 17:12:51 2009
 Quartus II Version 9.0 Build 184 04/29/2009 Service Pack 1 SJ Full Version
 
 
@@ -660,7 +660,7 @@ applicable agreement for further details.
 +-----------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                ;
 +-----------------------------+-----------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Tue Jun 16 13:19:57 2009         ;
+; Analysis & Synthesis Status ; Successful - Tue Jun 16 17:12:51 2009         ;
 ; Quartus II Version          ; 9.0 Build 184 04/29/2009 SP 1 SJ Full Version ;
 ; Revision Name               ; clk_card                                      ;
 ; Top-level Entity Name       ; clk_card                                      ;
@@ -11464,6 +11464,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 ; slot_i[2..1] ; Input  ; Info     ; Stuck at GND                                                                        ;
 ; slot_i[3]    ; Input  ; Info     ; Stuck at VCC                                                                        ;
 ; slot_i[0]    ; Input  ; Info     ; Stuck at VCC                                                                        ;
+; data_size_o  ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
 ; dip_sw3      ; Input  ; Info     ; Stuck at VCC                                                                        ;
 ; dip_sw4      ; Input  ; Info     ; Stuck at VCC                                                                        ;
 +--------------+--------+----------+-------------------------------------------------------------------------------------+
@@ -12318,14 +12319,15 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------+----------+----------------------------------------------------------------------------------------------------------+
 
 
-+--------------------------------------------------------+
-; Port Connectivity Checks: "dispatch:cc_dispatch_block" ;
-+---------+-------+----------+---------------------------+
-; Port    ; Type  ; Severity ; Details                   ;
-+---------+-------+----------+---------------------------+
-; dip_sw3 ; Input ; Info     ; Stuck at VCC              ;
-; dip_sw4 ; Input ; Info     ; Stuck at VCC              ;
-+---------+-------+----------+---------------------------+
++-----------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "dispatch:cc_dispatch_block"                                                                ;
++-------------+--------+----------+-------------------------------------------------------------------------------------+
+; Port        ; Type   ; Severity ; Details                                                                             ;
++-------------+--------+----------+-------------------------------------------------------------------------------------+
+; data_size_o ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; dip_sw3     ; Input  ; Info     ; Stuck at VCC                                                                        ;
+; dip_sw4     ; Input  ; Info     ; Stuck at VCC                                                                        ;
++-------------+--------+----------+-------------------------------------------------------------------------------------+
 
 
 +-------------------------------+
@@ -12334,7 +12336,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 9.0 Build 184 04/29/2009 Service Pack 1 SJ Full Version
-    Info: Processing started: Tue Jun 16 13:11:40 2009
+    Info: Processing started: Tue Jun 16 17:05:00 2009
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off clk_card -c clk_card
 Info: Found 1 design units, including 0 entities, in source file ../../../library/sys_param/source/rtl/command_pack.vhd
     Info: Found design unit 1: command_pack
@@ -12685,10 +12687,6 @@ Info: Elaborating entity "lvds_rx" for hierarchy "dispatch:cc_dispatch_block|dis
 Info: Elaborating entity "binary_counter" for hierarchy "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter"
 Info: Elaborating entity "shift_reg" for hierarchy "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_sample"
 Info: Elaborating entity "shift_reg" for hierarchy "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer"
-Warning: DELAY_RDUSEDW parameter is ignored for CLOCKS_ARE_SYNCHRONIZED == TRUE
-Warning: DELAY_WRUSEDW parameter is ignored for CLOCKS_ARE_SYNCHRONIZED == TRUE
-Warning: RDSYNC_DELAYPIPE parameter is ignored for CLOCKS_ARE_SYNCHRONIZED == TRUE
-Warning: WRSYNC_DELAYPIPE parameter is ignored for CLOCKS_ARE_SYNCHRONIZED == TRUE
 Info: Elaborating entity "dcfifo" for hierarchy "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer"
 Info: Elaborated megafunction instantiation "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer"
 Info: Instantiated megafunction "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer" with the following parameter:
@@ -13633,10 +13631,10 @@ Info: Implemented 20980 device resources after synthesis - the final resource co
     Info: Implemented 1416 RAM segments
     Info: Implemented 1 ClockLock PLLs
     Info: Implemented 10 DSP elements
-Info: Quartus II Analysis & Synthesis was successful. 0 errors, 214 warnings
-    Info: Peak virtual memory: 299 megabytes
-    Info: Processing ended: Tue Jun 16 13:19:59 2009
-    Info: Elapsed time: 00:08:19
-    Info: Total CPU time (on all processors): 00:08:04
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 210 warnings
+    Info: Peak virtual memory: 309 megabytes
+    Info: Processing ended: Tue Jun 16 17:12:53 2009
+    Info: Elapsed time: 00:07:53
+    Info: Total CPU time (on all processors): 00:07:45
 
 
