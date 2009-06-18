@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.84 2009/01/16 01:47:23 bburger Exp $
+-- $Id: clk_card.vhd,v 1.85 2009/05/12 01:59:12 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.85  2009/05/12 01:59:12  bburger
+-- BB: cc_v05000001
+--
 -- Revision 1.84  2009/01/16 01:47:23  bburger
 -- BB:  Adjusted interfaces at the top level to implement column data from the Readout Cards
 --
@@ -280,7 +283,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000001";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000002";
 
    -- reset
    signal rst                : std_logic;
