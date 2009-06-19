@@ -2,6 +2,32 @@
 
 <pin_planner>
 	<pin_info>
+		<pin name="adc0_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc0_lvds_p(n)" >
+		</pin>
+		<pin name="adc1_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc1_lvds_p(n)" >
+		</pin>
+		<pin name="adc2_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc2_lvds_p(n)" >
+		</pin>
+		<pin name="adc3_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc3_lvds_p(n)" >
+		</pin>
+		<pin name="adc4_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc4_lvds_p(n)" >
+		</pin>
+		<pin name="adc5_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc5_lvds_p(n)" >
+		</pin>
+		<pin name="adc6_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc6_lvds_p(n)" >
+		</pin>
+		<pin name="adc7_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc7_lvds_p(n)" >
+		</pin>
+		<pin name="adc_clk_p" direction="Output" source="Hierarchy Database" diff_pair_node="adc_clk_p(n)" >
+		</pin>
+		<pin name="adc_fco_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc_fco_p(n)" >
+		</pin>
+		<pin name="ddr_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_clk[0](n)" >
+		</pin>
+		<pin name="ddr_dqs[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqs[1](n)" >
+		</pin>
+		<pin name="ddr_dqs[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqs[0](n)" >
+		</pin>
 		<pin name="mem_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk[0](n)" >
 		</pin>
 		<pin name="mem_clk_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk_n[0](n)" >
