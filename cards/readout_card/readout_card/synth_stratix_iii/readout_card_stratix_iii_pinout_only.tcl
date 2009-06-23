@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.5 2009/03/23 14:50:08 mandana Exp $
+# $Id: readout_card_stratix_iii_pinout_only.tcl,v 1.1 2009/06/19 00:01:43 bburger Exp $
 
 
 
@@ -31,57 +31,43 @@ set top_name [get_project_settings -cmp]
 puts "Info: Top-level entity is $top_name."
 
 
-#####################################################
-# Not sure if we need these
-#####################################################
-#cd ../../ddr2_sdram_ctrl/source/rtl/
-#source micron_ctrl_pin_assignments.tcl
-#cd ../../../readout_card/synth_stratix_iii/
-#
-## include Quartus Tcl API
-#package require ::quartus::flow
-#
-#set_location_assignment PIN_AC28 -to ddr_shutdown_n
-#set_location_assignment PIN_D27 -to termination_blk0~_rup_pad
-#set_location_assignment PIN_C28 -to termination_blk0~_rdn_pad
-#cmp add_assignment $top_name "" "pll_l2_out\[0\]" LOCATION "Pin_P19"
-#
-## assign rs232 interface
-#cmp add_assignment $top_name "" tx LOCATION "Pin_M23"
-#cmp add_assignment $top_name "" rx LOCATION "Pin_M22"
-#puts "   Assigned: RS232 pins."
-#
-#
-## assign EEPROM pins
-#cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_M20"
-#cmp add_assignment $top_name "" eeprom_so LOCATION "Pin_K28"
-#cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_N20"
-#cmp add_assignment $top_name "" eeprom_cs LOCATION "Pin_L25"
-#puts "   Assigned: EEPROM pins."
-#
-## assign serial DAC
-##dac_clr_n clears parallel and serial dacs
-#cmp add_assignment $top_name "" "dac_clr_n" LOCATION "Pin_AH6"
-#
-## Assign misc pins
-#set_location_assignment PIN_N21 -to ~ALTERA_DATA0~
-#set_location_assignment PIN_P23 -to ~ALTERA_CRC_ERROR~
-##cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_P23"
-#cmp add_assignment $top_name "" crc_error_in LOCATION "Pin_T23"
-#cmp add_assignment $top_name "" critical_error LOCATION "Pin_M24"
-#cmp add_assignment $top_name "" extend_n LOCATION "Pin_AH12"
-#puts "   Assigned: miscellaneous pins."
-
 
 #####################################################
 # Start
 #####################################################
 package require ::quartus::project
+package require ::quartus::flow
+
+
+
+# Run the DDR2 assignment file
+#cd ../../ddr2_sdram_ctrl/source/rtl/
+#source micron_ctrl_pin_assignments.tcl
+#cd ../../../readout_card/synth_stratix_iii/
+
+# Run the DDR2 assignment file
+source C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_pin_assignments.tcl
+cd C:/mce/cards/readout_card/readout_card/synth_stratix_iii/
 
 
 
 #####################################################
-# Clocks and Resets
+puts "Info: Assigning DDR I/O Balancing Pins"
+#####################################################
+set_location_assignment PIN_D27 -to termination_blk0~_rup_pad
+set_location_assignment PIN_C28 -to termination_blk0~_rdn_pad
+
+
+
+#####################################################
+puts "Info: Assigning Altera Special Pins"
+#####################################################
+set_location_assignment PIN_N21 -to ~ALTERA_DATA0~
+set_location_assignment PIN_P23 -to ~ALTERA_CRC_ERROR~
+
+
+
+#####################################################
 puts "Info: Assigning Clocks and Resets"
 #####################################################
 set_location_assignment PIN_U2 -to inclk
@@ -91,7 +77,24 @@ set_location_assignment PIN_AF10 -to wdi
 
 
 #####################################################
-# LVDS
+puts "Info: Assigning RS232 Interface"
+#####################################################
+set_location_assignment Pin_M23 -to rs232_tx 
+set_location_assignment Pin_M22 -to rs232_rx 
+
+
+
+#####################################################
+puts "Info: Assigning EEPROM"
+#####################################################
+set_location_assignment Pin_M20 -to eeprom_si
+set_location_assignment Pin_K28 -to eeprom_so
+set_location_assignment Pin_N20 -to eeprom_sck
+set_location_assignment Pin_L25 -to eeprom_cs
+
+
+
+#####################################################
 puts "Info: Assigning LVDS"
 #####################################################
 set_location_assignment PIN_AE11 -to lvds_spare
@@ -103,16 +106,19 @@ set_location_assignment PIN_AE12 -to lvds_cmd
 
 
 #####################################################
-# Miscellaneous
 puts "Info: Assigning Miscellaneous"
 #####################################################
+
+# Silicon ID
 set_location_assignment PIN_L26 -to card_id
 
+# Slot ID
 set_location_assignment PIN_AC12 -to sid[0]
 set_location_assignment PIN_AF12 -to sid[1]
 set_location_assignment PIN_AG12 -to sid[2]
 set_location_assignment PIN_AH10 -to sid[3]
 
+# DIP Switches
 set_location_assignment PIN_V26 -to dip2
 set_location_assignment PIN_AH9 -to dip3
 
@@ -121,9 +127,20 @@ set_location_assignment PIN_M26 -to nalert
 set_location_assignment PIN_L28 -to smbclk
 set_location_assignment PIN_M28 -to smbdata
 
+# CRC Error Loop-Back
+set_location_assignment Pin_T23 -to crc_error_in
+# This pin is not assigned via the TCL file.  It is hardwared, if enabled through Quartus II.
+#set_location_assignment Pin_P23 -to crc_error_out
+
+
+# Critical Error Manual Pin Assignment
+set_location_assignment Pin_M24 -to critical_error
+
+# Extender Card Signal
+set_location_assignment Pin_AH12 -to extend_n
+
 
 #####################################################
-# TTL Backplane Spares
 puts "Info: Assigning TTL Backplane Spares"
 #####################################################
 set_location_assignment PIN_AA13 -to ttl_dir1
@@ -139,7 +156,6 @@ set_location_assignment PIN_Y14 -to ttl_out3
 
 
 #####################################################
-# ADC
 puts "Info: Assigning ADC"
 #####################################################
 set_location_assignment PIN_W4 -to adc0_lvds_p
@@ -155,13 +171,15 @@ set_location_assignment PIN_Y15 -to adc_clk_p
 set_location_assignment PIN_AF28 -to adc_sclk
 set_location_assignment PIN_AC25 -to adc_sdio
 set_location_assignment PIN_AC26 -to adc_csb_n
-set_location_assignment PIN_R1 -to adc_dco_p
+
+# This assignment is pointless because the input was mistakenly to a TTL input
+#set_location_assignment PIN_R1 -to adc_dco_p
+
 set_location_assignment PIN_AB27 -to adc_pdwn
 
 
 
 #####################################################
-# DDR2 SDRAM
 puts "Info: Assigning DDR2 SDRAM"
 #####################################################
 set_location_assignment PIN_U28 -to inclk_ddr
@@ -230,6 +248,8 @@ set_location_assignment PIN_A12 -to test_status[5]
 set_location_assignment PIN_R6 -to test_status[6]
 set_location_assignment PIN_AE10 -to test_status[7]
 
+set_location_assignment Pin_P20 -to mictor_clk
+
 
 
 #####################################################
@@ -246,6 +266,8 @@ set_location_assignment PIN_AH11 -to led_ylw
 # Feedback, Offset, and Bias DACS
 puts "Info: Assigning Feedback, Offset, and Bias DACS"
 #####################################################
+set_location_assignment Pin_AH6 -to dac_clr_n
+
 set_location_assignment PIN_J4 -to dac_clk[0]
 set_location_assignment PIN_G5 -to dac_clk[1]
 set_location_assignment PIN_M4 -to dac_clk[2]
