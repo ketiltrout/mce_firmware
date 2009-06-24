@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth\readout_card.tcl
 # Generated on: Thu Nov 27 22:24:55 2008
 
-# $Id: readout_card_ep3se50.tcl,v 1.4 2009/02/12 00:30:46 mandana Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.5 2009/03/23 14:50:08 mandana Exp $
 
 # print welcome message
 puts "\n\nReadout Card Rev C Pin Assignment Script"
@@ -44,12 +44,16 @@ set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_odt[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_odt[0]
 set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_clk[0]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_clk[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_clk_n[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_clk_n[0]
+
+# Not picked up by Quartus for complementary pair
+#set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_clk_n[0]
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_clk_n[0]
+
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cs_n[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cs_n[0]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cke[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cke[0]
+
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[0]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[1]
@@ -76,6 +80,7 @@ set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[11]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[11]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[12]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[12]
+
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_ba[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ba[0]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_ba[1]
@@ -86,6 +91,7 @@ set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cas_n
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cas_n
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_we_n
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_we_n
+
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[0]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[0]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[1]
@@ -118,18 +124,24 @@ set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[14]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[14]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[15]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[15]
+
 set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqs[0]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs[0]
 set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqs[1]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs[1]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[1]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
+
+# Negative complements to differential signals that aren't picked up by Quaratus like this.
+#set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[0]
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
+#set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[1]
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
+
+# I'd like to rename these signals to ldm and udm to agree with the pinout.
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dm[0]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dm[0]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dm[1]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dm[1]
+
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[0]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[1]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[2]
@@ -146,17 +158,40 @@ set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[12]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[13]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[14]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[15]
+
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqs[0]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqs[1]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[1]
+
+# Negative complements to differential signals that aren't picked up by Quaratus like this.
+#set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[0]
+#set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[1]
+
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[0]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[1]
+
+# New ADC Assignments
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_sclk
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_sdio
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_csb_n
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_pdwn
+
+set_instance_assignment -name IO_STANDARD LVDS -to adc0_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc1_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc2_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc3_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc4_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc5_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc6_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc7_lvds_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc_clk_p
+set_instance_assignment -name IO_STANDARD LVDS -to adc_fco_p
 
 
 #############################################################
 # Assign DDR pins
+# It would be good to rename the whole lot with the prefix "ddr" instead of "mem" to agree with the schematics
 #############################################################
+# I'd like to rename all this set of signals as ddr_a[x] to agree with the schematics
 set_location_assignment PIN_Y19 -to mem_addr[0]
 set_location_assignment PIN_AE20 -to mem_addr[1]
 set_location_assignment PIN_AF21 -to mem_addr[2]
@@ -170,12 +205,15 @@ set_location_assignment PIN_AA19 -to mem_addr[9]
 set_location_assignment PIN_AA23 -to mem_addr[10]
 set_location_assignment PIN_W21 -to mem_addr[11]
 set_location_assignment PIN_AD28 -to mem_addr[12]
+
 set_location_assignment PIN_AB24 -to mem_ba[0]
 set_location_assignment PIN_AD27 -to mem_ba[1]
 set_location_assignment PIN_AC19 -to mem_cas_n
 set_location_assignment PIN_AA18 -to mem_cke[0]
 set_location_assignment PIN_AF20 -to mem_cs_n[0]
+# I'd like to rename this as ddr_ldm[0] to agree with the schematics
 set_location_assignment PIN_AF26 -to mem_dm[0]
+# I'd like to rename this as ddr_udm[0] to agree with the schematics
 set_location_assignment PIN_AD24 -to mem_dm[1]
 set_location_assignment PIN_AD19 -to mem_odt[0]
 set_location_assignment PIN_AD18 -to mem_ras_n
@@ -200,7 +238,8 @@ set_location_assignment PIN_AH21 -to mem_dq[14]
 set_location_assignment PIN_AH22 -to mem_dq[15]
 set_location_assignment PIN_AD22 -to mem_dqs[0]
 set_location_assignment PIN_AH23 -to mem_dqs[1]
-set_location_assignment PIN_AC28 -to ddr_shutdown_n
+# The FPGA does not connect to this DDR pin.  Has it moved?
+#set_location_assignment PIN_AC28 -to ddr_shutdown_n
 set_location_assignment PIN_D27 -to termination_blk0~_rup_pad
 set_location_assignment PIN_C28 -to termination_blk0~_rdn_pad
 
@@ -223,8 +262,10 @@ set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATIO
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[15]
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[0]
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[1]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
+# These pins are the negative complements of differential pairs.  
+# Quartus doesn't interpret these properly as is, but does so automatically when the postive complements are specificied as differential.
+#set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
+#set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
 puts "   Assigned: DDR pins."
             
 # Assign DDR test pins
@@ -266,39 +307,47 @@ puts "   Assigned: DDR test pins."
 cmp add_assignment $top_name "" inclk LOCATION "Pin_U2"
 # inclk_ddr assigned in ddr section
 # cmp add_assignment $top_name "" inclk_ddr LOCATION "Pin_U28"
-cmp add_assignment $top_name "" "pll_l2_out\[0\]" LOCATION "Pin_P19"
+# No longer an output.  Not sure if this was replaced by something else.
+#cmp add_assignment $top_name "" "pll_l2_out\[0\]" LOCATION "Pin_P19"
 puts "   Assigned: PLL pins."
 
 # Assign ADC pins
-cmp add_assignment $top_name "" adc0_lvds_n LOCATION "Pin_W3"
+# These pins are the negative complements of differential pairs.  
+# Quartus picks these up automatically when the positive complements are assigned as differential 
+#cmp add_assignment $top_name "" adc0_lvds_n LOCATION "Pin_W3"
 cmp add_assignment $top_name "" adc0_lvds_p LOCATION "Pin_W4"
-cmp add_assignment $top_name "" adc1_lvds_n LOCATION "Pin_Y1"
+#cmp add_assignment $top_name "" adc1_lvds_n LOCATION "Pin_Y1"
 cmp add_assignment $top_name "" adc1_lvds_p LOCATION "Pin_W2"
-cmp add_assignment $top_name "" adc2_lvds_n LOCATION "Pin_AA1"
+#cmp add_assignment $top_name "" adc2_lvds_n LOCATION "Pin_AA1"
 cmp add_assignment $top_name "" adc2_lvds_p LOCATION "Pin_Y2"
-cmp add_assignment $top_name "" adc3_lvds_n LOCATION "Pin_AB1"
+#cmp add_assignment $top_name "" adc3_lvds_n LOCATION "Pin_AB1"
 cmp add_assignment $top_name "" adc3_lvds_p LOCATION "Pin_AB2"
-cmp add_assignment $top_name "" adc4_lvds_n LOCATION "Pin_AC1"
+#cmp add_assignment $top_name "" adc4_lvds_n LOCATION "Pin_AC1"
 cmp add_assignment $top_name "" adc4_lvds_p LOCATION "Pin_AC2"
-cmp add_assignment $top_name "" adc5_lvds_n LOCATION "Pin_AE1"
+#cmp add_assignment $top_name "" adc5_lvds_n LOCATION "Pin_AE1"
 cmp add_assignment $top_name "" adc5_lvds_p LOCATION "Pin_AD1"
-cmp add_assignment $top_name "" adc6_lvds_n LOCATION "Pin_AF1"
+#cmp add_assignment $top_name "" adc6_lvds_n LOCATION "Pin_AF1"
 cmp add_assignment $top_name "" adc6_lvds_p LOCATION "Pin_AE2"
-cmp add_assignment $top_name "" adc7_lvds_n LOCATION "Pin_AG1"
+#cmp add_assignment $top_name "" adc7_lvds_n LOCATION "Pin_AG1"
 cmp add_assignment $top_name "" adc7_lvds_p LOCATION "Pin_AF2"
-cmp add_assignment $top_name "" adc_fco_n LOCATION "Pin_P1"
-cmp add_assignment $top_name "" adc_fco_p LOCATION "Pin_P2"
-cmp add_assignment $top_name "" adc_clk_n LOCATION "Pin_AA15"
+#cmp add_assignment $top_name "" adc_fco_n LOCATION ""
+
+# This assignment has changed to fix a hardware mistake in Issue 0
+cmp add_assignment $top_name "" adc_fco_p LOCATION "PIN_AE15"
+#cmp add_assignment $top_name "" adc_clk_n LOCATION "Pin_AA15"
+
 cmp add_assignment $top_name "" adc_clk_p LOCATION "Pin_Y15"
 cmp add_assignment $top_name "" adc_sclk LOCATION "Pin_AF28"
 cmp add_assignment $top_name "" adc_sdio LOCATION "Pin_AC25"
 cmp add_assignment $top_name "" adc_csb_n LOCATION "Pin_AC26"
 cmp add_assignment $top_name "" adc_pwdn LOCATION "Pin_AB27"
-cmp add_assignment $top_name "" adc_dco_n LOCATION "Pin_T1"
-cmp add_assignment $top_name "" adc_dco_p LOCATION "Pin_R1"
+# There is a hardware mistake on this pin, and it has not been reassigned yet
+#cmp add_assignment $top_name "" adc_dco_n LOCATION "Pin_T1"
+#cmp add_assignment $top_name "" adc_dco_p LOCATION "Pin_R1"
 puts "   Assigned: ADC pins."
 
 # assign rst_n (this is assigned to DEV_CLRn (PIN_N24) and a global clock (R27/R28)
+# I'd like to rename this to dev_clr_n to agree with the schematics
 cmp add_assignment $top_name "" rst_n LOCATION "Pin_R27" 
 puts "   Assigned: RST_N pin."
 
@@ -328,16 +377,19 @@ cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_AE12"
 puts "   Assigned: LVDS pins."
 
 # assign rs232 interface
+# I'd like to rename these to rs232_tx and rs232_rx to agree with the schematics
 cmp add_assignment $top_name "" tx LOCATION "Pin_M23"
 cmp add_assignment $top_name "" rx LOCATION "Pin_M22"
 puts "   Assigned: RS232 pins."
 
 # assign mictor connector header
-puts "   Assigned: Mictor header pins: to be COMPLETED!"
+set_location_assignment Pin_P20 -to mictor_clk
+puts "   Assigned: Mictor header pins"
 
 # assign SMB pins to read fpga temperature
 cmp add_assignment $top_name "" smb_clk LOCATION "Pin_L28"
 cmp add_assignment $top_name "" smb_data LOCATION "Pin_M28"
+# I'd like to rename this pin to nalert to agree with the schematics
 cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_M26"
 puts "   Assigned: SMB interface pins."
 
@@ -349,6 +401,7 @@ cmp add_assignment $top_name "" eeprom_cs LOCATION "Pin_L25"
 puts "   Assigned: EEPROM pins."
 
 # assign ID pins
+# I'd like to rename this signals to sid[0], etc. to agree with the schematics
 cmp add_assignment $top_name "" "slot_id\[0\]" LOCATION "Pin_AC12"
 cmp add_assignment $top_name "" "slot_id\[1\]" LOCATION "Pin_AF12"
 cmp add_assignment $top_name "" "slot_id\[2\]" LOCATION "Pin_AG12"
@@ -383,6 +436,7 @@ cmp add_assignment $top_name "" "dac_clk\[4\]" LOCATION "Pin_U3"
 cmp add_assignment $top_name "" "dac_clk\[5\]" LOCATION "Pin_T3"
 cmp add_assignment $top_name "" "dac_clk\[6\]" LOCATION "Pin_U8"
 cmp add_assignment $top_name "" "dac_clk\[7\]" LOCATION "Pin_U7"
+
 cmp add_assignment $top_name "" "dac_dat\[0\]" LOCATION "Pin_E5"
 cmp add_assignment $top_name "" "dac_dat\[1\]" LOCATION "Pin_L5"
 cmp add_assignment $top_name "" "dac_dat\[2\]" LOCATION "Pin_N4"
@@ -391,6 +445,7 @@ cmp add_assignment $top_name "" "dac_dat\[4\]" LOCATION "Pin_U4"
 cmp add_assignment $top_name "" "dac_dat\[5\]" LOCATION "Pin_V3"
 cmp add_assignment $top_name "" "dac_dat\[6\]" LOCATION "Pin_U5"
 cmp add_assignment $top_name "" "dac_dat\[7\]" LOCATION "Pin_U6"
+
 cmp add_assignment $top_name "" "bias_dac_ncs\[0\]" LOCATION "Pin_M6"
 cmp add_assignment $top_name "" "bias_dac_ncs\[1\]" LOCATION "Pin_D5"
 cmp add_assignment $top_name "" "bias_dac_ncs\[2\]" LOCATION "Pin_T6"
@@ -399,6 +454,7 @@ cmp add_assignment $top_name "" "bias_dac_ncs\[4\]" LOCATION "Pin_AE6"
 cmp add_assignment $top_name "" "bias_dac_ncs\[5\]" LOCATION "Pin_T4"
 cmp add_assignment $top_name "" "bias_dac_ncs\[6\]" LOCATION "Pin_AH4"
 cmp add_assignment $top_name "" "bias_dac_ncs\[7\]" LOCATION "Pin_AH5"
+
 cmp add_assignment $top_name "" "offset_dac_ncs\[0\]" LOCATION "Pin_C3"
 cmp add_assignment $top_name "" "offset_dac_ncs\[1\]" LOCATION "Pin_N5"
 cmp add_assignment $top_name "" "offset_dac_ncs\[2\]" LOCATION "Pin_L4"
