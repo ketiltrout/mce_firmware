@@ -198,7 +198,7 @@ BEGIN
 		lpm_hint => "CBX_MODULE_PREFIX=adc_pll_stratix_iii",
 		lpm_type => "altpll",
 		operation_mode => "NORMAL",
-		pll_type => "AUTO",
+		pll_type => "Left_Right",
 		port_activeclock => "PORT_UNUSED",
 		port_areset => "PORT_UNUSED",
 		port_clkbad0 => "PORT_UNUSED",
@@ -345,9 +345,9 @@ END SYN;
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT4 STRING "deg"
 -- Retrieval info: PRIVATE: PLL_ADVANCED_PARAM_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "0"
--- Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "1"
+-- Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: PLL_ENHPLL_CHECK NUMERIC "0"
--- Retrieval info: PRIVATE: PLL_FASTPLL_CHECK NUMERIC "0"
+-- Retrieval info: PRIVATE: PLL_FASTPLL_CHECK NUMERIC "1"
 -- Retrieval info: PRIVATE: PLL_FBMIMIC_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_LVDS_PLL_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: PLL_PFDENA_CHECK STRING "0"
@@ -406,7 +406,7 @@ END SYN;
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix III"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
 -- Retrieval info: CONSTANT: OPERATION_MODE STRING "NORMAL"
--- Retrieval info: CONSTANT: PLL_TYPE STRING "AUTO"
+-- Retrieval info: CONSTANT: PLL_TYPE STRING "Left_Right"
 -- Retrieval info: CONSTANT: PORT_ACTIVECLOCK STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_ARESET STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_CLKBAD0 STRING "PORT_UNUSED"
