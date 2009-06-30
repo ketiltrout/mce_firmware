@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.85  2009/06/18 22:59:40  bburger
+-- BB:  Upped the version number for 5.0.2
+--
 -- Revision 1.84  2009/05/27 22:37:47  bburger
 -- BB: Upped the version number and added the data_size interface between dispatch and flux_loop for rectangle data
 --
@@ -64,8 +67,6 @@ use work.all_cards_pack.all;
 use work.adc_sample_coadd_pack.all;
 
 entity readout_card is
-generic(
-   CARD            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1);
 port(  
    -- Global Interface
    rst_n           : in std_logic;
