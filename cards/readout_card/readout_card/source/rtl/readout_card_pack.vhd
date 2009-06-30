@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.13  2009/05/27 22:38:04  bburger
+-- BB: Added data_size_i interface to wishbone entity for rectangle mode data acquisition
+--
 -- Revision 1.12  2009/05/27 01:31:27  bburger
 -- BB: Added constant COL_ADDR_WIDTH
 --
@@ -63,10 +66,10 @@ package readout_card_pack is
    -----------------------------------------------------------------------------
    -- Constants 
    -----------------------------------------------------------------------------
-   constant ADC_LATENCY_REVA          : integer := 4;  
-   constant ADC_LATENCY_REVC          : integer := 11;  
+   constant ADC_LATENCY_REVA       : integer := 4;  
+   constant ADC_LATENCY_REVC       : integer := 11;  
 
-   constant ROW_ADDR_WIDTH         :  integer := 6;
+   constant ROW_ADDR_WIDTH         : integer := 6;
    constant COL_ADDR_WIDTH         : integer := 3;
   
    constant FSFB_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- address width of first stage feedback queue 
@@ -171,7 +174,7 @@ package readout_card_pack is
    port (
       inclk0 : IN  STD_LOGIC := '0';
       c0     : OUT STD_LOGIC;
-      c1     : OUT STD_LOGIC;
+--      c1     : OUT STD_LOGIC;
       c2     : OUT STD_LOGIC;
       c3     : OUT STD_LOGIC;
       c4     : OUT STD_LOGIC;
@@ -187,6 +190,15 @@ package readout_card_pack is
       c3    : OUT STD_LOGIC ;
       c4    : OUT STD_LOGIC ;
       locked      : OUT STD_LOGIC
+   ); 
+   end component;
+
+   component adc_pll_stratix_iii_not_fast
+   port (
+      inclk0 : IN STD_LOGIC  := '0';
+      c0    : OUT STD_LOGIC ;
+      c1    : OUT STD_LOGIC --;
+      --locked      : OUT STD_LOGIC
    ); 
    end component;
 
