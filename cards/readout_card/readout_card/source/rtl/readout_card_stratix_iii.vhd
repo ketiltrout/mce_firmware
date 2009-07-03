@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.5  2009/07/03 18:46:00  bburger
+-- BB: Changed DDR signal names back to MEM.  Re-introduced the SERDES for continued testing.
+--
 -- Revision 1.4  2009/06/18 23:01:19  bburger
 -- BB:  I had to replace the serdes block in the top level of readout_card_stratix_iii becuase of a hardware mistake which routes adc_fco (LVDS) to a 3.3V Bank (6C).  It should be a Left_Right_PLL (fast PLL) if it is going to feed a ALT_LVDS (serdes) block.  The only spare clock input is not to fast PLL.
 --
@@ -112,7 +115,7 @@ port(
    dac5_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
    dac6_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
    dac7_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-   dac_fb_clk       : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
+   dac_dfb_clk      : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
    
    -- Sa_bias and Offset_ctrl Interface
    dac_clk         : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
@@ -504,27 +507,47 @@ begin
 
    adc_dat <= adc7_lvds_p & adc6_lvds_p & adc5_lvds_p & adc4_lvds_p & adc3_lvds_p & adc2_lvds_p & adc1_lvds_p & adc0_lvds_p;
    
+   -- The native SERDES width is at most 12 bits.
+   -- To receive a 14-bit word, the SERDES data must be latched twice per data period
    i_adc_serdes: adc_serdes 
    port map (
-      rx_enable  => clk1, -- This is always enabled to see what the running output of the deserializer is.
+      rx_enable  => clk1, -- This is always enabled to see what the running output of the deserializer is, and must be driven by a fast PLL clock!
       rx_in      => adc_dat,    
       rx_inclock => clk0,    
       rx_out     => serdes_dat0   
    );
+
+   process(clk2, rst)
+   begin
+      if(rst = '1') then
+         serdes_dat1 <= (others => '0');
+      elsif(clk2'event and clk2 = '1') then
+         serdes_dat1 <= serdes_dat0;
+      end if;
+   end process;
   
-   i_adc_serdes_flipflop1: flipflop_56
-   port map (
-      clock      => clk2,
-      data       => serdes_dat0,
-      q          => serdes_dat1
-   );
-   
-   i_adc_serdes_flipflop2: flipflop_56
-   port map (
-      clock      => clk3,
-      data       => serdes_dat0,
-      q          => serdes_dat2
-   );   
+   process(clk3, rst)
+   begin
+      if(rst = '1') then
+         serdes_dat2 <= (others => '0');
+      elsif(clk3'event and clk3 = '1') then
+         serdes_dat2 <= serdes_dat0;
+      end if;
+   end process;
+
+--   i_adc_serdes_flipflop1: flipflop_56
+--   port map (
+--      clock      => clk2,
+--      data       => serdes_dat0,
+--      q          => serdes_dat1
+--   );
+--   
+--   i_adc_serdes_flipflop2: flipflop_56
+--   port map (
+--      clock      => clk3,
+--      data       => serdes_dat0,
+--      q          => serdes_dat2
+--   );   
    
    serdes_dat3 <= 
       serdes_dat1(55 downto 49) & serdes_dat2(55 downto 49) &
@@ -579,6 +602,10 @@ begin
    ----------------------------------------------------------------------------
    -- Dispatch Instantiation
    ----------------------------------------------------------------------------
+   
+   -- Test signal for debugging the ADC interface.
+   --dispatch_dat_in <= "0000" & adc_dat1 & adc_dat0;
+   
    i_dispatch: dispatch
    port map (
       clk_i        => clk,
@@ -797,14 +824,14 @@ begin
       dac_dat_ch6_o             => dac6_dfb_dat,
       dac_dat_ch7_o             => dac7_dfb_dat,
       
-      dac_clk_ch0_o             => dac_fb_clk(0),
-      dac_clk_ch1_o             => dac_fb_clk(1),
-      dac_clk_ch2_o             => dac_fb_clk(2),
-      dac_clk_ch3_o             => dac_fb_clk(3),
-      dac_clk_ch4_o             => dac_fb_clk(4),
-      dac_clk_ch5_o             => dac_fb_clk(5),
-      dac_clk_ch6_o             => dac_fb_clk(6),
-      dac_clk_ch7_o             => dac_fb_clk(7),
+      dac_clk_ch0_o             => dac_dfb_clk(0),
+      dac_clk_ch1_o             => dac_dfb_clk(1),
+      dac_clk_ch2_o             => dac_dfb_clk(2),
+      dac_clk_ch3_o             => dac_dfb_clk(3),
+      dac_clk_ch4_o             => dac_dfb_clk(4),
+      dac_clk_ch5_o             => dac_dfb_clk(5),
+      dac_clk_ch6_o             => dac_dfb_clk(6),
+      dac_clk_ch7_o             => dac_dfb_clk(7),
       
       sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
       sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
@@ -1132,11 +1159,13 @@ begin
   --vhdl renameroo for output signals
   pnf <= internal_pnf;
   --vhdl renameroo for output signals
-  pnf_per_byte <= internal_pnf_per_byte;
+--  pnf_per_byte <= internal_pnf_per_byte;
   --vhdl renameroo for output signals
   test_complete <= internal_test_complete;
   --vhdl renameroo for output signals
-  test_status <= internal_test_status;
+--  test_status <= internal_test_status;
+   test_status <= adc_dat1(7 downto 0);
+   pnf_per_byte <= adc_dat0(7 downto 0);
 
    ----------------------------------------------------------------------------
    -- Mictor Connection

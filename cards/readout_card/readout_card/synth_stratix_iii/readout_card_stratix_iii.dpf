@@ -22,23 +22,31 @@
 		</pin>
 		<pin name="adc_fco_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc_fco_p(n)" >
 		</pin>
-		<pin name="ddr_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_clk[0](n)" >
+		<pin name="mem_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk_n[0]" >
 		</pin>
-		<pin name="ddr_dqs[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqs[1](n)" >
+		<pin name="mem_clk_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk[0]" >
 		</pin>
-		<pin name="ddr_dqs[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqs[0](n)" >
+		<pin name="mem_dqs[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqsn[1]" >
 		</pin>
-		<pin name="mem_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk[0](n)" >
+		<pin name="mem_dqs[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqsn[0]" >
 		</pin>
-		<pin name="mem_clk_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk_n[0](n)" >
+		<pin name="mem_dqsn[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[1]" >
 		</pin>
-		<pin name="mem_dqs[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[1](n)" >
+		<pin name="mem_dqsn[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[0]" >
 		</pin>
-		<pin name="mem_dqs[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[0](n)" >
+		<pin name="ddr_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_clk_n[0]" >
 		</pin>
-		<pin name="mem_dqsn[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqsn[1](n)" >
+		<pin name="ddr_clk_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_clk[0]" >
 		</pin>
-		<pin name="mem_dqsn[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqsn[0](n)" >
+		<pin name="ddr_dqs[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqsn[1]" >
+		</pin>
+		<pin name="ddr_dqs[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqsn[0]" >
+		</pin>
+		<pin name="ddr_dqsn[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqs[1]" >
+		</pin>
+		<pin name="ddr_dqsn[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqs[0]" >
+		</pin>
+		<pin name="adc_fco_p(n)" direction="Input" source="Report Database" diff_pair_node="adc_fco_p" >
 		</pin>
 	</pin_info>
 	<buses>

@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_stratix_iii_pinout_only.tcl,v 1.1 2009/06/19 00:01:43 bburger Exp $
+# $Id: readout_card_stratix_iii_pinout_only.tcl,v 1.2 2009/06/23 19:52:47 bburger Exp $
 
 
 
@@ -119,6 +119,8 @@ set_location_assignment PIN_AG12 -to sid[2]
 set_location_assignment PIN_AH10 -to sid[3]
 
 # DIP Switches
+set_location_assignment Pin_AE9 -to dip0
+set_location_assignment Pin_U26 -to dip1
 set_location_assignment PIN_V26 -to dip2
 set_location_assignment PIN_AH9 -to dip3
 
@@ -138,6 +140,9 @@ set_location_assignment Pin_M24 -to critical_error
 
 # Extender Card Signal
 set_location_assignment Pin_AH12 -to extend_n
+
+# Check on this
+cmp add_assignment $top_name "" "pll_l2_out\[0\]" LOCATION "Pin_P19"
 
 
 #####################################################
@@ -171,11 +176,10 @@ set_location_assignment PIN_Y15 -to adc_clk_p
 set_location_assignment PIN_AF28 -to adc_sclk
 set_location_assignment PIN_AC25 -to adc_sdio
 set_location_assignment PIN_AC26 -to adc_csb_n
+set_location_assignment PIN_AB27 -to adc_pdwn
 
 # This assignment is pointless because the input was mistakenly to a TTL input
 #set_location_assignment PIN_R1 -to adc_dco_p
-
-set_location_assignment PIN_AB27 -to adc_pdwn
 
 
 
