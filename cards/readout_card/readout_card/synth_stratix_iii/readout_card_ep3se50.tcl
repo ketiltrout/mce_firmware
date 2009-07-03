@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth\readout_card.tcl
 # Generated on: Thu Nov 27 22:24:55 2008
 
-# $Id: readout_card_ep3se50.tcl,v 1.5 2009/03/23 14:50:08 mandana Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.5.2.1 2009/06/24 16:14:58 bburger Exp $
 
 # print welcome message
 puts "\n\nReadout Card Rev C Pin Assignment Script"
@@ -130,11 +130,11 @@ set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION
 set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqs[1]
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs[1]
 
-# Negative complements to differential signals that aren't picked up by Quaratus like this.
-#set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[0]
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
-#set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[1]
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
+# Need these because these complement signals are explicitely specified in the DDR interface
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[0]
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[1]
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
 
 # I'd like to rename these signals to ldm and udm to agree with the pinout.
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dm[0]
@@ -162,9 +162,9 @@ set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[15]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqs[0]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqs[1]
 
-# Negative complements to differential signals that aren't picked up by Quaratus like this.
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[0]
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[1]
+# Need these because these complement signals are explicitely specified in the DDR interface
+set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[0]
+set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[1]
 
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[0]
 set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[1]
@@ -184,7 +184,8 @@ set_instance_assignment -name IO_STANDARD LVDS -to adc5_lvds_p
 set_instance_assignment -name IO_STANDARD LVDS -to adc6_lvds_p
 set_instance_assignment -name IO_STANDARD LVDS -to adc7_lvds_p
 set_instance_assignment -name IO_STANDARD LVDS -to adc_clk_p
-set_instance_assignment -name IO_STANDARD LVDS -to adc_fco_p
+# adc_fco_p will go through a level shifter to TTL for rev C issue 1
+#set_instance_assignment -name IO_STANDARD LVDS -to adc_fco_p
 
 
 #############################################################
@@ -262,10 +263,9 @@ set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATIO
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[15]
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[0]
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[1]
-# These pins are the negative complements of differential pairs.  
-# Quartus doesn't interpret these properly as is, but does so automatically when the postive complements are specificied as differential.
-#set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
-#set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
+# Need these because these complement signals are explicitely specified in the DDR interface
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
 puts "   Assigned: DDR pins."
             
 # Assign DDR test pins
@@ -333,22 +333,20 @@ cmp add_assignment $top_name "" adc7_lvds_p LOCATION "Pin_AF2"
 #cmp add_assignment $top_name "" adc_fco_n LOCATION ""
 
 # This assignment has changed to fix a hardware mistake in Issue 0
-cmp add_assignment $top_name "" adc_fco_p LOCATION "PIN_AE15"
+cmp add_assignment $top_name "" adc_fco_p LOCATION "PIN_P2"
 #cmp add_assignment $top_name "" adc_clk_n LOCATION "Pin_AA15"
 
 cmp add_assignment $top_name "" adc_clk_p LOCATION "Pin_Y15"
 cmp add_assignment $top_name "" adc_sclk LOCATION "Pin_AF28"
 cmp add_assignment $top_name "" adc_sdio LOCATION "Pin_AC25"
 cmp add_assignment $top_name "" adc_csb_n LOCATION "Pin_AC26"
-cmp add_assignment $top_name "" adc_pwdn LOCATION "Pin_AB27"
+cmp add_assignment $top_name "" adc_pdwn LOCATION "Pin_AB27"
 # There is a hardware mistake on this pin, and it has not been reassigned yet
 #cmp add_assignment $top_name "" adc_dco_n LOCATION "Pin_T1"
 #cmp add_assignment $top_name "" adc_dco_p LOCATION "Pin_R1"
 puts "   Assigned: ADC pins."
 
-# assign rst_n (this is assigned to DEV_CLRn (PIN_N24) and a global clock (R27/R28)
-# I'd like to rename this to dev_clr_n to agree with the schematics
-cmp add_assignment $top_name "" rst_n LOCATION "Pin_R27" 
+cmp add_assignment $top_name "" dev_clr_n LOCATION "Pin_R27" 
 puts "   Assigned: RST_N pin."
 
 # assign leds
@@ -377,9 +375,8 @@ cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_AE12"
 puts "   Assigned: LVDS pins."
 
 # assign rs232 interface
-# I'd like to rename these to rs232_tx and rs232_rx to agree with the schematics
-cmp add_assignment $top_name "" tx LOCATION "Pin_M23"
-cmp add_assignment $top_name "" rx LOCATION "Pin_M22"
+cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_M23"
+cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_M22"
 puts "   Assigned: RS232 pins."
 
 # assign mictor connector header
@@ -467,133 +464,133 @@ puts "   Assigned: Serial DAC pins."
 
 # assign parallel DAC
 #dac_clr_n (assigned above) clears parallel and serial dacs
-cmp add_assignment $top_name "" "dac_FB_clk\[0\]" LOCATION "Pin_F17"
-cmp add_assignment $top_name "" "dac_FB1_dat\[0\]" LOCATION "Pin_J18"
-cmp add_assignment $top_name "" "dac_FB1_dat\[1\]" LOCATION "Pin_J20"
-cmp add_assignment $top_name "" "dac_FB1_dat\[2\]" LOCATION "Pin_J19"
-cmp add_assignment $top_name "" "dac_FB1_dat\[3\]" LOCATION "Pin_G20"
-cmp add_assignment $top_name "" "dac_FB1_dat\[4\]" LOCATION "Pin_G21"
-cmp add_assignment $top_name "" "dac_FB1_dat\[5\]" LOCATION "Pin_F21"
-cmp add_assignment $top_name "" "dac_FB1_dat\[6\]" LOCATION "Pin_E22"
-cmp add_assignment $top_name "" "dac_FB1_dat\[7\]" LOCATION "Pin_D21"
-cmp add_assignment $top_name "" "dac_FB1_dat\[8\]" LOCATION "Pin_E20"
-cmp add_assignment $top_name "" "dac_FB1_dat\[9\]" LOCATION "Pin_F20"
-cmp add_assignment $top_name "" "dac_FB1_dat\[10\]" LOCATION "Pin_F19"
-cmp add_assignment $top_name "" "dac_FB1_dat\[11\]" LOCATION "Pin_D18"
-cmp add_assignment $top_name "" "dac_FB1_dat\[12\]" LOCATION "Pin_E17"
-cmp add_assignment $top_name "" "dac_FB1_dat\[13\]" LOCATION "Pin_E16"
+cmp add_assignment $top_name "" "dac_dfb_clk\[0\]" LOCATION "Pin_F17"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[0\]" LOCATION "Pin_J18"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[1\]" LOCATION "Pin_J20"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[2\]" LOCATION "Pin_J19"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[3\]" LOCATION "Pin_G20"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[4\]" LOCATION "Pin_G21"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[5\]" LOCATION "Pin_F21"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[6\]" LOCATION "Pin_E22"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[7\]" LOCATION "Pin_D21"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[8\]" LOCATION "Pin_E20"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[9\]" LOCATION "Pin_F20"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[10\]" LOCATION "Pin_F19"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[11\]" LOCATION "Pin_D18"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[12\]" LOCATION "Pin_E17"
+cmp add_assignment $top_name "" "dac0_dfb_dat\[13\]" LOCATION "Pin_E16"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[1\]" LOCATION "Pin_A27"
-cmp add_assignment $top_name "" "dac_FB2_dat\[0\]" LOCATION "Pin_A18"
-cmp add_assignment $top_name "" "dac_FB2_dat\[1\]" LOCATION "Pin_B19"
-cmp add_assignment $top_name "" "dac_FB2_dat\[2\]" LOCATION "Pin_A19"
-cmp add_assignment $top_name "" "dac_FB2_dat\[3\]" LOCATION "Pin_B20"
-cmp add_assignment $top_name "" "dac_FB2_dat\[4\]" LOCATION "Pin_A20"
-cmp add_assignment $top_name "" "dac_FB2_dat\[5\]" LOCATION "Pin_A21"
-cmp add_assignment $top_name "" "dac_FB2_dat\[6\]" LOCATION "Pin_B22"
-cmp add_assignment $top_name "" "dac_FB2_dat\[7\]" LOCATION "Pin_A22"
-cmp add_assignment $top_name "" "dac_FB2_dat\[8\]" LOCATION "Pin_B23"
-cmp add_assignment $top_name "" "dac_FB2_dat\[9\]" LOCATION "Pin_A23"
-cmp add_assignment $top_name "" "dac_FB2_dat\[10\]" LOCATION "Pin_B25"
-cmp add_assignment $top_name "" "dac_FB2_dat\[11\]" LOCATION "Pin_A25"
-cmp add_assignment $top_name "" "dac_FB2_dat\[12\]" LOCATION "Pin_B26"
-cmp add_assignment $top_name "" "dac_FB2_dat\[13\]" LOCATION "Pin_A26"
+cmp add_assignment $top_name "" "dac_dfb_clk\[1\]" LOCATION "Pin_A27"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[0\]" LOCATION "Pin_A18"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[1\]" LOCATION "Pin_B19"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[2\]" LOCATION "Pin_A19"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[3\]" LOCATION "Pin_B20"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[4\]" LOCATION "Pin_A20"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[5\]" LOCATION "Pin_A21"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[6\]" LOCATION "Pin_B22"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[7\]" LOCATION "Pin_A22"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[8\]" LOCATION "Pin_B23"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[9\]" LOCATION "Pin_A23"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[10\]" LOCATION "Pin_B25"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[11\]" LOCATION "Pin_A25"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[12\]" LOCATION "Pin_B26"
+cmp add_assignment $top_name "" "dac1_dfb_dat\[13\]" LOCATION "Pin_A26"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[2\]" LOCATION "Pin_F1"
-cmp add_assignment $top_name "" "dac_FB3_dat\[0\]" LOCATION "Pin_G18"
-cmp add_assignment $top_name "" "dac_FB3_dat\[1\]" LOCATION "Pin_H19"
-cmp add_assignment $top_name "" "dac_FB3_dat\[2\]" LOCATION "Pin_J16"
-cmp add_assignment $top_name "" "dac_FB3_dat\[3\]" LOCATION "Pin_T8"
-cmp add_assignment $top_name "" "dac_FB3_dat\[4\]" LOCATION "Pin_B4"
-cmp add_assignment $top_name "" "dac_FB3_dat\[5\]" LOCATION "Pin_A3"
-cmp add_assignment $top_name "" "dac_FB3_dat\[6\]" LOCATION "Pin_A2"
-cmp add_assignment $top_name "" "dac_FB3_dat\[7\]" LOCATION "Pin_B2"
-cmp add_assignment $top_name "" "dac_FB3_dat\[8\]" LOCATION "Pin_B1"
-cmp add_assignment $top_name "" "dac_FB3_dat\[9\]" LOCATION "Pin_C1"
-cmp add_assignment $top_name "" "dac_FB3_dat\[10\]" LOCATION "Pin_D2"
-cmp add_assignment $top_name "" "dac_FB3_dat\[11\]" LOCATION "Pin_D1"
-cmp add_assignment $top_name "" "dac_FB3_dat\[12\]" LOCATION "Pin_E2"
-cmp add_assignment $top_name "" "dac_FB3_dat\[13\]" LOCATION "Pin_E1"
+cmp add_assignment $top_name "" "dac_dfb_clk\[2\]" LOCATION "Pin_F1"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[0\]" LOCATION "Pin_G18"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[1\]" LOCATION "Pin_H19"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[2\]" LOCATION "Pin_J16"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[3\]" LOCATION "Pin_T8"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[4\]" LOCATION "Pin_B4"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[5\]" LOCATION "Pin_A3"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[6\]" LOCATION "Pin_A2"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[7\]" LOCATION "Pin_B2"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[8\]" LOCATION "Pin_B1"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[9\]" LOCATION "Pin_C1"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[10\]" LOCATION "Pin_D2"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[11\]" LOCATION "Pin_D1"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[12\]" LOCATION "Pin_E2"
+cmp add_assignment $top_name "" "dac2_dfb_dat\[13\]" LOCATION "Pin_E1"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[3\]" LOCATION "Pin_A17"
-cmp add_assignment $top_name "" "dac_FB4_dat\[0\]" LOCATION "Pin_A4"
-cmp add_assignment $top_name "" "dac_FB4_dat\[1\]" LOCATION "Pin_B5"
-cmp add_assignment $top_name "" "dac_FB4_dat\[2\]" LOCATION "Pin_A5"
-cmp add_assignment $top_name "" "dac_FB4_dat\[3\]" LOCATION "Pin_A6"
-cmp add_assignment $top_name "" "dac_FB4_dat\[4\]" LOCATION "Pin_B7"
-cmp add_assignment $top_name "" "dac_FB4_dat\[5\]" LOCATION "Pin_A7"
-cmp add_assignment $top_name "" "dac_FB4_dat\[6\]" LOCATION "Pin_B8"
-cmp add_assignment $top_name "" "dac_FB4_dat\[7\]" LOCATION "Pin_A8"
-cmp add_assignment $top_name "" "dac_FB4_dat\[8\]" LOCATION "Pin_A9"
-cmp add_assignment $top_name "" "dac_FB4_dat\[9\]" LOCATION "Pin_C9"
-cmp add_assignment $top_name "" "dac_FB4_dat\[10\]" LOCATION "Pin_A15"
-cmp add_assignment $top_name "" "dac_FB4_dat\[11\]" LOCATION "Pin_B16"
-cmp add_assignment $top_name "" "dac_FB4_dat\[12\]" LOCATION "Pin_A16"
-cmp add_assignment $top_name "" "dac_FB4_dat\[13\]" LOCATION "Pin_B17"
+cmp add_assignment $top_name "" "dac_dfb_clk\[3\]" LOCATION "Pin_A17"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[0\]" LOCATION "Pin_A4"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[1\]" LOCATION "Pin_B5"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[2\]" LOCATION "Pin_A5"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[3\]" LOCATION "Pin_A6"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[4\]" LOCATION "Pin_B7"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[5\]" LOCATION "Pin_A7"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[6\]" LOCATION "Pin_B8"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[7\]" LOCATION "Pin_A8"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[8\]" LOCATION "Pin_A9"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[9\]" LOCATION "Pin_C9"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[10\]" LOCATION "Pin_A15"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[11\]" LOCATION "Pin_B16"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[12\]" LOCATION "Pin_A16"
+cmp add_assignment $top_name "" "dac3_dfb_dat\[13\]" LOCATION "Pin_B17"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[4\]" LOCATION "Pin_C17"
-cmp add_assignment $top_name "" "dac_FB5_dat\[0\]" LOCATION "Pin_G22"
-cmp add_assignment $top_name "" "dac_FB5_dat\[1\]" LOCATION "Pin_F22"
-cmp add_assignment $top_name "" "dac_FB5_dat\[2\]" LOCATION "Pin_E23"
-cmp add_assignment $top_name "" "dac_FB5_dat\[3\]" LOCATION "Pin_D25"
-cmp add_assignment $top_name "" "dac_FB5_dat\[4\]" LOCATION "Pin_C24"
-cmp add_assignment $top_name "" "dac_FB5_dat\[5\]" LOCATION "Pin_D24"
-cmp add_assignment $top_name "" "dac_FB5_dat\[6\]" LOCATION "Pin_C23"
-cmp add_assignment $top_name "" "dac_FB5_dat\[7\]" LOCATION "Pin_D23"
-cmp add_assignment $top_name "" "dac_FB5_dat\[8\]" LOCATION "Pin_D22"
-cmp add_assignment $top_name "" "dac_FB5_dat\[9\]" LOCATION "Pin_C21"
-cmp add_assignment $top_name "" "dac_FB5_dat\[10\]" LOCATION "Pin_D20"
-cmp add_assignment $top_name "" "dac_FB5_dat\[11\]" LOCATION "Pin_C19"
-cmp add_assignment $top_name "" "dac_FB5_dat\[12\]" LOCATION "Pin_D19"
-cmp add_assignment $top_name "" "dac_FB5_dat\[13\]" LOCATION "Pin_C18"
+cmp add_assignment $top_name "" "dac_dfb_clk\[4\]" LOCATION "Pin_C17"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[0\]" LOCATION "Pin_G22"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[1\]" LOCATION "Pin_F22"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[2\]" LOCATION "Pin_E23"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[3\]" LOCATION "Pin_D25"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[4\]" LOCATION "Pin_C24"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[5\]" LOCATION "Pin_D24"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[6\]" LOCATION "Pin_C23"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[7\]" LOCATION "Pin_D23"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[8\]" LOCATION "Pin_D22"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[9\]" LOCATION "Pin_C21"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[10\]" LOCATION "Pin_D20"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[11\]" LOCATION "Pin_C19"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[12\]" LOCATION "Pin_D19"
+cmp add_assignment $top_name "" "dac4_dfb_dat\[13\]" LOCATION "Pin_C18"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[5\]" LOCATION "Pin_G2"
-cmp add_assignment $top_name "" "dac_FB6_dat\[0\]" LOCATION "Pin_V1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[1\]" LOCATION "Pin_U1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[2\]" LOCATION "Pin_P4"
-cmp add_assignment $top_name "" "dac_FB6_dat\[3\]" LOCATION "Pin_N1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[4\]" LOCATION "Pin_N2"
-cmp add_assignment $top_name "" "dac_FB6_dat\[5\]" LOCATION "Pin_M1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[6\]" LOCATION "Pin_L1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[7\]" LOCATION "Pin_L2"
-cmp add_assignment $top_name "" "dac_FB6_dat\[8\]" LOCATION "Pin_K1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[9\]" LOCATION "Pin_K2"
-cmp add_assignment $top_name "" "dac_FB6_dat\[10\]" LOCATION "Pin_J1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[11\]" LOCATION "Pin_H1"
-cmp add_assignment $top_name "" "dac_FB6_dat\[12\]" LOCATION "Pin_H2"
-cmp add_assignment $top_name "" "dac_FB6_dat\[13\]" LOCATION "Pin_G1"
+cmp add_assignment $top_name "" "dac_dfb_clk\[5\]" LOCATION "Pin_G2"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[0\]" LOCATION "Pin_V1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[1\]" LOCATION "Pin_U1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[2\]" LOCATION "Pin_P4"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[3\]" LOCATION "Pin_N1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[4\]" LOCATION "Pin_N2"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[5\]" LOCATION "Pin_M1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[6\]" LOCATION "Pin_L1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[7\]" LOCATION "Pin_L2"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[8\]" LOCATION "Pin_K1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[9\]" LOCATION "Pin_K2"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[10\]" LOCATION "Pin_J1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[11\]" LOCATION "Pin_H1"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[12\]" LOCATION "Pin_H2"
+cmp add_assignment $top_name "" "dac5_dfb_dat\[13\]" LOCATION "Pin_G1"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[6\]" LOCATION "Pin_J3"
-cmp add_assignment $top_name "" "dac_FB7_dat\[0\]" LOCATION "Pin_D17"
-cmp add_assignment $top_name "" "dac_FB7_dat\[1\]" LOCATION "Pin_D16"
-cmp add_assignment $top_name "" "dac_FB7_dat\[2\]" LOCATION "Pin_C15"
-cmp add_assignment $top_name "" "dac_FB7_dat\[3\]" LOCATION "Pin_D15"
-cmp add_assignment $top_name "" "dac_FB7_dat\[4\]" LOCATION "Pin_C8"
-cmp add_assignment $top_name "" "dac_FB7_dat\[5\]" LOCATION "Pin_D7"
-cmp add_assignment $top_name "" "dac_FB7_dat\[6\]" LOCATION "Pin_C6"
-cmp add_assignment $top_name "" "dac_FB7_dat\[7\]" LOCATION "Pin_C5"
-cmp add_assignment $top_name "" "dac_FB7_dat\[8\]" LOCATION "Pin_F4"
-cmp add_assignment $top_name "" "dac_FB7_dat\[9\]" LOCATION "Pin_F3"
-cmp add_assignment $top_name "" "dac_FB7_dat\[10\]" LOCATION "Pin_G3"
-cmp add_assignment $top_name "" "dac_FB7_dat\[11\]" LOCATION "Pin_G4"
-cmp add_assignment $top_name "" "dac_FB7_dat\[12\]" LOCATION "Pin_H3"
-cmp add_assignment $top_name "" "dac_FB7_dat\[13\]" LOCATION "Pin_H4"
+cmp add_assignment $top_name "" "dac_dfb_clk\[6\]" LOCATION "Pin_J3"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[0\]" LOCATION "Pin_D17"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[1\]" LOCATION "Pin_D16"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[2\]" LOCATION "Pin_C15"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[3\]" LOCATION "Pin_D15"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[4\]" LOCATION "Pin_C8"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[5\]" LOCATION "Pin_D7"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[6\]" LOCATION "Pin_C6"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[7\]" LOCATION "Pin_C5"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[8\]" LOCATION "Pin_F4"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[9\]" LOCATION "Pin_F3"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[10\]" LOCATION "Pin_G3"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[11\]" LOCATION "Pin_G4"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[12\]" LOCATION "Pin_H3"
+cmp add_assignment $top_name "" "dac6_dfb_dat\[13\]" LOCATION "Pin_H4"
 
-cmp add_assignment $top_name "" "dac_FB_clk\[7\]" LOCATION "Pin_H6"
-cmp add_assignment $top_name "" "dac_FB8_dat\[0\]" LOCATION "Pin_D9"
-cmp add_assignment $top_name "" "dac_FB8_dat\[1\]" LOCATION "Pin_D8"
-cmp add_assignment $top_name "" "dac_FB8_dat\[2\]" LOCATION "Pin_D6"
-cmp add_assignment $top_name "" "dac_FB8_dat\[3\]" LOCATION "Pin_E7"
-cmp add_assignment $top_name "" "dac_FB8_dat\[4\]" LOCATION "Pin_R10"
-cmp add_assignment $top_name "" "dac_FB8_dat\[5\]" LOCATION "Pin_N9"
-cmp add_assignment $top_name "" "dac_FB8_dat\[6\]" LOCATION "Pin_N8"
-cmp add_assignment $top_name "" "dac_FB8_dat\[7\]" LOCATION "Pin_K8"
-cmp add_assignment $top_name "" "dac_FB8_dat\[8\]" LOCATION "Pin_N7"
-cmp add_assignment $top_name "" "dac_FB8_dat\[9\]" LOCATION "Pin_N6"
-cmp add_assignment $top_name "" "dac_FB8_dat\[10\]" LOCATION "Pin_K6"
-cmp add_assignment $top_name "" "dac_FB8_dat\[11\]" LOCATION "Pin_K7"
-cmp add_assignment $top_name "" "dac_FB8_dat\[12\]" LOCATION "Pin_J6"
-cmp add_assignment $top_name "" "dac_FB8_dat\[13\]" LOCATION "Pin_H5"
+cmp add_assignment $top_name "" "dac_dfb_clk\[7\]" LOCATION "Pin_H6"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[0\]" LOCATION "Pin_D9"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[1\]" LOCATION "Pin_D8"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[2\]" LOCATION "Pin_D6"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[3\]" LOCATION "Pin_E7"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[4\]" LOCATION "Pin_R10"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[5\]" LOCATION "Pin_N9"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[6\]" LOCATION "Pin_N8"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[7\]" LOCATION "Pin_K8"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[8\]" LOCATION "Pin_N7"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[9\]" LOCATION "Pin_N6"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[10\]" LOCATION "Pin_K6"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[11\]" LOCATION "Pin_K7"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[12\]" LOCATION "Pin_J6"
+cmp add_assignment $top_name "" "dac7_dfb_dat\[13\]" LOCATION "Pin_H5"
 puts "   Assigned: Parallel DAC pins."
 
 # Assign misc pins
