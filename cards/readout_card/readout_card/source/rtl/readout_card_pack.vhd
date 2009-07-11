@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.14  2009/06/30 18:30:17  bburger
+-- BB:  Removed an unused PLL output (c1) and added and alternate PLL for testing.
+--
 -- Revision 1.13  2009/05/27 22:38:04  bburger
 -- BB: Added data_size_i interface to wishbone entity for rectangle mode data acquisition
 --
@@ -201,7 +204,19 @@ package readout_card_pack is
       --locked      : OUT STD_LOGIC
    ); 
    end component;
-
+   
+   component adc_pll_stratic_iii_dual_serdes
+   port (
+      inclk0      : IN STD_LOGIC  := '0';
+      c0    : OUT STD_LOGIC ;
+      c1    : OUT STD_LOGIC ;
+      c2    : OUT STD_LOGIC ;
+      c3    : OUT STD_LOGIC ;
+      c4    : OUT STD_LOGIC ;
+      locked      : OUT STD_LOGIC 
+   ); 
+   end component;
+   
    -----------------------------------------------------------------------------
    -- Stratix 3 ADC SERDES
    -----------------------------------------------------------------------------
@@ -211,6 +226,23 @@ package readout_card_pack is
       rx_in    : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
       rx_inclock     : IN STD_LOGIC  := '0';
       rx_out      : OUT STD_LOGIC_VECTOR (55 DOWNTO 0)
+   );
+   end component;
+
+   component adc_serdes_7_bit 
+   port (
+      rx_enable      : IN STD_LOGIC  := '1';
+      rx_in    : IN STD_LOGIC_VECTOR (0 DOWNTO 0);
+      rx_inclock     : IN STD_LOGIC  := '0';
+      rx_out      : OUT STD_LOGIC_VECTOR (6 DOWNTO 0)
+   );
+   end component;
+
+   component flipflop_14
+   port (
+      clock    : IN STD_LOGIC ;
+      data     : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+      q     : OUT STD_LOGIC_VECTOR (13 DOWNTO 0)
    );
    end component;
 
