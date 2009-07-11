@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.6  2009/07/03 23:44:00  bburger
+-- BB: This file has been comitted in a transitionary state for the sake of sharing the progress that is being made on the Readout Card ADC interface.
+--
 -- Revision 1.5  2009/07/03 18:46:00  bburger
 -- BB: Changed DDR signal names back to MEM.  Re-introduced the SERDES for continued testing.
 --
@@ -336,7 +339,6 @@ architecture top of readout_card_stratix_iii is
    signal num_rows                : integer;
    signal num_rows_reported       : integer;
    signal num_cols_reported       : integer;
-
    signal data_size               : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
    
    -- DDR2 signals as copied from micro_ctrl_example_top.vhd generated from MegaWizard DDR2 SDRAM CTRL HP 8.1
@@ -401,9 +403,6 @@ begin
    -- The ttl_in1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not dev_clr_n) or (ttl_in1);
  
-   -- This line will be used by clock card to check card presence
-   --lvds_txb <= '0';
-
    ----------------------------------------------------------------------------
    -- PLL Instantiation
    ----------------------------------------------------------------------------
@@ -411,13 +410,11 @@ begin
    port map (
       inclk0 => inclk,
       c0     => clk,
---      c1     => open,
       c2     => comm_clk,
       c3     => spi_clk,
       c4     => clk_n,
       c5     => adc_clk_p
-   );
-   
+   );   
 
    ----------------------------------------------------------------------------
    -- ADC Receiver Instantiation.  
@@ -490,18 +487,18 @@ begin
 -- We may choose to re-instate this serdes when the hardware error is fixed -- or we may not, since a lot of the complexity is handled in the adc_pll, above
    i_adc_pll: adc_pll_stratix_iii
    port map (
-      -- adc_fco_p is the framing signal from the ADC
-      inclk0 => adc_fco_p,
-      -- clk0: 700.00 MHz, phase shift = -180.00 degrees, duty cycle = 50.00%, fully compensated
-      c0     => clk0,
-      -- clk1: 100.00 MHz, phase shift = +128.57 degrees, duty cycle = 21.42%
-      c1     => clk1,
-      -- clk2: 050.00 MHz, phase shift = +295.71 degrees, duty cycle = 50.00%  [Note: phase shift = (9/28)*360]
-      c2     => clk2,
-      -- clk3: 050.00 MHz, phase shift = +115.71 degrees, duty cycle = 50.00%  [Note: phase shift = ([9+14]/28)*360]
-      c3     => clk3,
-      -- clk4: 050.00 MHz, phase shift = +141.42 degrees, duty cycle = 50.00%  [Note: phase shift = (11/28)*360]
-      c4     => clk4,
+      inclk0 => adc_fco_p, -- adc_fco_p is the framing signal from the ADC
+      c0     => clk0,      -- clk0: 700.00 MHz, phase shift = -180.00 degrees, duty cycle = 50.00%, fully compensated
+      -- The phase of c1 has to be precise, to latch out words at their proper divisions
+      c1     => clk1,      -- clk1: 100.00 MHz, phase shift = +128.57 degrees, duty cycle = 21.42%  [Note: phase shift = (10/28)*360 or 5 clock edges @700 MHz]
+      -- c2, c3 can be latched out at any point during the time they are valid, i.e. 100 MHz -- 10 ns.
+      -- However, they have been phase shifted so that their rising edges fall exactly between SERDES data edges.
+      -- c2 = MSB latch clock
+      -- c3 = LSB latch clock
+      -- c4 = Full word latch clock
+      c2     => clk2,      -- clk2: 050.00 MHz, phase shift = -025.71 deg [(- 2/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
+      c3     => clk3,      -- clk3: 050.00 MHz, phase shift = +154.28 deg [(+12/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
+      c4     => clk4,      -- clk4: 050.00 MHz, phase shift = +218.57 deg [(+17/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
       locked => locked
    );
 
@@ -511,12 +508,13 @@ begin
    -- To receive a 14-bit word, the SERDES data must be latched twice per data period
    i_adc_serdes: adc_serdes 
    port map (
-      rx_enable  => clk1, -- This is always enabled to see what the running output of the deserializer is, and must be driven by a fast PLL clock!
+      rx_enable  => clk1, -- This is the latching signal.  Data is latched twice per 14-bit data point.  The phase delay of +128.57 degrees accounts for propagation through the SERDES.
       rx_in      => adc_dat,    
       rx_inclock => clk0,    
       rx_out     => serdes_dat0   
    );
 
+   -- This register captures the 7 MSB of every data point
    process(clk2, rst)
    begin
       if(rst = '1') then
@@ -526,6 +524,7 @@ begin
       end if;
    end process;
   
+   -- This register captures the 7 LSB of every data point
    process(clk3, rst)
    begin
       if(rst = '1') then
@@ -535,20 +534,6 @@ begin
       end if;
    end process;
 
---   i_adc_serdes_flipflop1: flipflop_56
---   port map (
---      clock      => clk2,
---      data       => serdes_dat0,
---      q          => serdes_dat1
---   );
---   
---   i_adc_serdes_flipflop2: flipflop_56
---   port map (
---      clock      => clk3,
---      data       => serdes_dat0,
---      q          => serdes_dat2
---   );   
-   
    serdes_dat3 <= 
       serdes_dat1(55 downto 49) & serdes_dat2(55 downto 49) &
       serdes_dat1(48 downto 42) & serdes_dat2(48 downto 42) &
@@ -629,10 +614,7 @@ begin
       dip_sw3      => '1',
       dip_sw4      => '1'
    );
-
-
-  --lvds_txa <= dispatch_lvds_txa;-- when dip_sw3 = '1' else '1';  -- multiplexer for disabling the RC output during test of issue_reply
-  
+ 
   -----------------------------------------------------------------------------
   -- Output MUX to Dispatch:
   -- 
@@ -773,84 +755,84 @@ begin
    ----------------------------------------------------------------------------
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
-   i_flux_loop: flux_loop
-   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
-   port map (
-      clk_50_i                  => clk,
-      clk_25_i                  => spi_clk,
-      rst_i                     => rst,
-      num_rows_i                => num_rows,
-      num_rows_reported_i       => num_rows_reported,
-      num_cols_reported_i       => num_cols_reported,
-      data_size_i               => data_size,
-      adc_coadd_en_i            => adc_coadd_en,
-      restart_frame_1row_prev_i => restart_frame_1row_prev,
-      restart_frame_aligned_i   => restart_frame_aligned,
-      restart_frame_1row_post_i => restart_frame_1row_post,
-      row_switch_i              => row_switch,
-      initialize_window_i       => initialize_window,
-      fltr_rst_i                => fltr_rst,
-      num_rows_sub1_i           => (others => '0'),
-      dac_dat_en_i              => dac_dat_en,
-      dat_i                     => dispatch_dat_out,
-      addr_i                    => dispatch_addr_out,
-      tga_i                     => dispatch_tga_out,
-      we_i                      => dispatch_we_out,
-      stb_i                     => dispatch_stb_out,
-      cyc_i                     => dispatch_cyc_out,
-      dat_frame_o               => dat_frame,
-      ack_frame_o               => ack_frame,
-      dat_fb_o                  => dat_fb,
-      ack_fb_o                  => ack_fb,
-      
-      ------------------------------------
-      -- Readout Card Rev. A/AA/B
-      ------------------------------------
-      adc_dat_ch0_i             => adc_dat0,
-      adc_dat_ch1_i             => adc_dat1,
-      adc_dat_ch2_i             => adc_dat2,
-      adc_dat_ch3_i             => adc_dat3,
-      adc_dat_ch4_i             => adc_dat4,
-      adc_dat_ch5_i             => adc_dat5,
-      adc_dat_ch6_i             => adc_dat6,
-      adc_dat_ch7_i             => adc_dat7,
-      
-      dac_dat_ch0_o             => dac0_dfb_dat,
-      dac_dat_ch1_o             => dac1_dfb_dat,
-      dac_dat_ch2_o             => dac2_dfb_dat,
-      dac_dat_ch3_o             => dac3_dfb_dat,
-      dac_dat_ch4_o             => dac4_dfb_dat,
-      dac_dat_ch5_o             => dac5_dfb_dat,
-      dac_dat_ch6_o             => dac6_dfb_dat,
-      dac_dat_ch7_o             => dac7_dfb_dat,
-      
-      dac_clk_ch0_o             => dac_dfb_clk(0),
-      dac_clk_ch1_o             => dac_dfb_clk(1),
-      dac_clk_ch2_o             => dac_dfb_clk(2),
-      dac_clk_ch3_o             => dac_dfb_clk(3),
-      dac_clk_ch4_o             => dac_dfb_clk(4),
-      dac_clk_ch5_o             => dac_dfb_clk(5),
-      dac_clk_ch6_o             => dac_dfb_clk(6),
-      dac_clk_ch7_o             => dac_dfb_clk(7),
-      
-      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
-      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
-      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
-      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
-      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
-      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
-      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
-      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
-      
-      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
-      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
-      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
-      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
-      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
-      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
-      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
-      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
-   );               
+--   i_flux_loop: flux_loop
+--   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
+--   port map (
+--      clk_50_i                  => clk,
+--      clk_25_i                  => spi_clk,
+--      rst_i                     => rst,
+--      num_rows_i                => num_rows,
+--      num_rows_reported_i       => num_rows_reported,
+--      num_cols_reported_i       => num_cols_reported,
+--      data_size_i               => data_size,
+--      adc_coadd_en_i            => adc_coadd_en,
+--      restart_frame_1row_prev_i => restart_frame_1row_prev,
+--      restart_frame_aligned_i   => restart_frame_aligned,
+--      restart_frame_1row_post_i => restart_frame_1row_post,
+--      row_switch_i              => row_switch,
+--      initialize_window_i       => initialize_window,
+--      fltr_rst_i                => fltr_rst,
+--      num_rows_sub1_i           => (others => '0'),
+--      dac_dat_en_i              => dac_dat_en,
+--      dat_i                     => dispatch_dat_out,
+--      addr_i                    => dispatch_addr_out,
+--      tga_i                     => dispatch_tga_out,
+--      we_i                      => dispatch_we_out,
+--      stb_i                     => dispatch_stb_out,
+--      cyc_i                     => dispatch_cyc_out,
+--      dat_frame_o               => dat_frame,
+--      ack_frame_o               => ack_frame,
+--      dat_fb_o                  => dat_fb,
+--      ack_fb_o                  => ack_fb,
+--      
+--      ------------------------------------
+--      -- Readout Card Rev. A/AA/B
+--      ------------------------------------
+--      adc_dat_ch0_i             => adc_dat0,
+--      adc_dat_ch1_i             => adc_dat1,
+--      adc_dat_ch2_i             => adc_dat2,
+--      adc_dat_ch3_i             => adc_dat3,
+--      adc_dat_ch4_i             => adc_dat4,
+--      adc_dat_ch5_i             => adc_dat5,
+--      adc_dat_ch6_i             => adc_dat6,
+--      adc_dat_ch7_i             => adc_dat7,
+--      
+--      dac_dat_ch0_o             => dac0_dfb_dat,
+--      dac_dat_ch1_o             => dac1_dfb_dat,
+--      dac_dat_ch2_o             => dac2_dfb_dat,
+--      dac_dat_ch3_o             => dac3_dfb_dat,
+--      dac_dat_ch4_o             => dac4_dfb_dat,
+--      dac_dat_ch5_o             => dac5_dfb_dat,
+--      dac_dat_ch6_o             => dac6_dfb_dat,
+--      dac_dat_ch7_o             => dac7_dfb_dat,
+--      
+--      dac_clk_ch0_o             => dac_dfb_clk(0),
+--      dac_clk_ch1_o             => dac_dfb_clk(1),
+--      dac_clk_ch2_o             => dac_dfb_clk(2),
+--      dac_clk_ch3_o             => dac_dfb_clk(3),
+--      dac_clk_ch4_o             => dac_dfb_clk(4),
+--      dac_clk_ch5_o             => dac_dfb_clk(5),
+--      dac_clk_ch6_o             => dac_dfb_clk(6),
+--      dac_clk_ch7_o             => dac_dfb_clk(7),
+--      
+--      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
+--      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
+--      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
+--      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
+--      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
+--      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
+--      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
+--      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
+--      
+--      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
+--      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
+--      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
+--      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
+--      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
+--      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
+--      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
+--      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
+--   );               
    
    -- Chip select signal assignment
    bias_dac_ncs(0) <= sa_bias_dac_spi_ch0(2);
@@ -1167,41 +1149,4 @@ begin
    test_status <= adc_dat1(7 downto 0);
    pnf_per_byte <= adc_dat0(7 downto 0);
 
-   ----------------------------------------------------------------------------
-   -- Mictor Connection
-   ----------------------------------------------------------------------------
-   
---   mictor(0)  <= clk;
---   mictor(1)  <= dac_dat_en;
---   mictor(2)  <= adc_coadd_en;
---   mictor(3)  <= restart_frame_1row_prev;
---   mictor(4)  <= restart_frame_aligned;
---   mictor(5)  <= restart_frame_1row_post;
---   mictor(6)  <= row_switch;
---   mictor(7)  <= initialize_window;
---   mictor(8)  <= lvds_sync;
---   mictor(9)  <= lvds_cmd;
---   mictor(10) <= dispatch_lvds_txa;
---   mictor(11) <= dispatch_err_in;
---   mictor(12) <= dispatch_tga_out(0);
---   mictor(13) <= dispatch_tga_out(1);
---   mictor(14) <= dispatch_tga_out(2);
---   mictor(15) <= dispatch_we_out;
---   mictor(16) <= dispatch_stb_out;
---   mictor(17) <= dispatch_cyc_out;
---   mictor(18) <= dispatch_addr_out(0);
---   mictor(19) <= dispatch_addr_out(1);
---   mictor(20) <= dispatch_addr_out(2);
---   mictor(21) <= dispatch_addr_out(3);
---   mictor(22) <= dispatch_addr_out(4);
---   mictor(23) <= dispatch_addr_out(5);
---   mictor(24) <= dispatch_addr_out(6);
---   mictor(25) <= dispatch_addr_out(7);
---   mictor(26) <= ack_fb;
---   mictor(27) <= ack_frame;
---   mictor(28) <= ack_ft;
---   mictor(29) <= ack_led;
---   mictor(30) <= fw_rev_ack;
---   mictor(31) <= rst;
-   
 end top;
