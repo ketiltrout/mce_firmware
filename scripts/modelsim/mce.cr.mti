@@ -1,5 +1,5 @@
-C:/mce/cards/readout_card/wbs_fb_data/source/rtl/pid_ram_admin.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/pid_ram_admin.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+C:/mce/cards/readout_card/wbs_fb_data/source/rtl/pid_ram_admin.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/pid_ram_admin.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -12,16 +12,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity pid_ram_admin
 -- Compiling architecture rtl of pid_ram_admin
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub45.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub45.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub45.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub45.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_sub45
 -- Compiling architecture syn of fsfb_calc_sub45
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_auk_ddr_hp_controller_wrapper.v {1 {vlog -work work -vopt -nocovercells C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_auk_ddr_hp_controller_wrapper.v
+Model Technology ModelSim SE vlog 6.3g Compiler 2008.05 May  1 2008
+-- Compiling module micron_ctrl_auk_ddr_hp_controller_wrapper
+
+Top level modules:
+	micron_ctrl_auk_ddr_hp_controller_wrapper
+
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -38,16 +45,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity cmd_queue
 -- Compiling architecture behav of cmd_queue
 
-} {} {}} C:/mce/cards/library/sys_param/source/rtl/command_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/sys_param/source/rtl/command_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/sys_param/source/rtl/command_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/sys_param/source/rtl/command_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
 -- Compiling package command_pack
 
-} {} {}} C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -57,8 +64,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package sync_gen_pack
 -- Compiling package ret_dat_wbs_pack
 
-} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -72,15 +79,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity sync_gen_wbs
 -- Compiling architecture rtl of sync_gen_wbs
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_10x64.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_10x64.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_10x64.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_10x64.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity ram_10x64
 -- Compiling architecture syn of ram_10x64
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/d_banks_admin.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/d_banks_admin.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/d_banks_admin.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/d_banks_admin.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -93,8 +100,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity d_banks_admin
 -- Compiling architecture rtl of d_banks_admin
 
-} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -107,16 +114,27 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity frame_timing_wbs
 -- Compiling architecture rtl of frame_timing_wbs
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder65.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder65.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_example_driver.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_example_driver.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package numeric_std
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package altera_europa_support_lib
+-- Compiling entity micron_ctrl_example_driver
+-- Compiling architecture europa of micron_ctrl_example_driver
+
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder65.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder65.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_adder65
 -- Compiling architecture syn of fsfb_calc_adder65
 
-} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -126,8 +144,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package bc_dac_ctrl_pack
 -- Compiling package bc_dac_ctrl_wbs_pack
 
-} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -143,12 +161,24 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity ac_dac_ctrl_core
 -- Compiling architecture rtl of ac_dac_ctrl_core
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_control.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_control.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_control.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_control.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity fibre_tx_control
 -- Compiling architecture rtl of fibre_tx_control
+
+} {} {}} C:/mce/cards/clk_card/psu_ctrl/source/rtl/psu_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/psu_ctrl/source/rtl/psu_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity psu_ctrl
+-- Compiling architecture top of psu_ctrl
 
 } {} {}} C:/mce/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl_pack.vhd
 Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
@@ -161,28 +191,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package eeprom_ctrl_pack
 
-} {} {}} C:/mce/cards/clk_card/psu_ctrl/source/rtl/psu_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/psu_ctrl/source/rtl/psu_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity psu_ctrl
--- Compiling architecture top of psu_ctrl
-
-} {} {}} C:/mce/cards/addr_card/pll/source/rtl/pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis -vopt C:/mce/cards/addr_card/pll/source/rtl/pll.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/pll/source/rtl/pll.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/pll/source/rtl/pll.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity pll
 -- Compiling architecture syn of pll
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -197,8 +215,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity cmd_translator_arbiter
 -- Compiling architecture rtl of cmd_translator_arbiter
 
-} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
@@ -210,16 +228,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity dispatch
 -- Compiling architecture rtl of dispatch
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity reply_translator_frame_head_ram
 -- Compiling architecture syn of reply_translator_frame_head_ram
 
-} {} {}} C:/mce/cards/library/components/source/rtl/fifo.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/fifo.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/fifo.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/fifo.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -229,8 +247,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fifo
 -- Compiling architecture rtl of fifo
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_processor.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_processor.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_processor.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_processor.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -245,33 +263,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fsfb_processor
 -- Compiling architecture rtl of fsfb_processor
 
-} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package flux_loop_ctrl_pack
--- Compiling package offset_ctrl_pack
-
-} {} {}} C:/mce/cards/clk_card/config_fpga/source/rtl/config_fpga.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/config_fpga/source/rtl/config_fpga.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity config_fpga
--- Compiling architecture top of config_fpga
-
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -283,8 +276,33 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package flux_loop_ctrl_pack
 -- Compiling package fsfb_calc_pack
 
-} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/config_fpga/source/rtl/config_fpga.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/config_fpga/source/rtl/config_fpga.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity config_fpga
+-- Compiling architecture top of config_fpga
+
+} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Compiling package offset_ctrl_pack
+
+} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -300,8 +318,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity ac_dac_ctrl
 -- Compiling architecture rtl of ac_dac_ctrl
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -318,15 +336,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity reply_queue
 -- Compiling architecture behav of reply_queue
 
-} {} {}} C:/mce/cards/clk_card/pll/source/rtl/cc_pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/pll/source/rtl/cc_pll.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/pll/source/rtl/cc_pll.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/pll/source/rtl/cc_pll.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity cc_pll
 -- Compiling architecture syn of cc_pll
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -334,24 +352,24 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity raw_dat_manager_data_path
 -- Compiling architecture beh of raw_dat_manager_data_path
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_queue.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_queue.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_queue.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity fsfb_queue
 -- Compiling architecture syn of fsfb_queue
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package component_pack
 -- Compiling entity fibre_tx_fifo
 -- Compiling architecture behav of fibre_tx_fifo
 
-} {} {}} C:/mce/cards/readout_card/readout_card/source/rtl/readout_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/readout_card/source/rtl/readout_card_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/readout_card/source/rtl/readout_card_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/readout_card/source/rtl/readout_card_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -360,15 +378,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package readout_card_pack
 
-} {} {}} C:/mce/cards/library/components/source/rtl/obs/crc.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/obs/crc.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/obs/crc.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/obs/crc.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity crc
 -- Compiling architecture behav of crc
 
-} {} {}} C:/mce/cards/all_cards/fw_rev/source/rtl/fw_rev.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/fw_rev/source/rtl/fw_rev.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/fw_rev/source/rtl/fw_rev.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/fw_rev/source/rtl/fw_rev.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -378,8 +396,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fw_rev
 -- Compiling architecture rtl of fw_rev
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -392,8 +410,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity flux_quanta_ram_admin
 -- Compiling architecture rtl of flux_quanta_ram_admin
 
-} {} {}} C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -403,29 +421,29 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity clk_switchover
 -- Compiling architecture top of clk_switchover
 
-} {} {}} C:/mce/cards/clk_card/psu_ctrl/source/rtl/ram_32bit_x_64.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/psu_ctrl/source/rtl/ram_32bit_x_64.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/psu_ctrl/source/rtl/ram_32bit_x_64.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/psu_ctrl/source/rtl/ram_32bit_x_64.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity ram_32bit_x_64
 -- Compiling architecture syn of ram_32bit_x_64
 
-} {} {}} C:/mce/cards/library/components/source/rtl/rs232_data_tx.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/rs232_data_tx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/rs232_data_tx.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/rs232_data_tx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling entity rs232_data_tx
 -- Compiling architecture rtl of rs232_data_tx
 
-} {} {}} C:/mce/scripts/modelsim/altera_mf_components.vhd {1 {vcom -work altera_mf -2002 -explicit C:/mce/scripts/modelsim/altera_mf_components.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+} {} {}} C:/mce/scripts/modelsim/altera_mf_components.vhd {1 {vcom -work altera_mf -2002 -explicit -cover s2 -vopt C:/mce/scripts/modelsim/altera_mf_components.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package altera_mf_components
 
-} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -437,16 +455,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity ac_dac_ctrl_wbs
 -- Compiling architecture rtl of ac_dac_ctrl_wbs
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_accumulator.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_accumulator.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_accumulator.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_accumulator.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity reply_queue_accumulator
 -- Compiling architecture syn of reply_queue_accumulator
 
-} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -456,23 +474,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package bc_dac_ctrl_pack
 -- Compiling package bc_dac_ctrl_core_pack
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder32.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder32.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder32.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder32.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_adder32
 -- Compiling architecture syn of fsfb_calc_adder32
 
-} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity fsfb_corr_subtractor
 -- Compiling architecture syn of fsfb_corr_subtractor
 
-} {} {}} C:/mce/cards/library/components/source/rtl/counter.vhd {2 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/counter.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/counter.vhd {2 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/counter.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -492,8 +510,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
     C:/mce/cards/library/components/source/rtl/counter.vhd(101):Conditional signal assignment line__101
     C:/mce/cards/library/components/source/rtl/counter.vhd(105):Conditional signal assignment line__105
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/dynamic_manager_data_path.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/dynamic_manager_data_path.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/dynamic_manager_data_path.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/dynamic_manager_data_path.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -508,8 +526,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity dynamic_manager_data_path
 -- Compiling architecture rtl of dynamic_manager_data_path
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -520,16 +538,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package cmd_queue_ram40_pack
 -- Compiling package reply_queue_pack
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub29.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub29.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub29.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_sub29.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_sub29
 -- Compiling architecture syn of fsfb_calc_sub29
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -539,8 +557,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package sync_gen_pack
 -- Compiling package cmd_queue_ram40_pack
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -555,31 +573,38 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fibre_rx
 -- Compiling architecture rtl of fibre_rx
 
-} {} {}} C:/mce/cards/library/components/source/rtl/reg.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/reg.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/reg.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/reg.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling entity reg
 -- Compiling architecture behav of reg
 
-} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity micron_ctrl
+-- Compiling architecture syn of micron_ctrl
+
+} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity fsfb_corr_multiplier
 -- Compiling architecture syn of fsfb_corr_multiplier
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_control.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_control.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_control.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_control.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling entity fibre_rx_control
 -- Compiling architecture rtl of fibre_rx_control
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_io_controller.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -593,8 +618,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fsfb_io_controller
 -- Compiling architecture rtl of fsfb_io_controller
 
-} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_spi_if.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_spi_if.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_spi_if.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_spi_if.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package numeric_std
@@ -609,8 +634,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity offset_spi_if
 -- Compiling architecture rtl of offset_spi_if
 
-} {} {}} C:/mce/cards/clk_card/backplane_id_thermo/source/rtl/backplane_id_thermo.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/backplane_id_thermo/source/rtl/backplane_id_thermo.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/backplane_id_thermo/source/rtl/backplane_id_thermo.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/backplane_id_thermo/source/rtl/backplane_id_thermo.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -621,24 +646,24 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity backplane_id_thermo
 -- Compiling architecture behav of backplane_id_thermo
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity cmd_queue_tpram
 -- Compiling architecture syn of cmd_queue_tpram
 
-} {} {}} C:/mce/cards/library/components/source/rtl/sync_fifo_rx.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/sync_fifo_rx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/sync_fifo_rx.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/sync_fifo_rx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity sync_fifo_rx
 -- Compiling architecture syn of sync_fifo_rx
 
-} {} {}} C:/mce/cards/all_cards/all_cards/source/rtl/all_cards_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/all_cards/source/rtl/all_cards_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/all_cards/source/rtl/all_cards_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/all_cards/source/rtl/all_cards_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -649,8 +674,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package frame_timing_pack
 -- Compiling package all_cards_pack
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -660,16 +685,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity cmd_translator_simple_cmd_fsm
 -- Compiling architecture rtl of cmd_translator_simple_cmd_fsm
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_multiplier.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_multiplier.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_multiplier.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_multiplier.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_multiplier
 -- Compiling architecture syn of fsfb_calc_multiplier
 
-} {} {}} C:/mce/scripts/modelsim/220model.vhd {1 {vcom -work lpm -2002 -explicit C:/mce/scripts/modelsim/220model.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+} {} {}} C:/mce/scripts/modelsim/220model.vhd {1 {vcom -work lpm -2002 -explicit -cover s2 -novopt C:/mce/scripts/modelsim/220model.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package textio
@@ -765,8 +790,8 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling entity lpm_bipad
 -- Compiling architecture lpm_syn of lpm_bipad
 
-} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_wishbone.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_wishbone.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -777,8 +802,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity dispatch_wishbone
 -- Compiling architecture rtl of dispatch_wishbone
 
-} {} {}} C:/mce/cards/all_cards/async/source/rtl/lvds_rx.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/async/source/rtl/lvds_rx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/async/source/rtl/lvds_rx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/async/source/rtl/lvds_rx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -788,16 +813,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity lvds_rx
 -- Compiling architecture rtl of lvds_rx
 
-} {} {}} C:/mce/cards/library/components/source/rtl/tri_state_buf.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/tri_state_buf.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/tri_state_buf.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/tri_state_buf.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling entity tri_state_buf
 -- Compiling architecture rtl of tri_state_buf
 
-} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -807,16 +832,25 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package sync_gen_pack
 -- Compiling package sync_gen_wbs_pack
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_ex_lfsr8.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_ex_lfsr8.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Compiling entity micron_ctrl_ex_lfsr8
+-- Compiling architecture rtl of micron_ctrl_ex_lfsr8
+
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_add_sub32
 -- Compiling architecture syn of fsfb_calc_add_sub32
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_manager_data_path.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_manager_data_path.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_manager_data_path.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_manager_data_path.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -831,8 +865,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity coadd_manager_data_path
 -- Compiling architecture beh of coadd_manager_data_path
 
-} {} {}} C:/mce/cards/library/components/source/rtl/us_timer.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/us_timer.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/us_timer.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/us_timer.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -841,8 +875,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity us_timer
 -- Compiling architecture behav of us_timer
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -855,8 +889,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity reply_translator
 -- Compiling architecture rtl of reply_translator
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -870,8 +904,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity coadd_dynamic_manager_ctrl
 -- Compiling architecture timing_beh of coadd_dynamic_manager_ctrl
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -884,8 +918,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package frame_timing_pack
 -- Compiling package cmd_queue_pack
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -900,8 +934,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity cmd_translator_internal_cmd_fsm
 -- Compiling architecture rtl of cmd_translator_internal_cmd_fsm
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -913,8 +947,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package flux_loop_ctrl_pack
 -- Compiling package adc_sample_coadd_pack
 
-} {} {}} C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -925,23 +959,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity sram_ctrl
 -- Compiling architecture behav of sram_ctrl
 
-} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package flux_loop_ctrl_pack
--- Loading package offset_ctrl_pack
--- Compiling entity offset_ctrl
--- Compiling architecture struct of offset_ctrl
-
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -955,6 +974,21 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fsfb_calc
 -- Compiling architecture struct of fsfb_calc
 
+} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package offset_ctrl_pack
+-- Compiling entity offset_ctrl
+-- Compiling architecture struct of offset_ctrl
+
 } {} {}} C:/mce/cards/all_cards/slot_id/source/rtl/slot_id_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/slot_id/source/rtl/slot_id_pack.vhd
 Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package standard
@@ -965,8 +999,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package slot_id_pack
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_receive.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_receive.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_receive.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_receive.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -976,8 +1010,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity reply_queue_receive
 -- Compiling architecture rtl of reply_queue_receive
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_ret_dat_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_ret_dat_fsm.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package adc_sample_coadd_pack
+-- Compiling entity adc_sample_coadd
+-- Compiling architecture struct of adc_sample_coadd
+
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_ret_dat_fsm.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_ret_dat_fsm.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -992,23 +1041,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity cmd_translator_ret_dat_fsm
 -- Compiling architecture rtl of cmd_translator_ret_dat_fsm
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_sample_coadd.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package flux_loop_ctrl_pack
--- Loading package adc_sample_coadd_pack
--- Compiling entity adc_sample_coadd
--- Compiling architecture struct of adc_sample_coadd
-
-} {} {}} C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/ret_dat/source/rtl/ret_dat_wbs.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1023,8 +1057,34 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity ret_dat_wbs
 -- Compiling architecture rtl of ret_dat_wbs
 
-} {} {}} C:/mce/scripts/modelsim/altera_mf.vhd {1 {vcom -work altera_mf -2002 -explicit C:/mce/scripts/modelsim/altera_mf.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/pid_ram.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/pid_ram.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity pid_ram
+-- Compiling architecture syn of pid_ram
+
+} {} {}} C:/mce/cards/readout_card/readout_card/source/rtl/readout_card_stratix_iii.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/readout_card/source/rtl/readout_card_stratix_iii.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Loading package readout_card_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Loading package all_cards_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package adc_sample_coadd_pack
+-- Compiling entity readout_card_stratix_iii
+-- Compiling architecture top of readout_card_stratix_iii
+
+} {} {}} C:/mce/scripts/modelsim/altera_mf.vhd {1 {vcom -work altera_mf -2002 -explicit -cover s2 -novopt C:/mce/scripts/modelsim/altera_mf.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity lcell
@@ -1044,6 +1104,8 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading package mf_pllpack
 -- Compiling entity dffp
 -- Compiling architecture behave of dffp
+-- Compiling entity pll_iobuf
+-- Compiling architecture behavior of pll_iobuf
 -- Compiling entity mf_m_cntr
 -- Compiling architecture behave of mf_m_cntr
 -- Compiling entity mf_n_cntr
@@ -1060,20 +1122,43 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading entity mf_pll_reg
 -- Compiling entity mf_stratix_pll
 -- Compiling architecture vital_pll of mf_stratix_pll
--- Compiling entity mf_mn_cntr
--- Compiling architecture behave of mf_mn_cntr
+-- Compiling entity arm_m_cntr
+-- Compiling architecture behave of arm_m_cntr
+-- Compiling entity arm_n_cntr
+-- Compiling architecture behave of arm_n_cntr
 -- Compiling entity arm_scale_cntr
 -- Compiling architecture behave of arm_scale_cntr
--- Loading entity mf_mn_cntr
+-- Loading entity arm_m_cntr
+-- Loading entity arm_n_cntr
 -- Loading entity arm_scale_cntr
 -- Compiling entity mf_stratixii_pll
 -- Compiling architecture vital_pll of mf_stratixii_pll
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Compiling entity mf_ttn_mn_cntr
+-- Compiling architecture behave of mf_ttn_mn_cntr
+-- Compiling entity mf_ttn_scale_cntr
+-- Compiling architecture behave of mf_ttn_scale_cntr
+-- Loading entity mf_ttn_mn_cntr
+-- Loading entity mf_ttn_scale_cntr
+-- Compiling entity mf_stratixiii_pll
+-- Compiling architecture vital_pll of mf_stratixiii_pll
+-- Compiling entity mf_cda_mn_cntr
+-- Compiling architecture behave of mf_cda_mn_cntr
+-- Compiling entity mf_cda_scale_cntr
+-- Compiling architecture behave of mf_cda_scale_cntr
+-- Loading entity mf_cda_mn_cntr
+-- Loading entity mf_cda_scale_cntr
+-- Compiling entity mf_cycloneiii_pll
+-- Compiling architecture vital_pll of mf_cycloneiii_pll
 -- Loading package altera_device_families
 -- Loading entity mf_stratix_pll
 -- Loading entity mf_stratixii_pll
+-- Loading entity mf_stratixiii_pll
+-- Loading entity mf_cycloneiii_pll
+-- Loading entity pll_iobuf
 -- Compiling entity altpll
 -- Compiling architecture behavior of altpll
--- Loading package std_logic_arith
 -- Compiling entity altaccumulate
 -- Compiling architecture behaviour of altaccumulate
 -- Compiling entity altmult_accum
@@ -1095,32 +1180,22 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Loading entity altddio_out
 -- Compiling entity altddio_bidir
 -- Compiling architecture struct of altddio_bidir
--- Compiling entity hssi_pll
--- Compiling architecture behavior of hssi_pll
--- Compiling entity mf_ram7x20_syn
--- Compiling architecture hssi_ram7x20_syn of mf_ram7x20_syn
--- Loading entity mf_ram7x20_syn
--- Compiling entity hssi_fifo
--- Compiling architecture synchronizer of hssi_fifo
--- Compiling entity hssi_rx
--- Compiling architecture hssi_receiver of hssi_rx
--- Compiling entity hssi_tx
--- Compiling architecture transmitter of hssi_tx
--- Loading entity hssi_pll
--- Loading entity hssi_rx
--- Loading entity hssi_fifo
--- Compiling entity altcdr_rx
--- Compiling architecture struct of altcdr_rx
--- Loading entity hssi_tx
--- Compiling entity altcdr_tx
--- Compiling architecture struct of altcdr_tx
 -- Compiling entity stratixii_lvds_rx
 -- Compiling architecture behavior of stratixii_lvds_rx
 -- Compiling entity flexible_lvds_rx
 -- Compiling architecture behavior of flexible_lvds_rx
+-- Compiling entity stratixiii_lvds_rx_dpa
+-- Compiling architecture behavior of stratixiii_lvds_rx_dpa
+-- Loading entity stratixiii_lvds_rx_dpa
+-- Compiling entity stratixiii_lvds_rx_channel
+-- Compiling architecture behavior of stratixiii_lvds_rx_channel
+-- Loading entity stratixiii_lvds_rx_channel
+-- Compiling entity stratixiii_lvds_rx
+-- Compiling architecture behavior of stratixiii_lvds_rx
 -- Loading entity altclklock
 -- Loading entity stratixii_lvds_rx
 -- Loading entity flexible_lvds_rx
+-- Loading entity stratixiii_lvds_rx
 -- Compiling entity altlvds_rx
 -- Compiling architecture behavior of altlvds_rx
 -- Compiling entity stratix_tx_outclk
@@ -1136,12 +1211,12 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling architecture behavior of altlvds_tx
 -- Compiling entity altcam
 -- Compiling architecture behave of altcam
--- Loading package std_logic_unsigned
 -- Compiling entity altdpram
 -- Compiling architecture behavior of altdpram
 -- Compiling entity altsyncram
 -- Compiling architecture translated of altsyncram
 -- Loading entity altsyncram
+-- Loading package altera_mf_hint_evaluation
 -- Compiling entity alt3pram
 -- Compiling architecture behavior of alt3pram
 -- Compiling entity altqpram
@@ -1151,6 +1226,9 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling architecture behaviour of parallel_add
 -- Compiling entity scfifo
 -- Compiling architecture behavior of scfifo
+-- Compiling package dcfifo_pack
+-- Compiling package body dcfifo_pack
+-- Loading package dcfifo_pack
 -- Compiling entity dcfifo_dffpipe
 -- Compiling architecture behavior of dcfifo_dffpipe
 -- Compiling entity dcfifo_fefifo
@@ -1161,12 +1239,15 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling architecture behavior of dcfifo_async
 -- Compiling entity dcfifo_sync
 -- Compiling architecture behavior of dcfifo_sync
--- Loading package altera_mf_hint_evaluation
 -- Compiling entity dcfifo_low_latency
 -- Compiling architecture behavior of dcfifo_low_latency
 -- Loading entity dcfifo_async
 -- Loading entity dcfifo_sync
 -- Loading entity dcfifo_low_latency
+-- Loading package dcfifo_pack
+-- Compiling entity dcfifo_mixed_widths
+-- Compiling architecture behavior of dcfifo_mixed_widths
+-- Loading entity dcfifo_mixed_widths
 -- Compiling entity dcfifo
 -- Compiling architecture behavior of dcfifo
 -- Compiling entity altshift_taps
@@ -1175,6 +1256,16 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling architecture behavior of a_graycounter
 -- Compiling entity altsquare
 -- Compiling architecture altsquare_syn of altsquare
+-- Loading package vital_timing
+-- Loading package vital_primitives
+-- Compiling entity altdq_dqs
+-- Compiling architecture translated of altdq_dqs
+-- Compiling entity altera_std_synchronizer
+-- Compiling architecture behavioral of altera_std_synchronizer
+-- Compiling entity altera_std_synchronizer_bundle
+-- Compiling architecture behavioral of altera_std_synchronizer_bundle
+-- Compiling entity alt_cal
+-- Compiling architecture rtl of alt_cal
 -- Compiling package sld_node
 -- Compiling package body sld_node
 -- Loading package sld_node
@@ -1185,6 +1276,9 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling architecture fsm of jtag_tap_controller
 -- Compiling entity dummy_hub
 -- Compiling architecture behavior of dummy_hub
+-- Loading entity signal_gen
+-- Loading entity jtag_tap_controller
+-- Loading entity dummy_hub
 -- Compiling entity sld_virtual_jtag
 -- Compiling architecture structural of sld_virtual_jtag
 -- Compiling entity sld_signaltap
@@ -1195,17 +1289,19 @@ Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
 -- Compiling architecture sim_altparallel_flash_loader of altparallel_flash_loader
 -- Compiling entity altserial_flash_loader
 -- Compiling architecture sim_altserial_flash_loader of altserial_flash_loader
+-- Compiling entity altsource_probe
+-- Compiling architecture sim_altsource_probe of altsource_probe
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_wn_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_wn_queue.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_wn_queue.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_wn_queue.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity fsfb_wn_queue
 -- Compiling architecture syn of fsfb_wn_queue
 
-} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1214,8 +1310,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package ac_dac_ctrl_wbs_pack
 
-} {} {}} C:/mce/cards/all_cards/leds/source/rtl/leds.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/leds/source/rtl/leds.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/pll/source/rtl/adc_pll_stratix_iii.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/pll/source/rtl/adc_pll_stratix_iii.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity adc_pll_stratix_iii
+-- Compiling architecture syn of adc_pll_stratix_iii
+
+} {} {}} C:/mce/cards/all_cards/leds/source/rtl/leds.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/leds/source/rtl/leds.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1226,8 +1329,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity leds
 -- Compiling architecture rtl of leds
 
-} {} {}} C:/mce/cards/bias_card/bias_card/source/rtl/bias_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bias_card/source/rtl/bias_card_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/bias_card/bias_card/source/rtl/bias_card_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bias_card/source/rtl/bias_card_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1237,22 +1340,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package bc_dac_ctrl_pack
 -- Compiling package bias_card_pack
 
-} {} {}} C:/mce/cards/library/components/source/rtl/parallel_crc.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/parallel_crc.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling entity parallel_crc
--- Compiling architecture behav of parallel_crc
-
-} {} {}} C:/Modeltech_6.1c/vhdl_src/std/textio.vhd {1 {vcom -work std -2002 -explicit C:/Modeltech_6.1c/vhdl_src/std/textio.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
--- Loading package standard
--- Compiling package textio
--- Compiling package body textio
--- Loading package textio
-
-} {} {}} C:/mce/cards/all_cards/all_cards/source/rtl/all_cards.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/all_cards/source/rtl/all_cards.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/all_cards/source/rtl/all_cards.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/all_cards/source/rtl/all_cards.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1266,14 +1355,21 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity all_cards
 -- Compiling architecture rtl of all_cards
 
-} {} {}} C:/mce/cards/library/sys_param/source/rtl/general_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/sys_param/source/rtl/general_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/parallel_crc.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/parallel_crc.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity parallel_crc
+-- Compiling architecture behav of parallel_crc
+
+} {} {}} C:/mce/cards/library/sys_param/source/rtl/general_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/sys_param/source/rtl/general_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package general_pack
 
-} {} {}} C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package component_pack
@@ -1286,8 +1382,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity dv_rx
 -- Compiling architecture top of dv_rx
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_translator_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1297,16 +1393,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package sync_gen_pack
 -- Compiling package reply_translator_pack
 
-} {} {}} C:/mce/cards/library/components/source/rtl/shift_reg.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/shift_reg.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_frame_data/source/rtl/rectangle_ram_bank.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_frame_data/source/rtl/rectangle_ram_bank.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity rectangle_ram_bank
+-- Compiling architecture syn of rectangle_ram_bank
+
+} {} {}} C:/mce/cards/library/components/source/rtl/shift_reg.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/shift_reg.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling entity shift_reg
 -- Compiling architecture behav of shift_reg
 
-} {} {}} C:/mce/cards/library/components/source/rtl/smb_master.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/smb_master.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/smb_master.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/smb_master.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1315,23 +1418,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity smb_master
 -- Compiling architecture behav of smb_master
 
-} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package flux_loop_ctrl_pack
--- Loading package sa_bias_ctrl_pack
--- Compiling entity sa_bias_ctrl
--- Compiling architecture struct of sa_bias_ctrl
-
-} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1346,8 +1434,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fsfb_corr
 -- Compiling architecture rtl of fsfb_corr
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_pidz.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_pidz.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package sa_bias_ctrl_pack
+-- Compiling entity sa_bias_ctrl
+-- Compiling architecture struct of sa_bias_ctrl
+
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_pidz.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_pidz.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1362,8 +1465,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fsfb_proc_pidz
 -- Compiling architecture rtl of fsfb_proc_pidz
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1378,8 +1481,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity cmd_translator
 -- Compiling architecture rtl of cmd_translator
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_serdes.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/adc_serdes.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity adc_serdes
+-- Compiling architecture syn of adc_serdes
+
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1394,15 +1504,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fibre_rx_protocol
 -- Compiling architecture rtl of fibre_rx_protocol
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_8x64.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_8x64.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_8x64.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_8x64.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity ram_8x64
 -- Compiling architecture syn of ram_8x64
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1416,47 +1526,49 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fibre_tx
 -- Compiling architecture rtl of fibre_tx
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub16.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub16.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/scripts/modelsim/altera_europa_support_lib.vhd {1 {vcom -work altera -2002 -explicit -cover s2 -vopt C:/mce/scripts/modelsim/altera_europa_support_lib.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package lpm_components
--- Compiling entity fsfb_calc_add_sub16
--- Compiling architecture syn of fsfb_calc_add_sub16
+-- Loading package numeric_std
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Compiling package altera_europa_support_lib
+-- Compiling package body altera_europa_support_lib
+-- Loading package altera_europa_support_lib
 
-} {} {}} C:/mce/cards/clk_card/pll/source/rtl/pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/pll/source/rtl/pll.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/pll/source/rtl/pll.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/pll/source/rtl/pll.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity pll
 -- Compiling architecture syn of pll
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_bank.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_bank.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub16.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_add_sub16.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package altera_mf_components
+-- Loading package lpm_components
+-- Compiling entity fsfb_calc_add_sub16
+-- Compiling architecture syn of fsfb_calc_add_sub16
+
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_bank.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_bank.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
 -- Compiling entity raw_dat_bank
 -- Compiling architecture syn of raw_dat_bank
 
-} {} {}} C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling package fsfb_ctrl_pack
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder31.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder31.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package lpm_components
--- Compiling entity fsfb_calc_adder31
--- Compiling architecture syn of fsfb_calc_adder31
-
-} {} {}} C:/mce/cards/library/components/source/rtl/counter_xstep.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/counter_xstep.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/counter_xstep.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/counter_xstep.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1464,8 +1576,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity counter_xstep
 -- Compiling architecture behav of counter_xstep
 
-} {} {}} C:/mce/cards/readout_card/readout_card/source/rtl/readout_card.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/readout_card/source/rtl/readout_card.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder31.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder31.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package lpm_components
+-- Compiling entity fsfb_calc_adder31
+-- Compiling architecture syn of fsfb_calc_adder31
+
+} {} {}} C:/mce/cards/readout_card/readout_card/source/rtl/readout_card.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/readout_card/source/rtl/readout_card.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1476,19 +1596,14 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package data_types_pack
 -- Loading package frame_timing_pack
 -- Loading package all_cards_pack
+-- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package adc_sample_coadd_pack
 -- Compiling entity readout_card
 -- Compiling architecture top of readout_card
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/tb/pidz_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/tb/pidz_queue.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package altera_mf_components
--- Compiling entity pidz_queue
--- Compiling architecture syn of pidz_queue
-
-} {} {}} C:/mce/cards/library/components/source/rtl/binary_counter.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/binary_counter.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/binary_counter.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/binary_counter.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1496,16 +1611,24 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity binary_counter
 -- Compiling architecture behav of binary_counter
 
-} {} {}} C:/mce/cards/all_cards/async/source/rtl/rs232_rx.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/async/source/rtl/rs232_rx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/tb/pidz_queue.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/tb/pidz_queue.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package altera_mf_components
+-- Compiling entity pidz_queue
+-- Compiling architecture syn of pidz_queue
+
+} {} {}} C:/mce/cards/all_cards/async/source/rtl/rs232_rx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/async/source/rtl/rs232_rx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package component_pack
 -- Compiling entity rs232_rx
 -- Compiling architecture rtl of rs232_rx
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/i_banks_admin.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/i_banks_admin.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/i_banks_admin.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/i_banks_admin.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1518,15 +1641,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity i_banks_admin
 -- Compiling architecture rtl of i_banks_admin
 
-} {} {}} C:/mce/cards/library/components/source/rtl/lfsr.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/lfsr.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/lfsr.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/lfsr.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity lfsr
 -- Compiling architecture behav of lfsr
 
-} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1536,22 +1659,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity dispatch_cmd_receive
 -- Compiling architecture rtl of dispatch_cmd_receive
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/misc_banks_admin.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/misc_banks_admin.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package wbs_fb_data_pack
--- Compiling entity misc_banks_admin
--- Compiling architecture rtl of misc_banks_admin
-
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_ramp.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_ramp.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_ramp.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_proc_ramp.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1566,8 +1675,22 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package std_logic_signed
 -- Compiling architecture rtl of fsfb_proc_ramp
 
-} {} {}} C:/mce/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd {1 {vcom -work work -93 -explicit -cover s -vopt C:/mce/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/misc_banks_admin.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/misc_banks_admin.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package wbs_fb_data_pack
+-- Compiling entity misc_banks_admin
+-- Compiling architecture rtl of misc_banks_admin
+
+} {} {}} C:/mce/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd {1 {vcom -work work -2002 -explicit -cover s2 -vopt C:/mce/cards/system/test/source/tb/tb_cc_rcs_bcs_ac.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package numeric_std
@@ -1585,8 +1708,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity tb_cc_rcs_bcs_ac
 -- Compiling architecture tb of tb_cc_rcs_bcs_ac
 
-} {} {}} C:/mce/cards/library/components/source/rtl/one_wire_master.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/one_wire_master.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/one_wire_master.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/one_wire_master.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1595,8 +1718,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity one_wire_master
 -- Compiling architecture behav of one_wire_master
 
-} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_phy.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_phy.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity micron_ctrl_phy
+-- Compiling architecture syn of micron_ctrl_phy
+
+} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1609,16 +1739,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity frame_timing
 -- Compiling architecture beh of frame_timing
 
-} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/tpram_32bit_x_64.vhd {1 {vcom -work work -93 -explicit -check_synthesis -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/tpram_32bit_x_64.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/tpram_32bit_x_64.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/tpram_32bit_x_64.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity tpram_32bit_x_64
 -- Compiling architecture syn of tpram_32bit_x_64
 
-} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd {2 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/hex2ascii.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/hex2ascii.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity hex2ascii
+-- Compiling architecture behav of hex2ascii
+
+} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1629,20 +1766,9 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package bc_dac_ctrl_pack
 -- Compiling entity bc_dac_ctrl_wbs
 -- Compiling architecture rtl of bc_dac_ctrl_wbs
-** Warning: C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd(237): Synthesis Warning: Signal 'tga_i' is read by the process but is NOT in the sensitivity list.
-** Warning: C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd(251): Synthesis Warning: Signal 'tga_i' is read by the process but is NOT in the sensitivity list.
-** Warning: C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd(270): Synthesis Warning: Signal 'tga_i' is read by the process but is NOT in the sensitivity list.
-** Warning: C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd(276): Synthesis Warning: Signal 'tga_i' is read by the process but is NOT in the sensitivity list.
 
-} {} {}} C:/mce/cards/library/components/source/rtl/hex2ascii.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/hex2ascii.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling entity hex2ascii
--- Compiling architecture behav of hex2ascii
-
-} {} {}} C:/mce/cards/addr_card/addr_card/source/rtl/addr_card.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/addr_card/addr_card/source/rtl/addr_card.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/addr_card/source/rtl/addr_card.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/addr_card/source/rtl/addr_card.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1655,8 +1781,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity addr_card
 -- Compiling architecture top of addr_card
 
-} {} {}} C:/mce/cards/clk_card/subarray_id/source/rtl/subarray_id.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/subarray_id/source/rtl/subarray_id.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/subarray_id/source/rtl/subarray_id.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/subarray_id/source/rtl/subarray_id.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1674,23 +1800,30 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity subarray_id
 -- Compiling architecture rtl of subarray_id
 
-} {} {}} C:/mce/cards/library/components/source/rtl/sync_fifo_tx.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/sync_fifo_tx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/flipflop_56.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/flipflop_56.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity flipflop_56
+-- Compiling architecture syn of flipflop_56
+
+} {} {}} C:/mce/cards/library/components/source/rtl/sync_fifo_tx.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/sync_fifo_tx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity sync_fifo_tx
 -- Compiling architecture syn of sync_fifo_tx
 
-} {} {}} C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/dv_rx/source/rtl/dv_rx_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package dv_rx_pack
 -- Compiling package body dv_rx_pack
 -- Loading package dv_rx_pack
 
-} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_core_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package data_types_pack
@@ -1702,8 +1835,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package frame_timing_pack
 -- Compiling package ac_dac_ctrl_core_pack
 
-} {} {}} C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/pll/source/rtl/rc_pll_stratix_iii.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/pll/source/rtl/rc_pll_stratix_iii.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity rc_pll_stratix_iii
+-- Compiling architecture syn of rc_pll_stratix_iii
+
+} {} {}} C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1714,8 +1854,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package flux_loop_pack
 -- Compiling package flux_loop_ctrl_pack
 
-} {} {}} C:/mce/cards/all_cards/async/source/rtl/lvds_tx.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/async/source/rtl/lvds_tx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/async/source/rtl/lvds_tx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/async/source/rtl/lvds_tx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1724,24 +1864,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity lvds_tx
 -- Compiling architecture rtl of lvds_tx
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_filter_storage.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_filter_storage.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_filter_storage.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_filter_storage.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package altera_mf_components
 -- Compiling entity fsfb_filter_storage
 -- Compiling architecture syn of fsfb_filter_storage
 
-} {} {}} C:/mce/cards/bias_card/pll/source/rtl/bc_pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/pll/source/rtl/bc_pll.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package altera_mf_components
--- Compiling entity bc_pll
--- Compiling architecture syn of bc_pll
-
-} {} {}} C:/mce/cards/library/components/source/rtl/ns_timer.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/ns_timer.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/ns_timer.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/ns_timer.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1749,8 +1880,37 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity ns_timer
 -- Compiling architecture rtl of ns_timer
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/bias_card/pll/source/rtl/bc_pll.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/pll/source/rtl/bc_pll.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package altera_mf_components
+-- Compiling entity bc_pll
+-- Compiling architecture syn of bc_pll
+
+} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Compiling package sync_gen_pack
+
+} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package sync_gen_pack
+-- Compiling package sync_gen_core_pack
+
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1763,45 +1923,24 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity wbs_fb_data
 -- Compiling architecture struct of wbs_fb_data
 
-} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package sync_gen_pack
--- Compiling package sync_gen_core_pack
-
-} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Compiling package sync_gen_pack
-
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder66.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder66.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder66.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder66.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_adder66
 -- Compiling architecture syn of fsfb_calc_adder66
 
-} {} {}} C:/mce/cards/addr_card/pll/source/rtl/ac_pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis -vopt C:/mce/cards/addr_card/pll/source/rtl/ac_pll.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/pll/source/rtl/ac_pll.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/pll/source/rtl/ac_pll.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity ac_pll
 -- Compiling architecture syn of ac_pll
 
-} {} {}} C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1818,8 +1957,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity wbs_frame_data
 -- Compiling architecture rtl of wbs_frame_data
 
-} {} {}} C:/mce/cards/library/components/source/rtl/three_wire_master.vhd {1 {vcom -work components -2002 -explicit -cover s -vopt C:/mce/cards/library/components/source/rtl/three_wire_master.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/three_wire_master.vhd {1 {vcom -work components -2002 -explicit -cover s2 -vopt C:/mce/cards/library/components/source/rtl/three_wire_master.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1828,21 +1967,21 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity three_wire_master
 -- Compiling architecture behav of three_wire_master
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/ram_40x64.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity ram_40x64
 -- Compiling architecture syn of ram_40x64
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package fibre_rx_pack
 
-} {} {}} C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_ctrl/source/rtl/fsfb_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1855,8 +1994,19 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fsfb_ctrl
 -- Compiling architecture rtl of fsfb_ctrl
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_sequencer.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_sequencer.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package sync_gen_pack
+-- Compiling package issue_reply_pack
+
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_sequencer.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/reply_queue_sequencer.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1869,32 +2019,21 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity reply_queue_sequencer
 -- Compiling architecture rtl of reply_queue_sequencer
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package sync_gen_pack
--- Compiling package issue_reply_pack
-
-} {} {}} C:/mce/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -vopt C:/mce/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package addr_card_pack
 
-} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_clk_domain_crosser.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_clk_domain_crosser.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_clk_domain_crosser.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_clk_domain_crosser.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity sa_bias_clk_domain_crosser
 -- Compiling architecture rtl of sa_bias_clk_domain_crosser
 
-} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package data_types_pack
@@ -1904,8 +2043,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package frame_timing_pack
 
-} {} {}} C:/mce/cards/library/sys_param/source/rtl/wishbone_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/sys_param/source/rtl/wishbone_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/sys_param/source/rtl/wishbone_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/sys_param/source/rtl/wishbone_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1913,15 +2052,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package command_pack
 -- Compiling package wishbone_pack
 
-} {} {}} C:/mce/cards/library/components/source/rtl/serial_crc.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/serial_crc.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/serial_crc.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/serial_crc.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity serial_crc
 -- Compiling architecture behav of serial_crc
 
-} {} {}} C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1930,11 +2069,13 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Loading package readout_card_pack
 -- Loading package flux_loop_pack
+-- Loading package flux_loop_ctrl_pack
+-- Loading package adc_sample_coadd_pack
 -- Compiling entity flux_loop
 -- Compiling architecture struct of flux_loop
 
-} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1943,8 +2084,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package bc_dac_ctrl_pack
 
-} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_spi_if.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_spi_if.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_spi_if.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_spi_if.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package numeric_std
@@ -1959,16 +2100,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity sa_bias_spi_if
 -- Compiling architecture rtl of sa_bias_spi_if
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_flux_cnt_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_flux_cnt_queue.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_flux_cnt_queue.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_flux_cnt_queue.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity fsfb_flux_cnt_queue
 -- Compiling architecture syn of fsfb_flux_cnt_queue
 
-} {} {}} C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/flipflop_112.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/flipflop_112.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity flipflop_112
+-- Compiling architecture syn of flipflop_112
+
+} {} {}} C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1977,8 +2125,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package sram_ctrl_pack
 
-} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Compiling entity raw_dat_manager_ctrl
+-- Compiling architecture timing_beh of raw_dat_manager_ctrl
+
+} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -1990,23 +2146,22 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity bc_dac_ctrl
 -- Compiling architecture rtl of bc_dac_ctrl
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/raw_dat_manager_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/flux_loop/source/rtl/raw_ram_bank.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/flux_loop/source/rtl/raw_ram_bank.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Compiling entity raw_dat_manager_ctrl
--- Compiling architecture timing_beh of raw_dat_manager_ctrl
+-- Compiling entity raw_ram_bank
+-- Compiling architecture syn of raw_ram_bank
 
-} {} {}} C:/mce/cards/clk_card/pll/source/rtl/manch_pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/pll/source/rtl/manch_pll.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/pll/source/rtl/manch_pll.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/pll/source/rtl/manch_pll.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity manch_pll
 -- Compiling architecture syn of manch_pll
 
-} {} {}} C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/flux_loop/source/rtl/flux_loop_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2016,8 +2171,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package readout_card_pack
 -- Compiling package flux_loop_pack
 
-} {} {}} C:/mce/cards/all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2028,20 +2183,20 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fpga_thermo
 -- Compiling architecture rtl of fpga_thermo
 
-} {} {}} C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling package clk_switchover_pack
-
 } {} {}} C:/mce/cards/all_cards/io_led/source/rtl/io_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -vopt C:/mce/cards/all_cards/io_led/source/rtl/io_pack.vhd
 Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package io_pack
 
-} {} {}} C:/mce/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/clk_switchover/source/rtl/clk_switchover_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling package clk_switchover_pack
+
+} {} {}} C:/mce/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/id_thermo/source/rtl/id_thermo.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2052,8 +2207,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity id_thermo
 -- Compiling architecture behav of id_thermo
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2066,8 +2221,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity adc_offset_banks_admin
 -- Compiling architecture rtl of adc_offset_banks_admin
 
-} {} {}} C:/mce/cards/library/components/source/rtl/wb_slave.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/wb_slave.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/wb_slave.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/wb_slave.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2078,23 +2233,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity wb_slave
 -- Compiling architecture behav of wb_slave
 
-} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Loading package sync_gen_pack
--- Loading package data_types_pack
--- Loading package frame_timing_pack
--- Compiling entity sync_gen
--- Compiling architecture beh of sync_gen
-
-} {} {}} C:/mce/cards/clk_card/clk_card/source/rtl/clk_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/clk_card/source/rtl/clk_card_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/clk_card/source/rtl/clk_card_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/clk_card/source/rtl/clk_card_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2110,8 +2250,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package ret_dat_wbs_pack
 -- Compiling package clk_card_pack
 
-} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen_core.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2125,8 +2265,23 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity sync_gen_core
 -- Compiling architecture beh of sync_gen_core
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/sync_gen/source/rtl/sync_gen.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Loading package sync_gen_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Compiling entity sync_gen
+-- Compiling architecture beh of sync_gen
+
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_tx_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2136,14 +2291,14 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package sync_gen_pack
 -- Compiling package fibre_tx_pack
 
-} {} {}} C:/mce/cards/library/components/source/rtl/component_pack.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/component_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/component_pack.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/component_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package component_pack
 
-} {} {}} C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/flux_loop_ctrl/source/rtl/flux_loop_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2156,22 +2311,22 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity flux_loop_ctrl
 -- Compiling architecture struct of flux_loop_ctrl
 
-} {} {}} C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package cc_reset_pack
 
-} {} {}} C:/mce/cards/all_cards/async/source/rtl/rs232_tx.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/async/source/rtl/rs232_tx.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/async/source/rtl/rs232_tx.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/async/source/rtl/rs232_tx.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package component_pack
 -- Compiling entity rs232_tx
 -- Compiling architecture rtl of rs232_tx
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_translator_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2183,16 +2338,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package frame_timing_pack
 -- Compiling package cmd_translator_pack
 
-} {} {}} C:/mce/cards/library/components/source/rtl/tri_state_buf_vec.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/tri_state_buf_vec.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/tri_state_buf_vec.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/tri_state_buf_vec.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling entity tri_state_buf_vec
 -- Compiling architecture rtl of tri_state_buf_vec
 
-} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_corr/source/rtl/fsfb_corr_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2204,34 +2359,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package flux_loop_ctrl_pack
 -- Compiling package fsfb_corr_pack
 
-} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_storage.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_storage.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package altera_mf_components
--- Compiling entity coadd_storage
--- Compiling architecture syn of coadd_storage
-
-} {} {}} C:/mce/cards/all_cards/async/source/rtl/async_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -vopt C:/mce/cards/all_cards/async/source/rtl/async_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling package async_pack
-
-} {} {}} C:/mce/cards/all_cards/watchdog/source/rtl/watchdog.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/watchdog/source/rtl/watchdog.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity watchdog
--- Compiling architecture rtl of watchdog
-
-} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/sa_bias_ctrl/source/rtl/sa_bias_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2243,8 +2372,34 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package flux_loop_ctrl_pack
 -- Compiling package sa_bias_ctrl_pack
 
-} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/async/source/rtl/async_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/async/source/rtl/async_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling package async_pack
+
+} {} {}} C:/mce/cards/all_cards/watchdog/source/rtl/watchdog.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/watchdog/source/rtl/watchdog.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity watchdog
+-- Compiling architecture rtl of watchdog
+
+} {} {}} C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_storage.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/adc_sample_coadd/source/rtl/coadd_storage.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package altera_mf_components
+-- Compiling entity coadd_storage
+-- Compiling architecture syn of coadd_storage
+
+} {} {}} C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package data_types_pack
@@ -2256,22 +2411,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package frame_timing_pack
 -- Compiling package ac_dac_ctrl_pack
 
-} {} {}} C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package readout_card_pack
--- Loading package flux_loop_pack
--- Loading package data_types_pack
--- Loading package frame_timing_pack
--- Compiling package wbs_frame_data_pack
-
-} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2284,16 +2425,30 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity frame_timing_core
 -- Compiling architecture beh of frame_timing_core
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package readout_card_pack
+-- Loading package flux_loop_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Compiling package wbs_frame_data_pack
+
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package altera_mf_components
 -- Compiling entity cmd_queue_ram40
 -- Compiling architecture syn of cmd_queue_ram40
 
-} {} {}} C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/cc_reset/source/rtl/cc_reset.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2305,40 +2460,38 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity cc_reset
 -- Compiling architecture rtl of cc_reset
 
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder29.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder29.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package lpm_components
--- Compiling entity fsfb_calc_adder29
--- Compiling architecture syn of fsfb_calc_adder29
-
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder30.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder30.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder30.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder30.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package lpm_components
 -- Compiling entity fsfb_calc_adder30
 -- Compiling architecture syn of fsfb_calc_adder30
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_14x64.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_14x64.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder29.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_calc_adder29.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package altera_mf_components
+-- Loading package lpm_components
+-- Compiling entity fsfb_calc_adder29
+-- Compiling architecture syn of fsfb_calc_adder29
+
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_14x64.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/ram_14x64.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
 -- Compiling entity ram_14x64
 -- Compiling architecture syn of ram_14x64
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_storage.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_storage.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_storage.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_storage.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package altera_mf_components
 -- Compiling entity wbs_fb_storage
 -- Compiling architecture syn of wbs_fb_storage
 
-} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2353,8 +2506,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity bc_dac_ctrl_core
 -- Compiling architecture rtl of bc_dac_ctrl_core
 
-} {} {}} C:/mce/cards/clk_card/clk_card/source/rtl/clk_card.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/clk_card/source/rtl/clk_card.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/clk_card/source/rtl/clk_card.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/clk_card/source/rtl/clk_card.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2383,8 +2536,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity dip_switch
 -- Compiling architecture behav of dip_switch
 
-} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2397,21 +2550,29 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling package body wbs_fb_data_pack
 -- Loading package wbs_fb_data_pack
 
-} {} {}} C:/mce/cards/clk_card/test/source/cc_test_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/test/source/cc_test_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/test/source/cc_test_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/test/source/cc_test_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Compiling package cc_test_pack
 
-} {} {}} C:/mce/scripts/modelsim/220pack.vhd {1 {vcom -work lpm -2002 -explicit C:/mce/scripts/modelsim/220pack.vhd
-Model Technology ModelSim SE vcom 6.1c Compiler 2005.11 Nov 17 2005
+} {} {}} C:/mce/scripts/modelsim/220pack.vhd {1 {vcom -work lpm -2002 -explicit -cover s2 -novopt C:/mce/scripts/modelsim/220pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package lpm_components
 
-} {} {}} C:/mce/cards/bias_card/bias_card/source/rtl/bias_card.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/bias_card/bias_card/source/rtl/bias_card.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/prand.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/prand.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Compiling entity prand
+-- Compiling architecture behaviour of prand
+
+} {} {}} C:/mce/cards/bias_card/bias_card/source/rtl/bias_card.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/bias_card/bias_card/source/rtl/bias_card.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2426,16 +2587,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity bias_card
 -- Compiling architecture top of bias_card
 
-} {} {}} C:/mce/cards/library/components/source/rtl/prand.vhd {1 {vcom -work components -93 -explicit -check_synthesis -vopt C:/mce/cards/library/components/source/rtl/prand.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Compiling entity prand
--- Compiling architecture behaviour of prand
-
-} {} {}} C:/mce/cards/library/components/source/rtl/write_spi_with_cs.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/write_spi_with_cs.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/components/source/rtl/write_spi_with_cs.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/write_spi_with_cs.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2443,8 +2596,19 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity write_spi_with_cs
 -- Compiling architecture rtl of write_spi_with_cs
 
-} {} {}} C:/mce/cards/all_cards/leds/source/rtl/leds_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/leds/source/rtl/leds_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_controller_phy.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/ddr2_sdram_ctrl/source/rtl/micron_ctrl_controller_phy.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package numeric_std
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package altera_europa_support_lib
+-- Compiling entity micron_ctrl_controller_phy
+-- Compiling architecture europa of micron_ctrl_controller_phy
+
+} {} {}} C:/mce/cards/all_cards/leds/source/rtl/leds_pack.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/leds/source/rtl/leds_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2453,21 +2617,15 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Loading package wishbone_pack
 -- Compiling package leds_pack
 
-} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity offset_clk_domain_crosser
 -- Compiling architecture rtl of offset_clk_domain_crosser
 
-} {} {}} C:/mce/cards/library/sys_param/source/rtl/data_types_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/sys_param/source/rtl/data_types_pack.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling package data_types_pack
-
-} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_fltr_regs.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_fltr_regs.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_fltr_regs.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/fsfb_calc/source/rtl/fsfb_fltr_regs.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2481,16 +2639,14 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fsfb_fltr_regs
 -- Compiling architecture rtl of fsfb_fltr_regs
 
-} {} {}} C:/mce/cards/readout_card/pll/source/rtl/rc_pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/readout_card/pll/source/rtl/rc_pll.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/library/sys_param/source/rtl/data_types_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/sys_param/source/rtl/data_types_pack.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package altera_mf_components
--- Compiling entity rc_pll
--- Compiling architecture syn of rc_pll
+-- Compiling package data_types_pack
 
-} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2500,8 +2656,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity dispatch_reply_transmit
 -- Compiling architecture rtl of dispatch_reply_transmit
 
-} {} {}} C:/mce/cards/all_cards/slot_id/source/rtl/slot_id.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/all_cards/slot_id/source/rtl/slot_id.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/all_cards/slot_id/source/rtl/slot_id.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/all_cards/slot_id/source/rtl/slot_id.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2514,8 +2670,16 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity bp_slot_id
 -- Compiling architecture rtl of bp_slot_id
 
-} {} {}} C:/mce/cards/library/components/source/rtl/slave_ctrl.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/library/components/source/rtl/slave_ctrl.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/readout_card/pll/source/rtl/rc_pll.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/readout_card/pll/source/rtl/rc_pll.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package altera_mf_components
+-- Compiling entity rc_pll
+-- Compiling architecture syn of rc_pll
+
+} {} {}} C:/mce/cards/library/components/source/rtl/slave_ctrl.vhd {1 {vcom -work components -93 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/library/components/source/rtl/slave_ctrl.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2525,13 +2689,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity slave_ctrl
 -- Compiling architecture rtl of slave_ctrl
 
-} {} {}} C:/Modeltech_6.1c/vhdl_src/std/standard.vhd {1 {vcom -work vital2000 -2002 -explicit -novopt C:/Modeltech_6.1c/vhdl_src/std/standard.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
--- Loading package standard
--- Compiling package standard
-
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
@@ -2545,8 +2704,8 @@ Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
 -- Compiling entity fibre_rx_fifo
 -- Compiling architecture rtl of fibre_rx_fifo
 
-} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply.vhd {1 {vcom -work work -93 -explicit -check_synthesis -cover s -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply.vhd
-Model Technology ModelSim SE vcom 6.3g Compiler 2008.05 May  1 2008
+} {} {}} C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply.vhd {1 {vcom -work work -2002 -explicit -check_synthesis -cover s2 -vopt C:/mce/cards/clk_card/issue_reply/source/rtl/issue_reply.vhd
+Model Technology ModelSim SE vcom 6.3b Compiler 2007.08 Aug 31 2007
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith

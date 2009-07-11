@@ -98,8 +98,8 @@ component LPM_BUSTRI
                 LPM_TYPE : string := L_BUSTRI;
                 LPM_HINT : string := "UNUSED");
         port   (DATA : in std_logic_vector(LPM_WIDTH-1 downto 0);
-                ENABLEDT : in std_logic := '0';
-                ENABLETR : in std_logic := '0';
+                ENABLEDT : in std_logic := '1';
+                ENABLETR : in std_logic := '1';
                 RESULT : out std_logic_vector(LPM_WIDTH-1 downto 0);
                 TRIDATA : inout std_logic_vector(LPM_WIDTH-1 downto 0));
 end component;
@@ -137,11 +137,15 @@ component LPM_CLSHIFT
         generic(LPM_WIDTH : natural;    -- MUST be greater than 0
                 LPM_WIDTHDIST : natural;    -- MUST be greater than 0
                 LPM_SHIFTTYPE : string := "LOGICAL";
+                LPM_PIPELINE : natural := 0;
                 LPM_TYPE : string := L_CLSHIFT;
                 LPM_HINT : string := "UNUSED");
         port   (DATA : in STD_LOGIC_VECTOR(LPM_WIDTH-1 downto 0);
                 DISTANCE : in STD_LOGIC_VECTOR(LPM_WIDTHDIST-1 downto 0);
                 DIRECTION : in STD_LOGIC := '0';
+                CLOCK : in std_logic := '0';
+                CLKEN : in std_logic := '1';
+                ACLR : in std_logic := '0';
                 RESULT : out STD_LOGIC_VECTOR(LPM_WIDTH-1 downto 0);
                 UNDERFLOW : out STD_LOGIC;
                 OVERFLOW : out STD_LOGIC);

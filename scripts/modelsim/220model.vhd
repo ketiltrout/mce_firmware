@@ -8,7 +8,7 @@
 -- accompany any copy of this file.
 --------------------------------------------------------------------------
 --
--- Quartus II 6.0 Build 202 04/27/2006
+-- Quartus II 9.0 Build 235 03/01/2009
 --
 --------------------------------------------------------------------------
 -- LPM Synthesizable Models (Support string type generic)
@@ -36,7 +36,6 @@
 -- Description     :  Common conversion functions
 --
 ---END_PACKAGE_HEADER--------------------------------------------------------
-
 -- BEGINING OF PACKAGE
 Library ieee;
 use ieee.std_logic_1164.all;
@@ -48,6 +47,10 @@ package LPM_COMMON_CONVERSION is
     function STR_TO_INT (str : string) return integer;
     function INT_TO_STR (value : in integer) return string;
     function HEX_STR_TO_INT (str : in string) return integer;
+    function BIN_STR_TO_INT (str : in string) return integer;
+    function OCT_STR_TO_INT (str : in string) return integer;
+    function INT_STR_TO_INT (str : in string) return integer;
+    function ALPHA_TOLOWER (given_string : in string) return string;
     procedure SHRINK_LINE (str_line : inout line; pos : in integer);
 end LPM_COMMON_CONVERSION;
 
@@ -156,13 +159,148 @@ begin
             when 'f' => digit := 15;
             when others =>
                 ASSERT FALSE
-                REPORT "Illegal character "&  str(i) & "in Intel Hex File! "
+                REPORT "Illegal hex character "&  str(i) & "! "
                 SEVERITY ERROR;
         end case;
         ivalue := ivalue * 16 + digit;
     end loop;
     return ivalue;
 end HEX_STR_TO_INT;
+
+-- This function converts a binary number to an integer
+function BIN_STR_TO_INT (str : in string) return integer is
+variable len : integer := str'length;
+variable ivalue : integer := 0;
+variable digit : integer := 0;
+begin
+    for i in len downto 1 loop
+        case str(i) is
+            when '0' => digit := 0;
+            when '1' => digit := 1;
+            when others =>
+                ASSERT FALSE
+                REPORT "Illegal bin character "&  str(i) & "! "
+                SEVERITY ERROR;
+        end case;
+        ivalue := ivalue * 2 + digit;
+    end loop;
+    return ivalue;
+end BIN_STR_TO_INT;
+
+-- This function converts a octadecimal number to an integer
+function OCT_STR_TO_INT (str : in string) return integer is
+variable len : integer := str'length;
+variable ivalue : integer := 0;
+variable digit : integer := 0;
+begin
+    for i in len downto 1 loop
+        case str(i) is
+            when '0' => digit := 0;
+            when '1' => digit := 1;
+            when '2' => digit := 2;
+            when '3' => digit := 3;
+            when '4' => digit := 4;
+            when '5' => digit := 5;
+            when '6' => digit := 6;
+            when '7' => digit := 7;
+            when others =>
+                ASSERT FALSE
+                REPORT "Illegal octadecimal character "&  str(i) & "! "
+                SEVERITY ERROR;
+        end case;
+        ivalue := ivalue * 8 + digit;
+    end loop;
+    return ivalue;
+end OCT_STR_TO_INT;
+
+-- This function converts a integer string to an integer
+function INT_STR_TO_INT (str : in string) return integer is
+variable len : integer := str'length;
+variable newdigit : integer := 0;
+variable sign : integer := 1;
+variable digit : integer := 0;
+begin
+    for i in 1 to len loop
+        case str(i) is
+            when '-' =>
+                if i = 1 then
+                    sign := -1;
+                else
+                    ASSERT FALSE
+                    REPORT "Illegal Character "&  str(i) & "i n string parameter! "
+                    SEVERITY ERROR;
+                end if;
+            when '0' =>
+                digit := 0;
+            when '1' =>
+                digit := 1;
+            when '2' =>
+                digit := 2;
+            when '3' =>
+                digit := 3;
+            when '4' =>
+                digit := 4;
+            when '5' =>
+                digit := 5;
+            when '6' =>
+                digit := 6;
+            when '7' =>
+                digit := 7;
+            when '8' =>
+                digit := 8;
+            when '9' =>
+                digit := 9;
+            when others =>
+                ASSERT FALSE
+                REPORT "Illegal Character "&  str(i) & "in string parameter! "
+                SEVERITY ERROR;
+        end case;
+        newdigit := newdigit * 10 + digit;
+    end loop;
+
+    return (sign*newdigit);
+end;
+
+-- converts uppercase parameter values (e.g. "AUTO") to lowercase ("auto")
+function ALPHA_TOLOWER (given_string : in string) return string is
+    -- VARIABLE DECLARATION
+    variable result_string : string(given_string'low to given_string'high);
+
+begin
+    for i in given_string'low to given_string'high loop
+        case given_string(i) is
+            when 'A' => result_string(i) := 'a';
+            when 'B' => result_string(i) := 'b';
+            when 'C' => result_string(i) := 'c';
+            when 'D' => result_string(i) := 'd';
+            when 'E' => result_string(i) := 'e';
+            when 'F' => result_string(i) := 'f';
+            when 'G' => result_string(i) := 'g';
+            when 'H' => result_string(i) := 'h';
+            when 'I' => result_string(i) := 'i';
+            when 'J' => result_string(i) := 'j';
+            when 'K' => result_string(i) := 'k';
+            when 'L' => result_string(i) := 'l';
+            when 'M' => result_string(i) := 'm';
+            when 'N' => result_string(i) := 'n';
+            when 'O' => result_string(i) := 'o';
+            when 'P' => result_string(i) := 'p';
+            when 'Q' => result_string(i) := 'q';
+            when 'R' => result_string(i) := 'r';
+            when 'S' => result_string(i) := 's';
+            when 'T' => result_string(i) := 't';
+            when 'U' => result_string(i) := 'u';
+            when 'V' => result_string(i) := 'v';
+            when 'W' => result_string(i) := 'w';
+            when 'X' => result_string(i) := 'x';
+            when 'Y' => result_string(i) := 'y';
+            when 'Z' => result_string(i) := 'z';
+            when others => result_string(i) := given_string(i);
+        end case;
+    end loop;
+
+    return (result_string(given_string'low to given_string'high));
+end;
 
 -- This procedure "cuts" the str_line into desired length
 procedure SHRINK_LINE (str_line : inout line; pos : in integer) is
@@ -210,6 +348,7 @@ function get_parameter_value( constant  given_string : string;
     variable extract_param_value     : boolean := true; 
     variable extract_param_name      : boolean := false;  
     variable param_found             : boolean := false;
+    variable given_string_tmp        : string(1 to given_string'length) := given_string;
     
 begin
 
@@ -225,7 +364,7 @@ begin
                 extract_param_name  := false;
                 set_right_index := true;
                 
-                if (compare_param_name = given_string(param_name_left_index to param_name_right_index)) then
+                if (compare_param_name = given_string_tmp(param_name_left_index to param_name_right_index)) then
                         param_found := true;  -- the compare_param_name have been found in the given_string
                         exit;
                 end if;            
@@ -249,13 +388,13 @@ begin
 
     -- for the case whether parameter's name is the left most part of the given_string
     if (extract_param_name = true) then
-        if(compare_param_name = given_string(param_name_left_index to param_name_right_index)) then        
+        if(compare_param_name = given_string_tmp(param_name_left_index to param_name_right_index)) then        
             param_found := true;                
         end if;
     end if;
 
     if(param_found = true) then             
-        return given_string(param_value_left_index to param_value_right_index);    
+        return given_string_tmp(param_value_left_index to param_value_right_index);    
     else    
         return "";   -- return empty string if parameter not found
     end if;
@@ -280,6 +419,11 @@ package LPM_DEVICE_FAMILIES is
     function IS_FAMILY_STRATIX (device : in string) return boolean;
     function IS_FAMILY_STRATIXGX (device : in string) return boolean;
     function IS_FAMILY_CYCLONE (device : in string) return boolean;
+    function IS_FAMILY_HARDCOPYSTRATIX (device : in string) return boolean;
+    function FEATURE_FAMILY_APEX20K (device : in string) return boolean;
+    function FEATURE_FAMILY_BASE_STRATIX (device : in string) return boolean;
+    function FEATURE_FAMILY_BASE_CYCLONE (device : in string) return boolean;
+    function FEATURE_FAMILY_MAX (device : in string) return boolean;
     function IS_VALID_FAMILY (device: in string) return boolean;
 end LPM_DEVICE_FAMILIES;
 
@@ -376,6 +520,60 @@ begin
     return is_cyclone;
 end IS_FAMILY_CYCLONE;
 
+function IS_FAMILY_HARDCOPYSTRATIX (device : in string) return boolean is
+variable is_hardcopystratix : boolean := false;
+begin
+    if ((device = "HardCopy Stratix") or (device = "HARDCOPY STRATIX") or (device = "hardcopy stratix") or (device = "Stratix HC") or (device = "STRATIX HC") or (device = "stratix hc") or (device = "StratixHC") or (device = "STRATIXHC") or (device = "stratixhc") or (device = "HardcopyStratix") or (device = "HARDCOPYSTRATIX") or (device = "hardcopystratix"))
+    then
+        is_hardcopystratix := true;
+    end if;
+    return is_hardcopystratix;
+end IS_FAMILY_HARDCOPYSTRATIX;
+
+function FEATURE_FAMILY_APEX20K (device : in string) return boolean is
+variable var_family_apex20k : boolean := false;
+begin
+    if (IS_FAMILY_APEX20K(device) )
+    then
+        var_family_apex20k := true;
+    end if;
+    return var_family_apex20k;
+end FEATURE_FAMILY_APEX20K;
+
+
+function FEATURE_FAMILY_BASE_STRATIX (device : in string) return boolean is
+variable var_family_base_stratix : boolean := false;
+begin
+    if (IS_FAMILY_STRATIX(device) or IS_FAMILY_STRATIXGX(device) or IS_FAMILY_HARDCOPYSTRATIX(device) )
+    then
+        var_family_base_stratix := true;
+    end if;
+    return var_family_base_stratix;
+end FEATURE_FAMILY_BASE_STRATIX;
+
+
+function FEATURE_FAMILY_BASE_CYCLONE (device : in string) return boolean is
+variable var_family_base_cyclone : boolean := false;
+begin
+    if (IS_FAMILY_CYCLONE(device) )
+    then
+        var_family_base_cyclone := true;
+    end if;
+    return var_family_base_cyclone;
+end FEATURE_FAMILY_BASE_CYCLONE;
+
+
+function FEATURE_FAMILY_MAX (device : in string) return boolean is
+variable var_family_max : boolean := false;
+begin
+    if ((device = "MAX5000") or IS_FAMILY_MAX3000A(device) or (device = "MAX7000") or IS_FAMILY_MAX7000A(device) or IS_FAMILY_MAX7000AE(device) or (device = "MAX7000E") or IS_FAMILY_MAX7000S(device) or IS_FAMILY_MAX7000B(device) or (device = "MAX9000") )
+    then
+        var_family_max := true;
+    end if;
+    return var_family_max;
+end FEATURE_FAMILY_MAX;
+
+
 function IS_VALID_FAMILY (device : in string) return boolean is
 variable is_valid : boolean := false;
 begin
@@ -402,10 +600,16 @@ begin
     or ((device = "HardCopy Stratix") or (device = "HARDCOPY STRATIX") or (device = "hardcopy stratix") or (device = "Stratix HC") or (device = "STRATIX HC") or (device = "stratix hc") or (device = "StratixHC") or (device = "STRATIXHC") or (device = "stratixhc") or (device = "HardcopyStratix") or (device = "HARDCOPYSTRATIX") or (device = "hardcopystratix"))
     or ((device = "Stratix II") or (device = "STRATIX II") or (device = "stratix ii") or (device = "StratixII") or (device = "STRATIXII") or (device = "stratixii") or (device = "Armstrong") or (device = "ARMSTRONG") or (device = "armstrong"))
     or ((device = "Stratix II GX") or (device = "STRATIX II GX") or (device = "stratix ii gx") or (device = "StratixIIGX") or (device = "STRATIXIIGX") or (device = "stratixiigx"))
+    or ((device = "Arria GX") or (device = "ARRIA GX") or (device = "arria gx") or (device = "ArriaGX") or (device = "ARRIAGX") or (device = "arriagx") or (device = "Stratix II GX Lite") or (device = "STRATIX II GX LITE") or (device = "stratix ii gx lite") or (device = "StratixIIGXLite") or (device = "STRATIXIIGXLITE") or (device = "stratixiigxlite"))
     or ((device = "Cyclone II") or (device = "CYCLONE II") or (device = "cyclone ii") or (device = "Cycloneii") or (device = "CYCLONEII") or (device = "cycloneii") or (device = "Magellan") or (device = "MAGELLAN") or (device = "magellan"))
     or ((device = "HardCopy II") or (device = "HARDCOPY II") or (device = "hardcopy ii") or (device = "HardCopyII") or (device = "HARDCOPYII") or (device = "hardcopyii") or (device = "Fusion") or (device = "FUSION") or (device = "fusion"))
-    or ((device = "Titan") or (device = "TITAN") or (device = "titan"))
-    or ((device = "Barracuda") or (device = "BARRACUDA") or (device = "barracuda") or (device = "Cuda") or (device = "CUDA") or (device = "cuda")))
+    or ((device = "Stratix III") or (device = "STRATIX III") or (device = "stratix iii") or (device = "StratixIII") or (device = "STRATIXIII") or (device = "stratixiii") or (device = "Titan") or (device = "TITAN") or (device = "titan") or (device = "SIII") or (device = "siii"))
+    or ((device = "Cyclone III") or (device = "CYCLONE III") or (device = "cyclone iii") or (device = "CycloneIII") or (device = "CYCLONEIII") or (device = "cycloneiii") or (device = "Barracuda") or (device = "BARRACUDA") or (device = "barracuda") or (device = "Cuda") or (device = "CUDA") or (device = "cuda") or (device = "CIII") or (device = "ciii"))
+    or ((device = "Stratix IV") or (device = "STRATIX IV") or (device = "stratix iv") or (device = "TGX") or (device = "tgx") or (device = "StratixIV") or (device = "STRATIXIV") or (device = "stratixiv") or (device = "StratixIIIGX") or (device = "STRATIXIIIGX") or (device = "stratixiiigx") or (device = "Stratix IV (GT/GX/E)") or (device = "STRATIX IV (GT/GX/E)") or (device = "stratix iv (gt/gx/e)") or (device = "StratixIV(GT/GX/E)") or (device = "STRATIXIV(GT/GX/E)") or (device = "stratixiv(gt/gx/e)") or (device = "Stratix IV (GX/E)") or (device = "STRATIX IV (GX/E)") or (device = "stratix iv (gx/e)") or (device = "StratixIV(GX/E)") or (device = "STRATIXIV(GX/E)") or (device = "stratixiv(gx/e)"))
+    or ((device = "Arria II GX") or (device = "ARRIA II GX") or (device = "arria ii gx") or (device = "ArriaIIGX") or (device = "ARRIAIIGX") or (device = "arriaiigx") or (device = "Arria IIGX") or (device = "ARRIA IIGX") or (device = "arria iigx") or (device = "ArriaII GX") or (device = "ARRIAII GX") or (device = "arriaii gx") or (device = "Arria II") or (device = "ARRIA II") or (device = "arria ii") or (device = "ArriaII") or (device = "ARRIAII") or (device = "arriaii") or (device = "Arria II (GX/E)") or (device = "ARRIA II (GX/E)") or (device = "arria ii (gx/e)") or (device = "ArriaII(GX/E)") or (device = "ARRIAII(GX/E)") or (device = "arriaii(gx/e)") or (device = "PIRANHA") or (device = "piranha"))
+    or ((device = "HardCopy III") or (device = "HARDCOPY III") or (device = "hardcopy iii") or (device = "HardCopyIII") or (device = "HARDCOPYIII") or (device = "hardcopyiii") or (device = "HCX") or (device = "hcx"))
+    or ((device = "HardCopy IV") or (device = "HARDCOPY IV") or (device = "hardcopy iv") or (device = "HardCopyIV") or (device = "HARDCOPYIV") or (device = "hardcopyiv") or (device = "HCXIV") or (device = "hcxiv") or (device = "HardCopy IV (GX/E)") or (device = "HARDCOPY IV (GX/E)") or (device = "hardcopy iv (gx/e)") or (device = "HardCopyIV(GX/E)") or (device = "HARDCOPYIV(GX/E)") or (device = "hardcopyiv(gx/e)"))
+    or ((device = "Cyclone III LS") or (device = "CYCLONE III LS") or (device = "cyclone iii ls") or (device = "CycloneIIILS") or (device = "CYCLONEIIILS") or (device = "cycloneiiils") or (device = "Cyclone III LPS") or (device = "CYCLONE III LPS") or (device = "cyclone iii lps") or (device = "Cyclone LPS") or (device = "CYCLONE LPS") or (device = "cyclone lps") or (device = "CycloneLPS") or (device = "CYCLONELPS") or (device = "cyclonelps") or (device = "Tarpon") or (device = "TARPON") or (device = "tarpon") or (device = "Cyclone IIIE") or (device = "CYCLONE IIIE") or (device = "cyclone iiie")))
     then
         is_valid := true;
     end if;
@@ -461,7 +665,6 @@ end LPM_CONSTANT;
 -- BEGINNING OF ARCHITECTURE
 architecture LPM_SYN of LPM_CONSTANT is
 begin
-
 -- PROCESS DECLARATION
     -- basic error checking for invalid parameters
     MSG: process
@@ -473,7 +676,7 @@ begin
         end if;
         wait;
     end process MSG;
-    
+
     result <= conv_std_logic_vector(lpm_cvalue, lpm_width);
 
 end LPM_SYN;
@@ -858,9 +1061,9 @@ entity LPM_BUSTRI is
         -- Data input to the tridata[] bus. (Required)
         data : in std_logic_vector(lpm_width-1 downto 0);
         -- If high, enables tridata[] onto the result bus.
-        enabletr : in std_logic := '0';
+        enabletr : in std_logic := '1';
         -- If high, enables data onto the tridata[] bus.
-        enabledt : in std_logic := '0';
+        enabledt : in std_logic := '1';
         -- Output from the tridata[] bus.
         result : out std_logic_vector(lpm_width-1 downto 0)
     );
@@ -1173,6 +1376,7 @@ entity LPM_CLSHIFT is
         lpm_widthdist : natural;    -- Width of the distance[] input port.
                                     -- MUST be greater than 0 (Required)
         lpm_shifttype : string := "LOGICAL"; -- Type of shifting operation to be performed.
+        lpm_pipeline  : natural := 0; -- Number of Clock cycles of latency.
         lpm_type      : string := "LPM_CLSHIFT";
         lpm_hint      : string := "UNUSED"
     );
@@ -1186,6 +1390,12 @@ entity LPM_CLSHIFT is
         distance  : in STD_LOGIC_VECTOR(lpm_widthdist-1 downto 0); 
         -- direction of shift. Low = left (toward the MSB), high = right (toward the LSB). 
         direction : in STD_LOGIC := '0';
+        -- Clock for pipelined usage.
+        clock     : in std_logic := '0';
+        -- Asynchronous clear for pipelined usage.
+        aclr      : in std_logic := '0';
+        -- Clock enable for pipelined usage.
+        clken     : in std_logic := '1';
         -- Shifted data. (Required)
         result    : out STD_LOGIC_VECTOR(lpm_width-1 downto 0);
         -- Logical or arithmetic underflow.
@@ -1198,6 +1408,9 @@ end LPM_CLSHIFT;
 
 -- BEGINNING OF ARCHITECTURE
 architecture LPM_SYN of LPM_CLSHIFT is
+
+-- TYPE DECLARATION
+type t_resulttmp IS ARRAY (0 to lpm_pipeline) of std_logic_vector(lpm_width-1 downto 0);
 
 -- SIGNAL DECLARATION
 signal i_result : std_logic_vector(lpm_width-1 downto 0);
@@ -1221,7 +1434,6 @@ begin
         end if;   
         wait;
     end process MSG;
-
 
     -- Get the shifted data
     process(data, distance, direction)
@@ -1274,24 +1486,28 @@ begin
     end process;
 
     -- Get the overflow/underflow status bit.
-    process(data, distance, direction, i_result)
+    process(aclr, clock, data, distance, direction, i_result)
     variable neg_one : signed(lpm_width-1 downto 0) := (OTHERS => '1');
     variable tmpdata : std_logic_vector(lpm_width-1 downto 0);
     variable tmpdist : integer;
     variable msb_cnt : integer := 0;
     variable lsb_cnt : integer := 0;
     variable sgn_bit : std_logic;
+    variable result_pipe : t_resulttmp := (OTHERS => (OTHERS => '0'));
+    variable overflow_pipe : std_logic_vector(0 to lpm_pipeline) := (OTHERS => '0');
+    variable underflow_pipe : std_logic_vector(0 to lpm_pipeline) := (OTHERS => '0');
     begin
         tmpdata := conv_std_logic_vector(unsigned(data), lpm_width);
         tmpdist := conv_integer(distance);
 
-        overflow <= '0';
-        underflow <= '0';
+        result_pipe(lpm_pipeline) := i_result;
+        overflow_pipe(lpm_pipeline) := '0';
+        underflow_pipe(lpm_pipeline) := '0';
 
         if ((tmpdist /= 0) and (tmpdata /= 0)) then
             if (lpm_shifttype = "ROTATE") then
-                overflow <= 'U';
-                underflow <= 'U';
+                overflow_pipe(lpm_pipeline) := 'U';
+                underflow_pipe(lpm_pipeline) := 'U';
             else
                 if (tmpdist < lpm_width) then
                     if (lpm_shifttype = "LOGICAL") then
@@ -1302,9 +1518,9 @@ begin
                         end loop;
 
                         if ((tmpdist > msb_cnt) and (direction = '0')) then
-                            overflow <= '1';
+                            overflow_pipe(lpm_pipeline) := '1';
                         elsif ((tmpdist + msb_cnt >= lpm_width) and (direction = '1')) then
-                            underflow <= '1';
+                            underflow_pipe(lpm_pipeline) := '1';
                         end if;
                     elsif (lpm_shifttype = "ARITHMETIC") then
                         sgn_bit := '0';
@@ -1327,44 +1543,61 @@ begin
                             if (tmpdata(lpm_width-1) = '1') then  -- negative
                                 if ((msb_cnt + tmpdist >= lpm_width) and 
                                     (msb_cnt /= lpm_width)) then
-                                    underflow <= '1';
+                                    underflow_pipe(lpm_pipeline) := '1';
                                 end if;
                             else  -- non-neg
                                 if (((msb_cnt + tmpdist) >= lpm_width) and
                                     (msb_cnt /= lpm_width)) then
-                                    underflow <= '1';
+                                    underflow_pipe(lpm_pipeline) := '1';
                                 end if;
                             end if;
                         elsif (direction = '0') then      -- shift left
                             if (tmpdata(lpm_width-1) = '1') then -- negative
                                 if (((signed(tmpdata) /= neg_one) and
                                     (tmpdist >= lpm_width)) or (tmpdist >= msb_cnt)) then
-                                    overflow <= '1';
+                                    overflow_pipe(lpm_pipeline) := '1';
                                 end if;
                             else  -- non-neg
                                 if (((tmpdata /= 0) and (tmpdist >= lpm_width-1)) or
                                     (tmpdist >= msb_cnt)) then
-                                    overflow <= '1';
+                                    overflow_pipe(lpm_pipeline) := '1';
                                 end if;
                             end if;
                         end if;
                     end if;
                 else
                     if (direction = '0') then
-                        overflow <= '1';
+                        overflow_pipe(lpm_pipeline) := '1';
                     elsif (direction = '1') then
-                        underflow <= '1';
+                        underflow_pipe(lpm_pipeline) := '1';
                     end if;
                 end if;  -- tmpdist < lpm_width
             end if;  -- lpm_shifttype = "ROTATE"
         end if;  -- tmpdist /= 0 and tmpdata /= 0
-    end process;
+        
+        
+        if (aclr = '1') then
+            if (lpm_pipeline > 0) then
+                result_pipe := (OTHERS => (OTHERS => '0'));
+                overflow_pipe := (OTHERS => '0');
+                underflow_pipe := (OTHERS => '0');
+            end if;
+        elsif (clock'event and (clock = '1')) then
+            if ((clken = '1') and (lpm_pipeline > 0)) then
+                result_pipe(0 to lpm_pipeline - 1) := result_pipe(1 to lpm_pipeline);
+                overflow_pipe(0 to lpm_pipeline - 1) := overflow_pipe(1 to lpm_pipeline);
+                underflow_pipe(0 to lpm_pipeline - 1) := underflow_pipe(1 to lpm_pipeline);
+            end if;
+        end if;
 
-    result <= i_result;
+        result <= result_pipe(0);
+        overflow <= overflow_pipe(0);
+        underflow <= underflow_pipe(0);
+
+    end process;
 
 end LPM_SYN;
 -- END OF ARCHITECTURE
-
 ---START_ENTITY_HEADER---------------------------------------------------------
 --
 -- Entity Name     :  lpm_add_sub_signed
@@ -1452,7 +1685,7 @@ begin
     variable i_cin : std_logic;
     begin
         if ((lpm_direction = "ADD") or
-            ((lpm_direction = "UNUSED") and (add_sub = '1'))) then
+            (((lpm_direction = "UNUSED") or (lpm_direction = "DEFAULT"))and (add_sub = '1'))) then
             if (cin = 'Z') then
                 i_cin := '0';
             else
@@ -1474,7 +1707,7 @@ begin
                 overflowtmp(lpm_pipeline) := '0';
             end if;
         elsif ((lpm_direction = "SUB") or
-                ((lpm_direction = "UNUSED") and (add_sub = '0'))) then
+                (((lpm_direction = "UNUSED") or (lpm_direction = "DEFAULT")) and (add_sub = '0'))) then
             if (cin = 'Z') then
                 i_cin := '1';
             else
@@ -1495,7 +1728,7 @@ begin
             else
                 overflowtmp(lpm_pipeline) := '0';
             end if;
-        elsif (lpm_direction /= "UNUSED") then
+        elsif ((lpm_direction /= "UNUSED") and (lpm_direction /= "DEFAULT")) then
             ASSERT FALSE
             REPORT "Illegal lpm_direction property value for LPM_ADD_SUB!"
             SEVERITY ERROR;
@@ -1615,7 +1848,7 @@ begin
     begin
 
         if ((lpm_direction = "ADD") or
-            ((lpm_direction = "UNUSED") and (add_sub = '1'))) then
+            (((lpm_direction = "UNUSED") or (lpm_direction = "DEFAULT")) and (add_sub = '1'))) then
             if (cin = 'Z') then
                 i_cin := '0';
             else
@@ -1626,7 +1859,7 @@ begin
             resulttmp(lpm_pipeline) := i_dataa + i_datab + i_cin;
             couttmp(lpm_pipeline)   := resulttmp(lpm_pipeline)(lpm_width);
         elsif ((lpm_direction = "SUB") or
-                ((lpm_direction = "UNUSED") and (add_sub = '0'))) then
+                (((lpm_direction = "UNUSED")  or (lpm_direction = "DEFAULT")) and (add_sub = '0'))) then
             if (cin = 'Z') then
                 i_cin := '1';
             else
@@ -1636,7 +1869,7 @@ begin
             -- Perform as subtractor
             resulttmp(lpm_pipeline) := i_dataa - i_datab + i_cin - 1;
             couttmp(lpm_pipeline)   := not resulttmp(lpm_pipeline)(lpm_width);
-        elsif (lpm_direction /= "UNUSED") then
+        elsif ((lpm_direction /= "UNUSED") and (lpm_direction /= "DEFAULT")) then
             ASSERT FALSE
             REPORT "Illegal lpm_direction property value for LPM_ADD_SUB!"
             SEVERITY ERROR;
@@ -2267,7 +2500,6 @@ begin
         wait;
     end process MSG;
 
-
 -- instantiate LPM_COMPARE_UNSIGNED to perform "UNSIGNED" data comparison
 L1: if lpm_representation = "UNSIGNED" generate
     U1: LPM_COMPARE_UNSIGNED
@@ -2392,7 +2624,6 @@ architecture LPM_SYN of LPM_MULT is
             end loop;
         end if;        
         return binary_bits(i_width_str -1 downto 0);
-
     end str2bin;
 
 -- TYPE DECLARATION
@@ -2605,7 +2836,6 @@ signal remainder_pipe   : std_logic_vector (lpm_widthd - 1 downto 0)
 signal remainder_value  : std_logic_vector (lpm_widthd - 1 downto 0)
                         := (others => '0');
 
-
 -- FUNCTION DECLARATION
     -- Bitwise left shift
     procedure shift_left ( val : inout std_logic_vector; num : in integer)  is
@@ -2639,7 +2869,6 @@ signal remainder_value  : std_logic_vector (lpm_widthd - 1 downto 0)
         temp(temp'high) := '0';
         val := temp;
     end shift_right;
-
 
 begin
 
@@ -2926,7 +3155,6 @@ begin
         end if;
         wait;
     end process MSG;
-
     
     GENERATE_ABS : process(data)
     begin
@@ -3013,6 +3241,47 @@ architecture LPM_SYN of LPM_COUNTER is
 -- CONSTANT DECLARATION
 constant ONES : std_logic_vector(lpm_width-1 downto 0) := (OTHERS => '1');
 
+-- FUNCTION DECLARATION
+function STR_TO_STD_LOGIC_VECTOR ( str : string ) return std_logic_vector is
+variable len : integer := str'length;
+variable ivalue : std_logic_vector(lpm_width+5 downto 0) := (others => '0');
+variable digit : std_logic_vector(3 downto 0) := (others => '0');
+variable ten : std_logic_vector(3 downto 0) := "1010";
+begin
+    if (str /= "UNUSED") then
+        for i in 1 to len loop
+            case str(i) is
+                when '0' =>
+                    digit := "0000";
+                when '1' =>
+                    digit := "0001";
+                when '2' =>
+                    digit := "0010";
+                when '3' =>
+                    digit := "0011";
+                when '4' =>
+                    digit := "0100";
+                when '5' =>
+                    digit := "0101";
+                when '6' =>
+                    digit := "0110";
+                when '7' =>
+                    digit := "0111";
+                when '8' =>
+                    digit := "1000";
+                when '9' =>
+                    digit := "1001";
+                when others =>
+                    ASSERT FALSE
+                    REPORT "Illegal Character "&  str(i) & " in string parameter! "
+                    SEVERITY ERROR;
+            end case;
+            ivalue(lpm_width+4 downto 0) := unsigned(ivalue(lpm_width downto 0)) * unsigned(ten) + unsigned(digit);
+        end loop;
+    end if;
+    return ivalue(lpm_width downto 0);
+end STR_TO_STD_LOGIC_VECTOR;
+
 -- SIGNAL DECLARATION
 signal count : std_logic_vector(lpm_width downto 0);
 signal dir : std_logic_vector(1 downto 0);
@@ -3082,15 +3351,17 @@ begin
     end process DIRECTION;
 
     COUNTER: process (clock, aclr, aset, aload, data)
-        variable iavalue, isvalue : integer;
         variable imodulus : integer := lpm_modulus;
         variable init : boolean := false;
+        variable avalue : std_logic_vector(lpm_width downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_avalue);
+        variable svalue : std_logic_vector(lpm_width downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_svalue);
+        variable pvalue : std_logic_vector(lpm_width downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_pvalue);
     begin
         if (init = false) then
 
             -- Initialize to pvalue and setup variables            
             if (lpm_pvalue /= "UNUSED") then
-                count <= conv_std_logic_vector(STR_TO_INT(lpm_pvalue), lpm_width+1);
+                count <= pvalue;
             else
                 count <= (OTHERS => '0');
             end if;
@@ -3122,8 +3393,7 @@ begin
             if (lpm_avalue = "UNUSED") then
                 count <= (OTHERS => '1');
             else
-                iavalue := STR_TO_INT(lpm_avalue);
-                count <= conv_std_logic_vector(iavalue, lpm_width+1);
+                count <= avalue;
             end if;
         elsif (aload = '1') then
             count(lpm_width-1 downto 0) <= data;
@@ -3135,8 +3405,7 @@ begin
                     if (lpm_svalue = "UNUSED") then
                         count <= (OTHERS => '1');
                     else
-                        isvalue := STR_TO_INT(lpm_svalue);
-                        count <= conv_std_logic_vector(isvalue, lpm_width+1);
+                        count <= svalue;
                     end if;
                 elsif (sload = '1') then
                     count(lpm_width-1 downto 0) <= data;
@@ -3256,6 +3525,47 @@ end LPM_LATCH;
 -- BEGINNING OF ARCHITECTURE
 architecture LPM_SYN of LPM_LATCH is
 
+-- FUNCTION DECLARATION
+function STR_TO_STD_LOGIC_VECTOR ( str : string ) return std_logic_vector is
+variable len : integer := str'length;
+variable ivalue : std_logic_vector(lpm_width+4 downto 0) := (others => '0');
+variable digit : std_logic_vector(3 downto 0) := (others => '0');
+variable ten : std_logic_vector(3 downto 0) := "1010";
+begin
+    if (str /= "UNUSED") then
+        for i in 1 to len loop
+            case str(i) is
+                when '0' =>
+                    digit := "0000";
+                when '1' =>
+                    digit := "0001";
+                when '2' =>
+                    digit := "0010";
+                when '3' =>
+                    digit := "0011";
+                when '4' =>
+                    digit := "0100";
+                when '5' =>
+                    digit := "0101";
+                when '6' =>
+                    digit := "0110";
+                when '7' =>
+                    digit := "0111";
+                when '8' =>
+                    digit := "1000";
+                when '9' =>
+                    digit := "1001";
+                when others =>
+                    ASSERT FALSE
+                    REPORT "Illegal Character "&  str(i) & " in string parameter! "
+                    SEVERITY ERROR;
+            end case;
+            ivalue(lpm_width+3 downto 0) := unsigned(ivalue(lpm_width-1 downto 0)) * unsigned(ten) + unsigned(digit);
+        end loop;
+    end if;
+    return ivalue(lpm_width-1 downto 0);
+end STR_TO_STD_LOGIC_VECTOR;
+
 -- SIGNAL DECLARATION
 signal init : std_logic := '0';
 signal tmp_init: std_logic := '0';
@@ -3283,13 +3593,14 @@ begin
     end process;
     
     process (data, gate, aclr, aset, init)
-    variable i_avalue : integer;
+    variable avalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_avalue);
+    variable pvalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_pvalue);
     begin
 
         if (init = '0') then
             if (lpm_pvalue /= "UNUSED") then
                 -- initialize to pvalue
-                q <= conv_std_logic_vector(STR_TO_INT(lpm_pvalue), lpm_width);
+                q <= pvalue;
             end if;
             tmp_init <= '1';
         else
@@ -3299,8 +3610,7 @@ begin
                 if (lpm_avalue = "UNUSED") then
                     q <= (OTHERS => '1');
                 else
-                    i_avalue := STR_TO_INT(lpm_avalue);
-                    q <= conv_std_logic_vector(i_avalue, lpm_width);
+                    q <= avalue;
                 end if;
             elsif (gate = '1') then
                 q <= data;
@@ -3367,6 +3677,47 @@ end LPM_FF;
 -- BEGINNING OF ARCHITECTURE
 architecture LPM_SYN of LPM_FF is
 
+-- FUNCTION DECLARATION
+function STR_TO_STD_LOGIC_VECTOR ( str : string ) return std_logic_vector is
+variable len : integer := str'length;
+variable ivalue : std_logic_vector(lpm_width+4 downto 0) := (others => '0');
+variable digit : std_logic_vector(3 downto 0) := (others => '0');
+variable ten : std_logic_vector(3 downto 0) := "1010";
+begin
+    if (str /= "UNUSED") then
+        for i in 1 to len loop
+            case str(i) is
+                when '0' =>
+                    digit := "0000";
+                when '1' =>
+                    digit := "0001";
+                when '2' =>
+                    digit := "0010";
+                when '3' =>
+                    digit := "0011";
+                when '4' =>
+                    digit := "0100";
+                when '5' =>
+                    digit := "0101";
+                when '6' =>
+                    digit := "0110";
+                when '7' =>
+                    digit := "0111";
+                when '8' =>
+                    digit := "1000";
+                when '9' =>
+                    digit := "1001";
+                when others =>
+                    ASSERT FALSE
+                    REPORT "Illegal Character "&  str(i) & " in string parameter! "
+                    SEVERITY ERROR;
+            end case;
+            ivalue(lpm_width+3 downto 0) := unsigned(ivalue(lpm_width-1 downto 0)) * unsigned(ten) + unsigned(digit);
+        end loop;
+    end if;
+    return ivalue(lpm_width-1 downto 0);
+end STR_TO_STD_LOGIC_VECTOR;
+
 -- SIGNAL DECLARATION
 signal iq : std_logic_vector(lpm_width-1 downto 0) := (OTHERS => '0');
 
@@ -3375,8 +3726,10 @@ begin
 -- PROCESS DECLARATION
 
     process (data, clock, aclr, aset, aload)
-    variable IAVALUE, ISVALUE : integer;
     variable init : std_logic := '0';
+    variable avalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_avalue);
+    variable svalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_svalue);
+    variable pvalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_pvalue);
     begin
         -- INITIALIZE TO PVALUE --
         if (init = '0') then
@@ -3391,7 +3744,7 @@ begin
                 SEVERITY ERROR;
             end if;
             if (lpm_pvalue /= "UNUSED") then
-                iq <= conv_std_logic_vector(STR_TO_INT(lpm_pvalue), lpm_width);
+                iq <= pvalue;
             end if;
             init := '1';
         end if;
@@ -3404,8 +3757,7 @@ begin
             if (lpm_avalue = "UNUSED") then
                 iq <= (OTHERS => '1');
             else
-                IAVALUE := STR_TO_INT(lpm_avalue);
-                iq <= conv_std_logic_vector(IAVALUE, lpm_width);
+                iq <= avalue;
             end if;
         elsif (aload = '1') then
             if (lpm_fftype = "TFF") then
@@ -3415,7 +3767,7 @@ begin
             if (lpm_pvalue = "UNUSED") then
                 iq <= (OTHERS => '0');
             else
-                iq <= conv_std_logic_vector(STR_TO_INT(lpm_pvalue), lpm_width);
+                iq <= pvalue;
             end if;
         elsif (clock'event and (clock = '1') and (NOW > 0 ns)) then
             if (enable = '1') then
@@ -3425,8 +3777,7 @@ begin
                     if (lpm_svalue = "UNUSED") then
                         iq <= (OTHERS => '1');
                     else
-                        ISVALUE := STR_TO_INT(lpm_svalue);
-                        iq <= conv_std_logic_vector(ISVALUE, lpm_width);
+                        iq <= svalue;
                     end if;
                 elsif (sload = '1') then
                     if (lpm_fftype = "TFF") then
@@ -3514,6 +3865,47 @@ end LPM_SHIFTREG;
 -- BEGINNING OF ARCHITECTURE
 architecture LPM_SYN of LPM_SHIFTREG is
 
+-- FUNCTION DECLARATION
+function STR_TO_STD_LOGIC_VECTOR ( str : string ) return std_logic_vector is
+variable len : integer := str'length;
+variable ivalue : std_logic_vector(lpm_width+4 downto 0) := (others => '0');
+variable digit : std_logic_vector(3 downto 0) := (others => '0');
+variable ten : std_logic_vector(3 downto 0) := "1010";
+begin
+    if (str /= "UNUSED") then
+        for i in 1 to len loop
+            case str(i) is
+                when '0' =>
+                    digit := "0000";
+                when '1' =>
+                    digit := "0001";
+                when '2' =>
+                    digit := "0010";
+                when '3' =>
+                    digit := "0011";
+                when '4' =>
+                    digit := "0100";
+                when '5' =>
+                    digit := "0101";
+                when '6' =>
+                    digit := "0110";
+                when '7' =>
+                    digit := "0111";
+                when '8' =>
+                    digit := "1000";
+                when '9' =>
+                    digit := "1001";
+                when others =>
+                    ASSERT FALSE
+                    REPORT "Illegal Character "&  str(i) & " in string parameter! "
+                    SEVERITY ERROR;
+            end case;
+            ivalue(lpm_width+3 downto 0) := unsigned(ivalue(lpm_width-1 downto 0)) * unsigned(ten) + unsigned(digit);
+        end loop;
+    end if;
+    return ivalue(lpm_width-1 downto 0);
+end STR_TO_STD_LOGIC_VECTOR;
+
 -- SIGNAL DECLARATION
 signal i_q : std_logic_vector(lpm_width-1 downto 0) := (OTHERS => '0');
 signal init : std_logic := '0';
@@ -3543,13 +3935,14 @@ begin
     end process;
 
     process (clock, aclr, aset, init)
-    variable iavalue : integer := 0;
-    variable isvalue : integer := 0;
+    variable avalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_avalue);
+    variable svalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_svalue);
+    variable pvalue : std_logic_vector(lpm_width-1 downto 0) := STR_TO_STD_LOGIC_VECTOR(lpm_pvalue);
     begin
         -- initIALIZE TO PVALUE --
         if (init = '0') then
             if (lpm_pvalue /= "UNUSED") then
-                i_q <= conv_std_logic_vector(STR_TO_INT(lpm_pvalue), lpm_width);
+                i_q <= pvalue;
             end if;
             if ((lpm_direction = "LEFT") or (lpm_direction = "UNUSED")) then
                 i_shiftout_pos <= lpm_width-1;
@@ -3567,8 +3960,7 @@ begin
             if (lpm_avalue = "UNUSED") then
                 i_q <= (OTHERS => '1');
             else
-                iavalue := STR_TO_INT(lpm_avalue);
-                i_q <= conv_std_logic_vector(iavalue, lpm_width);
+                i_q <= avalue;
             end if;
         elsif (rising_edge(clock)) then
             if (enable = '1') then
@@ -3578,8 +3970,7 @@ begin
                     if (lpm_svalue = "UNUSED") then
                         i_q <= (OTHERS => '1');
                     else
-                        isvalue := STR_TO_INT(lpm_svalue);
-                        i_q <= conv_std_logic_vector(isvalue, lpm_width);
+                        i_q <= svalue;
                     end if;
                 elsif (load = '1') then
                     i_q <= data;
@@ -3770,12 +4161,26 @@ begin
     variable buf: line ;
     variable booval: boolean ;
     FILE mem_data_file: TEXT;
+    variable char : string(1 downto 1) := " ";
     variable base, byte, rec_type, datain, addr, checksum: string(2 downto 1);
     variable startadd: string(4 downto 1);
     variable ibase: integer := 0;
     variable ibyte: integer := 0;
     variable istartadd: integer := 0;
     variable check_sum_vec, check_sum_vec_tmp: std_logic_vector(7 downto 0);
+    variable m_string : string(1 to 15);
+    variable m_data_radix : string(1 to 3);
+    variable m_address_radix : string(1 to 3);
+    variable m_width : integer;
+    variable m_depth : integer;
+    variable m_start_address_int : integer := 0;
+    variable m_end_address_int : integer := 0;
+    variable m_address_int : integer := 0;
+    variable m_data_int : std_logic_vector(lpm_width+4 downto 0) := (OTHERS => '0');
+    variable found_keyword_content : boolean := false;
+    variable get_memory_content : boolean := false;
+    variable get_start_Address : boolean := false;
+    variable get_end_Address : boolean := false;
     begin
         -- Initialize
         if not (mem_init) then
@@ -3786,124 +4191,580 @@ begin
 
             if (lpm_file /= "UNUSED") then
                 FILE_OPEN(mem_data_file, lpm_file, READ_MODE);
-
-                while not ENDFILE(mem_data_file) loop
-                    booval := true;
-                    READLINE(mem_data_file, buf);
-                    lineno := lineno + 1;
-                    check_sum_vec := (OTHERS => '0');
-                    if (buf(buf'low) = ':') then
-                        i := 1;
-                        SHRINK_LINE(buf, i);
-                        READ(L=>buf, VALUE=>byte, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
-                            SEVERITY ERROR;
-                        end if;
-                        ibyte := HEX_STR_TO_INT(byte);
-                        check_sum_vec :=    unsigned(check_sum_vec) + 
-                                            unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
-                        READ(L=>buf, VALUE=>startadd, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        istartadd := HEX_STR_TO_INT(startadd);
-                        addr(2) := startadd(4);
-                        addr(1) := startadd(3);
-                        check_sum_vec :=    unsigned(check_sum_vec) + 
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        addr(2) := startadd(2);
-                        addr(1) := startadd(1);
-                        check_sum_vec :=    unsigned(check_sum_vec) + 
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        READ(L=>buf, VALUE=>rec_type, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        check_sum_vec :=    unsigned(check_sum_vec) + 
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
-                    else
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                        SEVERITY ERROR;
-                    end if;
-                    case rec_type is
-                        when "00"=>     -- data record
-                            i := 0;
-                            k := lpm_width / 8;
-                            if ((lpm_width mod 8) /= 0) then
-                                k := k + 1; 
+                if (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".hex") then
+                    while not ENDFILE(mem_data_file) loop
+                        booval := true;
+                        READLINE(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        check_sum_vec := (OTHERS => '0');
+                        if (buf(buf'low) = ':') then
+                            i := 1;
+                            SHRINK_LINE(buf, i);
+                            READ(L=>buf, VALUE=>byte, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
+                                SEVERITY ERROR;
                             end if;
-                            -- k = no. of bytes per CAM entry.
-                            while (i < ibyte) loop
-                                mem_data_word := (others => '0');
-                                n := (k - 1)*8;
-                                m := lpm_width - 1;
-                                
-                                for j in 1 to k loop
-                                    READ(L=>buf, VALUE=>datain,good=>booval); -- read in data a byte (2 hex chars) at a time.
+                            ibyte := HEX_STR_TO_INT(byte);
+                            check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
+                            READ(L=>buf, VALUE=>startadd, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            istartadd := HEX_STR_TO_INT(startadd);
+                            addr(2) := startadd(4);
+                            addr(1) := startadd(3);
+                            check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            addr(2) := startadd(2);
+                            addr(1) := startadd(1);
+                            check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            READ(L=>buf, VALUE=>rec_type, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
+                        else
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                            SEVERITY ERROR;
+                        end if;
+                        case rec_type is
+                            when "00"=>     -- data record
+                                i := 0;
+                                k := lpm_width / 8;
+                                if ((lpm_width mod 8) /= 0) then
+                                    k := k + 1; 
+                                end if;
+                                -- k = no. of bytes per CAM entry.
+                                while (i < ibyte) loop
+                                    mem_data_word := (others => '0');
+                                    n := (k - 1)*8;
+                                    m := lpm_width - 1;
+                                    
+                                    for j in 1 to k loop
+                                        READ(L=>buf, VALUE=>datain,good=>booval); -- read in data a byte (2 hex chars) at a time.
+                                        if not (booval) then
+                                            ASSERT FALSE
+                                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                            SEVERITY ERROR;
+                                        end if;
+                                        check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
+                                        mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
+                                        m := n - 1;
+                                        n := n - 8;
+                                    end loop;
+                                    i := i + k;
+                                    mem_data(ibase + istartadd) := mem_data_word;
+                                    istartadd := istartadd + 1;
+                                end loop;
+                            when "01"=>
+                                exit;
+                            when "02"=>
+                                ibase := 0;
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
+                                    SEVERITY ERROR;
+                                end if;
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := (ibase * 256) + HEX_STR_TO_INT(base);
                                     if not (booval) then
                                         ASSERT FALSE
                                         REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
                                         SEVERITY ERROR;
                                     end if;
                                     check_sum_vec :=    unsigned(check_sum_vec) + 
-                                                        unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
-                                    mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
-                                    m := n - 1;
-                                    n := n - 8;
+                                                        unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
                                 end loop;
-                                i := i + k;
-                                mem_data(ibase + istartadd) := mem_data_word;
-                                istartadd := istartadd + 1;
-                            end loop;
-                        when "01"=>
-                            exit;
-                        when "02"=>
-                            ibase := 0;
-                            if (ibyte /= 2) then
-                                ASSERT FALSE
-                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
-                                SEVERITY ERROR;
-                            end if;
-                            for i in 0 to (ibyte-1) loop
-                                READ(L=>buf, VALUE=>base,good=>booval);
-                                ibase := (ibase * 256) + HEX_STR_TO_INT(base);
-                                if not (booval) then
+                                ibase := ibase * 16;
+                            when "03"=>
+                        
+                                if (ibyte /= 4) then
                                     ASSERT FALSE
-                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 03! "
                                     SEVERITY ERROR;
                                 end if;
-                                check_sum_vec :=    unsigned(check_sum_vec) + 
-                                                    unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
-                            end loop;
-                            ibase := ibase * 16;
-                        when OTHERS =>
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when "04"=>
+                                ibase := 0;
+                        
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 04! "
+                                    SEVERITY ERROR;
+                                end if;
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := (ibase * 256) + HEX_STR_TO_INT(base);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                                ibase := ibase * 65536;
+                            when "05"=>
+                        
+                                if (ibyte /= 4) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 05! "
+                                    SEVERITY ERROR;
+                                end if;
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when OTHERS =>
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                                SEVERITY ERROR;
+                        end case;
+                        READ(L=>buf, VALUE=>checksum,good=>booval);
+                        if not (booval) then
                             ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
                             SEVERITY ERROR;
-                    end case;
-                    READ(L=>buf, VALUE=>checksum,good=>booval);
-                    if not (booval) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
-                        SEVERITY ERROR;
-                    end if;
-
-                    check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
-                    check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
-
-                    if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
-                        SEVERITY ERROR;
-                    end if;
-                end loop;
+                        end if;
+    
+                        check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
+                        check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
+    
+                        if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
+                            SEVERITY ERROR;
+                        end if;
+                    end loop;
+                elsif (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".mif") then
+                    -- ************************************************
+                    -- Read in RAM initialization file (mif)
+                    -- ************************************************
+                    while not endfile(mem_data_file) loop
+                        booval := true;
+                        readline(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        LOOP2 : while (buf'length > 0) loop
+                            if (buf(buf'low) = '-') then
+                                if (buf(buf'low) = '-') then
+                                    -- ignore comment started with --.
+                                    exit LOOP2;
+                                end if;
+                            elsif (buf(buf'low) = '%') then
+                                i := 1;
+                                
+                                -- ignore comment which begin with % and end with another %.
+                                while ((i < buf'high) and (buf(buf'low + i) /= '%')) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i+1);
+                                end if;
+                            elsif ((buf(buf'low) = ' ') or (buf(buf'low) = HT)) then
+                                i := 1;
+                                -- ignore space or tab character.
+                                while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i);
+                                end if;
+                            elsif (get_memory_content = true) then
+                            
+                                if (((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "end") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "END") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "End")) then
+                                    get_memory_content := false;
+                                    exit LOOP2;
+                                else
+                                    get_start_address := false;
+                                    get_end_address := false;
+                                    m_start_address_int := 0;
+                                    m_end_address_int := 0;
+                                    m_address_int := 0;
+                                    m_data_int := (others => '0');
+                                    if (buf(buf'low) = '[') then
+                                        get_start_Address := true;
+                                        SHRINK_LINE(buf, 1);
+                                    end if;
+        
+                                    case m_address_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported address_radix!"
+                                            severity error;
+                                    end case;
+        
+                                    if (get_start_Address = true) then
+                                    
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;
+            
+                                        if ((buf(buf'low) = '.') and (buf(buf'low+1) = '.')) then
+                                            get_start_Address := false;
+                                            get_end_Address := true;
+                                            m_start_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 2);    
+                                        end if;
+                                    end if;
+        
+                                    if (get_end_address = true) then
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;                                
+                                        
+                                        m_address_int := 0;
+                                        case m_address_radix is
+                                            when "hex" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                                end loop;
+                                            when "bin" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                                end loop;
+                                            when "dec" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "uns" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "oct" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                                end loop;
+                                            when others =>
+                                                assert false
+                                                report "Unsupported address_radix!"
+                                                severity error;
+                                        end case;
+        
+                                        if (buf(buf'low) = ']') then
+                                            get_end_address := false;
+                                            m_end_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 1);    
+                                        end if;
+                                    end if;
+                                        
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;                                
+                                    
+                                    if (buf(buf'low) = ':') then
+                                        SHRINK_LINE(buf, 1);    
+                                    end if;
+                                    
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;
+            
+                                    case m_data_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+4 downto 0) := m_data_int(lpm_width-1 downto 0) * "10000" + conv_std_logic_vector(HEX_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+1 downto 0) := m_data_int(lpm_width-1 downto 0) * "10" + conv_std_logic_vector(BIN_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1000" + conv_std_logic_vector(OCT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported data_radix!"
+                                            severity error;
+                                        end case;                           
+        
+                                        if (m_start_address_int /= m_end_address_int) then
+                                            for i in m_start_address_int to m_end_address_int loop
+                                                mem_data(i) := m_data_int(lpm_width-1 downto 0);
+                                            end loop;
+                                        else
+                                            mem_data(m_address_int) := m_data_int(lpm_width-1 downto 0);
+                                        end if;
+                                    exit LOOP2;
+                                end if;                                
+                            elsif ((buf(buf'low) = 'W') or (buf(buf'low) = 'w')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "width") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_width := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif (((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) and
+                                    ((buf(buf'low+1) = 'E') or (buf(buf'low+1) = 'e'))) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "depth") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_depth := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) then
+                                read(l=>buf, value=>m_string(1 to 10));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 10))  = "data_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_data_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'A') or (buf(buf'low) = 'a')) then
+                                read(l=>buf, value=>m_string(1 to 13));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 13))  = "address_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_address_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'C') or (buf(buf'low) = 'c')) then
+                                read(l=>buf, value=>m_string(1 to 7));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 7))  = "content") then
+                                    found_keyword_content := true;
+                                end if;
+                            elsif ((buf(buf'low) = 'B') or (buf(buf'low) = 'b')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "begin") then
+                                    if (found_keyword_content = true) then
+                                        get_memory_content := true;
+                                    end if;
+                                end if;
+                            end if;
+                        end loop;
+                    end loop;
+                
+                else
+                    assert false
+                    report "Unsupported memory initialization file type (" & (lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) & ")!"
+                    severity error;
+                end if;
                 FILE_CLOSE(mem_data_file);
             end if;
             mem_init := TRUE;
@@ -4126,12 +4987,26 @@ begin
     variable buf: line ;
     variable booval: boolean ;
     FILE mem_data_file: TEXT;
+    variable char              : string(1 downto 1) := " ";
     variable base, byte, rec_type, datain, addr, checksum : string(2 downto 1) := "  ";
     variable startadd : string(4 downto 1) := "    ";
     variable ibase : integer := 0;
     variable ibyte : integer := 0;
     variable istartadd : integer := 0;
     variable check_sum_vec, check_sum_vec_tmp : std_logic_vector(7 downto 0);
+    variable m_string : string(1 to 15);
+    variable m_data_radix : string(1 to 3);
+    variable m_address_radix : string(1 to 3);
+    variable m_width : integer;
+    variable m_depth : integer;
+    variable m_start_address_int : integer := 0;
+    variable m_end_address_int : integer := 0;
+    variable m_address_int : integer := 0;
+    variable m_data_int : std_logic_vector(lpm_width+4 downto 0) := (OTHERS => '0');
+    variable found_keyword_content : boolean := false;
+    variable get_memory_content : boolean := false;
+    variable get_start_Address : boolean := false;
+    variable get_end_Address : boolean := false;
     begin
         -- Initialize
         if NOT(mem_init) then
@@ -4141,133 +5016,590 @@ begin
             end loop;
 
             if ((use_eab = "ON") or (lpm_hint = "use_eab=ON")) then
-                if IS_FAMILY_APEX20K(intended_device_family) then
+                if FEATURE_FAMILY_APEX20K(intended_device_family) then
                     q_tmp <= (others => '0');
                 else
                     q_tmp <= (others => '1');
                 end if;
             end if;
-                        
+
             if (lpm_file /= "UNUSED") then
-                FILE_OPEN(mem_data_file, lpm_file, READ_MODE);                 
-                while not ENDFILE(mem_data_file) loop
-                    booval := true;
-                    READLINE(mem_data_file, buf);
-                    lineno := lineno + 1;
-                    check_sum_vec := (OTHERS => '0');
-                    if (buf(buf'LOW) = ':') then
-                        i := 1;
-                        SHRINK_LINE(buf, i);
-                        READ(L=>buf, VALUE=>byte, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
-                            SEVERITY ERROR;
-                        end if;
-                        ibyte := HEX_STR_TO_INT(byte);
-                        check_sum_vec :=    unsigned(check_sum_vec) + 
-                                            unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
-                        READ(L=>buf, VALUE=>startadd, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        istartadd := HEX_STR_TO_INT(startadd);
-                        addr(2) := startadd(4);
-                        addr(1) := startadd(3);
-                        check_sum_vec :=    unsigned(check_sum_vec) +
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        addr(2) := startadd(2);
-                        addr(1) := startadd(1);
-                        check_sum_vec :=    unsigned(check_sum_vec) +
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        READ(L=>buf, VALUE=>rec_type, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        check_sum_vec :=    unsigned(check_sum_vec) +
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
-                    else
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                        SEVERITY ERROR;
-                    end if;
-                    case rec_type is
-                        when "00" =>     -- data record
-                            i := 0;
-                            k := lpm_width / 8;
-                            if ((lpm_width mod 8) /= 0) then
-                                k := k + 1; 
+                FILE_OPEN(mem_data_file, lpm_file, READ_MODE); 
+                if (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".hex") then               
+                    while not ENDFILE(mem_data_file) loop
+                        booval := true;
+                        READLINE(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        check_sum_vec := (OTHERS => '0');
+                        if (buf(buf'LOW) = ':') then
+                            i := 1;
+                            SHRINK_LINE(buf, i);
+                            READ(L=>buf, VALUE=>byte, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
+                                SEVERITY ERROR;
                             end if;
-                            -- k = no. of bytes per CAM entry.
-                            while (i < ibyte) loop
-                                mem_data_word := (others => '0');
-                                n := (k - 1)*8;
-                                m := lpm_width - 1;
-                                
-                                for j in 1 to k loop
-                                    -- read in data a byte (2 hex chars) at a time.
-                                    READ(L=>buf, VALUE=>datain,good=>booval); 
+                            ibyte := HEX_STR_TO_INT(byte);
+                            check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
+                            READ(L=>buf, VALUE=>startadd, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            istartadd := HEX_STR_TO_INT(startadd);
+                            addr(2) := startadd(4);
+                            addr(1) := startadd(3);
+                            check_sum_vec :=    unsigned(check_sum_vec) +
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            addr(2) := startadd(2);
+                            addr(1) := startadd(1);
+                            check_sum_vec :=    unsigned(check_sum_vec) +
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            READ(L=>buf, VALUE=>rec_type, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            check_sum_vec :=    unsigned(check_sum_vec) +
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
+                        else
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                            SEVERITY ERROR;
+                        end if;
+                        case rec_type is
+                            when "00" =>     -- data record
+                                i := 0;
+                                k := lpm_width / 8;
+                                if ((lpm_width mod 8) /= 0) then
+                                    k := k + 1; 
+                                end if;
+                                -- k = no. of bytes per CAM entry.
+                                while (i < ibyte) loop
+                                    mem_data_word := (others => '0');
+                                    n := (k - 1)*8;
+                                    m := lpm_width - 1;
+                                    
+                                    for j in 1 to k loop
+                                        -- read in data a byte (2 hex chars) at a time.
+                                        READ(L=>buf, VALUE=>datain,good=>booval); 
+                                        if not (booval) then
+                                            ASSERT FALSE
+                                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                            SEVERITY ERROR;
+                                        end if;
+                                        check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
+                                        mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
+                                        m := n - 1;
+                                        n := n - 8;
+                                    end loop;
+                                    i := i + k;
+                                    mem_data(ibase + istartadd) := mem_data_word;
+                                    istartadd := istartadd + 1;
+                                end loop;
+                            when "01"=>
+                                exit;
+                            when "02"=>
+                                ibase := 0;
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
+                                    SEVERITY ERROR;
+                                end if;
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := ibase * 256 + HEX_STR_TO_INT(base);
                                     if not (booval) then
                                         ASSERT FALSE
                                         REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
                                         SEVERITY ERROR;
                                     end if;
-                                    check_sum_vec :=    unsigned(check_sum_vec) + 
-                                                        unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
-                                    mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
-                                    m := n - 1;
-                                    n := n - 8;
+                                    check_sum_vec :=    unsigned(check_sum_vec) +
+                                                        unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
                                 end loop;
-                                i := i + k;
-                                mem_data(ibase + istartadd) := mem_data_word;
-                                istartadd := istartadd + 1;
-                            end loop;
-                        when "01"=>
-                            exit;
-                        when "02"=>
-                            ibase := 0;
-                            if (ibyte /= 2) then
-                                ASSERT FALSE
-                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
-                                SEVERITY ERROR;
-                            end if;
-                            for i in 0 to (ibyte-1) loop
-                                READ(L=>buf, VALUE=>base,good=>booval);
-                                ibase := ibase * 256 + HEX_STR_TO_INT(base);
-                                if not (booval) then
+                                ibase := ibase * 16;
+                            when "03"=>
+                        
+                                if (ibyte /= 4) then
                                     ASSERT FALSE
-                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 03! "
                                     SEVERITY ERROR;
                                 end if;
-                                check_sum_vec :=    unsigned(check_sum_vec) +
-                                                    unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
-                            end loop;
-                            ibase := ibase * 16;
-                        when OTHERS =>
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when "04"=>
+                                ibase := 0;
+                        
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 04! "
+                                    SEVERITY ERROR;
+                                end if;
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := (ibase * 256) + HEX_STR_TO_INT(base);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                                ibase := ibase * 65536;
+                            when "05"=>
+                        
+                                if (ibyte /= 4) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 05! "
+                                    SEVERITY ERROR;
+                                end if;
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when OTHERS =>
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                                SEVERITY ERROR;
+                        end case;
+                        READ(L=>buf, VALUE=>checksum,good=>booval);
+                        if not (booval) then
                             ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
                             SEVERITY ERROR;
-                    end case;
-                    READ(L=>buf, VALUE=>checksum,good=>booval);
-                    if not (booval) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
-                        SEVERITY ERROR;
-                    end if;
-
-                    check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
-                    check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
-
-                    if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
-                        SEVERITY ERROR;
-                    end if;
-                end loop;
+                        end if;
+    
+                        check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
+                        check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
+    
+                        if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
+                            SEVERITY ERROR;
+                        end if;
+                    end loop;
+                elsif (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".mif") then
+                    -- ************************************************
+                    -- Read in RAM initialization file (mif)
+                    -- ************************************************
+                    while not endfile(mem_data_file) loop
+                        booval := true;
+                        readline(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        LOOP2 : while (buf'length > 0) loop
+                            if (buf(buf'low) = '-') then
+                                if (buf(buf'low) = '-') then
+                                    -- ignore comment started with --.
+                                    exit LOOP2;
+                                end if;
+                            elsif (buf(buf'low) = '%') then
+                                i := 1;
+                                
+                                -- ignore comment which begin with % and end with another %.
+                                while ((i < buf'high) and (buf(buf'low + i) /= '%')) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i+1);
+                                end if;
+                            elsif ((buf(buf'low) = ' ') or (buf(buf'low) = HT)) then
+                                i := 1;
+                                -- ignore space or tab character.
+                                while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i);
+                                end if;
+                            elsif (get_memory_content = true) then
+                            
+                                if (((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "end") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "END") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "End")) then
+                                    get_memory_content := false;
+                                    exit LOOP2;
+                                else
+                                    get_start_address := false;
+                                    get_end_address := false;
+                                    m_start_address_int := 0;
+                                    m_end_address_int := 0;
+                                    m_address_int := 0;
+                                    m_data_int := (others => '0');
+                                    if (buf(buf'low) = '[') then
+                                        get_start_Address := true;
+                                        SHRINK_LINE(buf, 1);
+                                    end if;
+        
+                                    case m_address_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported address_radix!"
+                                            severity error;
+                                    end case;
+        
+                                    if (get_start_Address = true) then
+                                    
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;
+            
+                                        if ((buf(buf'low) = '.') and (buf(buf'low+1) = '.')) then
+                                            get_start_Address := false;
+                                            get_end_Address := true;
+                                            m_start_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 2);    
+                                        end if;
+                                    end if;
+        
+                                    if (get_end_address = true) then
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;                                
+                                        
+                                        m_address_int := 0;
+                                        case m_address_radix is
+                                            when "hex" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                                end loop;
+                                            when "bin" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                                end loop;
+                                            when "dec" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "uns" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "oct" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                                end loop;
+                                            when others =>
+                                                assert false
+                                                report "Unsupported address_radix!"
+                                                severity error;
+                                        end case;
+        
+                                        if (buf(buf'low) = ']') then
+                                            get_end_address := false;
+                                            m_end_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 1);    
+                                        end if;
+                                    end if;
+                                        
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;                                
+                                    
+                                    if (buf(buf'low) = ':') then
+                                        SHRINK_LINE(buf, 1);    
+                                    end if;
+                                    
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;
+            
+                                    case m_data_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+4 downto 0) := m_data_int(lpm_width-1 downto 0) * "10000" + conv_std_logic_vector(HEX_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+1 downto 0) := m_data_int(lpm_width-1 downto 0) * "10" + conv_std_logic_vector(BIN_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1000" + conv_std_logic_vector(OCT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported data_radix!"
+                                            severity error;
+                                        end case;                           
+        
+                                        if (m_start_address_int /= m_end_address_int) then
+                                            for i in m_start_address_int to m_end_address_int loop
+                                                mem_data(i) := m_data_int(lpm_width-1 downto 0);
+                                            end loop;
+                                        else
+                                            mem_data(m_address_int) := m_data_int(lpm_width-1 downto 0);
+                                        end if;
+                                    exit LOOP2;
+                                end if;                                
+                            elsif ((buf(buf'low) = 'W') or (buf(buf'low) = 'w')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "width") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_width := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif (((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) and
+                                    ((buf(buf'low+1) = 'E') or (buf(buf'low+1) = 'e'))) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "depth") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_depth := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) then
+                                read(l=>buf, value=>m_string(1 to 10));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 10))  = "data_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_data_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'A') or (buf(buf'low) = 'a')) then
+                                read(l=>buf, value=>m_string(1 to 13));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 13))  = "address_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_address_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'C') or (buf(buf'low) = 'c')) then
+                                read(l=>buf, value=>m_string(1 to 7));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 7))  = "content") then
+                                    found_keyword_content := true;
+                                end if;
+                            elsif ((buf(buf'low) = 'B') or (buf(buf'low) = 'b')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "begin") then
+                                    if (found_keyword_content = true) then
+                                        get_memory_content := true;
+                                    end if;
+                                end if;
+                            end if;
+                        end loop;
+                    end loop;
+                
+                else
+                    assert false
+                    report "Unsupported memory initialization file type (" & (lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) & ")!"
+                    severity error;
+                end if;
                 FILE_CLOSE(mem_data_file);
 
             end if;
@@ -4288,7 +5620,7 @@ begin
         if ((rden_tmp = '1') or (rden_used = "FALSE")) then
             q_tmp <= mem_data(conv_integer(rdaddress_tmp));
         else
-            if (IS_FAMILY_APEX20K(intended_device_family) and 
+            if (FEATURE_FAMILY_APEX20K(intended_device_family) and 
                 ((use_eab = "ON") or (lpm_hint = "use_eab=ON"))) then
                 q_tmp <= (OTHERS => '0');
             end if;
@@ -4467,12 +5799,26 @@ begin
     variable buf: line ;
     variable booval: boolean ;
     FILE mem_data_file: TEXT;
+    variable char : string(1 downto 1) := " ";
     variable base, byte, rec_type, datain, addr, checksum: string(2 downto 1);
     variable startadd: string(4 downto 1);
     variable ibase: integer := 0;
     variable ibyte: integer := 0;
     variable istartadd: integer := 0;
     variable check_sum_vec, check_sum_vec_tmp: std_logic_vector(7 downto 0);
+    variable m_string : string(1 to 15);
+    variable m_data_radix : string(1 to 3);
+    variable m_address_radix : string(1 to 3);
+    variable m_width : integer;
+    variable m_depth : integer;
+    variable m_start_address_int : integer := 0;
+    variable m_end_address_int : integer := 0;
+    variable m_address_int : integer := 0;
+    variable m_data_int : std_logic_vector(lpm_width+4 downto 0) := (OTHERS => '0');
+    variable found_keyword_content : boolean := false;
+    variable get_memory_content : boolean := false;
+    variable get_start_Address : boolean := false;
+    variable get_end_Address : boolean := false;
     begin
         -- INITIALIZE --
         if NOT(mem_init) then
@@ -4484,117 +5830,562 @@ begin
 
             if (LPM_FILE /= "UNUSED") then
                                 FILE_OPEN(mem_data_file, LPM_FILE, READ_MODE);
-                WHILE NOT ENDFILE(mem_data_file) loop
-                    booval := true;
-                    READLINE(mem_data_file, buf);
-                    lineno := lineno + 1;
-                    check_sum_vec := (OTHERS => '0');
-                    if (buf(buf'LOW) = ':') then
-                        i := 1;
-                        SHRINK_LINE(buf, i);
-                        READ(L=>buf, VALUE=>byte, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
-                            SEVERITY ERROR;
-                        end if;
-                        ibyte := HEX_STR_TO_INT(byte);
-                        check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
-                        READ(L=>buf, VALUE=>startadd, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        istartadd := HEX_STR_TO_INT(startadd);
-                        addr(2) := startadd(4);
-                        addr(1) := startadd(3);
-                        check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        addr(2) := startadd(2);
-                        addr(1) := startadd(1);
-                        check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        READ(L=>buf, VALUE=>rec_type, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
-                    else
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                        SEVERITY ERROR;
-                    end if;
-                    case rec_type is
-                        when "00"=>     -- Data record
-                            i := 0;
-                            k := lpm_width / 8;
-                            if ((lpm_width MOD 8) /= 0) then
-                                k := k + 1; 
+                if (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".hex") then
+                    WHILE NOT ENDFILE(mem_data_file) loop
+                        booval := true;
+                        READLINE(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        check_sum_vec := (OTHERS => '0');
+                        if (buf(buf'LOW) = ':') then
+                            i := 1;
+                            SHRINK_LINE(buf, i);
+                            READ(L=>buf, VALUE=>byte, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
+                                SEVERITY ERROR;
                             end if;
-                            -- k = no. of bytes per CAM entry.
-                            while (i < ibyte) loop
-                                mem_data_word := (others => '0');
-                                n := (k - 1)*8;
-                                m := lpm_width - 1;
-                                for j in 1 to k loop
-                                    READ(L=>buf, VALUE=>datain,good=>booval); -- read in data a byte (2 hex chars) at a time.
+                            ibyte := HEX_STR_TO_INT(byte);
+                            check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
+                            READ(L=>buf, VALUE=>startadd, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            istartadd := HEX_STR_TO_INT(startadd);
+                            addr(2) := startadd(4);
+                            addr(1) := startadd(3);
+                            check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            addr(2) := startadd(2);
+                            addr(1) := startadd(1);
+                            check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            READ(L=>buf, VALUE=>rec_type, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
+                        else
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                            SEVERITY ERROR;
+                        end if;
+                        case rec_type is
+                            when "00"=>     -- Data record
+                                i := 0;
+                                k := lpm_width / 8;
+                                if ((lpm_width MOD 8) /= 0) then
+                                    k := k + 1; 
+                                end if;
+                                -- k = no. of bytes per CAM entry.
+                                while (i < ibyte) loop
+                                    mem_data_word := (others => '0');
+                                    n := (k - 1)*8;
+                                    m := lpm_width - 1;
+                                    for j in 1 to k loop
+                                        READ(L=>buf, VALUE=>datain,good=>booval); -- read in data a byte (2 hex chars) at a time.
+                                        if not (booval) then
+                                            ASSERT FALSE
+                                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                            SEVERITY ERROR;
+                                        end if;
+                                        check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
+                                        mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
+                                        m := n - 1;
+                                        n := n - 8;
+                                    end loop;
+                                    i := i + k;
+                                    mem_data(ibase + istartadd) := mem_data_word;
+                                    istartadd := istartadd + 1;
+                                end loop;
+                            when "01"=>
+                                exit;
+                            when "02"=>
+                                ibase := 0;
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
+                                    SEVERITY ERROR;
+                                end if;
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := ibase * 256 + HEX_STR_TO_INT(base);
                                     if not (booval) then
                                         ASSERT FALSE
                                         REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
                                         SEVERITY ERROR;
                                     end if;
-                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
-                                    mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
-                                    m := n - 1;
-                                    n := n - 8;
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
                                 end loop;
-                                i := i + k;
-                                mem_data(ibase + istartadd) := mem_data_word;
-                                istartadd := istartadd + 1;
-                            end loop;
-                        when "01"=>
-                            exit;
-                        when "02"=>
-                            ibase := 0;
-                            if (ibyte /= 2) then
-                                ASSERT FALSE
-                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
-                                SEVERITY ERROR;
-                            end if;
-                            for i in 0 to (ibyte-1) loop
-                                READ(L=>buf, VALUE=>base,good=>booval);
-                                ibase := ibase * 256 + HEX_STR_TO_INT(base);
-                                if not (booval) then
+                                ibase := ibase * 16;
+                            when "03"=>
+                                if (ibyte /= 4) then
                                     ASSERT FALSE
-                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 03! "
                                     SEVERITY ERROR;
                                 end if;
-                                check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
-                            end loop;
-                            ibase := ibase * 16;
-                        when OTHERS =>
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when "04"=>
+                                ibase := 0;
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 04! "
+                                    SEVERITY ERROR;
+                                end if;
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := (ibase * 256) + HEX_STR_TO_INT(base);
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                                ibase := ibase * 65536;
+                            when "05"=>
+                                if (ibyte /= 4) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 05! "
+                                    SEVERITY ERROR;
+                                end if;
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when OTHERS =>
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                                SEVERITY ERROR;
+                        end case;
+                        READ(L=>buf, VALUE=>checksum,good=>booval);
+                        if not (booval) then
                             ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
                             SEVERITY ERROR;
-                    end case;
-                    READ(L=>buf, VALUE=>checksum,good=>booval);
-                    if not (booval) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
-                        SEVERITY ERROR;
-                    end if;
-
-                    check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
-                    check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
-
-                    if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
-                        SEVERITY ERROR;
-                    end if;
-                end loop;
-                                FILE_CLOSE(mem_data_file);
+                        end if;
+    
+                        check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
+                        check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
+    
+                        if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
+                            SEVERITY ERROR;
+                        end if;
+                    end loop;
+                elsif (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".mif") then
+                    -- ************************************************
+                    -- Read in RAM initialization file (mif)
+                    -- ************************************************
+                    while not endfile(mem_data_file) loop
+                        booval := true;
+                        readline(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        LOOP2 : while (buf'length > 0) loop
+                            if (buf(buf'low) = '-') then
+                                if (buf(buf'low) = '-') then
+                                    -- ignore comment started with --.
+                                    exit LOOP2;
+                                end if;
+                            elsif (buf(buf'low) = '%') then
+                                i := 1;
+                                
+                                -- ignore comment which begin with % and end with another %.
+                                while ((i < buf'high) and (buf(buf'low + i) /= '%')) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i+1);
+                                end if;
+                            elsif ((buf(buf'low) = ' ') or (buf(buf'low) = HT)) then
+                                i := 1;
+                                -- ignore space or tab character.
+                                while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i);
+                                end if;
+                            elsif (get_memory_content = true) then
+                            
+                                if (((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "end") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "END") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "End")) then
+                                    get_memory_content := false;
+                                    exit LOOP2;
+                                else
+                                    get_start_address := false;
+                                    get_end_address := false;
+                                    m_start_address_int := 0;
+                                    m_end_address_int := 0;
+                                    m_address_int := 0;
+                                    m_data_int := (others => '0');
+                                    if (buf(buf'low) = '[') then
+                                        get_start_Address := true;
+                                        SHRINK_LINE(buf, 1);
+                                    end if;
+        
+                                    case m_address_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported address_radix!"
+                                            severity error;
+                                    end case;
+        
+                                    if (get_start_Address = true) then
+                                    
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;
+            
+                                        if ((buf(buf'low) = '.') and (buf(buf'low+1) = '.')) then
+                                            get_start_Address := false;
+                                            get_end_Address := true;
+                                            m_start_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 2);    
+                                        end if;
+                                    end if;
+        
+                                    if (get_end_address = true) then
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;                                
+                                        
+                                        m_address_int := 0;
+                                        case m_address_radix is
+                                            when "hex" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                                end loop;
+                                            when "bin" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                                end loop;
+                                            when "dec" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "uns" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "oct" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                                end loop;
+                                            when others =>
+                                                assert false
+                                                report "Unsupported address_radix!"
+                                                severity error;
+                                        end case;
+        
+                                        if (buf(buf'low) = ']') then
+                                            get_end_address := false;
+                                            m_end_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 1);    
+                                        end if;
+                                    end if;
+                                        
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;                                
+                                    
+                                    if (buf(buf'low) = ':') then
+                                        SHRINK_LINE(buf, 1);    
+                                    end if;
+                                    
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;
+            
+                                    case m_data_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+4 downto 0) := m_data_int(lpm_width-1 downto 0) * "10000" + conv_std_logic_vector(HEX_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+1 downto 0) := m_data_int(lpm_width-1 downto 0) * "10" + conv_std_logic_vector(BIN_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1000" + conv_std_logic_vector(OCT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported data_radix!"
+                                            severity error;
+                                        end case;                           
+        
+                                        if (m_start_address_int /= m_end_address_int) then
+                                            for i in m_start_address_int to m_end_address_int loop
+                                                mem_data(i) := m_data_int(lpm_width-1 downto 0);
+                                            end loop;
+                                        else
+                                            mem_data(m_address_int) := m_data_int(lpm_width-1 downto 0);
+                                        end if;
+                                    exit LOOP2;
+                                end if;                                
+                            elsif ((buf(buf'low) = 'W') or (buf(buf'low) = 'w')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "width") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_width := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif (((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) and
+                                    ((buf(buf'low+1) = 'E') or (buf(buf'low+1) = 'e'))) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "depth") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_depth := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) then
+                                read(l=>buf, value=>m_string(1 to 10));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 10))  = "data_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_data_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'A') or (buf(buf'low) = 'a')) then
+                                read(l=>buf, value=>m_string(1 to 13));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 13))  = "address_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_address_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'C') or (buf(buf'low) = 'c')) then
+                                read(l=>buf, value=>m_string(1 to 7));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 7))  = "content") then
+                                    found_keyword_content := true;
+                                end if;
+                            elsif ((buf(buf'low) = 'B') or (buf(buf'low) = 'b')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "begin") then
+                                    if (found_keyword_content = true) then
+                                        get_memory_content := true;
+                                    end if;
+                                end if;
+                            end if;
+                        end loop;
+                    end loop;
+                
+                else
+                    assert false
+                    report "Unsupported memory initialization file type (" & (lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) & ")!"
+                    severity error;
+                end if;
+                FILE_CLOSE(mem_data_file);
             end if;
             mem_init := TRUE;
         end if;
@@ -4746,7 +6537,7 @@ begin
             SEVERITY ERROR;
         end if;
 
-        if (IS_FAMILY_MAX7000A(intended_device_family) = true or IS_FAMILY_MAX7000B(intended_device_family) = true or IS_FAMILY_MAX7000AE(intended_device_family) = true or IS_FAMILY_MAX7000S(intended_device_family) = true or IS_FAMILY_MAX3000A(intended_device_family) = true) then
+        if (FEATURE_FAMILY_MAX(intended_device_family) = true) then
             ASSERT FALSE
             REPORT "LPM_ROM megafunction does not support " & intended_device_family & " devices"
             SEVERITY ERROR;
@@ -4808,16 +6599,29 @@ begin
     variable buf: line ;
     variable booval: boolean ;
     FILE mem_data_file: TEXT;
+    variable char : string(1 downto 1) := " ";
     variable base, byte, rec_type, datain, addr, checksum: string(2 downto 1);
     variable startadd: string(4 downto 1);
     variable ibase: integer := 0;
     variable ibyte: integer := 0;
     variable istartadd: integer := 0;
     variable check_sum_vec, check_sum_vec_tmp: std_logic_vector(7 downto 0);
+    variable m_string : string(1 to 15);
+    variable m_data_radix : string(1 to 3);
+    variable m_address_radix : string(1 to 3);
+    variable m_width : integer;
+    variable m_depth : integer;
+    variable m_start_address_int : integer := 0;
+    variable m_end_address_int : integer := 0;
+    variable m_address_int : integer := 0;
+    variable m_data_int : std_logic_vector(lpm_width+4 downto 0) := (OTHERS => '0');
+    variable found_keyword_content : boolean := false;
+    variable get_memory_content : boolean := false;
+    variable get_start_Address : boolean := false;
+    variable get_end_Address : boolean := false;
     begin
         -- Initialize
         if NOT(mem_init) then
-        
             -- check for number of words out of bound
             if ((NUM_WORDS > (2**lpm_widthad)) or
                 (NUM_WORDS <= (2**(lpm_widthad-1)))) then
@@ -4837,125 +6641,582 @@ begin
                 SEVERITY ERROR;
             else
         FILE_OPEN(mem_data_file, lpm_file, READ_MODE);
-                WHILE NOT ENDFILE(mem_data_file) loop
-                    booval := true;
-                    READLINE(mem_data_file, buf);
-                    lineno := lineno + 1;
-                    check_sum_vec := (OTHERS => '0');
-                    if (buf(buf'LOW) = ':') then
-                        i := 1;
-                        SHRINK_LINE(buf, i);
-                        READ(L=>buf, VALUE=>byte, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
-                            SEVERITY ERROR;
-                        end if;
-                        ibyte := HEX_STR_TO_INT(byte);
-                        check_sum_vec :=    unsigned(check_sum_vec) + 
-                                            unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
-                        READ(L=>buf, VALUE=>startadd, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        istartadd := HEX_STR_TO_INT(startadd);
-                        addr(2) := startadd(4);
-                        addr(1) := startadd(3);
-                        check_sum_vec :=    unsigned(check_sum_vec) + 
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        addr(2) := startadd(2);
-                        addr(1) := startadd(1);
-                        check_sum_vec :=    unsigned(check_sum_vec) +
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
-                        READ(L=>buf, VALUE=>rec_type, good=>booval);
-                        if not (booval) then
-                            ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                            SEVERITY ERROR;
-                        end if;
-                        check_sum_vec :=    unsigned(check_sum_vec) +
-                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
-                    else
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
-                        SEVERITY ERROR;
-                    end if;
-                    case rec_type is
-                        when "00"=>  -- Data record
-                            i := 0;
-                            k := lpm_width / 8;
-                            if ((lpm_width MOD 8) /= 0) then
-                                k := k + 1; 
+                if (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".hex") then
+                    WHILE NOT ENDFILE(mem_data_file) loop
+                        booval := true;
+                        READLINE(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        check_sum_vec := (OTHERS => '0');
+                        if (buf(buf'LOW) = ':') then
+                            i := 1;
+                            SHRINK_LINE(buf, i);
+                            READ(L=>buf, VALUE=>byte, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format!"
+                                SEVERITY ERROR;
                             end if;
-                            -- k = no. of bytes per CAM entry.
-                            while (i < ibyte) loop
-                                mem_data_word := (others => '0');
-                                n := (k - 1)*8;
-                                m := lpm_width - 1;
-                                
-                                for j in 1 to k loop
-                                    -- read in data a byte (2 hex chars) at a time.
-                                    READ(L=>buf, VALUE=>datain,good=>booval);
+                            ibyte := HEX_STR_TO_INT(byte);
+                            check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                unsigned(CONV_STD_LOGIC_VECTOR(ibyte, 8));
+                            READ(L=>buf, VALUE=>startadd, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            istartadd := HEX_STR_TO_INT(startadd);
+                            addr(2) := startadd(4);
+                            addr(1) := startadd(3);
+                            check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            addr(2) := startadd(2);
+                            addr(1) := startadd(1);
+                            check_sum_vec :=    unsigned(check_sum_vec) +
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(addr), 8));
+                            READ(L=>buf, VALUE=>rec_type, good=>booval);
+                            if not (booval) then
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                SEVERITY ERROR;
+                            end if;
+                            check_sum_vec :=    unsigned(check_sum_vec) +
+                                                unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(rec_type), 8));
+                        else
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                            SEVERITY ERROR;
+                        end if;
+                        case rec_type is
+                            when "00"=>  -- Data record
+                                i := 0;
+                                k := lpm_width / 8;
+                                if ((lpm_width MOD 8) /= 0) then
+                                    k := k + 1; 
+                                end if;
+                                -- k = no. of bytes per CAM entry.
+                                while (i < ibyte) loop
+                                    mem_data_word := (others => '0');
+                                    n := (k - 1)*8;
+                                    m := lpm_width - 1;
+                                    
+                                    for j in 1 to k loop
+                                        -- read in data a byte (2 hex chars) at a time.
+                                        READ(L=>buf, VALUE=>datain,good=>booval);
+                                        if not (booval) then
+                                            ASSERT FALSE
+                                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                            SEVERITY ERROR;
+                                        end if;
+                                        check_sum_vec :=    unsigned(check_sum_vec) + 
+                                                            unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
+                                        mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
+                                        m := n - 1;
+                                        n := n - 8;
+                                    end loop;
+                                    
+                                    i := i + k;
+                                    mem_data(ibase + istartadd) := mem_data_word;
+                                    istartadd := istartadd + 1;
+                                end loop;
+                            when "01"=>
+                                exit;
+                            when "02"=>
+                                ibase := 0;
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
+                                    SEVERITY ERROR;
+                                end if;
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := ibase * 256 + HEX_STR_TO_INT(base);
                                     if not (booval) then
                                         ASSERT FALSE
                                         REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
                                         SEVERITY ERROR;
                                     end if;
-                                    check_sum_vec :=    unsigned(check_sum_vec) + 
-                                                        unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), 8));
-                                    mem_data_word(m downto n) := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(datain), m-n+1);
-                                    m := n - 1;
-                                    n := n - 8;
+                                    check_sum_vec :=    unsigned(check_sum_vec) +                                
+                                                        unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
                                 end loop;
-                                
-                                i := i + k;
-                                mem_data(ibase + istartadd) := mem_data_word;
-                                istartadd := istartadd + 1;
-                            end loop;
-                        when "01"=>
-                            exit;
-                        when "02"=>
-                            ibase := 0;
-                            if (ibyte /= 2) then
-                                ASSERT FALSE
-                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format for record type 02! "
-                                SEVERITY ERROR;
-                            end if;
-                            for i in 0 to (ibyte-1) loop
-                                READ(L=>buf, VALUE=>base,good=>booval);
-                                ibase := ibase * 256 + HEX_STR_TO_INT(base);
-                                if not (booval) then
+                                ibase := ibase * 16;
+                            when "03"=>
+                        
+                                if (ibyte /= 4) then
                                     ASSERT FALSE
-                                    REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal Intel Hex Format! "
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 03! "
                                     SEVERITY ERROR;
                                 end if;
-                                check_sum_vec :=    unsigned(check_sum_vec) +                                
-                                                    unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
-                            end loop;
-                            ibase := ibase * 16;
-                        when OTHERS =>
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when "04"=>
+                                ibase := 0;
+                        
+                                if (ibyte /= 2) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 04! "
+                                    SEVERITY ERROR;
+                                end if;
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    ibase := (ibase * 256) + HEX_STR_TO_INT(base);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                                ibase := ibase * 65536;
+                            when "05"=>
+                        
+                                if (ibyte /= 4) then
+                                    ASSERT FALSE
+                                    REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                            "]:Illegal Intel Hex Format for record type 05! "
+                                    SEVERITY ERROR;
+                                end if;
+                                
+                                for i in 0 to (ibyte-1) loop
+                                    READ(L=>buf, VALUE=>base,good=>booval);
+                                    
+                                    if not (booval) then
+                                        ASSERT FALSE
+                                        REPORT  "[Line "& INT_TO_STR(lineno) & 
+                                                "]:Illegal Intel Hex Format! "
+                                        SEVERITY ERROR;
+                                    end if;
+                                    
+                                    check_sum_vec := unsigned(check_sum_vec) + unsigned(CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(base), 8));
+                                end loop;
+                            when OTHERS =>
+                                ASSERT FALSE
+                                REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                                SEVERITY ERROR;
+                        end case;
+                        READ(L=>buf, VALUE=>checksum,good=>booval);
+                        if not (booval) then
                             ASSERT FALSE
-                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Illegal record type in Intel Hex File! "
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
                             SEVERITY ERROR;
-                    end case;
-                    READ(L=>buf, VALUE=>checksum,good=>booval);
-                    if not (booval) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Checksum is missing! "
-                        SEVERITY ERROR;
-                    end if;
-
-                    check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
-                    check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
-
-                    if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
-                        ASSERT FALSE
-                        REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
-                        SEVERITY ERROR;
-                    end if;
-                end loop;
+                        end if;
+    
+                        check_sum_vec := unsigned(not (check_sum_vec)) + 1 ;
+                        check_sum_vec_tmp := CONV_STD_LOGIC_VECTOR(HEX_STR_TO_INT(checksum),8);
+    
+                        if (unsigned(check_sum_vec) /= unsigned(check_sum_vec_tmp)) then
+                            ASSERT FALSE
+                            REPORT "[Line "& INT_TO_STR(lineno) & "]:Incorrect checksum!"
+                            SEVERITY ERROR;
+                        end if;
+                    end loop;
+                elsif (ALPHA_TOLOWER(lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) = ".mif") then
+                    -- ************************************************
+                    -- Read in RAM initialization file (mif)
+                    -- ************************************************
+                    while not endfile(mem_data_file) loop
+                        booval := true;
+                        readline(mem_data_file, buf);
+                        lineno := lineno + 1;
+                        LOOP2 : while (buf'length > 0) loop
+                            if (buf(buf'low) = '-') then
+                                if (buf(buf'low) = '-') then
+                                    -- ignore comment started with --.
+                                    exit LOOP2;
+                                end if;
+                            elsif (buf(buf'low) = '%') then
+                                i := 1;
+                                
+                                -- ignore comment which begin with % and end with another %.
+                                while ((i < buf'high) and (buf(buf'low + i) /= '%')) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i+1);
+                                end if;
+                            elsif ((buf(buf'low) = ' ') or (buf(buf'low) = HT)) then
+                                i := 1;
+                                -- ignore space or tab character.
+                                while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                    i := i+1;
+                                end loop;
+                                
+                                if (i >= buf'high) then
+                                    exit LOOP2;
+                                else
+                                    SHRINK_LINE(buf, i);
+                                end if;
+                            elsif (get_memory_content = true) then
+                            
+                                if (((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "end") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "END") or
+                                    ((buf(buf'low) & buf(buf'low +1) & buf(buf'low +2)) = "End")) then
+                                    get_memory_content := false;
+                                    exit LOOP2;
+                                else
+                                    get_start_address := false;
+                                    get_end_address := false;
+                                    m_start_address_int := 0;
+                                    m_end_address_int := 0;
+                                    m_address_int := 0;
+                                    m_data_int := (others => '0');
+                                    if (buf(buf'low) = '[') then
+                                        get_start_Address := true;
+                                        SHRINK_LINE(buf, 1);
+                                    end if;
+        
+                                    case m_address_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                    (buf(buf'low) /= ':') and (buf(buf'low) /= '.')) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported address_radix!"
+                                            severity error;
+                                    end case;
+        
+                                    if (get_start_Address = true) then
+                                    
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;
+            
+                                        if ((buf(buf'low) = '.') and (buf(buf'low+1) = '.')) then
+                                            get_start_Address := false;
+                                            get_end_Address := true;
+                                            m_start_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 2);    
+                                        end if;
+                                    end if;
+        
+                                    if (get_end_address = true) then
+                                        i := 0;
+                                        -- ignore space or tab character.
+                                        while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                            (buf(buf'low+i) = HT))) loop
+                                            i := i+1;
+                                        end loop;
+                                    
+                                        if (i > 0) then
+                                            SHRINK_LINE(buf, i);
+                                        end if;                                
+                                        
+                                        m_address_int := 0;
+                                        case m_address_radix is
+                                            when "hex" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *16 +  HEX_STR_TO_INT(char);
+                                                end loop;
+                                            when "bin" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *2 +  BIN_STR_TO_INT(char);
+                                                end loop;
+                                            when "dec" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "uns" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *10 +  INT_STR_TO_INT(char);
+                                                end loop;
+                                            when "oct" =>
+                                                while ((buf(buf'low) /= ' ') and (buf(buf'low) /= HT) and
+                                                        (buf(buf'low) /= ']')) loop
+                                                    read(l => buf, value => char, good => booval);
+                                                    m_address_int := m_address_int *8 + OCT_STR_TO_INT(char);
+                                                end loop;
+                                            when others =>
+                                                assert false
+                                                report "Unsupported address_radix!"
+                                                severity error;
+                                        end case;
+        
+                                        if (buf(buf'low) = ']') then
+                                            get_end_address := false;
+                                            m_end_address_int := m_address_int;
+                                            SHRINK_LINE(buf, 1);    
+                                        end if;
+                                    end if;
+                                        
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;                                
+                                    
+                                    if (buf(buf'low) = ':') then
+                                        SHRINK_LINE(buf, 1);    
+                                    end if;
+                                    
+                                    i := 0;
+                                    -- ignore space or tab character.
+                                    while ((i < buf'high-1) and ((buf(buf'low +i) = ' ') or
+                                        (buf(buf'low+i) = HT))) loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    if (i > 0) then
+                                        SHRINK_LINE(buf, i);
+                                    end if;
+            
+                                    case m_data_radix is
+                                        when "hex" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+4 downto 0) := m_data_int(lpm_width-1 downto 0) * "10000" + conv_std_logic_vector(HEX_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "bin" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+1 downto 0) := m_data_int(lpm_width-1 downto 0) * "10" + conv_std_logic_vector(BIN_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "dec" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "uns" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1010" + conv_std_logic_vector(INT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when "oct" =>
+                                            while ((buf(buf'low) /= ';') and (buf(buf'low) /= ' ') and
+                                                    (buf(buf'low) /= HT)) loop
+                                                read(l => buf, value => char, good => booval);
+                                                m_data_int(lpm_width+3 downto 0) := m_data_int(lpm_width-1 downto 0) * "1000" + conv_std_logic_vector(OCT_STR_TO_INT(char), 4);
+                                            end loop;
+                                        when others =>
+                                            assert false
+                                            report "Unsupported data_radix!"
+                                            severity error;
+                                        end case;                           
+        
+                                        if (m_start_address_int /= m_end_address_int) then
+                                            for i in m_start_address_int to m_end_address_int loop
+                                                mem_data(i) := m_data_int(lpm_width-1 downto 0);
+                                            end loop;
+                                        else
+                                            mem_data(m_address_int) := m_data_int(lpm_width-1 downto 0);
+                                        end if;
+                                    exit LOOP2;
+                                end if;                                
+                            elsif ((buf(buf'low) = 'W') or (buf(buf'low) = 'w')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "width") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_width := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif (((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) and
+                                    ((buf(buf'low+1) = 'E') or (buf(buf'low+1) = 'e'))) then
+                                read(l=>buf, value=>m_string(1 to 5));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "depth") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low +i) = ' ') or (buf(buf'low +i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to i));
+                                    
+                                    m_depth := INT_STR_TO_INT(m_string(1 to i));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'D') or (buf(buf'low) = 'd')) then
+                                read(l=>buf, value=>m_string(1 to 10));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 10))  = "data_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_data_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'A') or (buf(buf'low) = 'a')) then
+                                read(l=>buf, value=>m_string(1 to 13));
+        
+                                if (ALPHA_TOLOWER(m_string(1 to 13))  = "address_radix") then
+                                    i := 0;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                   
+                                    if (buf(buf'low + i) = '=') then
+                                        i := i+1;
+                                    end if;
+        
+                                    while ((buf(buf'low+i) = ' ') or (buf(buf'low+i) = HT)) loop
+                                        i := i+1;
+                                    end loop;
+                                                                   
+                                    SHRINK_LINE(buf, i);
+        
+                                    i := 0;
+                                    while (buf(buf'low + i) /= ';') loop
+                                        i := i+1;
+                                    end loop;
+                                    
+                                    read(l=>buf, value=>m_string(1 to 3));
+                                    
+                                    m_address_radix := ALPHA_TOLOWER(m_string(1 to 3));
+                                end if;
+                                exit LOOP2;
+                            elsif ((buf(buf'low) = 'C') or (buf(buf'low) = 'c')) then
+                                read(l=>buf, value=>m_string(1 to 7));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 7))  = "content") then
+                                    found_keyword_content := true;
+                                end if;
+                            elsif ((buf(buf'low) = 'B') or (buf(buf'low) = 'b')) then
+                                read(l=>buf, value=>m_string(1 to 5));
+                                
+                                if (ALPHA_TOLOWER(m_string(1 to 5))  = "begin") then
+                                    if (found_keyword_content = true) then
+                                        get_memory_content := true;
+                                    end if;
+                                end if;
+                            end if;
+                        end loop;
+                    end loop;
+                
+                else
+                    assert false
+                    report "Unsupported memory initialization file type (" & (lpm_file(lpm_file'length -3) & lpm_file(lpm_file'length -2) & lpm_file(lpm_file'length -1) & lpm_file(lpm_file'length)) & ")!"
+                    severity error;
+                end if;
                 FILE_CLOSE(mem_data_file);
             end if;
             mem_init := TRUE;
@@ -5132,18 +7393,16 @@ begin
             end if;
 
             for i in 0 to (lpm_widthu - 1) loop
-                if (IS_FAMILY_STRATIX(intended_device_family) or
-                IS_FAMILY_STRATIXGX(intended_device_family) or
-                IS_FAMILY_CYCLONE(intended_device_family)) then
+                if (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+                FEATURE_FAMILY_BASE_CYCLONE(intended_device_family)) then
                     mem_data(i) := UNKNOWNS;
                 else
                     mem_data(i) := ZEROS;
                 end if;
             end loop;
 
-            if (IS_FAMILY_STRATIX(intended_device_family) or
-            IS_FAMILY_STRATIXGX(intended_device_family) or
-            IS_FAMILY_CYCLONE(intended_device_family)) then
+            if (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+            FEATURE_FAMILY_BASE_CYCLONE(intended_device_family)) then
                 i_tmp_q <= UNKNOWNS;
             else
                 i_tmp_q <= ZEROS;
@@ -5157,9 +7416,8 @@ begin
 
         if (aclr = '1') then
             full_flag := false;
-            if (not (IS_FAMILY_STRATIX(intended_device_family) or
-            IS_FAMILY_STRATIXGX(intended_device_family) or
-            IS_FAMILY_CYCLONE(intended_device_family))) then
+            if (not (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+            FEATURE_FAMILY_BASE_CYCLONE(intended_device_family))) then
                 i_tmp_q <= ZEROS;
             end if;
             write_id := 0;
@@ -5169,9 +7427,8 @@ begin
         end if; -- aclr event
 
         if (clock'event and (clock = '1') and
-        ((aclr = '0') or (IS_FAMILY_STRATIX(intended_device_family) or
-        IS_FAMILY_STRATIXGX(intended_device_family) or
-        IS_FAMILY_CYCLONE(intended_device_family))))
+        ((aclr = '0') or (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+        FEATURE_FAMILY_BASE_CYCLONE(intended_device_family))))
         then
             valid_rreq := rdreq = '1' and ((i_empty_flag = '0') or
                 (underflow_checking = "OFF"));
@@ -5196,9 +7453,8 @@ begin
                     write_id := i_write_id;
                     write_flag := true;
                 end if;
-                if ((lpm_showahead = "ON") or (IS_FAMILY_STRATIX(intended_device_family) or
-                IS_FAMILY_STRATIXGX(intended_device_family) or
-                IS_FAMILY_CYCLONE(intended_device_family)))
+                if ((lpm_showahead = "ON") or (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+                FEATURE_FAMILY_BASE_CYCLONE(intended_device_family)))
                 then
                     i_tmp_q <= mem_data(0);
                 end if;
@@ -5506,7 +7762,7 @@ begin
                 REPORT "Error! OVERFLOW_CHECKING must be ON or OFF."
                 SEVERITY ERROR;
             end if;
-            
+
             if (lpm_numwords >= 3) 
             then
                 almost_full := lpm_numwords - 3;
@@ -5935,9 +8191,8 @@ begin
         then
             i_rdptr <= ZEROU;
             i_wrptr <= ZEROU;
-            if (not (IS_FAMILY_STRATIX(intended_device_family) or
-                IS_FAMILY_STRATIXGX(intended_device_family) or
-                IS_FAMILY_CYCLONE(intended_device_family)) or
+            if (not (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+                FEATURE_FAMILY_BASE_CYCLONE(intended_device_family)) or
                 (use_eab = "OFF"))
                 then
                     if (lpm_showahead = "ON")
@@ -5951,9 +8206,8 @@ begin
         
         if (rising_edge(wrclk))
         then
-            if ((aclr = '1') and (not (IS_FAMILY_STRATIX(intended_device_family) or
-                IS_FAMILY_STRATIXGX(intended_device_family) or
-                IS_FAMILY_CYCLONE(intended_device_family)) or
+            if ((aclr = '1') and (not (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+                FEATURE_FAMILY_BASE_CYCLONE(intended_device_family)) or
                 (use_eab = "OFF")))
             then
                 i_data_tmp <= ZEROS;
@@ -6003,9 +8257,8 @@ begin
         
         if (rising_edge(rdclk))
         then
-            if ((aclr = '1') and (not (IS_FAMILY_STRATIX(intended_device_family) or
-                IS_FAMILY_STRATIXGX(intended_device_family) or
-                IS_FAMILY_CYCLONE(intended_device_family)) or
+            if ((aclr = '1') and (not (FEATURE_FAMILY_BASE_STRATIX(intended_device_family) or
+                FEATURE_FAMILY_BASE_CYCLONE(intended_device_family)) or
                 (use_eab = "OFF")))
             then
                 if (lpm_showahead = "ON")
