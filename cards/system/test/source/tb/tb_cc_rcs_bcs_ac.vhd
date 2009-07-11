@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.70 2009/05/27 22:40:22 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.71 2009/07/03 23:45:01 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.71  2009/07/03 23:45:01  bburger
+-- BB:  Pinout name changes.
+--
 -- Revision 1.70  2009/05/27 22:40:22  bburger
 -- BB: Readout Card testing
 --
@@ -927,6 +930,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    -------------------------------------------------
    -- PLL input:
    signal inclk      : std_logic := '0';
+   signal adc_clk      : std_logic := '0';
+   signal fco_clk      : std_logic := '0';
    signal inclk15    : std_logic := '1';
    signal inclk1    : std_logic := '1';
    signal inclk5    : std_logic := '1';
@@ -1496,19 +1501,21 @@ begin
 --   );
 
    count_new <= count + 1;
-   process(inclk, rst)
+   process(adc_clk, rst)
    begin
       if(rst = '1') then
          count <= "00000000000";
-      elsif(inclk'event) then
+      elsif(adc_clk'event) then
          count <= count_new;
       end if;
    end process;
 
    rst          <= not rst_n;
    -- Clock generation
+   adc_clk      <= not adc_clk      after clk_period/28;
+   fco_clk      <= not fco_clk      after clk_period/4;   
    inclk        <= not inclk        after clk_period/2;
-
+   
    inclk15      <= not inclk15      after sync_clk_period/2;
    inclk1       <= not inclk1       after sync_clk_period/2;
    inclk5       <= not inclk5       after sync_clk_period/2;
@@ -1528,13 +1535,13 @@ begin
    rc1_adc7_rdy <= inclk;
    rc1_adc8_rdy <= inclk;
    rc1_adc1_dat <= "000" & count;  --"01001110001000" 5000
-   rc1_adc2_dat <= "001" & count;
-   rc1_adc3_dat <= "010" & count;
-   rc1_adc4_dat <= "011" & count;
-   rc1_adc5_dat <= "100" & count;
-   rc1_adc6_dat <= "101" & count;
-   rc1_adc7_dat <= "110" & count;
-   rc1_adc8_dat <= "111" & count;
+   rc1_adc2_dat <= "001" & count;  --"00000000000000"; --
+   rc1_adc3_dat <= "010" & count;  --"00000000000000"; --
+   rc1_adc4_dat <= "011" & count;  --"00000000000000"; --
+   rc1_adc5_dat <= "100" & count;  --"00000000000000"; --
+   rc1_adc6_dat <= "101" & count;  --"00000000000000"; --
+   rc1_adc7_dat <= "110" & count;  --"00000000000000"; --
+   rc1_adc8_dat <= "111" & count;  --"00000000000000"; --
    rc2_adc1_rdy <= inclk;
    rc2_adc2_rdy <= inclk;
    rc2_adc3_rdy <= inclk;
@@ -2036,7 +2043,7 @@ begin
          adc5_lvds_p    => rc1_adc6_dat(5), --: in std_logic; 
          adc6_lvds_p    => rc1_adc7_dat(6), --: in std_logic; 
          adc7_lvds_p    => rc1_adc8_dat(7), --: in std_logic; 
-         adc_fco_p      => lvds_clk, --: in std_logic;
+         adc_fco_p      => fco_clk, --: in std_logic;
          adc_clk_p      => open, --: out std_logic; 
          adc_sclk       => open, --: out std_logic;
          adc_sdio       => open, --: inout std_logic; 
