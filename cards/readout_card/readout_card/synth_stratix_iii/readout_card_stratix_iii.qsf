@@ -990,6 +990,88 @@ set_location_assignment PIN_M24 -to critical_error
 set_location_assignment PIN_AH12 -to extend_n
 set_location_assignment PIN_P20 -to mictor_clk
 set_location_assignment PIN_AH6 -to dac_clr_n
+set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 4
+set_location_assignment PIN_D27 -to termination_blk0~_rup_pad
+set_location_assignment PIN_C28 -to termination_blk0~_rdn_pad
+set_location_assignment PIN_N21 -to ~ALTERA_DATA0~
+set_location_assignment PIN_P23 -to ~ALTERA_CRC_ERROR~
+set_global_assignment -name FMAX_REQUIREMENT "700 MHz"
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc_fco_p
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[0..7]
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dm[0]
+set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[0] -to mem_dqs[0]
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[8..15]
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dm[1]
+set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[1] -to mem_dqs[1]
+set_location_assignment PIN_Y19 -to mem_addr[0]
+set_location_assignment PIN_AE20 -to mem_addr[1]
+set_location_assignment PIN_AF21 -to mem_addr[2]
+set_location_assignment PIN_Y18 -to mem_addr[3]
+set_location_assignment PIN_AE21 -to mem_addr[4]
+set_location_assignment PIN_AG21 -to mem_addr[5]
+set_location_assignment PIN_Y17 -to mem_addr[6]
+set_location_assignment PIN_AC20 -to mem_addr[7]
+set_location_assignment PIN_AE19 -to mem_addr[8]
+set_location_assignment PIN_AA19 -to mem_addr[9]
+set_location_assignment PIN_AA23 -to mem_addr[10]
+set_location_assignment PIN_W21 -to mem_addr[11]
+set_location_assignment PIN_AD28 -to mem_addr[12]
+set_location_assignment PIN_AB24 -to mem_ba[0]
+set_location_assignment PIN_AD27 -to mem_ba[1]
+set_location_assignment PIN_AC19 -to mem_cas_n
+set_location_assignment PIN_AA18 -to mem_cke[0]
+set_location_assignment PIN_AF20 -to mem_cs_n[0]
+set_location_assignment PIN_AF26 -to mem_dm[0]
+set_location_assignment PIN_AD24 -to mem_dm[1]
+set_location_assignment PIN_AD19 -to mem_odt[0]
+set_location_assignment PIN_AD18 -to mem_ras_n
+set_location_assignment PIN_AB19 -to mem_we_n
+set_location_assignment PIN_AE27 -to mem_clk[0]
+set_location_assignment PIN_AH27 -to mem_dq[0]
+set_location_assignment PIN_AH25 -to mem_dq[1]
+set_location_assignment PIN_AG25 -to mem_dq[2]
+set_location_assignment PIN_AG27 -to mem_dq[3]
+set_location_assignment PIN_AH26 -to mem_dq[4]
+set_location_assignment PIN_AB20 -to mem_dq[5]
+set_location_assignment PIN_AB21 -to mem_dq[6]
+set_location_assignment PIN_AD21 -to mem_dq[7]
+set_location_assignment PIN_AE23 -to mem_dq[8]
+set_location_assignment PIN_AF24 -to mem_dq[9]
+set_location_assignment PIN_AE24 -to mem_dq[10]
+set_location_assignment PIN_AF23 -to mem_dq[11]
+set_location_assignment PIN_AG24 -to mem_dq[12]
+set_location_assignment PIN_AH20 -to mem_dq[13]
+set_location_assignment PIN_AH21 -to mem_dq[14]
+set_location_assignment PIN_AH22 -to mem_dq[15]
+set_location_assignment PIN_AD22 -to mem_dqs[0]
+set_location_assignment PIN_AH23 -to mem_dqs[1]
+set_location_assignment PIN_M1 -to adc_fco_p
+set_location_assignment PIN_AG10 -to red_led
+set_location_assignment PIN_AH11 -to ylw_led
+set_location_assignment PIN_AH13 -to grn_led
+set_location_assignment PIN_AE9 -to dip0
+set_location_assignment PIN_U26 -to dip1
+set_location_assignment PIN_AF10 -to wdog
+set_location_assignment PIN_L28 -to smb_clk
+set_location_assignment PIN_M28 -to smb_data
+set_location_assignment PIN_M26 -to smb_nalert
+set_location_assignment PIN_AC12 -to slot_id[0]
+set_location_assignment PIN_AF12 -to slot_id[1]
+set_location_assignment PIN_AG12 -to slot_id[2]
+set_location_assignment PIN_AH10 -to slot_id[3]
+set_location_assignment PIN_F17 -to dac_dfb_clk[0]
+set_location_assignment PIN_A27 -to dac_dfb_clk[1]
+set_location_assignment PIN_F1 -to dac_dfb_clk[2]
+set_location_assignment PIN_A17 -to dac_dfb_clk[3]
+set_location_assignment PIN_C17 -to dac_dfb_clk[4]
+set_location_assignment PIN_G2 -to dac_dfb_clk[5]
+set_location_assignment PIN_J3 -to dac_dfb_clk[6]
+set_location_assignment PIN_H6 -to dac_dfb_clk[7]
+set_instance_assignment -name IO_STANDARD LVDS -to adc_fco_p
+set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
+set_instance_assignment -name CLOCK_SETTINGS adc_fco_p -to adc_fco_p
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/adc_pll_stratix_iii.vhd
 set_global_assignment -name VHDL_FILE ../../ddr2_sdram_ctrl/source/rtl/micron_ctrl_phy.vhd
 set_global_assignment -name VHDL_FILE ../../ddr2_sdram_ctrl/source/rtl/micron_ctrl_ex_lfsr8.vhd
@@ -1014,6 +1096,8 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/rc_pll_stratix_iii.vhd
+set_global_assignment -name SOURCE_FILE ../../adc_sample_coadd/source/rtl/flipflop_14.cmp
+set_global_assignment -name SOURCE_FILE ../../adc_sample_coadd/source/rtl/adc_serdes_7_bit.cmp
 set_global_assignment -name SOURCE_FILE ../../pll/source/rtl/adc_pll_stratix_iii_not_fast.cmp
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/rectangle_ram_bank.vhd
 set_global_assignment -name VERILOG_FILE ../../ddr2_sdram_ctrl/source/rtl/micron_ctrl_phy_alt_mem_phy_sequencer_wrapper.v
@@ -1112,91 +1196,11 @@ set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 set_global_assignment -name MIF_FILE ../../fsfb_calc/source/rtl/ram_40x64.mif
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
 set_global_assignment -name QIP_FILE ../../pll/source/rtl/adc_pll_stratix_iii_not_fast.qip
-set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER OFF
-set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
-set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
-set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 4
-set_location_assignment PIN_D27 -to termination_blk0~_rup_pad
-set_location_assignment PIN_C28 -to termination_blk0~_rdn_pad
-set_location_assignment PIN_N21 -to ~ALTERA_DATA0~
-set_location_assignment PIN_P23 -to ~ALTERA_CRC_ERROR~
-set_global_assignment -name FMAX_REQUIREMENT "700 MHz"
-set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc_fco_p
 set_global_assignment -name QIP_FILE ../../pll/source/rtl/rc_pll_stratix_iii.qip
 set_global_assignment -name QIP_FILE ../../pll/source/rtl/adc_pll_stratix_iii.qip
-set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[0..7]
-set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dm[0]
-set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[0] -to mem_dqs[0]
-set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[8..15]
-set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dm[1]
-set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[1] -to mem_dqs[1]
-set_location_assignment PIN_Y19 -to mem_addr[0]
-set_location_assignment PIN_AE20 -to mem_addr[1]
-set_location_assignment PIN_AF21 -to mem_addr[2]
-set_location_assignment PIN_Y18 -to mem_addr[3]
-set_location_assignment PIN_AE21 -to mem_addr[4]
-set_location_assignment PIN_AG21 -to mem_addr[5]
-set_location_assignment PIN_Y17 -to mem_addr[6]
-set_location_assignment PIN_AC20 -to mem_addr[7]
-set_location_assignment PIN_AE19 -to mem_addr[8]
-set_location_assignment PIN_AA19 -to mem_addr[9]
-set_location_assignment PIN_AA23 -to mem_addr[10]
-set_location_assignment PIN_W21 -to mem_addr[11]
-set_location_assignment PIN_AD28 -to mem_addr[12]
-set_location_assignment PIN_AB24 -to mem_ba[0]
-set_location_assignment PIN_AD27 -to mem_ba[1]
-set_location_assignment PIN_AC19 -to mem_cas_n
-set_location_assignment PIN_AA18 -to mem_cke[0]
-set_location_assignment PIN_AF20 -to mem_cs_n[0]
-set_location_assignment PIN_AF26 -to mem_dm[0]
-set_location_assignment PIN_AD24 -to mem_dm[1]
-set_location_assignment PIN_AD19 -to mem_odt[0]
-set_location_assignment PIN_AD18 -to mem_ras_n
-set_location_assignment PIN_AB19 -to mem_we_n
-set_location_assignment PIN_AE27 -to mem_clk[0]
-set_location_assignment PIN_AH27 -to mem_dq[0]
-set_location_assignment PIN_AH25 -to mem_dq[1]
-set_location_assignment PIN_AG25 -to mem_dq[2]
-set_location_assignment PIN_AG27 -to mem_dq[3]
-set_location_assignment PIN_AH26 -to mem_dq[4]
-set_location_assignment PIN_AB20 -to mem_dq[5]
-set_location_assignment PIN_AB21 -to mem_dq[6]
-set_location_assignment PIN_AD21 -to mem_dq[7]
-set_location_assignment PIN_AE23 -to mem_dq[8]
-set_location_assignment PIN_AF24 -to mem_dq[9]
-set_location_assignment PIN_AE24 -to mem_dq[10]
-set_location_assignment PIN_AF23 -to mem_dq[11]
-set_location_assignment PIN_AG24 -to mem_dq[12]
-set_location_assignment PIN_AH20 -to mem_dq[13]
-set_location_assignment PIN_AH21 -to mem_dq[14]
-set_location_assignment PIN_AH22 -to mem_dq[15]
-set_location_assignment PIN_AD22 -to mem_dqs[0]
-set_location_assignment PIN_AH23 -to mem_dqs[1]
-set_location_assignment PIN_M1 -to adc_fco_p
-set_location_assignment PIN_AG10 -to red_led
-set_location_assignment PIN_AH11 -to ylw_led
-set_location_assignment PIN_AH13 -to grn_led
-set_location_assignment PIN_AE9 -to dip0
-set_location_assignment PIN_U26 -to dip1
-set_location_assignment PIN_AF10 -to wdog
-set_location_assignment PIN_L28 -to smb_clk
-set_location_assignment PIN_M28 -to smb_data
-set_location_assignment PIN_M26 -to smb_nalert
-set_location_assignment PIN_AC12 -to slot_id[0]
-set_location_assignment PIN_AF12 -to slot_id[1]
-set_location_assignment PIN_AG12 -to slot_id[2]
-set_location_assignment PIN_AH10 -to slot_id[3]
-set_location_assignment PIN_F17 -to dac_dfb_clk[0]
-set_location_assignment PIN_A27 -to dac_dfb_clk[1]
-set_location_assignment PIN_F1 -to dac_dfb_clk[2]
-set_location_assignment PIN_A17 -to dac_dfb_clk[3]
-set_location_assignment PIN_C17 -to dac_dfb_clk[4]
-set_location_assignment PIN_G2 -to dac_dfb_clk[5]
-set_location_assignment PIN_J3 -to dac_dfb_clk[6]
-set_location_assignment PIN_H6 -to dac_dfb_clk[7]
-set_instance_assignment -name IO_STANDARD LVDS -to adc_fco_p
-set_location_assignment PIN_P28 -to test_clk1
-set_location_assignment PIN_R27 -to test_clk3
-set_location_assignment PIN_R1 -to test_clk8
-set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
-set_instance_assignment -name CLOCK_SETTINGS adc_fco_p -to adc_fco_p
+set_global_assignment -name QIP_FILE ../../adc_sample_coadd/source/rtl/adc_serdes_7_bit.qip
+set_global_assignment -name QIP_FILE ../../pll/source/rtl/adc_pll_stratic_iii_dual_serdes.qip
+set_global_assignment -name QIP_FILE ../../adc_sample_coadd/source/rtl/flipflop_14.qip
+set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER OFF
+set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat1*
+set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat2*
