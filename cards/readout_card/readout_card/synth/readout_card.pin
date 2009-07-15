@@ -71,7 +71,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 9.0 Build 184 04/29/2009 Service Pack 1 SJ Full Version
+Quartus II Version 9.0 Build 235 06/17/2009 Service Pack 2 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S40F780C6
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -356,7 +356,7 @@ dac_FB2_dat[0]               : C1        : output : 3.3-V LVTTL       :         
 dac_FB_clk[1]                : C2        : output : 3.3-V LVTTL       :         : 5         : Y              
 GND                          : C3        : gnd    :                   :         :           :                
 RESERVED_INPUT               : C4        :        :                   :         : 4         :                
-RESERVED_INPUT               : C5        :        :                   :         : 4         :                
+mictor[6]                    : C5        : output : 3.3-V LVTTL       :         : 4         : N              
 mictor[26]                   : C6        : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[24]                   : C7        : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[20]                   : C8        : output : 3.3-V LVTTL       :         : 4         : Y              
@@ -501,7 +501,7 @@ dac_FB2_dat[2]               : H6        : output : 3.3-V LVTTL       :         
 dac_FB2_dat[5]               : H7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB2_dat[6]               : H8        : output : 3.3-V LVTTL       :         : 5         : Y              
 ttl_dir3                     : H9        : output : 3.3-V LVTTL       :         : 4         : Y              
-mictor[6]                    : H10       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : H10       :        :                   :         : 4         :                
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : 3.3-V LVTTL       :         : 4         : N              
 TDO                          : H13       : output :                   :         : 4         :                
@@ -529,9 +529,9 @@ dac_FB2_dat[10]              : J6        : output : 3.3-V LVTTL       :         
 dac_FB3_dat[2]               : J7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB3_dat[1]               : J8        : output : 3.3-V LVTTL       :         : 5         : Y              
 RESERVED_INPUT               : J9        :        :                   :         : 4         :                
-RESERVED_INPUT               : J10       :        :                   :         : 4         :                
+mictor[5]                    : J10       : output : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : J11       :        :                   :         : 4         :                
-mictor[5]                    : J12       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : J12       :        :                   :         : 4         :                
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
 VCCIO4                       : J14       : power  :                   : 3.3V    : 4         :                
 VCCIO3                       : J15       : power  :                   : 3.3V    : 3         :                

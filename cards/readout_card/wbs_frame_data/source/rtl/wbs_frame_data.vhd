@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2009/05/27 01:34:01 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2009/05/27 22:39:34 $> - <text> - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -249,7 +249,6 @@ architecture rtl of wbs_frame_data is
    signal rect_addr_offset : std_logic_vector(RECT_ADDR_WIDTH-1 DOWNTO 0);
    signal rect_rd_addr     : std_logic_vector(RECT_ADDR_WIDTH-1 DOWNTO 0);
    signal rect_dat         : std_logic_vector(RECT_RAM_WIDTH-1 DOWNTO 0);
-   signal data_size_int    : integer range 0 to 2**RECT_ADDR_WIDTH;
    signal data_size        : std_logic_vector(RECT_ADDR_WIDTH-1 DOWNTO 0);
    
    ------------------------------------------------------------------------------------------------
@@ -282,7 +281,7 @@ architecture rtl of wbs_frame_data is
    ------------------------------------------------------------------------------------------------
    -- Rectangle Mode Signals
    ------------------------------------------------------------------------------------------------
-   type rect_states is (IDLE, PRE_DELAY1, PRE_DELAY2, COPY_DATA, POST_DELAY1, POST_DELAY2, DONE);
+   type rect_states is (IDLE, PRE_DELAY1, PRE_DELAY2, COPY_DATA, POST_DELAY1, POST_DELAY2, DONE, ONE_PIXEL_READOUT);
    signal rect_current_state   : rect_states;
    signal rect_next_state      : rect_states;   
 
@@ -518,9 +517,6 @@ begin
       q         => rect_dat   
    );
 
---   data_size_int     <= num_rows_reported_i * num_cols_reported_i;
---   data_size         <= conv_std_logic_vector(data_size_int, RECT_ADDR_WIDTH);
-   
    -- data_size determines the start index of the readout pointer.
    data_size <= data_size_i(RECT_ADDR_WIDTH-1 downto 0);
    -- The next read index is the one that is behind by data_size.
@@ -596,18 +592,35 @@ begin
             end if;
          
          when PRE_DELAY1 =>
-            rect_next_state <= PRE_DELAY2;
+--            rect_next_state <= PRE_DELAY2;
+            if((row_index = readout_row_index + num_rows_reported - 1) and (col_index = readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0) - 1)) then
+               -- This following is a special branch of the FSM if we are reading out one pixel per frame period
+               -- State sequence is: PRE_DELAY1 (no wren) -> ONE_PIXEL_READOUT (no wren) -> POST_DELAY2 (wren)
+               rect_next_state <= ONE_PIXEL_READOUT;
+            else
+               rect_next_state <= PRE_DELAY2;
+            end if;
             
          when PRE_DELAY2 =>
-            rect_next_state <= COPY_DATA;
+--            rect_next_state <= COPY_DATA;
+            if((row_index = readout_row_index + num_rows_reported - 1) and (col_index = readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0) - 1)) then
+               -- This following is a special branch of the FSM if we are reading out two pixels per frame period
+               -- State sequence is: PRE_DELAY1 (no wren) -> PRE_DELAY2 (no wren) -> POST_DELAY1 (wren) -> POST_DELAY2 (wren)
+               rect_next_state <= POST_DELAY1;
+            else
+               rect_next_state <= COPY_DATA;
+            end if;
 
          when COPY_DATA =>
-            -- Will this work all the time?  I think so..
+            -- The first data word becomes available here.
             if((row_index = readout_row_index + num_rows_reported - 1) and (col_index = readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0) - 1)) then
                rect_next_state <= POST_DELAY1;
             else
                rect_next_state <= COPY_DATA;
             end if;
+         
+         when ONE_PIXEL_READOUT =>
+            rect_next_state <= POST_DELAY2;
          
          when POST_DELAY1 =>
             rect_next_state <= POST_DELAY2;
@@ -647,8 +660,7 @@ begin
          when PRE_DELAY2 =>
             pix_addr_incr <= '1';
 
-         when COPY_DATA =>
-            
+         when COPY_DATA =>            
             if((row_index = readout_row_index + num_rows_reported - 1) and (col_index = readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0) - 1)) then
                null;
             else
@@ -659,6 +671,9 @@ begin
             rect_wren        <= '1';
             rect_wr_addr_inc <= '1';
 
+         when ONE_PIXEL_READOUT =>
+            -- No wren in this state (it's a wait state)
+         
          when POST_DELAY1 =>
             rect_wren        <= '1';
             rect_wr_addr_inc <= '1';
