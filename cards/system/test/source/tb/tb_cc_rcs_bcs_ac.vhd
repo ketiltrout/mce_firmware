@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.69 2009/05/27 01:34:57 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.70 2009/05/27 22:40:22 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.70  2009/05/27 22:40:22  bburger
+-- BB: Readout Card testing
+--
 -- Revision 1.69  2009/05/27 01:34:57  bburger
 -- BB: Readout Card testing
 --
@@ -2574,28 +2577,89 @@ begin
       present_sim_state <= NOTHING;
       wait for 120 us;
 
+      -------------------------------------
+      -- CC
+      -------------------------------------
       command <= command_wb;
-      address_id <= rc1_readout_col_index_cmd;
+      address_id <= cc_rcs_to_report_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000001";
+      data       <= X"0000003C"; --60
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;
 
       command <= command_wb;
-      address_id <= rc1_readout_row_index_cmd;
+      address_id <= cc_data_rate_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000001";
+--      data       <= X"00000100"; --256
+      data       <= X"0000000A"; --256
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;
-      
+
+      command <= command_wb;
+      address_id <= cc_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000021"; --33
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_num_rows_reported_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000020"; --32
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_num_cols_reported_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008"; --8
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      -------------------------------------
+      -- RC1
+      -------------------------------------
+      command <= command_wb;
+      address_id <= rc1_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000021"; --33
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
       command <= command_wb;
       address_id <= rc1_num_cols_reported_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000004";
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
@@ -2604,47 +2668,59 @@ begin
       command <= command_wb;
       address_id <= rc1_num_rows_reported_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000002";
+      data       <= X"00000003";
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;      
 
-      command <= command_wb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"0000000B";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= rc1_readout_col_index_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_readout_row_index_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
       
-      command <= command_wb;
-      address_id <= cc_data_rate_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000029";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10000 us;
+      -------------------------------------
+      -- ret_dat
+      -------------------------------------
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000000B";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+      wait for 200 us;
 
 
 ------------------------------------------------------
