@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.85 2009/05/12 01:59:12 bburger Exp $
+-- $Id: clk_card.vhd,v 1.86 2009/06/18 22:55:15 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.86  2009/06/18 22:55:15  bburger
+-- BB:  Upped the revision number ofr 5.0.2
+--
 -- Revision 1.85  2009/05/12 01:59:12  bburger
 -- BB: cc_v05000001
 --
@@ -477,6 +480,16 @@ architecture top of clk_card is
    signal rcs_to_report_data : std_logic_vector(9 downto 0);
 
 begin
+
+   ----------------------------------------------------------------
+   -- Manchester Clock Pll
+   ----------------------------------------------------------------
+   manch_pll_block : manch_pll
+   port map (
+      inclk0   => inclk1,
+      c0       => manch_clk, -- 25MHz, in phase with the Manchester Clock from the Sync Box
+      locked   => open
+   );
 
    -- Debug Signals
 --   mictor0_o(7 downto 0) <= debug(7 downto 0);
@@ -1085,7 +1098,7 @@ begin
    port map(
       -- Clock and Reset:
       clk_i               => clk,
-      manch_clk_i         => clk,--manch_clk,  -- Manchester Clock Input
+      manch_clk_i         => manch_clk,  -- Manchester Clock Input
       clk_n_i             => clk_n,
       rst_i               => rst,
 

@@ -34,7 +34,7 @@
 set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "9.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "9.0 SP2"
 
 # Pin & Location Assignments
 # ==========================
@@ -413,7 +413,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name USE_SIGNALTAP_FILE stop_commands_without_fsm_states_d.stp
 
 # LogicLock Region Assignments
