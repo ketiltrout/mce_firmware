@@ -22,6 +22,42 @@
 		</pin>
 		<pin name="adc_fco_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc_fco_p(n)" >
 		</pin>
+		<pin name="bias_dac_ncs[3]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_dat[3]" >
+		</pin>
+		<pin name="bias_dac_ncs[0]" direction="Output" source="Hierarchy Database" diff_pair_node="bias_dac_ncs[0](n)" >
+		</pin>
+		<pin name="dac5_dfb_dat[9]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[8]" >
+		</pin>
+		<pin name="dac5_dfb_dat[8]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[9]" >
+		</pin>
+		<pin name="dac5_dfb_dat[7]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[6]" >
+		</pin>
+		<pin name="dac5_dfb_dat[6]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[7]" >
+		</pin>
+		<pin name="dac5_dfb_dat[5]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[3]" >
+		</pin>
+		<pin name="dac5_dfb_dat[4]" direction="Output" source="Hierarchy Database" diff_pair_node="offset_dac_ncs[3]" >
+		</pin>
+		<pin name="dac5_dfb_dat[3]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[5]" >
+		</pin>
+		<pin name="dac5_dfb_dat[2]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_dat[2]" >
+		</pin>
+		<pin name="dac7_dfb_dat[9]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[8]" >
+		</pin>
+		<pin name="dac7_dfb_dat[8]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[9]" >
+		</pin>
+		<pin name="dac7_dfb_dat[6]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[5]" >
+		</pin>
+		<pin name="dac7_dfb_dat[5]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[6]" >
+		</pin>
+		<pin name="dac_clk[2]" direction="Output" source="Hierarchy Database" diff_pair_node="offset_dac_ncs[1]" >
+		</pin>
+		<pin name="dac_dat[3]" direction="Output" source="Hierarchy Database" diff_pair_node="bias_dac_ncs[3]" >
+		</pin>
+		<pin name="dac_dat[2]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[2]" >
+		</pin>
+		<pin name="dac_dat[1]" direction="Output" source="Hierarchy Database" diff_pair_node="offset_dac_ncs[2]" >
+		</pin>
 		<pin name="mem_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk_n[0]" >
 		</pin>
 		<pin name="mem_clk_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk[0]" >
@@ -34,13 +70,19 @@
 		</pin>
 		<pin name="mem_dqsn[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[0]" >
 		</pin>
-		<pin name="ddr_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_clk_n[0]" >
+		<pin name="offset_dac_ncs[3]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[4]" >
+		</pin>
+		<pin name="offset_dac_ncs[2]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_dat[1]" >
+		</pin>
+		<pin name="offset_dac_ncs[1]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_clk[2]" >
+		</pin>
+		<pin name="ddr_dqs[0]" direction="Bidir" source="Assignments" diff_pair_node="ddr_dqsn[0]" >
+		</pin>
+		<pin name="ddr_dqs[1]" direction="Bidir" source="Assignments" diff_pair_node="ddr_dqsn[1]" >
+		</pin>
+		<pin name="ddr_clk[0]" direction="Bidir" source="Assignments" diff_pair_node="ddr_clk_n[0]" >
 		</pin>
 		<pin name="ddr_clk_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_clk[0]" >
-		</pin>
-		<pin name="ddr_dqs[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqsn[1]" >
-		</pin>
-		<pin name="ddr_dqs[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqsn[0]" >
 		</pin>
 		<pin name="ddr_dqsn[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr_dqs[1]" >
 		</pin>

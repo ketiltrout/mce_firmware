@@ -10,13 +10,9 @@
 ###########################################################################
  
 #Identifies PLLs or similar resources in the design and creates generated clocks for their output clock pins. Multiple generated clocks may be created for each output clock pin if the PLL is using clock switchover, one for the inclk[0] input clock pin and one for the inclk[1] input clock pin.
-derive_pll_clocks -create_base_clocks
+derive_pll_clocks -create_base_clocks -use_tan_name
 
 # Creates a clock object and defines its waveform in the current design
-#create_clock -period 40 -name [get_ports inclk]
-#create_clock -period 20 -name [get_ports adc_fco_p]
 create_clock -period "40.000 ns" -name {inclk} {inclk}
 create_clock -period "20.000 ns" -name {adc_fco_p} {adc_fco_p}
 
-#derive_pll_clocks -create_base_clocks
-#create_clock -period "40.000 ns" -name {inclk} {inclk}

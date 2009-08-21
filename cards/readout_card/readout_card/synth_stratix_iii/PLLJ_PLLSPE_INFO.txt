@@ -8,7 +8,7 @@ PLLJITTER	30
 PLLSPEmax	84
 PLLSPEmin	-53
 
-PLL_Name	rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_4rk2:auto_generated|pll1
+PLL_Name	rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_2bo2:auto_generated|pll1
 PLLJITTER	32
 PLLSPEmax	84
 PLLSPEmin	-53
