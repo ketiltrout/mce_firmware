@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.15  2009/07/11 00:12:52  bburger
+-- BB:  added adc_serdes_7_bit, adc_pll_stratic_iii_dual_serdes, flipflop_14
+--
 -- Revision 1.14  2009/06/30 18:30:17  bburger
 -- BB:  Removed an unused PLL output (c1) and added and alternate PLL for testing.
 --
@@ -181,11 +184,13 @@ package readout_card_pack is
       c2     : OUT STD_LOGIC;
       c3     : OUT STD_LOGIC;
       c4     : OUT STD_LOGIC;
-      c5     : OUT STD_LOGIC);
+      c5     : OUT STD_LOGIC;
+      locked : OUT STD_LOGIC);
    end component;
 
    component adc_pll_stratix_iii
    port (
+      areset : IN STD_LOGIC ;
       inclk0 : IN STD_LOGIC  := '0';
       c0    : OUT STD_LOGIC ;
       c1    : OUT STD_LOGIC ;
