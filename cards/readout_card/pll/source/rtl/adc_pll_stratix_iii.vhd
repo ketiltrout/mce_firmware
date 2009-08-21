@@ -42,6 +42,7 @@ USE altera_mf.all;
 ENTITY adc_pll_stratix_iii IS
 	PORT
 	(
+		areset		: IN STD_LOGIC  := '0';
 		inclk0		: IN STD_LOGIC  := '0';
 		c0		: OUT STD_LOGIC ;
 		c1		: OUT STD_LOGIC ;
@@ -148,6 +149,7 @@ ARCHITECTURE SYN OF adc_pll_stratix_iii IS
 	PORT (
 			inclk	: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 			locked	: OUT STD_LOGIC ;
+			areset	: IN STD_LOGIC ;
 			clk	: OUT STD_LOGIC_VECTOR (9 DOWNTO 0)
 	);
 	END COMPONENT;
@@ -175,7 +177,7 @@ BEGIN
 		clk0_divide_by => 1,
 		clk0_duty_cycle => 50,
 		clk0_multiply_by => 14,
-		clk0_phase_shift => "-714",
+		clk0_phase_shift => "0",
 		clk1_divide_by => 1,
 		clk1_duty_cycle => 21,
 		clk1_multiply_by => 2,
@@ -200,7 +202,7 @@ BEGIN
 		operation_mode => "SOURCE_SYNCHRONOUS",
 		pll_type => "Left_Right",
 		port_activeclock => "PORT_UNUSED",
-		port_areset => "PORT_UNUSED",
+		port_areset => "PORT_USED",
 		port_clkbad0 => "PORT_UNUSED",
 		port_clkbad1 => "PORT_UNUSED",
 		port_clkloss => "PORT_UNUSED",
@@ -247,6 +249,7 @@ BEGIN
 	)
 	PORT MAP (
 		inclk => sub_wire8,
+		areset => areset,
 		clk => sub_wire0,
 		locked => sub_wire6
 	);
@@ -319,12 +322,12 @@ END SYN;
 -- Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "50.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "50.00000000"
--- Retrieval info: PRIVATE: OUTPUT_FREQ4 STRING "100.00000000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ4 STRING "50.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE2 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE3 STRING "0"
--- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE4 STRING "0"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE4 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT1 STRING "MHz"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT2 STRING "MHz"
@@ -332,7 +335,7 @@ END SYN;
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT4 STRING "MHz"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
--- Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "-180.00000000"
+-- Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "128.57142900"
 -- Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "-25.71428600"
 -- Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "154.28571400"
@@ -344,7 +347,7 @@ END SYN;
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT3 STRING "deg"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT4 STRING "deg"
 -- Retrieval info: PRIVATE: PLL_ADVANCED_PARAM_CHECK STRING "0"
--- Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "0"
+-- Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "1"
 -- Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: PLL_ENHPLL_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: PLL_FASTPLL_CHECK NUMERIC "1"
@@ -384,7 +387,7 @@ END SYN;
 -- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "14"
--- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "-714"
+-- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "21"
 -- Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "2"
@@ -408,7 +411,7 @@ END SYN;
 -- Retrieval info: CONSTANT: OPERATION_MODE STRING "SOURCE_SYNCHRONOUS"
 -- Retrieval info: CONSTANT: PLL_TYPE STRING "Left_Right"
 -- Retrieval info: CONSTANT: PORT_ACTIVECLOCK STRING "PORT_UNUSED"
--- Retrieval info: CONSTANT: PORT_ARESET STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_ARESET STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_CLKBAD0 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_CLKBAD1 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_CLKLOSS STRING "PORT_UNUSED"
@@ -454,6 +457,7 @@ END SYN;
 -- Retrieval info: CONSTANT: WIDTH_CLOCK NUMERIC "10"
 -- Retrieval info: USED_PORT: @clk 0 0 10 0 OUTPUT_CLK_EXT VCC "@clk[9..0]"
 -- Retrieval info: USED_PORT: @inclk 0 0 2 0 INPUT_CLK_EXT VCC "@inclk[1..0]"
+-- Retrieval info: USED_PORT: areset 0 0 0 0 INPUT GND "areset"
 -- Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT_CLK_EXT VCC "c0"
 -- Retrieval info: USED_PORT: c1 0 0 0 0 OUTPUT_CLK_EXT VCC "c1"
 -- Retrieval info: USED_PORT: c2 0 0 0 0 OUTPUT_CLK_EXT VCC "c2"
@@ -469,6 +473,7 @@ END SYN;
 -- Retrieval info: CONNECT: c2 0 0 0 0 @clk 0 0 1 2
 -- Retrieval info: CONNECT: c4 0 0 0 0 @clk 0 0 1 4
 -- Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
+-- Retrieval info: CONNECT: @areset 0 0 0 0 areset 0 0 0 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL adc_pll_stratix_iii.vhd TRUE FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL adc_pll_stratix_iii.ppf TRUE FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL adc_pll_stratix_iii.inc FALSE FALSE
