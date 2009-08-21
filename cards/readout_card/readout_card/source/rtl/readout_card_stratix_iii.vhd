@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.7  2009/07/11 00:14:59  bburger
+-- BB: implemented discrete flip-flops rather than megafunction wizard entities
+--
 -- Revision 1.6  2009/07/03 23:44:00  bburger
 -- BB: This file has been comitted in a transitionary state for the sake of sharing the progress that is being made on the Readout Card ADC interface.
 --
@@ -109,7 +112,7 @@ port(
    adc_dco_p   : in std_logic;
 
    -- DAC Interface
-   dac_clr_n        : out std_logic; -- Implement this!!
+   dac_clr_n        : in std_logic; -- Implement this!!
    dac0_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
    dac1_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
    dac2_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
@@ -187,8 +190,8 @@ port(
    mem_clk : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
    mem_clk_n : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
    mem_cs_n : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
---         ddr_ldm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
---         ddr_udm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
+   --      ddr_ldm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
+   --      ddr_udm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
    mem_dm : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
    mem_dq : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
    mem_dqs : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -210,7 +213,9 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000003";
+   -- firmware major/minor revision set to ffff for trial/debug firmware
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05000003";
+   constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
    signal clk                     : std_logic; -- system clk
@@ -220,17 +225,19 @@ architecture top of readout_card_stratix_iii is
    signal clk_n                   : std_logic;
    signal samp_clk                : std_logic; -- ADC sampling clock
    signal serial_clk              : std_logic;
-   signal sync_clk1               : std_logic;
-   signal sync_clk2               : std_logic;
-   signal sync_clk3               : std_logic;
 
    -- Readout Card Rev. C ADC Signals
-   signal clk0        : std_logic;
-   signal clk1        : std_logic;
-   signal clk2        : std_logic;
-   signal clk3        : std_logic;
-   signal clk4        : std_logic;
-   signal locked      : std_logic;
+   signal rx_sclk      : std_logic;            -- high-speed serial clock for ADC-stream deserializer (700MHz) 
+   signal rx_enable_clk: std_logic;            -- load-enable signal of the altlvds receiver
+   signal clk_upper    : std_logic;            -- 50MHz to latch upper half of the ADC sample
+   signal clk_lower    : std_logic;            -- 50MHz to latch lower half of the ADC sample
+   signal clk_word     : std_logic;            -- 50MHz to latch the full word (upper + lower)
+   --signal clk0         : std_logic;
+   --signal clk1        : std_logic;
+   --signal clk2        : std_logic;
+   --signal clk3        : std_logic;
+   --signal clk4        : std_logic;
+   signal adc_pll_locked      : std_logic;
    
    signal adc_dat     : std_logic_vector(7 downto 0);
    signal serdes_dat0 : std_logic_vector(55 downto 0);
@@ -378,9 +385,14 @@ architecture top of readout_card_stratix_iii is
 begin
 
    -- Default assignments for ADC control pins
-   adc_sclk  <= '0';  --: out std_logic;
-   adc_sdio  <= '0';  --: inout std_logic; 
+   -- A predetermined digital test pattern is outputed when sclk and csb_n pins are both held high at power up.
+   -- the ADC channel outputs shift out the following pattern: 10 0000 0000 0000
+   -- We are seeing the test pattern despite the fact that adc_scb_n is not held high here
+   -- This is because the ADC powers up before the FPGA configures and asserts this values.
+   adc_sclk  <= '1';  --: out std_logic; 
    adc_csb_n <= '0';  --: out std_logic; 
+
+   adc_sdio  <= '0';  --: inout std_logic; 
    adc_pdwn  <= '0';  --: out std_logic;   
    
    -- Default assignments to get rid of synthesis warnings.
@@ -390,7 +402,7 @@ begin
    ttl_dir3 <= '0';
    ttl_out3 <= '0';
    
-   dac_clr_n <= '1';
+   --dac_clr_n <= '1';
    rs232_tx  <= '0';
    eeprom_so <= '0';
    eeprom_sck <= '0';
@@ -413,7 +425,8 @@ begin
       c2     => comm_clk,
       c3     => spi_clk,
       c4     => clk_n,
-      c5     => adc_clk_p
+      c5     => adc_clk_p,
+      locked => open
    );   
 
    ----------------------------------------------------------------------------
@@ -485,21 +498,34 @@ begin
 ----------------------------------------------
 -- This was replaced with the code above because of a mistake in the Rev. C hardware that didn't route the adc_fco signal to a fast PLL LVDS input
 -- We may choose to re-instate this serdes when the hardware error is fixed -- or we may not, since a lot of the complexity is handled in the adc_pll, above
+-- From http://www.altera.com/support/examples/functionality/pll-clocking-stratix3.html
+--# Clk0: High-speed serial clock connected to the rx_inclock or tx_inclock port of the altlvds megafunction
+--    * Output frequency: Data rate
+--    * Phase shift: -180 degrees
+--    * Duty cycle: 50%
+--# Clk1: Load-enable signal connected to the rx_enable or tx_enable input port of the altlvds megafunction
+--    * Output frequency: Data rate/deserialization factor
+--    * Phase shift: [(deserialization factor – 2)/deserialization factor] * 360 degrees
+--    * Duty cycle: (100/deserialization factor)%
+--# Clk2: Clocks the synchronization register
+--    * Output frequency: Data rate/deserialization factor
+--    * Phase shift: (-180/deserialization factor) degrees
+--    * Duty cycle: 50%
+--# If dynamic phase alignment (DPA) is used for the receiver, set  the following in the wrapper file generated for the altlvds megafunction:
+--    * dpa_multiply_by and dpa_divide_by = same multiplication/division factor as Clk0 (i.e., DPA clock frequency is same as data rate)
    i_adc_pll: adc_pll_stratix_iii
    port map (
-      inclk0 => adc_fco_p, -- adc_fco_p is the framing signal from the ADC
-      c0     => clk0,      -- clk0: 700.00 MHz, phase shift = -180.00 degrees, duty cycle = 50.00%, fully compensated
-      -- The phase of c1 has to be precise, to latch out words at their proper divisions
-      c1     => clk1,      -- clk1: 100.00 MHz, phase shift = +128.57 degrees, duty cycle = 21.42%  [Note: phase shift = (10/28)*360 or 5 clock edges @700 MHz]
+      areset => rst,
+      inclk0 => adc_fco_p,    -- adc_fco_p is the framing signal from the ADC, source synchronous clock
+      c0     => rx_sclk,      -- 700.00MHz, phase shift = -180.00 degrees, duty cycle = 50.00%, fully compensated
+      c1     => rx_enable_clk,-- 100.00MHz, phase shift = +128.57 degrees, duty cycle = 7.14% (BB: 21.42%. why??)  [Note: phase shift = (10/28)*360 or 5 clock edges @700 MHz]
       -- c2, c3 can be latched out at any point during the time they are valid, i.e. 100 MHz -- 10 ns.
       -- However, they have been phase shifted so that their rising edges fall exactly between SERDES data edges.
-      -- c2 = MSB latch clock
-      -- c3 = LSB latch clock
-      -- c4 = Full word latch clock
-      c2     => clk2,      -- clk2: 050.00 MHz, phase shift = -025.71 deg [(- 2/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
-      c3     => clk3,      -- clk3: 050.00 MHz, phase shift = +154.28 deg [(+12/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
-      c4     => clk4,      -- clk4: 050.00 MHz, phase shift = +218.57 deg [(+17/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
-      locked => locked
+      -- c2 = MSB latch clock      -- c3 = LSB latch clock      -- c4 = Full word latch clock
+      c2     => clk_upper,    -- clk2: 050.00 MHz, phase shift = -025.71 deg [(- 2/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
+      c3     => clk_lower,    -- clk3: 050.00 MHz, phase shift = +154.28 deg [(+12/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
+      c4     => clk_word,     -- clk4: 050.00 MHz, phase shift = +218.57 deg [(+17/28)*360 deg], duty cycle = 18.00% [2.5 700MHz cycles]
+      locked => adc_pll_locked
    );
 
    adc_dat <= adc7_lvds_p & adc6_lvds_p & adc5_lvds_p & adc4_lvds_p & adc3_lvds_p & adc2_lvds_p & adc1_lvds_p & adc0_lvds_p;
@@ -508,28 +534,28 @@ begin
    -- To receive a 14-bit word, the SERDES data must be latched twice per data period
    i_adc_serdes: adc_serdes 
    port map (
-      rx_enable  => clk1, -- This is the latching signal.  Data is latched twice per 14-bit data point.  The phase delay of +128.57 degrees accounts for propagation through the SERDES.
+      rx_enable  => rx_enable_clk, -- This is the latching signal.  Data is latched twice per 14-bit data point.  The phase delay of +128.57 degrees accounts for propagation through the SERDES.
       rx_in      => adc_dat,    
-      rx_inclock => clk0,    
+      rx_inclock => rx_sclk,    
       rx_out     => serdes_dat0   
    );
 
    -- This register captures the 7 MSB of every data point
-   process(clk2, rst)
+   process(clk_upper, rst)
    begin
       if(rst = '1') then
          serdes_dat1 <= (others => '0');
-      elsif(clk2'event and clk2 = '1') then
+      elsif(clk_upper'event and clk_upper = '1') then
          serdes_dat1 <= serdes_dat0;
       end if;
    end process;
   
    -- This register captures the 7 LSB of every data point
-   process(clk3, rst)
+   process(clk_lower, rst)
    begin
       if(rst = '1') then
          serdes_dat2 <= (others => '0');
-      elsif(clk3'event and clk3 = '1') then
+      elsif(clk_lower'event and clk_lower = '1') then
          serdes_dat2 <= serdes_dat0;
       end if;
    end process;
@@ -546,7 +572,7 @@ begin
 
    i_adc_serdes_flipflop3: flipflop_112
    port map (
-      clock      => clk4,
+      clock      => clk_word,
       data       => serdes_dat3,
       q          => serdes_dat4
    );   
@@ -592,6 +618,8 @@ begin
    --dispatch_dat_in <= "0000" & adc_dat1 & adc_dat0;
    
    i_dispatch: dispatch
+   generic map (
+     FPGA_DEVICE_FAMILY => FPGA_DEVICE_FAMILY)
    port map (
       clk_i        => clk,
       comm_clk_i   => comm_clk,
@@ -1082,40 +1110,40 @@ begin
   );
   --<< END MEGAWIZARD INSERT WRAPPER_NAME
 
---  --<< START MEGAWIZARD INSERT CS_ADDR_MAP
---  --connect up the column address bits, dropping 2 bits from example driver output because of 4:1 data rate
---  ddr_local_addr(7 DOWNTO 0) <= ddr_local_col_addr(9 DOWNTO 2);
---  --<< END MEGAWIZARD INSERT CS_ADDR_MAP
---
---  --<< START MEGAWIZARD INSERT EXAMPLE_DRIVER
---  --Self-test, synthesisable code to exercise the DDR SDRAM Controller
---  driver : micron_ctrl_example_driver
---  port map(
---     clk => phy_clk,
---     local_bank_addr => ddr_local_addr(22 DOWNTO 21),
---     local_be => ddr_local_be,
---     local_col_addr => ddr_local_col_addr,
---     local_cs_addr => ddr_local_cs_addr,
---     local_rdata => ddr_local_rdata,
---     local_rdata_valid => ddr_local_rdata_valid,
---     local_read_req => ddr_local_read_req,
---     local_ready => ddr_local_ready,
---     local_row_addr => ddr_local_addr(20 DOWNTO 8),
---     local_size => ddr_local_size,
---     local_wdata => ddr_local_wdata,
---     local_write_req => ddr_local_write_req,
---     pnf_per_byte => internal_pnf_per_byte(7 DOWNTO 0),
---     pnf_persist => internal_pnf,
---     reset_n => reset_phy_clk_n,
---     test_complete => internal_test_complete,
---     test_status => internal_test_status
---  );
---
---  --<< END MEGAWIZARD INSERT EXAMPLE_DRIVER
---
---  --<< START MEGAWIZARD INSERT DLL
---
---  --<< END MEGAWIZARD INSERT DLL
+  --<< START MEGAWIZARD INSERT CS_ADDR_MAP
+  --connect up the column address bits, dropping 2 bits from example driver output because of 4:1 data rate
+  mem_local_addr(7 DOWNTO 0) <= mem_local_col_addr(9 DOWNTO 2);
+  --<< END MEGAWIZARD INSERT CS_ADDR_MAP
+
+  --<< START MEGAWIZARD INSERT EXAMPLE_DRIVER
+  --Self-test, synthesisable code to exercise the DDR SDRAM Controller
+  driver : micron_ctrl_example_driver
+  port map(
+     clk => phy_clk,
+     local_bank_addr => mem_local_addr(22 DOWNTO 21),
+     local_be => mem_local_be,
+     local_col_addr => mem_local_col_addr,
+     local_cs_addr => mem_local_cs_addr,
+     local_rdata => mem_local_rdata,
+     local_rdata_valid => mem_local_rdata_valid,
+     local_read_req => mem_local_read_req,
+     local_ready => mem_local_ready,
+     local_row_addr => mem_local_addr(20 DOWNTO 8),
+     local_size => mem_local_size,
+     local_wdata => mem_local_wdata,
+     local_write_req => mem_local_write_req,
+     pnf_per_byte => internal_pnf_per_byte(7 DOWNTO 0),
+     pnf_persist => internal_pnf,
+     reset_n => reset_phy_clk_n,
+     test_complete => internal_test_complete,
+     test_status => internal_test_status
+  );
+
+  --<< END MEGAWIZARD INSERT EXAMPLE_DRIVER
+
+  --<< START MEGAWIZARD INSERT DLL
+
+  --<< END MEGAWIZARD INSERT DLL
 
   --<< start europa
   --vhdl renameroo for output signals
@@ -1130,8 +1158,8 @@ begin
   mem_cs_n <= internal_mem_cs_n;
   --vhdl renameroo for output signals
   mem_dm <= internal_mem_dm;
---  ddr_ldm <= internal_ddr_dm(0 downto 0);
---  ddr_udm <= internal_ddr_dm(1 downto 1);
+  -- ddr_ldm <= internal_ddr_dm(0 downto 0);
+  -- ddr_udm <= internal_ddr_dm(1 downto 1);
   --vhdl renameroo for output signals
   mem_odt <= internal_mem_odt;
   --vhdl renameroo for output signals
@@ -1139,14 +1167,20 @@ begin
   --vhdl renameroo for output signals
   mem_we_n <= internal_mem_we_n;
   --vhdl renameroo for output signals
-  pnf <= internal_pnf;
+  --pnf <= internal_pnf;
   --vhdl renameroo for output signals
---  pnf_per_byte <= internal_pnf_per_byte;
+  pnf_per_byte <= internal_pnf_per_byte;
   --vhdl renameroo for output signals
-  test_complete <= internal_test_complete;
+-- test_complete <= internal_test_complete;
   --vhdl renameroo for output signals
---  test_status <= internal_test_status;
-   test_status <= adc_dat1(7 downto 0);
-   pnf_per_byte <= adc_dat0(7 downto 0);
-
+  --test_status <= internal_test_status;
+   
+   
+   --test_status <= adc_dat1(7 downto 0);
+   --pnf_per_byte <= adc_dat0(7 downto 0);
+   test_status(0) <= rx_sclk;
+   test_status(1) <= clk_upper;
+   test_status(2) <= clk_lower;
+   --test_complete <= adc0_lvds_p;
+   pnf <= adc_pll_locked;
 end top;
