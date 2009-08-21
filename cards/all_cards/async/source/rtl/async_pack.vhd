@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.8  2005/01/12 22:49:25  erniel
+-- updated lvds_rx component
+--
 -- Revision 1.7  2005/01/11 19:37:15  erniel
 -- updated component declarations
 --
@@ -79,6 +82,8 @@ package async_pack is
    end component;
 
    component lvds_rx
+   generic (
+     FPGA_DEVICE_FAMILY : string);
    port(comm_clk_i : in std_logic;
         rst_i      : in std_logic;
      

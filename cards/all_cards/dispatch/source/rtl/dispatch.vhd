@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch.vhd,v $
+-- Revision 1.16  2009/05/27 22:31:31  bburger
+-- BB: Added data_size_o interface to wishbone entity for rectangle mode data acquisition
+--
 -- Revision 1.15  2008/12/22 20:29:13  bburger
 -- BB:  Added a second LVDS reply channel to dispatch
 --
@@ -100,6 +103,8 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 entity dispatch is
+generic (
+   FPGA_DEVICE_FAMILY : string);
 port(
    clk_i      : in std_logic;
    comm_clk_i : in std_logic;
@@ -135,6 +140,8 @@ end dispatch;
 architecture rtl of dispatch is
 
    component dispatch_cmd_receive
+   generic (
+     FPGA_DEVICE_FAMILY : string);
    port(
       clk_i       : in std_logic;
       comm_clk_i  : in std_logic;
@@ -246,6 +253,8 @@ architecture rtl of dispatch is
 begin
 
    receiver : dispatch_cmd_receive
+   generic map (
+      FPGA_DEVICE_FAMILY => FPGA_DEVICE_FAMILY)
    port map(
       clk_i        => clk_i,
       comm_clk_i   => comm_clk_i,

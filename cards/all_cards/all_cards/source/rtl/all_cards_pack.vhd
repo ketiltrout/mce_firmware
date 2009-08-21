@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/01/16 01:31:20 $>    - <initials $Author: bburger $>
+-- <date $Date: 2009/05/27 22:30:45 $>    - <initials $Author: bburger $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.8  2009/05/27 22:30:45  bburger
+-- BB: Added data_size_o interface to wishbone entity for rectangle mode data acquisition
+--
 -- Revision 1.7  2009/01/16 01:31:20  bburger
 -- BB: renamed some output signals on all_cards to conform to the wishbone standard.
 --
@@ -178,6 +181,8 @@ package all_cards_pack is
    -- Dispatch component
    -----------------------------------------------------------------------------
    component dispatch
+      generic (
+         FPGA_DEVICE_FAMILY : string := "Stratix");
       port(
          clk_i      : in std_logic;
          comm_clk_i : in std_logic;

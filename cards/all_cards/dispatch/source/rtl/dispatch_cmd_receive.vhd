@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.26  2008/02/03 09:37:35  bburger
+-- BB: renamed global constant ALL_CARDS to ALL_FPGA_CARDS
+--
 -- Revision 1.25  2007/12/18 20:23:47  bburger
 -- BB:
 -- - Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
@@ -56,6 +59,8 @@ library sys_param;
 use sys_param.command_pack.all;
 
 entity dispatch_cmd_receive is
+generic (
+     FPGA_DEVICE_FAMILY : string);
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
@@ -84,6 +89,8 @@ end dispatch_cmd_receive;
 architecture rtl of dispatch_cmd_receive is
 
 component lvds_rx
+generic (
+     FPGA_DEVICE_FAMILY : string);
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
@@ -129,6 +136,8 @@ begin
    ---------------------------------------------------------
 
    cmd_rx: lvds_rx
+      generic map (
+               FPGA_DEVICE_FAMILY => FPGA_DEVICE_FAMILY)
       port map(clk_i      => clk_i,
                comm_clk_i => comm_clk_i,
                rst_i      => rst_i,

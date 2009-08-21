@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.20  2008/12/22 20:27:26  bburger
+-- BB:  Added a pres_n_o interface signal to detect cards that are not present
+--
 -- Revision 1.19  2006/03/01 01:02:55  erniel
 -- reduced comm_clk_i frequency from 200 MHz to 100 MHz
 -- modified datapath to work with new comm_clk frequency
@@ -116,6 +119,8 @@ library components;
 use components.component_pack.all;
 
 entity lvds_rx is
+generic (
+     FPGA_DEVICE_FAMILY : string);
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
@@ -252,7 +257,7 @@ begin
 
    data_buffer: dcfifo
    generic map(
-      intended_device_family  => "Stratix",
+      intended_device_family  => FPGA_DEVICE_FAMILY,
       lpm_width               => 32,
       lpm_numwords            => 16,
       lpm_widthu              => 4,
