@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.71 2009/07/03 23:45:01 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.72 2009/07/11 00:18:53 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.72  2009/07/11 00:18:53  bburger
+-- BB: stratix iii development
+--
 -- Revision 1.71  2009/07/03 23:45:01  bburger
 -- BB:  Pinout name changes.
 --
@@ -2795,7 +2798,7 @@ begin
       load_preamble;
       load_command;
       load_checksum;
-      wait for 50 us;
+      wait for 150 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_readout_row_index_cmd;
