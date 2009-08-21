@@ -47,7 +47,8 @@ ENTITY rc_pll_stratix_iii IS
 		c2		: OUT STD_LOGIC ;
 		c3		: OUT STD_LOGIC ;
 		c4		: OUT STD_LOGIC ;
-		c5		: OUT STD_LOGIC 
+		c5		: OUT STD_LOGIC ;
+		locked		: OUT STD_LOGIC 
 	);
 END rc_pll_stratix_iii;
 
@@ -61,9 +62,10 @@ ARCHITECTURE SYN OF rc_pll_stratix_iii IS
 	SIGNAL sub_wire4	: STD_LOGIC ;
 	SIGNAL sub_wire5	: STD_LOGIC ;
 	SIGNAL sub_wire6	: STD_LOGIC ;
-	SIGNAL sub_wire7	: STD_LOGIC_VECTOR (1 DOWNTO 0);
-	SIGNAL sub_wire8_bv	: BIT_VECTOR (0 DOWNTO 0);
-	SIGNAL sub_wire8	: STD_LOGIC_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire7	: STD_LOGIC ;
+	SIGNAL sub_wire8	: STD_LOGIC_VECTOR (1 DOWNTO 0);
+	SIGNAL sub_wire9_bv	: BIT_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire9	: STD_LOGIC_VECTOR (0 DOWNTO 0);
 
 
 
@@ -138,18 +140,20 @@ ARCHITECTURE SYN OF rc_pll_stratix_iii IS
 		port_clkena3		: STRING;
 		port_clkena4		: STRING;
 		port_clkena5		: STRING;
+		self_reset_on_loss_lock		: STRING;
 		using_fbmimicbidir_port		: STRING;
 		width_clock		: NATURAL
 	);
 	PORT (
 			inclk	: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+			locked	: OUT STD_LOGIC ;
 			clk	: OUT STD_LOGIC_VECTOR (9 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	sub_wire8_bv(0 DOWNTO 0) <= "0";
-	sub_wire8    <= To_stdlogicvector(sub_wire8_bv);
+	sub_wire9_bv(0 DOWNTO 0) <= "0";
+	sub_wire9    <= To_stdlogicvector(sub_wire9_bv);
 	sub_wire5    <= sub_wire0(5);
 	sub_wire4    <= sub_wire0(4);
 	sub_wire3    <= sub_wire0(3);
@@ -160,8 +164,9 @@ BEGIN
 	c3    <= sub_wire3;
 	c4    <= sub_wire4;
 	c5    <= sub_wire5;
-	sub_wire6    <= inclk0;
-	sub_wire7    <= sub_wire8(0 DOWNTO 0) & sub_wire6;
+	locked    <= sub_wire6;
+	sub_wire7    <= inclk0;
+	sub_wire8    <= sub_wire9(0 DOWNTO 0) & sub_wire7;
 
 	altpll_component : altpll
 	GENERIC MAP (
@@ -203,7 +208,7 @@ BEGIN
 		port_fbout => "PORT_UNUSED",
 		port_inclk0 => "PORT_USED",
 		port_inclk1 => "PORT_UNUSED",
-		port_locked => "PORT_UNUSED",
+		port_locked => "PORT_USED",
 		port_pfdena => "PORT_UNUSED",
 		port_phasecounterselect => "PORT_UNUSED",
 		port_phasedone => "PORT_UNUSED",
@@ -234,12 +239,14 @@ BEGIN
 		port_clkena3 => "PORT_UNUSED",
 		port_clkena4 => "PORT_UNUSED",
 		port_clkena5 => "PORT_UNUSED",
+		self_reset_on_loss_lock => "OFF",
 		using_fbmimicbidir_port => "OFF",
 		width_clock => 10
 	)
 	PORT MAP (
-		inclk => sub_wire7,
-		clk => sub_wire0
+		inclk => sub_wire8,
+		clk => sub_wire0,
+		locked => sub_wire6
 	);
 
 
@@ -264,7 +271,7 @@ END SYN;
 -- Retrieval info: PRIVATE: CREATE_INCLK1_CHECK STRING "0"
 -- Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
 -- Retrieval info: PRIVATE: CUR_FBIN_CLK STRING "e0"
--- Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "Any"
+-- Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "4"
 -- Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "1"
 -- Retrieval info: PRIVATE: DIV_FACTOR3 NUMERIC "2"
@@ -290,7 +297,7 @@ END SYN;
 -- Retrieval info: PRIVATE: INCLK1_FREQ_UNIT_COMBO STRING "MHz"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Stratix III"
 -- Retrieval info: PRIVATE: INT_FEEDBACK__MODE_RADIO STRING "1"
--- Retrieval info: PRIVATE: LOCKED_OUTPUT_CHECK STRING "0"
+-- Retrieval info: PRIVATE: LOCKED_OUTPUT_CHECK STRING "1"
 -- Retrieval info: PRIVATE: LONG_SCAN_RADIO STRING "1"
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE STRING "325.000"
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE_DIRTY NUMERIC "0"
@@ -409,7 +416,7 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_FBOUT STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_INCLK0 STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_INCLK1 STRING "PORT_UNUSED"
--- Retrieval info: CONSTANT: PORT_LOCKED STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_LOCKED STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_PFDENA STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_PHASECOUNTERSELECT STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_PHASEDONE STRING "PORT_UNUSED"
@@ -440,6 +447,7 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_clkena3 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clkena4 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clkena5 STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: SELF_RESET_ON_LOSS_LOCK STRING "OFF"
 -- Retrieval info: CONSTANT: USING_FBMIMICBIDIR_PORT STRING "OFF"
 -- Retrieval info: CONSTANT: WIDTH_CLOCK NUMERIC "10"
 -- Retrieval info: USED_PORT: @clk 0 0 10 0 OUTPUT_CLK_EXT VCC "@clk[9..0]"
@@ -450,6 +458,8 @@ END SYN;
 -- Retrieval info: USED_PORT: c4 0 0 0 0 OUTPUT_CLK_EXT VCC "c4"
 -- Retrieval info: USED_PORT: c5 0 0 0 0 OUTPUT_CLK_EXT VCC "c5"
 -- Retrieval info: USED_PORT: inclk0 0 0 0 0 INPUT_CLK_EXT GND "inclk0"
+-- Retrieval info: USED_PORT: locked 0 0 0 0 OUTPUT GND "locked"
+-- Retrieval info: CONNECT: locked 0 0 0 0 @locked 0 0 0 0
 -- Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
 -- Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0
 -- Retrieval info: CONNECT: c3 0 0 0 0 @clk 0 0 1 3
