@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.86 2009/06/18 22:55:15 bburger Exp $
+-- $Id: clk_card.vhd,v 1.87 2009/07/15 20:46:59 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.87  2009/07/15 20:46:59  bburger
+-- BB:  Added the Sync Box PLL back in.  Not sure why it was removed from the version after 4.0.9!
+--
 -- Revision 1.86  2009/06/18 22:55:15  bburger
 -- BB:  Upped the revision number ofr 5.0.2
 --
@@ -820,23 +823,23 @@ begin
       ack_o           => all_cards_ack
    );
 
-   slot_id_slave : bp_slot_id
-   port map(
-      clk_i  => clk,
-      rst_i  => rst,
-
-      slot_id_i => slot_id,
-
-      dat_i  => data,
-      addr_i => addr,
-      tga_i  => tga,
-      we_i   => we,
-      stb_i  => stb,
-      cyc_i  => cyc,
-      err_o  => slot_id_err,
-      dat_o  => slot_id_data,
-      ack_o  => slot_id_ack
-   );
+--   slot_id_slave : bp_slot_id
+--   port map(
+--      clk_i  => clk,
+--      rst_i  => rst,
+--
+--      slot_id_i => slot_id,
+--
+--      dat_i  => data,
+--      addr_i => addr,
+--      tga_i  => tga,
+--      we_i   => we,
+--      stb_i  => stb,
+--      cyc_i  => cyc,
+--      err_o  => slot_id_err,
+--      dat_o  => slot_id_data,
+--      ack_o  => slot_id_ack
+--   );
 
    fw_rev_slave: fw_rev
    generic map(REVISION => CC_REVISION)

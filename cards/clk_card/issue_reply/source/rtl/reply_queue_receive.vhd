@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.21  2009/01/16 01:51:48  bburger
+-- BB: Made the bad preamble logic more robust.
+--
 -- Revision 1.20  2008/12/22 20:49:28  bburger
 -- BB:  Added a second LVDS receiver, and modified the FSM to support receiving interleaved data.
 --
@@ -146,6 +149,8 @@ begin
 
    -- This block receives header0, and every even-indexed data word
    lvds_receiver_a : lvds_rx
+      generic map (
+         FPGA_DEVICE_FAMILY => "Stratix")
       port map(
          clk_i      => clk_i,
          comm_clk_i => comm_clk_i,
@@ -159,6 +164,8 @@ begin
 
    -- This block receives header0, and every odd-indexed data word
    lvds_receiver_b : lvds_rx
+      generic map (
+         FPGA_DEVICE_FAMILY => "Stratix")
       port map(
          clk_i      => clk_i,
          comm_clk_i => comm_clk_i,
