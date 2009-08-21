@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.5 2009/03/23 14:50:08 mandana Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.6 2009/06/19 00:01:37 bburger Exp $
 
 
 
@@ -84,7 +84,10 @@ package require ::quartus::project
 # Clocks and Resets
 puts "Info: Assigning Clocks and Resets"
 #####################################################
-set_location_assignment PIN_U2 -to inclk
+# inclk on board is connected to pins (p28, ag15, u2, b14) or clk1(PLL_L2), clk5(PLL_B1), clk9(PLL_R2), clk13(PLL_T1)
+# To free up Left/right PLLs for DDR and altlvds (serdes), we move to PLL_T1.
+# set_location_assignment PIN_U2 -to inclk
+set_location_assignment PIN_B14 -to inclk
 set_location_assignment PIN_R27 -to dev_clr_n
 set_location_assignment PIN_AF10 -to wdi
 
@@ -150,15 +153,15 @@ set_location_assignment PIN_AC2 -to adc4_lvds_p
 set_location_assignment PIN_AD1 -to adc5_lvds_p
 set_location_assignment PIN_AE2 -to adc6_lvds_p
 set_location_assignment PIN_AF2 -to adc7_lvds_p
-set_location_assignment PIN_AE15 -to adc_fco_p
 set_location_assignment PIN_Y15 -to adc_clk_p
 set_location_assignment PIN_AF28 -to adc_sclk
 set_location_assignment PIN_AC25 -to adc_sdio
 set_location_assignment PIN_AC26 -to adc_csb_n
 set_location_assignment PIN_R1 -to adc_dco_p
 set_location_assignment PIN_AB27 -to adc_pdwn
-
-
+# adc_fco_p was originally tied to Pin P2 (clk10 of PLL_R2), but we had to rewire to Pin AE15 (clk4 of PLL_B1)
+set_location_assignment PIN_P2 -to adc_fco_p
+#set_location_assignment PIN_AE15 -to adc_fco_p
 
 #####################################################
 # DDR2 SDRAM
