@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.82 2008/10/25 00:24:54 bburger Exp $
+-- $Id: clk_card.vhd,v 1.82.2.1 2009/06/03 22:08:43 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.82.2.1  2009/06/03 22:08:43  bburger
+-- BB: Duplicate modifications from 4.0.a to 4.0.b as for previously developed changes from 4.0.a to 5.0.1, but without the dual-LVDS feature.
+--
 -- Revision 1.82  2008/10/25 00:24:54  bburger
 -- BB:  Added support for RCS_TO_REPORT_DATA command
 --
@@ -273,7 +276,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0400000b";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0400000c";
 
    -- reset
    signal rst                : std_logic;
@@ -531,12 +534,12 @@ begin
    ----------------------------------------------------------------
    -- Manchester Clock Pll
    ----------------------------------------------------------------
---   manch_pll_block : manch_pll
---   port map (
---      inclk0   => inclk1,
---      c0       => manch_clk,
---      locked   => open
---   );
+   manch_pll_block : manch_pll
+   port map (
+      inclk0   => inclk1,
+      c0       => manch_clk,
+      locked   => open
+   );
 
    ----------------------------------------------------------------
    -- Autonomous Clock Card Reset Block
@@ -1067,7 +1070,7 @@ begin
    port map(
       -- Clock and Reset:
       clk_i               => clk,
-      manch_clk_i         => clk,--manch_clk,  -- Manchester Clock Input
+      manch_clk_i         => manch_clk,  -- Manchester Clock Input
       clk_n_i             => clk_n,
       rst_i               => rst,
 
