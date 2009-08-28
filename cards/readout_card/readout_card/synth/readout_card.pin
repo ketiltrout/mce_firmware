@@ -335,7 +335,7 @@ mictor[18]                   : B8        : output : 3.3-V LVTTL       :         
 mictor[17]                   : B9        : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[4]                    : B10       : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[1]                    : B11       : output : 3.3-V LVTTL       :         : 4         : Y              
-RESERVED_INPUT               : B12       :        :                   :         : 4         :                
+mictor[6]                    : B12       : output : 3.3-V LVTTL       :         : 4         : N              
 mictor[8]                    : B13       : output : 3.3-V LVTTL       :         : 4         : Y              
 TEMPDIODEp                   : B14       :        :                   :         :           :                
 RESERVED_INPUT               : B15       :        :                   :         : 10        :                
@@ -474,7 +474,7 @@ ttl_dir1                     : G7        : output : 3.3-V LVTTL       :         
 ttl_out2                     : G8        : output : 3.3-V LVTTL       :         : 4         : Y              
 ttl_dir2                     : G9        : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : G10       :        :                   :         : 4         :                
-mictor[5]                    : G11       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : G11       :        :                   :         : 4         :                
 ttl_out3                     : G12       : output : 3.3-V LVTTL       :         : 4         : Y              
 TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         :           :                
@@ -558,7 +558,7 @@ dac_FB3_dat[6]               : K7        : output : 3.3-V LVTTL       :         
 dac_FB3_dat[5]               : K8        : output : 3.3-V LVTTL       :         : 5         : Y              
 GND                          : K9        : gnd    :                   :         :           :                
 dip_sw3                      : K10       : input  : 3.3-V LVTTL       :         : 4         : Y              
-mictor[6]                    : K11       : output : 3.3-V LVTTL       :         : 4         : N              
+mictor[5]                    : K11       : output : 3.3-V LVTTL       :         : 4         : N              
 TCK                          : K12       : input  :                   :         : 4         :                
 GND+                         : K13       :        :                   :         : 4         :                
 RESERVED_INPUT               : K14       :        :                   :         : 9         :                
