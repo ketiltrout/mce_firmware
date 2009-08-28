@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.86  2009/06/30 18:08:32  bburger
+-- BB:  Removed an unused generic
+--
 -- Revision 1.85  2009/06/18 22:59:40  bburger
 -- BB:  Upped the version number for 5.0.2
 --
@@ -177,7 +180,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000002";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000004";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
