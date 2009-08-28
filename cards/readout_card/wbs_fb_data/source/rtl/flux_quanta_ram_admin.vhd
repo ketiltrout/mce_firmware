@@ -66,6 +66,10 @@
 --
 -- Revision history:
 -- $Log: flux_quanta_ram_admin.vhd,v $
+-- Revision 1.3  2008/07/08 21:59:13  mandana
+-- incomplete if statement for ack_read_bank is fixed.
+-- count is set to 0 as a start value.
+--
 -- Revision 1.2  2008/06/27 21:04:44  mandana
 -- merged with flux_quanta_admin_reduced_width
 -- removed conv_int calls, only process FLUX_QUANTA_DATA_WIDTH bits out of Wishbone data. use sign-extend functions
@@ -460,14 +464,14 @@ begin  -- rtl
   ack_bank_o <= ack_write_bank or ack_read_bank;
   
   qa_bank_o <=
-     sxt(qa0, qa_bank_o'length) when addr_i = FLX_QUANTA0_ADDR else
-     sxt(qa1, qa_bank_o'length) when addr_i = FLX_QUANTA1_ADDR else
-     sxt(qa2, qa_bank_o'length) when addr_i = FLX_QUANTA2_ADDR else
-     sxt(qa3, qa_bank_o'length) when addr_i = FLX_QUANTA3_ADDR else
-     sxt(qa4, qa_bank_o'length) when addr_i = FLX_QUANTA4_ADDR else
-     sxt(qa5, qa_bank_o'length) when addr_i = FLX_QUANTA5_ADDR else
-     sxt(qa6, qa_bank_o'length) when addr_i = FLX_QUANTA6_ADDR else
-     sxt(qa7, qa_bank_o'length) when addr_i = FLX_QUANTA7_ADDR else
-     sxt(qa0, qa_bank_o'length); -- default to ch0
+     ext(qa0, qa_bank_o'length) when addr_i = FLX_QUANTA0_ADDR else
+     ext(qa1, qa_bank_o'length) when addr_i = FLX_QUANTA1_ADDR else
+     ext(qa2, qa_bank_o'length) when addr_i = FLX_QUANTA2_ADDR else
+     ext(qa3, qa_bank_o'length) when addr_i = FLX_QUANTA3_ADDR else
+     ext(qa4, qa_bank_o'length) when addr_i = FLX_QUANTA4_ADDR else
+     ext(qa5, qa_bank_o'length) when addr_i = FLX_QUANTA5_ADDR else
+     ext(qa6, qa_bank_o'length) when addr_i = FLX_QUANTA6_ADDR else
+     ext(qa7, qa_bank_o'length) when addr_i = FLX_QUANTA7_ADDR else
+     ext(qa0, qa_bank_o'length); -- default to ch0
     
 end rtl;
