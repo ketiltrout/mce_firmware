@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.13  2009/05/27 01:31:06  bburger
+-- BB: Removed a pointless interlock that added latency.
+--
 -- Revision 1.12  2008/10/03 00:34:16  mandana
 -- BB: Removed the z-term sign extension in fsfb_proc_pidz.vhd, and the [d-term + z-term] adder to free up DSP resources since the z-term is always = 0.
 --
@@ -540,7 +543,7 @@ begin
    -- wn <= fltr_sum_reg - wtemp;
    --fltr1_sum_reg_shift <= fltr1_sum_reg(fltr1_sum_reg'left) & fltr1_sum_reg(fltr1_sum_reg'left) 
    --                      & fltr1_sum_reg(FILTER_DLY_WIDTH-3+FILTER_GAIN_WIDTH downto FILTER_GAIN_WIDTH);
-   fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FILTER_DLY_WIDTH+2-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
+   fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FSFB_QUEUE_DATA_WIDTH-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
    fltr1_sum_reg_shift(FLTR_QUEUE_DATA_WIDTH-1-FILTER_GAIN_WIDTH downto 0) <= fltr1_sum_reg(FLTR_QUEUE_DATA_WIDTH-1 downto FILTER_GAIN_WIDTH);
    i_wn20_sub : fsfb_calc_sub29
       port map (
@@ -648,7 +651,7 @@ begin
    -- Output results 
    fsfb_proc_pidz_sum_o    <= pidz_sum_reg;
    fsfb_proc_pidz_update_o <= calc_shift_state(6) when lock_mode_en_i = '1' else '0';
-   fsfb_proc_fltr_sum_o    <= fltr2_sum_reg;
+   fsfb_proc_fltr_sum_o    <= sxt(fltr2_sum_reg(fltr2_sum_reg'length-1 downto FILTER_SCALE_LSB), fltr2_sum_reg'length);
    
    -- This had a pointless control signal choking it.
    -- The filter does alter the feedback and therefore values can be writted to regardless of being in lock mode or not.
