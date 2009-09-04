@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.9  2009/02/04 16:11:08  mandana
+-- updated to PIDZ_DATA_WIDTH and pid_ram to compile with latest 12b pid parameters
+--
 -- Revision 1.8  2006/07/28 17:44:53  mandana
 -- modified impulse to 50000 to test for dynamic input range of the filter
 --
@@ -85,7 +88,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.fsfb_calc_pack.all;
-
+use work.wbs_fb_data_pack.all;
 use work.flux_loop_ctrl_pack.all;
 use work.flux_loop_pack.all;
 use work.readout_card_pack.all;
@@ -519,7 +522,7 @@ begin
          dat <= dat + 1;
       end if;
       if (dat > 2481 and dat<3294) then -- to generate an impulse after init_window is done and only for one frame period
-        impulse <= 5000;
+        impulse <= 50000;
       else 
         impulse <= 0;
       end if;  
