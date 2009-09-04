@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.84  2009/05/27 22:37:47  bburger
+-- BB: Upped the version number and added the data_size interface between dispatch and flux_loop for rectangle data
+--
 -- Revision 1.83  2009/03/19 22:01:26  bburger
 -- BB:
 -- - Added the ADC_LATENCY generic to generalize this block for Readout Card Rev. C
@@ -173,7 +176,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000001";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000005";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
