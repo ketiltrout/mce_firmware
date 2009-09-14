@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_pack.vhd,v 1.9 2008/05/29 21:16:41 bburger Exp $
+-- $Id: ac_dac_ctrl_pack.vhd,v 1.9 2008/06/17 17:36:01 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.9  2008/06/17 17:36:01  bburger
+-- BB:  Added the AC_NUM_DACS constant
+--
 -- Revision 1.9  2008/05/29 21:16:41  bburger
 -- BB:  Added the AC_NUM_DACS constant
 --
@@ -68,7 +71,7 @@ use work.frame_timing_pack.all;
 
 package ac_dac_ctrl_pack is
 
-   constant AC_NUM_DACS : integer := 41;
+   constant AC_NUM_DACS : integer := NUM_OF_ROWS;
    constant AC_NUM_BUSES : integer := 11;
    constant AC_BUS_WIDTH : integer := 14;
    constant ROW_COUNTER_MAX : integer := 63;
