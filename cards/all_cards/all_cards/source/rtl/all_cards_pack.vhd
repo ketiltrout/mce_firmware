@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/05/27 22:30:45 $>    - <initials $Author: bburger $>
+-- <date $Date: 2009/08/21 21:07:24 $>    - <initials $Author: bburger $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.9  2009/08/21 21:07:24  bburger
+-- BB: added FPGA_DEVICE_FAMILY generic to interfaces for synthesis for Stratix I or III
+--
 -- Revision 1.8  2009/05/27 22:30:45  bburger
 -- BB: Added data_size_o interface to wishbone entity for rectangle mode data acquisition
 --
@@ -234,6 +237,7 @@ package all_cards_pack is
          num_cols_reported_o     : out integer;
 
          -- Address Card interface
+         row_count_o                : out std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
          row_switch_o               : out std_logic;
          row_en_o                   : out std_logic;
 

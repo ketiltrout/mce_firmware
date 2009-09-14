@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.9 2006/03/17 23:17:10 mandana Exp $
+-- $Id: frame_timing.vhd,v 1.10 2009/01/16 01:32:38 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.10  2009/01/16 01:32:38  bburger
+-- BB:  Added row_len, num_rows, num_rows_reported, and num_cols_reported outputs for the column data feature.
+--
 -- Revision 1.9  2006/03/17 23:17:10  mandana
 -- sync_gen_pack removed, constants are added to frame_timing_pack instead
 --
@@ -96,6 +99,7 @@ entity frame_timing is
       num_cols_reported_o        : out integer;
       
       -- Address Card interface
+      row_count_o                : out std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
          
@@ -148,6 +152,7 @@ architecture beh of frame_timing is
          sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
          
          -- Address Card interface
+         row_count_o                : out std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
          row_switch_o               : out std_logic;
          row_en_o                   : out std_logic;
             
@@ -259,6 +264,7 @@ begin
          sync_num_o                => sync_num_o,
                                   
          -- Address Card interface    
+         row_count_o               => row_count_o,
          row_switch_o              => row_switch_o,             
          row_en_o                  => row_en_o,                 
                                          

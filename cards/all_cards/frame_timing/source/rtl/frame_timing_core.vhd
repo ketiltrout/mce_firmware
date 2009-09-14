@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.13 2008/06/17 18:46:30 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.14 2009/03/19 20:15:51 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.14  2009/03/19 20:15:51  bburger
+-- *** empty log message ***
+--
 -- Revision 1.13  2008/06/17 18:46:30  bburger
 -- BB:  Added the error_o interface which is asserted if there is a slip in the timing of sync pulses, caused by missing a sync pulse, or receiving a spurrious one.
 --
@@ -112,6 +115,7 @@ entity frame_timing_core is
       sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- Address Card interface
+      row_count_o                : out std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
 
@@ -158,8 +162,8 @@ architecture beh of frame_timing_core is
    signal frame_count_b           : integer range 0 to 2147483647;
    
    -- This counts the length of a row (row_len)
-   signal row_count_int           : integer range 0 to (2**16)-1;
-   signal row_count_new           : integer range 0 to (2**16)-1;
+   signal row_count_int           : integer range 0 to (2**ROW_COUNT_WIDTH)-1;
+   signal row_count_new           : integer range 0 to (2**ROW_COUNT_WIDTH)-1;
    
    signal enable_counters         : std_logic;
    signal sync_received           : std_logic;
@@ -220,6 +224,7 @@ begin
       end if;
    end process frame_period_cntr;
 
+   row_count_o <= std_logic_vector(conv_signed(row_count_int, 16));
    row_count_new <= (row_count_int + 1) when row_count_int < (row_len_i-1) and sync_received = '0' else 0;
    row_dwell_cntr: process(clk_i, rst_i)
    begin
