@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.72 2009/07/11 00:18:53 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.73 2009/08/21 22:26:21 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.73  2009/08/21 22:26:21  bburger
+-- BB: changed a wait period from 50 to 150 us
+--
 -- Revision 1.72  2009/07/11 00:18:53  bburger
 -- BB: stratix iii development
 --
@@ -743,7 +746,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc4_sample_num_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4    & x"00" & SAMPLE_NUM_ADDR;
    constant rc4_fb_dly_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4    & x"00" & FB_DLY_ADDR;
    constant rc4_flx_lp_init_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4    & x"00" & FLX_LP_INIT_ADDR;
-   constant rc4_row_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4    & x"00" & ROW_DLY_ADDR;
+--   constant rc4_row_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4    & x"00" & ROW_DLY_ADDR;
 
    constant all_scratch_cmd          : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS        & x"00" & SCRATCH_ADDR;
    constant cc_scratch_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SCRATCH_ADDR;
@@ -863,6 +866,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ac_const_mode_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_MODE_ADDR;
    constant ac_const_val_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_VAL_ADDR;
    constant ac_const_val39_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_VAL39_ADDR;
+   constant ac_bias_start_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & BIAS_START_ADDR;
 
    constant bc1_flux_fb_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & FLUX_FB_ADDR;
    constant bc1_bias_cmd            : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & BIAS_ADDR;
@@ -877,7 +881,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant all_sample_num_cmd      : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & SAMPLE_NUM_ADDR;
    constant all_fb_dly_cmd          : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & FB_DLY_ADDR;
    constant all_flx_lp_init_cmd     : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & FLX_LP_INIT_ADDR;
-   constant all_row_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & ROW_DLY_ADDR;
+--   constant all_row_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & ROW_DLY_ADDR;
    constant all_num_rows_reported_cmd : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS       & x"00" & NUM_ROWS_REPORTED_ADDR;
    constant all_num_cols_reported_cmd : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS       & x"00" & NUM_COLS_REPORTED_ADDR;
 
@@ -2032,100 +2036,100 @@ begin
 --         card_id        => rc1_card_id,
 --         mictor         => rc1_mictor
 --      );
-   
-   i_readout_card1 : readout_card_stratix_iii
-      port map(
-         dev_clr_n      => rst_n, --: in std_logic;
-         inclk          => lvds_clk, --: in std_logic;
-         inclk_ddr      => '0', --: in std_logic;
-         adc0_lvds_p    => rc1_adc1_dat(0), --: in std_logic; 
-         adc1_lvds_p    => rc1_adc2_dat(1), --: in std_logic; 
-         adc2_lvds_p    => rc1_adc3_dat(2), --: in std_logic; 
-         adc3_lvds_p    => rc1_adc4_dat(3), --: in std_logic; 
-         adc4_lvds_p    => rc1_adc5_dat(4), --: in std_logic; 
-         adc5_lvds_p    => rc1_adc6_dat(5), --: in std_logic; 
-         adc6_lvds_p    => rc1_adc7_dat(6), --: in std_logic; 
-         adc7_lvds_p    => rc1_adc8_dat(7), --: in std_logic; 
-         adc_fco_p      => fco_clk, --: in std_logic;
-         adc_clk_p      => open, --: out std_logic; 
-         adc_sclk       => open, --: out std_logic;
-         adc_sdio       => open, --: inout std_logic; 
-         adc_csb_n      => open, --: out std_logic; 
-         adc_pdwn       => open, --: out std_logic;
-         adc_dco_p      => '0', --: in std_logic;
-         dac_clr_n      => open, --: out std_logic; -- Implement this!!
-         dac0_dfb_dat   => rc1_dac_FB1_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac1_dfb_dat   => rc1_dac_FB2_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac2_dfb_dat   => rc1_dac_FB3_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac3_dfb_dat   => rc1_dac_FB4_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac4_dfb_dat   => rc1_dac_FB5_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac5_dfb_dat   => rc1_dac_FB6_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac6_dfb_dat   => rc1_dac_FB7_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac7_dfb_dat   => rc1_dac_FB8_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_dfb_clk    => rc1_dac_FB_clk, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         dac_clk        => rc1_dac_clk, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         dac_dat        => rc1_dac_dat, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         bias_dac_ncs   => rc1_bias_dac_ncs, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         offset_dac_ncs => rc1_offset_dac_ncs, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         lvds_cmd       => lvds_cmd, --: in std_logic;
-         lvds_sync      => lvds_sync, --: in std_logic;
-         lvds_spare     => lvds_spare, --: in std_logic;
-         lvds_txa       => rc1_lvds_txa, --: out std_logic;
-         lvds_txb       => rc1_lvds_txb, --: out std_logic;
-         ttl_dir1       => rc1_ttl_dir1, --: out std_logic;
-         ttl_in1        => bclr_n, --: in std_logic;
-         ttl_out1       => open, --: out std_logic;
-         ttl_dir2       => rc1_ttl_dir2, --: out std_logic;
-         ttl_in2        => rc1_ttl_in2, --: in std_logic;
-         ttl_out2       => open, --: out std_logic;
-         ttl_dir3       => rc1_ttl_dir3, --: out std_logic;
-         ttl_in3        => rc1_ttl_in3, --: in std_logic;
-         ttl_out3       => open, --: out std_logic;
-         red_led        => rc1_red_led, --: out std_logic;
-         ylw_led        => rc1_ylw_led, --: out std_logic;
-         grn_led        => rc1_grn_led, --: out std_logic;
-         dip0           => '0',
-         dip1           => '0',
-         dip2           => rc1_dip_sw3, --: in std_logic;
-         dip3           => rc1_dip_sw4, --: in std_logic;
-         wdog           => rc1_wdog, --: out std_logic;
-         rs232_tx       => open, --: out std_logic;
-         rs232_rx       => '0', --: in std_logic;
-         eeprom_si      => '0', --: in std_logic; -- Implement this
-         eeprom_so      => open, --: out std_logic; -- Implement this
-         eeprom_sck     => open, --: out std_logic; -- Implement this
-         eeprom_cs      => open, --: out std_logic; -- Implement this
-         crc_error_in   => '0', --: in std_logic; -- Implement this
-         critical_error => '0', --: in std_logic; -- Implement this
-         extend_n       => '1', --: in std_logic; -- Implement this   
-         slot_id        => rc1_slot_id,
-         card_id        => open, --: inout std_logic;
-         smb_clk        => open, --: out std_logic;
-         smb_nalert     => '0', --: in std_logic;
-         smb_data       => open, --: inout std_logic;      
-
-         mem_odt        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-         mem_cke        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-         mem_clk        => open, --: INOUT std_logic_vector (0 DOWNTO 0);
-         mem_clk_n      => open, --: INOUT std_logic_vector (0 DOWNTO 0);
-         mem_cs_n       => open, --: OUT std_logic_vector (0 DOWNTO 0);
-         mem_cas_n      => open, --: OUT std_logic;
-         mem_ras_n      => open, --: OUT std_logic;
-         mem_we_n       => open, --: OUT std_logic;
-         mem_addr          => open, --: OUT std_logic_vector (12 DOWNTO 0);
-         mem_ba         => open, --: OUT std_logic_vector (1 DOWNTO 0);
-         mem_dq         => open, --: INOUT std_logic_vector (15 DOWNTO 0);
---         ddr_ldm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
---         ddr_udm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-         mem_dm         => open,
-         mem_dqs        => open, --: INOUT std_logic_vector (1 DOWNTO 0);
-         mem_dqsn       => open, --: INOUT std_logic_vector (1 DOWNTO 0);
-         mictor_clk     => open, --: out std_logic; -- Implement this!!!
-         pnf            => open, --: OUT std_logic;
-         pnf_per_byte   => open, --: OUT std_logic_vector (7 DOWNTO 0);
-         test_complete  => open, --: OUT std_logic;
-         test_status    => open --: OUT std_logic_vector (7 DOWNTO 0)
-      );  
+--   
+--   i_readout_card1 : readout_card_stratix_iii
+--      port map(
+--         dev_clr_n      => rst_n, --: in std_logic;
+--         inclk          => lvds_clk, --: in std_logic;
+--         inclk_ddr      => '0', --: in std_logic;
+--         adc0_lvds_p    => rc1_adc1_dat(0), --: in std_logic; 
+--         adc1_lvds_p    => rc1_adc2_dat(1), --: in std_logic; 
+--         adc2_lvds_p    => rc1_adc3_dat(2), --: in std_logic; 
+--         adc3_lvds_p    => rc1_adc4_dat(3), --: in std_logic; 
+--         adc4_lvds_p    => rc1_adc5_dat(4), --: in std_logic; 
+--         adc5_lvds_p    => rc1_adc6_dat(5), --: in std_logic; 
+--         adc6_lvds_p    => rc1_adc7_dat(6), --: in std_logic; 
+--         adc7_lvds_p    => rc1_adc8_dat(7), --: in std_logic; 
+--         adc_fco_p      => fco_clk, --: in std_logic;
+--         adc_clk_p      => open, --: out std_logic; 
+--         adc_sclk       => open, --: out std_logic;
+--         adc_sdio       => open, --: inout std_logic; 
+--         adc_csb_n      => open, --: out std_logic; 
+--         adc_pdwn       => open, --: out std_logic;
+--         adc_dco_p      => '0', --: in std_logic;
+--         dac_clr_n      => open, --: out std_logic; -- Implement this!!
+--         dac0_dfb_dat   => rc1_dac_FB1_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac1_dfb_dat   => rc1_dac_FB2_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac2_dfb_dat   => rc1_dac_FB3_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac3_dfb_dat   => rc1_dac_FB4_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac4_dfb_dat   => rc1_dac_FB5_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac5_dfb_dat   => rc1_dac_FB6_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac6_dfb_dat   => rc1_dac_FB7_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac7_dfb_dat   => rc1_dac_FB8_dat, --: out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--         dac_dfb_clk    => rc1_dac_FB_clk, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
+--         dac_clk        => rc1_dac_clk, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
+--         dac_dat        => rc1_dac_dat, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
+--         bias_dac_ncs   => rc1_bias_dac_ncs, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
+--         offset_dac_ncs => rc1_offset_dac_ncs, --: out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
+--         lvds_cmd       => lvds_cmd, --: in std_logic;
+--         lvds_sync      => lvds_sync, --: in std_logic;
+--         lvds_spare     => lvds_spare, --: in std_logic;
+--         lvds_txa       => rc1_lvds_txa, --: out std_logic;
+--         lvds_txb       => rc1_lvds_txb, --: out std_logic;
+--         ttl_dir1       => rc1_ttl_dir1, --: out std_logic;
+--         ttl_in1        => bclr_n, --: in std_logic;
+--         ttl_out1       => open, --: out std_logic;
+--         ttl_dir2       => rc1_ttl_dir2, --: out std_logic;
+--         ttl_in2        => rc1_ttl_in2, --: in std_logic;
+--         ttl_out2       => open, --: out std_logic;
+--         ttl_dir3       => rc1_ttl_dir3, --: out std_logic;
+--         ttl_in3        => rc1_ttl_in3, --: in std_logic;
+--         ttl_out3       => open, --: out std_logic;
+--         red_led        => rc1_red_led, --: out std_logic;
+--         ylw_led        => rc1_ylw_led, --: out std_logic;
+--         grn_led        => rc1_grn_led, --: out std_logic;
+--         dip0           => '0',
+--         dip1           => '0',
+--         dip2           => rc1_dip_sw3, --: in std_logic;
+--         dip3           => rc1_dip_sw4, --: in std_logic;
+--         wdog           => rc1_wdog, --: out std_logic;
+--         rs232_tx       => open, --: out std_logic;
+--         rs232_rx       => '0', --: in std_logic;
+--         eeprom_si      => '0', --: in std_logic; -- Implement this
+--         eeprom_so      => open, --: out std_logic; -- Implement this
+--         eeprom_sck     => open, --: out std_logic; -- Implement this
+--         eeprom_cs      => open, --: out std_logic; -- Implement this
+--         crc_error_in   => '0', --: in std_logic; -- Implement this
+--         critical_error => '0', --: in std_logic; -- Implement this
+--         extend_n       => '1', --: in std_logic; -- Implement this   
+--         slot_id        => rc1_slot_id,
+--         card_id        => open, --: inout std_logic;
+--         smb_clk        => open, --: out std_logic;
+--         smb_nalert     => '0', --: in std_logic;
+--         smb_data       => open, --: inout std_logic;      
+--
+--         mem_odt        => open, --: OUT std_logic_vector (0 DOWNTO 0);
+--         mem_cke        => open, --: OUT std_logic_vector (0 DOWNTO 0);
+--         mem_clk        => open, --: INOUT std_logic_vector (0 DOWNTO 0);
+--         mem_clk_n      => open, --: INOUT std_logic_vector (0 DOWNTO 0);
+--         mem_cs_n       => open, --: OUT std_logic_vector (0 DOWNTO 0);
+--         mem_cas_n      => open, --: OUT std_logic;
+--         mem_ras_n      => open, --: OUT std_logic;
+--         mem_we_n       => open, --: OUT std_logic;
+--         mem_addr          => open, --: OUT std_logic_vector (12 DOWNTO 0);
+--         mem_ba         => open, --: OUT std_logic_vector (1 DOWNTO 0);
+--         mem_dq         => open, --: INOUT std_logic_vector (15 DOWNTO 0);
+----         ddr_ldm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
+----         ddr_udm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
+--         mem_dm         => open,
+--         mem_dqs        => open, --: INOUT std_logic_vector (1 DOWNTO 0);
+--         mem_dqsn       => open, --: INOUT std_logic_vector (1 DOWNTO 0);
+--         mictor_clk     => open, --: out std_logic; -- Implement this!!!
+--         pnf            => open, --: OUT std_logic;
+--         pnf_per_byte   => open, --: OUT std_logic_vector (7 DOWNTO 0);
+--         test_complete  => open, --: OUT std_logic;
+--         test_status    => open --: OUT std_logic_vector (7 DOWNTO 0)
+--      );  
 
 --
 --   i_bias_card3: bias_card
@@ -2308,70 +2312,70 @@ begin
 --         tx            => bc1_rs232_tx
 --      );
 --
---   i_addr_card : addr_card
---      port map
---      (
---         -- PLL input:
---         inclk            => lvds_clk,
---         rst_n            => rst_n,
---
---         -- LVDS interface:
---         lvds_cmd         => lvds_cmd,
---         lvds_sync        => lvds_sync,
---         lvds_spare       => lvds_spare,
---         lvds_txa         => lvds_reply_ac_a,
---         lvds_txb         => lvds_reply_ac_b,
---
---         -- TTL interface:
---         ttl_nrx1         => bclr_n,
---         ttl_tx1          => open,
---         ttl_txena1       => ac_ttl_txena1,
---
---         ttl_nrx2         => ac_ttl_nrx2,
---         ttl_tx2          => open,
---         ttl_txena2       => ac_ttl_txena2,
---
---         ttl_nrx3         => ac_ttl_nrx3,
---         ttl_tx3          => open,
---         ttl_txena3       => ac_ttl_txena3,
---
---         -- eeprom interface:
---         eeprom_si        => ac_eeprom_si,
---         eeprom_so        => ac_eeprom_so,
---         eeprom_sck       => ac_eeprom_sck,
---         eeprom_cs        => ac_eeprom_cs,
---
---         -- dac interface:
---         dac_data0        => ac_dac_data0,
---         dac_data1        => ac_dac_data1,
---         dac_data2        => ac_dac_data2,
---         dac_data3        => ac_dac_data3,
---         dac_data4        => ac_dac_data4,
---         dac_data5        => ac_dac_data5,
---         dac_data6        => ac_dac_data6,
---         dac_data7        => ac_dac_data7,
---         dac_data8        => ac_dac_data8,
---         dac_data9        => ac_dac_data9,
---         dac_data10       => ac_dac_data10,
---         dac_clk          => ac_dac_clk,
---
---         -- miscellaneous ports:
---         red_led          => ac_red_led,
---         ylw_led          => ac_ylw_led,
---         grn_led          => ac_grn_led,
---         dip_sw3          => ac_dip_sw3,
---         dip_sw4          => ac_dip_sw4,
---         wdog             => ac_wdog,
---         slot_id          => ac_slot_id,
---         smb_nalert       => '1',
---
---         -- debug ports:
---         test             => ac_test,
---         mictor           => ac_mictor,
---         mictorclk        => ac_mictorclk,
---         rx               => ac_rs232_rx,
---         tx               => ac_rs232_tx
---      );
+   i_addr_card : addr_card
+      port map
+      (
+         -- PLL input:
+         inclk            => lvds_clk,
+         rst_n            => rst_n,
+
+         -- LVDS interface:
+         lvds_cmd         => lvds_cmd,
+         lvds_sync        => lvds_sync,
+         lvds_spare       => lvds_spare,
+         lvds_txa         => lvds_reply_ac_a,
+         lvds_txb         => lvds_reply_ac_b,
+
+         -- TTL interface:
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => open,
+         ttl_txena1       => ac_ttl_txena1,
+
+         ttl_nrx2         => ac_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => ac_ttl_txena2,
+
+         ttl_nrx3         => ac_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => ac_ttl_txena3,
+
+         -- eeprom interface:
+         eeprom_si        => ac_eeprom_si,
+         eeprom_so        => ac_eeprom_so,
+         eeprom_sck       => ac_eeprom_sck,
+         eeprom_cs        => ac_eeprom_cs,
+
+         -- dac interface:
+         dac_data0        => ac_dac_data0,
+         dac_data1        => ac_dac_data1,
+         dac_data2        => ac_dac_data2,
+         dac_data3        => ac_dac_data3,
+         dac_data4        => ac_dac_data4,
+         dac_data5        => ac_dac_data5,
+         dac_data6        => ac_dac_data6,
+         dac_data7        => ac_dac_data7,
+         dac_data8        => ac_dac_data8,
+         dac_data9        => ac_dac_data9,
+         dac_data10       => ac_dac_data10,
+         dac_clk          => ac_dac_clk,
+
+         -- miscellaneous ports:
+         red_led          => ac_red_led,
+         ylw_led          => ac_ylw_led,
+         grn_led          => ac_grn_led,
+         dip_sw3          => ac_dip_sw3,
+         dip_sw4          => ac_dip_sw4,
+         wdog             => ac_wdog,
+         slot_id          => ac_slot_id,
+         smb_nalert       => '1',
+
+         -- debug ports:
+         test             => ac_test,
+         mictor           => ac_mictor,
+         mictorclk        => ac_mictorclk,
+         rx               => ac_rs232_rx,
+         tx               => ac_rs232_tx
+      );
 
    ------------------------------------------------
    -- Create test bench stimuli
@@ -2787,82 +2791,43 @@ begin
 
       -- Wait for the BRst to finish, which takes 100us
       present_sim_state <= NOTHING;
-      wait for 120 us;
-
-      wait for 50 us;
+      wait for 150 us;
 
       command <= command_wb;
-      address_id <= rc1_readout_col_index_cmd;
+      address_id <= ac_bias_start_cmd;
+      data_valid <= X"00000029";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_rb;
+      address_id <= ac_bias_start_cmd;
+      data_valid <= X"00000029";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+      
+      command <= command_wb;
+      address_id <= ac_row_order_cmd;
+      data_valid <= X"00000029";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;      
+
+      command <= command_wb;
+      address_id <= ac_enbl_mux_cmd;
       data_valid <= X"00000001";
       data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 150 us;
---
---      command <= command_wb;
---      address_id <= rc1_readout_row_index_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---      
---      command <= command_wb;
---      address_id <= rc1_num_cols_reported_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000004";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= rc1_num_rows_reported_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000002";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;      
---
---      command <= command_wb;
---      address_id <= rc1_data_mode_cmd;
---      data_valid <= X"00000001";
---      data       <= X"0000000B";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---      
---      command <= command_wb;
---      address_id <= cc_data_rate_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000029";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= cc_ret_dat_s_cmd;
---      data_valid <= X"00000002";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_go;
---      address_id <= rc1_ret_dat_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 10000 us;
-
+      wait for 200 us;      
 
 ------------------------------------------------------
 
