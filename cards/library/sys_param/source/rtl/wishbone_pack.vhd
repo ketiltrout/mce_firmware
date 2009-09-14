@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/12/22 20:30:48 $> - <initials $Author: bburger $>
+-- <date $Date: 2009/01/16 01:59:52 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.51  2009/01/16 01:59:52  bburger
+-- BB: Renamed num_rows_reported, and added num_cols_reported
+--
 -- Revision 1.50  2008/12/22 20:30:48  bburger
 -- BB:  Added new commands to support reading out columns of data.
 --
@@ -245,6 +248,7 @@ package wishbone_pack is
    constant CONST_MODE_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
    constant CONST_VAL_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
    constant CONST_VAL39_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"08";
+   constant BIAS_START_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"09";
 
    ---------------------------------------------------------------------------------------
    -- Address Card Specific Parameter IDs
