@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.16 2008/06/17 19:02:25 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.17 2008/12/22 20:36:21 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.17  2008/12/22 20:36:21  bburger
+-- BB:  Added a comment
+--
 -- Revision 1.16  2008/06/17 19:02:25  bburger
 -- BB:  Added support for const_val39, for revision ac_v02000007. Now adding a comment in the history.  This is a test.
 --
@@ -106,7 +109,7 @@ entity ac_dac_ctrl is
    port(
       -- DAC hardware interface:
       dac_data_o              : out w14_array11;
-      dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
+      dac_clks_o              : out std_logic_vector(AC_NUM_DACS-1 downto 0);
 
       -- wishbone interface:
       dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -119,6 +122,7 @@ entity ac_dac_ctrl is
       ack_o                   : out std_logic;
 
       -- frame_timing interface:
+      row_count_i             : in std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
       row_switch_i            : in std_logic;
       restart_frame_aligned_i : in std_logic;
       restart_frame_1row_prev_i : in std_logic;
@@ -149,8 +153,10 @@ architecture rtl of ac_dac_ctrl is
    -- ADC Signals
    -----------------------------------------------------------------------
    -- Row Addressing FSM signals:
+   constant FSM_DELAY         : std_logic_vector(ROW_COUNT_WIDTH-1 downto 0) := x"0002";
+
    type row_states is (IDLE, BC_LATCH1, BC_LATCH2, BC_LATCH3, BC_LATCH4,
-      BC_LATCH_NEW_ROW_INDEX, BC_WAIT_FOR_ROW_SWITCH, AC_LATCH_OFF,
+      BC_LATCH_NEW_ROW_INDEX, BC_WAIT_FOR_ROW_SWITCH, AC_LATCH_OFF, AC_ROW_DLY,
       AC_LATCH_ON, AC_LATCH_NEW_ROW_INDEX, AC_WAIT_FOR_ROW_SWITCH);
    signal row_current_state   : row_states;
    signal row_next_state      : row_states;
@@ -159,6 +165,7 @@ architecture rtl of ac_dac_ctrl is
    signal const_current_state : const_states;
    signal const_next_state    : const_states;
 
+   signal row_count           : std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
    signal frame_aligned_reg   : std_logic;
    signal mux_en              : integer range 0 to 2;
    signal prev_row_count      : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
@@ -167,20 +174,20 @@ architecture rtl of ac_dac_ctrl is
    -- DAC signals
    signal k                   : integer range 0 to AC_NUM_BUSES;
    signal dac_id_int          : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal tga_int             : integer range 0 to AC_NUM_DACS-1;
+   signal tga_int             : integer range 0 to MAX_NUM_OF_ROWS-1;
 
-   signal fb_wren             : w1_array41;
-   signal pre_reg_data        : w14_array41;
-   signal fast_dac_data       : w14_array41;
-   signal dataa               : w32_array41;
+   signal fb_wren             : w1_array64;
+   signal pre_reg_data        : w14_array64;
+   signal fast_dac_data       : w14_array64;
+   signal dataa               : w32_array64;
    -- datab needs to be a vector of 64 signals, because its addressed using ROW_ADDR_WIDTH, which is 6 bits wide: 2^6 = 64
    signal datab               : w32_array64;
 
-   signal mode_wren_vec       : w1_array41;
-   signal val_wren_vec        : w1_array41;
-   signal mode_data_slv       : std_logic_vector(NUM_OF_ROWS-1 downto 0);
-   signal mode_data_vec       : w32_array41;
-   signal const_data_vec      : w32_array41;
+   signal mode_wren_vec       : w1_array64;
+   signal val_wren_vec        : w1_array64;
+   signal mode_data_slv       : std_logic_vector(MAX_NUM_OF_ROWS-1 downto 0);
+   signal mode_data_vec       : w32_array64;
+   signal const_data_vec      : w32_array64;
    signal mode_data           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal const_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal val_changing        : std_logic;
@@ -189,14 +196,14 @@ architecture rtl of ac_dac_ctrl is
    signal update_const_dly2   : std_logic;
    signal update_const_ack    : std_logic;
 
-   signal dac_clks            : std_logic_vector(NUM_OF_ROWS-1 downto 0);
-   constant DAC_NO_CLKS       : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00000000000000000000000000000000000000000";
-   constant DAC_ALL_CLKS      : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "11111111111111111111111111111111111111111";
-   constant DAC_CLKS1         : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "10000001100000011000000110000001100000011";
-   constant DAC_CLKS2         : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00000110000001100000011000000110000001100";
-   constant DAC_CLKS3         : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "00011000000110000001100000011000000110000";
-   constant DAC_CLKS4         : std_logic_vector(NUM_OF_ROWS-1 downto 0) := "01100000011000000110000001100000011000000";
-
+   signal dac_clks            : std_logic_vector(AC_NUM_DACS-1 downto 0);
+   constant DAC_NO_CLKS       : std_logic_vector(AC_NUM_DACS-1 downto 0) := "00000000000000000000000000000000000000000";
+   constant DAC_ALL_CLKS      : std_logic_vector(AC_NUM_DACS-1 downto 0) := "11111111111111111111111111111111111111111";
+   constant DAC_CLKS1         : std_logic_vector(AC_NUM_DACS-1 downto 0) := "10000001100000011000000110000001100000011";
+   constant DAC_CLKS2         : std_logic_vector(AC_NUM_DACS-1 downto 0) := "00000110000001100000011000000110000001100";
+   constant DAC_CLKS3         : std_logic_vector(AC_NUM_DACS-1 downto 0) := "00011000000110000001100000011000000110000";
+   constant DAC_CLKS4         : std_logic_vector(AC_NUM_DACS-1 downto 0) := "01100000011000000110000001100000011000000";
+   
    -----------------------------------------------------------------------
    -- WBS Signals
    -----------------------------------------------------------------------
@@ -231,14 +238,17 @@ architecture rtl of ac_dac_ctrl is
    signal rd_cmd            : std_logic;
 
    -- RAM/Register signals
+   signal bias_start_wren      : std_logic;
    signal on_val_wren       : std_logic;
    signal off_val_wren      : std_logic;
    signal row_order_wren    : std_logic;
    signal mux_en_wren       : std_logic;
    signal mux_en_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal bias_start_dataa  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal bias_start_datab  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal on_dataa          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal off_dataa         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal on_datab          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal off_dataa         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal off_datab         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal row_order_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal slow_dac_data_on  : std_logic_vector(14-1 downto 0);
@@ -338,7 +348,8 @@ begin
       end if;
    end process state_FF2;
 
-   row_state_NS: process(row_current_state, restart_frame_aligned_i, mux_en, row_switch_i, update_const)
+   row_count <= row_count_i + FSM_DELAY;
+   row_state_NS: process(row_current_state, restart_frame_aligned_i, mux_en, row_switch_i, update_const, bias_start_dataa, row_count)
    begin
       -- Default assignments
       row_next_state <= row_current_state;
@@ -359,8 +370,13 @@ begin
          --  This is MUX Mode #1:  One DAC turned off and on every new row
          ------------------------------------------------------------------
          when AC_LATCH_OFF =>
-            row_next_state <= AC_LATCH_ON;
+            row_next_state <= AC_ROW_DLY;
 
+         when AC_ROW_DLY =>
+            if(bias_start_dataa(ROW_COUNT_WIDTH-1 downto 0) <= row_count) then
+               row_next_state <= AC_LATCH_ON;
+            end if;
+            
          when AC_LATCH_ON =>
             row_next_state <= AC_LATCH_NEW_ROW_INDEX;
 
@@ -500,6 +516,23 @@ begin
                dac_clks(row_to_turn_off_int) <= (not mode_data_slv(row_to_turn_off_int));
             end if;
 
+         when AC_ROW_DLY =>
+            dac_data_o(0)  <= slow_dac_data_on;
+            dac_data_o(1)  <= slow_dac_data_on;
+            dac_data_o(2)  <= slow_dac_data_on;
+            dac_data_o(3)  <= slow_dac_data_on;
+            dac_data_o(4)  <= slow_dac_data_on;
+            dac_data_o(5)  <= slow_dac_data_on;
+            dac_data_o(6)  <= slow_dac_data_on;
+            dac_data_o(7)  <= slow_dac_data_on;
+            dac_data_o(8)  <= slow_dac_data_on;
+            dac_data_o(9)  <= slow_dac_data_on;
+            dac_data_o(10) <= slow_dac_data_on;
+
+         -- BB: There might be a bug here.
+         -- If we are turning on the same row that we just turned off, we won't actually turn it on because the dac_clk signal is not deasserted!
+         -- Add a wait state between AC_LATCH_OFF and AC_LATCH_ON
+         -- Ha, no it's fine.  The dac_clks_o signal is anded with clk_i_n to prevent this bug.
          when AC_LATCH_ON =>
             dac_data_o(0)  <= slow_dac_data_on;
             dac_data_o(1)  <= slow_dac_data_on;
@@ -825,6 +858,7 @@ begin
    begin
       -- Default assignments
       fb_wren        <= (others => '0');
+      bias_start_wren   <= '0';
       off_val_wren   <= '0';
       on_val_wren    <= '0';
       mux_en_wren    <= '0';
@@ -845,6 +879,8 @@ begin
             if(stb_i = '1') then
                if(addr_i = ON_BIAS_ADDR) then
                   on_val_wren            <= '1';
+               elsif(addr_i = BIAS_START_ADDR) then
+                  bias_start_wren           <= '1';
                elsif(addr_i = OFF_BIAS_ADDR) then
                   off_val_wren           <= '1';
                elsif(addr_i = ENBL_MUX_ADDR) then
@@ -903,6 +939,7 @@ begin
       mode_data          when (addr_i = CONST_MODE_ADDR) else
       const_data         when (addr_i = CONST_VAL_ADDR) else
       const_data_vec(39) when (addr_i = CONST_VAL39_ADDR) else
+      bias_start_datab      when (addr_i = BIAS_START_ADDR) else
       datab_mux          when ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR)) else
       (others => '0');
 
@@ -915,6 +952,7 @@ begin
          addr_i = CONST_MODE_ADDR or
          addr_i = CONST_VAL_ADDR or
          addr_i = CONST_VAL39_ADDR or
+         addr_i = BIAS_START_ADDR or
          ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR))) else '0';
 
    wr_cmd  <= '1' when
@@ -926,18 +964,32 @@ begin
          addr_i = CONST_MODE_ADDR or
          addr_i = CONST_VAL_ADDR or
          addr_i = CONST_VAL39_ADDR or
+         addr_i = BIAS_START_ADDR or
          ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR))) else '0';
 
    -----------------------------------------------------------------------
    -- RAM Storage
    -----------------------------------------------------------------------
+   -- row_dly command handling was moved here from frame_timing because the row-order must drive which delay is used.
+   bias_start_ram : tpram_32bit_x_64
+      port map(
+         data              => dat_i,
+         wren              => bias_start_wren,
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
+         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
+         clock             => clk_i,
+         qa                => bias_start_dataa,
+         qb                => bias_start_datab
+      );
+
    on_ram : tpram_32bit_x_64
       port map(
          data              => dat_i,
          wren              => on_val_wren,
-         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
-         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          clock             => clk_i,
          qa                => on_dataa,
          qb                => on_datab
@@ -947,9 +999,9 @@ begin
       port map(
          data              => dat_i,
          wren              => off_val_wren,
-         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          rdaddress_a       => row_to_turn_off_slv(ROW_ADDR_WIDTH-1 downto 0),
-         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          clock             => clk_i,
          qa                => off_dataa,
          qb                => off_datab
@@ -959,9 +1011,9 @@ begin
       port map(
          data              => dat_i,
          wren              => row_order_wren,
-         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          rdaddress_a       => row_order_index_slv,
-         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          clock             => clk_i,
          qa                => row_to_turn_on_slv,
          qb                => row_order_data
@@ -1020,9 +1072,9 @@ begin
       port map(
          data              => dat_i,
          wren              => fb_wren(i),
-         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
-         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          clock             => clk_i,
          qa                => dataa(i),
          qb                => datab(i)
