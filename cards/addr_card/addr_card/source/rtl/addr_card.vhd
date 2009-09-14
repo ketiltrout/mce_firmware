@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.33  2009/09/14 20:06:22  bburger
+-- BB: v5.0.1 incorporates BIAS_START_ADDR command
+--
 -- Revision 1.32  2009/03/19 20:19:14  bburger
 -- BB:  Added default TTL outputs
 --
@@ -275,14 +278,16 @@ begin
    -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not rst_n) or (ttl_nrx1);
 
-   clk_n <= not clk;
+   -- For simulation; for some reason, the PLL adds an unexpected phase shift between the clk_n and clk.
+   --clk_n <= not clk;
+   
    pll0: ac_pll
    port map(
       inclk0 => inclk,
       c0 => clk,
       c1 => mem_clk,
       c2 => comm_clk,
-      c3 => open--clk_n
+      c3 => clk_n
    );
 
    cmd0: dispatch
