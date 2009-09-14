@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.11 2009/01/16 01:33:39 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.12 2009/05/27 01:20:29 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2009/01/16 01:33:39 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2009/05/27 01:20:29 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.12  2009/05/27 01:20:29  bburger
+-- BB: corrected a comment
+--
 -- Revision 1.11  2009/01/16 01:33:39  bburger
 -- BB: Added two default constants (DEFAULT_NUM_ROWS_REPORTED, DEFAULT_NUM_COLS_REPORTED)
 --
@@ -95,14 +98,16 @@ use sys_param.wishbone_pack.all;
 package frame_timing_pack is
 
    constant MUX_LINE_PERIOD        : integer := 64; -- 64 50MHz cycles
+   constant MAX_NUM_OF_ROWS        : integer := 64;
    constant NUM_OF_ROWS            : integer := 41;
-   constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1;
+--   constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1;
    constant SYNC_PULSE_BIT0        : std_logic := '1';
    constant SYNC_PULSE_BIT1        : std_logic := '0';
    constant SYNC_PULSE_BIT2        : std_logic := '0';
    constant SYNC_PULSE_BIT3        : std_logic := '0';
    constant SYNC_NUM_WIDTH         : integer := 32;
    constant ISSUE_SYNC_WIDTH       : integer := SYNC_NUM_WIDTH;
+   constant ROW_COUNT_WIDTH        : integer := 16;
    
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure
@@ -123,13 +128,13 @@ package frame_timing_pack is
    -- blackout period begins midway through the issue of u-ops from a single m-op, the
    -- command queue will finish issuing them.  In other words, all u-ops generated from
    -- a single m-op are treated as an atomic unit.
-   constant START_OF_BLACKOUT : integer := END_OF_FRAME - 800;
+--   constant START_OF_BLACKOUT : integer := END_OF_FRAME - 800;
 
    -- RETIRE_TIMEOUT indicates at what point in a frame all the commands that were
    -- in that frame must be retired.
    -- If some commands remain to be retired at the end of a frame, some type of error
    -- recovery must be initiated
-   constant RETIRE_TIMEOUT    : integer := END_OF_FRAME;
+--   constant RETIRE_TIMEOUT    : integer := END_OF_FRAME;
 
    ------------------------------------------------------------------------------------
    -- Timing constants for the Readout Card
