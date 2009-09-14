@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.17 2008/12/22 20:36:21 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.18 2009/09/14 20:11:12 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.18  2009/09/14 20:11:12  bburger
+-- BB: support added for BIAS_START_ADDR added to the mux_en = 1 branch of the FSM
+--
 -- Revision 1.17  2008/12/22 20:36:21  bburger
 -- BB:  Added a comment
 --
@@ -185,7 +188,7 @@ architecture rtl of ac_dac_ctrl is
 
    signal mode_wren_vec       : w1_array64;
    signal val_wren_vec        : w1_array64;
-   signal mode_data_slv       : std_logic_vector(MAX_NUM_OF_ROWS-1 downto 0);
+   signal mode_data_slv       : std_logic_vector(AC_NUM_DACS-1 downto 0);
    signal mode_data_vec       : w32_array64;
    signal const_data_vec      : w32_array64;
    signal mode_data           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
