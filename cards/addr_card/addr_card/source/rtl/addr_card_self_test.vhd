@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: addr_card_self_test.vhd,v 1.4 2005/01/31 23:34:33 mandana Exp $
+-- $Id: addr_card_self_test.vhd,v 1.1 2005/02/14 21:57:35 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -29,8 +29,11 @@
 -- self-test blocks to create the packets and feed them in to bias card
 --
 -- Revision history:
--- <date $Date: 2005/01/31 23:34:33 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/02/14 21:57:35 $>    - <initials $Author: mandana $>
 -- $Log: addr_card_self_test.vhd,v $
+-- Revision 1.1  2005/02/14 21:57:35  mandana
+-- moved from tb directory
+--
 -- Revision 1.4  2005/01/31 23:34:33  mandana
 -- added comment for the delay value i
 --
@@ -177,14 +180,14 @@ signal ac_slot_id        : std_logic_vector(3 downto 0);
 signal ttl_nrx1          : std_logic;
 
 component packet_ram
-	PORT
-	(
-		address		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-		clock		: IN STD_LOGIC ;
-		data		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-		wren		: IN STD_LOGIC ;
-		q		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-	);
+   PORT
+   (
+      address     : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      clock    : IN STD_LOGIC ;
+      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+      wren     : IN STD_LOGIC ;
+      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+   );
 end component;
 
 component ac_pll
@@ -318,20 +321,20 @@ begin
    with addr select
       slave_data <= 
          led_data          when LED_ADDR,
-         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
+         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR | BIAS_START_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          (others => '0')   when others;
 
    with addr select
       slave_ack <= 
          led_ack          when LED_ADDR,
-         ac_dac_ack       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
+         ac_dac_ack       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR | BIAS_START_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
-         '0'              when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | BIAS_START_ADDR,
          '1'              when others;
          
 -------------------------------------------------------------------------------
