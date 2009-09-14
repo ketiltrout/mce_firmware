@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.22  2009/08/21 21:15:31  bburger
+-- BB: added the FPGA_DEVICE_FAMILY generic for Stratix I
+--
 -- Revision 1.21  2009/01/16 01:51:48  bburger
 -- BB: Made the bad preamble logic more robust.
 --
@@ -84,6 +87,8 @@ end reply_queue_receive;
 architecture rtl of reply_queue_receive is
 
    component lvds_rx
+      generic (
+         FPGA_DEVICE_FAMILY : string);
       port(
          clk_i      : in std_logic;
          comm_clk_i : in std_logic;
