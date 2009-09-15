@@ -432,7 +432,6 @@ set_global_assignment -name PROGRAMMABLE_POWER_TECHNOLOGY_SETTING AUTOMATIC
 set_global_assignment -name PROGRAMMABLE_POWER_MAXIMUM_HIGH_SPEED_FRACTION_OF_USED_LAB_TILES 1.0
 set_global_assignment -name GUARANTEE_MIN_DELAY_CORNER_IO_ZERO_HOLD_TIME ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING "EXTRA EFFORT"
-set_global_assignment -name OPTIMIZE_SIGNAL_INTEGRITY OFF
 set_global_assignment -name OPTIMIZE_TIMING "NORMAL COMPILATION"
 set_global_assignment -name ECO_OPTIMIZE_TIMING OFF
 set_global_assignment -name ECO_REGENERATE_REPORT OFF
