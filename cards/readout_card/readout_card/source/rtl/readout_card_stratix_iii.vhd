@@ -31,6 +31,16 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.8  2009/08/21 21:56:22  bburger
+-- BB:
+-- - changed default level of adc_sclk to '1'
+-- - dac_clr_n was changed from an output to an input.
+-- - added 'locked' interface to rc_pll_stratix_iii
+-- - renamed the adc_pll clock signals to more explanitory names
+-- - added the FPGA_DEVICE_FAMILY generic to the dispatch interace for synthesis of the dc_fifo in lvds_rx
+-- - uncommented DDR interface to force the syntesizer to use correct left and right PLLs (in conjunction with ADC and DDR PLLs)
+-- - added test signals to test_status to see clocks on the scope.
+--
 -- Revision 1.7  2009/07/11 00:14:59  bburger
 -- BB: implemented discrete flip-flops rather than megafunction wizard entities
 --
@@ -87,7 +97,8 @@ use work.adc_sample_coadd_pack.all;
 entity readout_card_stratix_iii is
 port(
    -- Global Interface
-   dev_clr_n           : in std_logic;
+   dev_clr_n         : in std_logic;
+   dev_clr_fpga_out_n: out std_logic;
 
    -- PLL Interface
    inclk           : in std_logic;
@@ -95,21 +106,21 @@ port(
    
    -- ADC Interface for Readout Card Rev. C 
    -- How do I instantiate and LVDS receiver?
-   adc0_lvds_p : in std_logic; 
-   adc1_lvds_p : in std_logic; 
-   adc2_lvds_p : in std_logic; 
-   adc3_lvds_p : in std_logic; 
-   adc4_lvds_p : in std_logic; 
-   adc5_lvds_p : in std_logic; 
-   adc6_lvds_p : in std_logic; 
-   adc7_lvds_p : in std_logic; 
-   adc_fco_p   : in std_logic;
-   adc_clk_p   : out std_logic; 
-   adc_sclk    : out std_logic;
-   adc_sdio    : inout std_logic; 
-   adc_csb_n   : out std_logic; 
-   adc_pdwn    : out std_logic;
-   adc_dco_p   : in std_logic;
+   adc0_lvds : in std_logic; 
+   adc1_lvds : in std_logic; 
+   adc2_lvds : in std_logic; 
+   adc3_lvds : in std_logic; 
+   adc4_lvds : in std_logic; 
+   adc5_lvds : in std_logic; 
+   adc6_lvds : in std_logic; 
+   adc7_lvds : in std_logic; 
+   adc_fco   : in std_logic;
+   adc_clk   : out std_logic; 
+   adc_sclk  : out std_logic;
+   adc_sdio  : inout std_logic; 
+   adc_csb_n : out std_logic; 
+   adc_pdwn  : out std_logic;
+   adc_dco   : in std_logic;
 
    -- DAC Interface
    dac_clr_n        : in std_logic; -- Implement this!!
@@ -155,17 +166,17 @@ port(
    grn_led         : out std_logic;
    
    -- miscellaneous ports
-   dip0            : in std_logic;
-   dip1            : in std_logic;
-   dip2            : in std_logic;
-   dip3            : in std_logic;
-   wdog             : out std_logic;
+   dip_sw0         : in std_logic;
+   dip_sw1         : in std_logic;
+   dip_sw2         : in std_logic;
+   dip_sw3         : in std_logic;
+   wdog            : out std_logic;
    rs232_tx        : out std_logic;
    rs232_rx        : in std_logic;
    eeprom_si       : in std_logic; -- Implement this
    eeprom_so       : out std_logic; -- Implement this
    eeprom_sck      : out std_logic; -- Implement this
-   eeprom_cs       : out std_logic; -- Implement this
+   eeprom_cs_n     : out std_logic; -- Implement this
    crc_error_in    : in std_logic; -- Implement this
    critical_error  : in std_logic; -- Implement this
    extend_n        : in std_logic; -- Implement this   
@@ -190,8 +201,6 @@ port(
    mem_clk : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
    mem_clk_n : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
    mem_cs_n : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-   --      ddr_ldm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-   --      ddr_udm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
    mem_dm : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
    mem_dq : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
    mem_dqs : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -203,7 +212,7 @@ port(
    pnf_per_byte : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
    test_complete : OUT STD_LOGIC;
    test_status : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-   mictor_clk : out std_logic -- Implement this!!!
+   mictor_clk : out std_logic 
 );  
 end readout_card_stratix_iii;
 
@@ -214,7 +223,7 @@ architecture top of readout_card_stratix_iii is
    --               rr is the minor revision number
    --               BBBB is the build number
    -- firmware major/minor revision set to ffff for trial/debug firmware
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05000003";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05000006";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
@@ -232,11 +241,6 @@ architecture top of readout_card_stratix_iii is
    signal clk_upper    : std_logic;            -- 50MHz to latch upper half of the ADC sample
    signal clk_lower    : std_logic;            -- 50MHz to latch lower half of the ADC sample
    signal clk_word     : std_logic;            -- 50MHz to latch the full word (upper + lower)
-   --signal clk0         : std_logic;
-   --signal clk1        : std_logic;
-   --signal clk2        : std_logic;
-   --signal clk3        : std_logic;
-   --signal clk4        : std_logic;
    signal adc_pll_locked      : std_logic;
    
    signal adc_dat     : std_logic_vector(7 downto 0);
@@ -406,7 +410,7 @@ begin
    rs232_tx  <= '0';
    eeprom_so <= '0';
    eeprom_sck <= '0';
-   eeprom_cs <= '0';
+   eeprom_cs_n <= '0';
    mictor_clk <= '0';
    
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
@@ -414,6 +418,8 @@ begin
    ttl_dir1 <= '1';
    -- The ttl_in1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
    rst <= (not dev_clr_n) or (ttl_in1);
+   -- Active-low signal will issue a dev_clr_n and reset the FPGA
+   dev_clr_fpga_out_n <= '1'; 
  
    ----------------------------------------------------------------------------
    -- PLL Instantiation
@@ -425,7 +431,7 @@ begin
       c2     => comm_clk,
       c3     => spi_clk,
       c4     => clk_n,
-      c5     => adc_clk_p,
+      c5     => adc_clk,
       locked => open
    );   
 
@@ -516,7 +522,7 @@ begin
    i_adc_pll: adc_pll_stratix_iii
    port map (
       areset => rst,
-      inclk0 => adc_fco_p,    -- adc_fco_p is the framing signal from the ADC, source synchronous clock
+      inclk0 => adc_fco,    -- adc_fco_p is the framing signal from the ADC, source synchronous clock
       c0     => rx_sclk,      -- 700.00MHz, phase shift = -180.00 degrees, duty cycle = 50.00%, fully compensated
       c1     => rx_enable_clk,-- 100.00MHz, phase shift = +128.57 degrees, duty cycle = 7.14% (BB: 21.42%. why??)  [Note: phase shift = (10/28)*360 or 5 clock edges @700 MHz]
       -- c2, c3 can be latched out at any point during the time they are valid, i.e. 100 MHz -- 10 ns.
@@ -528,7 +534,7 @@ begin
       locked => adc_pll_locked
    );
 
-   adc_dat <= adc7_lvds_p & adc6_lvds_p & adc5_lvds_p & adc4_lvds_p & adc3_lvds_p & adc2_lvds_p & adc1_lvds_p & adc0_lvds_p;
+   adc_dat <= adc7_lvds & adc6_lvds & adc5_lvds & adc4_lvds & adc3_lvds & adc2_lvds & adc1_lvds & adc0_lvds;
    
    -- The native SERDES width is at most 12 bits.
    -- To receive a 14-bit word, the SERDES data must be latched twice per data period
@@ -783,84 +789,84 @@ begin
    ----------------------------------------------------------------------------
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
---   i_flux_loop: flux_loop
---   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
---   port map (
---      clk_50_i                  => clk,
---      clk_25_i                  => spi_clk,
---      rst_i                     => rst,
---      num_rows_i                => num_rows,
---      num_rows_reported_i       => num_rows_reported,
---      num_cols_reported_i       => num_cols_reported,
---      data_size_i               => data_size,
---      adc_coadd_en_i            => adc_coadd_en,
---      restart_frame_1row_prev_i => restart_frame_1row_prev,
---      restart_frame_aligned_i   => restart_frame_aligned,
---      restart_frame_1row_post_i => restart_frame_1row_post,
---      row_switch_i              => row_switch,
---      initialize_window_i       => initialize_window,
---      fltr_rst_i                => fltr_rst,
---      num_rows_sub1_i           => (others => '0'),
---      dac_dat_en_i              => dac_dat_en,
---      dat_i                     => dispatch_dat_out,
---      addr_i                    => dispatch_addr_out,
---      tga_i                     => dispatch_tga_out,
---      we_i                      => dispatch_we_out,
---      stb_i                     => dispatch_stb_out,
---      cyc_i                     => dispatch_cyc_out,
---      dat_frame_o               => dat_frame,
---      ack_frame_o               => ack_frame,
---      dat_fb_o                  => dat_fb,
---      ack_fb_o                  => ack_fb,
---      
---      ------------------------------------
---      -- Readout Card Rev. A/AA/B
---      ------------------------------------
---      adc_dat_ch0_i             => adc_dat0,
---      adc_dat_ch1_i             => adc_dat1,
---      adc_dat_ch2_i             => adc_dat2,
---      adc_dat_ch3_i             => adc_dat3,
---      adc_dat_ch4_i             => adc_dat4,
---      adc_dat_ch5_i             => adc_dat5,
---      adc_dat_ch6_i             => adc_dat6,
---      adc_dat_ch7_i             => adc_dat7,
---      
---      dac_dat_ch0_o             => dac0_dfb_dat,
---      dac_dat_ch1_o             => dac1_dfb_dat,
---      dac_dat_ch2_o             => dac2_dfb_dat,
---      dac_dat_ch3_o             => dac3_dfb_dat,
---      dac_dat_ch4_o             => dac4_dfb_dat,
---      dac_dat_ch5_o             => dac5_dfb_dat,
---      dac_dat_ch6_o             => dac6_dfb_dat,
---      dac_dat_ch7_o             => dac7_dfb_dat,
---      
---      dac_clk_ch0_o             => dac_dfb_clk(0),
---      dac_clk_ch1_o             => dac_dfb_clk(1),
---      dac_clk_ch2_o             => dac_dfb_clk(2),
---      dac_clk_ch3_o             => dac_dfb_clk(3),
---      dac_clk_ch4_o             => dac_dfb_clk(4),
---      dac_clk_ch5_o             => dac_dfb_clk(5),
---      dac_clk_ch6_o             => dac_dfb_clk(6),
---      dac_clk_ch7_o             => dac_dfb_clk(7),
---      
---      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
---      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
---      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
---      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
---      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
---      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
---      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
---      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
---      
---      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
---      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
---      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
---      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
---      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
---      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
---      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
---      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
---   );               
+   i_flux_loop: flux_loop
+   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
+   port map (
+      clk_50_i                  => clk,
+      clk_25_i                  => spi_clk,
+      rst_i                     => rst,
+      num_rows_i                => num_rows,
+      num_rows_reported_i       => num_rows_reported,
+      num_cols_reported_i       => num_cols_reported,
+      data_size_i               => data_size,
+      adc_coadd_en_i            => adc_coadd_en,
+      restart_frame_1row_prev_i => restart_frame_1row_prev,
+      restart_frame_aligned_i   => restart_frame_aligned,
+      restart_frame_1row_post_i => restart_frame_1row_post,
+      row_switch_i              => row_switch,
+      initialize_window_i       => initialize_window,
+      fltr_rst_i                => fltr_rst,
+      num_rows_sub1_i           => (others => '0'),
+      dac_dat_en_i              => dac_dat_en,
+      dat_i                     => dispatch_dat_out,
+      addr_i                    => dispatch_addr_out,
+      tga_i                     => dispatch_tga_out,
+      we_i                      => dispatch_we_out,
+      stb_i                     => dispatch_stb_out,
+      cyc_i                     => dispatch_cyc_out,
+      dat_frame_o               => dat_frame,
+      ack_frame_o               => ack_frame,
+      dat_fb_o                  => dat_fb,
+      ack_fb_o                  => ack_fb,
+      
+      ------------------------------------
+      -- Readout Card Rev. A/AA/B
+      ------------------------------------
+      adc_dat_ch0_i             => adc_dat0,
+      adc_dat_ch1_i             => adc_dat1,
+      adc_dat_ch2_i             => adc_dat2,
+      adc_dat_ch3_i             => adc_dat3,
+      adc_dat_ch4_i             => adc_dat4,
+      adc_dat_ch5_i             => adc_dat5,
+      adc_dat_ch6_i             => adc_dat6,
+      adc_dat_ch7_i             => adc_dat7,
+      
+      dac_dat_ch0_o             => dac0_dfb_dat,
+      dac_dat_ch1_o             => dac1_dfb_dat,
+      dac_dat_ch2_o             => dac2_dfb_dat,
+      dac_dat_ch3_o             => dac3_dfb_dat,
+      dac_dat_ch4_o             => dac4_dfb_dat,
+      dac_dat_ch5_o             => dac5_dfb_dat,
+      dac_dat_ch6_o             => dac6_dfb_dat,
+      dac_dat_ch7_o             => dac7_dfb_dat,
+      
+      dac_clk_ch0_o             => dac_dfb_clk(0),
+      dac_clk_ch1_o             => dac_dfb_clk(1),
+      dac_clk_ch2_o             => dac_dfb_clk(2),
+      dac_clk_ch3_o             => dac_dfb_clk(3),
+      dac_clk_ch4_o             => dac_dfb_clk(4),
+      dac_clk_ch5_o             => dac_dfb_clk(5),
+      dac_clk_ch6_o             => dac_dfb_clk(6),
+      dac_clk_ch7_o             => dac_dfb_clk(7),
+      
+      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
+      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
+      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
+      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
+      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
+      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
+      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
+      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
+      
+      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
+      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
+      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
+      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
+      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
+      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
+      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
+      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
+   );               
    
    -- Chip select signal assignment
    bias_dac_ncs(0) <= sa_bias_dac_spi_ch0(2);
@@ -1158,8 +1164,6 @@ begin
   mem_cs_n <= internal_mem_cs_n;
   --vhdl renameroo for output signals
   mem_dm <= internal_mem_dm;
-  -- ddr_ldm <= internal_ddr_dm(0 downto 0);
-  -- ddr_udm <= internal_ddr_dm(1 downto 1);
   --vhdl renameroo for output signals
   mem_odt <= internal_mem_odt;
   --vhdl renameroo for output signals
@@ -1169,18 +1173,18 @@ begin
   --vhdl renameroo for output signals
   --pnf <= internal_pnf;
   --vhdl renameroo for output signals
-  pnf_per_byte <= internal_pnf_per_byte;
+  -- pnf_per_byte <= internal_pnf_per_byte;
   --vhdl renameroo for output signals
 -- test_complete <= internal_test_complete;
   --vhdl renameroo for output signals
   --test_status <= internal_test_status;
    
    
-   --test_status <= adc_dat1(7 downto 0);
-   --pnf_per_byte <= adc_dat0(7 downto 0);
-   test_status(0) <= rx_sclk;
-   test_status(1) <= clk_upper;
-   test_status(2) <= clk_lower;
-   --test_complete <= adc0_lvds_p;
+   test_status <= adc_dat1(7 downto 0);
+   pnf_per_byte <= adc_dat0(7 downto 0);
+   --test_status(0) <= rx_sclk;
+   --test_status(1) <= clk_upper;
+   --test_status(2) <= clk_lower;
+   --test_complete <= adc0_lvds;
    pnf <= adc_pll_locked;
 end top;
