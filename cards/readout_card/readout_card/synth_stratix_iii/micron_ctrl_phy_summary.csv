@@ -1,9 +1,9 @@
 #Path, Setup Margin, Hold Margin
-"Address Command (Fast 1100mV 0C Model)",2.393,1.459
-"Core (Fast 1100mV 0C Model)",2.213,0.096
-"Core Reset/Removal (Fast 1100mV 0C Model)",3.025,0.385
-"DQS vs CK (Fast 1100mV 0C Model)",1.140,0.974
-"Half Rate Address/Command (Fast 1100mV 0C Model)",7.286,1.452
+"Address Command (Fast 1100mV 0C Model)",2.388,1.466
+"Core (Fast 1100mV 0C Model)",2.232,0.162
+"Core Reset/Removal (Fast 1100mV 0C Model)",3.337,0.382
+"DQS vs CK (Fast 1100mV 0C Model)",1.141,0.980
+"Half Rate Address/Command (Fast 1100mV 0C Model)",7.118,1.622
 "Read Capture (All Conditions)",0.733,0.464
 "Read Resync (All Conditions)",1.590,1.590
 "Write (All Conditions)",0.680,0.542
