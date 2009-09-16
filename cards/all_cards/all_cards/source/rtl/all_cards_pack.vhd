@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2008/01/26 01:10:10 $>    - <initials $Author: mandana $>
+-- <date $Date: 2009/06/03 22:08:43 $>    - <initials $Author: bburger $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.5.2.1  2009/06/03 22:08:43  bburger
+-- BB: Duplicate modifications from 4.0.a to 4.0.b as for previously developed changes from 4.0.a to 5.0.1, but without the dual-LVDS feature.
+--
 -- Revision 1.5  2008/01/26 01:10:10  mandana
 -- added all_cards slave to integrate fw_rev, slot_id, card_type, scratch
 --
@@ -221,6 +224,7 @@ package all_cards_pack is
          num_cols_reported_o     : out integer;
 
       -- Address Card interface
+         row_count_o                : out std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
 
