@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/01/16 01:59:52 $> - <initials $Author: bburger $>
+-- <date $Date: 2009/09/14 19:52:35 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.52  2009/09/14 19:52:35  bburger
+-- BB: added BIAS_START_ADDR for row-specific bias delays
+--
 -- Revision 1.51  2009/01/16 01:59:52  bburger
 -- BB: Renamed num_rows_reported, and added num_cols_reported
 --
@@ -409,6 +412,7 @@ package wishbone_pack is
    constant CONFIG_APP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
    constant RET_DAT_S_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
    constant USE_DV_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
+   constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55"; -- Duplicate
    constant NUM_ROWS_REPORTED_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
    constant RUN_ID_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56";
    constant USER_WRITABLE_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
@@ -418,6 +422,7 @@ package wishbone_pack is
    constant CARDS_TO_REPORT_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
    constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
    constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
+   constant RET_DAT_CARD_ADDR_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F"; -- Duplicate
    constant RCS_TO_REPORT_DATA_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
