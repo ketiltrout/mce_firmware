@@ -31,6 +31,16 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.8  2009/08/21 21:56:22  bburger
+-- BB:
+-- - changed default level of adc_sclk to '1'
+-- - dac_clr_n was changed from an output to an input.
+-- - added 'locked' interface to rc_pll_stratix_iii
+-- - renamed the adc_pll clock signals to more explanitory names
+-- - added the FPGA_DEVICE_FAMILY generic to the dispatch interace for synthesis of the dc_fifo in lvds_rx
+-- - uncommented DDR interface to force the syntesizer to use correct left and right PLLs (in conjunction with ADC and DDR PLLs)
+-- - added test signals to test_status to see clocks on the scope.
+--
 -- Revision 1.7  2009/07/11 00:14:59  bburger
 -- BB: implemented discrete flip-flops rather than megafunction wizard entities
 --
@@ -237,6 +247,7 @@ architecture top of readout_card_stratix_iii is
    --signal clk2        : std_logic;
    --signal clk3        : std_logic;
    --signal clk4        : std_logic;
+   signal rc_pll_locked       : std_logic;
    signal adc_pll_locked      : std_logic;
    
    signal adc_dat     : std_logic_vector(7 downto 0);
@@ -426,7 +437,7 @@ begin
       c3     => spi_clk,
       c4     => clk_n,
       c5     => adc_clk_p,
-      locked => open
+      locked => rc_pll_locked
    );   
 
    ----------------------------------------------------------------------------
@@ -583,23 +594,37 @@ begin
    ---------------------------------------------------------
    -- Double Synchronizer for ADC Data
    ---------------------------------------------------------
-   process(rst, clk_n)
-   begin
-      if(rst = '1') then
-         serdes_dat5 <= (others => '0');
-      elsif(clk_n'event and clk_n = '1') then
-         serdes_dat5 <= serdes_dat4;
-      end if;
-   end process;
+   i_adc_serdes_flipflop4: flipflop_112
+   port map (
+      clock      => clk_n,
+      data       => serdes_dat4,
+      q          => serdes_dat5
+   );   
 
-   process(rst, clk)
-   begin
-      if(rst = '1') then
-         serdes_dat6 <= (others => '0');
-      elsif(clk'event and clk = '1') then
-         serdes_dat6 <= serdes_dat5;
-      end if;
-   end process;
+   i_adc_serdes_flipflop5: flipflop_112
+   port map (
+      clock      => clk,
+      data       => serdes_dat5,
+      q          => serdes_dat6
+   );   
+
+--   process(rst, clk_n)
+--   begin
+--      if(rst = '1') then
+--         serdes_dat5 <= (others => '0');
+--      elsif(clk_n'event and clk_n = '1') then
+--         serdes_dat5 <= serdes_dat4;
+--      end if;
+--   end process;
+--
+--   process(rst, clk)
+--   begin
+--      if(rst = '1') then
+--         serdes_dat6 <= (others => '0');
+--      elsif(clk'event and clk = '1') then
+--         serdes_dat6 <= serdes_dat5;
+--      end if;
+--   end process;
    
    adc_dat0 <=  serdes_dat6(13  downto 0);
    adc_dat1 <=  serdes_dat6(27  downto 14);
@@ -783,84 +808,84 @@ begin
    ----------------------------------------------------------------------------
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
---   i_flux_loop: flux_loop
---   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
---   port map (
---      clk_50_i                  => clk,
---      clk_25_i                  => spi_clk,
---      rst_i                     => rst,
---      num_rows_i                => num_rows,
---      num_rows_reported_i       => num_rows_reported,
---      num_cols_reported_i       => num_cols_reported,
---      data_size_i               => data_size,
---      adc_coadd_en_i            => adc_coadd_en,
---      restart_frame_1row_prev_i => restart_frame_1row_prev,
---      restart_frame_aligned_i   => restart_frame_aligned,
---      restart_frame_1row_post_i => restart_frame_1row_post,
---      row_switch_i              => row_switch,
---      initialize_window_i       => initialize_window,
---      fltr_rst_i                => fltr_rst,
---      num_rows_sub1_i           => (others => '0'),
---      dac_dat_en_i              => dac_dat_en,
---      dat_i                     => dispatch_dat_out,
---      addr_i                    => dispatch_addr_out,
---      tga_i                     => dispatch_tga_out,
---      we_i                      => dispatch_we_out,
---      stb_i                     => dispatch_stb_out,
---      cyc_i                     => dispatch_cyc_out,
---      dat_frame_o               => dat_frame,
---      ack_frame_o               => ack_frame,
---      dat_fb_o                  => dat_fb,
---      ack_fb_o                  => ack_fb,
---      
---      ------------------------------------
---      -- Readout Card Rev. A/AA/B
---      ------------------------------------
---      adc_dat_ch0_i             => adc_dat0,
---      adc_dat_ch1_i             => adc_dat1,
---      adc_dat_ch2_i             => adc_dat2,
---      adc_dat_ch3_i             => adc_dat3,
---      adc_dat_ch4_i             => adc_dat4,
---      adc_dat_ch5_i             => adc_dat5,
---      adc_dat_ch6_i             => adc_dat6,
---      adc_dat_ch7_i             => adc_dat7,
---      
---      dac_dat_ch0_o             => dac0_dfb_dat,
---      dac_dat_ch1_o             => dac1_dfb_dat,
---      dac_dat_ch2_o             => dac2_dfb_dat,
---      dac_dat_ch3_o             => dac3_dfb_dat,
---      dac_dat_ch4_o             => dac4_dfb_dat,
---      dac_dat_ch5_o             => dac5_dfb_dat,
---      dac_dat_ch6_o             => dac6_dfb_dat,
---      dac_dat_ch7_o             => dac7_dfb_dat,
---      
---      dac_clk_ch0_o             => dac_dfb_clk(0),
---      dac_clk_ch1_o             => dac_dfb_clk(1),
---      dac_clk_ch2_o             => dac_dfb_clk(2),
---      dac_clk_ch3_o             => dac_dfb_clk(3),
---      dac_clk_ch4_o             => dac_dfb_clk(4),
---      dac_clk_ch5_o             => dac_dfb_clk(5),
---      dac_clk_ch6_o             => dac_dfb_clk(6),
---      dac_clk_ch7_o             => dac_dfb_clk(7),
---      
---      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
---      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
---      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
---      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
---      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
---      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
---      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
---      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
---      
---      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
---      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
---      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
---      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
---      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
---      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
---      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
---      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
---   );               
+   i_flux_loop: flux_loop
+   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
+   port map (
+      clk_50_i                  => clk,
+      clk_25_i                  => spi_clk,
+      rst_i                     => rst,
+      num_rows_i                => num_rows,
+      num_rows_reported_i       => num_rows_reported,
+      num_cols_reported_i       => num_cols_reported,
+      data_size_i               => data_size,
+      adc_coadd_en_i            => adc_coadd_en,
+      restart_frame_1row_prev_i => restart_frame_1row_prev,
+      restart_frame_aligned_i   => restart_frame_aligned,
+      restart_frame_1row_post_i => restart_frame_1row_post,
+      row_switch_i              => row_switch,
+      initialize_window_i       => initialize_window,
+      fltr_rst_i                => fltr_rst,
+      num_rows_sub1_i           => (others => '0'),
+      dac_dat_en_i              => dac_dat_en,
+      dat_i                     => dispatch_dat_out,
+      addr_i                    => dispatch_addr_out,
+      tga_i                     => dispatch_tga_out,
+      we_i                      => dispatch_we_out,
+      stb_i                     => dispatch_stb_out,
+      cyc_i                     => dispatch_cyc_out,
+      dat_frame_o               => dat_frame,
+      ack_frame_o               => ack_frame,
+      dat_fb_o                  => dat_fb,
+      ack_fb_o                  => ack_fb,
+      
+      ------------------------------------
+      -- Readout Card Rev. A/AA/B
+      ------------------------------------
+      adc_dat_ch0_i             => adc_dat0,
+      adc_dat_ch1_i             => adc_dat1,
+      adc_dat_ch2_i             => adc_dat2,
+      adc_dat_ch3_i             => adc_dat3,
+      adc_dat_ch4_i             => adc_dat4,
+      adc_dat_ch5_i             => adc_dat5,
+      adc_dat_ch6_i             => adc_dat6,
+      adc_dat_ch7_i             => adc_dat7,
+      
+      dac_dat_ch0_o             => dac0_dfb_dat,
+      dac_dat_ch1_o             => dac1_dfb_dat,
+      dac_dat_ch2_o             => dac2_dfb_dat,
+      dac_dat_ch3_o             => dac3_dfb_dat,
+      dac_dat_ch4_o             => dac4_dfb_dat,
+      dac_dat_ch5_o             => dac5_dfb_dat,
+      dac_dat_ch6_o             => dac6_dfb_dat,
+      dac_dat_ch7_o             => dac7_dfb_dat,
+      
+      dac_clk_ch0_o             => dac_dfb_clk(0),
+      dac_clk_ch1_o             => dac_dfb_clk(1),
+      dac_clk_ch2_o             => dac_dfb_clk(2),
+      dac_clk_ch3_o             => dac_dfb_clk(3),
+      dac_clk_ch4_o             => dac_dfb_clk(4),
+      dac_clk_ch5_o             => dac_dfb_clk(5),
+      dac_clk_ch6_o             => dac_dfb_clk(6),
+      dac_clk_ch7_o             => dac_dfb_clk(7),
+      
+      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
+      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
+      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
+      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
+      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
+      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
+      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
+      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
+      
+      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
+      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
+      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
+      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
+      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
+      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
+      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
+      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
+   );               
    
    -- Chip select signal assignment
    bias_dac_ncs(0) <= sa_bias_dac_spi_ch0(2);
@@ -1167,20 +1192,22 @@ begin
   --vhdl renameroo for output signals
   mem_we_n <= internal_mem_we_n;
   --vhdl renameroo for output signals
-  --pnf <= internal_pnf;
+  pnf <= internal_pnf;
   --vhdl renameroo for output signals
   pnf_per_byte <= internal_pnf_per_byte;
   --vhdl renameroo for output signals
--- test_complete <= internal_test_complete;
+  test_complete <= internal_test_complete;
   --vhdl renameroo for output signals
-  --test_status <= internal_test_status;
+  test_status <= internal_test_status;
    
    
    --test_status <= adc_dat1(7 downto 0);
    --pnf_per_byte <= adc_dat0(7 downto 0);
-   test_status(0) <= rx_sclk;
-   test_status(1) <= clk_upper;
-   test_status(2) <= clk_lower;
+--   test_status(0) <= rx_sclk;
+--   test_status(1) <= clk_upper;
+--   test_status(2) <= clk_lower;
    --test_complete <= adc0_lvds_p;
-   pnf <= adc_pll_locked;
+   
+--   test_status(0) <= adc_pll_locked;
+--   test_status(1) <= rc_pll_locked;
 end top;
