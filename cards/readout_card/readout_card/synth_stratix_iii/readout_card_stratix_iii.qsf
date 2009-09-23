@@ -27,7 +27,7 @@ set_global_assignment -name FAMILY "Stratix III"
 set_global_assignment -name DEVICE EP3SE50F780C4
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 8.1
+set_global_assignment -name LAST_QUARTUS_VERSION "9.0 SP2"
 set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
 set_global_assignment -name EDA_INPUT_DATA_FORMAT VHDL -section_id eda_design_synthesis
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
@@ -64,20 +64,20 @@ set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX NORMAL
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 2
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
 set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 500
 set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
 set_global_assignment -name ASSG_RULE_MISSING_TIMING OFF
-set_global_assignment -name ENABLE_DRC_SETTINGS ON
+set_global_assignment -name ENABLE_DRC_SETTINGS OFF
 set_global_assignment -name RESET_RULE_UNSYNCH_EXRESET OFF
 set_global_assignment -name RESET_RULE_IMSYNCH_EXRESET OFF
 set_global_assignment -name RESET_RULE_COMB_ASYNCH_RESET OFF
 set_global_assignment -name RESET_RULE_UNSYNCH_ASYNCH_DOMAIN OFF
 set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
-set_global_assignment -name ENABLE_SIGNALTAP ON
-set_global_assignment -name USE_SIGNALTAP_FILE stp2.stp
+set_global_assignment -name ENABLE_SIGNALTAP OFF
+set_global_assignment -name USE_SIGNALTAP_FILE adc_serdes00.stp
 set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
 set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
@@ -243,10 +243,9 @@ set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name DO_COMBINED_ANALYSIS OFF
 set_global_assignment -name SAFE_STATE_MACHINE ON
 set_global_assignment -name INCREMENTAL_COMPILATION OFF
-set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name SEED 1
 set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
-set_global_assignment -name ENABLE_ADVANCED_IO_TIMING ON
 set_global_assignment -name SEARCH_PATH "c:\\altera\\81\\ip\\altera\\ddr2_high_perf\\lib"
 set_global_assignment -name MISC_FILE "C:/mce/cards/readout_card/readout_card/synth/readout_card_stratix_iii.dpf"
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
@@ -346,7 +345,7 @@ set_global_assignment -name REPORT_IO_PATHS_SEPARATELY OFF
 set_global_assignment -name CLOCK_ANALYSIS_ONLY OFF
 set_global_assignment -name FLOW_ENABLE_TIMING_CONSTRAINT_CHECK OFF
 set_global_assignment -name ENABLE_IP_DEBUG OFF
-set_global_assignment -name SAVE_DISK_SPACE ON
+set_global_assignment -name SAVE_DISK_SPACE OFF
 set_global_assignment -name DISABLE_OCP_HW_EVAL OFF
 set_global_assignment -name VERILOG_INPUT_VERSION VERILOG_2001
 set_global_assignment -name VHDL_INPUT_VERSION VHDL93
@@ -440,7 +439,7 @@ set_global_assignment -name SYNTH_GATED_CLOCK_CONVERSION OFF
 set_global_assignment -name BLOCK_DESIGN_NAMING AUTO
 set_global_assignment -name SYNTH_PROTECT_SDC_CONSTRAINT OFF
 set_global_assignment -name SYNTHESIS_EFFORT AUTO
-set_global_assignment -name ALLOW_ACLR_FOR_SHIFT_REGISTER_RECOGNITION ON
+set_global_assignment -name SHIFT_REGISTER_RECOGNITION_ACLR_SIGNAL ON
 set_global_assignment -name PRE_MAPPING_RESYNTHESIS OFF
 set_global_assignment -name SYNTH_MESSAGE_LEVEL MEDIUM
 set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 1.0
@@ -490,7 +489,6 @@ set_global_assignment -name PROGRAMMABLE_POWER_TECHNOLOGY_SETTING AUTOMATIC
 set_global_assignment -name PROGRAMMABLE_POWER_MAXIMUM_HIGH_SPEED_FRACTION_OF_USED_LAB_TILES 1.0
 set_global_assignment -name GUARANTEE_MIN_DELAY_CORNER_IO_ZERO_HOLD_TIME ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING "EXTRA EFFORT"
-set_global_assignment -name OPTIMIZE_SIGNAL_INTEGRITY OFF
 set_global_assignment -name OPTIMIZE_TIMING "NORMAL COMPILATION"
 set_global_assignment -name ECO_OPTIMIZE_TIMING OFF
 set_global_assignment -name ECO_REGENERATE_REPORT OFF
@@ -626,7 +624,6 @@ set_global_assignment -name SIMULATION_COMPLETE_COVERAGE_REPORT_PANEL ON
 set_global_assignment -name SIMULATION_MISSING_1_VALUE_COVERAGE_REPORT_PANEL ON
 set_global_assignment -name SIMULATION_MISSING_0_VALUE_COVERAGE_REPORT_PANEL ON
 set_global_assignment -name GLITCH_DETECTION OFF
-set_global_assignment -name GLITCH_INTERVAL "1 ns"
 set_global_assignment -name SIM_NO_DELAYS OFF
 set_global_assignment -name SIMULATOR_GENERATE_SIGNAL_ACTIVITY_FILE OFF
 set_global_assignment -name SIMULATION_WITH_GLITCH_FILTERING_WHEN_GENERATING_SAF ON
@@ -667,7 +664,6 @@ set_global_assignment -name SIGNALPROBE_ALLOW_OVERUSE OFF
 set_global_assignment -name SIGNALPROBE_DURING_NORMAL_COMPILATION OFF
 set_global_assignment -name HUB_ENTITY_NAME sld_hub
 set_global_assignment -name HUB_INSTANCE_NAME sld_hub_inst
-set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 set_global_assignment -name LL_OLD_BEHAVIOR OFF
 set_global_assignment -name POWER_DEFAULT_TOGGLE_RATE 12.5%
 set_global_assignment -name POWER_DEFAULT_INPUT_IO_TOGGLE_RATE 12.5%
@@ -1070,6 +1066,43 @@ set_location_assignment PIN_J3 -to dac_dfb_clk[6]
 set_location_assignment PIN_H6 -to dac_dfb_clk[7]
 set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
 set_instance_assignment -name CLOCK_SETTINGS adc_fco_p -to adc_fco_p
+set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat1*
+set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat2*
+set_location_assignment PIN_AF10 -to wdi
+set_location_assignment PIN_AC12 -to sid[0]
+set_location_assignment PIN_AF12 -to sid[1]
+set_location_assignment PIN_AG12 -to sid[2]
+set_location_assignment PIN_AH10 -to sid[3]
+set_location_assignment PIN_M26 -to nalert
+set_location_assignment PIN_R1 -to adc_dco_p
+set_location_assignment PIN_AH13 -to led_grn
+set_location_assignment PIN_AG10 -to led_red
+set_location_assignment PIN_AH11 -to led_ylw
+set_location_assignment PIN_F17 -to dac_fb_clk[0]
+set_location_assignment PIN_A27 -to dac_fb_clk[1]
+set_location_assignment PIN_F1 -to dac_fb_clk[2]
+set_location_assignment PIN_A17 -to dac_fb_clk[3]
+set_location_assignment PIN_C17 -to dac_fb_clk[4]
+set_location_assignment PIN_G2 -to dac_fb_clk[5]
+set_location_assignment PIN_J3 -to dac_fb_clk[6]
+set_location_assignment PIN_H6 -to dac_fb_clk[7]
+set_instance_assignment -name IO_STANDARD LVDS -to adc_fco_p
+set_instance_assignment -name IO_STANDARD LVDS -to bias_dac_ncs[3]
+set_instance_assignment -name IO_STANDARD LVDS -to bias_dac_ncs[0]
+set_instance_assignment -name IO_STANDARD LVDS -to dac7_dfb_dat[6]
+set_instance_assignment -name IO_STANDARD LVDS -to dac7_dfb_dat[5]
+set_instance_assignment -name IO_STANDARD LVDS -to dac_clk[2]
+set_instance_assignment -name IO_STANDARD LVDS -to dac_dat[2]
+set_instance_assignment -name IO_STANDARD LVDS -to dac_dat[1]
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc1_lvds_p
+set_instance_assignment -name INPUT_TERMINATION OFF -to adc2_lvds_p
+set_instance_assignment -name INPUT_TERMINATION OFF -to adc3_lvds_p
+set_instance_assignment -name INPUT_TERMINATION OFF -to adc4_lvds_p
+set_instance_assignment -name INPUT_TERMINATION OFF -to adc5_lvds_p
+set_instance_assignment -name INPUT_TERMINATION OFF -to adc6_lvds_p
+set_instance_assignment -name INPUT_TERMINATION OFF -to adc7_lvds_p
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc0_lvds_p
+set_global_assignment -name CONFIGURATION_VCCIO_LEVEL 3.3V
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/adc_pll_stratix_iii.vhd
 set_global_assignment -name VHDL_FILE ../../ddr2_sdram_ctrl/source/rtl/micron_ctrl_phy.vhd
 set_global_assignment -name VHDL_FILE ../../ddr2_sdram_ctrl/source/rtl/micron_ctrl_ex_lfsr8.vhd
@@ -1193,345 +1226,11 @@ set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.v
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 set_global_assignment -name MIF_FILE ../../fsfb_calc/source/rtl/ram_40x64.mif
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
-set_global_assignment -name QIP_FILE ../../pll/source/rtl/adc_pll_stratix_iii_not_fast.qip
-set_global_assignment -name QIP_FILE ../../pll/source/rtl/rc_pll_stratix_iii.qip
-set_global_assignment -name QIP_FILE ../../pll/source/rtl/adc_pll_stratix_iii.qip
-set_global_assignment -name QIP_FILE ../../adc_sample_coadd/source/rtl/adc_serdes_7_bit.qip
-set_global_assignment -name QIP_FILE ../../pll/source/rtl/adc_pll_stratic_iii_dual_serdes.qip
-set_global_assignment -name QIP_FILE ../../adc_sample_coadd/source/rtl/flipflop_14.qip
-set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat1*
-set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat2*
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
 set_global_assignment -name SIGNALTAP_FILE stp2.stp
-set_location_assignment PIN_AF10 -to wdi
-set_location_assignment PIN_AC12 -to sid[0]
-set_location_assignment PIN_AF12 -to sid[1]
-set_location_assignment PIN_AG12 -to sid[2]
-set_location_assignment PIN_AH10 -to sid[3]
-set_location_assignment PIN_M26 -to nalert
-set_location_assignment PIN_R1 -to adc_dco_p
-set_location_assignment PIN_AD22 -to ddr_dqs[0]
-set_location_assignment PIN_AH23 -to ddr_dqs[1]
-set_location_assignment PIN_AF26 -to ddr_ldm[0]
-set_location_assignment PIN_AD19 -to ddr_odt[0]
-set_location_assignment PIN_AD24 -to ddr_udm[0]
-set_location_assignment PIN_AB24 -to ddr_ba[0]
-set_location_assignment PIN_AD27 -to ddr_ba[1]
-set_location_assignment PIN_AC19 -to ddr_cas_n
-set_location_assignment PIN_AA18 -to ddr_cke[0]
-set_location_assignment PIN_AF20 -to ddr_cs_n[0]
-set_location_assignment PIN_AD18 -to ddr_ras_n
-set_location_assignment PIN_AB19 -to ddr_we_n
-set_location_assignment PIN_AE27 -to ddr_clk[0]
-set_location_assignment PIN_Y19 -to ddr_a[0]
-set_location_assignment PIN_AE20 -to ddr_a[1]
-set_location_assignment PIN_AF21 -to ddr_a[2]
-set_location_assignment PIN_Y18 -to ddr_a[3]
-set_location_assignment PIN_AE21 -to ddr_a[4]
-set_location_assignment PIN_AG21 -to ddr_a[5]
-set_location_assignment PIN_Y17 -to ddr_a[6]
-set_location_assignment PIN_AC20 -to ddr_a[7]
-set_location_assignment PIN_AE19 -to ddr_a[8]
-set_location_assignment PIN_AA19 -to ddr_a[9]
-set_location_assignment PIN_AA23 -to ddr_a[10]
-set_location_assignment PIN_W21 -to ddr_a[11]
-set_location_assignment PIN_AD28 -to ddr_a[12]
-set_location_assignment PIN_AH27 -to ddr_dq[0]
-set_location_assignment PIN_AH25 -to ddr_dq[1]
-set_location_assignment PIN_AG25 -to ddr_dq[2]
-set_location_assignment PIN_AG27 -to ddr_dq[3]
-set_location_assignment PIN_AH26 -to ddr_dq[4]
-set_location_assignment PIN_AB20 -to ddr_dq[5]
-set_location_assignment PIN_AB21 -to ddr_dq[6]
-set_location_assignment PIN_AD21 -to ddr_dq[7]
-set_location_assignment PIN_AE23 -to ddr_dq[8]
-set_location_assignment PIN_AF24 -to ddr_dq[9]
-set_location_assignment PIN_AE24 -to ddr_dq[10]
-set_location_assignment PIN_AF23 -to ddr_dq[11]
-set_location_assignment PIN_AG24 -to ddr_dq[12]
-set_location_assignment PIN_AH20 -to ddr_dq[13]
-set_location_assignment PIN_AH21 -to ddr_dq[14]
-set_location_assignment PIN_AH22 -to ddr_dq[15]
-set_location_assignment PIN_AH13 -to led_grn
-set_location_assignment PIN_AG10 -to led_red
-set_location_assignment PIN_AH11 -to led_ylw
-set_location_assignment PIN_F17 -to dac_fb_clk[0]
-set_location_assignment PIN_A27 -to dac_fb_clk[1]
-set_location_assignment PIN_F1 -to dac_fb_clk[2]
-set_location_assignment PIN_A17 -to dac_fb_clk[3]
-set_location_assignment PIN_C17 -to dac_fb_clk[4]
-set_location_assignment PIN_G2 -to dac_fb_clk[5]
-set_location_assignment PIN_J3 -to dac_fb_clk[6]
-set_location_assignment PIN_H6 -to dac_fb_clk[7]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_cke[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_ldm[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_ldm[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_ldm[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_odt[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_udm[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_udm[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_udm[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_odt[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to ddr_clk[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to ddr_clk[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_cs_n[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_cke[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[1]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[1]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[2]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[2]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[3]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[3]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[4]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[4]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[5]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[5]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[6]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[6]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[7]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[7]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[8]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[8]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[9]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[9]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[10]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[10]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[11]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[11]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_a[12]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_a[12]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_ba[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_ba[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_ba[1]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_ba[1]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_ras_n
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_ras_n
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_cas_n
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_cas_n
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_we_n
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr_we_n
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[1]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[1]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[2]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[2]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[3]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[3]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[4]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[4]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[5]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[5]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[6]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[6]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[7]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[7]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[8]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[8]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[9]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[9]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[10]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[10]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[11]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[11]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[12]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[12]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[13]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[13]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[14]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[14]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_dq[15]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dq[15]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dqs[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr_dqs[1]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[1]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[2]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[3]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[4]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[5]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[6]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[7]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[8]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[9]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[10]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[11]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[12]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[13]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[14]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dq[15]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dqs[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to ddr_dqs[1]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[0]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[1]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[2]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[3]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[4]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[5]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[6]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[7]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[8]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[9]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[10]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[11]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[12]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[13]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[14]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dq[15]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dqs[0]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr_dqs[1]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to ddr_cs_n
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to ddr_dqs[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to ddr_dqs[1]
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "rc_pll_stratix_iii:i_rc_pll|c2" -section_id auto_signaltap_0
-set_instance_assignment -name IO_STANDARD LVDS -to adc_fco_p
-set_instance_assignment -name IO_STANDARD LVDS -to bias_dac_ncs[3]
-set_instance_assignment -name IO_STANDARD LVDS -to bias_dac_ncs[0]
-set_instance_assignment -name IO_STANDARD LVDS -to dac7_dfb_dat[6]
-set_instance_assignment -name IO_STANDARD LVDS -to dac7_dfb_dat[5]
-set_instance_assignment -name IO_STANDARD LVDS -to dac_clk[2]
-set_instance_assignment -name IO_STANDARD LVDS -to dac_dat[2]
-set_instance_assignment -name IO_STANDARD LVDS -to dac_dat[1]
-set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc1_lvds_p
-set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc2_lvds_p
-set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc3_lvds_p
-set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc4_lvds_p
-set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc5_lvds_p
-set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc6_lvds_p
-set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc7_lvds_p
-set_instance_assignment -name INPUT_TERMINATION OFF -to adc0_lvds_p
 set_global_assignment -name SIGNALTAP_FILE stp3.stp
 set_global_assignment -name CDF_FILE readout_card_stratix_iii_rc_pof.cdf
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to adc_clk_p -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to adc_fco_p -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "adc_pll_stratix_iii:i_adc_pll|c0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "adc_pll_stratix_iii:i_adc_pll|c1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "adc_pll_stratix_iii:i_adc_pll|c2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "adc_pll_stratix_iii:i_adc_pll|c3" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "adc_pll_stratix_iii:i_adc_pll|c4" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "adc_pll_stratix_iii:i_adc_pll|inclk0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "adc_pll_stratix_iii:i_adc_pll|locked" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to crc_error_in -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to critical_error -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.ACKNOWLEDGE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.ACKNOWLEDGE2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.ADDRESS" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[14] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.DATA" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[15] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.DONE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[16] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.IDLE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[17] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.SETTLE_COUNTER" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[18] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.START_CONDITION" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[19] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.STOP_CONDITION" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[20] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.nWRITE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[21] -to "rc_pll_stratix_iii:i_rc_pll|locked" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[22] -to serdes_dat1[0] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[23] -to serdes_dat1[10] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[24] -to serdes_dat1[11] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[25] -to serdes_dat1[12] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[26] -to serdes_dat1[13] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[27] -to serdes_dat1[1] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[28] -to serdes_dat1[2] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[29] -to serdes_dat1[3] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[30] -to serdes_dat1[4] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[31] -to serdes_dat1[5] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[32] -to serdes_dat1[6] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[33] -to serdes_dat1[7] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[34] -to serdes_dat1[8] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[35] -to serdes_dat1[9] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to serdes_dat2[0] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[37] -to serdes_dat2[10] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[38] -to serdes_dat2[11] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[39] -to serdes_dat2[12] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[40] -to serdes_dat2[13] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[41] -to serdes_dat2[1] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[42] -to serdes_dat2[2] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[43] -to serdes_dat2[3] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[44] -to serdes_dat2[4] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[45] -to serdes_dat2[5] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[46] -to serdes_dat2[6] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[47] -to serdes_dat2[7] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[48] -to serdes_dat2[8] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[49] -to serdes_dat2[9] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[50] -to smb_clk -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[51] -to smb_data -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[52] -to smb_nalert -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to adc_clk_p -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to adc_fco_p -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "adc_pll_stratix_iii:i_adc_pll|c0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "adc_pll_stratix_iii:i_adc_pll|c1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "adc_pll_stratix_iii:i_adc_pll|c2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "adc_pll_stratix_iii:i_adc_pll|c3" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "adc_pll_stratix_iii:i_adc_pll|c4" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "adc_pll_stratix_iii:i_adc_pll|inclk0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "adc_pll_stratix_iii:i_adc_pll|locked" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to crc_error_in -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to critical_error -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.ACKNOWLEDGE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.ACKNOWLEDGE2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.ADDRESS" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.DATA" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.DONE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.IDLE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.SETTLE_COUNTER" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.START_CONDITION" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.STOP_CONDITION" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "fpga_thermo:i_fpga_thermo|smb_master:master2|pres_state.nWRITE" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "rc_pll_stratix_iii:i_rc_pll|locked" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to serdes_dat1[0] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to serdes_dat1[10] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to serdes_dat1[11] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to serdes_dat1[12] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to serdes_dat1[13] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to serdes_dat1[1] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to serdes_dat1[2] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to serdes_dat1[3] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to serdes_dat1[4] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to serdes_dat1[5] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to serdes_dat1[6] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to serdes_dat1[7] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to serdes_dat1[8] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to serdes_dat1[9] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to serdes_dat2[0] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[37] -to serdes_dat2[10] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[38] -to serdes_dat2[11] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[39] -to serdes_dat2[12] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[40] -to serdes_dat2[13] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[41] -to serdes_dat2[1] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[42] -to serdes_dat2[2] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[43] -to serdes_dat2[3] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[44] -to serdes_dat2[4] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[45] -to serdes_dat2[5] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[46] -to serdes_dat2[6] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[47] -to serdes_dat2[7] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[48] -to serdes_dat2[8] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[49] -to serdes_dat2[9] -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[50] -to smb_clk -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[51] -to smb_data -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[52] -to smb_nalert -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=M9K" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=53" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=53" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=183" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=1024" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=54582" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=36023" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=1024" -section_id auto_signaltap_0
-set_global_assignment -name CONFIGURATION_VCCIO_LEVEL 3.3V
+set_global_assignment -name SIGNALTAP_FILE adc_serdes00.stp
+set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
+set_global_assignment -name ENABLE_DA_RULE "C101, C102, C103, C104, C105, C106, T101, T102, A101, A102, A103, A104, A105, A106, A107, A108, A109, A110, S101, S102, S103, S104, D101, D102, D103, H101, H102"
+set_global_assignment -name DISABLE_DA_RULE "R101, R102, R103, R104, R105, M101, M102, M103, M104, M105"
