@@ -2,27 +2,61 @@
 
 <pin_planner>
 	<pin_info>
-		<pin name="adc0_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc0_lvds(n)" >
+		<pin name="adc0_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc0_lvds_p(n)" >
 		</pin>
-		<pin name="adc1_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc1_lvds(n)" >
+		<pin name="adc1_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc1_lvds_p(n)" >
 		</pin>
-		<pin name="adc2_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc2_lvds(n)" >
+		<pin name="adc2_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc2_lvds_p(n)" >
 		</pin>
-		<pin name="adc3_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc3_lvds(n)" >
+		<pin name="adc3_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc3_lvds_p(n)" >
 		</pin>
-		<pin name="adc4_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc4_lvds(n)" >
+		<pin name="adc4_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc4_lvds_p(n)" >
 		</pin>
-		<pin name="adc5_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc5_lvds(n)" >
+		<pin name="adc5_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc5_lvds_p(n)" >
 		</pin>
-		<pin name="adc6_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc6_lvds(n)" >
+		<pin name="adc6_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc6_lvds_p(n)" >
 		</pin>
-		<pin name="adc7_lvds" direction="Input" source="Hierarchy Database" diff_pair_node="adc7_lvds(n)" >
+		<pin name="adc7_lvds_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc7_lvds_p(n)" >
 		</pin>
-		<pin name="adc_clk" direction="Output" source="Hierarchy Database" diff_pair_node="adc_clk(n)" >
+		<pin name="adc_clk_p" direction="Output" source="Hierarchy Database" diff_pair_node="adc_clk_p(n)" >
 		</pin>
-		<pin name="adc_dco" direction="Input" source="Hierarchy Database" diff_pair_node="adc_dco(n)" >
+		<pin name="adc_fco_p" direction="Input" source="Hierarchy Database" diff_pair_node="adc_fco_p(n)" >
 		</pin>
-		<pin name="adc_fco" direction="Input" source="Hierarchy Database" diff_pair_node="adc_fco(n)" >
+		<pin name="bias_dac_ncs[3]" direction="Output" source="Hierarchy Database" diff_pair_node="bias_dac_ncs[3](n)" >
+		</pin>
+		<pin name="bias_dac_ncs[0]" direction="Output" source="Hierarchy Database" diff_pair_node="bias_dac_ncs[0](n)" >
+		</pin>
+		<pin name="dac5_dfb_dat[9]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[8]" >
+		</pin>
+		<pin name="dac5_dfb_dat[8]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[9]" >
+		</pin>
+		<pin name="dac5_dfb_dat[7]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[6]" >
+		</pin>
+		<pin name="dac5_dfb_dat[6]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[7]" >
+		</pin>
+		<pin name="dac5_dfb_dat[5]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[3]" >
+		</pin>
+		<pin name="dac5_dfb_dat[4]" direction="Output" source="Hierarchy Database" diff_pair_node="offset_dac_ncs[3]" >
+		</pin>
+		<pin name="dac5_dfb_dat[3]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[5]" >
+		</pin>
+		<pin name="dac5_dfb_dat[2]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_dat[2]" >
+		</pin>
+		<pin name="dac7_dfb_dat[9]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[8]" >
+		</pin>
+		<pin name="dac7_dfb_dat[8]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[9]" >
+		</pin>
+		<pin name="dac7_dfb_dat[6]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[5]" >
+		</pin>
+		<pin name="dac7_dfb_dat[5]" direction="Output" source="Hierarchy Database" diff_pair_node="dac7_dfb_dat[6]" >
+		</pin>
+		<pin name="dac_clk[2]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_clk[2](n)" >
+		</pin>
+		<pin name="dac_dat[3]" direction="Output" source="Hierarchy Database" diff_pair_node="bias_dac_ncs[3]" >
+		</pin>
+		<pin name="dac_dat[2]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_dat[2](n)" >
+		</pin>
+		<pin name="dac_dat[1]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_dat[1](n)" >
 		</pin>
 		<pin name="mem_clk[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_clk_n[0]" >
 		</pin>
@@ -36,11 +70,29 @@
 		</pin>
 		<pin name="mem_dqsn[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="mem_dqs[0]" >
 		</pin>
-		<pin name="dac7_dfb_dat[6](n)" direction="Output" source="Report Database" diff_pair_node="dac7_dfb_dat[6]" >
+		<pin name="offset_dac_ncs[3]" direction="Output" source="Hierarchy Database" diff_pair_node="dac5_dfb_dat[4]" >
+		</pin>
+		<pin name="offset_dac_ncs[2]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_dat[1]" >
+		</pin>
+		<pin name="offset_dac_ncs[1]" direction="Output" source="Hierarchy Database" diff_pair_node="dac_clk[2]" >
+		</pin>
+		<pin name="adc_fco_p(n)" direction="Input" source="Report Database" diff_pair_node="adc_fco_p" >
+		</pin>
+		<pin name="adc2_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc2_lvds_p" >
+		</pin>
+		<pin name="adc_clk_p(n)" direction="Output" source="Report Database" diff_pair_node="adc_clk_p" >
+		</pin>
+		<pin name="adc3_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc3_lvds_p" >
+		</pin>
+		<pin name="adc4_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc4_lvds_p" >
+		</pin>
+		<pin name="adc5_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc5_lvds_p" >
+		</pin>
+		<pin name="adc6_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc6_lvds_p" >
+		</pin>
+		<pin name="adc7_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc7_lvds_p" >
 		</pin>
 		<pin name="dac_dat[1](n)" direction="Output" source="Report Database" diff_pair_node="dac_dat[1]" >
-		</pin>
-		<pin name="dac7_dfb_dat[5](n)" direction="Output" source="Report Database" diff_pair_node="dac7_dfb_dat[5]" >
 		</pin>
 		<pin name="dac_dat[2](n)" direction="Output" source="Report Database" diff_pair_node="dac_dat[2]" >
 		</pin>
@@ -50,27 +102,9 @@
 		</pin>
 		<pin name="bias_dac_ncs[3](n)" direction="Output" source="Report Database" diff_pair_node="bias_dac_ncs[3]" >
 		</pin>
-		<pin name="adc2_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc2_lvds" >
+		<pin name="adc0_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc0_lvds_p" >
 		</pin>
-		<pin name="adc3_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc3_lvds" >
-		</pin>
-		<pin name="adc4_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc4_lvds" >
-		</pin>
-		<pin name="adc5_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc5_lvds" >
-		</pin>
-		<pin name="adc6_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc6_lvds" >
-		</pin>
-		<pin name="adc7_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc7_lvds" >
-		</pin>
-		<pin name="adc_fco(n)" direction="Input" source="Report Database" diff_pair_node="adc_fco" >
-		</pin>
-		<pin name="adc_dco(n)" direction="Input" source="Report Database" diff_pair_node="adc_dco" >
-		</pin>
-		<pin name="adc_clk(n)" direction="Output" source="Report Database" diff_pair_node="adc_clk" >
-		</pin>
-		<pin name="adc0_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc0_lvds" >
-		</pin>
-		<pin name="adc1_lvds(n)" direction="Input" source="Report Database" diff_pair_node="adc1_lvds" >
+		<pin name="adc1_lvds_p(n)" direction="Input" source="Report Database" diff_pair_node="adc1_lvds_p" >
 		</pin>
 	</pin_info>
 	<buses>
