@@ -1,3 +1,8 @@
+PLL_Name	adc_clk_pll_stratix_iii:i_adc_clk_pll|altpll:altpll_component|adc_clk_pll_stratix_iii_altpll:auto_generated|pll1
+PLLJITTER	31
+PLLSPEmax	84
+PLLSPEmin	-53
+
 PLL_Name	adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|pll1
 PLLJITTER	48
 PLLSPEmax	84
