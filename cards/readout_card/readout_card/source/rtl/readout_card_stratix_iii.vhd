@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.9  2009/09/15 22:30:13  mandana
+-- Updated top-level signal names to align top-level and tcl and qsf file. There were discrepencies in the previous revision that implied some portions to be synthesized out and some constraints not to be considered.
+--
 -- Revision 1.8  2009/08/21 21:56:22  bburger
 -- BB:
 -- - changed default level of adc_sclk to '1'
@@ -102,6 +105,7 @@ port(
 
    -- PLL Interface
    inclk           : in std_logic;
+   inclk6          : in std_logic;
    inclk_ddr       : in std_logic;
    
    -- ADC Interface for Readout Card Rev. C 
@@ -241,7 +245,9 @@ architecture top of readout_card_stratix_iii is
    signal clk_upper    : std_logic;            -- 50MHz to latch upper half of the ADC sample
    signal clk_lower    : std_logic;            -- 50MHz to latch lower half of the ADC sample
    signal clk_word     : std_logic;            -- 50MHz to latch the full word (upper + lower)
+   signal rc_pll_locked       : std_logic;
    signal adc_pll_locked      : std_logic;
+   signal adc_clk_pll_locked  : std_logic;
    
    signal adc_dat     : std_logic_vector(7 downto 0);
    signal serdes_dat0 : std_logic_vector(55 downto 0);
@@ -431,8 +437,8 @@ begin
       c2     => comm_clk,
       c3     => spi_clk,
       c4     => clk_n,
-      c5     => adc_clk,
-      locked => open
+      c5     => open,
+      locked => rc_pll_locked
    );   
 
    ----------------------------------------------------------------------------
@@ -519,6 +525,13 @@ begin
 --    * Duty cycle: 50%
 --# If dynamic phase alignment (DPA) is used for the receiver, set  the following in the wrapper file generated for the altlvds megafunction:
 --    * dpa_multiply_by and dpa_divide_by = same multiplication/division factor as Clk0 (i.e., DPA clock frequency is same as data rate)
+   i_adc_clk_pll : adc_clk_pll_stratix_iii
+   port map (
+      inclk0      => inclk6,
+      c0          => adc_clk,
+      locked      => adc_clk_pll_locked
+   );
+   
    i_adc_pll: adc_pll_stratix_iii
    port map (
       areset => rst,
@@ -589,23 +602,37 @@ begin
    ---------------------------------------------------------
    -- Double Synchronizer for ADC Data
    ---------------------------------------------------------
-   process(rst, clk_n)
-   begin
-      if(rst = '1') then
-         serdes_dat5 <= (others => '0');
-      elsif(clk_n'event and clk_n = '1') then
-         serdes_dat5 <= serdes_dat4;
-      end if;
-   end process;
+   i_adc_serdes_flipflop4: flipflop_112
+   port map (
+      clock      => clk_n,
+      data       => serdes_dat4,
+      q          => serdes_dat5
+   );   
 
-   process(rst, clk)
-   begin
-      if(rst = '1') then
-         serdes_dat6 <= (others => '0');
-      elsif(clk'event and clk = '1') then
-         serdes_dat6 <= serdes_dat5;
-      end if;
-   end process;
+   i_adc_serdes_flipflop5: flipflop_112
+   port map (
+      clock      => clk,
+      data       => serdes_dat5,
+      q          => serdes_dat6
+   );   
+
+--   process(rst, clk_n)
+--   begin
+--      if(rst = '1') then
+--         serdes_dat5 <= (others => '0');
+--      elsif(clk_n'event and clk_n = '1') then
+--         serdes_dat5 <= serdes_dat4;
+--      end if;
+--   end process;
+--
+--   process(rst, clk)
+--   begin
+--      if(rst = '1') then
+--         serdes_dat6 <= (others => '0');
+--      elsif(clk'event and clk = '1') then
+--         serdes_dat6 <= serdes_dat5;
+--      end if;
+--   end process;
    
    adc_dat0 <=  serdes_dat6(13  downto 0);
    adc_dat1 <=  serdes_dat6(27  downto 14);
@@ -1171,20 +1198,20 @@ begin
   --vhdl renameroo for output signals
   mem_we_n <= internal_mem_we_n;
   --vhdl renameroo for output signals
-  --pnf <= internal_pnf;
+  pnf <= internal_pnf;
   --vhdl renameroo for output signals
-  -- pnf_per_byte <= internal_pnf_per_byte;
+  pnf_per_byte <= internal_pnf_per_byte;
   --vhdl renameroo for output signals
--- test_complete <= internal_test_complete;
+  test_complete <= internal_test_complete;
   --vhdl renameroo for output signals
-  --test_status <= internal_test_status;
+  test_status <= internal_test_status;
    
    
-   test_status <= adc_dat1(7 downto 0);
-   pnf_per_byte <= adc_dat0(7 downto 0);
+--   test_status <= adc_dat1(7 downto 0);
+--   pnf_per_byte <= adc_dat0(7 downto 0);
    --test_status(0) <= rx_sclk;
    --test_status(1) <= clk_upper;
    --test_status(2) <= clk_lower;
    --test_complete <= adc0_lvds;
-   pnf <= adc_pll_locked;
+--   pnf <= adc_pll_locked;
 end top;
