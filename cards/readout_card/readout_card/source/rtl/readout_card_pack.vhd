@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.16  2009/08/21 21:34:12  bburger
+-- BB: made changes to rc_pll_stratix_iii (locked) and adc_pll_stratix_iii (areset) interfaces.
+--
 -- Revision 1.15  2009/07/11 00:12:52  bburger
 -- BB:  added adc_serdes_7_bit, adc_pll_stratic_iii_dual_serdes, flipflop_14
 --
@@ -188,6 +191,13 @@ package readout_card_pack is
       locked : OUT STD_LOGIC);
    end component;
 
+   component adc_clk_pll_stratix_iii
+   port (
+      inclk0      : IN STD_LOGIC  := '0';
+      c0          : OUT STD_LOGIC ;
+      locked      : OUT STD_LOGIC);
+   end component;
+
    component adc_pll_stratix_iii
    port (
       areset : IN STD_LOGIC ;
@@ -201,14 +211,14 @@ package readout_card_pack is
    ); 
    end component;
 
-   component adc_pll_stratix_iii_not_fast
-   port (
-      inclk0 : IN STD_LOGIC  := '0';
-      c0    : OUT STD_LOGIC ;
-      c1    : OUT STD_LOGIC --;
-      --locked      : OUT STD_LOGIC
-   ); 
-   end component;
+--   component adc_pll_stratix_iii_not_fast
+--   port (
+--      inclk0 : IN STD_LOGIC  := '0';
+--      c0    : OUT STD_LOGIC ;
+--      c1    : OUT STD_LOGIC --;
+--      --locked      : OUT STD_LOGIC
+--   ); 
+--   end component;
    
    component adc_pll_stratic_iii_dual_serdes
    port (
