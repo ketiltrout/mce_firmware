@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.13.2.1  2009/09/04 23:17:47  mandana
+-- Use FILTER_SCALE_LSB to window the final output of the filter
+-- Fix an indexing (maybe bug) with dropping bits between 2 biquads
+--
 -- Revision 1.13  2009/05/27 01:31:06  bburger
 -- BB: Removed a pointless interlock that added latency.
 --
@@ -361,6 +365,8 @@ begin
          d_product_reg <= (others => '0');
          b11_product_reg <= (others => '0');
          b12_product_reg <= (others => '0');
+         b21_product_reg <= (others => '0');
+         b22_product_reg <= (others => '0');
          multiplicand_a_reg <= (others => '0');
          multiplicand_b_reg <= (others => '0');
       elsif (clk_50_i'event and clk_50_i = '1') then
@@ -381,23 +387,23 @@ begin
          end if;
          
          if (calc_shift_state(4) = '1') then
-            b11_product_reg <= multiplied_result(multiplied_result'left) & --multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH-1 downto 0);
+            b11_product_reg <= --multiplied_result(multiplied_result'left) & --multiplied_result(multiplied_result'left) & 
+                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
 
          if (calc_shift_state(5) = '1') then
-            b12_product_reg <= multiplied_result(multiplied_result'left) & -- multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH-1 downto 0);
+            b12_product_reg <= --multiplied_result(multiplied_result'left) & -- multiplied_result(multiplied_result'left) & 
+                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
          
          if (calc_shift_state(6) = '1') then
-            b21_product_reg <= multiplied_result(multiplied_result'left) & --multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH-1 downto 0);
+            b21_product_reg <=-- multiplied_result(multiplied_result'left) & --multiplied_result(multiplied_result'left) & 
+                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
 
          if (calc_shift_state(7) = '1') then
-            b22_product_reg <= multiplied_result(multiplied_result'left) & -- multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH-1 downto 0);
+            b22_product_reg <= --multiplied_result(multiplied_result'left) & -- multiplied_result(multiplied_result'left) & 
+                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
          
       end if;
@@ -491,19 +497,18 @@ begin
          result                             => wtemp_reg_shift_corrected
       );
    
-   correction_on <= "00000000000000000000000000001" when wtemp_reg_shift(wtemp_reg_shift'left)='1' else 
+   correction_on <= --"00000000000000000000000000001" when wtemp_reg_shift(wtemp_reg_shift'left)='1' else 
                     (others => '0');
 
    -- filter wn stage addition  (1st biquad)
    -- wn <= pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(FILTER_DLY_WIDTH-2 downto 0) - wtemp;
    -- extend sign bit for (input_width - delay_width +1)
-   pidz_sum_reg_shift <= pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
-                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
-                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
-                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
-                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
-                         pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(pidz_sum_reg'left) &
-                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-2 downto filter_lock_dat_lsb);
+   pidz_sum_reg_shift <= pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & 
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1 downto filter_lock_dat_lsb);
    i_wn10_sub : fsfb_calc_sub29
       port map (
          dataa                              => pidz_sum_reg_shift,
@@ -543,7 +548,7 @@ begin
    -- wn <= fltr_sum_reg - wtemp;
    --fltr1_sum_reg_shift <= fltr1_sum_reg(fltr1_sum_reg'left) & fltr1_sum_reg(fltr1_sum_reg'left) 
    --                      & fltr1_sum_reg(FILTER_DLY_WIDTH-3+FILTER_GAIN_WIDTH downto FILTER_GAIN_WIDTH);
-   fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FSFB_QUEUE_DATA_WIDTH-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
+   fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FILTER_DLY_WIDTH+2-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
    fltr1_sum_reg_shift(FLTR_QUEUE_DATA_WIDTH-1-FILTER_GAIN_WIDTH downto 0) <= fltr1_sum_reg(FLTR_QUEUE_DATA_WIDTH-1 downto FILTER_GAIN_WIDTH);
    i_wn20_sub : fsfb_calc_sub29
       port map (
@@ -604,12 +609,12 @@ begin
 
          -- wtemp sum biquad 1
          if (store_1st_wtemp = '1') then
-            wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT-1 downto FILTER_FB_L_BIT);
+            wtemp_reg_shift <= wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
          end if;
 
          -- wtemp sum biquad 2
          if (store_2nd_wtemp = '1') then
-            wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT-1 downto FILTER_FB_L_BIT);
+            wtemp_reg_shift <= wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
          end if;
 
          -- wn10 sum (wn of biquad 1)
