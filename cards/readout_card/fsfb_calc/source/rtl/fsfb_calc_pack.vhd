@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.19  2009/05/27 01:28:56  bburger
+-- BB: Increased the filter storage address width to add storage for two interleaved blocks to make filtered data available on demand
+--
 -- Revision 1.18  2008/10/03 00:32:14  mandana
 -- BB: Removed the z_dat_i port in fsfb_processor.vhd and fsfb_calc_pack.vhd to the fsfb_proc_pidz block, in an effort to make it clearer within that block that the z-term is always = 0.
 --
@@ -132,7 +135,7 @@ package fsfb_calc_pack is
    constant FILTER_SCALE_LSB       : integer := 1;
    constant FILTER_GAIN_WIDTH      : integer := 11;            -- 1/2^11 is the gain scaling between two filter stages.
  
-   constant FILTER_INPUT_WIDTH     : integer := 18;            -- number of bits in the input NOT USED 
+   constant FILTER_INPUT_WIDTH     : integer := 20;            -- number of bits in the input NOT USED 
    constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
    constant FILTER_DLY_WIDTH       : integer := 29;            -- number of bits for wn terms (refer to IIR direct form II)
    constant FILTER_OUTPUT_WIDTH    : integer := 32;            -- number of bits in the output
@@ -449,6 +452,16 @@ package fsfb_calc_pack is
          result      : OUT STD_LOGIC_VECTOR (44 DOWNTO 0)
       );
    end component fsfb_calc_sub45;
+   
+   component fsfb_calc_adder45
+      PORT
+      (
+         dataa    : IN STD_LOGIC_VECTOR (44 DOWNTO 0);
+         datab    : IN STD_LOGIC_VECTOR (44 DOWNTO 0);
+         result      : OUT STD_LOGIC_VECTOR (44 DOWNTO 0)
+      );
+   end component;
+
 
    -----------------------------------------------------------------------------------
    -- Filter adder/subtractor (29-bit) component, 
