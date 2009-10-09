@@ -1,10 +1,10 @@
 x=[]
 t=[]
-fid=fopen('calc_out_fltr_midstage_14_3_im50000_lsb12');
+fid=fopen('calc_out_fltr');
 while 1
   t=fgetl(fid);
   if ~ischar(t), break, end
-    x=[x; sscanf(t, '%d')]
+    x=[x; sscanf(t, '%d')];
 end
 fclose(fid);
 size(x)
