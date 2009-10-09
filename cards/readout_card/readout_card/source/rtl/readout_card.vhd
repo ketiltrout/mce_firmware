@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.84.2.1  2009/09/04 23:25:17  mandana
+-- rev. 5.0.5, added filter coeffs for fs=30000, fc=75Hz and adjusted midstage gains
+--
 -- Revision 1.84  2009/05/27 22:37:47  bburger
 -- BB: Upped the version number and added the data_size interface between dispatch and flux_loop for rectangle data
 --
@@ -176,7 +179,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000005";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000007";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
