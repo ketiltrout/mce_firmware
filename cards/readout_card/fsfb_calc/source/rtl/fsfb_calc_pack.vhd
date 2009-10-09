@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.19.2.1  2009/09/04 23:15:03  mandana
+-- filter coefficients modified for fc=75 and fs=30000, inter-biquad stage may still need adjustments
+--
 -- Revision 1.19  2009/05/27 01:28:56  bburger
 -- BB: Increased the filter storage address width to add storage for two interleaved blocks to make filtered data available on demand
 --
@@ -135,7 +138,7 @@ package fsfb_calc_pack is
    constant FILTER_SCALE_LSB       : integer := 3;             -- is the number of bits dropped after the second biquad
    constant FILTER_GAIN_WIDTH      : integer := 14;            -- 1/2^14 is the gain scaling between two filter stages.
  
-   constant FILTER_INPUT_WIDTH     : integer := 18;            -- number of bits in the input NOT USED 
+   constant FILTER_INPUT_WIDTH     : integer := 20;            -- number of bits in the input NOT USED 
    constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
    constant FILTER_DLY_WIDTH       : integer := 29;            -- number of bits for wn terms (refer to IIR direct form II)
    constant FILTER_OUTPUT_WIDTH    : integer := 32;            -- number of bits in the output
@@ -454,6 +457,16 @@ package fsfb_calc_pack is
          result      : OUT STD_LOGIC_VECTOR (44 DOWNTO 0)
       );
    end component fsfb_calc_sub45;
+   
+   component fsfb_calc_adder45
+      PORT
+      (
+         dataa    : IN STD_LOGIC_VECTOR (44 DOWNTO 0);
+         datab    : IN STD_LOGIC_VECTOR (44 DOWNTO 0);
+         result      : OUT STD_LOGIC_VECTOR (44 DOWNTO 0)
+      );
+   end component;
+
 
    -----------------------------------------------------------------------------------
    -- Filter adder/subtractor (29-bit) component, 
