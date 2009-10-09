@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.29.2.1  2009/09/16 20:14:08  bburger
+-- BB: ac 4.0.8 supports the bias_start command
+--
 -- Revision 1.29  2008/06/17 19:03:20  bburger
 -- BB:  Added support for const_val39, for revision ac_v02000007
 --
@@ -147,7 +150,7 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000008";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000009";
 
    -- clocks
    signal clk      : std_logic;
@@ -271,7 +274,7 @@ begin
    lvds_txb <= '0';
 
    -- For simulation; for some reason, the PLL adds an unexpected phase shift between the clk_n and clk.
-   --clk_n <= not clk;
+   clk_n <= not clk;
 
    pll0: ac_pll
    port map(
@@ -279,7 +282,7 @@ begin
       c0 => clk,
       c1 => mem_clk,
       c2 => comm_clk,
-      c3 => clk_n
+      c3 => open--clk_n
    );
 
    cmd0: dispatch
@@ -466,7 +469,7 @@ begin
                                 FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                 FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
-                                FB_COL40_ADDR | BIAS_START_ADDR,
+                                FB_COL40_ADDR | BIAS_START_ADDR | HEATER_BIAS_ADDR | HEATER_BIAS_LEN_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
          id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
@@ -481,7 +484,7 @@ begin
                                 FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                 FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
-                                FB_COL40_ADDR | BIAS_START_ADDR,
+                                FB_COL40_ADDR | BIAS_START_ADDR | HEATER_BIAS_ADDR | HEATER_BIAS_LEN_ADDR,
          frame_timing_ack  when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
@@ -495,7 +498,7 @@ begin
                                 FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                 FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                 FB_COL30_ADDR | FB_COL31_ADDR | FB_COL32_ADDR | FB_COL33_ADDR | FB_COL34_ADDR | FB_COL35_ADDR | FB_COL36_ADDR | FB_COL37_ADDR | FB_COL38_ADDR | FB_COL39_ADDR |
-                                FB_COL40_ADDR | BIAS_START_ADDR,
+                                FB_COL40_ADDR | BIAS_START_ADDR | HEATER_BIAS_ADDR | HEATER_BIAS_LEN_ADDR,
          all_cards_err     when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err   when FPGA_TEMP_ADDR,
