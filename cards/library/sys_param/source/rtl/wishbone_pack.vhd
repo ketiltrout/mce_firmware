@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/09/14 19:52:35 $> - <initials $Author: bburger $>
+-- <date $Date: 2009/09/16 18:56:18 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.53  2009/09/16 18:56:18  bburger
+-- BB:  Added a couple of redundant command names to make the latest file compatible with older versions of 4.x.x- firmware
+--
 -- Revision 1.52  2009/09/14 19:52:35  bburger
 -- BB: added BIAS_START_ADDR for row-specific bias delays
 --
@@ -252,6 +255,8 @@ package wishbone_pack is
    constant CONST_VAL_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
    constant CONST_VAL39_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"08";
    constant BIAS_START_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"09";
+   constant HEATER_BIAS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"0A";
+   constant HEATER_BIAS_LEN_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"0B";
 
    ---------------------------------------------------------------------------------------
    -- Address Card Specific Parameter IDs
