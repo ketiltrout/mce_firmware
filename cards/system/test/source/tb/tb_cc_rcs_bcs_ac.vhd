@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.73 2009/08/21 22:26:21 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.74 2009/09/14 20:06:54 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.74  2009/09/14 20:06:54  bburger
+-- BB: BIAS_START_ADDR added
+--
 -- Revision 1.73  2009/08/21 22:26:21  bburger
 -- BB: changed a wait period from 50 to 150 us
 --
@@ -867,6 +870,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ac_const_val_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_VAL_ADDR;
    constant ac_const_val39_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & CONST_VAL39_ADDR;
    constant ac_bias_start_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & BIAS_START_ADDR;
+   constant ac_heater_bias_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & HEATER_BIAS_ADDR;
+   constant ac_heater_bias_len_cmd  : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & HEATER_BIAS_LEN_ADDR;
 
    constant bc1_flux_fb_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & FLUX_FB_ADDR;
    constant bc1_bias_cmd            : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & BIAS_ADDR;
@@ -2794,7 +2799,7 @@ begin
       wait for 150 us;
 
       command <= command_wb;
-      address_id <= ac_bias_start_cmd;
+      address_id <= ac_heater_bias_cmd;
       data_valid <= X"00000029";
       data       <= X"00000000";
       load_preamble;
@@ -2803,7 +2808,7 @@ begin
       wait for 100 us;
 
       command <= command_rb;
-      address_id <= ac_bias_start_cmd;
+      address_id <= ac_heater_bias_cmd;
       data_valid <= X"00000029";
       data       <= X"00000000";
       load_preamble;
@@ -2812,9 +2817,54 @@ begin
       wait for 100 us;
       
       command <= command_wb;
+      address_id <= ac_heater_bias_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000010";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_rb;
+      address_id <= ac_heater_bias_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
       address_id <= ac_row_order_cmd;
       data_valid <= X"00000029";
       data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;      
+      
+--      command <= command_wb;
+--      address_id <= ac_const_mode_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00004000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;      
+
+      command <= command_wb;
+      address_id <= ac_on_bias_cmd;
+      data_valid <= X"00000029";
+      data       <= X"00002000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;      
+
+      command <= command_wb;
+      address_id <= ac_off_bias_cmd;
+      data_valid <= X"00000029";
+      data       <= X"00001000";
       load_preamble;
       load_command;
       load_checksum;
@@ -2823,11 +2873,11 @@ begin
       command <= command_wb;
       address_id <= ac_enbl_mux_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000001";
+      data       <= X"00000003";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 200 us;      
+      wait for 600 us;      
 
 ------------------------------------------------------
 
