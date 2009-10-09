@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.18 2009/09/14 20:11:12 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.19 2009/09/14 21:36:46 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.19  2009/09/14 21:36:46  bburger
+-- BB: correction to the width of mode_data_slv.
+--
 -- Revision 1.18  2009/09/14 20:11:12  bburger
 -- BB: support added for BIAS_START_ADDR added to the mux_en = 1 branch of the FSM
 --
@@ -158,9 +161,10 @@ architecture rtl of ac_dac_ctrl is
    -- Row Addressing FSM signals:
    constant FSM_DELAY         : std_logic_vector(ROW_COUNT_WIDTH-1 downto 0) := x"0002";
 
-   type row_states is (IDLE, BC_LATCH1, BC_LATCH2, BC_LATCH3, BC_LATCH4,
-      BC_LATCH_NEW_ROW_INDEX, BC_WAIT_FOR_ROW_SWITCH, AC_LATCH_OFF, AC_ROW_DLY,
-      AC_LATCH_ON, AC_LATCH_NEW_ROW_INDEX, AC_WAIT_FOR_ROW_SWITCH);
+   type row_states is (IDLE, 
+      BC_LATCH1, BC_LATCH2, BC_LATCH3, BC_LATCH4, BC_LATCH_NEW_ROW_INDEX, BC_WAIT_FOR_ROW_SWITCH, 
+      AC_LATCH_OFF, AC_ROW_DLY, AC_LATCH_ON, AC_LATCH_NEW_ROW_INDEX, AC_WAIT_FOR_ROW_SWITCH, --MODE3_ROW_OFF, 
+      MODE3_HEAT1_ON, MODE3_HEAT2_ON, MODE3_HEAT3_ON, MODE3_HEAT4_ON, MODE3_HEATING, MODE3_HEAT_OFF, MODE3_ROW_ON, MODE3_LATCH_NEW_ROW_INDEX, MODE3_WAIT_FOR_ROW_SWITCH);
    signal row_current_state   : row_states;
    signal row_next_state      : row_states;
 
@@ -170,7 +174,7 @@ architecture rtl of ac_dac_ctrl is
 
    signal row_count           : std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
    signal frame_aligned_reg   : std_logic;
-   signal mux_en              : integer range 0 to 2;
+   signal mux_en              : integer range 0 to 3;
    signal prev_row_count      : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
    signal row_count_new       : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
 
@@ -182,17 +186,21 @@ architecture rtl of ac_dac_ctrl is
    signal fb_wren             : w1_array64;
    signal pre_reg_data        : w14_array64;
    signal fast_dac_data       : w14_array64;
+   signal hb_data_vec         : w32_array64;
+--   signal hb_data_vec_short   : w14_array64;
    signal dataa               : w32_array64;
    -- datab needs to be a vector of 64 signals, because its addressed using ROW_ADDR_WIDTH, which is 6 bits wide: 2^6 = 64
    signal datab               : w32_array64;
 
    signal mode_wren_vec       : w1_array64;
    signal val_wren_vec        : w1_array64;
+   signal heater_bias_wren_vec: w1_array64;
    signal mode_data_slv       : std_logic_vector(AC_NUM_DACS-1 downto 0);
    signal mode_data_vec       : w32_array64;
    signal const_data_vec      : w32_array64;
    signal mode_data           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal const_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal heater_bias_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal val_changing        : std_logic;
    signal update_const        : std_logic;
    signal update_const_dly1   : std_logic;
@@ -237,32 +245,38 @@ architecture rtl of ac_dac_ctrl is
    end component;
 
    -- FSM inputs
-   signal wr_cmd            : std_logic;
-   signal rd_cmd            : std_logic;
+   signal wr_cmd               : std_logic;
+   signal rd_cmd               : std_logic;
 
    -- RAM/Register signals
    signal bias_start_wren      : std_logic;
-   signal on_val_wren       : std_logic;
-   signal off_val_wren      : std_logic;
-   signal row_order_wren    : std_logic;
-   signal mux_en_wren       : std_logic;
-   signal mux_en_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal bias_start_dataa  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal bias_start_datab  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal on_dataa          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal on_datab          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal off_dataa         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal off_datab         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal row_order_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal slow_dac_data_on  : std_logic_vector(14-1 downto 0);
-   signal slow_dac_data_off : std_logic_vector(14-1 downto 0);
+   signal on_val_wren          : std_logic;
+   signal off_val_wren         : std_logic;
+   signal row_order_wren       : std_logic;
+   signal mux_en_wren          : std_logic;
+--   signal heater_bias_wren     : std_logic;
+   signal heater_bias_len_wren : std_logic;
+   
+   signal mux_en_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal heater_bias_len_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal bias_start_dataa     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal bias_start_datab     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal on_dataa             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal on_datab             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal off_dataa            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal off_datab            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal row_order_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal slow_dac_data_on     : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
+   signal slow_dac_data_off    : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
+--   signal heater_bias_dataa    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--   signal heater_bias_datab    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- WBS states:
    type states is (IDLE, WR, RD1, RD2);
-   signal current_state : states;
-   signal next_state    : states;
-   signal addr_int      : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal datab_mux     : word32;
+   signal current_state        : states;
+   signal next_state           : states;
+   signal addr_int             : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal datab_mux            : word32;
 
    signal update_row_index             : std_logic;
    signal start_row                    : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
@@ -320,24 +334,21 @@ begin
          update_const_dly2 <= update_const_dly1;
 
          if(mode_data_vec(row_to_turn_on_int)(0) = '0' and mux_en /= 0) then
-            slow_dac_data_on <= on_dataa(13 downto 0);
+            slow_dac_data_on <= on_dataa(AC_BUS_WIDTH-1 downto 0);
          else
-            slow_dac_data_on <= const_data_vec(row_to_turn_on_int)(13 downto 0);
+            slow_dac_data_on <= const_data_vec(row_to_turn_on_int)(AC_BUS_WIDTH-1 downto 0);
          end if;
 
          if(mode_data_vec(row_to_turn_off_int)(0) = '0' and mux_en /= 0) then
-            slow_dac_data_off <= off_dataa(13 downto 0);
+            slow_dac_data_off <= off_dataa(AC_BUS_WIDTH-1 downto 0);
          else
-            slow_dac_data_off <= const_data_vec(row_to_turn_off_int)(13 downto 0);
+            slow_dac_data_off <= const_data_vec(row_to_turn_off_int)(AC_BUS_WIDTH-1 downto 0);
          end if;
 
       end if;
    end process registered_signals;
 
-   mux_en <=
-      0 when mux_en_data = x"00000000" else
-      1 when mux_en_data = x"00000001" else
-      2;
+   mux_en <= conv_integer(mux_en_data);
 
    ------------------------------------------------------------
    -- clocked FSMs, advance the state for both FSMs
@@ -352,7 +363,7 @@ begin
    end process state_FF2;
 
    row_count <= row_count_i + FSM_DELAY;
-   row_state_NS: process(row_current_state, restart_frame_aligned_i, mux_en, row_switch_i, update_const, bias_start_dataa, row_count)
+   row_state_NS: process(row_current_state, restart_frame_aligned_i, mux_en, row_switch_i, update_const, bias_start_dataa, row_count, heater_bias_len_data)
    begin
       -- Default assignments
       row_next_state <= row_current_state;
@@ -360,12 +371,15 @@ begin
       case row_current_state is
 
          when IDLE =>
-            if(restart_frame_aligned_i = '1' and mux_en = 2) then
+            if(restart_frame_aligned_i = '1' and mux_en = 3) then
+               row_next_state <= MODE3_HEAT1_ON;
+            elsif(restart_frame_aligned_i = '1' and mux_en = 2) then
                row_next_state <= BC_LATCH1;
             elsif(restart_frame_aligned_i = '1' and mux_en = 1) then
                -- Implement an alternate branch in the FSM here that takes care of the original way of muliplexing on the Address Card
                row_next_state <= AC_LATCH_OFF;
             elsif(update_const = '1') then
+               -- fast_dac_data is a delay register that has either fast sq2fb or constant data multiplexed in.
                row_next_state <= BC_LATCH1;
             end if;
 
@@ -396,12 +410,13 @@ begin
             elsif(mux_en = 0 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
                -- If multiplexing has been disabled, and we are at the end of a frame.
                row_next_state <= IDLE;
-            elsif(mux_en = 2 and row_switch_i = '1' and restart_frame_aligned_i = '0') then
+            elsif(mux_en /= 1 and row_switch_i = '1' and restart_frame_aligned_i = '0') then
                -- If multiplexing has been disabled, and we are at the end of a frame.
                row_next_state <= AC_LATCH_OFF;
-            elsif(mux_en = 2 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
+            elsif(mux_en /= 1 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
                -- If multiplexing has been disabled, and we are at the end of a frame.
-               row_next_state <= BC_LATCH1;
+               -- This was changed to a transition to IDLE when mode 3 was added.
+               row_next_state <= IDLE;
             end if;
 
          ------------------------------------------------------------------
@@ -433,12 +448,64 @@ begin
             elsif(mux_en = 0 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
                -- If multiplexing has been disabled, and we are at the end of a frame.
                row_next_state <= IDLE;
-            elsif(mux_en = 1 and row_switch_i = '1' and restart_frame_aligned_i = '0') then
+            elsif(mux_en /= 2 and row_switch_i = '1' and restart_frame_aligned_i = '0') then
                -- If multiplexing has been disabled, and we are at the end of a frame.
                row_next_state <= BC_LATCH1;
-            elsif(mux_en = 1 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
+            elsif(mux_en /= 2 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
                -- If multiplexing has been disabled, and we are at the end of a frame.
-               row_next_state <= AC_LATCH_OFF;
+               -- This was changed to a transition to IDLE when mode 3 was added.
+               row_next_state <= IDLE;
+            end if;
+
+         ------------------------------------------------------------------
+         --  This is MUX Mode #3:  At the start of every row, the array is heated differentially for Tc flattening
+         ------------------------------------------------------------------
+--         when MODE3_ROW_OFF =>
+--            row_next_state <= MODE3_HEAT1_ON;
+
+         when MODE3_HEAT1_ON =>
+            row_next_state <= MODE3_HEAT2_ON;
+
+         when MODE3_HEAT2_ON =>
+            row_next_state <= MODE3_HEAT3_ON;
+
+         when MODE3_HEAT3_ON =>
+            row_next_state <= MODE3_HEAT4_ON;
+
+         when MODE3_HEAT4_ON =>
+            row_next_state <= MODE3_HEATING;
+
+         when MODE3_HEATING =>
+            if(heater_bias_len_data(ROW_COUNT_WIDTH-1 downto 0) <= row_count) then
+               row_next_state <= MODE3_HEAT_OFF;
+            end if;
+            
+         when MODE3_HEAT_OFF =>
+            row_next_state <= MODE3_ROW_ON;
+
+         when MODE3_ROW_ON =>
+            row_next_state <= MODE3_LATCH_NEW_ROW_INDEX;
+         
+         when MODE3_LATCH_NEW_ROW_INDEX =>
+            row_next_state <= MODE3_WAIT_FOR_ROW_SWITCH;
+
+         when MODE3_WAIT_FOR_ROW_SWITCH =>
+            if(mux_en = 3 and row_switch_i = '1') then
+               -- If multiplexing is still enabled and a row-switch occurs, keep on mux'ing
+               row_next_state <= MODE3_HEAT1_ON;
+            elsif(mux_en = 0 and row_switch_i = '1' and restart_frame_aligned_i = '0') then
+               -- If multiplexing is disabled, but were are not yet at the end of a frame.
+               row_next_state <= MODE3_HEAT1_ON;
+            elsif(mux_en = 0 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
+               -- If multiplexing has been disabled, and we are at the end of a frame.
+               row_next_state <= IDLE;
+            elsif(mux_en /= 3 and row_switch_i = '1' and restart_frame_aligned_i = '0') then
+               -- If multiplexing has switched from 3->1 or 2, and we ARE NOT at the end of a frame.
+               row_next_state <= MODE3_HEAT1_ON;
+            elsif(mux_en /= 3 and row_switch_i = '1' and restart_frame_aligned_i = '1') then
+               -- If multiplexing has switched from 3->1 or 2, and we ARE at the end of a frame.
+               -- This was changed to a transition to IDLE in the othe modes when mode 3 was added.
+               row_next_state <= IDLE;
             end if;
 
          when others =>
@@ -569,8 +636,7 @@ begin
             dac_data_o(9)  <= slow_dac_data_on;
             dac_data_o(10) <= slow_dac_data_on;
 
-            -- We can assert update_row_index at the end of every row, because we never get into this state
-            -- unless multiplexing is enabled.
+            -- We can assert update_row_index at the end of every row, because we never get into this state unless multiplexing is enabled.
             -- update_row_index has to be asserted for two 100 MHz clock cycles because the FSM it interfaces to a 50 MHz FSM
             update_row_index <= '1';
 
@@ -596,7 +662,8 @@ begin
          ------------------------------------------------------------------
          -- This is MUX Mode #0 or #2:
          -- This mode is used for fast sq2_fb multiplexing
-         -- This sequence of states is also used for applying constants when multiplexing is off
+         -- This sequence of states is also used for applying constants when multiplexing is off.
+         -- fast_dac_data is a delay register that has either fast sq2fb or constant data multiplexed in.
          ------------------------------------------------------------------
          when BC_LATCH1 =>
             dac_data_o(0)  <= fast_dac_data( 0);
@@ -612,7 +679,7 @@ begin
             dac_data_o(10) <= fast_dac_data(40);
 
             if(mux_en = 0 and update_const = '1') then
-               -- When mux_en = 0, if a new constant values are written, update all DACs because they are all in constant mode
+               -- When mux_en = 0, if new constant values are written, update all DACs because they are all in constant mode
                -- This condition is also valid after a reset, because the update_const signal is asserted.
                -- This triggers the output of default values to the DACs.
                dac_clks <= DAC_CLKS1;
@@ -715,12 +782,179 @@ begin
                update_const_ack <= '1';
             end if;
 
+            -- What is this condition for? Is it for the case where we are in mode = 0, and are updating the constant values?  Probably.
             if (mux_en /= 0) then
-               -- Need a second (100 MHz) state of asserting update_row_index to ensure that the register (50 MHz) above latches the new value
+               -- May need a second (100 MHz) state of asserting update_row_index to ensure that the register (50 MHz) above latches the new value
                update_row_index <= '1';
             end if;
 
          when BC_WAIT_FOR_ROW_SWITCH =>
+            dac_data_o(0)  <= fast_dac_data( 0);
+            dac_data_o(1)  <= fast_dac_data( 1);
+            dac_data_o(2)  <= fast_dac_data( 8);
+            dac_data_o(3)  <= fast_dac_data( 9);
+            dac_data_o(4)  <= fast_dac_data(16);
+            dac_data_o(5)  <= fast_dac_data(17);
+            dac_data_o(6)  <= fast_dac_data(24);
+            dac_data_o(7)  <= fast_dac_data(25);
+            dac_data_o(8)  <= fast_dac_data(32);
+            dac_data_o(9)  <= fast_dac_data(33);
+            dac_data_o(10) <= fast_dac_data(40);
+
+         ------------------------------------------------------------------
+         --  This is MUX Mode #3:  At the start of every row, the array is heated differentially for Tc flattening
+         ------------------------------------------------------------------
+--         -- This state really isn't necessary, because it's DAC value is overwritten almost immediately in one of the following four states.
+--         when MODE3_ROW_OFF =>
+--            dac_data_o(0)  <= slow_dac_data_off;
+--            dac_data_o(1)  <= slow_dac_data_off;
+--            dac_data_o(2)  <= slow_dac_data_off;
+--            dac_data_o(3)  <= slow_dac_data_off;
+--            dac_data_o(4)  <= slow_dac_data_off;
+--            dac_data_o(5)  <= slow_dac_data_off;
+--            dac_data_o(6)  <= slow_dac_data_off;
+--            dac_data_o(7)  <= slow_dac_data_off;
+--            dac_data_o(8)  <= slow_dac_data_off;
+--            dac_data_o(9)  <= slow_dac_data_off;
+--            dac_data_o(10) <= slow_dac_data_off;
+--
+--            -- Constant values are applied next if necessary, so just update the DAC if it is not constant.
+--            dac_clks(row_to_turn_off_int) <= (not mode_data_slv(row_to_turn_off_int));
+        
+         when MODE3_HEAT1_ON =>
+            dac_data_o(0)  <= fast_dac_data( 0);
+            dac_data_o(1)  <= fast_dac_data( 1);
+            dac_data_o(2)  <= fast_dac_data( 8);
+            dac_data_o(3)  <= fast_dac_data( 9);
+            dac_data_o(4)  <= fast_dac_data(16);
+            dac_data_o(5)  <= fast_dac_data(17);
+            dac_data_o(6)  <= fast_dac_data(24);
+            dac_data_o(7)  <= fast_dac_data(25);
+            dac_data_o(8)  <= fast_dac_data(32);
+            dac_data_o(9)  <= fast_dac_data(33);
+            dac_data_o(10) <= fast_dac_data(40);
+
+            if(mux_en = 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS1;
+            elsif(mux_en = 0 and update_const = '0') then
+               null;
+            elsif(mux_en /= 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS1;
+            elsif(mux_en /= 0 and update_const = '0') then
+               dac_clks <= DAC_CLKS1 and (not mode_data_slv);
+            end if;
+         
+         when MODE3_HEAT2_ON =>
+            dac_data_o(0)  <= fast_dac_data( 2);
+            dac_data_o(1)  <= fast_dac_data( 3);
+            dac_data_o(2)  <= fast_dac_data(10);
+            dac_data_o(3)  <= fast_dac_data(11);
+            dac_data_o(4)  <= fast_dac_data(18);
+            dac_data_o(5)  <= fast_dac_data(19);
+            dac_data_o(6)  <= fast_dac_data(26);
+            dac_data_o(7)  <= fast_dac_data(27);
+            dac_data_o(8)  <= fast_dac_data(34);
+            dac_data_o(9)  <= fast_dac_data(35);
+            dac_data_o(10) <= fast_dac_data(40);
+
+            if(mux_en = 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS2;
+            elsif(mux_en = 0 and update_const = '0') then
+               null;
+            elsif(mux_en /= 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS2;
+            elsif(mux_en /= 0 and update_const = '0') then
+               dac_clks <= DAC_CLKS2 and (not mode_data_slv);
+            end if;
+         
+         when MODE3_HEAT3_ON =>
+            dac_data_o(0)  <= fast_dac_data( 5);
+            dac_data_o(1)  <= fast_dac_data( 4);
+            dac_data_o(2)  <= fast_dac_data(13);
+            dac_data_o(3)  <= fast_dac_data(12);
+            dac_data_o(4)  <= fast_dac_data(21);
+            dac_data_o(5)  <= fast_dac_data(20);
+            dac_data_o(6)  <= fast_dac_data(29);
+            dac_data_o(7)  <= fast_dac_data(28);
+            dac_data_o(8)  <= fast_dac_data(37);
+            dac_data_o(9)  <= fast_dac_data(36);
+            dac_data_o(10) <= fast_dac_data(40);
+
+            if(mux_en = 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS3;
+            elsif(mux_en = 0 and update_const = '0') then
+               null;
+            elsif(mux_en /= 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS3;
+            elsif(mux_en /= 0 and update_const = '0') then
+               dac_clks <= DAC_CLKS3 and (not mode_data_slv);
+            end if;
+         
+         when MODE3_HEAT4_ON =>
+            dac_data_o(0)  <= fast_dac_data( 7);
+            dac_data_o(1)  <= fast_dac_data( 6);
+            dac_data_o(2)  <= fast_dac_data(15);
+            dac_data_o(3)  <= fast_dac_data(14);
+            dac_data_o(4)  <= fast_dac_data(23);
+            dac_data_o(5)  <= fast_dac_data(22);
+            dac_data_o(6)  <= fast_dac_data(31);
+            dac_data_o(7)  <= fast_dac_data(30);
+            dac_data_o(8)  <= fast_dac_data(39);
+            dac_data_o(9)  <= fast_dac_data(38);
+            dac_data_o(10) <= fast_dac_data(40);
+
+            if(mux_en = 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS4;
+            elsif(mux_en = 0 and update_const = '0') then
+               null;
+            elsif(mux_en /= 0 and update_const = '1') then
+               dac_clks <= DAC_CLKS4;
+            elsif(mux_en /= 0 and update_const = '0') then
+               dac_clks <= DAC_CLKS4 and (not mode_data_slv);
+            end if;
+         
+         when MODE3_HEATING =>
+            -- DAC buses are all held at zero.
+         
+         when MODE3_HEAT_OFF =>
+            -- DAC buses are all held at zero.
+            -- Constant values have already been applied if necessary, so just update the DACs if they are not constant.
+            dac_clks <= DAC_ALL_CLKS and (not mode_data_slv);
+         
+         when MODE3_ROW_ON =>
+            -- Constant data is multiplexed into slow_dac_data_on/ slow_dac_data_off only
+            dac_data_o(0)  <= slow_dac_data_on;
+            dac_data_o(1)  <= slow_dac_data_on;
+            dac_data_o(2)  <= slow_dac_data_on;
+            dac_data_o(3)  <= slow_dac_data_on;
+            dac_data_o(4)  <= slow_dac_data_on;
+            dac_data_o(5)  <= slow_dac_data_on;
+            dac_data_o(6)  <= slow_dac_data_on;
+            dac_data_o(7)  <= slow_dac_data_on;
+            dac_data_o(8)  <= slow_dac_data_on;
+            dac_data_o(9)  <= slow_dac_data_on;
+            dac_data_o(10) <= slow_dac_data_on;
+
+            -- Constant values have already been applied if necessary, so just update the DAC if it is not constant.
+            dac_clks(row_to_turn_on_int) <= (not mode_data_slv(row_to_turn_on_int));
+            
+         when MODE3_LATCH_NEW_ROW_INDEX =>
+            -- If the constant DAC values were changed during this frame period, acknowlege the change.
+            if(update_const = '1') then
+               update_const_ack <= '1';
+            end if;
+
+--            -- May need a second (100 MHz) state of asserting update_row_index to ensure that the register (50 MHz) above latches the new value.
+--            -- We don't enter this state unless mux_en = 3, so don't worry about asserting this conditionally.
+--            update_row_index <= '1';
+            
+            -- What is this condition for? Is it for the case where we are in mode = 0, and are updating the constant values?  Probably.
+            if (mux_en /= 0) then
+               -- May need a second (100 MHz) state of asserting update_row_index to ensure that the register (50 MHz) above latches the new value
+               update_row_index <= '1';
+            end if;
+         
+         when MODE3_WAIT_FOR_ROW_SWITCH =>
             dac_data_o(0)  <= fast_dac_data( 0);
             dac_data_o(1)  <= fast_dac_data( 1);
             dac_data_o(2)  <= fast_dac_data( 8);
@@ -870,6 +1104,8 @@ begin
       val_changing   <= '0';
       mode_wren_vec  <= (others => '0');
       val_wren_vec   <= (others => '0');
+      heater_bias_wren_vec <= (others => '0');
+      heater_bias_len_wren <= '0';
 
       case current_state is
          when IDLE  =>
@@ -881,10 +1117,19 @@ begin
 
             if(stb_i = '1') then
                if(addr_i = ON_BIAS_ADDR) then
+                  -- We do not assert val_changing here 
                   on_val_wren            <= '1';
                elsif(addr_i = BIAS_START_ADDR) then
-                  bias_start_wren           <= '1';
+                  -- We do not assert val_changing here 
+                  bias_start_wren        <= '1';
+               elsif(addr_i = HEATER_BIAS_ADDR) then
+                  -- We do not assert val_changing here 
+                  heater_bias_wren_vec(tga_int) <= '1';
+               elsif(addr_i = HEATER_BIAS_LEN_ADDR) then
+                  -- We do not assert val_changing here 
+                  heater_bias_len_wren   <= '1';
                elsif(addr_i = OFF_BIAS_ADDR) then
+                  -- We do not assert val_changing here 
                   off_val_wren           <= '1';
                elsif(addr_i = ENBL_MUX_ADDR) then
                   mux_en_wren            <= '1';
@@ -928,22 +1173,25 @@ begin
    ------------------------------------------------------------
    --  Wishbone Control Signals
    ------------------------------------------------------------
-   addr_int   <= conv_integer(addr_i(ROW_ADDR_WIDTH-1 downto 0));
-   tga_int    <= conv_integer(tga_i(WB_TAG_ADDR_WIDTH-1 downto 0));
-   datab_mux  <= datab(addr_int);
-   mode_data  <= mode_data_vec(tga_int);
-   const_data <= const_data_vec(tga_int);
+   addr_int          <= conv_integer(addr_i(ROW_ADDR_WIDTH-1 downto 0));
+   tga_int           <= conv_integer(tga_i(WB_TAG_ADDR_WIDTH-1 downto 0));
+   datab_mux         <= datab(addr_int);
+   mode_data         <= mode_data_vec(tga_int);
+   const_data        <= const_data_vec(tga_int);
+   heater_bias_data  <= hb_data_vec(tga_int);
 
    dat_o <=
-      on_datab           when (addr_i = ON_BIAS_ADDR) else
-      off_datab          when (addr_i = OFF_BIAS_ADDR) else
-      mux_en_data        when (addr_i = ENBL_MUX_ADDR) else
-      row_order_data     when (addr_i = ROW_ORDER_ADDR) else
-      mode_data          when (addr_i = CONST_MODE_ADDR) else
-      const_data         when (addr_i = CONST_VAL_ADDR) else
-      const_data_vec(39) when (addr_i = CONST_VAL39_ADDR) else
-      bias_start_datab      when (addr_i = BIAS_START_ADDR) else
-      datab_mux          when ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR)) else
+      on_datab             when (addr_i = ON_BIAS_ADDR) else
+      off_datab            when (addr_i = OFF_BIAS_ADDR) else
+      mux_en_data          when (addr_i = ENBL_MUX_ADDR) else
+      row_order_data       when (addr_i = ROW_ORDER_ADDR) else
+      mode_data            when (addr_i = CONST_MODE_ADDR) else
+      const_data           when (addr_i = CONST_VAL_ADDR) else
+      const_data_vec(39)   when (addr_i = CONST_VAL39_ADDR) else
+      bias_start_datab     when (addr_i = BIAS_START_ADDR) else
+      heater_bias_data     when (addr_i = HEATER_BIAS_ADDR) else
+      heater_bias_len_data when (addr_i = HEATER_BIAS_LEN_ADDR) else
+      datab_mux            when ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR)) else
       (others => '0');
 
    rd_cmd  <= '1' when
@@ -956,6 +1204,8 @@ begin
          addr_i = CONST_VAL_ADDR or
          addr_i = CONST_VAL39_ADDR or
          addr_i = BIAS_START_ADDR or
+         addr_i = HEATER_BIAS_ADDR or
+         addr_i = HEATER_BIAS_LEN_ADDR or
          ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR))) else '0';
 
    wr_cmd  <= '1' when
@@ -968,6 +1218,8 @@ begin
          addr_i = CONST_VAL_ADDR or
          addr_i = CONST_VAL39_ADDR or
          addr_i = BIAS_START_ADDR or
+         addr_i = HEATER_BIAS_ADDR or
+         addr_i = HEATER_BIAS_LEN_ADDR or
          ((addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL40_ADDR))) else '0';
 
    -----------------------------------------------------------------------
@@ -1022,6 +1274,29 @@ begin
          qb                => row_order_data
       );
 
+--   heater_bias_ram : tpram_32bit_x_64
+--      port map(
+--         data              => dat_i,
+--         wren              => heater_bias_wren,
+--         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
+--         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
+--         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
+--         clock             => clk_i,
+--         qa                => heater_bias_dataa,
+--         qb                => heater_bias_datab
+--      );
+
+   heater_bias_len_reg : reg
+      generic map(
+         WIDTH             => PACKET_WORD_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => heater_bias_len_wren,
+         reg_i             => dat_i,
+         reg_o             => heater_bias_len_data
+      );
+
    mux_en_reg : reg
       generic map(
          WIDTH             => PACKET_WORD_WIDTH)
@@ -1033,16 +1308,22 @@ begin
          reg_o             => mux_en_data
       );
 
+
    -----------------------------------------------------------------------------
    -- Instantiation of All SQ2FB Fast Switching RAM Banks
    -----------------------------------------------------------------------------
    ram_bank: for i in 0 to AC_NUM_DACS-1 generate
 
-      pre_reg_data(i)  <= dataa(i)(13 downto 0) when mode_data_vec(i)(0) = '0' and mux_en /= 0 else const_data_vec(i)(13 downto 0);
+      pre_reg_data(i) <=
+         dataa(i)         (AC_BUS_WIDTH-1 downto 0) when mode_data_vec(i)(0) = '0' and mux_en = 2 else 
+         hb_data_vec(i)   (AC_BUS_WIDTH-1 downto 0) when mode_data_vec(i)(0) = '0' and mux_en = 3 else         
+         const_data_vec(i)(AC_BUS_WIDTH-1 downto 0);
+      
       mode_data_slv(i) <= mode_data_vec(i)(0);
 
+      -- This is a holding register for the data to latch into the DACs
       fast_dac_reg : reg
-      generic map(WIDTH => 14)
+      generic map(WIDTH => AC_BUS_WIDTH)
       port map(
          clk_i  => clk_i,
          rst_i  => rst_i,
@@ -1051,6 +1332,17 @@ begin
          reg_o  => fast_dac_data(i)
       );
 
+--      hb_data_vec_short(i) <= hb_data_vec(i)(AC_BUS_WIDTH-1 downto 0);
+      heater_bias_reg : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i  => clk_i,
+         rst_i  => rst_i,
+         ena_i  => heater_bias_wren_vec(i),
+         reg_i  => dat_i,
+         reg_o  => hb_data_vec(i)
+      );
+      
       val_reg : reg
       generic map(WIDTH => WB_DATA_WIDTH)
       port map(
