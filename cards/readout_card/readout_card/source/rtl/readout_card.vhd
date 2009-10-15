@@ -31,6 +31,13 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.84.2.2  2009/10/09 21:24:19  mandana
+--  low-pass-filter to f(3db)=75Hz for f(sample)=30000.
+-- sticky bit removed in internal filter arithmetic
+-- filter-input width increased to 20bits
+-- removed correction in fsfb_proc_pidz
+-- 5.0.7
+--
 -- Revision 1.84.2.1  2009/09/04 23:25:17  mandana
 -- rev. 5.0.5, added filter coeffs for fs=30000, fc=75Hz and adjusted midstage gains
 --
@@ -179,7 +186,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000007";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000008";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
