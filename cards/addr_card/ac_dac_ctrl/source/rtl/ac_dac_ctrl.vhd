@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.19 2009/09/14 21:36:46 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.20 2009/10/09 16:44:39 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.20  2009/10/09 16:44:39  bburger
+-- BB: Added mux_en = 3 mode.  Includes new FSM states, signals, registers, and the following commands:
+-- - HEATER_BIAS_ADDR
+-- - HEATER_BIAS_LEN_ADDR
+--
 -- Revision 1.19  2009/09/14 21:36:46  bburger
 -- BB: correction to the width of mode_data_slv.
 --
@@ -164,7 +169,7 @@ architecture rtl of ac_dac_ctrl is
    type row_states is (IDLE, 
       BC_LATCH1, BC_LATCH2, BC_LATCH3, BC_LATCH4, BC_LATCH_NEW_ROW_INDEX, BC_WAIT_FOR_ROW_SWITCH, 
       AC_LATCH_OFF, AC_ROW_DLY, AC_LATCH_ON, AC_LATCH_NEW_ROW_INDEX, AC_WAIT_FOR_ROW_SWITCH, --MODE3_ROW_OFF, 
-      MODE3_HEAT1_ON, MODE3_HEAT2_ON, MODE3_HEAT3_ON, MODE3_HEAT4_ON, MODE3_HEATING, MODE3_HEAT_OFF, MODE3_ROW_ON, MODE3_LATCH_NEW_ROW_INDEX, MODE3_WAIT_FOR_ROW_SWITCH);
+      MODE3_HEAT1_ON, MODE3_HEAT2_ON, MODE3_HEAT3_ON, MODE3_HEAT4_ON, MODE3_HEATING, MODE3_HEAT_OFF, MODE3_ROW_ON, MODE3_ROW_ON_DELAY, MODE3_LATCH_NEW_ROW_INDEX, MODE3_WAIT_FOR_ROW_SWITCH);
    signal row_current_state   : row_states;
    signal row_next_state      : row_states;
 
@@ -481,6 +486,9 @@ begin
             end if;
             
          when MODE3_HEAT_OFF =>
+            row_next_state <= MODE3_ROW_ON_DELAY;
+
+         when MODE3_ROW_ON_DELAY =>
             row_next_state <= MODE3_ROW_ON;
 
          when MODE3_ROW_ON =>
@@ -921,6 +929,20 @@ begin
             -- Constant values have already been applied if necessary, so just update the DACs if they are not constant.
             dac_clks <= DAC_ALL_CLKS and (not mode_data_slv);
          
+         when MODE3_ROW_ON_DELAY =>
+            -- Constant data is multiplexed into slow_dac_data_on/ slow_dac_data_off only
+            dac_data_o(0)  <= slow_dac_data_on;
+            dac_data_o(1)  <= slow_dac_data_on;
+            dac_data_o(2)  <= slow_dac_data_on;
+            dac_data_o(3)  <= slow_dac_data_on;
+            dac_data_o(4)  <= slow_dac_data_on;
+            dac_data_o(5)  <= slow_dac_data_on;
+            dac_data_o(6)  <= slow_dac_data_on;
+            dac_data_o(7)  <= slow_dac_data_on;
+            dac_data_o(8)  <= slow_dac_data_on;
+            dac_data_o(9)  <= slow_dac_data_on;
+            dac_data_o(10) <= slow_dac_data_on;
+
          when MODE3_ROW_ON =>
             -- Constant data is multiplexed into slow_dac_data_on/ slow_dac_data_off only
             dac_data_o(0)  <= slow_dac_data_on;
