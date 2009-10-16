@@ -339,7 +339,7 @@ set_location_assignment PIN_Y27 -to ttl_txena3
 # Timing Assignments
 # ==================
 set_global_assignment -name IGNORE_CLOCK_SETTINGS OFF
-set_global_assignment -name FMAX_REQUIREMENT "20.0 ns"
+set_global_assignment -name FMAX_REQUIREMENT "20 ns"
 
 # Analysis & Synthesis Assignments
 # ================================
@@ -350,7 +350,7 @@ set_global_assignment -name FAMILY Stratix
 set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name TOP_LEVEL_ENTITY addr_card
-set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
+set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
 
 # Fitter Assignments
 # ==================
@@ -358,7 +358,7 @@ set_global_assignment -name DEVICE EP1S10F780C5
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
-set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+set_global_assignment -name FITTER_EFFORT "FAST FIT"
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
 
 # Timing Analysis Assignments
@@ -385,7 +385,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE ac_v02000008_00.stp
+set_global_assignment -name USE_SIGNALTAP_FILE ac_v02000006v1.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -396,7 +396,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
+set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
@@ -481,17 +481,9 @@ set_global_assignment -name SIGNALTAP_FILE ac_v02000004_resetmcebug_.stp
 set_global_assignment -name SIGNALTAP_FILE ac_v02000006c.stp
 set_global_assignment -name SIGNALTAP_FILE "ac_v02000006-1.stp"
 set_global_assignment -name SIGNALTAP_FILE ac_v02000006v1.stp
-set_global_assignment -name SIGNALTAP_FILE ac_v02000008_00.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name USE_CONFIGURATION_DEVICE ON
-set_global_assignment -name SAVE_DISK_SPACE OFF
 set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
 set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
-set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
-set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
-set_global_assignment -name INCREMENTAL_COMPILATION OFF
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "IO PATHS AND MINIMUM TPD PATHS"
-set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name INCREMENTAL_COMPILATION FULL_INCREMENTAL_COMPILATION
