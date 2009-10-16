@@ -31,6 +31,11 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.29.2.2  2009/10/09 16:48:14  bburger
+-- BB: Added support for the following commands
+-- - HEATER_BIAS_ADDR
+-- - HEATER_BIAS_LEN_ADDR
+--
 -- Revision 1.29.2.1  2009/09/16 20:14:08  bburger
 -- BB: ac 4.0.8 supports the bias_start command
 --
@@ -150,7 +155,7 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000009";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"0200000A";
 
    -- clocks
    signal clk      : std_logic;
@@ -274,7 +279,7 @@ begin
    lvds_txb <= '0';
 
    -- For simulation; for some reason, the PLL adds an unexpected phase shift between the clk_n and clk.
-   clk_n <= not clk;
+   --clk_n <= not clk;
 
    pll0: ac_pll
    port map(
@@ -282,7 +287,7 @@ begin
       c0 => clk,
       c1 => mem_clk,
       c2 => comm_clk,
-      c3 => open--clk_n
+      c3 => clk_n
    );
 
    cmd0: dispatch
