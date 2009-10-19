@@ -34,6 +34,13 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.20  2009/10/09 20:31:38  mandana
+-- increased filter_input_width from 18 to 20
+-- added adder45 component, but not used in this version.
+--
+-- Revision 1.19.2.1  2009/09/04 23:15:03  mandana
+-- filter coefficients modified for fc=75 and fs=30000, inter-biquad stage may still need adjustments
+--
 -- Revision 1.19  2009/05/27 01:28:56  bburger
 -- BB: Increased the filter storage address width to add storage for two interleaved blocks to make filtered data available on demand
 --
@@ -132,7 +139,7 @@ package fsfb_calc_pack is
 
    constant FILTER_LOCK_LSB_POS    : integer := 12;            -- scaling factor for the input to the filter chain
                                                                -- a sliding window of the 66b result is used as the filter input
-   constant FILTER_SCALE_LSB       : integer := 1;
+   constant FILTER_SCALE_LSB       : integer := 0;             -- is the number of bits dropped after the second biquad
    constant FILTER_GAIN_WIDTH      : integer := 11;            -- 1/2^11 is the gain scaling between two filter stages.
  
    constant FILTER_INPUT_WIDTH     : integer := 20;            -- number of bits in the input NOT USED 
@@ -150,29 +157,31 @@ package fsfb_calc_pack is
    -- then the filter is not as robust. why!?
    -- SOS: Second-order sections
    --                                    SOS: a0 a1 a2 b0 b1                   b2
-   -- for scuba2        fc/fs=50/20000,  SOS: 1  2  1  1  -1.976684937589464   0.97695361953638415
-   -- for princeton act fc/fs=100/10000, SOS: 1  2  1  1  -1.9111970674260732  0.91497583480143374    
-   -- for princeton act fc/fs=100/12195, SOS: 1  2  1  1  -1.9271665250923744  0.92972726807229988
    -- for princeton act fc/fs=100/12195, SOS: 1  2  1  1  -1.9587428340882587  0.96134553442399129 (1st biquad)       
    --                                         1  2  1  1  -1.9066292518523014  0.90916270571237567 (2nd biquad)       
    --                           Scale Values: 0.00065067508393319923                                       
    --                                         0.00063336346501859835       
+   ------------------------------------------------------------------------------------------------------------
+   -- for Spider/Bicep fc/fs=75/30000,  SOS: 1  2  1  1  -1.9711486088510415  0.97139181456687917         
+   --                                         1  2  1  1  -1.9878047097960421  0.98804997058724808         
+   --                           Scale Values: 0.0000000037280516432624239
+   --                                         1                                                            
+                                                               
+
    -- To convert to signed binary fractional, multiply the number by 2^14 and convert to hex. 
                                                                                          
-   constant FILTER_B11_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "111110101011100"; -- SBF 1.14, 0x7D5C, -1.9587428340882587
-                                                                                      --"111101001010001"; -- SBF 1.14, 0x7A51, -1.9111970674260732 
-                                                                                      --"111111010000010"; -- SBF 1.14, 0x7e82, -1.976684937589464
-                                                                                      --"11111101001010"; --SBF 1.13, 0x3f4a = 1.977786483(dec)
-   
+   constant FILTER_B11_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"111111000100111"; -- 0x7E27, -1.9711486088510415
+                                                                                        "111110101011100"; -- 0x7D5C, -1.9587428340882587
 
-   constant FILTER_B12_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "011110110000110"; -- SBF 1.14, 0x3D86, 0.96134553442399129
-                                                                                      --"011101010001110"; -- SBF 1.14, 0x3a8e, 0.91497583480143374   
-                                                                                      --"011111010000110"; -- SBF 1.14, 0x3e86, 0.97695361953638415  
-                                                                                      --"01111101001100"; --SBF 1.13, 0x1f4c = 0.97803050849
+   constant FILTER_B12_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"011111000101011"; -- 0x3E2B, 0.97139181456687917
+                                                                                        "011110110000110"; -- 0x3D86, 0.96134553442399129
 
-   constant FILTER_B21_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "111101000000110"; -- SBF 1.14, 0x7A06, -1.9066292518523014
-   constant FILTER_B22_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := "011101000101111"; -- SBF 1.14, 0x3A2F, 0.90916270571237567   
-                                                                                       
+   constant FILTER_B21_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"111111100111000"; -- 0x7F38, -1.9878047097960421
+                                                                                        "111101000000110"; -- 0x7A06, -1.9066292518523014
+
+   constant FILTER_B22_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"011111100111100"; -- 0x3F3C, 0.98804997058724808
+                                                                                        "011101000101111"; -- 0x3A2F, 0.90916270571237567                                                                                          
+
    ---------------------------------------------------------------------------------
    -- First stage feedback input output controller component
    ---------------------------------------------------------------------------------
