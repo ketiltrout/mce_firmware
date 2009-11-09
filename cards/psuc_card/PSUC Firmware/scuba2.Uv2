@@ -35,7 +35,7 @@ Options 1,0,0  // Target 'Target 1'
  OrgReg (ÿAtmel\)
  TgStat=16
  OutDir (.\output\)
- OutName (PSC_3p2)
+ OutName (PSC_4p0)
  GenApp=1
  GenLib=0
  GenHex=1

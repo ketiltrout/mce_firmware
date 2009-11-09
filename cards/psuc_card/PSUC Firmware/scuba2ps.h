@@ -1,11 +1,41 @@
 /************************************************************************************/
-/* 	Scuba 2 Power Supply Controller - SC2_ELE_S565_102D
+/* 	Scuba 2 Power Supply Controller - SC2_ELE_S565_102D		 
 /************************************************************************************/
-// Revision history:
+// Revision history: 	
 // $Log: scuba2ps.h,v $
-// Revision 1.13  2007/05/15 21:08:22  bburger
-// Bryce:  firmware rev. 3.2
+// Revision 1.11  2006/12/23 00:39:00  stuartah
+// Version 2.3 Release
 //
+// Revision 1.10  2006/11/22 00:10:08  stuartah
+// Fixed FAULT LED behavior to turn on if no CC request for over a minute (no longer flashes)
+//
+// Revision 1.9  2006/11/21 23:30:40  stuartah
+// Added soft_reset assembly code, triggered via external button (timer2 input)
+//
+// Revision 1.8  2006/11/20 23:22:00  stuartah
+// Cleaned code, improved commenting, implemented changes for PSUC rev. G
+//
+// Revision 1.7  2006/10/03 07:38:34  stuartah
+// Added presence detection of DS18S20s
+//
+// Revision 1.6  2006/10/03 05:59:12  stuartah
+// Tested in Subrack, Basic Command working
+//
+// Revision 1.5  2006/09/07 20:37:01  stuartah
+// Cleaned up init() and re-organized main loop structure
+//
+// Revision 1.4  2006/09/05 20:06:20  stuartah
+// Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
+//
+// Revision 1.3  2006/08/31 19:30:38  stuartah
+// Added functionality for measuring fan speeds
+//
+// Revision 1.2  2006/08/30 19:54:19  stuartah
+// Implemented checksum
+//
+// Revision 1.1  2006/08/29 21:06:06  stuartah
+// Initial CVS Build - Most Basic Functionality Implemented
+//	
 
 /***** 	Compiler Directives / File Inclusions *****/
 #pragma db
@@ -40,10 +70,14 @@ void wait_time (unsigned int);						// waits input*5ms
 void wait_time_x2us_plus3(unsigned char);			// waits input*2us + 3us
 
 // protos for datablk RS232 output functions
-void sio_prt_datablk_hex(void);
+void sio_prt_datablk_hex(void);		
 void sio_prt_temps_hex(void);
 void sio_prt_currents(void);
 void sio_prt_volts(void);
+
+void sio_prt_volts_hex(void);						// added with version 4.0 RL
+void sio_prt_current_hex(void);						// added with version 4.0 RL
+
 
 // Send Serial Message
 void snd_msg (char *);								// sends message over serial port (RS232)
@@ -62,7 +96,7 @@ bit command_valid (char *);							// checks command received is a valid command
 /*********	Variables *********/
 // Memory Blocks/Pointers
 unsigned char idata ps_data_blk[CC_SPI_BLEN];		// PSU data for sending to CC - declared as idata to conserve memory space
-unsigned char idata rcv_spi_blk[CC_SPI_BLEN];		// Received SPI data block (from CC)
+unsigned char idata rcv_spi_blk[CC_SPI_BLEN];		// Received SPI data block (from CC)					  	
 char *cc_command;									// Command (from CC) pointer
 unsigned char idata sio_rxbuf[BUF_SIZE];			// Serial Received Data Buffer
 
@@ -71,7 +105,7 @@ unsigned char data spi_idx;							// SPI Data Block Index
 char data sio_rx_idx;								// Serial Received Message Pointer
 char *msg_ptr;									   	// Serial Message to Send Pointer
 unsigned char data bcnt;							// Count of Timer0 interrupts
-unsigned int data num_T1_ints;						// Number of Timer1 interrupts to allow before setting timeup_T1
+unsigned int data num_T1_ints;						// Number of Timer1 interrupts to allow before setting timeup_T1 
 unsigned char data running_checksum;				// Running total for checksum byte
 unsigned char data cc_req_320ms;					// Count time since last request from CC - used for LED FAULT behavior
 unsigned char data watchdog_count;					// Loop count for watchdog
@@ -81,7 +115,7 @@ bit cc_spi;											// Indicates Service Request from CC (via SPI)
 bit spi_complete; 									// Indicates SPI transaction with CC complete
 bit sio_msg_complete;								// Indicates Serial (RS232) message received
 bit poll_data;										// Set when time to update PS data block
-bit timeup_T1;										// Set on Timer1 expiration (overlow)
+bit timeup_T1;										// Set on Timer1 expiration (overlow)								
 bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temperature sensors actually connected
 
 
@@ -89,8 +123,8 @@ bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temper
 // PSU Data Block POINTERS - defining this way prevents pointers from being reassigned dynamically
 #define SILICON_ID 			ps_data_blk				// Read from DS18S20 LS 32 bits of 48
 #define SOFTWARE_VERSION 	(ps_data_blk+4)			// Software Version
-#define FAN1_TACH			(ps_data_blk+5)			// Fan 1 speed /16
-#define FAN2_TACH  			(ps_data_blk+6)			// Fan 2 speed /16
+//#define FAN1_TACH			(ps_data_blk+5)			// Fan 1 speed /16   // no longer used as of version 4.0 now used for V_12VRAIL, see below
+//#define FAN2_TACH			(ps_data_blk+6)			// Fan 2 speed /16	 // no longer used as of version 4.0 now used for I_12VRAIL, see below
 #define PSU_TEMP_1			(ps_data_blk+7)			// temperature 1 from DS18S20 // V3.1 = PSUC temperature
 #define PSU_TEMP_2			(ps_data_blk+8)			// temperature 2 from DS18S20
 #define PSU_TEMP_3			(ps_data_blk+9)			// temperature 3 from DS18S20
@@ -105,12 +139,15 @@ bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temper
 #define I_VAH				(ps_data_blk+26)		// Current +Vah supply scaled
 #define I_VA_PLUS			(ps_data_blk+28)		// Current +Va supply scaled
 #define I_VA_MINUS			(ps_data_blk+30)		// Current -Va supply scaled
-#define STATUS_WORD			(ps_data_blk+32)		// undefined place for status word
+//#define STATUS_WORD			(ps_data_blk+32)		// undefined place for status word
 //#define ACK_NAK				(ps_data_blk+34)		// either ACK or NAK
 #define DATABLK_UPDATED		(ps_data_blk+34)		// set on  update, cleared after tx to CC
 #define CHECK_BYTE			(ps_data_blk+35)		// checksum byte
 
+#define V_12VRAIL           (ps_data_blk+5)	        // +V 12V rail supply scaled 0 to +2V - added in version 4.0
+#define I_12VRAIL           (ps_data_blk+6)		    // Current 12V rail core supply scaled - added in version 4.0
 
 /*******	Macros	*******/
 // General Macros/Parameters
 #define COMPLETE_CHECKSUM		*CHECK_BYTE = ~(running_checksum + ps_data_blk[ACK_BYTE_POS]) + 1;		// 2's compliment, so CHECK_BYTE + all other bytes = 0
+		

@@ -1,0 +1,4 @@
+".\output\SCUBA2PS.obj" 
+TO ".\output\PSC_4p0" 
+PRINT(".\output\PSC_4p0.m51") RAMSIZE(256) 
+XDATA( 0X0000-0X03FF )

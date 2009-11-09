@@ -1,9 +1,26 @@
+Change Notes for PSUC Firmware
+
 See also: PSC RS232 User Guide
 
---------------------------------------------------------------------------
-Change Notes for PSUC Firmware Version 3.1 15March2007 RHJ
---------------------------------------------------------------------------
 
+For Version 4.0 26-January-2009 RL
+
+1. Adds 12V rail voltage reading to CC request and to serial terminal output
+
+2. V_12VRAIL added to Data Block Byte #5 - formerly Fan1 Tachometer
+
+3. I_12VRail added to Data Block Byte #6 - formerly Fan2 Tachometer
+
+4. read_adc function modified to accomodate size of data within the data packet -- 1 byte size or 2 bytes size
+
+5. Adds Hex serial output for voltage and current
+
+NOTE: Version 4.0 software is meant for MCEv2 PSU Controller, not for SC2 PSU Controllers
+
+
+
+For Version 3.1 15March2007 RHJ
+-------------------------------
 1. Fixed the RS232 serial IO. 
 
 2. Added a command function 'd', to convert the ps_data_blk to 
@@ -16,9 +33,9 @@ Change Notes for PSUC Firmware Version 3.1 15March2007 RHJ
 4. Added a command function 't', to convert the ps_data_blk
    temperatures to an ascii hex string, and output them on RS232.
 
-
 5. added commands 'v' and 'i' to output the re-scaled ADC values of
    the PSU voltages and currents from the data_block.
+   Output check for voltage,  
 	From data_blk: 03.16 04.84 10.07 06.48 -06.52
 	     Measured:  3.15  4.85 10.11  6.48  -6.51
 
@@ -33,9 +50,9 @@ Change Notes for PSUC Firmware Version 3.1 15March2007 RHJ
 	watching the reset-switch input on P4;
 	- interrupt priorities and register sets were varied.
 
---------------------------------------------------------------------------
-Change Notes for PSUC Firmware v3.2 22March2007 RHJ
---------------------------------------------------------------------------
+
+For Version 3.1 22March2007 RHJ
+-------------------------------
 
 1. fixed the value for CF_nIVa which was missing a 0.
 
@@ -58,7 +75,6 @@ Change Notes for PSUC Firmware v3.2 22March2007 RHJ
 	of the help string and removing any separate call to
  	snd_msg(asc_version) seems to have fixed the problem.
 
----------------
 26March2007 RHJ
 ---------------
 7. changed wait_time(unsigned char loops) 
@@ -72,3 +88,4 @@ Change Notes for PSUC Firmware v3.2 22March2007 RHJ
 	this bit is set after the data_blk is updated, and cleared after
     the data_blk has been sent to the CC. 
 	[done in the program main loop]
+ 

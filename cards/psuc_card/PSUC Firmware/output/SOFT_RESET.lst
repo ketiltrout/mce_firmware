@@ -1,10 +1,10 @@
-A51 MACRO ASSEMBLER  SOFT_RESET                                                           03/19/2007 11:14:39 PAGE     1
+A51 MACRO ASSEMBLER  SOFT_RESET                                                           01/15/2009 14:49:04 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.00
 OBJECT MODULE PLACED IN .\output\SOFT_RESET.obj
-ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE SOFT_RESET.a SET(SMALL) DEBUG PRINT(.\output\SOFT_RESET.lst) OBJECT(.\outp
-                      ut\SOFT_RESET.obj) EP
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE SOFT_RESET.a SET(COMPACT) DEBUG PRINT(.\output\SOFT_RESET.lst) OBJECT(.\ou
+                      tput\SOFT_RESET.obj) EP
 
 LOC  OBJ            LINE     SOURCE
 
@@ -26,16 +26,16 @@ LOC  OBJ            LINE     SOURCE
 0000 D0E0             16     soft_reset: POP  ACC            ; pop return address
 0002 D0E0             17            POP  ACC
 0004 E4               18            CLR  A                           ; push 0 as new
-0005 244F             19                ADD A, #0x4F         ; lower order adress byte [for nop preceding snd_msg(restar
+0005 2463             19                ADD A, #0x63         ; lower order adress byte [for nop preceding snd_msg(restar
                              ting);]
 0007 C0E0             20            PUSH ACC                         ; return address to stack
 0009 E4               21                CLR A          
-000A 2406             22                ADD A, #0x06         ; higher order adress byte
+000A 240D             22                ADD A, #0x0D         ; higher order adress byte
 000C C0E0             23            PUSH ACC
 000E 32               24            RETI                             ; execute return of interrupt
                       25     
                       26            END
-A51 MACRO ASSEMBLER  SOFT_RESET                                                           03/19/2007 11:14:39 PAGE     2
+A51 MACRO ASSEMBLER  SOFT_RESET                                                           01/15/2009 14:49:04 PAGE     2
 
 SYMBOL TABLE LISTING
 ------ ----- -------

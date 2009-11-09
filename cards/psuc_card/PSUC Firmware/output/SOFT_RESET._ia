@@ -1,0 +1,1 @@
+"SOFT_RESET.a" SET (COMPACT) DEBUG PRINT(.\output\SOFT_RESET.lst) OBJECT(.\output\SOFT_RESET.obj) EP

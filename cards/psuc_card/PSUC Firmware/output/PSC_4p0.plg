@@ -1,0 +1,22 @@
+<html>
+<body>
+<pre>
+<h1>µVision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\Physics\My Documents\Scuba2_MCE\PSUC Firmware 4.0_dev\scuba2.uv2
+Project File Date:  01/21/2009
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling SCUBA2PS.C...
+MAX1271.C(114): warning C182: pointer to different objects
+MAX1271.C(122): warning C182: pointer to different objects
+linking...
+Program Size: data=206.2 xdata=24 code=4732
+creating hex file from ".\output\PSC_4p0"...
+".\output\PSC_4p0" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+linking...
+Program Size: data=206.2 xdata=24 code=4732
+creating hex file from ".\output\PSC_4p0"...
+".\output\PSC_4p0" - 0 Error(s), 0 Warning(s).

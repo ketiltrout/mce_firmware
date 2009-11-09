@@ -16,10 +16,10 @@ PUBLIC soft_reset
 soft_reset: POP  ACC  		; pop return address
        POP  ACC
        CLR  A    			; push 0 as new
-	   ADD A, #0x4F         ; lower order adress byte [for nop preceding snd_msg(restarting);]
+	   ADD A, #0x8B         ; lower order adress byte [for nop preceding snd_msg(restarting);]
        PUSH ACC  			; return address to stack
 	   CLR A	  
-	   ADD A, #0x06	        ; higher order adress byte
+	   ADD A, #0x0F	        ; higher order adress byte
        PUSH ACC
        RETI      			; execute return of interrupt
 
