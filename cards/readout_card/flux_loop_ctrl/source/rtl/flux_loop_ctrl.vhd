@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.16  2009/05/27 01:25:04  bburger
+-- BB: Added raw-data components, new to v5.x from 4.0.d
+--
 -- Revision 1.15  2009/03/19 21:49:16  bburger
 -- BB:
 -- - Added the ADC_LATENCY generic to generalize this block for Readout Card Rev. C
@@ -127,6 +130,8 @@ port (
    clk_25_i                   : in  std_logic;
    rst_i                      : in  std_logic;
  
+   i_clamp_val_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
    -- Frame timing signals
    adc_coadd_en_i             : in  std_logic;
    restart_frame_1row_prev_i  : in  std_logic;
@@ -230,6 +235,7 @@ begin  -- struct
       adc_dat_i                 => adc_dat_i,
       clk_50_i                  => clk_50_i,
       rst_i                     => rst_i,
+      i_clamp_val_i             => i_clamp_val_i,
       adc_coadd_en_i            => adc_coadd_en_i,
       restart_frame_1row_prev_i => restart_frame_1row_prev_i,
       restart_frame_aligned_i   => restart_frame_aligned_i,
@@ -251,8 +257,7 @@ begin  -- struct
    -----------------------------------------------------------------------------
    i_fsfb_calc : fsfb_calc
    generic map (
-      start_val => 0,
-      lock_dat_left => FSFB_QUEUE_DATA_WIDTH-2)
+      start_val => 0)
    port map (
       rst_i                      => rst_i,
       clk_50_i                   => clk_50_i,

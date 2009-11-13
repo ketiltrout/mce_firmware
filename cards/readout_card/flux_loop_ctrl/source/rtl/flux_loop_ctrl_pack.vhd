@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.11  2009/05/27 01:26:16  bburger
+-- BB: Removed un-used old raw-data interface signals for v5.x from 4.0.d
+--
 -- Revision 1.10  2009/03/19 21:49:59  bburger
 -- BB:
 -- - Added the ADC_LATENCY generic to generalize this block for Readout Card Rev. C
@@ -120,6 +123,7 @@ package flux_loop_ctrl_pack is
       adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
       clk_50_i                  : in  std_logic;
       rst_i                     : in  std_logic;
+      i_clamp_val_i             : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       adc_coadd_en_i            : in  std_logic;
       restart_frame_1row_prev_i : in  std_logic;
       restart_frame_aligned_i   : in  std_logic;
@@ -143,8 +147,7 @@ package flux_loop_ctrl_pack is
 
    component fsfb_calc is
       generic (
-         start_val                  : integer;                                                     -- value read from the queue when initialize_window_i is asserted
-         lock_dat_left              : integer                                                      -- most significant bit of lock mode result
+         start_val                  : integer                                                      -- value read from the queue when initialize_window_i is asserted
          );
          
       port (
