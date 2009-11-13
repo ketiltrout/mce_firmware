@@ -21,7 +21,7 @@
 --
 -- dynamic_manager_data_path.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -100,6 +100,9 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.5  2009/04/09 19:10:44  bburger
+-- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
+--
 -- Revision 1.4  2004/12/13 21:50:22  mohsen
 -- To avoid synthesis complication, changed the construct to generate shift register.
 --
@@ -123,12 +126,10 @@ use ieee.std_logic_signed.all;
 
 library work;
 use work.adc_sample_coadd_pack.all;
-
--- Call Parent Library
 use work.flux_loop_ctrl_pack.all;
 
-
-
+library sys_param;
+use sys_param.wishbone_pack.all;
 
 entity dynamic_manager_data_path is
 
@@ -141,6 +142,7 @@ entity dynamic_manager_data_path is
     -- From System
     rst_i                  : in  std_logic;
     clk_i                  : in  std_logic;
+    i_clamp_val_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     initialize_window_i    : in  std_logic;
     
     -- From coadd_manager_data_path
@@ -177,7 +179,6 @@ architecture rtl of dynamic_manager_data_path is
   signal shifted_initialize_window : std_logic_vector(MAX_SHIFT-1 downto 0);
   alias initialize_window_max_dly  : std_logic is shifted_initialize_window(MAX_SHIFT-1);
 
-
   -- Signals needed for Integral Finder
   signal integral_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal previous_intgral : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
@@ -186,8 +187,10 @@ architecture rtl of dynamic_manager_data_path is
   signal diff_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal previous_coadd : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   
-  
-  
+  -- Signals needed for the Coadd Finder
+  signal coadd_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+
+   
 begin  -- rtl
 
   -----------------------------------------------------------------------------
@@ -220,17 +223,37 @@ begin  -- rtl
   -- banks has higher priority in the code wirtten here.  Also note that when
   -- current_bank_i=1, inputs from bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
+  
+  -----------------------------------------------------------------------------
+  -- I-Term Magnitudes:
+  -----------------------------------------------------------------------------
+  -- This is where the clamp needs to be to prevent wrapping.
+  -- The reasoning for this is that a clamp any later in the chain will not prevent the I term from wrapping and causing a whiplash effect
+  -- Since a large FSFB is due to a ramping I term, the I term is the most important thing to be clamped; The P & D terms less so.
+  -- However, since we want to avoid small-scale fluctuations in the FSFB once the I term is clamped, we should also clamp the P and D terms to zero.
+  -- The way to do this is to check for an I term above/below a certain threshold, and if that happens, clamp to a fixed value above/below those thresholds
+  -- That way, the integral term gets frozen until a flx_lp_init command clears the pipeline.
 
-  integral_result <= current_coadd_dat_i + previous_intgral;
-
+  -- Caltech: MAX_INTEGRAL ~ MAX_FJ_VAL/I_COEFF = (2^32-1)/50   = 2^25.2
+  -- ACT:     MAX_INTEGRAL ~ MAX_FJ_VAL/I_COEFF = (2^31-1)/480  = 2^21.0
+  -- SCUBA2:  MAX_INTEGRAL ~ MAX_FJ_VAL/I_COEFF = (2^31-1)/2024 = 2^19.1
+  
+  -- The SCUBA2 system allows for the least range in the I term, and Caltech the most.  
+  -- i_clamp_val_i is the value to look at.
+  -----------------------------------------------------------------------------
+  
   previous_intgral <=
     (others => '0')        when initialize_window_max_dly = '1' else
     intgrl_dat_frm_bank1_i when current_bank_i = '0' else
     intgrl_dat_frm_bank0_i;
 
+  integral_result <= 
+    i_clamp_val_i          when previous_intgral >= i_clamp_val_i else
+    -i_clamp_val_i         when previous_intgral <= -i_clamp_val_i else    
+    current_coadd_dat_i + previous_intgral;
+
+  -- For running integral storage
   integral_result_o <= integral_result;
-
-
 
   -----------------------------------------------------------------------------
   -- Difference finder
@@ -240,14 +263,24 @@ begin  -- rtl
   -- bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
 
-  diff_result <= current_coadd_dat_i - previous_coadd;
-
   previous_coadd <=
-    (others => '0')       when initialize_window_max_dly = '1' else
-    coadd_dat_frm_bank1_i when current_bank_i = '0' else
+    (others => '0')        when initialize_window_max_dly = '1' else
+    coadd_dat_frm_bank1_i  when current_bank_i = '0' else
     coadd_dat_frm_bank0_i;
 
- 
+  diff_result <= 
+    (others => '0')        when previous_intgral >= i_clamp_val_i else
+    (others => '0')        when previous_intgral <= -i_clamp_val_i else    
+    current_coadd_dat_i - previous_coadd;
+    
+  -----------------------------------------------------------------------------
+  -- Coadd finder
+  -----------------------------------------------------------------------------
+
+  coadd_result <=
+    (others => '0')        when previous_intgral >= i_clamp_val_i else
+    (others => '0')        when previous_intgral <= -i_clamp_val_i else    
+    current_coadd_dat_i;
 
   -----------------------------------------------------------------------------
   -- Register Outputs for fsfb_calc
@@ -263,7 +296,8 @@ begin  -- rtl
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
 
       if wren_for_fsfb_i = '1' then
-        current_coadd_dat_o    <= current_coadd_dat_i;
+        -- For PID loop calculation
+        current_coadd_dat_o    <= coadd_result;
         current_integral_dat_o <= integral_result;
         current_diff_dat_o     <= diff_result;
       end if;
