@@ -28,8 +28,13 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/09/16 18:56:18 $> - <initials $Author: bburger $>
+-- <date $Date: 2009/10/09 16:46:58 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.54  2009/10/09 16:46:58  bburger
+-- BB: Added
+-- - HEATER_BIAS_ADDR
+-- - HEATER_BIAS_LEN_ADDR
+--
 -- Revision 1.53  2009/09/16 18:56:18  bburger
 -- BB:  Added a couple of redundant command names to make the latest file compatible with older versions of 4.x.x- firmware
 --
@@ -250,7 +255,6 @@ package wishbone_pack is
    constant ON_BIAS_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"02";
    constant OFF_BIAS_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"03";
    constant ENBL_MUX_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
-
    constant CONST_MODE_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
    constant CONST_VAL_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
    constant CONST_VAL39_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"08";
@@ -325,8 +329,9 @@ package wishbone_pack is
    constant RAMP_AMP_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1D"; -- RCS
    constant RAMP_STEP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1E"; -- RCS
    constant FB_CONST_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F"; -- RCS
-
-   constant READOUT_PRIORITY_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"67";
+   
+   constant I_CLAMP_VAL_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"66";
+   constant READOUT_PRIORITY_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"67"; -- Obsolete
    constant ADC_OFFSET0_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"68";
    constant ADC_OFFSET1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"69";
    constant ADC_OFFSET2_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6A";
@@ -407,7 +412,7 @@ package wishbone_pack is
    constant DIP_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"97";
    constant CYC_OO_SYC_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";
    constant LED_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
-   constant SCRATCH_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9a";
+   constant SCRATCH_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9A";
 
    ---------------------------------------------------------------------------------------
    -- Clock Card Specific Parameter IDs
@@ -434,12 +439,12 @@ package wishbone_pack is
    constant SELECT_CLK_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A2";
 
    -- Obsolete ---------------------------------------------------------------------------
-   constant RET_DAT_REQ_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
-   constant TES_TGL_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A3";
-   constant TES_TGL_MAX_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A4";
-   constant TES_TGL_MIN_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A5";
-   constant TES_TGL_RATE_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A6";
-   constant INT_CMD_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A7";
+   constant RET_DAT_REQ_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D"; -- Obsolete
+   constant TES_TGL_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A3"; -- Obsolete
+   constant TES_TGL_MAX_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A4"; -- Obsolete
+   constant TES_TGL_MIN_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A5"; -- Obsolete
+   constant TES_TGL_RATE_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A6"; -- Obsolete
+   constant INT_CMD_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A7"; -- Obsolete
    -- Obsolete ---------------------------------------------------------------------------
 
    constant BOX_TEMP_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A8";
