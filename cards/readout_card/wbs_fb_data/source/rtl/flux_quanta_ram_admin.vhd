@@ -66,6 +66,9 @@
 --
 -- Revision history:
 -- $Log: flux_quanta_ram_admin.vhd,v $
+-- Revision 1.4  2009/08/28 17:56:46  bburger
+-- BB:  fixed a bug in the flx_quanta that signed extended an unsigned value.
+--
 -- Revision 1.3  2008/07/08 21:59:13  mandana
 -- incomplete if statement for ack_read_bank is fixed.
 -- count is set to 0 as a start value.
@@ -190,14 +193,14 @@ begin  -- rtl
 
   dat <= dat_i(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
   
-  dat_ch0_o <= sxt( qb0, dat_ch0_o'length); 
-  dat_ch1_o <= sxt( qb1, dat_ch1_o'length);
-  dat_ch2_o <= sxt( qb2, dat_ch2_o'length);
-  dat_ch3_o <= sxt( qb3, dat_ch3_o'length);
-  dat_ch4_o <= sxt( qb4, dat_ch4_o'length);
-  dat_ch5_o <= sxt( qb5, dat_ch5_o'length);
-  dat_ch6_o <= sxt( qb6, dat_ch6_o'length);
-  dat_ch7_o <= sxt( qb7, dat_ch7_o'length);
+  dat_ch0_o <= ext( qb0, dat_ch0_o'length); 
+  dat_ch1_o <= ext( qb1, dat_ch1_o'length);
+  dat_ch2_o <= ext( qb2, dat_ch2_o'length);
+  dat_ch3_o <= ext( qb3, dat_ch3_o'length);
+  dat_ch4_o <= ext( qb4, dat_ch4_o'length);
+  dat_ch5_o <= ext( qb5, dat_ch5_o'length);
+  dat_ch6_o <= ext( qb6, dat_ch6_o'length);
+  dat_ch7_o <= ext( qb7, dat_ch7_o'length);
   
   i_bank_ch0 : ram_14x64
     port map (
