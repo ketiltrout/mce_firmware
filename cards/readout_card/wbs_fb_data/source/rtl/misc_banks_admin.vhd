@@ -144,6 +144,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.16  2008/07/10 18:31:46  mandana
+-- reduced servo_mode storage to 2 bits to fix the timing
+--
 -- Revision 1.15  2008/06/27 20:46:59  mandana
 -- merged with filter_coef_disabled branch
 -- added a register to the misc_bank output to relax timing of addr_gen:tga_o to dispatch_wishbone:buf
@@ -297,7 +300,7 @@ entity misc_banks_admin is
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
     flux_jumping_en_o       : out std_logic;
-
+    i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     
     -- signals to/from dispatch  (wishbone interface)
     dat_i                   : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
@@ -322,7 +325,7 @@ end misc_banks_admin;
 architecture rtl of misc_banks_admin is
 
   constant MAX_BIT_TAG             : integer := 3;    -- The number of bits used in tga_i to count up to the maximum number of values for each parameters
---  constant SERVO_INDEX_OFFSET      : integer := 0;    -- Index of servo_mode in array register
+
   constant RAMP_STEP_INDEX_OFFSET  : integer := 0;    -- Index of ramp_step_size in array register
   constant RAMP_AMP_INDEX_OFFSET   : integer := 1;    -- Index of ramp_amp in array register
   constant CONST_VAL_INDEX_OFFSET  : integer := 2;   -- Index of const_val in array register
@@ -330,13 +333,15 @@ architecture rtl of misc_banks_admin is
   constant SA_BIAS_INDEX_OFFSET    : integer := 11;   -- Index of sa_bias in array register
   constant OFFSET_DAT_INDEX_OFFSET : integer := 19;   -- Index of offset_dat in array register
   constant EN_FB_JUMP_OFFSET       : integer := 27;   -- Index of enable flag for the flux-jumping block
---  constant FILTER_INDEX_OFFSET     : integer := 36;   -- Index of filter_coeff in array register (2 values common for all channels)
---  constant MISC_BANK_MAX_RANGE     : integer := 44;   -- Maximum number of parameters in the Miscellanous bank
-  constant MISC_BANK_MAX_RANGE     : integer := 28;   -- Maximum number of parameters in the Miscellanous bank
+  constant I_CLAMP_VAL_OFFSET      : integer := 28;
+  constant MISC_BANK_MAX_RANGE     : integer := 29;   -- Maximum number of parameters in the Miscellanous bank
  
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
   constant ZERO_XTND_SERVO : std_logic_vector(WB_DATA_WIDTH-SERVO_MODE_SEL_WIDTH-1 downto 0) := (others => '0');
-  
+
+  -- Currently leaves a bit of 
+  constant I_CLAMP_VAL : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := "01000000000000000000000000000000";
+
   -----------------------------------------------------------------------------
   -- Registers for each value
   -- Note: we have used 32-bit registers across the board, as the wishbone
@@ -394,6 +399,9 @@ begin  -- rtl
         if(i >= CONST_VAL_INDEX_OFFSET and i <= (CONST_VAL_INDEX_OFFSET +7) ) then
           reg_temp(i) <= conv_std_logic_vector(DAC_INIT_VAL,WB_DATA_WIDTH);
           reg(i) <= conv_std_logic_vector(DAC_INIT_VAL,WB_DATA_WIDTH);
+        elsif(i = I_CLAMP_VAL_OFFSET) then
+          reg_temp(i) <= I_CLAMP_VAL;
+          reg(i) <= I_CLAMP_VAL;          
         else
           reg_temp(i) <= (others => '0');
           reg(i) <= (others => '0');
@@ -445,17 +453,6 @@ begin  -- rtl
     end loop; --j     
 
     case addr_i is
---      when FILT_COEF_ADDR =>
---       case tga_i(MAX_BIT_TAG-1 downto 0) is
---          when "000" => wren(FILTER_INDEX_OFFSET+0) <= we_i;
---          when "001" => wren(FILTER_INDEX_OFFSET+1) <= we_i;
---          when "010" => wren(FILTER_INDEX_OFFSET+2) <= we_i;
---          when "011" => wren(FILTER_INDEX_OFFSET+3) <= we_i;
---          when "100" => wren(FILTER_INDEX_OFFSET+4) <= we_i;
---          when "101" => wren(FILTER_INDEX_OFFSET+5) <= we_i;
---          when "110" => wren(FILTER_INDEX_OFFSET+6) <= we_i;
---          when others => null;
---        end case;
 
       when RAMP_STEP_ADDR =>
         wren(RAMP_STEP_INDEX_OFFSET) <= we_i;
@@ -465,6 +462,8 @@ begin  -- rtl
         wren(NUM_RAM_INDEX_OFFSET) <= we_i;
       when EN_FB_JUMP_ADDR =>
         wren(EN_FB_JUMP_OFFSET) <= we_i;
+      when I_CLAMP_VAL_ADDR =>
+        wren(I_CLAMP_VAL_OFFSET) <= we_i;
 
       when SA_BIAS_ADDR =>
         case tga_i(MAX_BIT_TAG-1 downto 0) is
@@ -566,18 +565,6 @@ begin  -- rtl
   -- based on the address present on addr_i.
   -----------------------------------------------------------------------------
 
---  with tga_i(2 downto 0) select
---    filter_coeff <=
---    reg(FILTER_INDEX_OFFSET+0) when "000",
---    reg(FILTER_INDEX_OFFSET+1) when "001",
---    reg(FILTER_INDEX_OFFSET+2) when "010",
---    reg(FILTER_INDEX_OFFSET+3) when "011",
---    reg(FILTER_INDEX_OFFSET+4) when "100",
---    reg(FILTER_INDEX_OFFSET+5) when "101",
---    reg(FILTER_INDEX_OFFSET+6) when "110",
---    reg(FILTER_INDEX_OFFSET+0) when others;
-
-
   with tga_i(MAX_BIT_TAG-1 downto 0) select
     sa_bias <=
     reg(SA_BIAS_INDEX_OFFSET+0) when "000",
@@ -640,6 +627,7 @@ begin  -- rtl
     offset_dat                    when OFFSET_ADDR,
     fb_const                      when FB_CONST_ADDR,
     reg(EN_FB_JUMP_OFFSET)        when EN_FB_JUMP_ADDR,
+    reg(I_CLAMP_VAL_OFFSET)       when I_CLAMP_VAL_ADDR,
     ZERO_XTND_SERVO & servo_dat   when others;
     --ext(servo_dat, qa_misc_bank_o'length) when others;           -- default to first value in bank
     -- !!Strangely, ext function to zero-extend worked well in modelsim but would 
@@ -693,6 +681,7 @@ begin  -- rtl
   const_val_ch6_o         <= reg(CONST_VAL_INDEX_OFFSET+6)(CONST_VAL_WIDTH-1 downto 0);
   const_val_ch7_o         <= reg(CONST_VAL_INDEX_OFFSET+7)(CONST_VAL_WIDTH-1 downto 0);  
   flux_jumping_en_o       <= '0' when reg(EN_FB_JUMP_OFFSET) = ZERO else '1';
+  i_clamp_val_o           <= reg(I_CLAMP_VAL_OFFSET);
   
   sa_bias_rdy_ch0_o       <= sa_bias_rdy(0);
   sa_bias_rdy_ch1_o       <= sa_bias_rdy(1);
