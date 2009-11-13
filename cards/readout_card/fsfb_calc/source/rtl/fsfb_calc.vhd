@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.12  2009/05/27 01:27:58  bburger
+-- BB: Increased the filter storage size to make filtered data available on demand
+--
 -- Revision 1.11  2006/03/14 22:49:24  mandana
 -- interface change to accomodate 4-pole filter
 --
@@ -101,7 +104,6 @@ use sys_param.wishbone_pack.all;
 entity fsfb_calc is
    generic (
       start_val                 : integer := FSFB_QUEUE_INIT_VAL;                               -- value read from the queue when initialize_window_i is asserted
-      lock_dat_left             : integer := LOCK_MSB_POS;                                      -- most significant bit position of lock mode data output
       filter_lock_dat_lsb       : integer := FILTER_LOCK_LSB_POS                                -- lsb position of the pidz results fed as input to the filter
       );
 
@@ -301,7 +303,6 @@ begin
    -- this block contains the ALU circuitry including multipliers and adders
    i_fsfb_processor : fsfb_processor
       generic map (
-         lock_dat_left                => lock_dat_left,
          filter_lock_dat_lsb          => filter_lock_dat_lsb
       )
       port map (

@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.19  2009/05/27 01:28:56  bburger
+-- BB: Increased the filter storage address width to add storage for two interleaved blocks to make filtered data available on demand
+--
 -- Revision 1.18  2008/10/03 00:32:14  mandana
 -- BB: Removed the z_dat_i port in fsfb_processor.vhd and fsfb_calc_pack.vhd to the fsfb_proc_pidz block, in an effort to make it clearer within that block that the z-term is always = 0.
 --
@@ -247,7 +250,6 @@ package fsfb_calc_pack is
       
    component fsfb_processor is
       generic (
-         lock_dat_left               : integer := 30;
          filter_lock_dat_lsb         : integer := 0
          );
 
