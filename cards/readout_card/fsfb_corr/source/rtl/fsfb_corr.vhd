@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.16 2008/02/15 22:21:46 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.17 2008/10/03 00:36:35 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.17  2008/10/03 00:36:35  mandana
+-- BB:  Removed the sticky bit in fsfb_corr.vhd, which was enabled when flux-jumping was turned on. Because the feedback is signed, the sticky bit would usually reflect the value of the 14th bit, except in situations when the number of flux quanta to jump was greater than 1 (i.e. cosmic rays, IV-curves, etc). Flux jumps are made at a maximum rate of one per frame period, so that if the First-Stage Feedback increased past the 13th bit, it would not be reflected in the feedback applied. Now it is.
+--
 -- Revision 1.16  2008/02/15 22:21:46  mandana
 -- merged in the branch
 --
@@ -640,39 +643,19 @@ begin
          end if;
       end if;   
    end process;      
---------------------------------------------- 
--- If we've maxed out the number of flux jumps allowed, clamp the value
-   res_b0 <= FSFB_CLAMP_MIN when m_pres_reg0 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg0 = M_MAX else
-             sub_res2;
-   
-   res_b1 <= FSFB_CLAMP_MIN when m_pres_reg1 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg1 = M_MAX else
-             sub_res2;
 
-   res_b2 <= FSFB_CLAMP_MIN when m_pres_reg2 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg2 = M_MAX else
-             sub_res2;
-
-   res_b3 <= FSFB_CLAMP_MIN when m_pres_reg3 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg3 = M_MAX else
-             sub_res2;
-
-   res_b4 <= FSFB_CLAMP_MIN when m_pres_reg4 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg4 = M_MAX else
-             sub_res2;
-
-   res_b5 <= FSFB_CLAMP_MIN when m_pres_reg5 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg5 = M_MAX else
-             sub_res2;
-
-   res_b6 <= FSFB_CLAMP_MIN when m_pres_reg6 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg6 = M_MAX else
-             sub_res2;
-
-   res_b7 <= FSFB_CLAMP_MIN when m_pres_reg7 = M_MIN else
-             FSFB_CLAMP_MAX when m_pres_reg7 = M_MAX else
-             sub_res2;
+   --------------------------------------------- 
+   -- If we've maxed out the number of flux jumps allowed, clamp the value
+   -- Trying to clamp the number of flux jumps is useless here because the FSFB will keep on ramping
+   -- Once the FSFB wraps, this block whiplashes the flux jump counter backwards.
+   res_b0 <= sub_res2;
+   res_b1 <= sub_res2;
+   res_b2 <= sub_res2;
+   res_b3 <= sub_res2;
+   res_b4 <= sub_res2;
+   res_b5 <= sub_res2;
+   res_b6 <= sub_res2;
+   res_b7 <= sub_res2;
 
 --------------------------------------------------------
    register_result: process(clk_i, rst_i)
@@ -1051,15 +1034,9 @@ begin
    num_flux_quanta_pres_rdy_o <= m_pres_rdy;   
       
    -- start_corr relies on the fact that all 8 fsfb_io_controllers assert their rdy signal at the same time, otherwise this statement will not work
-   start_corr <= 
-      fsfb_ctrl_dat_rdy0 and
-      fsfb_ctrl_dat_rdy1 and
-      fsfb_ctrl_dat_rdy2 and
-      fsfb_ctrl_dat_rdy3 and
-      fsfb_ctrl_dat_rdy4 and
-      fsfb_ctrl_dat_rdy5 and
-      fsfb_ctrl_dat_rdy6 and
-      fsfb_ctrl_dat_rdy7;   
+   -- I've cut this statement down for simulation purposes, so that I can simulate with only flux_loop0 instantiated.  BB 4 Nov. 2009.
+   -- This change also cuts down on the combinatorial delay.
+   start_corr <= fsfb_ctrl_dat_rdy0;
   
    ----------------------------------------------------------------------------
    -- Outputs
