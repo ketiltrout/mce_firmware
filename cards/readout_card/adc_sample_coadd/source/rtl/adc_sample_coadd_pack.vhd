@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.9  2009/05/27 01:22:23  bburger
+-- BB: removed unused entity declarations and constants.
+--
 -- Revision 1.8  2009/04/09 19:10:44  bburger
 -- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
 --
@@ -65,13 +68,12 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
-
--- Call Parent Library
 use work.flux_loop_ctrl_pack.all;
 use work.flux_loop_pack.all;
 use work.readout_card_pack.all;
 
-
+library sys_param;
+use sys_param.wishbone_pack.all;
 
 package adc_sample_coadd_pack is
 
@@ -177,6 +179,7 @@ package adc_sample_coadd_pack is
     port (
       rst_i                  : in  std_logic;
       clk_i                  : in  std_logic;
+      i_clamp_val_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       initialize_window_i    : in  std_logic;
       current_coadd_dat_i    : in  std_logic_vector(31 downto 0);
       current_bank_i         : in  std_logic;
