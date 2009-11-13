@@ -333,6 +333,7 @@ architecture struct of flux_loop is
    signal ramp_step_size        : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
    signal ramp_amp              : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
    signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);  
+   signal i_clamp_val           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    
    -- Signals Interface between fsfb_corr and flux_loop_ctrl
@@ -565,6 +566,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch0_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en0,   
@@ -634,6 +636,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch1_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en1,   
@@ -703,6 +706,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch2_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en2,   
@@ -772,6 +776,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch3_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en3,   
@@ -841,6 +846,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch4_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en4,   
@@ -910,6 +916,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch5_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en5,   
@@ -979,6 +986,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch6_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en6,   
@@ -1048,6 +1056,7 @@ begin  -- struct
       offset_dac_spi_o          => offset_dac_spi_ch7_o,
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
+      i_clamp_val_i             => i_clamp_val,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en7,   
@@ -1374,6 +1383,7 @@ begin  -- struct
       ramp_amp_o              => ramp_amp,
       num_ramp_frame_cycles_o => num_ramp_frame_cycles,
       flux_jumping_en_o       => flux_jumping_en,
+      i_clamp_val_o           => i_clamp_val,
       dat_i                   => dat_i,
       addr_i                  => addr_i,
       tga_i                   => tga_i,
