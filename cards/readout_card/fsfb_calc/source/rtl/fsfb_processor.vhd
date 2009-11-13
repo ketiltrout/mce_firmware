@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.12  2008/10/03 00:35:19  mandana
+-- BB: Removed the z_dat_i port in fsfb_processor.vhd and fsfb_calc_pack.vhd to the fsfb_proc_pidz block, in an effort to make it clearer within that block that the z-term is always = 0.
+--
 -- Revision 1.11  2008/02/15 22:11:28  mandana
 -- In ramp mode, initalize to ramp UP and init value for DAC
 -- sign-extend fb_const as oppose to zero extend, this may only matter during initialization.
@@ -96,7 +99,6 @@ use work.readout_card_pack.all;
 
 entity fsfb_processor is
    generic (
-      lock_dat_left           : integer := 30;                                                -- most significant bit position of lock mode data output
       filter_lock_dat_lsb     : integer := 0                                                  -- lsb position of the pidz results fed as input to the filter     
       );
 
@@ -276,10 +278,12 @@ begin
         
          -- lock mode setting      
          -- obtain sign bit from msb of pidz_sum and append it as bit 31 of result. 
-         -- Bit 32 always gets zero as it is ignored in lock mode.  Therefore, the
-         -- magnitude only covers bit 30 down to 0.
+         -- Sticky bit removed.  5 November 2009, BB.
+         
+         -- Bit 39 always gets zero as it is ignored in lock mode.  Therefore, the
+         -- magnitude only covers bit 38 down to 0.
          when "11"   => 
-            fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & pidz_sum(lock_dat_left downto (lock_dat_left-(FSFB_QUEUE_DATA_WIDTH-2)));
+            fsfb_proc_dat_o      <= '0' & pidz_sum(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
             fsfb_proc_fltr_dat_o <= fltr_sum;
                         
          -- invalid setting
