@@ -412,6 +412,13 @@ set_parameter -name "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|tpram_32b
 # ---------------------
 
 set_global_assignment -name SAFE_STATE_MACHINE ON
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+set_global_assignment -name INCREMENTAL_COMPILATION FULL_INCREMENTAL_COMPILATION
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/tpram_14bit_x_64.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
@@ -481,9 +488,6 @@ set_global_assignment -name SIGNALTAP_FILE ac_v02000004_resetmcebug_.stp
 set_global_assignment -name SIGNALTAP_FILE ac_v02000006c.stp
 set_global_assignment -name SIGNALTAP_FILE "ac_v02000006-1.stp"
 set_global_assignment -name SIGNALTAP_FILE ac_v02000006v1.stp
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
-set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
-set_global_assignment -name INCREMENTAL_COMPILATION FULL_INCREMENTAL_COMPILATION
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name SAVE_DISK_SPACE OFF
+set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION OFF

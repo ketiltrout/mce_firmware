@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.35  2009/10/16 23:58:38  bburger
+-- BB: ac_v05000002_16oct2009
+--
 -- Revision 1.34  2009/09/14 21:37:32  bburger
 -- BB: corrected the clock source from changes made for simulation only.
 --
@@ -162,7 +165,7 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"05000002";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"05000003";
 
    -- clocks
    signal clk      : std_logic;
