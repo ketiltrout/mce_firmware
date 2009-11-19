@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.20 2009/10/09 16:44:39 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.21 2009/10/16 17:57:25 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.21  2009/10/16 17:57:25  bburger
+-- BB: Added and extra state because there was not enough settling time for the DAC data buses.
+--
 -- Revision 1.20  2009/10/09 16:44:39  bburger
 -- BB: Added mux_en = 3 mode.  Includes new FSM states, signals, registers, and the following commands:
 -- - HEATER_BIAS_ADDR
@@ -191,18 +194,16 @@ architecture rtl of ac_dac_ctrl is
    signal fb_wren             : w1_array64;
    signal pre_reg_data        : w14_array64;
    signal fast_dac_data       : w14_array64;
-   signal hb_data_vec         : w32_array64;
---   signal hb_data_vec_short   : w14_array64;
-   signal dataa               : w32_array64;
+   signal hb_data_vec         : w14_array64;
+   signal dataa               : w14_array64;
    -- datab needs to be a vector of 64 signals, because its addressed using ROW_ADDR_WIDTH, which is 6 bits wide: 2^6 = 64
-   signal datab               : w32_array64;
+   signal datab               : w14_array64;
 
-   signal mode_wren_vec       : w1_array64;
+   signal mode_wren_slv       : std_logic_vector(AC_NUM_DACS-1 downto 0);
    signal val_wren_vec        : w1_array64;
    signal heater_bias_wren_vec: w1_array64;
    signal mode_data_slv       : std_logic_vector(AC_NUM_DACS-1 downto 0);
-   signal mode_data_vec       : w32_array64;
-   signal const_data_vec      : w32_array64;
+   signal const_data_vec      : w14_array64;
    signal mode_data           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal const_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal heater_bias_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -223,6 +224,19 @@ architecture rtl of ac_dac_ctrl is
    -----------------------------------------------------------------------
    -- WBS Signals
    -----------------------------------------------------------------------
+   component tpram_14bit_x_64 port
+   (
+      clock       : IN STD_LOGIC ;
+      data        : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+      rdaddress_a : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      rdaddress_b : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      wraddress   : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      wren        : IN STD_LOGIC  := '0';
+      qa          : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+      qb          : OUT STD_LOGIC_VECTOR (13 DOWNTO 0)
+   );
+   end component;
+
    component tpram_32bit_x_64 port
    (
       data        : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -259,7 +273,6 @@ architecture rtl of ac_dac_ctrl is
    signal off_val_wren         : std_logic;
    signal row_order_wren       : std_logic;
    signal mux_en_wren          : std_logic;
---   signal heater_bias_wren     : std_logic;
    signal heater_bias_len_wren : std_logic;
    
    signal mux_en_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -273,8 +286,6 @@ architecture rtl of ac_dac_ctrl is
    signal row_order_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal slow_dac_data_on     : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
    signal slow_dac_data_off    : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
---   signal heater_bias_dataa    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---   signal heater_bias_datab    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- WBS states:
    type states is (IDLE, WR, RD1, RD2);
@@ -338,16 +349,16 @@ begin
          update_const_dly1 <= update_const;
          update_const_dly2 <= update_const_dly1;
 
-         if(mode_data_vec(row_to_turn_on_int)(0) = '0' and mux_en /= 0) then
+         if(mode_data_slv(row_to_turn_on_int) = '0' and mux_en /= 0) then
             slow_dac_data_on <= on_dataa(AC_BUS_WIDTH-1 downto 0);
          else
-            slow_dac_data_on <= const_data_vec(row_to_turn_on_int)(AC_BUS_WIDTH-1 downto 0);
+            slow_dac_data_on <= const_data_vec(row_to_turn_on_int);
          end if;
 
-         if(mode_data_vec(row_to_turn_off_int)(0) = '0' and mux_en /= 0) then
+         if(mode_data_slv(row_to_turn_off_int) = '0' and mux_en /= 0) then
             slow_dac_data_off <= off_dataa(AC_BUS_WIDTH-1 downto 0);
          else
-            slow_dac_data_off <= const_data_vec(row_to_turn_off_int)(AC_BUS_WIDTH-1 downto 0);
+            slow_dac_data_off <= const_data_vec(row_to_turn_off_int);
          end if;
 
       end if;
@@ -1124,7 +1135,7 @@ begin
       row_order_wren <= '0';
       ack_o          <= '0';
       val_changing   <= '0';
-      mode_wren_vec  <= (others => '0');
+      mode_wren_slv  <= (others => '0');
       val_wren_vec   <= (others => '0');
       heater_bias_wren_vec <= (others => '0');
       heater_bias_len_wren <= '0';
@@ -1169,7 +1180,7 @@ begin
                   -- mux_en = 0, we are in const mode, and fb_col values do not need to be latched into the DACs
                   -- mux_en = 2, the fb_col value will be latched in during the next frame period.
                elsif(addr_i = CONST_MODE_ADDR) then
-                  mode_wren_vec(tga_int) <= '1';
+                  mode_wren_slv(tga_int) <= '1';
                   -- We should update the constant outputs if either the mode bit or value changes.
                   val_changing           <= '1';
                elsif(addr_i = CONST_VAL_ADDR) then
@@ -1197,10 +1208,10 @@ begin
    ------------------------------------------------------------
    addr_int          <= conv_integer(addr_i(ROW_ADDR_WIDTH-1 downto 0));
    tga_int           <= conv_integer(tga_i(WB_TAG_ADDR_WIDTH-1 downto 0));
-   datab_mux         <= datab(addr_int);
-   mode_data         <= mode_data_vec(tga_int);
-   const_data        <= const_data_vec(tga_int);
-   heater_bias_data  <= hb_data_vec(tga_int);
+   datab_mux         <= ext(datab(addr_int), WB_DATA_WIDTH);
+   mode_data(0)      <= mode_data_slv(tga_int);
+   const_data        <= ext(const_data_vec(tga_int), WB_DATA_WIDTH);
+   heater_bias_data  <= ext(hb_data_vec(tga_int), WB_DATA_WIDTH);
 
    dat_o <=
       on_datab             when (addr_i = ON_BIAS_ADDR) else
@@ -1209,7 +1220,7 @@ begin
       row_order_data       when (addr_i = ROW_ORDER_ADDR) else
       mode_data            when (addr_i = CONST_MODE_ADDR) else
       const_data           when (addr_i = CONST_VAL_ADDR) else
-      const_data_vec(39)   when (addr_i = CONST_VAL39_ADDR) else
+      ext(const_data_vec(39), WB_DATA_WIDTH) when (addr_i = CONST_VAL39_ADDR) else
       bias_start_datab     when (addr_i = BIAS_START_ADDR) else
       heater_bias_data     when (addr_i = HEATER_BIAS_ADDR) else
       heater_bias_len_data when (addr_i = HEATER_BIAS_LEN_ADDR) else
@@ -1296,21 +1307,8 @@ begin
          qb                => row_order_data
       );
 
---   heater_bias_ram : tpram_32bit_x_64
---      port map(
---         data              => dat_i,
---         wren              => heater_bias_wren,
---         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
---         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
---         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
---         clock             => clk_i,
---         qa                => heater_bias_dataa,
---         qb                => heater_bias_datab
---      );
-
    heater_bias_len_reg : reg
-      generic map(
-         WIDTH             => PACKET_WORD_WIDTH)
+      generic map(WIDTH => PACKET_WORD_WIDTH)
       port map(
          clk_i             => clk_i,
          rst_i             => rst_i,
@@ -1320,8 +1318,7 @@ begin
       );
 
    mux_en_reg : reg
-      generic map(
-         WIDTH             => PACKET_WORD_WIDTH)
+      generic map(WIDTH => PACKET_WORD_WIDTH)
       port map(
          clk_i             => clk_i,
          rst_i             => rst_i,
@@ -1329,7 +1326,28 @@ begin
          reg_i             => dat_i,
          reg_o             => mux_en_data
       );
-
+   
+   mode_register: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         mode_data_slv <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         for i in 0 to AC_NUM_DACS-1 loop
+            if(mode_wren_slv(i) = '1') then
+               mode_data_slv(i) <= dat_i(0);
+            end if;         
+         end loop;
+      end if;
+   end process mode_register;
+   
+-- This register instantiates exactly the same number of Logic Elements as fast_dac_reg below, which it would have replaced if it used less
+-- I guess QuartusII does a good job of optimizing things.
+--   data_latch: process(clk_i)
+--   begin
+--      if(clk_i'event and clk_i = '1') then
+--         fast_dac_data <= pre_reg_data;
+--      end if;
+--   end process data_latch;
 
    -----------------------------------------------------------------------------
    -- Instantiation of All SQ2FB Fast Switching RAM Banks
@@ -1337,13 +1355,17 @@ begin
    ram_bank: for i in 0 to AC_NUM_DACS-1 generate
 
       pre_reg_data(i) <=
-         dataa(i)         (AC_BUS_WIDTH-1 downto 0) when mode_data_vec(i)(0) = '0' and mux_en = 2 else 
-         hb_data_vec(i)   (AC_BUS_WIDTH-1 downto 0) when mode_data_vec(i)(0) = '0' and mux_en = 3 else         
-         const_data_vec(i)(AC_BUS_WIDTH-1 downto 0);
+         dataa(i)       when mode_data_slv(i) = '0' and mux_en = 2 else 
+         hb_data_vec(i) when mode_data_slv(i) = '0' and mux_en = 3 else         
+         const_data_vec(i);
       
-      mode_data_slv(i) <= mode_data_vec(i)(0);
-
-      -- This is a holding register for the data to latch into the DACs
+      --------------------------------------------------------------------------
+      -- Mode 1: SQ1B (41 values)
+      -- Mode 2: SQ2FB (32 values)
+      -- Mode 3: SQ1B + Heater Bias (41 values)
+      --------------------------------------------------------------------------
+      
+      -- Modes 2,3:  This is a delay register for the data latched into all 41 DACs
       fast_dac_reg : reg
       generic map(WIDTH => AC_BUS_WIDTH)
       port map(
@@ -1354,48 +1376,45 @@ begin
          reg_o  => fast_dac_data(i)
       );
 
---      hb_data_vec_short(i) <= hb_data_vec(i)(AC_BUS_WIDTH-1 downto 0);
+      -- Mode 3:  These are the 41 heater-bias values for Tc-flattening
       heater_bias_reg : reg
-      generic map(WIDTH => WB_DATA_WIDTH)
+      generic map(WIDTH => AC_BUS_WIDTH)
       port map(
          clk_i  => clk_i,
          rst_i  => rst_i,
          ena_i  => heater_bias_wren_vec(i),
-         reg_i  => dat_i,
+         reg_i  => dat_i(AC_BUS_WIDTH-1 downto 0),
          reg_o  => hb_data_vec(i)
       );
       
+      -- Modes 1,2,3:  These are the constant values for DACs that are in constant mode.
       val_reg : reg
-      generic map(WIDTH => WB_DATA_WIDTH)
+      generic map(WIDTH => AC_BUS_WIDTH)
       port map(
          clk_i  => clk_i,
          rst_i  => rst_i,
          ena_i  => val_wren_vec(i),
-         reg_i  => dat_i,
+         reg_i  => dat_i(AC_BUS_WIDTH-1 downto 0),
          reg_o  => const_data_vec(i)
       );
 
-      mode_reg : reg
-      generic map(WIDTH => WB_DATA_WIDTH)
-      port map(
-         clk_i  => clk_i,
-         rst_i  => rst_i,
-         ena_i  => mode_wren_vec(i),
-         reg_i  => dat_i,
-         reg_o  => mode_data_vec(i)
-      );
-
-      ram : tpram_32bit_x_64
-      port map(
-         data              => dat_i,
-         wren              => fb_wren(i),
-         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
-         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
-         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
-         clock             => clk_i,
-         qa                => dataa(i),
-         qb                => datab(i)
-      );
+      -- Mode 2:  These are the SQ2FB values for each new row.
+      -- We don't need RAMS for the following Address Card channels because they do not exist on the Bias Card:
+      -- 0,1,2,3,36,37,38,39,40
+      -- Cut down on RAM requirements:
+      functional_sq2fb_channels : if (i /= 0 and i /= 1 and i /= 2 and i /= 3 and i /= 36 and i /= 37 and i /= 38 and i /= 39 and i /= 40) generate
+         ram : tpram_14bit_x_64
+         port map(
+            data              => dat_i(AC_BUS_WIDTH-1 downto 0),
+            wren              => fb_wren(i),
+            wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
+            rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
+            rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
+            clock             => clk_i,
+            qa                => dataa(i),
+            qb                => datab(i)
+         );
+      end generate functional_sq2fb_channels;
 
    end generate ram_bank;
 
