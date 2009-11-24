@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.34 2009/01/16 01:36:22 bburger Exp $
+-- $Id: bias_card.vhd,v 1.35 2009/03/19 20:19:01 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.35  2009/03/19 20:19:01  bburger
+-- BB:  Added default TTL outputs
+--
 -- Revision 1.34  2009/01/16 01:36:22  bburger
 -- BB:  v05000000 again, due to a signal name change and new commands added
 --
@@ -211,7 +214,7 @@ entity bias_card is
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
       smb_clk    : out std_logic;
-      smb_nalert : in std_logic;
+      smb_nalert : out std_logic;
       smb_data   : inout std_logic;
 
       -- debug ports:
@@ -357,6 +360,7 @@ begin
       data_io                    => card_id
    );
 
+   smb_nalert <= '0';
    fpga_thermo0: fpga_thermo
    port map(
       clk_i                      => clk,
@@ -375,7 +379,7 @@ begin
 
       -- FPGA temperature chip signals
       smbclk_o                   => smb_clk,
-      smbalert_i                 => smb_nalert,
+      smbalert_i                 => '1',
       smbdat_io                  => smb_data
    );
 

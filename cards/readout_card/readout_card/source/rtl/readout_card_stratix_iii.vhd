@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.10  2009/10/06 06:04:57  bburger
+-- BB:  Added a new PLL for adc_clk and replaced a couple of descrete flip-flops with Quartus-generated ones
+--
 -- Revision 1.9  2009/09/15 22:30:13  mandana
 -- Updated top-level signal names to align top-level and tcl and qsf file. There were discrepencies in the previous revision that implied some portions to be synthesized out and some constraints not to be considered.
 --
@@ -193,7 +196,7 @@ port(
    
    -- fpga_thermo serial interface
    smb_clk         : out std_logic;
-   smb_nalert      : in std_logic;
+   smb_nalert      : out std_logic;
    smb_data        : inout std_logic;      
 
    -- DDR2 interface
@@ -1069,6 +1072,7 @@ begin
    ----------------------------------------------------------------------------
    -- fpga_thermo Instantition
    ----------------------------------------------------------------------------
+   smb_nalert <= '0';
    i_fpga_thermo: fpga_thermo
    port map(
       clk_i   => clk,
@@ -1087,7 +1091,7 @@ begin
          
       -- FPGA temperature chip signals
       smbclk_o  => smb_clk,
-      smbalert_i => smb_nalert,
+      smbalert_i => '1',
       smbdat_io => smb_data
    );
    

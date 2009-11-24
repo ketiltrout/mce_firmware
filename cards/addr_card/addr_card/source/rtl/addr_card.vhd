@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.36  2009/11/19 20:02:17  bburger
+-- BB: ac_v05000003
+--
 -- Revision 1.35  2009/10/16 23:58:38  bburger
 -- BB: ac_v05000002_16oct2009
 --
@@ -147,7 +150,7 @@ entity addr_card is
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
       smb_clk    : out std_logic;
-      smb_nalert : in std_logic;
+      smb_nalert : out std_logic;
       smb_data   : inout std_logic;
 
       -- debug ports:
@@ -438,6 +441,7 @@ begin
       data_io => card_id
    );
 
+   smb_nalert <= '0';
    fpga_thermo0: fpga_thermo
    port map(
       clk_i      => clk,
@@ -456,7 +460,7 @@ begin
 
       -- FPGA temperature chip signals
       smbclk_o   => smb_clk,
-      smbalert_i => smb_nalert,
+      smbalert_i => '1',
       smbdat_io  => smb_data
    );
 

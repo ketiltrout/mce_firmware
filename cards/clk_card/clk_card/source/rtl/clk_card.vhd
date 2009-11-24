@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.87 2009/07/15 20:46:59 bburger Exp $
+-- $Id: clk_card.vhd,v 1.88 2009/08/21 21:13:55 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.88  2009/08/21 21:13:55  bburger
+-- BB: added the FPGA_DEVICE_FAMILY generic for Stratix I
+--
 -- Revision 1.87  2009/07/15 20:46:59  bburger
 -- BB:  Added the Sync Box PLL back in.  Not sure why it was removed from the version after 4.0.9!
 --
@@ -234,7 +237,7 @@ entity clk_card is
       card_id           : inout std_logic;
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
-      smb_nalert        : in std_logic;
+      smb_nalert        : out std_logic;
 
       box_id_in         : in std_logic;
       box_id_out        : out std_logic;
@@ -1014,6 +1017,7 @@ begin
       wren_n_o => box_id_ena_n
    );
 
+   smb_nalert <= '0';
    fpga_thermo_slave: fpga_thermo
    port map(
       clk_i   => clk,
@@ -1032,7 +1036,7 @@ begin
 
       -- FPGA temperature chip signals
       smbclk_o   => smb_clk,
-      smbalert_i => smb_nalert,
+      smbalert_i => '1',
       smbdat_io  => smb_data
    );
 

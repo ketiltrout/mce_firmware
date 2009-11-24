@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.87  2009/08/28 17:51:02  bburger
+-- BB: re_v05000004
+--
 -- Revision 1.86  2009/06/30 18:08:32  bburger
 -- BB:  Removed an unused generic
 --
@@ -166,7 +169,7 @@ port(
 
    -- fpga_thermo serial interface
    smb_clk         : out std_logic;
-   smb_nalert      : in std_logic;
+   smb_nalert      : out std_logic;
    smb_data        : inout std_logic;
 
    -- Debug ports
@@ -717,6 +720,7 @@ begin
    ----------------------------------------------------------------------------
    -- fpga_thermo Instantition
    ----------------------------------------------------------------------------
+   smb_nalert <= '0';
    i_fpga_thermo: fpga_thermo
    port map(
       clk_i   => clk,
@@ -735,7 +739,7 @@ begin
 
       -- FPGA temperature chip signals
       smbclk_o  => smb_clk,
-      smbalert_i => smb_nalert,
+      smbalert_i => '1',
       smbdat_io => smb_data
    );
 
