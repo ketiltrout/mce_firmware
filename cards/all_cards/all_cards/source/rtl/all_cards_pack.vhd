@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/08/21 21:07:24 $>    - <initials $Author: bburger $>
+-- <date $Date: 2009/09/14 20:03:08 $>    - <initials $Author: bburger $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.10  2009/09/14 20:03:08  bburger
+-- BB: added the row_count_o interface for the Address Card row-specific BIAS_START command
+--
 -- Revision 1.9  2009/08/21 21:07:24  bburger
 -- BB: added FPGA_DEVICE_FAMILY generic to interfaces for synthesis for Stratix I or III
 --
@@ -79,7 +82,7 @@ use work.frame_timing_pack.all;
 package all_cards_pack is
 
    constant SLOT_ID_BITS : integer := 4;
-
+   constant SPI_DATA_WIDTH:  integer := 3;
    -----------------------------------------------------------------------------
    -- all_cards component
    -----------------------------------------------------------------------------
@@ -310,6 +313,36 @@ package all_cards_pack is
          data_io : inout std_logic
       );
    end component;
+   
+   -----------------------------------------------------------------------------
+   -- 3-wire SPI DAC Control block
+   -----------------------------------------------------------------------------
+   
+   component spi_dac_ctrl 
+      generic (
+         DAC_DATA_WIDTH : integer range 1 to 32 := 16;
+         CLK_RATIO : integer range 1 to 8 := 2                                                  -- divided ratio of fast (MAIN) clock to slow (SPI) clock
+      );
+      port( 
+         -- global signals
+         rst_i                     : in     std_logic;                                     -- global reset
+         clk_25_i                  : in     std_logic;                                     -- global clock (25 MHz)
+         clk_50_i                  : in     std_logic;                                     -- global clock (50 MHz)
+              
+         -- control signals from frame timing block
+         restart_frame_aligned_i   : in     std_logic;                                     -- start of frame signal (50 MHz domain)
+         
+         -- control signal indicates dat_i is updated
+         dat_rdy_i                 : in     std_logic;
+         
+         -- parallel data to be serialized
+         dat_i                     : in     std_logic_vector(DAC_DATA_WIDTH-1 downto 0);    -- parallel data input value from wishbone 
+         
+         -- SPI interface to MAX 5443 DAC
+         dac_spi_o                 : out    std_logic_vector(SPI_DATA_WIDTH-1 downto 0)    -- serial (SPI) data, clock and chip select          
+   );   
+   end component;
+   
 
 end all_cards_pack;
 
