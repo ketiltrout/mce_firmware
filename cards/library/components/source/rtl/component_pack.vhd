@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.37 2007/03/06 00:53:13 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.38 2007/07/25 19:04:56 bburger Exp $>
 --
 -- Project:    SCUBA-2
 -- Author:     Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.38  2007/07/25 19:04:56  bburger
+-- BB:  added the three_wire_master component declaration
+--
 -- Revision 1.37  2007/03/06 00:53:13  bburger
 -- Bryce:  re-vamped the smb_master interaface to make it more generic. The smb_master is read only, but is not far off from supporting write commands as well.
 --
@@ -724,5 +727,34 @@ package component_pack is
       wrfull   : OUT STD_LOGIC
    );
    end component;
+
+   ------------------------------------------------------------
+   --
+   -- spi interface
+   --
+   -- serializes parallel input data and sends it over spi interface
+   ------------------------------------------------------------
+
+   component spi_if
+   generic (
+      PDATA_WIDTH : in integer range 1 to 32 := 16
+   );   
+   port ( 
+      
+      -- global signals
+      rst_i                     : in     std_logic;                                       -- global reset
+      clk_i                     : in     std_logic;                                       -- global clock
+      
+      -- SPI write inputs 
+      spi_start_i               : in     std_logic;                                       -- SPI write trigger
+      spi_pdat_i                : in     std_logic_vector(PDATA_WIDTH-1 downto 0);        -- SPI parallel write data
+      
+      -- SPI write outputs
+      spi_csb_o                 : out    std_logic;                                       -- SPI chip select
+      spi_sclk_o                : out    std_logic;                                       -- SPI serial write clock
+      spi_sdat_o                : out    std_logic                                        -- SPI serial write data
+      
+      );
+   end component;    
 
 end component_pack;
