@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.17  2009/10/06 06:03:58  bburger
+-- BB: Added a PLL declaration for the adc_clk output
+--
 -- Revision 1.16  2009/08/21 21:34:12  bburger
 -- BB: made changes to rc_pll_stratix_iii (locked) and adc_pll_stratix_iii (areset) interfaces.
 --
@@ -65,6 +68,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+--library stratixiii;
+--use stratixiii.all;
+
 -- System Library
 library sys_param;
 use sys_param.command_pack.all;
@@ -89,6 +95,34 @@ package readout_card_pack is
    constant SA_BIAS_SPI_DATA_WIDTH : integer := 3;         -- data width of SPI interface 
    constant OFFSET_SPI_DATA_WIDTH  : integer := 3;         -- data width of SPI interface 
 
+
+   component stratixiii_crcblock
+      generic (
+         crc_deld_disable  :  string := "off";
+         error_delay :  natural := 0;
+         error_dra_dl_bypass  :  string := "off";
+         lpm_hint :  string := "UNUSED";
+         lpm_type :  string := "stratixiii_crcblock";
+         oscillator_divider   :  natural := 2);
+      port(
+         clk   :  in std_logic := '0';
+--         -- This signal is noted as required in an357, but is not present in any library interfaces except stratixiii_components.vhd
+--         ldsrc :  in std_logic := '0';
+         crcerror :  out std_logic;
+         regout   :  out std_logic;
+         shiftnld :  in std_logic := '0'
+      );
+   end component;   
+   
+   component d_flipflop IS
+      PORT
+      (
+         clock    : IN STD_LOGIC ;
+         data     : IN STD_LOGIC ;
+         q     : OUT STD_LOGIC 
+      );
+   END component;
+   
    -----------------------------------------------------------------------------
    -- Flux Loop Component
    -----------------------------------------------------------------------------
