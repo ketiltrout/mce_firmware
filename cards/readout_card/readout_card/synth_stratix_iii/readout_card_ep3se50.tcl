@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.9 2009/09/15 22:35:28 mandana Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.10 2009/10/06 06:06:32 bburger Exp $
 
 
 
@@ -84,7 +84,7 @@ puts "   Assigning miscellaneous pins."
 #####################################################
 
 # Note that crc_error_out is special fpga pin ...set_location_assignment PIN_P23 -to ~ALTERA_CRC_ERROR~
-#cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_P23"
+cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_P23"
 cmp add_assignment $top_name "" crc_error_in LOCATION "Pin_T23"
 cmp add_assignment $top_name "" critical_error LOCATION "Pin_M24"
 cmp add_assignment $top_name "" extend_n LOCATION "Pin_AH12"

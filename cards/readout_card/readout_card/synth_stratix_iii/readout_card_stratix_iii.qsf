@@ -619,7 +619,6 @@ set_global_assignment -name POWER_USE_DEVICE_CHARACTERISTICS TYPICAL
 set_global_assignment -name POWER_AUTO_COMPUTE_TJ ON
 set_global_assignment -name POWER_USE_TA_VALUE 25
 set_global_assignment -name POWER_USE_CUSTOM_COOLING_SOLUTION OFF
-set_global_assignment -name POWER_BOARD_TEMPERATURE 25
 set_global_assignment -name AUTO_EXPORT_INCREMENTAL_COMPILATION OFF
 set_global_assignment -name INCREMENTAL_COMPILATION_EXPORT_NETLIST_TYPE POST_FIT
 set_global_assignment -name OUTPUT_IO_TIMING_ENDPOINT "NEAR END"
@@ -663,7 +662,6 @@ set_global_assignment -name FMAX_REQUIREMENT "50 MHz"
 set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id adc_fco_p
 set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat1*
 set_instance_assignment -name SETUP_RELATIONSHIP "3.57 ns" -from "adc_serdes:i_adc_serdes|altlvds_rx:altlvds_rx_component|adc_serdes_lvds_rx:auto_generated|wire_rx_dataout*" -to serdes_dat2*
-set_global_assignment -name CONFIGURATION_VCCIO_LEVEL 3.3V
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_odt[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_odt[0]
 set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_clk[0]
@@ -1092,9 +1090,22 @@ set_location_assignment PIN_R27 -to dev_clr_gclk_n
 set_location_assignment PIN_M25 -to dev_clr_fpga_out_n
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to termination_blk0~_rdn_pad
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to termination_blk0~_rup_pad
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_location_assignment PIN_AE14 -to inclk6
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_clk_n[0]
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_clk_n[0]
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[0]
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[1]
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
+set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[0]
+set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[1]
+set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[0] -to mem_dqs[0]
+set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[1] -to mem_dqs[1]
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VHDL_FILE ../source/rtl/d_flipflop.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/adc_clk_pll_stratix_iii.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/adc_pll_stratix_iii.vhd
 set_global_assignment -name VHDL_FILE ../../ddr2_sdram_ctrl/source/rtl/micron_ctrl_phy.vhd
@@ -1224,15 +1235,7 @@ set_global_assignment -name SIGNALTAP_FILE stp1.stp
 set_global_assignment -name SIGNALTAP_FILE stp2.stp
 set_global_assignment -name SIGNALTAP_FILE stp3.stp
 set_global_assignment -name CDF_FILE readout_card_stratix_iii_rc_pof.cdf
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_clk_n[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_clk_n[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqsn[1]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqsn[1]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqsn[1]
-set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[0] -to mem_dqs[0]
-set_instance_assignment -name DQSB_DQS_PAIR ON -from mem_dqsn[1] -to mem_dqs[1]
+set_global_assignment -name CDF_FILE readout_card_stratix_iii_two_cards.cdf
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+set_global_assignment -name CDF_FILE readout_card_stratix_iii_two_cards01.cdf
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
