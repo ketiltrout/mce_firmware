@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.10 2009/10/06 06:06:32 bburger Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.11 2009/12/10 00:15:54 bburger Exp $
 
 
 
@@ -170,6 +170,16 @@ set_location_assignment PIN_AD1 -to adc5_lvds
 set_location_assignment PIN_L2 -to adc6_lvds
 set_location_assignment PIN_AF2 -to adc7_lvds
 
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc7_lvds
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc6_lvds
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc5_lvds
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc4_lvds
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc3_lvds
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc2_lvds
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc1_lvds
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc0_lvds
+
+
 # adc clock lines are on bank 3C to take advantage of the clk_out lines for the bottom PLL
 set_location_assignment PIN_Y15 -to adc_clk
 
@@ -178,6 +188,7 @@ set_location_assignment PIN_P2 -to adc_dco
 
 # adc_fco is tied to clk11 (terminated) of PLL_R2
 set_location_assignment PIN_M1 -to adc_fco
+set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc_fco
 
 # control signals on bank 2A
 set_location_assignment PIN_AF28 -to adc_sclk

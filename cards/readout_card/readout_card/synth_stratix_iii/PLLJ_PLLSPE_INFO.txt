@@ -3,12 +3,17 @@ PLLJITTER	31
 PLLSPEmax	84
 PLLSPEmin	-53
 
-PLL_Name	micron_ctrl:micron_ctrl_inst|micron_ctrl_controller_phy:micron_ctrl_controller_phy_inst|micron_ctrl_phy:alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy:micron_ctrl_phy_alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_clk_reset:clk|micron_ctrl_phy_alt_mem_phy_pll:half_rate.pll|altpll:altpll_component|altpll_8pg3:auto_generated|pll1
+PLL_Name	adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|pll1
+PLLJITTER	48
+PLLSPEmax	84
+PLLSPEmin	-53
+
+PLL_Name	micron_ctrl:micron_ctrl_inst|micron_ctrl_controller_phy:micron_ctrl_controller_phy_inst|micron_ctrl_phy:alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy:micron_ctrl_phy_alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_clk_reset:clk|micron_ctrl_phy_alt_mem_phy_pll:half_rate.pll|altpll:altpll_component|altpll_8gr3:auto_generated|pll1
 PLLJITTER	30
 PLLSPEmax	84
 PLLSPEmin	-53
 
-PLL_Name	rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_2bo2:auto_generated|pll1
+PLL_Name	rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_5933:auto_generated|pll1
 PLLJITTER	32
 PLLSPEmax	84
 PLLSPEmin	-53
