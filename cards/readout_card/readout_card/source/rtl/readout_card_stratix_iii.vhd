@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.12  2009/12/10 00:13:36  bburger
+-- BB: Added CRC_ERROR entities and test functionality.
+--
 -- Revision 1.11  2009/11/24 23:52:01  bburger
 -- BB: Made a top-level modification that does not affect old cards with the MAX1618, but enables the LM95235 on new cards.
 --
@@ -200,26 +203,26 @@ port(
    smb_nalert      : out std_logic;
    smb_data        : inout std_logic;      
 
---   -- DDR2 interface
---   -- outputs:
---   mem_addr : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
---   mem_ba : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
---   mem_cas_n : OUT STD_LOGIC;
---   mem_cke : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
---   mem_clk : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
---   mem_clk_n : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
---   mem_cs_n : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
---   mem_dm : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
---   mem_dq : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
---   mem_dqs : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
---   mem_dqsn : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
---   mem_odt : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
---   mem_ras_n : OUT STD_LOGIC;
---   mem_we_n : OUT STD_LOGIC;
---   pnf : OUT STD_LOGIC;
---   pnf_per_byte : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
---   test_complete : OUT STD_LOGIC;
---   test_status : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+   -- DDR2 interface
+   -- outputs:
+   mem_addr : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
+   mem_ba : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+   mem_cas_n : OUT STD_LOGIC;
+   mem_cke : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+   mem_clk : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+   mem_clk_n : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+   mem_cs_n : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+   mem_dm : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+   mem_dq : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+   mem_dqs : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+   mem_dqsn : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+   mem_odt : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+   mem_ras_n : OUT STD_LOGIC;
+   mem_we_n : OUT STD_LOGIC;
+   pnf : OUT STD_LOGIC;
+   pnf_per_byte : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+   test_complete : OUT STD_LOGIC;
+   test_status : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
    mictor_clk : out std_logic 
 );  
 end readout_card_stratix_iii;
@@ -231,7 +234,7 @@ architecture top of readout_card_stratix_iii is
    --               rr is the minor revision number
    --               BBBB is the build number
    -- firmware major/minor revision set to ffff for trial/debug firmware
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05000006";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"ffff0006";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
@@ -291,6 +294,7 @@ architecture top of readout_card_stratix_iii is
    signal adc_dat5    : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
    signal adc_dat6    : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
    signal adc_dat7    : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
+   signal adc_dat_tst : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
   
    -- Dispatch interface signals 
    signal dispatch_dat_out        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -454,16 +458,16 @@ begin
       q     => crc_error_ff  
    );
    
-   process(rst, clk)
-   begin
-      if(rst = '1') then
-         ylw_led <= '0';
-      elsif(clk'event and clk = '1') then
-         if(crc_error_ff = '1') then
-            ylw_led <= '1';
-         end if;
-      end if;
-   end process;
+--   process(rst, clk)
+--   begin
+--      if(rst = '1') then
+--         ylw_led <= '0';
+--      elsif(clk'event and clk = '1') then
+--         if(crc_error_ff = '1') then
+--            ylw_led <= '1';
+--         end if;
+--      end if;
+--   end process;
    ----------------------------------------------------------------------------
 
 --   ylw_led <= crc_error_ff;
@@ -518,57 +522,6 @@ begin
    -- Therefore we must wait 11 clock cycles from the beginning of the frame period to be sampling data from that frame period.
    -- This has to be built into the firmware in the same manner that the 4-cycle delay is built in for Rev A/B.
 
-------------------------------------------------
----- Start of "does not meet timing"
-------------------------------------------------
---   -- PLL
---   i_adc_pll: adc_pll_stratix_iii_not_fast
---   port map (
---      -- adc_fco_p is the framing signal from the ADC
---      inclk0 => adc_fco_p,
---      -- clk0: 700.00 MHz, phase shift = 0
---      c0     => clk0,
---      -- clk1: 50.00 MHz, phase shift = +25.71 degrees (360/14)
---      c1     => clk1
---   );
---
---   -- ADC Shift Register
---   process(clk0, rst)
---   begin
---      if(rst = '1') then
---         adc_des_a0 <= (others => '0');
---         adc_des_a1 <= (others => '0');
---         adc_des_a2 <= (others => '0');
---         adc_des_a3 <= (others => '0');
---         adc_des_a4 <= (others => '0');
---         adc_des_a5 <= (others => '0');
---         adc_des_a6 <= (others => '0');
---         adc_des_a7 <= (others => '0');
---      elsif(clk0'event and clk0 = '1') then
---         adc_des_a0 <= adc_des_a0(ADC_DAT_WIDTH-2 downto 0) & adc0_lvds_p;
---         adc_des_a1 <= adc_des_a1(ADC_DAT_WIDTH-2 downto 0) & adc1_lvds_p;
---         adc_des_a2 <= adc_des_a2(ADC_DAT_WIDTH-2 downto 0) & adc2_lvds_p;
---         adc_des_a3 <= adc_des_a3(ADC_DAT_WIDTH-2 downto 0) & adc3_lvds_p;
---         adc_des_a4 <= adc_des_a4(ADC_DAT_WIDTH-2 downto 0) & adc4_lvds_p;
---         adc_des_a5 <= adc_des_a5(ADC_DAT_WIDTH-2 downto 0) & adc5_lvds_p;
---         adc_des_a6 <= adc_des_a6(ADC_DAT_WIDTH-2 downto 0) & adc6_lvds_p;
---         adc_des_a7 <= adc_des_a7(ADC_DAT_WIDTH-2 downto 0) & adc7_lvds_p;
---      end if;
---   end process;
---   -----
---   -- New to synthesis
---   serdes_dat3 <= adc_des_a7 & adc_des_a6 & adc_des_a5 & adc_des_a4 & adc_des_a3 & adc_des_a2 & adc_des_a1 & adc_des_a0; 
---  
---   i_adc_serdes_flipflop3: flipflop_112
---   port map (
---      clock      => clk1,
---      data       => serdes_dat3,
---      q          => serdes_dat4
---   );   
---   
-------------------------------------------------
----- End of "does not meet timing"
-------------------------------------------------
 
 ----------------------------------------------
 -- Start of "fco hardware error"
@@ -597,12 +550,13 @@ begin
       locked      => adc_clk_pll_locked
    );
    
+   -- http://e-mode.phas.ubc.ca/intmcewiki/index.php/Readout_Card_Rev._D
    i_adc_pll: adc_pll_stratix_iii
    port map (
       areset => rst,
       inclk0 => adc_fco,    -- adc_fco_p is the framing signal from the ADC, source synchronous clock
-      c0     => rx_sclk,      -- 700.00MHz, phase shift = -180.00 degrees, duty cycle = 50.00%, fully compensated
-      c1     => rx_enable_clk,-- 100.00MHz, phase shift = +128.57 degrees, duty cycle = 7.14% (BB: 21.42%. why??)  [Note: phase shift = (10/28)*360 or 5 clock edges @700 MHz]
+      c0     => rx_sclk,      -- 700.00MHz, phase shift = -135.00 degrees, duty cycle = 50.00%, fully compensated
+      c1     => rx_enable_clk,-- 100.00MHz, phase shift = +102.86 degrees, duty cycle = 7.14% changed to 21.42% (Three 700 MHz clock cycles).  [Note: phase shift = (8/28)*360 or 4 clock edges @700 MHz]
       -- c2, c3 can be latched out at any point during the time they are valid, i.e. 100 MHz -- 10 ns.
       -- However, they have been phase shifted so that their rising edges fall exactly between SERDES data edges.
       -- c2 = MSB latch clock      -- c3 = LSB latch clock      -- c4 = Full word latch clock
@@ -618,7 +572,7 @@ begin
    -- To receive a 14-bit word, the SERDES data must be latched twice per data period
    i_adc_serdes: adc_serdes 
    port map (
-      rx_enable  => rx_enable_clk, -- This is the latching signal.  Data is latched twice per 14-bit data point.  The phase delay of +128.57 degrees accounts for propagation through the SERDES.
+      rx_enable  => rx_enable_clk, -- This is the latching signal.  Data is latched twice per 14-bit data point.  The phase delay of +102.86 degrees accounts for propagation through the SERDES.
       rx_in      => adc_dat,    
       rx_inclock => rx_sclk,    
       rx_out     => serdes_dat0   
@@ -681,32 +635,18 @@ begin
       q          => serdes_dat6
    );   
 
---   process(rst, clk_n)
---   begin
---      if(rst = '1') then
---         serdes_dat5 <= (others => '0');
---      elsif(clk_n'event and clk_n = '1') then
---         serdes_dat5 <= serdes_dat4;
---      end if;
---   end process;
---
---   process(rst, clk)
---   begin
---      if(rst = '1') then
---         serdes_dat6 <= (others => '0');
---      elsif(clk'event and clk = '1') then
---         serdes_dat6 <= serdes_dat5;
---      end if;
---   end process;
-   
-   adc_dat0 <=  serdes_dat6(13  downto 0);
-   adc_dat1 <=  serdes_dat6(27  downto 14);
-   adc_dat2 <=  serdes_dat6(41  downto 28);
-   adc_dat3 <=  serdes_dat6(55  downto 42);
-   adc_dat4 <=  serdes_dat6(69  downto 56);
-   adc_dat5 <=  serdes_dat6(83  downto 70);
-   adc_dat6 <=  serdes_dat6(97  downto 84);
-   adc_dat7 <=  serdes_dat6(111 downto 98);
+   -- This cludge is due to the fact that the AD9252 data output format is "offset binary" by default.
+   -- See Table 8 on p. 22 of the datasheet.
+   adc_dat0 <= not serdes_dat6( 13) & serdes_dat6( 12 downto  0);
+   adc_dat1 <= not serdes_dat6( 27) & serdes_dat6( 26 downto 14);
+   adc_dat2 <= not serdes_dat6( 41) & serdes_dat6( 40 downto 28);
+   adc_dat3 <= not serdes_dat6( 55) & serdes_dat6( 54 downto 42);
+   adc_dat4 <= not serdes_dat6( 69) & serdes_dat6( 68 downto 56);
+   adc_dat5 <= not serdes_dat6( 83) & serdes_dat6( 82 downto 70);
+   adc_dat6 <= not serdes_dat6( 97) & serdes_dat6( 96 downto 84);
+   adc_dat7 <= not serdes_dat6(111) & serdes_dat6(110 downto 98);
+
+--   adc_dat_tst <= adc_dat0 or adc_dat1 or adc_dat2 or adc_dat3 or adc_dat4 or adc_dat5 or adc_dat6 or adc_dat7;
 
    ----------------------------------------------------------------------------
    -- Dispatch Instantiation
@@ -881,84 +821,84 @@ begin
    ----------------------------------------------------------------------------
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
---   i_flux_loop: flux_loop
---   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
---   port map (
---      clk_50_i                  => clk,
---      clk_25_i                  => spi_clk,
---      rst_i                     => rst,
---      num_rows_i                => num_rows,
---      num_rows_reported_i       => num_rows_reported,
---      num_cols_reported_i       => num_cols_reported,
---      data_size_i               => data_size,
---      adc_coadd_en_i            => adc_coadd_en,
---      restart_frame_1row_prev_i => restart_frame_1row_prev,
---      restart_frame_aligned_i   => restart_frame_aligned,
---      restart_frame_1row_post_i => restart_frame_1row_post,
---      row_switch_i              => row_switch,
---      initialize_window_i       => initialize_window,
---      fltr_rst_i                => fltr_rst,
---      num_rows_sub1_i           => (others => '0'),
---      dac_dat_en_i              => dac_dat_en,
---      dat_i                     => dispatch_dat_out,
---      addr_i                    => dispatch_addr_out,
---      tga_i                     => dispatch_tga_out,
---      we_i                      => dispatch_we_out,
---      stb_i                     => dispatch_stb_out,
---      cyc_i                     => dispatch_cyc_out,
---      dat_frame_o               => dat_frame,
---      ack_frame_o               => ack_frame,
---      dat_fb_o                  => dat_fb,
---      ack_fb_o                  => ack_fb,
---      
---      ------------------------------------
---      -- Readout Card Rev. A/AA/B
---      ------------------------------------
---      adc_dat_ch0_i             => adc_dat0,
---      adc_dat_ch1_i             => adc_dat1,
---      adc_dat_ch2_i             => adc_dat2,
---      adc_dat_ch3_i             => adc_dat3,
---      adc_dat_ch4_i             => adc_dat4,
---      adc_dat_ch5_i             => adc_dat5,
---      adc_dat_ch6_i             => adc_dat6,
---      adc_dat_ch7_i             => adc_dat7,
---      
---      dac_dat_ch0_o             => dac0_dfb_dat,
---      dac_dat_ch1_o             => dac1_dfb_dat,
---      dac_dat_ch2_o             => dac2_dfb_dat,
---      dac_dat_ch3_o             => dac3_dfb_dat,
---      dac_dat_ch4_o             => dac4_dfb_dat,
---      dac_dat_ch5_o             => dac5_dfb_dat,
---      dac_dat_ch6_o             => dac6_dfb_dat,
---      dac_dat_ch7_o             => dac7_dfb_dat,
---      
---      dac_clk_ch0_o             => dac_dfb_clk(0),
---      dac_clk_ch1_o             => dac_dfb_clk(1),
---      dac_clk_ch2_o             => dac_dfb_clk(2),
---      dac_clk_ch3_o             => dac_dfb_clk(3),
---      dac_clk_ch4_o             => dac_dfb_clk(4),
---      dac_clk_ch5_o             => dac_dfb_clk(5),
---      dac_clk_ch6_o             => dac_dfb_clk(6),
---      dac_clk_ch7_o             => dac_dfb_clk(7),
---      
---      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
---      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
---      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
---      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
---      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
---      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
---      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
---      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
---      
---      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
---      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
---      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
---      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
---      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
---      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
---      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
---      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
---   );               
+   i_flux_loop: flux_loop
+   generic map (ADC_LATENCY => ADC_LATENCY_REVC)
+   port map (
+      clk_50_i                  => clk,
+      clk_25_i                  => spi_clk,
+      rst_i                     => rst,
+      num_rows_i                => num_rows,
+      num_rows_reported_i       => num_rows_reported,
+      num_cols_reported_i       => num_cols_reported,
+      data_size_i               => data_size,
+      adc_coadd_en_i            => adc_coadd_en,
+      restart_frame_1row_prev_i => restart_frame_1row_prev,
+      restart_frame_aligned_i   => restart_frame_aligned,
+      restart_frame_1row_post_i => restart_frame_1row_post,
+      row_switch_i              => row_switch,
+      initialize_window_i       => initialize_window,
+      fltr_rst_i                => fltr_rst,
+      num_rows_sub1_i           => (others => '0'),
+      dac_dat_en_i              => dac_dat_en,
+      dat_i                     => dispatch_dat_out,
+      addr_i                    => dispatch_addr_out,
+      tga_i                     => dispatch_tga_out,
+      we_i                      => dispatch_we_out,
+      stb_i                     => dispatch_stb_out,
+      cyc_i                     => dispatch_cyc_out,
+      dat_frame_o               => dat_frame,
+      ack_frame_o               => ack_frame,
+      dat_fb_o                  => dat_fb,
+      ack_fb_o                  => ack_fb,
+      
+      ------------------------------------
+      -- Readout Card Rev. A/AA/B
+      ------------------------------------
+      adc_dat_ch0_i             => adc_dat0,
+      adc_dat_ch1_i             => adc_dat1,
+      adc_dat_ch2_i             => adc_dat2,
+      adc_dat_ch3_i             => adc_dat3,
+      adc_dat_ch4_i             => adc_dat4,
+      adc_dat_ch5_i             => adc_dat5,
+      adc_dat_ch6_i             => adc_dat6,
+      adc_dat_ch7_i             => adc_dat7,
+      
+      dac_dat_ch0_o             => dac0_dfb_dat,
+      dac_dat_ch1_o             => dac1_dfb_dat,
+      dac_dat_ch2_o             => dac2_dfb_dat,
+      dac_dat_ch3_o             => dac3_dfb_dat,
+      dac_dat_ch4_o             => dac4_dfb_dat,
+      dac_dat_ch5_o             => dac5_dfb_dat,
+      dac_dat_ch6_o             => dac6_dfb_dat,
+      dac_dat_ch7_o             => dac7_dfb_dat,
+      
+      dac_clk_ch0_o             => dac_dfb_clk(0),
+      dac_clk_ch1_o             => dac_dfb_clk(1),
+      dac_clk_ch2_o             => dac_dfb_clk(2),
+      dac_clk_ch3_o             => dac_dfb_clk(3),
+      dac_clk_ch4_o             => dac_dfb_clk(4),
+      dac_clk_ch5_o             => dac_dfb_clk(5),
+      dac_clk_ch6_o             => dac_dfb_clk(6),
+      dac_clk_ch7_o             => dac_dfb_clk(7),
+      
+      sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
+      sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
+      sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
+      sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
+      sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
+      sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
+      sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
+      sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
+      
+      offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
+      offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
+      offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
+      offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
+      offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
+      offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
+      offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
+      offset_dac_spi_ch7_o      => offset_dac_spi_ch7
+   );               
    
    -- Chip select signal assignment
    bias_dac_ncs(0) <= sa_bias_dac_spi_ch0(2);
@@ -1082,7 +1022,7 @@ begin
       dat_o  => dat_led,
       ack_o  => ack_led,
       power  => grn_led,
-      status => open,
+      status => ylw_led,
       fault  => red_led
    );
 
@@ -1157,120 +1097,124 @@ begin
       smbdat_io => smb_data
    );
    
---   ----------------------------------------------------------------------------
---   -- DDR2-related Instantitions and connections copied from micron_ctrl_example_top.vhd
---   ----------------------------------------------------------------------------
---  -- replaced global_reset_n with rst and replaced clk_source with inclk_ddr
---  tie_low <= std_logic'('0');
---  oct_ctl_rs_value <= std_logic_vector'("00000000000000");
---  oct_ctl_rt_value <= std_logic_vector'("00000000000000");
---  tie_high <= std_logic'('1');
---
---  --<< START MEGAWIZARD INSERT WRAPPER_NAME
---  micron_ctrl_inst : micron_ctrl
---  port map(
---     aux_full_rate_clk => mem_aux_full_rate_clk,
---     aux_half_rate_clk => mem_aux_half_rate_clk,
---     global_reset_n => dev_clr_n,
---     local_address => mem_local_addr,
---     local_be => mem_local_be,
---     local_burstbegin => tie_low,
---     local_init_done => open,
---     local_rdata => mem_local_rdata,
---     local_rdata_valid => mem_local_rdata_valid,
---     local_read_req => mem_local_read_req,
---     local_ready => mem_local_ready,
---     local_refresh_ack => open,
---     local_size => mem_local_size,
---     local_wdata => mem_local_wdata,
---     local_wdata_req => open,
---     local_write_req => mem_local_write_req,
---     mem_addr => internal_mem_addr,
---     mem_ba => internal_mem_ba,
---     mem_cas_n => internal_mem_cas_n,
---     mem_cke(0) => internal_mem_cke(0),
---     mem_clk(0) => mem_clk(0),
---     mem_clk_n(0) => mem_clk_n(0),
---     mem_cs_n(0) => internal_mem_cs_n(0),
---     mem_dm => internal_mem_dm(1 DOWNTO 0),
---     mem_dq => mem_dq,
---     mem_dqs => mem_dqs(1 DOWNTO 0),
---     mem_dqsn => mem_dqsn(1 DOWNTO 0),
---     mem_odt(0) => internal_mem_odt(0),
---     mem_ras_n => internal_mem_ras_n,
---     mem_we_n => internal_mem_we_n,
---     oct_ctl_rs_value => oct_ctl_rs_value,
---     oct_ctl_rt_value => oct_ctl_rt_value,
---     phy_clk => phy_clk,
---     pll_ref_clk => inclk_ddr,
---     reset_phy_clk_n => reset_phy_clk_n,
---     reset_request_n => open,
---     soft_reset_n => tie_high
---  );
---  --<< END MEGAWIZARD INSERT WRAPPER_NAME
---
---  --<< START MEGAWIZARD INSERT CS_ADDR_MAP
---  --connect up the column address bits, dropping 2 bits from example driver output because of 4:1 data rate
---  mem_local_addr(7 DOWNTO 0) <= mem_local_col_addr(9 DOWNTO 2);
---  --<< END MEGAWIZARD INSERT CS_ADDR_MAP
---
---  --<< START MEGAWIZARD INSERT EXAMPLE_DRIVER
---  --Self-test, synthesisable code to exercise the DDR SDRAM Controller
---  driver : micron_ctrl_example_driver
---  port map(
---     clk => phy_clk,
---     local_bank_addr => mem_local_addr(22 DOWNTO 21),
---     local_be => mem_local_be,
---     local_col_addr => mem_local_col_addr,
---     local_cs_addr => mem_local_cs_addr,
---     local_rdata => mem_local_rdata,
---     local_rdata_valid => mem_local_rdata_valid,
---     local_read_req => mem_local_read_req,
---     local_ready => mem_local_ready,
---     local_row_addr => mem_local_addr(20 DOWNTO 8),
---     local_size => mem_local_size,
---     local_wdata => mem_local_wdata,
---     local_write_req => mem_local_write_req,
---     pnf_per_byte => internal_pnf_per_byte(7 DOWNTO 0),
---     pnf_persist => internal_pnf,
---     reset_n => reset_phy_clk_n,
---     test_complete => internal_test_complete,
---     test_status => internal_test_status
---  );
---
---  --<< END MEGAWIZARD INSERT EXAMPLE_DRIVER
---
---  --<< START MEGAWIZARD INSERT DLL
---
---  --<< END MEGAWIZARD INSERT DLL
---
---  --<< start europa
---  --vhdl renameroo for output signals
---  mem_addr <= internal_mem_addr;
---  --vhdl renameroo for output signals
---  mem_ba <= internal_mem_ba;
---  --vhdl renameroo for output signals
---  mem_cas_n <= internal_mem_cas_n;
---  --vhdl renameroo for output signals
---  mem_cke <= internal_mem_cke;
---  --vhdl renameroo for output signals
---  mem_cs_n <= internal_mem_cs_n;
---  --vhdl renameroo for output signals
---  mem_dm <= internal_mem_dm;
---  --vhdl renameroo for output signals
---  mem_odt <= internal_mem_odt;
---  --vhdl renameroo for output signals
---  mem_ras_n <= internal_mem_ras_n;
---  --vhdl renameroo for output signals
---  mem_we_n <= internal_mem_we_n;
---  --vhdl renameroo for output signals
+   ----------------------------------------------------------------------------
+   -- DDR2-related Instantitions and connections copied from micron_ctrl_example_top.vhd
+   ----------------------------------------------------------------------------
+  -- replaced global_reset_n with rst and replaced clk_source with inclk_ddr
+  tie_low <= std_logic'('0');
+  oct_ctl_rs_value <= std_logic_vector'("00000000000000");
+  oct_ctl_rt_value <= std_logic_vector'("00000000000000");
+  tie_high <= std_logic'('1');
+
+  --<< START MEGAWIZARD INSERT WRAPPER_NAME
+  micron_ctrl_inst : micron_ctrl
+  port map(
+     aux_full_rate_clk => mem_aux_full_rate_clk,
+     aux_half_rate_clk => mem_aux_half_rate_clk,
+     global_reset_n => dev_clr_n,
+     local_address => mem_local_addr,
+     local_be => mem_local_be,
+     local_burstbegin => tie_low,
+     local_init_done => open,
+     local_rdata => mem_local_rdata,
+     local_rdata_valid => mem_local_rdata_valid,
+     local_read_req => mem_local_read_req,
+     local_ready => mem_local_ready,
+     local_refresh_ack => open,
+     local_size => mem_local_size,
+     local_wdata => mem_local_wdata,
+     local_wdata_req => open,
+     local_write_req => mem_local_write_req,
+     mem_addr => internal_mem_addr,
+     mem_ba => internal_mem_ba,
+     mem_cas_n => internal_mem_cas_n,
+     mem_cke(0) => internal_mem_cke(0),
+     mem_clk(0) => mem_clk(0),
+     mem_clk_n(0) => mem_clk_n(0),
+     mem_cs_n(0) => internal_mem_cs_n(0),
+     mem_dm => internal_mem_dm(1 DOWNTO 0),
+     mem_dq => mem_dq,
+     mem_dqs => mem_dqs(1 DOWNTO 0),
+     mem_dqsn => mem_dqsn(1 DOWNTO 0),
+     mem_odt(0) => internal_mem_odt(0),
+     mem_ras_n => internal_mem_ras_n,
+     mem_we_n => internal_mem_we_n,
+     oct_ctl_rs_value => oct_ctl_rs_value,
+     oct_ctl_rt_value => oct_ctl_rt_value,
+     phy_clk => phy_clk,
+     pll_ref_clk => inclk_ddr,
+     reset_phy_clk_n => reset_phy_clk_n,
+     reset_request_n => open,
+     soft_reset_n => tie_high
+  );
+  --<< END MEGAWIZARD INSERT WRAPPER_NAME
+
+  --<< START MEGAWIZARD INSERT CS_ADDR_MAP
+  --connect up the column address bits, dropping 2 bits from example driver output because of 4:1 data rate
+  mem_local_addr(7 DOWNTO 0) <= mem_local_col_addr(9 DOWNTO 2);
+  --<< END MEGAWIZARD INSERT CS_ADDR_MAP
+
+  --<< START MEGAWIZARD INSERT EXAMPLE_DRIVER
+  --Self-test, synthesisable code to exercise the DDR SDRAM Controller
+  driver : micron_ctrl_example_driver
+  port map(
+     clk => phy_clk,
+     local_bank_addr => mem_local_addr(22 DOWNTO 21),
+     local_be => mem_local_be,
+     local_col_addr => mem_local_col_addr,
+     local_cs_addr => mem_local_cs_addr,
+     local_rdata => mem_local_rdata,
+     local_rdata_valid => mem_local_rdata_valid,
+     local_read_req => mem_local_read_req,
+     local_ready => mem_local_ready,
+     local_row_addr => mem_local_addr(20 DOWNTO 8),
+     local_size => mem_local_size,
+     local_wdata => mem_local_wdata,
+     local_write_req => mem_local_write_req,
+     pnf_per_byte => internal_pnf_per_byte(7 DOWNTO 0),
+     pnf_persist => internal_pnf,
+     reset_n => reset_phy_clk_n,
+     test_complete => internal_test_complete,
+     test_status => internal_test_status
+  );
+
+  --<< END MEGAWIZARD INSERT EXAMPLE_DRIVER
+
+  --<< START MEGAWIZARD INSERT DLL
+
+  --<< END MEGAWIZARD INSERT DLL
+
+  --<< start europa
+  --vhdl renameroo for output signals
+  mem_addr <= internal_mem_addr;
+  --vhdl renameroo for output signals
+  mem_ba <= internal_mem_ba;
+  --vhdl renameroo for output signals
+  mem_cas_n <= internal_mem_cas_n;
+  --vhdl renameroo for output signals
+  mem_cke <= internal_mem_cke;
+  --vhdl renameroo for output signals
+  mem_cs_n <= internal_mem_cs_n;
+  --vhdl renameroo for output signals
+  mem_dm <= internal_mem_dm;
+  --vhdl renameroo for output signals
+  mem_odt <= internal_mem_odt;
+  --vhdl renameroo for output signals
+  mem_ras_n <= internal_mem_ras_n;
+  --vhdl renameroo for output signals
+  mem_we_n <= internal_mem_we_n;
+  --vhdl renameroo for output signals
 --  pnf <= internal_pnf;
---  --vhdl renameroo for output signals
---  pnf_per_byte <= internal_pnf_per_byte;
---  --vhdl renameroo for output signals
---  test_complete <= internal_test_complete;
---  --vhdl renameroo for output signals
---  test_status <= internal_test_status;
+  --vhdl renameroo for output signals
+  pnf_per_byte <= internal_pnf_per_byte;
+  --vhdl renameroo for output signals
+  test_complete <= internal_test_complete;
+  --vhdl renameroo for output signals
+  test_status <= internal_test_status;
+
+
+
+
 --   
 --   
 ----   test_status <= adc_dat1(7 downto 0);
@@ -1279,5 +1223,5 @@ begin
 --   --test_status(1) <= clk_upper;
 --   --test_status(2) <= clk_lower;
 --   --test_complete <= adc0_lvds;
-----   pnf <= adc_pll_locked;
+   pnf <= adc_pll_locked;
 end top;
