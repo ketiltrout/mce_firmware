@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.11  2007/07/26 20:27:02  bburger
+# BB:  commented out the external trigger pin from the .tcl file, and uncommented the mictor header interface that uses the same pins.
+#
 # Revision 1.10  2007/07/25 18:52:37  bburger
 # BB:
 # - added the extend_n pin to the clk_card interface
@@ -193,6 +196,7 @@ puts "   Assigned: DIP switch pins."
 
 # assign watchdog
 cmp add_assignment $top_name "" wdog LOCATION "Pin_E6"
+cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_AA20"
 puts "   Assigned: Watchdog pin."
 
 
@@ -361,24 +365,24 @@ cmp add_assignment $top_name "" "mictor1_o\[15\]" LOCATION "Pin_AF13"
 cmp add_assignment $top_name "" "mictor1clk_o" LOCATION "Pin_AD12"
 puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) ODD pod."
 
-cmp add_assignment $top_name "" "mictor1_e\[0\]" LOCATION "Pin_AA18"
-cmp add_assignment $top_name "" "mictor1_e\[1\]" LOCATION "Pin_Y18"
-cmp add_assignment $top_name "" "mictor1_e\[2\]" LOCATION "Pin_AA19"
-cmp add_assignment $top_name "" "mictor1_e\[3\]" LOCATION "Pin_W19"
-cmp add_assignment $top_name "" "mictor1_e\[4\]" LOCATION "Pin_Y19"
-cmp add_assignment $top_name "" "mictor1_e\[5\]" LOCATION "Pin_AA20"
-cmp add_assignment $top_name "" "mictor1_e\[6\]" LOCATION "Pin_AF24"
-cmp add_assignment $top_name "" "mictor1_e\[7\]" LOCATION "Pin_AE23"
-cmp add_assignment $top_name "" "mictor1_e\[8\]" LOCATION "Pin_AG20"
-cmp add_assignment $top_name "" "mictor1_e\[9\]" LOCATION "Pin_AF18"
-cmp add_assignment $top_name "" "mictor1_e\[10\]" LOCATION "Pin_AH16"
-cmp add_assignment $top_name "" "mictor1_e\[11\]" LOCATION "Pin_AC21"
-cmp add_assignment $top_name "" "mictor1_e\[12\]" LOCATION "Pin_AC19"
-cmp add_assignment $top_name "" "mictor1_e\[13\]" LOCATION "Pin_AD17"
-cmp add_assignment $top_name "" "mictor1_e\[14\]" LOCATION "Pin_AE17"
-cmp add_assignment $top_name "" "mictor1_e\[15\]" LOCATION "Pin_AE12"
-cmp add_assignment $top_name "" "mictor1clk_e" LOCATION "Pin_AG13"
-puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) EVEN pod."
+#cmp add_assignment $top_name "" "mictor1_e\[0\]" LOCATION "Pin_AA18"
+#cmp add_assignment $top_name "" "mictor1_e\[1\]" LOCATION "Pin_Y18"
+#cmp add_assignment $top_name "" "mictor1_e\[2\]" LOCATION "Pin_AA19"
+#cmp add_assignment $top_name "" "mictor1_e\[3\]" LOCATION "Pin_W19"
+#cmp add_assignment $top_name "" "mictor1_e\[4\]" LOCATION "Pin_Y19"
+#cmp add_assignment $top_name "" "mictor1_e\[5\]" LOCATION "Pin_AA20"
+#cmp add_assignment $top_name "" "mictor1_e\[6\]" LOCATION "Pin_AF24"
+#cmp add_assignment $top_name "" "mictor1_e\[7\]" LOCATION "Pin_AE23"
+#cmp add_assignment $top_name "" "mictor1_e\[8\]" LOCATION "Pin_AG20"
+#cmp add_assignment $top_name "" "mictor1_e\[9\]" LOCATION "Pin_AF18"
+#cmp add_assignment $top_name "" "mictor1_e\[10\]" LOCATION "Pin_AH16"
+#cmp add_assignment $top_name "" "mictor1_e\[11\]" LOCATION "Pin_AC21"
+#cmp add_assignment $top_name "" "mictor1_e\[12\]" LOCATION "Pin_AC19"
+#cmp add_assignment $top_name "" "mictor1_e\[13\]" LOCATION "Pin_AD17"
+#cmp add_assignment $top_name "" "mictor1_e\[14\]" LOCATION "Pin_AE17"
+#cmp add_assignment $top_name "" "mictor1_e\[15\]" LOCATION "Pin_AE12"
+#cmp add_assignment $top_name "" "mictor1clk_e" LOCATION "Pin_AG13"
+#puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) EVEN pod."
 
 
 # assign RS232 pins
