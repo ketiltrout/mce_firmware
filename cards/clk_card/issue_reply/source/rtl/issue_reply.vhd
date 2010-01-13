@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.76 2009/05/12 18:47:12 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.77 2009/05/12 19:19:31 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2009/05/12 18:47:12 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2009/05/12 19:19:31 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.77  2009/05/12 19:19:31  bburger
+-- BB: Renamed the last_ret_dat_i signal interface to cmd_stop_i -- a more self-evident name.
+--
 -- Revision 1.76  2009/05/12 18:47:12  bburger
 -- BB: Added new and removed unused interface signals.
 --
@@ -95,6 +98,7 @@ library work;
 use work.sync_gen_pack.all;
 use work.fibre_rx_pack.all;
 use work.frame_timing_pack.all;
+use work.ret_dat_wbs_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -157,6 +161,9 @@ entity issue_reply is
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
       rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+      mls_dat_i              : in std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+      mls_addr_o             : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mls_num_pts_i          : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -244,6 +251,9 @@ architecture rtl of issue_reply is
       data_rate_i           : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i         : in std_logic;
+      mls_dat_i             : in std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+      mls_addr_o            : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mls_num_pts_i         : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
@@ -674,6 +684,9 @@ begin
       step_data_num_i     => step_data_num_i,
       ret_dat_req_i       => ret_dat_req_i,
       ret_dat_ack_o       => ret_dat_ack_o,
+      mls_dat_i           => mls_dat_i,   
+      mls_addr_o          => mls_addr_o,  
+      mls_num_pts_i       => mls_num_pts_i,
 
       sync_number_i       => sync_number_i
    );
