@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.77 2009/05/12 19:19:31 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.78 2010/01/13 20:13:40 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2009/05/12 19:19:31 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2010/01/13 20:13:40 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.78  2010/01/13 20:13:40  bburger
+-- BB: Added interface signals for MLS functionality.
+--
 -- Revision 1.77  2009/05/12 19:19:31  bburger
 -- BB: Renamed the last_ret_dat_i signal interface to cmd_stop_i -- a more self-evident name.
 --
@@ -161,9 +164,9 @@ entity issue_reply is
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
       rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
-      mls_dat_i              : in std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
-      mls_addr_o             : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
-      mls_num_pts_i          : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mls_dat_i              : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      mls_addr_o             : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      mls_num_pts_i          : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -251,9 +254,9 @@ architecture rtl of issue_reply is
       data_rate_i           : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i         : in std_logic;
-      mls_dat_i             : in std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
-      mls_addr_o            : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
-      mls_num_pts_i         : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mls_dat_i             : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      mls_addr_o            : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      mls_num_pts_i         : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);

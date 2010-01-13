@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.89 2009/11/24 23:50:47 bburger Exp $
+-- $Id: clk_card.vhd,v 1.90 2010/01/13 20:05:27 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -394,9 +394,9 @@ architecture top of clk_card is
 
    signal crc_error_ff : std_logic;
 
-   signal mem_dat            : std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
-   signal mem_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
-   signal mem_num_pts        : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+   signal mem_dat            : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+   signal mem_addr           : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+   signal mem_num_pts        : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
 
 begin
 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.22 2009/06/03 22:08:44 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.23 2010/01/13 20:15:21 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -68,9 +68,9 @@ entity ret_dat_wbs is
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
-      mem_dat_o              : out std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
-      mem_addr_i             : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
-      mem_num_pts_o          : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mem_dat_o              : out std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      mem_addr_i             : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      mem_num_pts_o          : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
 
       -- global interface
       clk_i                  : in std_logic;
@@ -103,14 +103,13 @@ architecture rtl of ret_dat_wbs is
       );
    END component;
 
-   signal mls_mem_dat           : std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+   signal mls_mem_dat           : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
    signal mls_sequence_len_wren : std_logic;
    signal mls_addr_wren         : std_logic;
    signal mls_data_wren         : std_logic;
    signal mls_data_rden         : std_logic;
-   signal mls_wr_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
-   signal mls_rd_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
---   signal wbs_rd_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+   signal mls_wr_addr           : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+   signal mls_rd_addr           : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
 
    constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
    constant STOP_REPLY_WAIT_PERIOD   : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00002710";  -- 10000 u-seconds
@@ -204,7 +203,7 @@ begin
          
          -- Read/Write address management
          if(mls_addr_wren = '1' ) then
-            mls_wr_addr <= dat_i(MEM_ADDR_WIDTH-1 downto 0);
+            mls_wr_addr <= dat_i(MLS_ADDR_WIDTH-1 downto 0);
          elsif(mls_data_rden = '1') then
             mls_wr_addr <= mls_wr_addr + 1;
          elsif(mls_data_wren = '1') then
@@ -216,7 +215,7 @@ begin
       end if;
    end process addr_manager;
 
-   mem_num_pts_o <= mls_sequence_len_data(MEM_ADDR_WIDTH-1 downto 0);
+   mem_num_pts_o <= mls_sequence_len_data(MLS_ADDR_WIDTH-1 downto 0);
    mls_sequence_len_reg : reg
       generic map(WIDTH => WB_DATA_WIDTH)
       port map(

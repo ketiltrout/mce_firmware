@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.62 2009/05/13 00:47:08 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.63 2010/01/13 20:12:58 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -77,9 +77,9 @@ port(
       data_rate_i           : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i         : in std_logic;
-      mls_dat_i             : in std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
-      mls_addr_o            : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
-      mls_num_pts_i         : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mls_dat_i             : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      mls_addr_o            : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      mls_num_pts_i         : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
@@ -202,8 +202,8 @@ architecture rtl of cmd_translator is
    signal internal_status_req : std_logic;
    signal internal_status_ack : std_logic;
 
-   constant MLS_ADDR_MIN : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0) := (others => '0');
-   signal mls_addr            : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+   constant MLS_ADDR_MIN : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0) := (others => '0');
+   signal mls_addr            : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
    signal internal_wb_req    : std_logic;
    signal internal_wb_ack    : std_logic;
 
