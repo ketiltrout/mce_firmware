@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.13 2008/12/22 20:39:14 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.14 2009/01/16 01:48:44 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.14  2009/01/16 01:48:44  bburger
+-- BB: Changed some of the interface signals in sync_gen, ret_dat_wbs, and issue_reply
+--
 -- Revision 1.13  2008/12/22 20:39:14  bburger
 -- BB:  Added interface signals for dual LVDS lines from each card, and for supporting column data from the Readout Cards
 --
@@ -100,6 +103,32 @@ use work.frame_timing_pack.all;
 package clk_card_pack is
 
    constant ARRAY_ID_BITS : integer := 3;
+
+   component stratix_crcblock
+      generic (
+         crc_deld_disable  :  string := "off";
+         error_delay :  natural := 0;
+         error_dra_dl_bypass  :  string := "off";
+         lpm_hint :  string := "UNUSED";
+         lpm_type :  string := "stratixiii_crcblock";
+         oscillator_divider   :  natural := 2);
+      port (
+         clk   :  in std_logic := '0';
+--         -- This signal is noted as required in an357, but is not present in any library interfaces except stratixiii_components.vhd
+         ldsrc :  in std_logic := '0';
+         crcerror :  out std_logic;
+         regout   :  out std_logic;
+         shiftnld :  in std_logic := '0'
+      );
+   end component;   
+
+   component d_flipflop IS
+      PORT (
+         clock    : IN STD_LOGIC ;
+         data     : IN STD_LOGIC ;
+         q     : OUT STD_LOGIC 
+      );
+   END component;
 
    component manch_pll
       port (
@@ -327,6 +356,9 @@ package clk_card_pack is
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
+      mem_dat_o              : out std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+      mem_addr_i             : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mem_num_pts_o          : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
 
       -- global interface
       clk_i                  : in std_logic;
@@ -451,6 +483,9 @@ package clk_card_pack is
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
       rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+      mls_dat_i              : in std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+      mls_addr_o             : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mls_num_pts_i          : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
