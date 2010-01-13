@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs_pack.vhd,v 1.12 2009/01/16 01:57:09 bburger Exp $
+-- $Id: ret_dat_wbs_pack.vhd,v 1.13 2009/05/12 19:41:50 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs_pack.vhd,v $
+-- Revision 1.13  2009/05/12 19:41:50  bburger
+-- BB: Moved DEFAULT_DATA_RATE from ret_dat_wbs_pack.vhd to ret_dat_wbs.vhd
+--
 -- Revision 1.12  2009/01/16 01:57:09  bburger
 -- BB: Added new constants
 --
@@ -107,5 +110,8 @@ package ret_dat_wbs_pack is
    constant DEFAULT_RCS_TO_REPORT    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000003C";
    constant DEFAULT_CARDS_TO_REPORT  : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"000003FF";
    constant DEFAULT_STEP_DATA_NUM    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";  -- Then default number of data words to be send in the ramp command.
+
+   constant MLS_DAT_WIDTH : integer := 16;
+   constant MLS_ADDR_WIDTH : integer := 13; -- 16,384 values
 
 end package;
