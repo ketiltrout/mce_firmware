@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/10/09 16:46:58 $> - <initials $Author: bburger $>
+-- <date $Date: 2009/11/13 19:10:59 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.55  2009/11/13 19:10:59  bburger
+-- BB:  Added the I_CLAMP_VAL_ADDR parameter
+--
 -- Revision 1.54  2009/10/09 16:46:58  bburger
 -- BB: Added
 -- - HEATER_BIAS_ADDR
@@ -331,7 +334,7 @@ package wishbone_pack is
    constant FB_CONST_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F"; -- RCS
    
    constant I_CLAMP_VAL_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"66";
-   constant READOUT_PRIORITY_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"67"; -- Obsolete
+   constant READOUT_PRIORITY_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"67"; -- Obsolete.
    constant ADC_OFFSET0_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"68";
    constant ADC_OFFSET1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"69";
    constant ADC_OFFSET2_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6A";
@@ -422,7 +425,7 @@ package wishbone_pack is
    constant CONFIG_APP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
    constant RET_DAT_S_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
    constant USE_DV_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
-   constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55"; -- Duplicate
+   constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55"; -- Obsolete.  Replaced by NUM_ROWS_REPORTED_ADDR
    constant NUM_ROWS_REPORTED_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
    constant RUN_ID_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56";
    constant USER_WRITABLE_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
@@ -432,7 +435,7 @@ package wishbone_pack is
    constant CARDS_TO_REPORT_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
    constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
    constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
-   constant RET_DAT_CARD_ADDR_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F"; -- Duplicate
+   constant RET_DAT_CARD_ADDR_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F"; -- Obsolete.  Replaced by RCS_TO_REPORT_DATA_ADDR
    constant RCS_TO_REPORT_DATA_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
@@ -455,14 +458,22 @@ package wishbone_pack is
    constant NUM_COLS_REPORTED_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AD";
 
    constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
-   constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
+   
+   -- Certain "RAMP" parameters also apply to the MLS internal command mode..
+   constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1"; -- Applies to MLS too
    constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
    constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
    constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
-   constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
-   constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
-   constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
+   constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5"; -- Applies to MLS too
+   constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6"; -- Applies to MLS too
+   constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7"; -- Applies to MLS too
+   
    constant STOP_DLY_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B8";
+   
+   constant MLS_SEQUENCE_LEN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B9";
+   constant MLS_DATA_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BA";
+   constant BRYCE_BURGER_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BB";
+   constant MLS_ADDR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BC";
 
    ---------------------------------------------------------------------------------------
    -- Power Card Specific Parameter IDs
