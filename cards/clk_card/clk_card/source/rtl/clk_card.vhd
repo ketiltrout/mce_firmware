@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.88 2009/08/21 21:13:55 bburger Exp $
+-- $Id: clk_card.vhd,v 1.89 2009/11/24 23:50:47 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -26,101 +26,6 @@
 --
 -- Description:
 -- Clock card top-level file
---
--- Revision history:
--- $Log: clk_card.vhd,v $
--- Revision 1.88  2009/08/21 21:13:55  bburger
--- BB: added the FPGA_DEVICE_FAMILY generic for Stratix I
---
--- Revision 1.87  2009/07/15 20:46:59  bburger
--- BB:  Added the Sync Box PLL back in.  Not sure why it was removed from the version after 4.0.9!
---
--- Revision 1.86  2009/06/18 22:55:15  bburger
--- BB:  Upped the revision number ofr 5.0.2
---
--- Revision 1.85  2009/05/12 01:59:12  bburger
--- BB: cc_v05000001
---
--- Revision 1.84  2009/01/16 01:47:23  bburger
--- BB:  Adjusted interfaces at the top level to implement column data from the Readout Cards
---
--- Revision 1.83  2008/12/22 20:38:09  bburger
--- BB:  Added a second LVDS input for the reply path from each card
---
--- Revision 1.82  2008/10/25 00:24:54  bburger
--- BB:  Added support for RCS_TO_REPORT_DATA command
---
--- Revision 1.81  2008/10/17 00:30:08  bburger
--- BB:  incremented the firmware version number, and added cards_to_report interface signals; added support for the stop_dly and cards_to_report commands
---
--- Revision 1.80  2008/02/25 19:20:07  bburger
--- BB: cc_v04000009
---
--- Revision 1.79  2008/02/03 09:39:35  bburger
--- BB:  cc_v04000008
--- - Added support for several new commands:  CARDS_TO_REPORT_ADDR |  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_ADDR
---
--- Revision 1.78  2007/12/18 20:59:35  bburger
--- BB:  cc_v04000007
---
--- Revision 1.77  2007/11/05 23:18:44  bburger
--- BB:  cc_v04000006
---
--- Revision 1.76  2007/10/18 22:32:34  bburger
--- BB: added a dedicated manchester PLL, and added interface signals to the spare LVDS lines on the backplane to help the CC determind which cards are present
---
--- Revision 1.75  2007/10/11 18:35:00  bburger
--- BB:  Rolled dv_rx back from 1.5 to 1.3 because of a bug in the 1.5 code that causes the DV Number (from the sync box) to increment by two, and to spit out garble every few frames.
---
--- Revision 1.74  2007/09/20 19:50:19  bburger
--- BB:  cc_v04000002
---
--- Revision 1.73  2007/09/05 03:38:24  bburger
--- BB:  cc_v04000001
---
--- Revision 1.72  2007/08/28 23:30:27  bburger
--- BB: added interface signals and wishbone signals to support the following commands:
--- constant NUM_ROWS_TO_READ_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
--- constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
--- constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1";
--- constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
--- constant RAMP_STEP_SIZE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B3";
--- constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
--- constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5";
--- constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6";
--- constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7";
---
--- Revision 1.71  2007/07/26 20:29:28  bburger
--- BB:  made naming corrections for subarray_id and backplane_id_thermo
---
--- Revision 1.70  2007/07/25 18:59:52  bburger
--- BB:
--- - added some library declarations
--- - moved all of the component declarations to the clk_card_pack
--- - interface changes:  array_id added, box_id_in type changed from inout to in, box_id_ena renamed to box_id_ena_n, auto_stp_trigger_out_0 added, mictor0_e signals changed from out to in.
--- - added following slaves:  sram_ctrl, array_id, backplane id_thermo, psu dispatch and slave.
---
--- Revision 1.69  2007/03/06 01:18:33  bburger
--- Bryce:  v03000003
---
--- Revision 1.68  2007/02/10 05:17:26  bburger
--- Bryce:  v03000002
---
--- Revision 1.67  2007/02/01 01:48:41  bburger
--- Bryce:  removed some unused signals
---
--- Revision 1.66  2007/01/24 01:24:08  bburger
--- Bryce:  Integrated SRAM controller from branch v03000000
---
--- Revision 1.65  2006/12/22 21:58:41  bburger
--- Bryce:  removed unused port
---
--- Revision 1.64  2006/11/22 01:00:16  bburger
--- Bryce:  Interim commital
---
--- Revision 1.63  2006/10/24 17:06:14  bburger
--- Bryce:  removed unused signal from issue_reply interface
---
 --
 -----------------------------------------------------------------------------
 
@@ -140,6 +45,7 @@ use work.clk_card_pack.all;
 use work.sync_gen_pack.all;
 use work.issue_reply_pack.all;
 use work.frame_timing_pack.all;
+use work.ret_dat_wbs_pack.all;
 
 entity clk_card is
    port(
@@ -244,6 +150,7 @@ entity clk_card is
       box_id_ena_n      : out std_logic;
 
       extend_n          : in std_logic;
+      crc_error_out     : inout std_logic;
 
       -- debug ports:
 --      auto_stp_trigger_out_0 : out std_logic;
@@ -292,7 +199,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000002";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000003";
 
    -- reset
    signal rst                : std_logic;
@@ -485,6 +392,12 @@ architecture top of clk_card is
    signal cards_to_report    : std_logic_vector(9 downto 0);
    signal rcs_to_report_data : std_logic_vector(9 downto 0);
 
+   signal crc_error_ff : std_logic;
+
+   signal mem_dat            : std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+   signal mem_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+   signal mem_num_pts        : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+
 begin
 
    ----------------------------------------------------------------
@@ -497,6 +410,40 @@ begin
       locked   => open
    );
 
+   ----------------------------------------------------------------------------
+   -- CRC_ERROR WYSIWYG Atom Instantiation
+   ----------------------------------------------------------------------------
+   i_stratix_crcblock : stratix_crcblock
+   port map(
+      clk => clk,
+      shiftnld => '0',
+      ldsrc => '0',
+      crcerror => crc_error_out,
+      regout => open
+   );
+
+   -- According an539.pdf, p. 7:
+   -- To route the crcerror port to user I/O, you must insert a D flipflop (DFF) in between the crcerror port and the I/O.
+   i_d_flipflop : d_flipflop
+   PORT map(
+      clock => clk,
+      data  => crc_error_out,  
+      q     => crc_error_ff  
+   );
+   
+   ylw_led <= manchester_sigdet;
+--   process(rst, clk)
+--   begin
+--      if(rst = '1') then
+--         ylw_led <= '0';
+--      elsif(clk'event and clk = '1') then
+--         if(crc_error_ff = '1') then
+--            ylw_led <= '1';
+--         end if;
+--      end if;
+--   end process;
+   ----------------------------------------------------------------------------
+
    -- Debug Signals
 --   mictor0_o(7 downto 0) <= debug(7 downto 0);
 --   mictor0_e(7 downto 0) <= fib_tx_data;
@@ -505,7 +452,6 @@ begin
 
    -- LED signals
    red_led <= fibre_rx_status;
-   ylw_led <= manchester_sigdet;
 
    -- Fibre TX Signals
    fibre_tx_data   <= fib_tx_data;
@@ -642,7 +588,8 @@ begin
                                   INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR ,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
+                                  MLS_SEQUENCE_LEN_ADDR | MLS_ADDR_ADDR | MLS_DATA_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
@@ -665,7 +612,8 @@ begin
                                   INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
+                                  MLS_SEQUENCE_LEN_ADDR | MLS_ADDR_ADDR | MLS_DATA_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
@@ -688,7 +636,8 @@ begin
                                   INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
-                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR,
+                                  CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
+                                  MLS_SEQUENCE_LEN_ADDR | MLS_ADDR_ADDR | MLS_DATA_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
@@ -781,6 +730,9 @@ begin
       ret_dat_ack_o        => ret_dat_done,
       cards_to_report_i    => cards_to_report,
       rcs_to_report_data_i => rcs_to_report_data,
+      mls_dat_i            => mem_dat,   
+      mls_addr_o           => mem_addr,  
+      mls_num_pts_i        => mem_num_pts,
 
       -- dv_rx interface
       external_dv_i        => external_dv,
@@ -1150,10 +1102,12 @@ begin
 --      num_cols_to_read_o     => num_cols_to_read,
       ret_dat_req_o          => ret_dat_req,
       ret_dat_ack_i          => ret_dat_done,
-
       cards_present_i        => cards_present,
       cards_to_report_o      => cards_to_report,
       rcs_to_report_data_o   => rcs_to_report_data,
+      mem_dat_o              => mem_dat,   
+      mem_addr_i             => mem_addr,  
+      mem_num_pts_o          => mem_num_pts,
 
       -- global interface
       clk_i                  => clk,
