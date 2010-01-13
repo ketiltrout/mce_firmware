@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.21 2009/05/12 19:41:10 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.22 2009/06/03 22:08:44 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -68,6 +68,9 @@ entity ret_dat_wbs is
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
+      mem_dat_o              : out std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+      mem_addr_i             : in std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+      mem_num_pts_o          : out std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
 
       -- global interface
       clk_i                  : in std_logic;
@@ -87,6 +90,27 @@ entity ret_dat_wbs is
 end ret_dat_wbs;
 
 architecture rtl of ret_dat_wbs is
+
+   component mls_data_bank IS
+      PORT
+      (
+         clock    : IN STD_LOGIC  := '1';
+         data     : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+         rdaddress      : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
+         wraddress      : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
+         wren     : IN STD_LOGIC  := '0';
+         q     : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+      );
+   END component;
+
+   signal mls_mem_dat           : std_logic_vector(MEM_DAT_WIDTH-1 downto 0);
+   signal mls_sequence_len_wren : std_logic;
+   signal mls_addr_wren         : std_logic;
+   signal mls_data_wren         : std_logic;
+   signal mls_data_rden         : std_logic;
+   signal mls_wr_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+   signal mls_rd_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
+--   signal wbs_rd_addr           : std_logic_vector(MEM_ADDR_WIDTH-1 downto 0);
 
    constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
    constant STOP_REPLY_WAIT_PERIOD   : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00002710";  -- 10000 u-seconds
@@ -143,19 +167,76 @@ architecture rtl of ret_dat_wbs is
    signal cards_present_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal cards_to_report_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ret_dat_req_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal ret_dat_card_addr_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ret_dat_card_addr_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
    signal stop_delay_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal rcs_to_report_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
+   signal mls_sequence_len_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   
    signal cards_present          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- WBS states:
-   type states is (IDLE, WR, RD);
+   type states is (IDLE, WR, RD1, RD2);
    signal current_state : states;
    signal next_state    : states;
    signal ret_dat_req   : std_logic;
 
 begin
+
+--   ------------------------------------------------------------------------------------------------
+--   -- Raw-Mode Signals
+--   ------------------------------------------------------------------------------------------------
+--   -- We ignore raw_ack_i because we don't want to hang the FSM while the raw RAM fills up.
+--   raw_ack    <= raw_ack_i;  
+--   raw_req_o  <= raw_req;
+--   raw_addr   <= raw_addr_offset(RAW_ADDR_WIDTH-1 downto 0) + tga_i(RAW_ADDR_WIDTH-1 downto 0);
+--   raw_dat    <= sxt(raw_dat_i, raw_dat'length) when raw_addr < RAW_ADDR_MAX + 1 else RAW_NULL_DATA;
+--   raw_addr_o <= raw_addr;
+
+   -- The mls_rd_addr gets the mls_wr_addr if we are reading from it, otherwise it gets mem_addr_i from the cmd_translator.
+   -- The condition here must match the condition below.
+   mls_rd_addr <= mls_wr_addr when (mls_data_rden = '1') else mem_addr_i;
+
+   addr_manager: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         mls_wr_addr <= (others => '0');      
+      elsif(clk_i'event and clk_i = '1') then
+         
+         -- Read/Write address management
+         if(mls_addr_wren = '1' ) then
+            mls_wr_addr <= dat_i(MEM_ADDR_WIDTH-1 downto 0);
+         elsif(mls_data_rden = '1') then
+            mls_wr_addr <= mls_wr_addr + 1;
+         elsif(mls_data_wren = '1') then
+            mls_wr_addr <= mls_wr_addr + 1;
+         else
+            mls_wr_addr <= mls_wr_addr;
+         end if;      
+         
+      end if;
+   end process addr_manager;
+
+   mem_num_pts_o <= mls_sequence_len_data(MEM_ADDR_WIDTH-1 downto 0);
+   mls_sequence_len_reg : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => mls_sequence_len_wren,
+         reg_i             => dat_i,
+         reg_o             => mls_sequence_len_data
+      );
+
+   mem_dat_o <= mls_mem_dat;
+   mls : mls_data_bank
+      port map (
+         clock     => clk_i,
+         data      => dat_i(15 downto 0),
+         rdaddress => mls_rd_addr,
+         wraddress => mls_wr_addr,
+         wren      => mls_data_wren,
+         q         => mls_mem_dat
+      );
 
    internal_cmd_mode_o <=
       "00" when internal_cmd_mode_data = x"00000000" else
@@ -492,7 +573,7 @@ begin
             if(wr_cmd = '1') then
                next_state <= WR;
             elsif(rd_cmd = '1') then
-               next_state <= RD;
+               next_state <= RD1;
             end if;
 
          when WR =>
@@ -500,10 +581,18 @@ begin
                next_state <= IDLE;
             end if;
 
-         when RD =>
+         when RD1 =>
             if(cyc_i = '0') then
                next_state <= IDLE;
+            else
+               -- For reading from the mls RAM only, which has a latency of 3 clock cycles.
+               next_state <= RD2;
             end if;
+
+         when RD2 =>
+            if(cyc_i = '0') then
+               next_state <= IDLE;
+            end if;           
 
          when others =>
             next_state <= IDLE;
@@ -512,7 +601,7 @@ begin
    end process state_NS;
 
    -- Output states for DAC controller
-   state_out: process(current_state, stb_i, addr_i, tga_i, next_state)
+   state_out: process(current_state, stb_i, addr_i, tga_i, next_state, wr_cmd, rd_cmd)
    begin
       -- Default assignments
       start_wren             <= '0';
@@ -539,7 +628,10 @@ begin
       rcs_to_report_wren     <= '0';
       ret_dat_req_wren       <= '0';
       stop_delay_wren        <= '0';
-
+      mls_sequence_len_wren  <= '0';
+      mls_data_wren          <= '0';
+      mls_data_rden          <= '0';
+      mls_addr_wren          <= '0';
       ack_o                  <= '0';
       err_o                  <= '0';
 
@@ -547,90 +639,105 @@ begin
          when IDLE  =>
             ack_o <= '0';
 
-         when WR =>
-            if(stb_i = '1') then
-               if(addr_i = RET_DAT_S_ADDR) then
-                  if(tga_i = x"00000000") then
-                     start_wren  <= '1';
-                     ack_o <= '1';
-                  else
-                     stop_wren   <= '1';
-                     ack_o <= '1';
-                  end if;
-               elsif(addr_i = RET_DAT_REQ_ADDR) then
-                  ret_dat_req_wren <= '1';
+            if(wr_cmd = '1') then
+               if(addr_i = MLS_DATA_ADDR) then
                   ack_o <= '1';
-               elsif(addr_i = RUN_ID_ADDR) then
-                  run_file_id_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = USER_WRITABLE_ADDR) then
-                  user_writable_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = DATA_RATE_ADDR) then
-                  data_rate_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = TES_TGL_EN_ADDR) then
-                  tes_tgl_en_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = TES_TGL_MAX_ADDR) then
-                  tes_tgl_max_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = TES_TGL_MIN_ADDR) then
-                  tes_tgl_min_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = TES_TGL_RATE_ADDR) then
-                  tes_tgl_rate_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = INT_CMD_EN_ADDR) then
-                  int_cmd_en_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = CRC_ERR_EN_ADDR) then
-                  crc_err_en_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = INTERNAL_CMD_MODE_ADDR) then
-                  internal_cmd_mode_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RAMP_STEP_PERIOD_ADDR) then
-                  step_period_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RAMP_MIN_VAL_ADDR) then
-                  step_minimum_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RAMP_STEP_SIZE_ADDR) then
-                  step_size_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RAMP_MAX_VAL_ADDR) then
-                  step_maximum_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RAMP_PARAM_ID_ADDR) then
-                  step_param_id_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RAMP_CARD_ADDR_ADDR) then
-                  step_card_addr_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RAMP_STEP_DATA_NUM_ADDR) then
-                  step_data_num_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = CARDS_PRESENT_ADDR) then
-                  err_o <= '1';
---                  cards_present_wren <= '1';
---                  ack_o <= '1';
-               elsif(addr_i = CARDS_TO_REPORT_ADDR) then
-                  cards_to_report_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = RCS_TO_REPORT_DATA_ADDR) then
-                  rcs_to_report_wren <= '1';
-                  ack_o <= '1';
-               elsif(addr_i = STOP_DLY_ADDR) then
-                  stop_delay_wren <= '1';
-                  ack_o <= '1';
+                  mls_data_wren <= '1';
+               end if;
+            elsif(rd_cmd = '1') then
+               if(addr_i = MLS_DATA_ADDR) then
+                  mls_data_rden <= '1';
                end if;
             end if;
 
-         when RD =>
+         when WR =>
+            if(stb_i = '1') then
+               ack_o <= '1';
+               if(addr_i = RET_DAT_S_ADDR) then
+                  if(tga_i = x"00000000") then
+                     start_wren  <= '1';
+                  else
+                     stop_wren   <= '1';
+                  end if;
+               elsif(addr_i = RET_DAT_REQ_ADDR) then
+                  ret_dat_req_wren <= '1';
+               elsif(addr_i = RUN_ID_ADDR) then
+                  run_file_id_wren <= '1';
+               elsif(addr_i = USER_WRITABLE_ADDR) then
+                  user_writable_wren <= '1';
+               elsif(addr_i = DATA_RATE_ADDR) then
+                  data_rate_wren <= '1';
+               elsif(addr_i = TES_TGL_EN_ADDR) then
+                  tes_tgl_en_wren <= '1';
+               elsif(addr_i = TES_TGL_MAX_ADDR) then
+                  tes_tgl_max_wren <= '1';
+               elsif(addr_i = TES_TGL_MIN_ADDR) then
+                  tes_tgl_min_wren <= '1';
+               elsif(addr_i = TES_TGL_RATE_ADDR) then
+                  tes_tgl_rate_wren <= '1';
+               elsif(addr_i = INT_CMD_EN_ADDR) then
+                  int_cmd_en_wren <= '1';
+               elsif(addr_i = CRC_ERR_EN_ADDR) then
+                  crc_err_en_wren <= '1';
+               elsif(addr_i = INTERNAL_CMD_MODE_ADDR) then
+                  internal_cmd_mode_wren <= '1';
+               elsif(addr_i = RAMP_STEP_PERIOD_ADDR) then
+                  step_period_wren <= '1';
+               elsif(addr_i = RAMP_MIN_VAL_ADDR) then
+                  step_minimum_wren <= '1';
+               elsif(addr_i = RAMP_STEP_SIZE_ADDR) then
+                  step_size_wren <= '1';
+               elsif(addr_i = RAMP_MAX_VAL_ADDR) then
+                  step_maximum_wren <= '1';
+               elsif(addr_i = RAMP_PARAM_ID_ADDR) then
+                  step_param_id_wren <= '1';
+               elsif(addr_i = RAMP_CARD_ADDR_ADDR) then
+                  step_card_addr_wren <= '1';
+               elsif(addr_i = RAMP_STEP_DATA_NUM_ADDR) then
+                  step_data_num_wren <= '1';
+               elsif(addr_i = CARDS_PRESENT_ADDR) then
+                  -- Not writable.
+                  err_o <= '1';
+               elsif(addr_i = CARDS_TO_REPORT_ADDR) then
+                  cards_to_report_wren <= '1';
+               elsif(addr_i = RCS_TO_REPORT_DATA_ADDR) then
+                  rcs_to_report_wren <= '1';
+               elsif(addr_i = STOP_DLY_ADDR) then
+                  stop_delay_wren <= '1';
+               elsif(addr_i = MLS_SEQUENCE_LEN_ADDR) then
+                  mls_sequence_len_wren <= '1';
+               elsif(addr_i = MLS_DATA_ADDR) then
+                  mls_data_wren <= '1';
+               elsif(addr_i = MLS_ADDR_ADDR) then
+                  -- Scheme used for writing to/ reading from the mls_data_bank?
+                  -- 1- In one WB transaction, write a starting value for the memory write address index (provides more flexibility, at the cost of time)
+                  -- 2- In a seperate WB transaction, write 'n' data points starting from the memory write address index
+                  --    (a) After each word of the WB is written, the index is incremented by one.
+                  --    (b) After the WB is complete, the index is left as its last incremented value (I see nothing wrong with this!)
+                  mls_addr_wren <= '1';
+               end if;
+            end if;
+
+         when RD1 =>
             if(next_state /= IDLE) then
                ack_o <= '1';
+               
+               if(addr_i = MLS_DATA_ADDR) then
+                  -- Don't assert ack_o if we are reading from the RAM becuase of it's 3-cycle latency
+                  ack_o <= '0';
+                  mls_data_rden <= '1';
+               end if;
             end if;
+
+         when RD2 =>
+            if(next_state /= IDLE) then
+               ack_o <= '1';
+               
+               if(addr_i = MLS_DATA_ADDR) then
+                  mls_data_rden <= '1';
+               end if;
+            end if;
+                        
          when others =>
 
       end case;
@@ -641,31 +748,34 @@ begin
    --  Wishbone interface
    ------------------------------------------------------------
    dat_o <=
-      start_data             when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
-      stop_data              when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
-      rcs_to_report_data     when (addr_i = RCS_TO_REPORT_DATA_ADDR) else
-      ret_dat_req_data       when (addr_i = RET_DAT_REQ_ADDR) else
-      data_rate_data         when (addr_i = DATA_RATE_ADDR) else
-      tes_tgl_en_data        when (addr_i = TES_TGL_EN_ADDR) else
-      tes_tgl_max_data       when (addr_i = TES_TGL_MAX_ADDR) else
-      tes_tgl_min_data       when (addr_i = TES_TGL_MIN_ADDR) else
-      tes_tgl_rate_data      when (addr_i = TES_TGL_RATE_ADDR) else
-      int_cmd_en_data        when (addr_i = INT_CMD_EN_ADDR) else
-      crc_err_en_data        when (addr_i = CRC_ERR_EN_ADDR) else
-      internal_cmd_mode_data when (addr_i = INTERNAL_CMD_MODE_ADDR) else
-      step_period_data       when (addr_i = RAMP_STEP_PERIOD_ADDR) else
-      step_minimum_data      when (addr_i = RAMP_MIN_VAL_ADDR) else
-      step_size_data         when (addr_i = RAMP_STEP_SIZE_ADDR) else
-      step_maximum_data      when (addr_i = RAMP_MAX_VAL_ADDR) else
-      step_param_id_data     when (addr_i = RAMP_PARAM_ID_ADDR) else
-      step_card_addr_data    when (addr_i = RAMP_CARD_ADDR_ADDR) else
-      step_data_num_data     when (addr_i = RAMP_STEP_DATA_NUM_ADDR) else
-      run_file_id_data       when (addr_i = RUN_ID_ADDR) else
-      user_writable_data     when (addr_i = USER_WRITABLE_ADDR) else
-      cards_present_data     when (addr_i = CARDS_PRESENT_ADDR) else
-      cards_to_report_data   when (addr_i = CARDS_TO_REPORT_ADDR) else
-      stop_delay_data        when (addr_i = STOP_DLY_ADDR) else
-      crc_err_en_data        when (addr_i = CRC_ERR_EN_ADDR) else (others => '0');
+      start_data                      when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
+      stop_data                       when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
+      rcs_to_report_data              when (addr_i = RCS_TO_REPORT_DATA_ADDR) else
+      ret_dat_req_data                when (addr_i = RET_DAT_REQ_ADDR) else
+      data_rate_data                  when (addr_i = DATA_RATE_ADDR) else
+      tes_tgl_en_data                 when (addr_i = TES_TGL_EN_ADDR) else
+      tes_tgl_max_data                when (addr_i = TES_TGL_MAX_ADDR) else
+      tes_tgl_min_data                when (addr_i = TES_TGL_MIN_ADDR) else
+      tes_tgl_rate_data               when (addr_i = TES_TGL_RATE_ADDR) else
+      int_cmd_en_data                 when (addr_i = INT_CMD_EN_ADDR) else
+      crc_err_en_data                 when (addr_i = CRC_ERR_EN_ADDR) else
+      internal_cmd_mode_data          when (addr_i = INTERNAL_CMD_MODE_ADDR) else
+      step_period_data                when (addr_i = RAMP_STEP_PERIOD_ADDR) else
+      step_minimum_data               when (addr_i = RAMP_MIN_VAL_ADDR) else
+      step_size_data                  when (addr_i = RAMP_STEP_SIZE_ADDR) else
+      step_maximum_data               when (addr_i = RAMP_MAX_VAL_ADDR) else
+      step_param_id_data              when (addr_i = RAMP_PARAM_ID_ADDR) else
+      step_card_addr_data             when (addr_i = RAMP_CARD_ADDR_ADDR) else
+      step_data_num_data              when (addr_i = RAMP_STEP_DATA_NUM_ADDR) else
+      run_file_id_data                when (addr_i = RUN_ID_ADDR) else
+      user_writable_data              when (addr_i = USER_WRITABLE_ADDR) else
+      cards_present_data              when (addr_i = CARDS_PRESENT_ADDR) else
+      cards_to_report_data            when (addr_i = CARDS_TO_REPORT_ADDR) else
+      stop_delay_data                 when (addr_i = STOP_DLY_ADDR) else
+      mls_sequence_len_data           when (addr_i = MLS_SEQUENCE_LEN_ADDR) else
+      ext(mls_wr_addr, WB_DATA_WIDTH) when (addr_i = MLS_ADDR_ADDR) else
+      ext(mls_mem_dat, WB_DATA_WIDTH) when (addr_i = MLS_DATA_ADDR) else
+      crc_err_en_data                 when (addr_i = CRC_ERR_EN_ADDR) else (others => '0');
 
    rd_cmd  <= '1' when
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and
@@ -691,6 +801,9 @@ begin
        addr_i = CARDS_PRESENT_ADDR or
        addr_i = CARDS_TO_REPORT_ADDR or
        addr_i = STOP_DLY_ADDR or
+       addr_i = MLS_SEQUENCE_LEN_ADDR or
+       addr_i = MLS_ADDR_ADDR or
+       addr_i = MLS_DATA_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
    wr_cmd  <= '1' when
@@ -717,6 +830,9 @@ begin
        addr_i = CARDS_PRESENT_ADDR or
        addr_i = CARDS_TO_REPORT_ADDR or
        addr_i = STOP_DLY_ADDR or
+       addr_i = MLS_SEQUENCE_LEN_ADDR or
+       addr_i = MLS_ADDR_ADDR or
+       addr_i = MLS_DATA_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
 end rtl;
