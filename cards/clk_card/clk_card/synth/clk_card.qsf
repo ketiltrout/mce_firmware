@@ -117,21 +117,6 @@ set_location_assignment PIN_AH19 -to mictor_o[13]
 set_location_assignment PIN_AD18 -to mictor_o[14]
 set_location_assignment PIN_AE18 -to mictor_o[15]
 set_location_assignment PIN_AG18 -to mictorclk_o
-set_location_assignment PIN_AG22 -to mictor_e[1]
-set_location_assignment PIN_AH22 -to mictor_e[2]
-set_location_assignment PIN_AF22 -to mictor_e[3]
-set_location_assignment PIN_AE22 -to mictor_e[4]
-set_location_assignment PIN_AH23 -to mictor_e[5]
-set_location_assignment PIN_AF23 -to mictor_e[6]
-set_location_assignment PIN_AD23 -to mictor_e[7]
-set_location_assignment PIN_AG23 -to mictor_e[8]
-set_location_assignment PIN_AH24 -to mictor_e[9]
-set_location_assignment PIN_AE24 -to mictor_e[10]
-set_location_assignment PIN_AG24 -to mictor_e[11]
-set_location_assignment PIN_AF25 -to mictor_e[12]
-set_location_assignment PIN_AH25 -to mictor_e[13]
-set_location_assignment PIN_AG25 -to mictor_e[14]
-set_location_assignment PIN_AH26 -to mictor_e[15]
 set_location_assignment PIN_AG26 -to mictorclk_e
 set_location_assignment PIN_C12 -to rs232_rx
 set_location_assignment PIN_B12 -to rs232_tx
@@ -320,22 +305,6 @@ set_location_assignment PIN_AD13 -to mictor1_o[13]
 set_location_assignment PIN_AE13 -to mictor1_o[14]
 set_location_assignment PIN_AF13 -to mictor1_o[15]
 set_location_assignment PIN_AD12 -to mictor1clk_o
-set_location_assignment PIN_Y18 -to mictor1_e[1]
-set_location_assignment PIN_AA19 -to mictor1_e[2]
-set_location_assignment PIN_W19 -to mictor1_e[3]
-set_location_assignment PIN_Y19 -to mictor1_e[4]
-set_location_assignment PIN_AA20 -to mictor1_e[5]
-set_location_assignment PIN_AF24 -to mictor1_e[6]
-set_location_assignment PIN_AE23 -to mictor1_e[7]
-set_location_assignment PIN_AG20 -to mictor1_e[8]
-set_location_assignment PIN_AF18 -to mictor1_e[9]
-set_location_assignment PIN_AH16 -to mictor1_e[10]
-set_location_assignment PIN_AC21 -to mictor1_e[11]
-set_location_assignment PIN_AC19 -to mictor1_e[12]
-set_location_assignment PIN_AD17 -to mictor1_e[13]
-set_location_assignment PIN_AE17 -to mictor1_e[14]
-set_location_assignment PIN_AE12 -to mictor1_e[15]
-set_location_assignment PIN_AG13 -to mictor1clk_e
 set_location_assignment PIN_F2 -to sram0_nce1
 set_location_assignment PIN_G4 -to sram0_ce2
 set_location_assignment PIN_W3 -to sram1_nce1
@@ -357,7 +326,6 @@ set_location_assignment PIN_C19 -to nbb_jtag
 set_location_assignment PIN_E19 -to nreconf
 set_location_assignment PIN_D19 -to nepc_sel
 set_location_assignment PIN_AD21 -to mictor0_e[0]
-set_location_assignment PIN_AA18 -to mictor1_e[0]
 
 # Timing Assignments
 # ==================
@@ -398,7 +366,7 @@ set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 1000
 
 # Assembler Assignments
 # =====================
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS OUTPUT DRIVING AN UNSPECIFIED SIGNAL"
 
 # Simulator Assignments
 # =====================
@@ -504,6 +472,18 @@ set_location_assignment PIN_D28 -to extend_n
 set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION OFF
 set_global_assignment -name STRATIX_CARRY_CHAIN_LENGTH 70
 set_global_assignment -name SAFE_STATE_MACHINE ON
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_COLOR 14622752 -section_id Top
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+set_global_assignment -name CRC_ERROR_CHECKING ON
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 2
+set_location_assignment PIN_AA20 -to crc_error_out
+set_global_assignment -name MISC_FILE "C:/mce/cards/clk_card/clk_card/synth/clk_card.dpf"
+set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/mls_data_bank.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/d_flipflop.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -638,8 +618,3 @@ set_global_assignment -name SIGNALTAP_FILE dv_rx.stp
 set_global_assignment -name SIGNALTAP_FILE dv_rx_manch_clk.stp
 set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug_.stp
 set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug2_.stp
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_COLOR 14622752 -section_id Top
-set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
-set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
