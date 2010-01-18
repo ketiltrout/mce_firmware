@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/11/13 19:10:59 $> - <initials $Author: bburger $>
+-- <date $Date: 2010/01/13 20:28:43 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.56  2010/01/13 20:28:43  bburger
+-- BB: added the following commands: MLS_SEQUENCE_LEN, MLS_DATA, MLS_ADDR
+--
 -- Revision 1.55  2009/11/13 19:10:59  bburger
 -- BB:  Added the I_CLAMP_VAL_ADDR parameter
 --
@@ -470,10 +473,10 @@ package wishbone_pack is
    
    constant STOP_DLY_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B8";
    
-   constant MLS_SEQUENCE_LEN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B9";
-   constant MLS_DATA_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BA";
+   constant AWG_SEQUENCE_LEN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B9";
+   constant AWG_DATA_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BA";
    constant BRYCE_BURGER_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BB";
-   constant MLS_ADDR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BC";
+   constant AWG_ADDR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BC";
 
    ---------------------------------------------------------------------------------------
    -- Power Card Specific Parameter IDs

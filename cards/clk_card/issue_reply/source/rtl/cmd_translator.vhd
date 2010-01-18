@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.63 2010/01/13 20:12:58 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.64 2010/01/13 20:32:10 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -77,9 +77,8 @@ port(
       data_rate_i           : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i         : in std_logic;
-      mls_dat_i             : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-      mls_addr_o            : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-      mls_num_pts_i         : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      awg_dat_i             : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      awg_addr_incr_o       : out std_logic;
 
       -- ret_dat_wbs interface
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
@@ -202,8 +201,7 @@ architecture rtl of cmd_translator is
    signal internal_status_req : std_logic;
    signal internal_status_ack : std_logic;
 
-   constant MLS_ADDR_MIN : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0) := (others => '0');
-   signal mls_addr            : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+--   signal mls_addr            : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
    signal internal_wb_req    : std_logic;
    signal internal_wb_ack    : std_logic;
 
@@ -255,7 +253,7 @@ begin
    -------------------------------------------------------------------------------------------
    -- Registers
    -------------------------------------------------------------------------------------------
-   mls_addr_o <= mls_addr;
+--   mls_addr_o <= mls_addr;
    
    process(rst_i, clk_i)
    begin
@@ -288,7 +286,7 @@ begin
          ret_dat_in_progress  <= '0';
          ramp_value           <= (others => '0');
          
-         mls_addr             <= MLS_ADDR_MIN;  
+--         mls_addr             <= MLS_ADDR_MIN;  
 
       elsif(clk_i'event and clk_i = '1') then
 
@@ -320,8 +318,8 @@ begin
          if(internal_cmd_mode_delayed /= internal_cmd_mode_i and internal_cmd_mode_i = INTERNAL_RAMP) then
             ramp_value  <= step_minimum_i;
          elsif(internal_cmd_mode_delayed /= internal_cmd_mode_i and internal_cmd_mode_i = INTERNAL_MEM) then
-            mls_addr    <= MLS_ADDR_MIN;  
-            ramp_value  <= ext(mls_dat_i, WB_DATA_WIDTH);
+--            mls_addr    <= MLS_ADDR_MIN;  
+            ramp_value  <= ext(awg_dat_i, WB_DATA_WIDTH);
          -- Otherwise, we increment the ramp_value by step_size, and wrap back down if it is to exceed step_maximum_i
          elsif(step_ramp_value = '1' and internal_cmd_mode_i = INTERNAL_RAMP) then
             if(ramp_value < (step_maximum_i + 1 - step_size_i)) then
@@ -330,15 +328,15 @@ begin
                ramp_value <= step_minimum_i;
             end if;
          elsif(step_ramp_value = '1' and internal_cmd_mode_i = INTERNAL_MEM) then
-            -- This assignement operates one data element behind the the mls_addr because the assignment occurs at the same time as the address increment.
-            -- This is actually good, because when send down a RAMP_STEP_PERIOD_ADDR command, 
-            -- Is there a chance that this data could ever be garbled?
-            ramp_value  <= ext(mls_dat_i, WB_DATA_WIDTH);
-            if(mls_addr < mls_num_pts_i - 1) then
-               mls_addr <= mls_addr + 1;
-            else
-               mls_addr <= MLS_ADDR_MIN;
-            end if;
+--            -- This assignement operates one data element behind the the mls_addr because the assignment occurs at the same time as the address increment.
+--            -- This is actually good, because when send down a RAMP_STEP_PERIOD_ADDR command, 
+--            -- Is there a chance that this data could ever be garbled?
+            ramp_value      <= ext(awg_dat_i, WB_DATA_WIDTH);
+--            if(mls_addr < mls_num_pts_i - 1) then
+--               mls_addr <= mls_addr + 1;
+--            else
+--               mls_addr <= MLS_ADDR_MIN;
+--            end if;
          else
             ramp_value <= ramp_value;
          end if;
@@ -797,12 +795,13 @@ begin
       last_frame_o         <= '0';
       cmd_stop_o           <= '0';
 
-      internal_wb_ack  <= '0';
+      internal_wb_ack      <= '0';
       internal_status_ack  <= '0';
 
       -- Check this NTS.
       update_nts           <= '0';
       step_ramp_value      <= '0';
+      awg_addr_incr_o      <= '0';
 
       internal_rb_ack     <= '0';
       simple_cmd_ack       <= '0';
@@ -943,6 +942,7 @@ begin
             if(ack_i = '1') then
                internal_wb_ack <= '1';
                step_ramp_value <= '1';
+               awg_addr_incr_o <= '1';
             end if;
 
          when INTERNAL_WB =>

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.15 2010/01/13 20:07:31 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.16 2010/01/13 20:32:10 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.16  2010/01/13 20:32:10  bburger
+-- BB:  Changed constant names from MEM_DAT_WIDTH and MEM_ADDR_WIDTH to MLS_DAT_WIDTH and MLS_ADDR_WIDTH
+--
 -- Revision 1.15  2010/01/13 20:07:31  bburger
 -- BB:  Added stratix_crcblock and d_flipflop declarations, and addes interface signals for the Maximum Length Sequence functionality
 --
@@ -359,9 +362,8 @@ package clk_card_pack is
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
-      mem_dat_o              : out std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-      mem_addr_i             : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-      mem_num_pts_o          : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      awg_dat_o              : out std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      awg_addr_incr_i        : in std_logic;
 
       -- global interface
       clk_i                  : in std_logic;
@@ -486,9 +488,8 @@ package clk_card_pack is
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
       rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
-      mls_dat_i              : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-      mls_addr_o             : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-      mls_num_pts_i          : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      awg_dat_i              : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      awg_addr_incr_o        : out std_logic;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;

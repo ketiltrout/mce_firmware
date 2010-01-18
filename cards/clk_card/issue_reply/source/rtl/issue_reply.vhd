@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.78 2010/01/13 20:13:40 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.79 2010/01/13 20:32:11 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2010/01/13 20:13:40 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2010/01/13 20:32:11 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.79  2010/01/13 20:32:11  bburger
+-- BB:  Changed constant names from MEM_DAT_WIDTH and MEM_ADDR_WIDTH to MLS_DAT_WIDTH and MLS_ADDR_WIDTH
+--
 -- Revision 1.78  2010/01/13 20:13:40  bburger
 -- BB: Added interface signals for MLS functionality.
 --
@@ -164,9 +167,8 @@ entity issue_reply is
       ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(9 downto 0);
       rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
-      mls_dat_i              : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-      mls_addr_o             : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-      mls_num_pts_i          : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      awg_dat_i              : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      awg_addr_incr_o        : out std_logic;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -254,9 +256,8 @@ architecture rtl of issue_reply is
       data_rate_i           : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i         : in std_logic;
-      mls_dat_i             : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-      mls_addr_o            : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-      mls_num_pts_i         : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      awg_dat_i             : in std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      awg_addr_incr_o       : out std_logic;
 
       -- ret_dat_wbs interface
       internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
@@ -687,9 +688,8 @@ begin
       step_data_num_i     => step_data_num_i,
       ret_dat_req_i       => ret_dat_req_i,
       ret_dat_ack_o       => ret_dat_ack_o,
-      mls_dat_i           => mls_dat_i,   
-      mls_addr_o          => mls_addr_o,  
-      mls_num_pts_i       => mls_num_pts_i,
+      awg_dat_i           => awg_dat_i, 
+      awg_addr_incr_o     => awg_addr_incr_o,
 
       sync_number_i       => sync_number_i
    );

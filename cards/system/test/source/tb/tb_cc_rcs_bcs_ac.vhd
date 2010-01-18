@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.76 2009/11/13 19:12:36 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.77 2010/01/13 20:32:46 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.77  2010/01/13 20:32:46  bburger
+-- BB: Added command declarations for MLS testing
+--
 -- Revision 1.76  2009/11/13 19:12:36  bburger
 -- BB: Tests for finding the FSFB jumps seen at Caltech
 --
@@ -810,9 +813,9 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_num_rows_reported_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD       & x"00" & NUM_ROWS_REPORTED_ADDR;
    constant cc_num_cols_reported_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD       & x"00" & NUM_COLS_REPORTED_ADDR;
 
-   constant cc_mls_sequence_len_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & MLS_SEQUENCE_LEN_ADDR;
-   constant cc_mls_data_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & MLS_DATA_ADDR;
-   constant cc_mls_data_index_cmd   : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & MLS_ADDR_ADDR;
+   constant cc_awg_sequence_len_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_SEQUENCE_LEN_ADDR;
+   constant cc_awg_data_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_DATA_ADDR;
+   constant cc_awg_data_index_cmd   : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_ADDR_ADDR;
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -2809,7 +2812,7 @@ begin
 
       --1
       command <= command_wb;
-      address_id <= cc_mls_sequence_len_cmd;
+      address_id <= cc_awg_sequence_len_cmd;
       data_valid <= X"00000001";
       data       <= X"00000008";
       load_preamble;
@@ -2819,7 +2822,7 @@ begin
 
       --2
       command <= command_wb;
-      address_id <= cc_mls_data_cmd;
+      address_id <= cc_awg_data_cmd;
       data_valid <= X"00000008";
       data       <= X"00000000";
       load_preamble;
@@ -2829,7 +2832,7 @@ begin
 
       --3
       command <= command_wb;
-      address_id <= cc_mls_data_index_cmd;
+      address_id <= cc_awg_data_index_cmd;
       data_valid <= X"00000001";
       data       <= X"00000000";
       load_preamble;
@@ -2839,7 +2842,7 @@ begin
 
       --4
       command <= command_rb;
-      address_id <= cc_mls_data_cmd;
+      address_id <= cc_awg_data_cmd;
       data_valid <= X"00000008";
       data       <= X"00000001";
       load_preamble;

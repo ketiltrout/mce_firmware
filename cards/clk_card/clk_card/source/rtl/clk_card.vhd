@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.90 2010/01/13 20:05:27 bburger Exp $
+-- $Id: clk_card.vhd,v 1.91 2010/01/13 20:32:10 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -394,9 +394,8 @@ architecture top of clk_card is
 
    signal crc_error_ff : std_logic;
 
-   signal mem_dat            : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-   signal mem_addr           : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-   signal mem_num_pts        : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+   signal awg_dat            : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+   signal awg_addr_incr      : std_logic;
 
 begin
 
@@ -589,7 +588,7 @@ begin
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
                                   CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
-                                  MLS_SEQUENCE_LEN_ADDR | MLS_ADDR_ADDR | MLS_DATA_ADDR,
+                                  AWG_SEQUENCE_LEN_ADDR | AWG_ADDR_ADDR | AWG_DATA_ADDR,
          card_id_thermo_data when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_data    when FPGA_TEMP_ADDR,
@@ -613,7 +612,7 @@ begin
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
                                   CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
-                                  MLS_SEQUENCE_LEN_ADDR | MLS_ADDR_ADDR | MLS_DATA_ADDR,
+                                  AWG_SEQUENCE_LEN_ADDR | AWG_ADDR_ADDR | AWG_DATA_ADDR,
          card_id_thermo_ack  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
@@ -637,7 +636,7 @@ begin
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
                                   CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
-                                  MLS_SEQUENCE_LEN_ADDR | MLS_ADDR_ADDR | MLS_DATA_ADDR,
+                                  AWG_SEQUENCE_LEN_ADDR | AWG_ADDR_ADDR | AWG_DATA_ADDR,
          card_id_thermo_err  when CARD_TEMP_ADDR | CARD_ID_ADDR,
          backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
@@ -730,10 +729,9 @@ begin
       ret_dat_ack_o        => ret_dat_done,
       cards_to_report_i    => cards_to_report,
       rcs_to_report_data_i => rcs_to_report_data,
-      mls_dat_i            => mem_dat,   
-      mls_addr_o           => mem_addr,  
-      mls_num_pts_i        => mem_num_pts,
-
+      awg_dat_i            => awg_dat,   
+      awg_addr_incr_o      => awg_addr_incr,
+      
       -- dv_rx interface
       external_dv_i        => external_dv,
       external_dv_num_i    => external_dv_num,
@@ -1105,10 +1103,9 @@ begin
       cards_present_i        => cards_present,
       cards_to_report_o      => cards_to_report,
       rcs_to_report_data_o   => rcs_to_report_data,
-      mem_dat_o              => mem_dat,   
-      mem_addr_i             => mem_addr,  
-      mem_num_pts_o          => mem_num_pts,
-
+      awg_dat_o              => awg_dat,   
+      awg_addr_incr_i        => awg_addr_incr,
+      
       -- global interface
       clk_i                  => clk,
       rst_i                  => rst,

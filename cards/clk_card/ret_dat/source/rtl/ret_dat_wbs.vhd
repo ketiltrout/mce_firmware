@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.23 2010/01/13 20:15:21 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.24 2010/01/13 20:32:11 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -68,9 +68,8 @@ entity ret_dat_wbs is
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
-      mem_dat_o              : out std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-      mem_addr_i             : in std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-      mem_num_pts_o          : out std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+      awg_dat_o              : out std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      awg_addr_incr_i        : in std_logic;
 
       -- global interface
       clk_i                  : in std_logic;
@@ -91,7 +90,7 @@ end ret_dat_wbs;
 
 architecture rtl of ret_dat_wbs is
 
-   component mls_data_bank IS
+   component awg_data_bank IS
       PORT
       (
          clock    : IN STD_LOGIC  := '1';
@@ -103,13 +102,13 @@ architecture rtl of ret_dat_wbs is
       );
    END component;
 
-   signal mls_mem_dat           : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
-   signal mls_sequence_len_wren : std_logic;
-   signal mls_addr_wren         : std_logic;
-   signal mls_data_wren         : std_logic;
-   signal mls_data_rden         : std_logic;
-   signal mls_wr_addr           : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
-   signal mls_rd_addr           : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+   constant AWG_ADDR_MIN        : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0) := (others => '0');
+   signal awg_mem_dat           : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+   signal awg_sequence_len_wren : std_logic;
+   signal awg_addr_wren         : std_logic;
+   signal awg_data_wren         : std_logic;
+   signal awg_data_rden         : std_logic;
+   signal awg_addr              : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
 
    constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
    constant STOP_REPLY_WAIT_PERIOD   : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00002710";  -- 10000 u-seconds
@@ -169,7 +168,7 @@ architecture rtl of ret_dat_wbs is
    signal ret_dat_card_addr_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
    signal stop_delay_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal rcs_to_report_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal mls_sequence_len_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal awg_sequence_len_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    signal cards_present          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
@@ -191,50 +190,49 @@ begin
 --   raw_dat    <= sxt(raw_dat_i, raw_dat'length) when raw_addr < RAW_ADDR_MAX + 1 else RAW_NULL_DATA;
 --   raw_addr_o <= raw_addr;
 
-   -- The mls_rd_addr gets the mls_wr_addr if we are reading from it, otherwise it gets mem_addr_i from the cmd_translator.
-   -- The condition here must match the condition below.
-   mls_rd_addr <= mls_wr_addr when (mls_data_rden = '1') else mem_addr_i;
-
    addr_manager: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         mls_wr_addr <= (others => '0');      
+         awg_addr <= AWG_ADDR_MIN;               
       elsif(clk_i'event and clk_i = '1') then
-         
          -- Read/Write address management
-         if(mls_addr_wren = '1' ) then
-            mls_wr_addr <= dat_i(MLS_ADDR_WIDTH-1 downto 0);
-         elsif(mls_data_rden = '1') then
-            mls_wr_addr <= mls_wr_addr + 1;
-         elsif(mls_data_wren = '1') then
-            mls_wr_addr <= mls_wr_addr + 1;
+         if(awg_addr_wren = '1' ) then
+            awg_addr <= dat_i(MLS_ADDR_WIDTH-1 downto 0);
+         elsif(awg_addr_incr_i = '1' or awg_data_rden = '1' or awg_data_wren = '1') then
+            if(awg_addr < awg_sequence_len_data - 1) then 
+               awg_addr <= awg_addr + 1;
+            else
+               awg_addr <= AWG_ADDR_MIN;
+            end if;
+--         elsif(awg_data_rden = '1') then
+--            awg_addr <= awg_addr + 1;
+--         elsif(awg_data_wren = '1') then
+--            awg_addr <= awg_addr + 1;
          else
-            mls_wr_addr <= mls_wr_addr;
-         end if;      
-         
-      end if;
+            awg_addr <= awg_addr;
+         end if;               
+      end if;      
    end process addr_manager;
 
-   mem_num_pts_o <= mls_sequence_len_data(MLS_ADDR_WIDTH-1 downto 0);
-   mls_sequence_len_reg : reg
+   awg_sequence_len_reg : reg
       generic map(WIDTH => WB_DATA_WIDTH)
       port map(
          clk_i             => clk_i,
          rst_i             => rst_i,
-         ena_i             => mls_sequence_len_wren,
+         ena_i             => awg_sequence_len_wren,
          reg_i             => dat_i,
-         reg_o             => mls_sequence_len_data
+         reg_o             => awg_sequence_len_data
       );
 
-   mem_dat_o <= mls_mem_dat;
-   mls : mls_data_bank
+   awg_dat_o <= awg_mem_dat;
+   awg : awg_data_bank
       port map (
          clock     => clk_i,
          data      => dat_i(15 downto 0),
-         rdaddress => mls_rd_addr,
-         wraddress => mls_wr_addr,
-         wren      => mls_data_wren,
-         q         => mls_mem_dat
+         rdaddress => awg_addr,
+         wraddress => awg_addr,
+         wren      => awg_data_wren,
+         q         => awg_mem_dat
       );
 
    internal_cmd_mode_o <=
@@ -627,10 +625,10 @@ begin
       rcs_to_report_wren     <= '0';
       ret_dat_req_wren       <= '0';
       stop_delay_wren        <= '0';
-      mls_sequence_len_wren  <= '0';
-      mls_data_wren          <= '0';
-      mls_data_rden          <= '0';
-      mls_addr_wren          <= '0';
+      awg_sequence_len_wren  <= '0';
+      awg_data_wren          <= '0';
+      awg_data_rden          <= '0';
+      awg_addr_wren          <= '0';
       ack_o                  <= '0';
       err_o                  <= '0';
 
@@ -639,13 +637,13 @@ begin
             ack_o <= '0';
 
             if(wr_cmd = '1') then
-               if(addr_i = MLS_DATA_ADDR) then
+               if(addr_i = AWG_DATA_ADDR) then
                   ack_o <= '1';
-                  mls_data_wren <= '1';
+                  awg_data_wren <= '1';
                end if;
             elsif(rd_cmd = '1') then
-               if(addr_i = MLS_DATA_ADDR) then
-                  mls_data_rden <= '1';
+               if(addr_i = AWG_DATA_ADDR) then
+                  awg_data_rden <= '1';
                end if;
             end if;
 
@@ -703,17 +701,17 @@ begin
                   rcs_to_report_wren <= '1';
                elsif(addr_i = STOP_DLY_ADDR) then
                   stop_delay_wren <= '1';
-               elsif(addr_i = MLS_SEQUENCE_LEN_ADDR) then
-                  mls_sequence_len_wren <= '1';
-               elsif(addr_i = MLS_DATA_ADDR) then
-                  mls_data_wren <= '1';
-               elsif(addr_i = MLS_ADDR_ADDR) then
-                  -- Scheme used for writing to/ reading from the mls_data_bank?
+               elsif(addr_i = AWG_SEQUENCE_LEN_ADDR) then
+                  awg_sequence_len_wren <= '1';
+               elsif(addr_i = AWG_DATA_ADDR) then
+                  awg_data_wren <= '1';
+               elsif(addr_i = AWG_ADDR_ADDR) then
+                  -- Scheme used for writing to/ reading from the awg_data_bank?
                   -- 1- In one WB transaction, write a starting value for the memory write address index (provides more flexibility, at the cost of time)
                   -- 2- In a seperate WB transaction, write 'n' data points starting from the memory write address index
                   --    (a) After each word of the WB is written, the index is incremented by one.
                   --    (b) After the WB is complete, the index is left as its last incremented value (I see nothing wrong with this!)
-                  mls_addr_wren <= '1';
+                  awg_addr_wren <= '1';
                end if;
             end if;
 
@@ -721,10 +719,10 @@ begin
             if(next_state /= IDLE) then
                ack_o <= '1';
                
-               if(addr_i = MLS_DATA_ADDR) then
+               if(addr_i = AWG_DATA_ADDR) then
                   -- Don't assert ack_o if we are reading from the RAM becuase of it's 3-cycle latency
                   ack_o <= '0';
-                  mls_data_rden <= '1';
+                  awg_data_rden <= '1';
                end if;
             end if;
 
@@ -732,8 +730,8 @@ begin
             if(next_state /= IDLE) then
                ack_o <= '1';
                
-               if(addr_i = MLS_DATA_ADDR) then
-                  mls_data_rden <= '1';
+               if(addr_i = AWG_DATA_ADDR) then
+                  awg_data_rden <= '1';
                end if;
             end if;
                         
@@ -771,9 +769,9 @@ begin
       cards_present_data              when (addr_i = CARDS_PRESENT_ADDR) else
       cards_to_report_data            when (addr_i = CARDS_TO_REPORT_ADDR) else
       stop_delay_data                 when (addr_i = STOP_DLY_ADDR) else
-      mls_sequence_len_data           when (addr_i = MLS_SEQUENCE_LEN_ADDR) else
-      ext(mls_wr_addr, WB_DATA_WIDTH) when (addr_i = MLS_ADDR_ADDR) else
-      ext(mls_mem_dat, WB_DATA_WIDTH) when (addr_i = MLS_DATA_ADDR) else
+      awg_sequence_len_data           when (addr_i = AWG_SEQUENCE_LEN_ADDR) else
+      ext(awg_addr, WB_DATA_WIDTH)    when (addr_i = AWG_ADDR_ADDR) else
+      ext(awg_mem_dat, WB_DATA_WIDTH) when (addr_i = AWG_DATA_ADDR) else
       crc_err_en_data                 when (addr_i = CRC_ERR_EN_ADDR) else (others => '0');
 
    rd_cmd  <= '1' when
@@ -800,9 +798,9 @@ begin
        addr_i = CARDS_PRESENT_ADDR or
        addr_i = CARDS_TO_REPORT_ADDR or
        addr_i = STOP_DLY_ADDR or
-       addr_i = MLS_SEQUENCE_LEN_ADDR or
-       addr_i = MLS_ADDR_ADDR or
-       addr_i = MLS_DATA_ADDR or
+       addr_i = AWG_SEQUENCE_LEN_ADDR or
+       addr_i = AWG_ADDR_ADDR or
+       addr_i = AWG_DATA_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
    wr_cmd  <= '1' when
@@ -829,9 +827,9 @@ begin
        addr_i = CARDS_PRESENT_ADDR or
        addr_i = CARDS_TO_REPORT_ADDR or
        addr_i = STOP_DLY_ADDR or
-       addr_i = MLS_SEQUENCE_LEN_ADDR or
-       addr_i = MLS_ADDR_ADDR or
-       addr_i = MLS_DATA_ADDR or
+       addr_i = AWG_SEQUENCE_LEN_ADDR or
+       addr_i = AWG_ADDR_ADDR or
+       addr_i = AWG_DATA_ADDR or
        addr_i = CRC_ERR_EN_ADDR) else '0';
 
 end rtl;
