@@ -482,7 +482,7 @@ set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 2
 set_location_assignment PIN_AA20 -to crc_error_out
 set_global_assignment -name MISC_FILE "C:/mce/cards/clk_card/clk_card/synth/clk_card.dpf"
-set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/mls_data_bank.vhd
+set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/awg_data_bank.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/d_flipflop.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
