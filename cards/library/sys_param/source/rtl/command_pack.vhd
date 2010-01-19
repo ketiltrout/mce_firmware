@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: command_pack.vhd,v $
+-- Revision 1.23  2008/02/22 01:34:12  bburger
+-- BB: Renamed "PSCUC_CARD" to "PS_CARD"
+--
 -- Revision 1.22  2008/01/26 01:12:16  mandana
 -- added support for card_type
 -- renamed ALL_CARDS to ALL_MCE_CARDS to avoid conflict with all_cards wishbone slave
@@ -119,11 +122,13 @@ package command_pack is
    constant CARD_TYPE_WIDTH    : integer := 3;
 
    constant AC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "000";
-   constant BC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "001";
-   constant RC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "010";
+   constant BC_D_CARD_TYPE     : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "001"; -- Bias Card  Revision D 
+   constant RC_B_CARD_TYPE     : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "010"; -- Readout Card Revision B
    constant CC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "011";
    constant PS_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "100";
-
+   constant BC_E_CARD_TYPE     : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "101";	-- Bias Card  Revision E 
+   constant RC_D_CARD_TYPE     : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "110";	-- Readout Card Revision D
+   
    ------------------------------------------------------------------------
    -- Bus Backplane-Protocol Declarations
    ------------------------------------------------------------------------
