@@ -18,16 +18,21 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.6 2005/01/17 23:01:04 mandana Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.7 2006/08/03 19:06:31 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
 -- Description:
+-- This block processes wishbone commands FLUX_FB_ADDR and BIAS_ADDR and 
+-- updates 32 flux_fb SPI DACs and 12 low-noise bias SPI DACs.
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.7  2006/08/03 19:06:31  mandana
+-- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
+--
 -- Revision 1.6  2005/01/17 23:01:04  mandana
 -- removed mem_clk_i
 -- read from RAM is performed in 2 clk_i cycles, added an extra state for read
@@ -55,46 +60,47 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
---use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
-use sys_param.command_pack.all;
-
-library components;
-use components.component_pack.all;
 
 library work;
+use work.bias_card_pack.all;
 use work.bc_dac_ctrl_pack.all;
 
 entity bc_dac_ctrl is
    port
    (
       -- DAC hardware interface:
-      -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
+      -- 32 independant flux-fb DAC channels, thus 32 serial data/cs/clk lines and
+      -- 12 ln_bias DAC channels, data and clk lines are shared
       flux_fb_data_o    : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);   
       flux_fb_ncs_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       flux_fb_clk_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
-      bias_data_o       : out std_logic;
-      bias_ncs_o        : out std_logic;
-      bias_clk_o        : out std_logic;      
+      
+      ln_bias_data_o    : out std_logic;
+      ln_bias_ncs_o     : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
+      ln_bias_clk_o     : out std_logic;
+      
       dac_nclr_o        : out std_logic;
       
       -- wishbone interface:
-      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                    : in std_logic;
-      stb_i                   : in std_logic;
-      cyc_i                   : in std_logic;
-      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                   : out std_logic;
+      dat_i             : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i            : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i             : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i              : in std_logic;
+      stb_i             : in std_logic;
+      cyc_i             : in std_logic;
+      dat_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o             : out std_logic;
       
       -- frame_timing signals
       update_bias_i     : in std_logic;
+      restart_frame_aligned_i : in std_logic;      
       
       -- Global Signals      
       clk_i             : in std_logic;
+      spi_clk_i         : in std_logic;
       rst_i             : in std_logic;
       debug             : inout std_logic_vector(31 downto 0)
    );     
@@ -103,52 +109,57 @@ end bc_dac_ctrl;
 architecture rtl of bc_dac_ctrl is
 
    -- wbs_bc_dac_ctrl interface:
-   signal flux_fb_addr    : std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
-   signal flux_fb_data    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal bias_data       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_fb_addr    : std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
+   signal flux_fb_data    : std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
    signal flux_fb_changed : std_logic;
-   signal bias_changed    : std_logic;   
+   signal ln_bias_addr    : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
+   signal ln_bias_data    : std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
+   signal ln_bias_changed : std_logic;   
    
 begin
 
- bcdc_core: bc_dac_ctrl_core
+   bcdc_core: bc_dac_ctrl_core
    port map(
       -- DAC hardware interface:
       flux_fb_data_o    => flux_fb_data_o,
       flux_fb_ncs_o     => flux_fb_ncs_o, 
       flux_fb_clk_o     => flux_fb_clk_o, 
       
-      bias_data_o       => bias_data_o,
-      bias_ncs_o        => bias_ncs_o, 
-      bias_clk_o        => bias_clk_o, 
+      ln_bias_data_o    => ln_bias_data_o,
+      ln_bias_ncs_o     => ln_bias_ncs_o, 
+      ln_bias_clk_o     => ln_bias_clk_o, 
       
       dac_nclr_o        => dac_nclr_o,
 
       -- wbs_bc_dac_ctrl interface:
       flux_fb_addr_o    => flux_fb_addr,
       flux_fb_data_i    => flux_fb_data,   
-      bias_data_i       => bias_data,      
       flux_fb_changed_i => flux_fb_changed,
-      bias_changed_i    => bias_changed,   
+      ln_bias_addr_o    => ln_bias_addr,
+      ln_bias_data_i    => ln_bias_data,      
+      ln_bias_changed_i => ln_bias_changed,   
       
       -- frame_timing signals
       update_bias_i     => update_bias_i,
-      
+      restart_frame_aligned_i => restart_frame_aligned_i,
       -- Global Signals      
       clk_i             => clk_i,
+      spi_clk_i         => spi_clk_i,
       rst_i             => rst_i,
       debug             => debug
    );     
-
-bcdc_wbs: bc_dac_ctrl_wbs
+      
+   -- handles wishbone transactions  
+   bcdc_wbs: bc_dac_ctrl_wbs
    port map(
-      -- ac_dac_ctrl interface:
+      -- ac_dac_ctrl interface: 32 flux_fb DACs and up to 12 low-noise bias DACs
       flux_fb_addr_i    => flux_fb_addr,
       flux_fb_data_o    => flux_fb_data,   
-      bias_data_o       => bias_data,      
       flux_fb_changed_o => flux_fb_changed,
-      bias_changed_o    => bias_changed,   
-
+      ln_bias_addr_i    => ln_bias_addr,
+      ln_bias_data_o    => ln_bias_data,      
+      ln_bias_changed_o => ln_bias_changed,   
+      
       -- wishbone interface:
       dat_i             => dat_i, 
       addr_i            => addr_i,
