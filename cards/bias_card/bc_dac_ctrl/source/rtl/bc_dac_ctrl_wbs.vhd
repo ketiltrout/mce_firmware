@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.9 2007/12/20 00:40:04 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.10 2008/07/15 17:48:04 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.10  2008/07/15 17:48:04  bburger
+-- BB: added tga_i to the state_out FSM's sensitivity list
+--
 -- Revision 1.9  2007/12/20 00:40:04  mandana
 -- added flux_fb_upper
 --
@@ -67,27 +70,27 @@
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;  -- for ext function
 use ieee.std_logic_unsigned.all;
 
-library components;
-use components.component_pack.all;
 
 library sys_param;
-use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
+use work.bias_card_pack.all;
 use work.bc_dac_ctrl_pack.all;
 
 entity bc_dac_ctrl_wbs is
    port
    (
       -- ac_dac_ctrl interface:
-      flux_fb_addr_i    : in std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
-      flux_fb_data_o    : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      bias_data_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      flux_fb_addr_i    : in std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);   -- address index to read DAC data from RAM
+      flux_fb_data_o    : out std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);  -- data read from RAM to be consumed by bc_dac_ctrl_core
       flux_fb_changed_o : out std_logic;
-      bias_changed_o    : out std_logic;
+      ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
+      ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
+      ln_bias_changed_o : out std_logic;
 
       -- wishbone interface:
       dat_i             : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -115,11 +118,11 @@ architecture rtl of bc_dac_ctrl_wbs is
 
    -- RAM/Register signals
    signal flux_fb_wren     : std_logic;
-   signal flux_fb_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal bias_wren        : std_logic;
-   signal bias_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal flux_fb_data     : std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
+   signal ln_bias_wren     : std_logic;
+   signal ln_bias_data     : std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
 
-   signal tpram_addr       : std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
+   signal ram_addr         : std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
    signal addr             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
 
 
@@ -129,40 +132,34 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal next_state       : states;
 
 begin
-
-   flux_fb_ram : tpram_32bit_x_64
-      port map
+   -- port a is used for updating DACs and port b for wishbone read
+   flux_fb_ram : ram_16x64
+   port map
       (
-         data              => dat_i,
-         wren              => flux_fb_wren,
-         wraddress         => tpram_addr,
-         rdaddress_a       => flux_fb_addr_i,
-         rdaddress_b       => tpram_addr,
          clock             => clk_i,
+         data              => dat_i(FLUX_FB_DAC_DATA_WIDTH-1 downto 0),
+         wren              => flux_fb_wren,
+         wraddress         => ram_addr,
+         rdaddress_a       => flux_fb_addr_i,
+         rdaddress_b       => ram_addr,
          qa                => flux_fb_data_o,
          qb                => flux_fb_data
       );
-
-   -- To the bc_dac_ctrl block
-   bias_data_o <= bias_data;
---   debug(19 downto 16) <= dat_i(3 downto 0);
---   debug(23 downto 20) <= addr_i(3 downto 0);
-   debug(24)    <= we_i;
-   debug(25)    <= stb_i;
-   debug(26)    <= cyc_i;
---   debug(27)    <= ack_o;
-
-   bias_data_reg : reg
-      generic map(
-         WIDTH             => PACKET_WORD_WIDTH
-      )
-      port map(
-         clk_i             => clk_i,
-         rst_i             => rst_i,
-         ena_i             => bias_wren,
-         reg_i             => dat_i,
-         reg_o             => bias_data
+      
+   -- port a is used for updating DACs and port b for wishbone read
+   ln_bias_ram : ram_16x16
+   port map
+      (
+         clock             => clk_i,
+         data              => dat_i(LN_BIAS_DAC_DATA_WIDTH-1 downto 0),
+         wren              => ln_bias_wren,
+         wraddress         => ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0),
+         rdaddress_a       => ln_bias_addr_i,
+         rdaddress_b       => ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0),
+         qa                => ln_bias_data_o,
+         qb                => ln_bias_data
       );
+
 
    addr_reg: process(clk_i, rst_i)
    begin
@@ -230,11 +227,11 @@ begin
    begin
       -- Default assignments
       flux_fb_wren      <= '0';
-      bias_wren         <= '0';
+      ln_bias_wren      <= '0';
       ack_o             <= '0';
       flux_fb_changed_o <= '0';
-      bias_changed_o    <= '0';
-      tpram_addr        <= tga_i(COL_ADDR_WIDTH-1 downto 0);
+      ln_bias_changed_o <= '0';
+      ram_addr          <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
 
       case current_state is
          when IDLE  =>
@@ -248,11 +245,12 @@ begin
                   flux_fb_wren <= '1';
                end if;
                if (addr_i = FLUX_FB_UPPER_ADDR) then
-                  tpram_addr <= tga_i(COL_ADDR_WIDTH-1 downto 0) + 16;
+                  ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0) + 16;
                end if;
                if(addr = BIAS_ADDR) then
-                  bias_wren <= '1';
+                  ln_bias_wren <= '1';
                end if;
+               
             end if;
 
             -- This is so that the bias block does not update bias during every frame - only when the values are changed
@@ -261,27 +259,21 @@ begin
                   flux_fb_changed_o <= '1';
                end if;
                if(addr = BIAS_ADDR) then
-                  bias_changed_o    <= '1';
+                  ln_bias_changed_o <= '1';
                end if;
             end if;
 
          when RD1 =>
             if (addr = FLUX_FB_UPPER_ADDR) then
-               tpram_addr <= tga_i(COL_ADDR_WIDTH-1 downto 0) + 16;
+               ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0) + 16;
             end if;
             ack_o <= '0';
 
          when RD2 =>
             if (addr = FLUX_FB_UPPER_ADDR) then
-               tpram_addr <= tga_i(COL_ADDR_WIDTH-1 downto 0) + 16;
+               ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0) + 16;
             end if;
             ack_o  <= '1';
-
--- I don't know why this was here..
---            if(cyc_i = '0') then
---               flux_fb_changed_o <= '1';
---               bias_changed_o    <= '1';
---            end if;
 
          when others =>
             null;
@@ -294,9 +286,9 @@ begin
 ------------------------------------------------------------
 
    with addr_i select dat_o <=
-      flux_fb_data    when FLUX_FB_ADDR,
-      flux_fb_data    when FLUX_FB_UPPER_ADDR,
-      bias_data       when BIAS_ADDR,
+      ext(flux_fb_data, WB_DATA_WIDTH)  when FLUX_FB_ADDR,
+      ext(flux_fb_data, WB_DATA_WIDTH)  when FLUX_FB_UPPER_ADDR,
+      ext(ln_bias_data, WB_DATA_WIDTH) when BIAS_ADDR,
       (others => '0') when others;
 
    master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';
