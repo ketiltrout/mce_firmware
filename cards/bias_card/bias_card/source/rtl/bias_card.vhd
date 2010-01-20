@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.35 2009/03/19 20:19:01 bburger Exp $
+-- $Id: bias_card.vhd,v 1.36 2009/11/24 23:49:59 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.36  2009/11/24 23:49:59  bburger
+-- BB: Made a top-level modification that does not affect old cards with the MAX1618, but enables the LM95235 on new cards.
+--
 -- Revision 1.35  2009/03/19 20:19:01  bburger
 -- BB:  Added default TTL outputs
 --
@@ -153,14 +156,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library sys_param;
-use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
-use sys_param.data_types_pack.all;
 
 library work;
 use work.bias_card_pack.all;
 use work.all_cards_pack.all;
-use work.bc_dac_ctrl_pack.all;
+use work.card_type_pack.all;
 
 entity bias_card is
    port(
@@ -199,9 +200,10 @@ entity bias_card is
       dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_data      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      lvds_dac_ncs  : out std_logic;
+      lvds_dac_ncs  : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_sclk : out std_logic;
       lvds_dac_data : out std_logic;
+
       dac_nclr      : out std_logic; -- add to tcl file
 
       -- miscellaneous ports:
@@ -232,7 +234,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000000"; -- 04 signifies support of FLUX_FB_UPPER_ADDR
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000001";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -247,6 +249,7 @@ signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal clk      : std_logic;
 signal comm_clk : std_logic;
 signal clk_n    : std_logic;
+signal spi_clk  : std_logic;
 
 signal rst      : std_logic;
 
@@ -279,6 +282,7 @@ signal fpga_thermo_err   : std_logic;
 
 -- frame_timing interface
 signal update_bias : std_logic;
+signal restart_frame_aligned : std_logic;
 
 signal debug       : std_logic_vector (31 downto 0);
 
@@ -286,9 +290,9 @@ begin
 
    -- Default assignments to get rid of synthesis warnings.
    ttl_tx1    <= '0';
-   ttl_txena2 <= '0';
+   ttl_txena2 <= '1';
    ttl_tx2    <= '0';
-   ttl_txena3 <= '0';
+   ttl_txena3 <= '1';
    ttl_tx3    <= '0';
 
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
@@ -312,7 +316,7 @@ begin
       c0 => clk,
       c1 => comm_clk,
       c2 => clk_n,
-      c3 => open
+      c3 => spi_clk
    );
 
    cmd0: dispatch
@@ -426,6 +430,9 @@ begin
        dat_o           => all_cards_data,
        ack_o           => all_cards_ack
     );
+   ----------------------------------------------------------------------------
+   -- DAC-control block Instantiation
+   ----------------------------------------------------------------------------
 
    bc_dac_ctrl_slave: bc_dac_ctrl
    port map(
@@ -435,10 +442,10 @@ begin
       flux_fb_ncs_o              => dac_ncs_temp,
       flux_fb_clk_o              => dac_sclk_temp,
 
-      bias_data_o                => lvds_dac_data,
-      bias_ncs_o                 => lvds_dac_ncs,
-      bias_clk_o                 => lvds_dac_sclk,
-
+      ln_bias_data_o             => lvds_dac_data,
+      ln_bias_ncs_o              => lvds_dac_ncs,
+      ln_bias_clk_o              => lvds_dac_sclk,      
+      
       dac_nclr_o                 => dac_nclr,
 
       -- wishbone interface:
@@ -453,9 +460,11 @@ begin
 
       -- frame_timing signals
       update_bias_i              => update_bias,
-
+      restart_frame_aligned_i    => restart_frame_aligned,
+      
       -- Global Signals
       clk_i                      => clk,
+      spi_clk_i                  => spi_clk,
       rst_i                      => rst,
       debug                      => debug
    );
@@ -465,7 +474,7 @@ begin
       dac_dat_en_o               => open,
       adc_coadd_en_o             => open,
       restart_frame_1row_prev_o  => open,
-      restart_frame_aligned_o    => open,
+      restart_frame_aligned_o    => restart_frame_aligned,
       restart_frame_1row_post_o  => open,
       initialize_window_o        => open,
 
