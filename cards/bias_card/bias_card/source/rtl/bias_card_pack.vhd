@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.11 2006/08/03 19:06:31 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.12 2006/10/04 18:50:49 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.12  2006/10/04 18:50:49  mandana
+-- renamed rs232_rx/tx to rx/tx to adhere to latest tcl
+--
 -- Revision 1.11  2006/08/03 19:06:31  mandana
 -- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
 --
@@ -77,9 +80,33 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.bc_dac_ctrl_pack.all;
+use work.all_cards_pack.all;
 
 package bias_card_pack is
+
+--
+-- Constants driven by BC Hardware 
+--
+constant NUM_FLUX_FB_DACS       : integer := 32;
+constant FLUX_FB_DAC_DATA_WIDTH : integer := 16;
+constant FLUX_FB_DAC_ADDR_WIDTH : integer := 6;
+
+constant NUM_LN_BIAS_DACS       : integer := 12; -- 1 prior to BC Rev. E hardware
+constant LN_BIAS_DAC_DATA_WIDTH : integer := 16;
+constant LN_BIAS_DAC_ADDR_WIDTH : integer :=  4; -- 1 prior to BC Rev. E hardware
+
+subtype flux_fb_dac_word  is std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);         -- parallel DAC data
+type flux_fb_dac_array  is array (NUM_FLUX_FB_DACS-1 downto 0) of flux_fb_dac_word;       -- array of parallel DAC data
+
+subtype ln_bias_dac_word  is std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);         -- parallel DAC data
+type ln_bias_dac_array  is array (NUM_LN_BIAS_DACS-1 downto 0) of ln_bias_dac_word;       -- array of parallel DAC data
+
+subtype spi_word is std_logic_vector(SPI_DATA_WIDTH-1 downto 0);
+type flux_fb_spi_array is array (NUM_FLUX_FB_DACS-1 downto 0) of spi_word;
+type ln_bias_spi_array is array (NUM_LN_BIAS_DACS-1 downto 0) of spi_word;
+
+subtype wb_word is std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+type wb_array is array (NUM_FLUX_FB_DACS-1 downto 0) of wb_word;
 
 component bc_dac_ctrl
    port
@@ -89,9 +116,10 @@ component bc_dac_ctrl
       flux_fb_data_o    : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);   
       flux_fb_ncs_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       flux_fb_clk_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
-      bias_data_o       : out std_logic;
-      bias_ncs_o        : out std_logic;
-      bias_clk_o        : out std_logic;      
+      ln_bias_data_o    : out std_logic;
+      ln_bias_ncs_o     : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
+      ln_bias_clk_o     : out std_logic;    
+      
       dac_nclr_o        : out std_logic;
       
       -- wishbone interface:
@@ -106,9 +134,11 @@ component bc_dac_ctrl
       
       -- frame_timing signals
       update_bias_i     : in std_logic;
+      restart_frame_aligned_i : in std_logic;
       
       -- Global Signals      
       clk_i             : in std_logic;
+      spi_clk_i         : in std_logic;
       rst_i             : in std_logic;
       debug             : inout std_logic_vector(31 downto 0)      
    );     
