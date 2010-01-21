@@ -1,12 +1,12 @@
-Analysis & Synthesis Status : Successful - Wed Jan 14 11:17:53 2009
-Quartus II Version : 8.1 Build 163 10/28/2008 SJ Full Version
+Analysis & Synthesis Status : Successful - Fri Jan 15 17:27:14 2010
+Quartus II Version : 9.0 Build 235 06/17/2009 SP 2 SJ Full Version
 Revision Name : bias_card
 Top-level Entity Name : bias_card
 Family : Stratix
-Total logic elements : 3,597
-Total pins : 184
+Total logic elements : 6,448
+Total pins : 195
 Total virtual pins : 0
-Total memory bits : 70,144
+Total memory bits : 69,632
 DSP block 9-bit elements : 0
 Total PLLs : 1
 Total DLLs : 0

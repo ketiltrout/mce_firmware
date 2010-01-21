@@ -1,6 +1,6 @@
 Flow report for bias_card
-Wed Jan 14 11:19:54 2009
-Quartus II Version 8.1 Build 163 10/28/2008 SJ Full Version
+Fri Jan 15 17:28:55 2010
+Quartus II Version 9.0 Build 235 06/17/2009 Service Pack 2 SJ Full Version
 
 
 ---------------------
@@ -19,7 +19,7 @@ Quartus II Version 8.1 Build 163 10/28/2008 SJ Full Version
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 1991-2008 Altera Corporation
+Copyright (C) 1991-2009 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
 functions, and any output files from any of the foregoing 
@@ -35,25 +35,25 @@ applicable agreement for further details.
 
 
 
-+---------------------------------------------------------------------+
-; Flow Summary                                                        ;
-+--------------------------+------------------------------------------+
-; Flow Status              ; Analyzed - Wed Jan 14 11:19:54 2009      ;
-; Quartus II Version       ; 8.1 Build 163 10/28/2008 SJ Full Version ;
-; Revision Name            ; bias_card                                ;
-; Top-level Entity Name    ; bias_card                                ;
-; Family                   ; Stratix                                  ;
-; Device                   ; EP1S10F780C5                             ;
-; Timing Models            ; Final                                    ;
-; Met timing requirements  ; Yes                                      ;
-; Total logic elements     ; 3,356 / 10,570 ( 32 % )                  ;
-; Total pins               ; 187 / 427 ( 44 % )                       ;
-; Total virtual pins       ; 0                                        ;
-; Total memory bits        ; 70,144 / 920,448 ( 8 % )                 ;
-; DSP block 9-bit elements ; 0 / 48 ( 0 % )                           ;
-; Total PLLs               ; 1 / 6 ( 17 % )                           ;
-; Total DLLs               ; 0 / 2 ( 0 % )                            ;
-+--------------------------+------------------------------------------+
++--------------------------------------------------------------------------+
+; Flow Summary                                                             ;
++--------------------------+-----------------------------------------------+
+; Flow Status              ; Analyzed - Fri Jan 15 17:28:55 2010           ;
+; Quartus II Version       ; 9.0 Build 235 06/17/2009 SP 2 SJ Full Version ;
+; Revision Name            ; bias_card                                     ;
+; Top-level Entity Name    ; bias_card                                     ;
+; Family                   ; Stratix                                       ;
+; Device                   ; EP1S10F780C5                                  ;
+; Timing Models            ; Final                                         ;
+; Met timing requirements  ; Yes                                           ;
+; Total logic elements     ; 5,988 / 10,570 ( 57 % )                       ;
+; Total pins               ; 209 / 427 ( 49 % )                            ;
+; Total virtual pins       ; 0                                             ;
+; Total memory bits        ; 69,632 / 920,448 ( 8 % )                      ;
+; DSP block 9-bit elements ; 0 / 48 ( 0 % )                                ;
+; Total PLLs               ; 1 / 6 ( 17 % )                                ;
+; Total DLLs               ; 0 / 2 ( 0 % )                                 ;
++--------------------------+-----------------------------------------------+
 
 
 +-----------------------------------------+
@@ -61,7 +61,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 01/14/2009 11:17:09 ;
+; Start date & time ; 01/15/2010 17:26:30 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -80,7 +80,7 @@ applicable agreement for further details.
 ; AUTO_PACKED_REGISTERS_MAXII                       ; Normal                       ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIX                     ; Normal                       ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIXII                   ; Normal                       ; Auto                           ; --          ; --             ;
-; COMPILER_SIGNATURE_ID                             ; 110896943767.123196062903940 ; --                             ; --          ; --             ;
+; COMPILER_SIGNATURE_ID                             ; 110896943767.126360519007316 ; --                             ; --          ; --             ;
 ; DO_COMBINED_ANALYSIS                              ; On                           ; Off                            ; --          ; --             ;
 ; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; On                           ; --                             ; --          ; eda_simulation ;
 ; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION        ; On                           ; --                             ; --          ; eda_simulation ;
@@ -91,6 +91,7 @@ applicable agreement for further details.
 ; ENABLE_RECOVERY_REMOVAL_ANALYSIS                  ; On                           ; Off                            ; --          ; --             ;
 ; ENABLE_SIGNALTAP                                  ; Off                          ; --                             ; --          ; --             ;
 ; IGNORE_LCELL_BUFFERS                              ; On                           ; Off                            ; --          ; --             ;
+; INCREMENTAL_COMPILATION                           ; Off                          ; FULL_INCREMENTAL_COMPILATION   ; --          ; --             ;
 ; MUX_RESTRUCTURE                                   ; Off                          ; Auto                           ; --          ; --             ;
 ; OPTIMIZE_HOLD_TIMING                              ; All Paths                    ; IO Paths and Minimum TPD Paths ; --          ; --             ;
 ; OPTIMIZE_MULTI_CORNER_TIMING                      ; On                           ; Off                            ; --          ; --             ;
@@ -111,12 +112,12 @@ applicable agreement for further details.
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name             ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis    ; 00:00:43     ; 1.0                     ; 217 MB              ; 00:00:42                           ;
-; Fitter                  ; 00:01:42     ; 1.0                     ; 235 MB              ; 00:01:39                           ;
-; Assembler               ; 00:00:02     ; 1.0                     ; 194 MB              ; 00:00:02                           ;
-; Classic Timing Analyzer ; 00:00:04     ; 1.0                     ; 133 MB              ; 00:00:03                           ;
-; Design Assistant        ; 00:00:04     ; 1.0                     ; 127 MB              ; 00:00:05                           ;
-; Total                   ; 00:02:35     ; --                      ; --                  ; 00:02:31                           ;
+; Analysis & Synthesis    ; 00:00:45     ; 1.0                     ; 230 MB              ; 00:00:44                           ;
+; Fitter                  ; 00:01:22     ; 1.0                     ; 256 MB              ; 00:01:22                           ;
+; Assembler               ; 00:00:02     ; 1.0                     ; 201 MB              ; 00:00:02                           ;
+; Classic Timing Analyzer ; 00:00:04     ; 1.0                     ; 145 MB              ; 00:00:04                           ;
+; Design Assistant        ; 00:00:06     ; 1.0                     ; 138 MB              ; 00:00:06                           ;
+; Total                   ; 00:02:19     ; --                      ; --                  ; 00:02:18                           ;
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
