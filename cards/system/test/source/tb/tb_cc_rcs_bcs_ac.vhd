@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.69 2009/05/27 01:34:57 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.70.2.1 2009/07/15 21:04:27 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,12 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.70.2.1  2009/07/15 21:04:27  bburger
+-- BB: Fixed a bug that did not store data properly if reading back 1 or 2 pixels only.
+--
+-- Revision 1.70  2009/05/27 22:40:22  bburger
+-- BB: Readout Card testing
+--
 -- Revision 1.69  2009/05/27 01:34:57  bburger
 -- BB: Readout Card testing
 --
@@ -422,7 +428,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_data      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      lvds_dac_ncs  : out std_logic;
+      lvds_dac_ncs  : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_sclk : out std_logic;
       lvds_dac_data : out std_logic;
       dac_nclr      : out std_logic; -- add to tcl file
@@ -438,7 +444,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       card_id    : inout std_logic;
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
-      smb_nalert : in std_logic;
+      smb_nalert : out std_logic;
 
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
@@ -1241,7 +1247,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc1_dac_ncs       : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc1_dac_sclk      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc1_dac_data      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-   signal bc1_lvds_dac_ncs  : std_logic;
+   signal bc1_lvds_dac_ncs  : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
    signal bc1_lvds_dac_sclk : std_logic;
    signal bc1_lvds_dac_data : std_logic;
    signal bc1_dac_nclr      : std_logic; -- add to tcl file
@@ -1828,90 +1834,90 @@ begin
 --         mictor         => rc2_mictor
 --      );
 
-   i_readout_card1: readout_card
-      generic map (
-         CARD => READOUT_CARD_1
-      )
-      port map (
-         rst_n          => rst_n,
-         inclk          => lvds_clk,
-         adc1_dat       => rc1_adc1_dat,
-         adc2_dat       => rc1_adc2_dat,
-         adc3_dat       => rc1_adc3_dat,
-         adc4_dat       => rc1_adc4_dat,
-         adc5_dat       => rc1_adc5_dat,
-         adc6_dat       => rc1_adc6_dat,
-         adc7_dat       => rc1_adc7_dat,
-         adc8_dat       => rc1_adc8_dat,
-         adc1_ovr       => rc1_adc1_ovr,
-         adc2_ovr       => rc1_adc2_ovr,
-         adc3_ovr       => rc1_adc3_ovr,
-         adc4_ovr       => rc1_adc4_ovr,
-         adc5_ovr       => rc1_adc5_ovr,
-         adc6_ovr       => rc1_adc6_ovr,
-         adc7_ovr       => rc1_adc7_ovr,
-         adc8_ovr       => rc1_adc8_ovr,
-         adc1_rdy       => rc1_adc1_rdy,
-         adc2_rdy       => rc1_adc2_rdy,
-         adc3_rdy       => rc1_adc3_rdy,
-         adc4_rdy       => rc1_adc4_rdy,
-         adc5_rdy       => rc1_adc5_rdy,
-         adc6_rdy       => rc1_adc6_rdy,
-         adc7_rdy       => rc1_adc7_rdy,
-         adc8_rdy       => rc1_adc8_rdy,
-         adc1_clk       => rc1_adc1_clk,
-         adc2_clk       => rc1_adc2_clk,
-         adc3_clk       => rc1_adc3_clk,
-         adc4_clk       => rc1_adc4_clk,
-         adc5_clk       => rc1_adc5_clk,
-         adc6_clk       => rc1_adc6_clk,
-         adc7_clk       => rc1_adc7_clk,
-         adc8_clk       => rc1_adc8_clk,
-         dac_FB1_dat    => rc1_dac_FB1_dat,
-         dac_FB2_dat    => rc1_dac_FB2_dat,
-         dac_FB3_dat    => rc1_dac_FB3_dat,
-         dac_FB4_dat    => rc1_dac_FB4_dat,
-         dac_FB5_dat    => rc1_dac_FB5_dat,
-         dac_FB6_dat    => rc1_dac_FB6_dat,
-         dac_FB7_dat    => rc1_dac_FB7_dat,
-         dac_FB8_dat    => rc1_dac_FB8_dat,
-         dac_FB_clk     => rc1_dac_FB_clk,
-         dac_clk        => rc1_dac_clk,
-         dac_dat        => rc1_dac_dat,
-         bias_dac_ncs   => rc1_bias_dac_ncs,
-         offset_dac_ncs => rc1_offset_dac_ncs,
-         lvds_cmd       => lvds_cmd,
-         lvds_sync      => lvds_sync,
-         lvds_spare     => lvds_spare,
-         lvds_txa       => rc1_lvds_txa,
-         lvds_txb       => rc1_lvds_txb,
-
-         ttl_dir1       => rc1_ttl_dir1,
-         ttl_in1        => bclr_n,
-         ttl_out1       => open,
-
-         ttl_dir2       => rc1_ttl_dir2,
-         ttl_in2        => rc1_ttl_in2,
-         ttl_out2       => open,
-
-         ttl_dir3       => rc1_ttl_dir3,
-         ttl_in3        => rc1_ttl_in3,
-         ttl_out3       => open,
-
-         smb_clk        => open,
-         smb_nalert     => '1',
-         smb_data       => open,
-
-         red_led        => rc1_red_led,
-         ylw_led        => rc1_ylw_led,
-         grn_led        => rc1_grn_led,
-         dip_sw3        => rc1_dip_sw3,
-         dip_sw4        => rc1_dip_sw4,
-         wdog           => rc1_wdog,
-         slot_id        => rc1_slot_id,
-         card_id        => rc1_card_id,
-         mictor         => rc1_mictor
-      );
+--   i_readout_card1: readout_card
+--      generic map (
+--         CARD => READOUT_CARD_1
+--      )
+--      port map (
+--         rst_n          => rst_n,
+--         inclk          => lvds_clk,
+--         adc1_dat       => rc1_adc1_dat,
+--         adc2_dat       => rc1_adc2_dat,
+--         adc3_dat       => rc1_adc3_dat,
+--         adc4_dat       => rc1_adc4_dat,
+--         adc5_dat       => rc1_adc5_dat,
+--         adc6_dat       => rc1_adc6_dat,
+--         adc7_dat       => rc1_adc7_dat,
+--         adc8_dat       => rc1_adc8_dat,
+--         adc1_ovr       => rc1_adc1_ovr,
+--         adc2_ovr       => rc1_adc2_ovr,
+--         adc3_ovr       => rc1_adc3_ovr,
+--         adc4_ovr       => rc1_adc4_ovr,
+--         adc5_ovr       => rc1_adc5_ovr,
+--         adc6_ovr       => rc1_adc6_ovr,
+--         adc7_ovr       => rc1_adc7_ovr,
+--         adc8_ovr       => rc1_adc8_ovr,
+--         adc1_rdy       => rc1_adc1_rdy,
+--         adc2_rdy       => rc1_adc2_rdy,
+--         adc3_rdy       => rc1_adc3_rdy,
+--         adc4_rdy       => rc1_adc4_rdy,
+--         adc5_rdy       => rc1_adc5_rdy,
+--         adc6_rdy       => rc1_adc6_rdy,
+--         adc7_rdy       => rc1_adc7_rdy,
+--         adc8_rdy       => rc1_adc8_rdy,
+--         adc1_clk       => rc1_adc1_clk,
+--         adc2_clk       => rc1_adc2_clk,
+--         adc3_clk       => rc1_adc3_clk,
+--         adc4_clk       => rc1_adc4_clk,
+--         adc5_clk       => rc1_adc5_clk,
+--         adc6_clk       => rc1_adc6_clk,
+--         adc7_clk       => rc1_adc7_clk,
+--         adc8_clk       => rc1_adc8_clk,
+--         dac_FB1_dat    => rc1_dac_FB1_dat,
+--         dac_FB2_dat    => rc1_dac_FB2_dat,
+--         dac_FB3_dat    => rc1_dac_FB3_dat,
+--         dac_FB4_dat    => rc1_dac_FB4_dat,
+--         dac_FB5_dat    => rc1_dac_FB5_dat,
+--         dac_FB6_dat    => rc1_dac_FB6_dat,
+--         dac_FB7_dat    => rc1_dac_FB7_dat,
+--         dac_FB8_dat    => rc1_dac_FB8_dat,
+--         dac_FB_clk     => rc1_dac_FB_clk,
+--         dac_clk        => rc1_dac_clk,
+--         dac_dat        => rc1_dac_dat,
+--         bias_dac_ncs   => rc1_bias_dac_ncs,
+--         offset_dac_ncs => rc1_offset_dac_ncs,
+--         lvds_cmd       => lvds_cmd,
+--         lvds_sync      => lvds_sync,
+--         lvds_spare     => lvds_spare,
+--         lvds_txa       => rc1_lvds_txa,
+--         lvds_txb       => rc1_lvds_txb,
+--
+--         ttl_dir1       => rc1_ttl_dir1,
+--         ttl_in1        => bclr_n,
+--         ttl_out1       => open,
+--
+--         ttl_dir2       => rc1_ttl_dir2,
+--         ttl_in2        => rc1_ttl_in2,
+--         ttl_out2       => open,
+--
+--         ttl_dir3       => rc1_ttl_dir3,
+--         ttl_in3        => rc1_ttl_in3,
+--         ttl_out3       => open,
+--
+--         smb_clk        => open,
+--         smb_nalert     => '1',
+--         smb_data       => open,
+--
+--         red_led        => rc1_red_led,
+--         ylw_led        => rc1_ylw_led,
+--         grn_led        => rc1_grn_led,
+--         dip_sw3        => rc1_dip_sw3,
+--         dip_sw4        => rc1_dip_sw4,
+--         wdog           => rc1_wdog,
+--         slot_id        => rc1_slot_id,
+--         card_id        => rc1_card_id,
+--         mictor         => rc1_mictor
+--      );
 --
 --   i_bias_card3: bias_card
 --      port map
@@ -2033,65 +2039,65 @@ begin
 --         tx            => bc2_rs232_tx
 --      );
 --
---   i_bias_card1: bias_card
---      port map
---      (
---         -- PLL input:
---         inclk         => lvds_clk,
---         rst_n         => rst_n,
---
---         -- LVDS interface:
---         lvds_cmd      => lvds_cmd,
---         lvds_sync     => lvds_sync,
---         lvds_spare    => lvds_spare,
---         lvds_txa      => lvds_reply_bc1_a,
---         lvds_txb      => lvds_reply_bc1_b,
---
---         -- TTL interface:
---         ttl_nrx1      => bclr_n,
---         ttl_tx1       => open,
---         ttl_txena1    => bc1_ttl_txena1,
---
---         ttl_nrx2      => bc1_ttl_nrx2,
---         ttl_tx2       => open,
---         ttl_txena2    => bc1_ttl_txena2,
---
---         ttl_nrx3      => bc1_ttl_nrx3,
---         ttl_tx3       => open,
---         ttl_txena3    => bc1_ttl_txena3,
---
---         -- eeprom ice:nterface:
---         eeprom_si     => bc1_eeprom_si,
---         eeprom_so     => bc1_eeprom_so,
---         eeprom_sck    => bc1_eeprom_sck,
---         eeprom_cs     => bc1_eeprom_cs,
---
---         -- dac interface:
---         dac_ncs       => bc1_dac_ncs,
---         dac_sclk      => bc1_dac_sclk,
---         dac_data      => bc1_dac_data,
---         lvds_dac_ncs  => bc1_lvds_dac_ncs,
---         lvds_dac_sclk => bc1_lvds_dac_sclk,
---         lvds_dac_data => bc1_lvds_dac_data,
---         dac_nclr      => bc1_dac_nclr,
---
---         -- miscellaneous ports:
---         red_led       => bc1_red_led,
---         ylw_led       => bc1_ylw_led,
---         grn_led       => bc1_grn_led,
---         dip_sw3       => bc1_dip_sw3,
---         dip_sw4       => bc1_dip_sw4,
---         wdog          => bc1_wdog,
---         slot_id       => bc1_slot_id,
---         smb_nalert       => '1',
---
---         -- debug ports:
---         test          => bc1_test,
---         mictor        => bc1_mictor,
---         mictorclk     => bc1_mictorclk,
---         rx            => bc1_rs232_rx,
---         tx            => bc1_rs232_tx
---      );
+   i_bias_card1: bias_card
+      port map
+      (
+         -- PLL input:
+         inclk         => lvds_clk,
+         rst_n         => rst_n,
+
+         -- LVDS interface:
+         lvds_cmd      => lvds_cmd,
+         lvds_sync     => lvds_sync,
+         lvds_spare    => lvds_spare,
+         lvds_txa      => lvds_reply_bc1_a,
+         lvds_txb      => lvds_reply_bc1_b,
+
+         -- TTL interface:
+         ttl_nrx1      => bclr_n,
+         ttl_tx1       => open,
+         ttl_txena1    => bc1_ttl_txena1,
+
+         ttl_nrx2      => bc1_ttl_nrx2,
+         ttl_tx2       => open,
+         ttl_txena2    => bc1_ttl_txena2,
+
+         ttl_nrx3      => bc1_ttl_nrx3,
+         ttl_tx3       => open,
+         ttl_txena3    => bc1_ttl_txena3,
+
+         -- eeprom ice:nterface:
+         eeprom_si     => bc1_eeprom_si,
+         eeprom_so     => bc1_eeprom_so,
+         eeprom_sck    => bc1_eeprom_sck,
+         eeprom_cs     => bc1_eeprom_cs,
+
+         -- dac interface:
+         dac_ncs       => bc1_dac_ncs,
+         dac_sclk      => bc1_dac_sclk,
+         dac_data      => bc1_dac_data,
+         lvds_dac_ncs  => bc1_lvds_dac_ncs,
+         lvds_dac_sclk => bc1_lvds_dac_sclk,
+         lvds_dac_data => bc1_lvds_dac_data,
+         dac_nclr      => bc1_dac_nclr,
+
+         -- miscellaneous ports:
+         red_led       => bc1_red_led,
+         ylw_led       => bc1_ylw_led,
+         grn_led       => bc1_grn_led,
+         dip_sw3       => bc1_dip_sw3,
+         dip_sw4       => bc1_dip_sw4,
+         wdog          => bc1_wdog,
+         slot_id       => bc1_slot_id,
+         smb_nalert       => open,
+
+         -- debug ports:
+         test          => bc1_test,
+         mictor        => bc1_mictor,
+         mictorclk     => bc1_mictorclk,
+         rx            => bc1_rs232_rx,
+         tx            => bc1_rs232_tx
+      );
 --
 --   i_addr_card : addr_card
 --      port map
@@ -2574,28 +2580,89 @@ begin
       present_sim_state <= NOTHING;
       wait for 120 us;
 
+      -------------------------------------
+      -- CC
+      -------------------------------------
+--      command <= command_wb;
+--      address_id <= cc_rcs_to_report_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000003C"; --60
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_data_rate_cmd;
+--      data_valid <= X"00000001";
+----      data       <= X"00000100"; --256
+--      data       <= X"0000000A"; --256
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_num_rows_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000021"; --33
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000064"; --100
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_num_rows_reported_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000020"; --32
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_num_cols_reported_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000008"; --8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+
+      -------------------------------------
+      -- BC1
+      -------------------------------------
       command <= command_wb;
-      address_id <= rc1_readout_col_index_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
+      address_id <= bc1_flux_fb_cmd;
+      data_valid <= X"00000020";
+      data       <= X"0000AAAA"; 
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;
 
       command <= command_wb;
-      address_id <= rc1_readout_row_index_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
+      address_id <= bc1_bias_cmd;
+      data_valid <= X"0000000c";
+      data       <= X"00000064"; --100
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;
-      
+
       command <= command_wb;
       address_id <= rc1_num_cols_reported_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000004";
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
@@ -2604,47 +2671,59 @@ begin
       command <= command_wb;
       address_id <= rc1_num_rows_reported_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000002";
+      data       <= X"00000003";
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;      
 
-      command <= command_wb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"0000000B";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= rc1_readout_col_index_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_readout_row_index_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
       
-      command <= command_wb;
-      address_id <= cc_data_rate_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000029";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 10000 us;
+      -------------------------------------
+      -- ret_dat
+      -------------------------------------
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000000B";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+      wait for 200 us;
 
 
 ------------------------------------------------------
