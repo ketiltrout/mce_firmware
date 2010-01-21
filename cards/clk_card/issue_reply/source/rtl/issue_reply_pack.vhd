@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.56 2008/01/28 20:27:24 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.57 2008/10/17 00:32:50 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.57  2008/10/17 00:32:50  bburger
+-- BB:  added indexing constants.
+--
 -- Revision 1.56  2008/01/28 20:27:24  bburger
 -- BB:
 -- - moved the constant called STATUS_WORD_WARNING_MASK from issue_reply_pack to reply_translator, where it is used locally
@@ -133,7 +136,7 @@ package issue_reply_pack is
    constant MIN_WINDOW : integer := (CMD_TIMEOUT_LIMIT+5)*1000/20; -- # clock cycles = (110us+5us)*1000/20ns = 5750;
 
    -- Period of internal commands
-   constant HOUSEKEEPING_COMMAND_PERIOD : integer := 1000000;
+   constant HOUSEKEEPING_COMMAND_PERIOD : integer := 1000000; -- in us
 
    -- Offsets in the cards_to_report word
    constant AC   : integer := 9;
