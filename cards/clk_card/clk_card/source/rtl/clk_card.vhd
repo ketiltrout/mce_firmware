@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.91 2010/01/13 20:32:10 bburger Exp $
+-- $Id: clk_card.vhd,v 1.92 2010/01/18 20:39:32 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -394,7 +394,8 @@ architecture top of clk_card is
 
    signal crc_error_ff : std_logic;
 
-   signal awg_dat            : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+   signal awg_dat            : std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
+   signal awg_addr           : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
    signal awg_addr_incr      : std_logic;
 
 begin
@@ -730,6 +731,7 @@ begin
       cards_to_report_i    => cards_to_report,
       rcs_to_report_data_i => rcs_to_report_data,
       awg_dat_i            => awg_dat,   
+      awg_addr_i           => awg_addr,
       awg_addr_incr_o      => awg_addr_incr,
       
       -- dv_rx interface
@@ -1104,6 +1106,7 @@ begin
       cards_to_report_o      => cards_to_report,
       rcs_to_report_data_o   => rcs_to_report_data,
       awg_dat_o              => awg_dat,   
+      awg_addr_o             => awg_addr,
       awg_addr_incr_i        => awg_addr_incr,
       
       -- global interface
