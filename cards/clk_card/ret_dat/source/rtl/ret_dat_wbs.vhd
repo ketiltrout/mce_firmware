@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.24 2010/01/13 20:32:11 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.25 2010/01/18 20:39:38 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -68,7 +68,8 @@ entity ret_dat_wbs is
       rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
-      awg_dat_o              : out std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+      awg_dat_o              : out std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
+      awg_addr_o             : out std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_i        : in std_logic;
 
       -- global interface
@@ -102,13 +103,13 @@ architecture rtl of ret_dat_wbs is
       );
    END component;
 
-   constant AWG_ADDR_MIN        : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0) := (others => '0');
-   signal awg_mem_dat           : std_logic_vector(MLS_DAT_WIDTH-1 downto 0);
+   constant AWG_ADDR_MIN        : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0) := (others => '0');
+   signal awg_mem_dat           : std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
    signal awg_sequence_len_wren : std_logic;
    signal awg_addr_wren         : std_logic;
    signal awg_data_wren         : std_logic;
    signal awg_data_rden         : std_logic;
-   signal awg_addr              : std_logic_vector(MLS_ADDR_WIDTH-1 downto 0);
+   signal awg_addr              : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
 
    constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
    constant STOP_REPLY_WAIT_PERIOD   : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00002710";  -- 10000 u-seconds
@@ -190,6 +191,7 @@ begin
 --   raw_dat    <= sxt(raw_dat_i, raw_dat'length) when raw_addr < RAW_ADDR_MAX + 1 else RAW_NULL_DATA;
 --   raw_addr_o <= raw_addr;
 
+   awg_addr_o <= awg_addr;
    addr_manager: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -197,17 +199,15 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          -- Read/Write address management
          if(awg_addr_wren = '1' ) then
-            awg_addr <= dat_i(MLS_ADDR_WIDTH-1 downto 0);
-         elsif(awg_addr_incr_i = '1' or awg_data_rden = '1' or awg_data_wren = '1') then
+            awg_addr <= dat_i(AWG_ADDR_WIDTH-1 downto 0);
+         elsif(awg_addr_incr_i = '1') then
             if(awg_addr < awg_sequence_len_data - 1) then 
                awg_addr <= awg_addr + 1;
             else
                awg_addr <= AWG_ADDR_MIN;
             end if;
---         elsif(awg_data_rden = '1') then
---            awg_addr <= awg_addr + 1;
---         elsif(awg_data_wren = '1') then
---            awg_addr <= awg_addr + 1;
+         elsif(awg_data_rden = '1' or awg_data_wren = '1') then
+            awg_addr <= awg_addr + 1;
          else
             awg_addr <= awg_addr;
          end if;               
