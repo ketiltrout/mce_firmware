@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.11 2004/12/02 01:05:24 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.12 2006/08/30 21:00:19 mandana Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -32,8 +32,12 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/12/02 01:05:24 $> - <initials $Author: bench2 $>
+-- <date $Date: 2006/08/30 21:00:19 $> - <initials $Author: mandana $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.12  2006/08/30 21:00:19  mandana
+-- spi interface uses PLL-generated clk_4_i
+-- serial DACs are only tested for full-range, half-range and zero values instead of walking 1 pattern
+--
 -- Revision 1.11  2004/12/02 01:05:24  bench2
 -- commented frame_timing
 --
@@ -79,6 +83,7 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
+use work.bc_test_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -94,12 +99,12 @@ entity bc_dac_ctrl_test_wrapper is
       -- transmitter signals removed!
                 
       -- extended signals
-      dac_dat_o : out std_logic_vector (31 downto 0); 
-      dac_ncs_o : out std_logic_vector (31 downto 0); 
-      dac_clk_o : out std_logic_vector (31 downto 0);
+      dac_dat_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_ncs_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_clk_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
      
       lvds_dac_dat_o: out std_logic;
-      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_clk_o: out std_logic;
       
       spi_start_o     : out std_logic
@@ -122,19 +127,20 @@ signal present_state      : states;
 signal next_state         : states;
 type   w_array11 is array (NUM_FIXED_VALUES-1 downto 0) of word16; 
 signal data               : w_array11;
-signal idac               : integer range 0 to 32;
+signal idac               : integer range 0 to NUM_FLUX_FB_DACS;
 
 signal val_clk            : std_logic;
 signal idat               : integer range 0 to NUM_FIXED_VALUES;
 signal send_dac32_start   : std_logic;
 signal send_dac_LVDS_start: std_logic;
-signal dac_done           : std_logic_vector (32 downto 0);
+signal dac_done           : std_logic_vector (NUM_FLUX_FB_DACS downto 0);
 signal en_slow            : std_logic;
 
+signal lvds_dac_ncs_temp  : std_logic_vector(0 downto 0);
 
 -- parallel data signals for DAC
 -- subtype word is std_logic_vector (15 downto 0); 
-type   w_array32 is array (32 downto 0) of word16; 
+type   w_array32 is array (NUM_FLUX_FB_DACS downto 0) of word16; 
 signal dac_data_p      : w_array32;
 
 begin
@@ -162,7 +168,7 @@ begin
 --
 ------------------------------------------------------------------------
 
-   gen_spi32: for k in 0 to 31 generate
+   gen_spi32: for k in 0 to NUM_FLUX_FB_DACS-1 generate
    
       dac_write_spi :write_spi_with_cs
       generic map(DATA_LENGTH => 16)
@@ -198,10 +204,11 @@ begin
       --outputs
       spi_clk_o        => lvds_dac_clk_o,
       done_o           => dac_done  (32),
-      spi_ncs_o        => lvds_dac_ncs_o ,
+      spi_ncs_o        => lvds_dac_ncs_temp(0) ,
       serial_wr_data_o => lvds_dac_dat_o
    );
- 
+   lvds_dac_ncs_o <= ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
+   
   -- values tried on DAC Tests with fixed values                               
    data (0) <= "1111111111111111";--xffff     full scale
    data (1) <= "1000000000000000";--x8000     half range

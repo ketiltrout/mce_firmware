@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_reset.vhd,v $
+-- Revision 1.3  2004/06/09 22:57:05  erniel
+-- corrected small bug in entity declaration
+--
 -- Revision 1.2  2004/05/12 16:49:07  erniel
 -- removed components already in all_test
 --
@@ -83,7 +86,7 @@ begin
    message(9) <= conv_std_logic_vector(32,8);   -- 
    message(10) <= conv_std_logic_vector(118,8); -- v
    message(11) <= conv_std_logic_vector(48,8);  -- 0
-   message(12) <= conv_std_logic_vector(49,8);  -- 1
+   message(12) <= conv_std_logic_vector(50,8);  -- 2
    message(13) <= conv_std_logic_vector(46,8);  -- .
    message(14) <= conv_std_logic_vector(48,8);  -- 0
    message(15) <= conv_std_logic_vector(48,8);  -- 0

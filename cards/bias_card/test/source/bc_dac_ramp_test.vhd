@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.8 2006/08/30 20:59:20 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.9 2006/09/01 17:49:56 mandana Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -46,6 +46,8 @@ use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
 
+use work.bc_test_pack.all;
+
 -----------------------------------------------------------------------------
                      
 entity bc_dac_ramp_test_wrapper is
@@ -60,12 +62,12 @@ entity bc_dac_ramp_test_wrapper is
       -- transmitter signals removed!
                 
       -- extended signals
-      dac_dat_o : out std_logic_vector (31 downto 0); 
-      dac_ncs_o : out std_logic_vector (31 downto 0); 
-      dac_clk_o : out std_logic_vector (31 downto 0);
+      dac_dat_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_ncs_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_clk_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
      
       lvds_dac_dat_o: out std_logic;
-      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_clk_o: out std_logic;
       
       spi_start_o: out std_logic
@@ -86,16 +88,18 @@ signal present_state         : states;
 signal next_state            : states;
 signal data_ramp_fast        : std_logic_vector(19 downto 0);
 signal data_ramp             : std_logic_vector(15 downto 0);
-signal idac                  : integer range 0 to 32;
+signal idac                  : integer range 0 to NUM_FLUX_FB_DACS;
 signal send_dac32_start      : std_logic;
 signal send_dac_LVDS_start   : std_logic;
-signal dac_done              : std_logic_vector (32 downto 0);
+signal dac_done              : std_logic_vector (NUM_FLUX_FB_DACS downto 0);
 signal ramp                  : std_logic := '0';
 
 -- parallel data signals for DAC
 -- subtype word is std_logic_vector (15 downto 0); 
-type   w_array32 is array (32 downto 0) of word16; 
+type   w_array32 is array (NUM_FLUX_FB_DACS downto 0) of word16; 
 signal dac_data_p      : w_array32;
+
+signal lvds_dac_ncs_temp     : std_logic_vector(0 downto 0);
 
 begin
 
@@ -156,10 +160,11 @@ begin
       --outputs
       spi_clk_o        => lvds_dac_clk_o,
       done_o           => dac_done  (32),
-      spi_ncs_o        => lvds_dac_ncs_o ,
+      spi_ncs_o        => lvds_dac_ncs_temp(0) ,
       serial_wr_data_o => lvds_dac_dat_o
    );
- 
+  lvds_dac_ncs_o <= ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
+  
   -- state register:
    state_FF: process(clk_4_i, rst_i)
    begin

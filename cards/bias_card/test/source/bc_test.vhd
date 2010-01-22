@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.16  2006/09/01 17:53:55  mandana
+-- revision upgraded to 2.1
+--
 -- Revision 1.15  2006/08/30 21:21:32  mandana
 -- revamped to Ernie's new test firmware
 -- added tests for sa_heater lines and power status lines
@@ -117,13 +120,13 @@ entity bc_test is
       lvds_spare : in std_logic;
       
       -- bc dac interface
-      dac_data   : out std_logic_vector (31 downto 0); 
-      dac_ncs    : out std_logic_vector (31 downto 0); 
-      dac_sclk   : out std_logic_vector (31 downto 0);
+      dac_data   : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_ncs    : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_sclk   : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
 --      dac_nclr : out std_logic;
       
       lvds_dac_data : out std_logic;
-      lvds_dac_ncs  : out std_logic;
+      lvds_dac_ncs  : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_sclk : out std_logic;
       
       -- status pins
@@ -184,28 +187,28 @@ signal rst_cmd : std_logic;
 
    signal fixed_dac_ena      : std_logic;
    signal fixed_dac_done     : std_logic;
-   signal fix_dac_ncs        : std_logic_vector (31 downto 0);
-   signal fix_dac_sclk       : std_logic_vector (31 downto 0);
-   signal fix_dac_data       : std_logic_vector (31 downto 0);
-   signal fix_lvds_dac_ncs   : std_logic;
+   signal fix_dac_ncs        : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal fix_dac_sclk       : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal fix_dac_data       : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal fix_lvds_dac_ncs   : std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
    signal fix_lvds_dac_sclk  : std_logic;
    signal fix_lvds_dac_data  : std_logic;
 
    signal ramp_dac_ena       : std_logic;
    signal ramp_dac_done      : std_logic;
-   signal ramp_dac_ncs       : std_logic_vector (31 downto 0);
-   signal ramp_dac_sclk      : std_logic_vector (31 downto 0);
-   signal ramp_dac_data      : std_logic_vector (31 downto 0);
-   signal ramp_lvds_dac_ncs  : std_logic;
+   signal ramp_dac_ncs       : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal ramp_dac_sclk      : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal ramp_dac_data      : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal ramp_lvds_dac_ncs  : std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
    signal ramp_lvds_dac_sclk : std_logic;
    signal ramp_lvds_dac_data : std_logic;
    
    signal xtalk_dac_ena      : std_logic;
    signal xtalk_dac_done     : std_logic;
-   signal xtalk_dac_ncs      : std_logic_vector (31 downto 0);
-   signal xtalk_dac_sclk     : std_logic_vector (31 downto 0);
-   signal xtalk_dac_data     : std_logic_vector (31 downto 0);
-   signal xtalk_lvds_dac_ncs : std_logic;
+   signal xtalk_dac_ncs      : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal xtalk_dac_sclk     : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal xtalk_dac_data     : std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
+   signal xtalk_lvds_dac_ncs : std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
    signal xtalk_lvds_dac_sclk: std_logic;
    signal xtalk_lvds_dac_data: std_logic;
       
@@ -227,9 +230,9 @@ signal rst_cmd : std_logic;
    signal dac_test_mode_reg  : std_logic_vector (1 downto 0);
    signal mode_reg_en        : std_logic; 
 
-   signal dac_test_ncs       : std_logic_vector(31 downto 0);
-   signal dac_test_sclk      : std_logic_vector(31 downto 0);
-   signal dac_test_data      : std_logic_vector(31 downto 0);
+   signal dac_test_ncs       : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+   signal dac_test_sclk      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+   signal dac_test_data      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
    signal status_ena         : std_logic;
    signal status_done        : std_logic;
@@ -316,11 +319,11 @@ begin
                    s         when 7,
                    t         when 8,
                    space     when 9,
-                   v         when 10, -- text for version number 2.1
+                   v         when 10, -- text for version number 3.0
                    period    when 11, 
-                   two       when 12, 
+                   three     when 12, 
                    period    when 13,
-                   one      when 14,
+                   zero      when 14,
                    newline   when others;
 
    with tx_count select

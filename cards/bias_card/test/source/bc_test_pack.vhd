@@ -31,6 +31,11 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.9  2006/08/30 20:57:11  mandana
+-- updated to use bc_test_pll
+-- added clk_4_i to DAC test interfaces
+-- added sa_heater test block
+--
 -- Revision 1.8  2004/06/23 19:41:46  bench2
 -- Mandana: added lvds_spi_start signal to be routed to test header
 --
@@ -63,6 +68,13 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 package bc_test_pack is
+constant NUM_FLUX_FB_DACS       : integer := 32;
+constant FLUX_FB_DAC_DATA_WIDTH : integer := 16;
+constant FLUX_FB_DAC_ADDR_WIDTH : integer := 6;
+
+constant NUM_LN_BIAS_DACS       : integer := 12; -- 1 prior to BC Rev. E hardware
+constant LN_BIAS_DAC_DATA_WIDTH : integer := 16;
+constant LN_BIAS_DAC_ADDR_WIDTH : integer :=  4; -- 1 prior to BC Rev. E hardware
 
   component bc_test_pll
      port(inclk0 : in std_logic;
@@ -92,7 +104,7 @@ package bc_test_pack is
 --          dac_nclr_o: out std_logic;
           
           lvds_dac_dat_o : out std_logic;
-          lvds_dac_ncs_o : out std_logic;
+          lvds_dac_ncs_o : out std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
           lvds_dac_clk_o : out std_logic;
           spi_start_o    : out std_logic
 --          lvds_spi_start_o: out std_logic
@@ -120,7 +132,7 @@ component bc_dac_ramp_test_wrapper is
       dac_clk_o : out std_logic_vector (31 downto 0);
      
       lvds_dac_dat_o: out std_logic;
-      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_clk_o: out std_logic;
       
       spi_start_o   : out std_logic
@@ -149,7 +161,7 @@ component bc_dac_xtalk_test_wrapper is
       dac_clk_o : out std_logic_vector (31 downto 0);
      
       lvds_dac_dat_o: out std_logic;
-      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_clk_o: out std_logic;
       
       spi_start_o: out std_logic

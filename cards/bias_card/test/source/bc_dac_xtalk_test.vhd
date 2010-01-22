@@ -31,6 +31,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_xtalk_test.vhd,v $
+-- Revision 1.9  2006/09/01 17:52:59  mandana
+-- lowered the square wave frequency
+--
 -- Revision 1.8  2006/08/30 21:20:46  mandana
 -- rewritten to a large degree: there are 3 clock domains. SPI runs off clk_4_i or 12.5MHz  and square wave is set to 3.25kHz. clock-domain crossing routines are utilized to resolve timing issues that existed in previous versions.
 --
@@ -46,6 +49,7 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
+use work.bc_test_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -62,12 +66,12 @@ entity bc_dac_xtalk_test_wrapper is
       -- transmitter signals removed!
                 
       -- extended signals
-      dac_dat_o : out std_logic_vector (31 downto 0); 
-      dac_ncs_o : out std_logic_vector (31 downto 0); 
-      dac_clk_o : out std_logic_vector (31 downto 0);
+      dac_dat_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_ncs_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0); 
+      dac_clk_o : out std_logic_vector (NUM_FLUX_FB_DACS-1 downto 0);
      
       lvds_dac_dat_o: out std_logic;
-      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_clk_o: out std_logic;
       
       spi_start_o: out std_logic
@@ -110,6 +114,7 @@ signal dac_done : std_logic_vector (32 downto 0);
 signal mode_reg : std_logic;
 signal xtalk    : std_logic;
 signal xtalk_reg: std_logic;
+signal lvds_dac_ncs_temp : std_logic_vector(0 downto 0);
 
 -- parallel data signals for DAC
 -- subtype word is std_logic_vector (15 downto 0); 
@@ -157,7 +162,7 @@ begin
 --
 ------------------------------------------------------------------------
 
-   gen_spi32: for k in 0 to 31 generate
+   gen_spi32: for k in 0 to NUM_FLUX_FB_DACS-1 generate
    
       dac_write_spi :write_spi_with_cs
       generic map(DATA_LENGTH => 16)
@@ -188,15 +193,16 @@ begin
       spi_clk_i        => clk_4_i,
       rst_i            => rst_i,
       start_i          => send_dac_lvds_start_tuned,
-      parallel_data_i  => dac_data_p(32),
+      parallel_data_i  => dac_data_p(NUM_FLUX_FB_DACS),
     
       --outputs
       spi_clk_o        => lvds_dac_clk_o,
-      done_o           => dac_done  (32),
-      spi_ncs_o        => lvds_dac_ncs_o ,
+      done_o           => dac_done  (NUM_FLUX_FB_DACS),
+      spi_ncs_o        => lvds_dac_ncs_temp(0) ,
       serial_wr_data_o => lvds_dac_dat_o
    );
- 
+   lvds_dac_ncs_o <= ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
+      
   -- state register:
    state_FF: process(clk_2, rst_i)
    begin
@@ -241,7 +247,7 @@ begin
 
       case present_state is
          when IDLE =>     
-            for idac in 0 to 32 loop
+            for idac in 0 to NUM_FLUX_FB_DACS loop
                dac_data_p(idac) <= (others => '0');
             end loop;            
          
