@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.78 2010/01/18 20:39:38 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.79 2010/01/21 18:47:07 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.79  2010/01/21 18:47:07  bburger
+-- BB: internal_cmd_mode = 2
+--
 -- Revision 1.78  2010/01/18 20:39:38  bburger
 -- BB: Changed "MLS" prefixes to "AWG" for "Abitrary Waveform Generator"
 --
@@ -818,7 +821,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
 
    constant cc_awg_sequence_len_cmd : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_SEQUENCE_LEN_ADDR;
    constant cc_awg_data_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_DATA_ADDR;
-   constant cc_awg_data_index_cmd   : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_ADDR_ADDR;
+   constant cc_awg_addr_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_ADDR_ADDR;
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -2332,70 +2335,70 @@ begin
 --         tx            => bc1_rs232_tx
 --      );
 --
---   i_addr_card : addr_card
---      port map
---      (
---         -- PLL input:
---         inclk            => lvds_clk,
---         rst_n            => rst_n,
---
---         -- LVDS interface:
---         lvds_cmd         => lvds_cmd,
---         lvds_sync        => lvds_sync,
---         lvds_spare       => lvds_spare,
---         lvds_txa         => lvds_reply_ac_a,
---         lvds_txb         => lvds_reply_ac_b,
---
---         -- TTL interface:
---         ttl_nrx1         => bclr_n,
---         ttl_tx1          => open,
---         ttl_txena1       => ac_ttl_txena1,
---
---         ttl_nrx2         => ac_ttl_nrx2,
---         ttl_tx2          => open,
---         ttl_txena2       => ac_ttl_txena2,
---
---         ttl_nrx3         => ac_ttl_nrx3,
---         ttl_tx3          => open,
---         ttl_txena3       => ac_ttl_txena3,
---
---         -- eeprom interface:
---         eeprom_si        => ac_eeprom_si,
---         eeprom_so        => ac_eeprom_so,
---         eeprom_sck       => ac_eeprom_sck,
---         eeprom_cs        => ac_eeprom_cs,
---
---         -- dac interface:
---         dac_data0        => ac_dac_data0,
---         dac_data1        => ac_dac_data1,
---         dac_data2        => ac_dac_data2,
---         dac_data3        => ac_dac_data3,
---         dac_data4        => ac_dac_data4,
---         dac_data5        => ac_dac_data5,
---         dac_data6        => ac_dac_data6,
---         dac_data7        => ac_dac_data7,
---         dac_data8        => ac_dac_data8,
---         dac_data9        => ac_dac_data9,
---         dac_data10       => ac_dac_data10,
---         dac_clk          => ac_dac_clk,
---
---         -- miscellaneous ports:
---         red_led          => ac_red_led,
---         ylw_led          => ac_ylw_led,
---         grn_led          => ac_grn_led,
---         dip_sw3          => ac_dip_sw3,
---         dip_sw4          => ac_dip_sw4,
---         wdog             => ac_wdog,
---         slot_id          => ac_slot_id,
---         smb_nalert       => open,
---
---         -- debug ports:
---         test             => ac_test,
---         mictor           => ac_mictor,
---         mictorclk        => ac_mictorclk,
---         rx               => ac_rs232_rx,
---         tx               => ac_rs232_tx
---      );
+   i_addr_card : addr_card
+      port map
+      (
+         -- PLL input:
+         inclk            => lvds_clk,
+         rst_n            => rst_n,
+
+         -- LVDS interface:
+         lvds_cmd         => lvds_cmd,
+         lvds_sync        => lvds_sync,
+         lvds_spare       => lvds_spare,
+         lvds_txa         => lvds_reply_ac_a,
+         lvds_txb         => lvds_reply_ac_b,
+
+         -- TTL interface:
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => open,
+         ttl_txena1       => ac_ttl_txena1,
+
+         ttl_nrx2         => ac_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => ac_ttl_txena2,
+
+         ttl_nrx3         => ac_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => ac_ttl_txena3,
+
+         -- eeprom interface:
+         eeprom_si        => ac_eeprom_si,
+         eeprom_so        => ac_eeprom_so,
+         eeprom_sck       => ac_eeprom_sck,
+         eeprom_cs        => ac_eeprom_cs,
+
+         -- dac interface:
+         dac_data0        => ac_dac_data0,
+         dac_data1        => ac_dac_data1,
+         dac_data2        => ac_dac_data2,
+         dac_data3        => ac_dac_data3,
+         dac_data4        => ac_dac_data4,
+         dac_data5        => ac_dac_data5,
+         dac_data6        => ac_dac_data6,
+         dac_data7        => ac_dac_data7,
+         dac_data8        => ac_dac_data8,
+         dac_data9        => ac_dac_data9,
+         dac_data10       => ac_dac_data10,
+         dac_clk          => ac_dac_clk,
+
+         -- miscellaneous ports:
+         red_led          => ac_red_led,
+         ylw_led          => ac_ylw_led,
+         grn_led          => ac_grn_led,
+         dip_sw3          => ac_dip_sw3,
+         dip_sw4          => ac_dip_sw4,
+         wdog             => ac_wdog,
+         slot_id          => ac_slot_id,
+         smb_nalert       => open,
+
+         -- debug ports:
+         test             => ac_test,
+         mictor           => ac_mictor,
+         mictorclk        => ac_mictorclk,
+         rx               => ac_rs232_rx,
+         tx               => ac_rs232_tx
+      );
 
    ------------------------------------------------
    -- Create test bench stimuli
@@ -2817,7 +2820,7 @@ begin
       command <= command_wb;
       address_id <= cc_step_period_cmd;
       data_valid <= X"00000001";
-      data       <= X"0000000A";
+      data       <= X"00000005";
       load_preamble;
       load_command;
       load_checksum;
@@ -2835,7 +2838,7 @@ begin
       command <= command_wb;
       address_id <= cc_step_card_addr_cmd;
       data_valid <= X"00000001";
-      data       <= X"000000" & CLOCK_CARD;
+      data       <= X"000000" & ADDRESS_CARD;
       load_preamble;
       load_command;
       load_checksum;
@@ -2850,28 +2853,55 @@ begin
       load_checksum;
       wait for 100 us;
 
+--      command <= command_wb;
+--      address_id <= cc_step_minimum_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_size_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_maximum_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;
+
       command <= command_wb;
-      address_id <= cc_step_minimum_cmd;
+      address_id <= cc_awg_sequence_len_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000001";
+      data       <= X"00000008";
       load_preamble;
       load_command;
       load_checksum;
       wait for 100 us;
 
       command <= command_wb;
-      address_id <= cc_step_size_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
+      address_id <= cc_awg_data_cmd;
+      data_valid <= X"00000008";
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
       wait for 100 us;
 
       command <= command_wb;
-      address_id <= cc_step_maximum_cmd;
+      address_id <= cc_awg_addr_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000005";
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
@@ -2880,52 +2910,71 @@ begin
       command <= command_wb;
       address_id <= cc_internal_cmd_mode_cmd;
       data_valid <= X"00000001";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 3000 us;
+
+      command <= command_wb;
+      address_id <= cc_awg_sequence_len_cmd;
+      data_valid <= X"00000001";
       data       <= X"00000002";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;
+      wait for 3000 us;
 
-      --
-      command <= command_wb;
-      address_id <= cc_data_rate_cmd;
-      data_valid <= X"00000001";
-      data       <= X"0000000A"; --38
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;           
-      
-      --
-      -- Set up data acquisition:
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      --
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 3000 us;      
-
-      --
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 3000 us;          
+--      command <= command_wb;
+--      address_id <= cc_step_period_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000000A";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 3000 us;
+--
+--
+--      --
+--      command <= command_wb;
+--      address_id <= cc_data_rate_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000000A"; --38
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;           
+--      
+--      --
+--      -- Set up data acquisition:
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;
+--
+--      --
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 3000 us;      
+--
+--      --
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 3000 us;          
 
 ------------------------------------------------------
 
