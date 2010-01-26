@@ -618,3 +618,6 @@ set_global_assignment -name SIGNALTAP_FILE dv_rx.stp
 set_global_assignment -name SIGNALTAP_FILE dv_rx_manch_clk.stp
 set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug_.stp
 set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug2_.stp
+set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/Bryce/Desktop/work/latest sofs/awg_testing.cdf"
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name ALLOW_POWER_UP_DONT_CARE ON
