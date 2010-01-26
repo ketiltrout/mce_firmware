@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.65 2010/01/18 20:39:38 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.66 2010/01/21 19:46:29 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -235,8 +235,8 @@ begin
    step_value_o         <= ext(awg_addr, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value;
    frame_seq_num_o      <= seq_num;
    frame_sync_num_o     <= issue_sync_num; -- when override_sync_num_o = '0' else sync_number_i;
-   cmd_mode_changing    <= '0' when internal_cmd_mode_delayed = internal_cmd_mode_i else '0';
-   step_period_changing <= '0' when step_period = step_period_i else '0';
+   cmd_mode_changing    <= '0' when internal_cmd_mode_delayed = internal_cmd_mode_i else '1';
+   step_period_changing <= '0' when step_period = step_period_i else '1';
    
    -- Size calculation logic for data packets
    data_size_int          <= num_cols_to_read_i * num_rows_to_read_i;
@@ -293,19 +293,24 @@ begin
             internal_status_req  <= '1';
          end if;
 
-         -- Manage the TES toggling control signals:
-         -- We request a tes_bias_toggle when we start a ret_dat to immediately sync up the bias steps to follow data frames.
-         -- Perhaps the key to this bug is putting update signals in the section triggers an internal command.
+         ------------------------------------------------------------
+         -- There is interplay between the following two registers
+         ------------------------------------------------------------
+         -- This register manages the internal command control signals after the start of internal commands.
+         -- It requests in internal command when we start a ret_dat to immediately sync up the bias steps to follow data packets.
          if((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and (next_toggle_sync = sync_number_i or ret_dat_start = '1')) then
             internal_wb_req <= '1';
          elsif(internal_wb_ack = '1') then
             internal_wb_req <= '0';
          end if;
 
+         -- update_nts below is linked to internal_wb_req above via a FSM.
+         -- The next_toggle_sync is updated if the FSM requests it (during normal operation) -- or if there is a command that alters the contents of critical internal-command control registers
          -- If it's time to toggle, or we detect a rising edge on the toggle enable line we update the TES toggle sync number.
          if(update_nts = '1' or ((cmd_mode_changing = '1' or step_period_changing = '1') and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM))) then
             next_toggle_sync <= sync_number_i + step_period_i;
          end if;
+         ------------------------------------------------------------
 
          -- If we are entering INTERNAL_RAMP mode, we set the starting ramp_value to step_minimum_i.
          if(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_RAMP) then
@@ -777,7 +782,7 @@ begin
    -------------------------------------------------------------------------------------------
    process(current_state, ret_dat_req, stop_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
       internal_wb_req, simple_cmd_req, internal_cmd_mode_i, cmd_rdy_i,
-      internal_status_req, internal_rb_id, ret_dat_stop_req, ret_dat_in_progress, rdy_for_data_i)
+      internal_status_req, internal_rb_id, ret_dat_stop_req, ret_dat_in_progress)
    begin
       -- default assignments
       increment_sync_num   <= '0';
@@ -839,6 +844,9 @@ begin
             elsif(simple_cmd_req = '1') then
                null;
             -- If it is time to toggle the bias
+            -- OK, this condition might not be necessary here if we are already monitoring cmd_mode_changing and step_period_changing
+            -- In fact, this is necessary here for issuing internal commands when a ret_dat is not in progress.
+            -- internal_wb_req is asserted when next_toggle_sync = sync_number_i
             elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
                -- If we aren't waiting to send the cmd_queue a ret_dat command, and if internal_wb_req is asserted
                -- then update the next toggle sync number.
