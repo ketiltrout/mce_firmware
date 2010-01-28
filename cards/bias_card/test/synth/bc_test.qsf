@@ -538,3 +538,4 @@ set_location_assignment PIN_N6 -to lvds_dac_ncs[0]
 set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_ncs[0]
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER OFF
+set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/mandana/Desktop/don.cdf"
