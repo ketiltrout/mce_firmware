@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.9 2006/09/01 17:49:56 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.10 2010/01/22 01:17:10 mandana Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -91,7 +91,7 @@ signal data_ramp             : std_logic_vector(15 downto 0);
 signal idac                  : integer range 0 to NUM_FLUX_FB_DACS;
 signal send_dac32_start      : std_logic;
 signal send_dac_LVDS_start   : std_logic;
-signal dac_done              : std_logic_vector (NUM_FLUX_FB_DACS downto 0);
+-- signal dac_done              : std_logic_vector (NUM_FLUX_FB_DACS downto 0);
 signal ramp                  : std_logic := '0';
 
 -- parallel data signals for DAC
@@ -136,7 +136,7 @@ begin
        
          --outputs
          spi_clk_o        => dac_clk_o (k),
-         done_o           => dac_done (k),
+         done_o           => open, -- dac_done (k),
          spi_ncs_o        => dac_ncs_o (k),
          serial_wr_data_o => dac_dat_o(k)
       );
@@ -159,11 +159,11 @@ begin
     
       --outputs
       spi_clk_o        => lvds_dac_clk_o,
-      done_o           => dac_done  (32),
+      done_o           => open, -- dac_done  (32),
       spi_ncs_o        => lvds_dac_ncs_temp(0) ,
       serial_wr_data_o => lvds_dac_dat_o
    );
-  lvds_dac_ncs_o <= ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
+  lvds_dac_ncs_o <= (others => lvds_dac_ncs_temp(0)); -- ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
   
   -- state register:
    state_FF: process(clk_4_i, rst_i)
