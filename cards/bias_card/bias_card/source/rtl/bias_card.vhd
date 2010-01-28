@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.36 2009/11/24 23:49:59 bburger Exp $
+-- $Id: bias_card.vhd,v 1.37 2010/01/20 21:57:19 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,13 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.37  2010/01/20 21:57:19  mandana
+-- rev. 5.0.1
+-- Firmware changed to loading all DACs in parallel as opposed to one after next in preparation for SQ2_FB switching implementation
+-- added interface for 12 new low-noise biases introduced in Bias_card Rev. E and card_type set to 5.
+-- If this firmware runs on BC Rev. D, the bias command will not work as cs and clk are swapped between Rev. D and E. Otherwise, the firmware is harmless to rev.D
+-- supports cards with both temperature reading chips: MAX1618 (old cards) and LM95235 (on new cards)
+--
 -- Revision 1.36  2009/11/24 23:49:59  bburger
 -- BB: Made a top-level modification that does not affect old cards with the MAX1618, but enables the LM95235 on new cards.
 --
@@ -190,12 +197,6 @@ entity bias_card is
       ttl_tx3    : out std_logic;
       ttl_txena3 : out std_logic;
 
-      -- eeprom interface:
-      eeprom_si  : in std_logic;
-      eeprom_so  : out std_logic;
-      eeprom_sck : out std_logic;
-      eeprom_cs  : out std_logic;
-
       -- dac interface:
       dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -234,7 +235,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000001";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000002";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -294,7 +295,7 @@ begin
    ttl_tx2    <= '0';
    ttl_txena3 <= '1';
    ttl_tx3    <= '0';
-
+   
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_txena1 <= '1';
@@ -302,9 +303,9 @@ begin
    rst <= (not rst_n) or (ttl_nrx1);
 
    mictor   <= debug;
-   test (4) <= dac_ncs_temp(0);
-   test (6) <= dac_data_temp(0);
-   test (8) <= dac_sclk_temp(0);
+   --test (4) <= dac_ncs_temp(0);
+   --test (6) <= dac_data_temp(0);
+   --test (8) <= dac_sclk_temp(0);
 
    dac_ncs <= dac_ncs_temp;
    dac_data <= dac_data_temp;
