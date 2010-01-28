@@ -31,6 +31,10 @@
 --
 -- Revision history:
 -- $Log: bc_dac_xtalk_test.vhd,v $
+-- Revision 1.10  2010/01/22 01:17:10  mandana
+-- Rev. 3.0 to accomodate 12 low-noise bias lines introduced in Bias Card Rev. E
+-- Note that xtalk test is not supported for ln-bias lines YET!
+--
 -- Revision 1.9  2006/09/01 17:52:59  mandana
 -- lowered the square wave frequency
 --
@@ -110,6 +114,8 @@ signal send_dac32_start_tuned   : std_logic;
 signal send_dac_lvds_start_tuned: std_logic;
 
 signal dac_done : std_logic_vector (32 downto 0);
+signal dac_done_1dly : std_logic;
+signal dac_done_rise : std_logic;
 
 signal mode_reg : std_logic;
 signal xtalk    : std_logic;
@@ -141,19 +147,37 @@ begin
    data(1) <= "1111111111111111";--xffff     full range
    data(2) <= "1000000000000000";--x8000     half range
 
-
-   process (rst_i, dac_done(0))
+   -- capture rising edge of dac_done(0)
+   process (rst_i, clk_i, dac_done_rise, dac_done(0))
    begin
-      if(rst_i = '1') then
-         idx <= 0;
-      elsif(dac_done(0)'event and dac_done(0) = '1') then
-         if (idx = 1) then 
+     if (rst_i = '1') then
+       idx <= 0;
+       dac_done_1dly <= '0';
+     elsif(clk_i'event and clk_i = '1') then
+       dac_done_1dly <= dac_done (0);
+       if (dac_done_rise = '1') then
+         if (idx = 1) then
            idx <= 0;
-         else  
+         else
            idx <= idx + 1;
-         end if;  
-      end if;
-   end process;
+         end if;
+       end if;
+     end if;  
+   end process;   
+   dac_done_rise <= (dac_done(0) xor dac_done_1dly) and dac_done(0);   
+
+--   process (rst_i, dac_done(0))
+--   begin
+--      if(rst_i = '1') then
+--         idx <= 0;
+--      elsif(dac_done(0)'event and dac_done(0) = '1') then
+--         if (idx = 1) then 
+--           idx <= 0;
+--         else  
+--           idx <= idx + 1;
+--         end if;  
+--      end if;
+--   end process;
       
 ------------------------------------------------------------------------
 --
@@ -201,7 +225,7 @@ begin
       spi_ncs_o        => lvds_dac_ncs_temp(0) ,
       serial_wr_data_o => lvds_dac_dat_o
    );
-   lvds_dac_ncs_o <= ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
+   lvds_dac_ncs_o <= (others => lvds_dac_ncs_temp(0)); -- ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
       
   -- state register:
    state_FF: process(clk_2, rst_i)
