@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.17  2010/01/22 01:17:10  mandana
+-- Rev. 3.0 to accomodate 12 low-noise bias lines introduced in Bias Card Rev. E
+-- Note that xtalk test is not supported for ln-bias lines YET!
+--
 -- Revision 1.16  2006/09/01 17:53:55  mandana
 -- revision upgraded to 2.1
 --
@@ -242,7 +246,7 @@ signal rst_cmd : std_logic;
    signal status_reg_ld      : std_logic;
    
 begin
-   rst <= not rst_n or rst_cmd;
+   rst <= not rst_n; -- or rst_cmd;
 
    clk0: bc_test_pll
    port map(inclk0 => inclk,
@@ -323,7 +327,7 @@ begin
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   zero      when 14,
+                   one       when 14,
                    newline   when others;
 
    with tx_count select
@@ -827,10 +831,10 @@ begin
    test(5) <= dac_test_ncs(0);
    test(6) <= dac_test_ncs(1);
    test(7) <= dac_test_sclk(0);
- --  test(8) <= dac_test_sclk(1);
- --  test(9) <= dac_test_data(0);
- --  test(10) <= dac_test_data(1);
+   test(8) <= dac_test_sclk(1);
+   test(9) <= dac_test_data(0);
+   test(10) <= dac_test_data(1);
    test(14) <= spi_start;
- --  test(13) <= lvds_spi_start;
+   test(13) <= lvds_spi_start;
 
 end behaviour;
