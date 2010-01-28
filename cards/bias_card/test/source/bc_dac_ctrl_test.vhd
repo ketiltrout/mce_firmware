@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.12 2006/08/30 21:00:19 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.13 2010/01/22 01:17:10 mandana Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -32,8 +32,12 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2006/08/30 21:00:19 $> - <initials $Author: mandana $>
+-- <date $Date: 2010/01/22 01:17:10 $> - <initials $Author: mandana $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.13  2010/01/22 01:17:10  mandana
+-- Rev. 3.0 to accomodate 12 low-noise bias lines introduced in Bias Card Rev. E
+-- Note that xtalk test is not supported for ln-bias lines YET!
+--
 -- Revision 1.12  2006/08/30 21:00:19  mandana
 -- spi interface uses PLL-generated clk_4_i
 -- serial DACs are only tested for full-range, half-range and zero values instead of walking 1 pattern
@@ -133,7 +137,7 @@ signal val_clk            : std_logic;
 signal idat               : integer range 0 to NUM_FIXED_VALUES;
 signal send_dac32_start   : std_logic;
 signal send_dac_LVDS_start: std_logic;
-signal dac_done           : std_logic_vector (NUM_FLUX_FB_DACS downto 0);
+-- signal dac_done           : std_logic_vector (NUM_FLUX_FB_DACS downto 0);
 signal en_slow            : std_logic;
 
 signal lvds_dac_ncs_temp  : std_logic_vector(0 downto 0);
@@ -180,7 +184,7 @@ begin
        
          --outputs
          spi_clk_o        => dac_clk_o (k),
-         done_o           => dac_done (k),
+         done_o           => open, --dac_done (k),
          spi_ncs_o        => dac_ncs_o (k),
          serial_wr_data_o => dac_dat_o(k)
       );
@@ -203,11 +207,11 @@ begin
     
       --outputs
       spi_clk_o        => lvds_dac_clk_o,
-      done_o           => dac_done  (32),
+      done_o           => open, -- dac_done  (32),
       spi_ncs_o        => lvds_dac_ncs_temp(0) ,
       serial_wr_data_o => lvds_dac_dat_o
    );
-   lvds_dac_ncs_o <= ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
+   lvds_dac_ncs_o <= (others => lvds_dac_ncs_temp(0)); -- ext(lvds_dac_ncs_temp, lvds_dac_ncs_o'length);
    
   -- values tried on DAC Tests with fixed values                               
    data (0) <= "1111111111111111";--xffff     full scale
