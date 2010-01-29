@@ -111,7 +111,7 @@ if {$make_assignments} {
 	catch { set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=8330" -section_id auto_signaltap_0 } result
 	catch { set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=37546" -section_id auto_signaltap_0 } result
 	catch { set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off } result
-	catch { set_location_assignment PIN_AF9 -to rx } result
+	catch { set_location_assignment PIN_AH11 -to rx } result
 	catch { set_location_assignment PIN_T21 -to cardid } result
 	catch { set_location_assignment PIN_AG11 -to tx } result
 	catch { set_location_assignment PIN_V27 -to led\[0\] } result
