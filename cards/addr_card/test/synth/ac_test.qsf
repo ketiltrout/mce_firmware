@@ -33,7 +33,7 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:16:43  NOVEMBER 12, 2005"
-set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "9.0 SP2"
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
@@ -340,7 +340,7 @@ set_location_assignment PIN_U6 -to dac_clk\[37\]
 set_location_assignment PIN_U9 -to dac_clk\[38\]
 set_location_assignment PIN_V7 -to dac_clk\[39\]
 set_location_assignment PIN_D20 -to dac_clk\[40\]
-set_location_assignment PIN_AF9 -to rx
+set_location_assignment PIN_AH11 -to rx
 set_location_assignment PIN_AG11 -to tx
 
 # Analysis & Synthesis Assignments
@@ -358,5 +358,6 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
-set_location_assignment PIN_AF9 -to rs232_rx
+set_location_assignment PIN_AH11 -to rs232_rx
 set_location_assignment PIN_AG11 -to rs232_tx
+set_global_assignment -name MISC_FILE "C:/mce/cards/addr_card/test/synth/ac_test.dpf"

@@ -29,8 +29,11 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2006/08/02 22:43:15 $>	- <initials $Author: mandana $>
+-- <date $Date: 2007/12/18 20:09:40 $>	- <initials $Author: bburger $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.11  2007/12/18 20:09:40  bburger
+-- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
+--
 -- Revision 1.10  2006/08/02 22:43:15  mandana
 -- updated revision to 3.0
 -- added ramp_off_msg to not let the user know to turn off the ramp mode before applying fixed values
@@ -301,7 +304,7 @@ begin
 
    
    with tx_count select 
-      -- reset message is AC Test v3.0
+      -- reset message is AC Test v3.1
       reset_msg <= newline   when 0,
                    newline   when 1,
                    shift(a)  when 2,
@@ -316,7 +319,7 @@ begin
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   zero      when 14,
+                   one      when 14,
                    newline   when others;
 
    with tx_count select
