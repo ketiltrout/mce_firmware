@@ -33,29 +33,28 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "10:28:24  OCTOBER 20, 2005"
-set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "4.1 SP2"
 
 # Pin & Location Assignments
 # ==========================
-set_location_assignment PIN_AH9 -to rx
-set_location_assignment PIN_A16 -to cardid
-set_location_assignment PIN_AE10 -to tx
-set_location_assignment PIN_H20 -to led[0]
-set_location_assignment PIN_H19 -to led[1]
-set_location_assignment PIN_J20 -to led[2]
+set_location_assignment PIN_AH11 -to rx
+set_location_assignment PIN_T21 -to cardid
+set_location_assignment PIN_AG11 -to tx
+set_location_assignment PIN_V27 -to led[0]
+set_location_assignment PIN_T24 -to led[1]
+set_location_assignment PIN_T23 -to led[2]
 set_location_assignment PIN_AC9 -to nrst
 set_location_assignment PIN_K17 -to inclk
-set_location_assignment PIN_D5 -to slot[0]
-set_location_assignment PIN_B6 -to slot[1]
-set_location_assignment PIN_C9 -to slot[2]
-set_location_assignment PIN_D10 -to slot[3]
-set_location_assignment PIN_K10 -to dip[0]
-set_location_assignment PIN_L11 -to dip[1]
+set_location_assignment PIN_V25 -to slot[0]
+set_location_assignment PIN_V26 -to slot[1]
+set_location_assignment PIN_T25 -to slot[2]
+set_location_assignment PIN_T26 -to slot[3]
+set_location_assignment PIN_M2 -to dip[0]
+set_location_assignment PIN_N1 -to dip[1]
 
 # Analysis & Synthesis Assignments
 # ================================
 set_global_assignment -name FAMILY Stratix
-set_global_assignment -name TOP_LEVEL_ENTITY all_test
 
 # Fitter Assignments
 # ==================
@@ -281,9 +280,296 @@ set_location_assignment PIN_A20 -to dac_data[28]
 set_location_assignment PIN_A21 -to dac_data[29]
 set_location_assignment PIN_C21 -to dac_data[30]
 set_location_assignment PIN_E21 -to dac_data[31]
+set_global_assignment -name PROJECT_SHOW_ENTITY_NAME ON
+set_global_assignment -name VER_COMPATIBLE_DB_DIR export_db
+set_global_assignment -name AUTO_EXPORT_VER_COMPATIBLE_DB OFF
+set_global_assignment -name DO_MIN_ANALYSIS ON
+set_global_assignment -name DO_MIN_TIMING OFF
+set_global_assignment -name REPORT_IO_PATHS_SEPARATELY OFF
+set_global_assignment -name CLOCK_ANALYSIS_ONLY OFF
+set_global_assignment -name CUT_OFF_PATHS_BETWEEN_CLOCK_DOMAINS ON
+set_global_assignment -name CUT_OFF_READ_DURING_WRITE_PATHS ON
+set_global_assignment -name CUT_OFF_CLEAR_AND_PRESET_PATHS ON
+set_global_assignment -name CUT_OFF_IO_PIN_FEEDBACK ON
+set_global_assignment -name IGNORE_CLOCK_SETTINGS OFF
+set_global_assignment -name MUX_RESTRUCTURE AUTO
+set_global_assignment -name ENABLE_IP_DEBUG OFF
+set_global_assignment -name SMART_RECOMPILE OFF
+set_global_assignment -name SAVE_DISK_SPACE ON
+set_global_assignment -name DISABLE_OCP_HW_EVAL OFF
+set_global_assignment -name DEVICE_FILTER_PACKAGE ANY
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT ANY
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE ANY
+set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
+set_global_assignment -name VERILOG_INPUT_VERSION VERILOG_2001
+set_global_assignment -name VHDL_INPUT_VERSION VHDL93
+set_global_assignment -name COMPILATION_LEVEL FULL
+set_global_assignment -name TRUE_WYSIWYG_FLOW OFF
+set_global_assignment -name SMART_COMPILE_IGNORES_TDC_FOR_STRATIX_PLL_CHANGES OFF
+set_global_assignment -name STATE_MACHINE_PROCESSING AUTO
+set_global_assignment -name DSP_BLOCK_BALANCING AUTO
+set_global_assignment -name NOT_GATE_PUSH_BACK ON
+set_global_assignment -name ALLOW_POWER_UP_DONT_CARE ON
+set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS OFF
+set_global_assignment -name REMOVE_DUPLICATE_REGISTERS ON
+set_global_assignment -name IGNORE_CARRY_BUFFERS OFF
+set_global_assignment -name IGNORE_CASCADE_BUFFERS OFF
+set_global_assignment -name IGNORE_GLOBAL_BUFFERS OFF
+set_global_assignment -name IGNORE_ROW_GLOBAL_BUFFERS OFF
+set_global_assignment -name IGNORE_LCELL_BUFFERS OFF
+set_global_assignment -name MAX7000_IGNORE_LCELL_BUFFERS AUTO
+set_global_assignment -name IGNORE_SOFT_BUFFERS ON
+set_global_assignment -name MAX7000_IGNORE_SOFT_BUFFERS OFF
+set_global_assignment -name LIMIT_AHDL_INTEGERS_TO_32_BITS OFF
+set_global_assignment -name AUTO_GLOBAL_CLOCK_MAX ON
+set_global_assignment -name AUTO_GLOBAL_OE_MAX ON
+set_global_assignment -name MAX_AUTO_GLOBAL_REGISTER_CONTROLS ON
+set_global_assignment -name AUTO_IMPLEMENT_IN_ROM OFF
+set_global_assignment -name STRATIX_TECHNOLOGY_MAPPER LUT
+set_global_assignment -name MAX7000_TECHNOLOGY_MAPPER "PRODUCT TERM"
+set_global_assignment -name APEX20K_TECHNOLOGY_MAPPER LUT
+set_global_assignment -name MERCURY_TECHNOLOGY_MAPPER LUT
+set_global_assignment -name FLEX6K_TECHNOLOGY_MAPPER LUT
+set_global_assignment -name FLEX10K_TECHNOLOGY_MAPPER LUT
+set_global_assignment -name STRATIXII_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name CYCLONE_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name MAXII_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name MAX7000_OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name APEX20K_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name MERCURY_OPTIMIZATION_TECHNIQUE AREA
+set_global_assignment -name FLEX6K_OPTIMIZATION_TECHNIQUE AREA
+set_global_assignment -name FLEX10K_OPTIMIZATION_TECHNIQUE AREA
+set_global_assignment -name ALLOW_XOR_GATE_USAGE ON
+set_global_assignment -name AUTO_LCELL_INSERTION ON
+set_global_assignment -name CARRY_CHAIN_LENGTH 48
+set_global_assignment -name FLEX6K_CARRY_CHAIN_LENGTH 32
+set_global_assignment -name FLEX10K_CARRY_CHAIN_LENGTH 32
+set_global_assignment -name MERCURY_CARRY_CHAIN_LENGTH 48
+set_global_assignment -name STRATIX_CARRY_CHAIN_LENGTH 70
+set_global_assignment -name STRATIXII_CARRY_CHAIN_LENGTH 70
+set_global_assignment -name CASCADE_CHAIN_LENGTH 2
+set_global_assignment -name PARALLEL_EXPANDER_CHAIN_LENGTH 16
+set_global_assignment -name MAX7000_PARALLEL_EXPANDER_CHAIN_LENGTH 4
+set_global_assignment -name AUTO_CARRY_CHAINS ON
+set_global_assignment -name AUTO_CASCADE_CHAINS ON
+set_global_assignment -name AUTO_PARALLEL_EXPANDERS ON
+set_global_assignment -name AUTO_OPEN_DRAIN_PINS ON
+set_global_assignment -name REMOVE_DUPLICATE_LOGIC ON
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP OFF
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME OFF
+set_global_assignment -name ADV_NETLIST_OPT_RETIME_CORE_AND_IO ON
+set_global_assignment -name AUTO_ROM_RECOGNITION ON
+set_global_assignment -name AUTO_RAM_RECOGNITION ON
+set_global_assignment -name AUTO_DSP_RECOGNITION ON
+set_global_assignment -name AUTO_SHIFT_REGISTER_RECOGNITION AUTO
+set_global_assignment -name AUTO_CLOCK_ENABLE_RECOGNITION ON
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE ON
+set_global_assignment -name AUTO_RAM_BLOCK_BALANCING ON
+set_global_assignment -name AUTO_RESOURCE_SHARING OFF
+set_global_assignment -name USE_NEW_TEXT_REPORT_TABLE_FORMAT OFF
+set_global_assignment -name ALLOW_ANY_RAM_SIZE_FOR_RECOGNITION OFF
+set_global_assignment -name ALLOW_ANY_ROM_SIZE_FOR_RECOGNITION OFF
+set_global_assignment -name ALLOW_ANY_SHIFT_REGISTER_SIZE_FOR_RECOGNITION OFF
+set_global_assignment -name MAX7000_FANIN_PER_CELL 100
+set_global_assignment -name TOP_LEVEL_ENTITY all_test
+set_global_assignment -name EDA_SHOW_LMF_MAPPING_MESSAGES OFF -section_id eda_design_synthesis
+set_global_assignment -name EDA_RUN_TOOL_AUTOMATICALLY OFF -section_id eda_design_synthesis
+set_global_assignment -name EDA_INPUT_DATA_FORMAT EDIF -section_id eda_design_synthesis
+set_global_assignment -name ECO_ALLOW_ROUTING_CHANGES OFF
+set_global_assignment -name BASE_PIN_OUT_FILE_ON_SAMEFRAME_DEVICE OFF
+set_global_assignment -name ENABLE_JTAG_BST_SUPPORT OFF
+set_global_assignment -name MAX7000_ENABLE_JTAG_BST_SUPPORT ON
+set_global_assignment -name RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name STRATIX_UPDATE_MODE STANDARD
+set_global_assignment -name STRATIXII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name CYCLONEII_CONFIGURATION_SCHEME "ACTIVE SERIAL"
+set_global_assignment -name APEX20K_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name STRATIX_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name CYCLONE_CONFIGURATION_SCHEME "ACTIVE SERIAL"
+set_global_assignment -name MERCURY_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name FLEX6K_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name FLEX10K_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name APEXII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name USER_START_UP_CLOCK OFF
+set_global_assignment -name ENABLE_VREFA_PIN OFF
+set_global_assignment -name ENABLE_VREFB_PIN OFF
+set_global_assignment -name AUTO_RESTART_CONFIGURATION ON
+set_global_assignment -name RELEASE_CLEARS_BEFORE_TRI_STATES OFF
+set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
+set_global_assignment -name ENABLE_DEVICE_WIDE_OE OFF
+set_global_assignment -name FLEX10K_ENABLE_LOCK_OUTPUT OFF
+set_global_assignment -name ENABLE_INIT_DONE_OUTPUT OFF
+set_global_assignment -name RESERVE_NWS_NRS_NCS_CS_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_RDYNBUSY_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA7_THROUGH_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "AS INPUT TRI-STATED"
+set_global_assignment -name RESERVE_ASDO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name CRC_ERROR_CHECKING OFF
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "IO PATHS AND MINIMUM TPD PATHS"
+set_global_assignment -name OPTIMIZE_TIMING "NORMAL COMPILATION"
+set_global_assignment -name OPTIMIZE_IOC_REGISTER_PLACEMENT_FOR_TIMING ON
+set_global_assignment -name DISABLE_PLL_COMPENSATION_DELAY_CHANGE_WARNING OFF
+set_global_assignment -name FIT_ONLY_ONE_ATTEMPT OFF
+set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION AUTOMATICALLY
+set_global_assignment -name SEED 1
+set_global_assignment -name SLOW_SLEW_RATE OFF
+set_global_assignment -name PCI_IO OFF
+set_global_assignment -name TURBO_BIT ON
+set_global_assignment -name WEAK_PULL_UP_RESISTOR OFF
+set_global_assignment -name ENABLE_BUS_HOLD_CIRCUITRY OFF
+set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS OFF
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIXII AUTO
+set_global_assignment -name AUTO_PACKED_REGISTERS_MAXII AUTO
+set_global_assignment -name AUTO_PACKED_REGISTERS_CYCLONE AUTO
+set_global_assignment -name AUTO_PACKED_REGISTERS OFF
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX AUTO
+set_global_assignment -name NORMAL_LCELL_INSERT ON
+set_global_assignment -name CARRY_OUT_PINS_LCELL_INSERT ON
+set_global_assignment -name AUTO_DELAY_CHAINS ON
+set_global_assignment -name AUTO_FAST_INPUT_REGISTERS OFF
+set_global_assignment -name AUTO_FAST_OUTPUT_REGISTERS OFF
+set_global_assignment -name AUTO_FAST_OUTPUT_ENABLE_REGISTERS OFF
+set_global_assignment -name AUTO_MERGE_PLLS ON
+set_global_assignment -name AUTO_TURBO_BIT ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
+set_global_assignment -name IO_PLACEMENT_OPTIMIZATION ON
+set_global_assignment -name ALLOW_LVTTL_LVCMOS_INPUT_LEVELS_TO_OVERDRIVE_INPUT_BUFFER OFF
+set_global_assignment -name OVERRIDE_DEFAULT_ELECTROMIGRATION_PARAMETERS OFF
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN "0 ns"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION AUTO
+set_global_assignment -name ROUTER_REGISTER_DUPLICATION OFF
+set_global_assignment -name ALLOW_SERIES_TERMINATION OFF
+set_global_assignment -name ALLOW_PARALLEL_TERMINATION OFF
+set_global_assignment -name STRATIXGX_ALLOW_CLOCK_FANOUT_WITH_ANALOG_RESET OFF
+set_global_assignment -name AUTO_GLOBAL_CLOCK ON
+set_global_assignment -name AUTO_GLOBAL_OE ON
+set_global_assignment -name AUTO_GLOBAL_REGISTER_CONTROLS ON
+set_global_assignment -name NUMBER_OF_SOURCES_PER_DESTINATION_TO_REPORT 10
+set_global_assignment -name NUMBER_OF_DESTINATION_TO_REPORT 10
+set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 200
+set_global_assignment -name DEFAULT_HOLD_MULTICYCLE "SAME AS MULTICYCLE"
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+set_global_assignment -name EDA_TIMING_ANALYSIS_TOOL "<None>"
+set_global_assignment -name EDA_BOARD_DESIGN_TOOL "<None>"
+set_global_assignment -name EDA_FORMAL_VERIFICATION_TOOL "<None>"
+set_global_assignment -name EDA_RESYNTHESIS_TOOL "<None>"
+set_global_assignment -name COMPRESSION_MODE OFF
+set_global_assignment -name CLOCK_SOURCE INTERNAL
+set_global_assignment -name CONFIGURATION_CLOCK_FREQUENCY "10 MHZ"
+set_global_assignment -name CONFIGURATION_CLOCK_DIVISOR 1
+set_global_assignment -name ENABLE_LOW_VOLTAGE_MODE_ON_CONFIG_DEVICE ON
+set_global_assignment -name FLEX6K_ENABLE_LOW_VOLTAGE_MODE_ON_CONFIG_DEVICE OFF
+set_global_assignment -name FLEX10K_ENABLE_LOW_VOLTAGE_MODE_ON_CONFIG_DEVICE ON
+set_global_assignment -name MAX7000S_JTAG_USER_CODE FFFF
+set_global_assignment -name STRATIX_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name APEX20K_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name MERCURY_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name FLEX10K_JTAG_USER_CODE 7F
+set_global_assignment -name MAX7000_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name MAX7000_USE_CHECKSUM_AS_USERCODE OFF
+set_global_assignment -name USE_CHECKSUM_AS_USERCODE OFF
+set_global_assignment -name SECURITY_BIT OFF
+set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+set_global_assignment -name STRATIXII_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name APEX20K_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name EXCALIBUR_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name MERCURY_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name FLEX6K_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name FLEX10K_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name CYCLONE_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name STRATIX_CONFIGURATION_DEVICE AUTO
+set_global_assignment -name APEX20K_CONFIG_DEVICE_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name STRATIX_CONFIG_DEVICE_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name MERCURY_CONFIG_DEVICE_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name FLEX10K_CONFIG_DEVICE_JTAG_USER_CODE FFFFFFFF
+set_global_assignment -name EPROM_USE_CHECKSUM_AS_USERCODE OFF
+set_global_assignment -name AUTO_INCREMENT_CONFIG_DEVICE_JTAG_USER_CODE ON
+set_global_assignment -name DISABLE_NCS_AND_OE_PULLUPS_ON_CONFIG_DEVICE OFF
+set_global_assignment -name GENERATE_TTF_FILE OFF
+set_global_assignment -name GENERATE_RBF_FILE OFF
+set_global_assignment -name GENERATE_HEX_FILE OFF
+set_global_assignment -name HEXOUT_FILE_START_ADDRESS 0
+set_global_assignment -name HEXOUT_FILE_COUNT_DIRECTION UP
+set_global_assignment -name START_TIME "0 ns"
+set_global_assignment -name SIMULATION_MODE TIMING
+set_global_assignment -name AUTO_USE_SIMULATION_PDB_NETLIST OFF
+set_global_assignment -name ADD_DEFAULT_PINS_TO_SIMULATION_OUTPUT_WAVEFORMS ON
+set_global_assignment -name SETUP_HOLD_DETECTION OFF
+set_global_assignment -name CHECK_OUTPUTS OFF
+set_global_assignment -name SIMULATION_COVERAGE ON
+set_global_assignment -name GLITCH_DETECTION OFF
+set_global_assignment -name GLITCH_INTERVAL "1 ns"
+set_global_assignment -name SIM_NO_DELAYS OFF
+set_global_assignment -name DRC_REPORT_TOP_FANOUT ON
+set_global_assignment -name DRC_TOP_FANOUT 50
+set_global_assignment -name DRC_REPORT_FANOUT_EXCEEDING ON
+set_global_assignment -name DRC_FANOUT_EXCEEDING 30
+set_global_assignment -name ASSG_CAT ON
+set_global_assignment -name ASSG_RULE_MISSING_FMAX ON
+set_global_assignment -name ASSG_RULE_MISSING_TIMING ON
+set_global_assignment -name SIGNALRACE_RULE_TRISTATE ON
+set_global_assignment -name HCPY_PLL_MULTIPLE_CLK_NETWORK_TYPES ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_ASYN_RAM ON
+set_global_assignment -name HARDCOPY_FLOW_AUTOMATION MIGRATION_ONLY
+set_global_assignment -name ENABLE_DRC_SETTINGS OFF
+set_global_assignment -name CLK_CAT ON
+set_global_assignment -name CLK_RULE_COMB_CLOCK ON
+set_global_assignment -name CLK_RULE_INV_CLOCK ON
+set_global_assignment -name CLK_RULE_GATING_SCHEME ON
+set_global_assignment -name CLK_RULE_INPINS_CLKNET ON
+set_global_assignment -name CLK_RULE_CLKNET_CLKSPINES ON
+set_global_assignment -name CLK_RULE_MIX_EDGES ON
+set_global_assignment -name RESET_CAT ON
+set_global_assignment -name RESET_RULE_INPINS_RESETNET ON
+set_global_assignment -name RESET_RULE_UNSYNCH_EXRESET ON
+set_global_assignment -name RESET_RULE_IMSYNCH_EXRESET ON
+set_global_assignment -name RESET_RULE_COMB_ASYNCH_RESET ON
+set_global_assignment -name RESET_RULE_UNSYNCH_ASYNCH_DOMAIN ON
+set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN ON
+set_global_assignment -name TIMING_CAT ON
+set_global_assignment -name TIMING_RULE_SHIFT_REG ON
+set_global_assignment -name TIMING_RULE_COIN_CLKEDGE ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_COMB_DRIVES_RAM_WE ON
+set_global_assignment -name NONSYNCHSTRUCT_CAT ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_COMBLOOP ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_REG_LOOP ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_DELAY_CHAIN ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_RIPPLE_CLK ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_ILLEGAL_PULSE_GEN ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_MULTI_VIBRATOR ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_SRLATCH ON
+set_global_assignment -name NONSYNCHSTRUCT_RULE_LATCH_UNIDENTIFIED ON
+set_global_assignment -name SIGNALRACE_CAT ON
+set_global_assignment -name ACLK_CAT ON
+set_global_assignment -name ACLK_RULE_NO_SZER_ACLK_DOMAIN ON
+set_global_assignment -name ACLK_RULE_SZER_BTW_ACLK_DOMAIN ON
+set_global_assignment -name ACLK_RULE_IMSZER_ADOMAIN ON
+set_global_assignment -name HCPY_CAT ON
+set_global_assignment -name HCPY_VREF_PINS ON
+set_global_assignment -name MERGE_HEX_FILE OFF
+set_global_assignment -name GENERATE_SVF_FILE OFF
+set_global_assignment -name GENERATE_ISC_FILE OFF
+set_global_assignment -name GENERATE_JAM_FILE OFF
+set_global_assignment -name GENERATE_JBC_FILE OFF
+set_global_assignment -name GENERATE_JBC_FILE_COMPRESSED ON
+set_global_assignment -name GENERATE_CONFIG_SVF_FILE OFF
+set_global_assignment -name GENERATE_CONFIG_ISC_FILE OFF
+set_global_assignment -name GENERATE_CONFIG_JAM_FILE OFF
+set_global_assignment -name GENERATE_CONFIG_JBC_FILE OFF
+set_global_assignment -name GENERATE_CONFIG_JBC_FILE_COMPRESSED ON
+set_global_assignment -name GENERATE_CONFIG_HEXOUT_FILE OFF
+set_global_assignment -name SIGNALPROBE_ALLOW_OVERUSE OFF
+set_global_assignment -name SIGNALPROBE_DURING_NORMAL_COMPILATION OFF
+set_global_assignment -name HUB_ENTITY_NAME sld_hub
+set_global_assignment -name HUB_INSTANCE_NAME sld_hub_inst
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
@@ -311,6 +597,10 @@ set_global_assignment -name VHDL_FILE ../../dip_switch/source/tb/dip_switch_test
 set_global_assignment -name VHDL_FILE ../../async/source/rtl/async_pack.vhd
 set_global_assignment -name VHDL_FILE ../../async/source/rtl/ascii_pack.vhd
 set_global_assignment -name VHDL_FILE ../../async/source/rtl/rs232_rx.vhd
+set_global_assignment -name VHDL_FILE ../../frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../async/source/rtl/rs232_tx.vhd
 set_global_assignment -name VHDL_FILE ../source/all_test_pll.vhd
 set_global_assignment -name VHDL_FILE ../source/all_test.vhd
+set_global_assignment -name VHDL_FILE ../source/all_test_pack.vhd
+set_global_assignment -name SIGNALTAP_FILE test1.stp
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/frame_timing_pack.vhd

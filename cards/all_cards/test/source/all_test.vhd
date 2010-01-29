@@ -40,6 +40,9 @@
 -- Revision history:
 --
 -- $Log: all_test.vhd,v $
+-- Revision 1.13  2007/12/18 20:16:17  bburger
+-- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
+--
 -- Revision 1.12  2006/08/30 22:55:18  mandana
 -- reformatted comment
 --
@@ -287,9 +290,9 @@ begin
                    space     when 10,
                    v         when 11,
                    period    when 12,
-                   four      when 13, -- v4.1 test firmware
+                   four      when 13, -- v4.2 test firmware
                    period    when 14,
-                   one       when 15,
+                   two       when 15,
                    newline   when others;
 
    with tx_count select
