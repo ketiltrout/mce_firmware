@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: ac_pin_assign.tcl,v $
+# Revision 1.1  2006/08/02 23:01:47  mandana
+# copied from sript directory
+#
 # Revision 1.14  2005/01/18 22:20:47  bburger
 # Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
 #
@@ -175,8 +178,10 @@ puts "   Assigned: SMB interface pins."
 
 
 # assign 2x8 test header pins
-cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_AF9"
-cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_AG11"
+# rs232 rx pin is AF9 up to rev. C and AH11 in Rev. D
+# cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_AF9"
+cmp add_assignment $top_name "" rx LOCATION "Pin_AH11"
+cmp add_assignment $top_name "" tx LOCATION "Pin_AG11"
 cmp add_assignment $top_name "" "test\[3\]" LOCATION "Pin_AD10"
 cmp add_assignment $top_name "" "test\[4\]" LOCATION "Pin_AH11"
 cmp add_assignment $top_name "" "test\[5\]" LOCATION "Pin_AE10"
