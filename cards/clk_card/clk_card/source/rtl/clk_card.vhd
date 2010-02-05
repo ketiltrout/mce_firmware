@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.92 2010/01/18 20:39:32 bburger Exp $
+-- $Id: clk_card.vhd,v 1.93 2010/01/21 18:48:34 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -398,6 +398,11 @@ architecture top of clk_card is
    signal awg_addr           : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
    signal awg_addr_incr      : std_logic;
 
+--   signal lvds_clk_test      : std_logic;
+   signal lvds_cmd_test      : std_logic;
+   signal lvds_sync_test     : std_logic;
+   signal lvds_spare_test    : std_logic;
+   
 begin
 
    ----------------------------------------------------------------
@@ -473,9 +478,26 @@ begin
    ttl_tx1 <= not mce_bclr;
    rst     <= cc_bclr or mce_bclr;
 
+   -----------------------------------
+   -- Testing
+   -----------------------------------
+   process(rst, clk)
+   begin
+      if(rst = '1') then
+         lvds_cmd_test   <= '0';    
+         lvds_sync_test  <= '0';    
+         lvds_spare_test <= '0';    
+      elsif(clk'event and clk = '1') then
+         lvds_cmd_test   <= not lvds_cmd_test;    
+         lvds_sync_test  <= not lvds_sync_test;    
+         lvds_spare_test <= not lvds_spare_test;    
+      end if;
+   end process;
+
    -- LVDS line outputs
-   lvds_sync <= encoded_sync;
-   lvds_cmd  <= cmd;
+   lvds_cmd   <= lvds_cmd_test;    
+   lvds_sync  <= lvds_sync_test;    
+   lvds_spare <= lvds_spare_test;    
 
    -- SRAM signals
    sram0_addr <= sram_addr(19 downto 0);
