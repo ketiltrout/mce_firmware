@@ -1,5 +1,5 @@
 Analysis & Synthesis report for bc_test
-Wed Jan 27 11:13:43 2010
+Fri Feb 12 09:38:33 2010
 Quartus II Version 9.0 Build 235 06/17/2009 Service Pack 2 SJ Full Version
 
 
@@ -480,12 +480,12 @@ applicable agreement for further details.
 +-----------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                ;
 +-----------------------------+-----------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Wed Jan 27 11:13:43 2010         ;
+; Analysis & Synthesis Status ; Successful - Fri Feb 12 09:38:32 2010         ;
 ; Quartus II Version          ; 9.0 Build 235 06/17/2009 SP 2 SJ Full Version ;
 ; Revision Name               ; bc_test                                       ;
 ; Top-level Entity Name       ; bc_test                                       ;
 ; Family                      ; Stratix                                       ;
-; Total logic elements        ; 3,505                                         ;
+; Total logic elements        ; 3,504                                         ;
 ; Total pins                  ; 140                                           ;
 ; Total virtual pins          ; 0                                             ;
 ; Total memory bits           ; 512                                           ;
@@ -630,20 +630,20 @@ applicable agreement for further details.
 +---------------------------------------------+------------------------------------------------+
 ; Resource                                    ; Usage                                          ;
 +---------------------------------------------+------------------------------------------------+
-; Total logic elements                        ; 3505                                           ;
-;     -- Combinational with no register       ; 936                                            ;
+; Total logic elements                        ; 3504                                           ;
+;     -- Combinational with no register       ; 935                                            ;
 ;     -- Register only                        ; 45                                             ;
 ;     -- Combinational with a register        ; 2524                                           ;
 ;                                             ;                                                ;
 ; Logic element usage by number of LUT inputs ;                                                ;
-;     -- 4 input functions                    ; 2192                                           ;
+;     -- 4 input functions                    ; 2191                                           ;
 ;     -- 3 input functions                    ; 366                                            ;
 ;     -- 2 input functions                    ; 692                                            ;
 ;     -- 1 input functions                    ; 208                                            ;
 ;     -- 0 input functions                    ; 2                                              ;
 ;                                             ;                                                ;
 ; Logic elements by mode                      ;                                                ;
-;     -- normal mode                          ; 3121                                           ;
+;     -- normal mode                          ; 3120                                           ;
 ;     -- arithmetic mode                      ; 384                                            ;
 ;     -- qfbk mode                            ; 0                                              ;
 ;     -- register cascade mode                ; 0                                              ;
@@ -656,7 +656,7 @@ applicable agreement for further details.
 ; Total memory bits                           ; 512                                            ;
 ; Total PLLs                                  ; 1                                              ;
 ; Maximum fan-out node                        ; bc_test_pll:clk0|altpll:altpll_component|_clk0 ;
-; Maximum fan-out                             ; 2603                                           ;
+; Maximum fan-out                             ; 2602                                           ;
 ; Total fan-out                               ; 16973                                          ;
 ; Average fan-out                             ; 4.65                                           ;
 +---------------------------------------------+------------------------------------------------+
@@ -667,7 +667,7 @@ applicable agreement for further details.
 +-------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------+--------------+
 ; Compilation Hierarchy Node                            ; Logic Cells ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                            ; Library Name ;
 +-------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------+--------------+
-; |bc_test                                              ; 3505 (318)  ; 2569         ; 512         ; 0            ; 0       ; 0         ; 0         ; 140  ; 0            ; 936 (301)    ; 45 (2)            ; 2524 (15)        ; 492 (0)         ; 0 (0)      ; |bc_test                                                                                                       ; work         ;
+; |bc_test                                              ; 3504 (317)  ; 2569         ; 512         ; 0            ; 0       ; 0         ; 0         ; 140  ; 0            ; 935 (300)    ; 45 (2)            ; 2524 (15)        ; 492 (0)         ; 0 (0)      ; |bc_test                                                                                                       ; work         ;
 ;    |bc_dac_ctrl_test_wrapper:dac_fix|                 ; 939 (8)     ; 805          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 134 (2)      ; 8 (2)             ; 797 (4)          ; 132 (0)         ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix                                                                      ; work         ;
 ;       |fast2slow_clk_domain_crosser:enable_extend|    ; 7 (7)       ; 7            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 6 (6)             ; 1 (1)            ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix|fast2slow_clk_domain_crosser:enable_extend                           ; work         ;
 ;       |write_spi_with_cs:\gen_spi32:0:dac_write_spi|  ; 28 (12)     ; 24           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4 (4)        ; 0 (0)             ; 24 (8)           ; 4 (4)           ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:0:dac_write_spi                         ; work         ;
@@ -6037,7 +6037,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 9.0 Build 235 06/17/2009 Service Pack 2 SJ Full Version
-    Info: Processing started: Wed Jan 27 11:13:09 2010
+    Info: Processing started: Fri Feb 12 09:37:58 2010
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off bc_test -c bc_test
 Info: Found 1 design units, including 0 entities, in source file ../../../library/sys_param/source/rtl/command_pack.vhd
     Info: Found design unit 1: command_pack
@@ -6114,29 +6114,25 @@ Info: Found 2 design units, including 1 entities, in source file ../source/bc_te
     Info: Found design unit 1: bc_test-behaviour
     Info: Found entity 1: bc_test
 Info: Elaborating entity "bc_test" for the top level hierarchy
-Warning (10541): VHDL Signal Declaration warning at bc_test.vhd(120): used implicit default value for signal "lvds_txa" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
-Warning (10541): VHDL Signal Declaration warning at bc_test.vhd(121): used implicit default value for signal "lvds_txb" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(185): object "cmd1" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(186): object "cmd2" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(190): object "rst_cmd" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(220): object "sa_htr1_done" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(223): object "sa_htr2_done" assigned a value but never read
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(479): signal "status_done" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(571): signal "ramp_msg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(612): signal "status_reg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(613): signal "status" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(614): signal "pass_msg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(616): signal "fail_msg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
-Warning (10873): Using initial value X (don't care) for net "test[13]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[12]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[11]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[10]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[9]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[8]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[4]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[3]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[2]" at bc_test.vhd(142)
-Warning (10873): Using initial value X (don't care) for net "test[1]" at bc_test.vhd(142)
+Warning (10541): VHDL Signal Declaration warning at bc_test.vhd(123): used implicit default value for signal "lvds_txa" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10541): VHDL Signal Declaration warning at bc_test.vhd(124): used implicit default value for signal "lvds_txb" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(188): object "cmd1" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(189): object "cmd2" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(193): object "rst_cmd" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(223): object "sa_htr1_done" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(226): object "sa_htr2_done" assigned a value but never read
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(482): signal "status_done" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(574): signal "ramp_msg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(615): signal "status_reg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(616): signal "status" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(617): signal "pass_msg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(619): signal "fail_msg" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10873): Using initial value X (don't care) for net "test[12]" at bc_test.vhd(145)
+Warning (10873): Using initial value X (don't care) for net "test[11]" at bc_test.vhd(145)
+Warning (10873): Using initial value X (don't care) for net "test[4]" at bc_test.vhd(145)
+Warning (10873): Using initial value X (don't care) for net "test[3]" at bc_test.vhd(145)
+Warning (10873): Using initial value X (don't care) for net "test[2]" at bc_test.vhd(145)
+Warning (10873): Using initial value X (don't care) for net "test[1]" at bc_test.vhd(145)
 Info: Elaborating entity "bc_test_pll" for hierarchy "bc_test_pll:clk0"
 Info: Elaborating entity "altpll" for hierarchy "bc_test_pll:clk0|altpll:altpll_component"
 Info: Elaborated megafunction instantiation "bc_test_pll:clk0|altpll:altpll_component"
@@ -6239,20 +6235,20 @@ Info: Found 1 design units, including 1 entities, in source file db/cntr_ivi.tdf
 Info: Elaborating entity "cntr_ivi" for hierarchy "rs232_tx:tx0|fifo:data_buffer|lpm_counter:write_pointer|cntr_ivi:auto_generated"
 Info: Elaborating entity "counter" for hierarchy "counter:tx_char_counter"
 Info: Elaborating entity "bc_dac_ctrl_test_wrapper" for hierarchy "bc_dac_ctrl_test_wrapper:dac_fix"
-Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_test.vhd(282): signal "idat" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at bc_dac_ctrl_test.vhd(286): signal "idat" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
 Info: Elaborating entity "write_spi_with_cs" for hierarchy "bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:0:dac_write_spi"
 Info: Elaborating entity "shift_reg" for hierarchy "bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift"
 Info: Elaborating entity "fast2slow_clk_domain_crosser" for hierarchy "bc_dac_ctrl_test_wrapper:dac_fix|fast2slow_clk_domain_crosser:enable_extend"
 Info: Elaborating entity "bc_dac_ramp_test_wrapper" for hierarchy "bc_dac_ramp_test_wrapper:dac_ramp"
-Warning (10036): Verilog HDL or VHDL warning at bc_dac_ramp_test.vhd(94): object "dac_done" assigned a value but never read
 Info: Elaborating entity "bc_dac_xtalk_test_wrapper" for hierarchy "bc_dac_xtalk_test_wrapper:dac_xtalk"
 Info: Elaborating entity "slow2fast_clk_domain_crosser" for hierarchy "bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:start_tune"
 Info: Elaborating entity "bc_sa_htr_test" for hierarchy "bc_sa_htr_test:sa_htr1_toggle"
 Info: Resynthesizing 0 WYSIWYG logic cells and I/Os using "speed" technology mapper which leaves 12 WYSIWYG logic cells and I/Os untouched
 Info: Performing gate-level register retiming
-Info: Not allowed to move 1249 registers
-    Info: Not allowed to move at least 1137 registers because they are fed by registers in a different clock domain
-    Info: Not allowed to move at least 12 registers because they feed registers in a different clock domain
+Info: Not allowed to move 1247 registers
+    Info: Not allowed to move at least 1 registers because they feed output pins directly
+    Info: Not allowed to move at least 1135 registers because they are fed by registers in a different clock domain
+    Info: Not allowed to move at least 11 registers because they feed registers in a different clock domain
     Info: Not allowed to move at least 100 registers because they feed clock or asynchronous control signals of other registers
 Info: Quartus II software applied gate-level register retiming to 0 clock domains
 Warning: Output pins are stuck at VCC or GND
@@ -6262,12 +6258,8 @@ Warning: Output pins are stuck at VCC or GND
     Warning (13410): Pin "test[2]" is stuck at GND
     Warning (13410): Pin "test[3]" is stuck at GND
     Warning (13410): Pin "test[4]" is stuck at GND
-    Warning (13410): Pin "test[8]" is stuck at GND
-    Warning (13410): Pin "test[9]" is stuck at GND
-    Warning (13410): Pin "test[10]" is stuck at GND
     Warning (13410): Pin "test[11]" is stuck at GND
     Warning (13410): Pin "test[12]" is stuck at GND
-    Warning (13410): Pin "test[13]" is stuck at GND
 Info: 5 registers lost all their fanouts during netlist optimizations. The first 5 are displayed below.
     Info: Register "rs232_rx:rx0|shift_reg:rx_buffer|reg[0]" lost all its fanouts during netlist optimizations.
     Info: Register "pres_state.RX_CMD2" lost all its fanouts during netlist optimizations.
@@ -6278,16 +6270,16 @@ Warning: Design contains 3 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "lvds_cmd"
     Warning (15610): No output dependent on input pin "lvds_sync"
     Warning (15610): No output dependent on input pin "lvds_spare"
-Info: Implemented 3654 device resources after synthesis - the final resource count might be different
+Info: Implemented 3653 device resources after synthesis - the final resource count might be different
     Info: Implemented 9 input pins
     Info: Implemented 131 output pins
-    Info: Implemented 3505 logic cells
+    Info: Implemented 3504 logic cells
     Info: Implemented 8 RAM segments
     Info: Implemented 1 ClockLock PLLs
-Info: Quartus II Analysis & Synthesis was successful. 0 errors, 42 warnings
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 33 warnings
     Info: Peak virtual memory: 214 megabytes
-    Info: Processing ended: Wed Jan 27 11:13:43 2010
-    Info: Elapsed time: 00:00:34
+    Info: Processing ended: Fri Feb 12 09:38:33 2010
+    Info: Elapsed time: 00:00:35
     Info: Total CPU time (on all processors): 00:00:34
 
 

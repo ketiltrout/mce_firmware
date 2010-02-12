@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.18  2010/01/28 23:09:52  mandana
+-- version 3.1 and also eliminated rst_cmd which caused combinational loop
+--
 -- Revision 1.17  2010/01/22 01:17:10  mandana
 -- Rev. 3.0 to accomodate 12 low-noise bias lines introduced in Bias Card Rev. E
 -- Note that xtalk test is not supported for ln-bias lines YET!
@@ -323,11 +326,11 @@ begin
                    s         when 7,
                    t         when 8,
                    space     when 9,
-                   v         when 10, -- text for version number 3.0
+                   v         when 10, -- text for version number 3.2
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   one       when 14,
+                   two       when 14,
                    newline   when others;
 
    with tx_count select
@@ -675,8 +678,8 @@ begin
                lvds_dac_ncs_o => fix_lvds_dac_ncs,
                lvds_dac_clk_o => fix_lvds_dac_sclk,
 
-               spi_start_o    => fix_spi_start
---               lvds_spi_start_o => lvds_spi_start
+               spi_start_o    => fix_spi_start,
+               lvds_spi_start_o => lvds_spi_start
                );   
    
    
