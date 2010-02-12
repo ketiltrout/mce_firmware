@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.13 2010/01/22 01:17:10 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.14 2010/01/28 22:02:47 mandana Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -32,8 +32,12 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2010/01/22 01:17:10 $> - <initials $Author: mandana $>
+-- <date $Date: 2010/01/28 22:02:47 $> - <initials $Author: mandana $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.14  2010/01/28 22:02:47  mandana
+-- changed ext function to others! to drive ln_bias_ncs lines
+-- commented unused done_o ports
+--
 -- Revision 1.13  2010/01/22 01:17:10  mandana
 -- Rev. 3.0 to accomodate 12 low-noise bias lines introduced in Bias Card Rev. E
 -- Note that xtalk test is not supported for ln-bias lines YET!
@@ -111,8 +115,8 @@ entity bc_dac_ctrl_test_wrapper is
       lvds_dac_ncs_o: out std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
       lvds_dac_clk_o: out std_logic;
       
-      spi_start_o     : out std_logic
---      lvds_spi_start_o: out std_logic      
+      spi_start_o     : out std_logic;
+      lvds_spi_start_o: out std_logic      
    );   
 end;  
 
@@ -150,7 +154,7 @@ signal dac_data_p      : w_array32;
 begin
 
    spi_start_o <= send_dac32_start;
-   --lvds_spi_start_o <= send_dac_LVDS_start;
+   lvds_spi_start_o <= send_dac_LVDS_start;
    
    load_next_data: process(val_clk, rst_i)         
    begin
@@ -200,7 +204,7 @@ begin
    generic map(DATA_LENGTH => 16)
 
    port map(--inputs
-      spi_clk_i        => clk_i,
+      spi_clk_i        => clk_4_i,
       rst_i            => rst_i,
       start_i          => send_dac_lvds_start,
       parallel_data_i  => dac_data_p(32),
