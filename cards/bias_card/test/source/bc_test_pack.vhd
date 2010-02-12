@@ -31,6 +31,10 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.10  2010/01/22 01:17:10  mandana
+-- Rev. 3.0 to accomodate 12 low-noise bias lines introduced in Bias Card Rev. E
+-- Note that xtalk test is not supported for ln-bias lines YET!
+--
 -- Revision 1.9  2006/08/30 20:57:11  mandana
 -- updated to use bc_test_pll
 -- added clk_4_i to DAC test interfaces
@@ -106,8 +110,8 @@ constant LN_BIAS_DAC_ADDR_WIDTH : integer :=  4; -- 1 prior to BC Rev. E hardwar
           lvds_dac_dat_o : out std_logic;
           lvds_dac_ncs_o : out std_logic_vector (NUM_LN_BIAS_DACS-1 downto 0);
           lvds_dac_clk_o : out std_logic;
-          spi_start_o    : out std_logic
---          lvds_spi_start_o: out std_logic
+          spi_start_o    : out std_logic;
+          lvds_spi_start_o: out std_logic
           );   
   end component;  
   
