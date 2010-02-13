@@ -28,278 +28,6 @@
 -- Description:
 -- Readout Card top-level file
 --
--- Revision history:
--- 
--- $Log: readout_card.vhd,v $
--- Revision 1.77.2.2  2009/04/24 03:56:37  bburger
--- BB:  Added cases for READOUT_COL_INDEX_ADDR to the wishbone glue logic
---
--- Revision 1.77.2.1  2009/04/22 00:43:34  bburger
--- BB: version 0400000d
---
--- Revision 1.77  2008/08/15 18:14:44  mandana
--- BB:  rc_v0400000c_15aug2008
---
--- Revision 1.76  2008/08/04 12:07:28  mandana
--- added data_mode 10 for 4.0.b
---
--- Revision 1.75  2008/07/10 18:33:07  mandana
--- rev. 4.0.a
--- regenerated ram_8x64 (flx_quanta) and wbs_fb_storage (adc_offset) rams in Quartus to fix pre-reset read failure bug.
--- reduced servo_mode storage width to 2 bits in misc_banks_admin to relax timing
--- removed quartus.ini file from synth directory
---
--- Revision 1.74  2008/06/27 20:37:15  mandana
--- rev. 4.0.9
--- sa_bias/offset DACs only refreshed when new values are written to as oppose to every frame.
---
--- Revision 1.73  2008/06/27 18:38:50  mandana
--- rev. 4.0.8
--- increased pid width to 12 bits
--- fixed gainpid-read failure upon power-up (prior to reset)
---
--- Revision 1.72  2008/06/19 23:57:24  mandana
--- revision 4.3.7, 14-bit raw mode active, filter disabled, pid write only
---
--- Revision 1.69  2008/02/15 22:32:17  mandana
--- bugfix: unreliable reset due to unsafe and incomplete state machines is fixed.
--- bugfix: flux_jump sign problem fixed
--- servo_mode=2 or ramp previously only went from 0 to ramp_amp, but now goes from -8192 to -8192+ramp_amp
---  new commands are added: scratch and card_type. Scratch takes 8 values and can be used by software to detect reset.
--- slot_id and fw_rev are now integrated as part of all_cards.vhd
--- lvds_tx_b=0, This will allow Clock Card to use the secondary backplane lvds line and check whether RC is plugged in.
--- filter_coeff commented in misc_banks_admin
---
--- Revision 1.68  2007/11/01 18:53:47  mandana
--- 4.0.5: data mode 8 is replaced by data mode 9 with new windowing of filtered data
---
--- Revision 1.67  2007/10/24 23:31:45  mandana
--- added data mode 8 (mixed mode filtfb + flux_count)
---
--- Revision 1.66  2007/09/28 00:04:06  mandana
--- rev 4.0.3
--- fixed data mode 7 to be 22b filtfb and 10b error scaled by 16
--- wait 1 frame for mixed filtfb/error modes
---
--- Revision 1.65  2007/09/12 05:12:21  mandana
--- rev. 04000002 with data mode 7 added 22b filtfb/10b err, 10b pid pars
---
--- Revision 1.64  2007/09/10 23:33:07  mandana
--- rev. 4.0.1 for readout_row_index default to 0 and be able to do multiple rows
---
--- Revision 1.63  2007/08/28 19:32:11  mandana
--- v040000000 added readout_row_index
---
--- Revision 1.62  2007/06/16 03:29:00  mandana
--- v03000001e added data_mode=6 for 18b filtered fb + 14b error
---
--- Revision 1.61  2007/03/21 19:17:02  mandana
--- added new fpga_thermo module for reliable readings
--- major rewrite of fsfb_corr
---
--- Revision 1.60  2007/03/07 18:25:35  mandana
--- Revision 0300001c filter_input_width set to 18 instead of 28
---
--- Revision 1.59  2007/03/01 18:18:09  mandana
--- rev. 0300001b for 10b ram for pid coeffs
---
--- Revision 1.58  2007/02/22 00:21:51  mandana
--- Revision 0300001a same as 3.19 but filter included, raw mode excluded
---
--- Revision 1.57  2007/02/19 20:13:54  mandana
--- properly sign-extend raw-data both in adc_sample_coadd and wbs_frame_data
--- rewrote wbs_frame_data FSM
--- changed ram40x64 init file to hex file
--- changed revision to 3.000019
---
--- Revision 1.56  2006/12/13 18:26:26  mandana
--- changed rev. to 03000018 to enable raw_mode, disable filter with servo_mode/column control
---
--- Revision 1.55  2006/12/11 18:10:08  mandana
--- Changed revision to 3.17, added ports to fsfb_corr for servo_mode/column and fixed a bug with fsb_const initial value for column 8
---
--- Revision 1.54  2006/12/05 22:30:41  mandana
--- changed rev. to 03000016 to split the servo_mode to be column specific instead of common for all columns.
--- Note that flux_jump will still get enabled based on column 0 servo_mode!
---
--- Revision 1.53  2006/12/05 14:08:41  mandana
--- changed rev. to 03000015 to fix a bug related to splitting fb_const to be specific to each column and only column 0 being initialized to -8192 and the rest to 0. This should be fixed.
--- ramp_mode is disabled just to resolve timting violations encountered in fsfb_corr in 030000014
---
--- Revision 1.52  2006/11/24 21:08:55  mandana
--- splitted fb_const to be channel specific, changed revision to 3.14
---
--- Revision 1.51  2006/09/25 23:31:06  mandana
--- changed revision to 030000013 for changing PIDZ_DATA_WIDTH to 10b from 8b
---
--- Revision 1.50  2006/09/22 21:19:53  mandana
--- changed revision to 030000012 for adding adc_offset read-back feature
---
--- Revision 1.49  2006/08/10 21:35:42  mandana
--- revision 03000105 for FILTER_GAIN_WIDTH = 11, i.e. divide by 2048 between filter stages
---
--- Revision 1.48  2006/07/28 17:18:01  mandana
--- revision 03000104 for FILTER_LOCK_LSB_POS set to 12 and divide by 32 added between filter stages.
---
--- Revision 1.47  2006/07/24 23:23:37  mandana
--- revision 03000103 for FILTER_LOCK_LSB_POS set to 10 and fsfb_corr violations fixed by reducing operation(multi/sub) width
---
--- Revision 1.46  2006/07/24 18:24:38  mandana
--- revision 03000102 for 1S40 and FILTER_LOCK_LSB_POS set to 10
---
--- Revision 1.45  2006/07/20 23:32:43  mandana
--- revision 03000101 for 1S40 and FILTER_LOCK_LSB_POS set to 12 instead of 14
---
--- Revision 1.44  2006/07/18 17:06:08  mandana
--- revision 03000100 to fix the bug with PID RAMs for ch1 to ch7 being synthesized out, uses Q6.0 SP1.
---
--- Revision 1.43  2006/07/07 21:28:03  mandana
--- revision upgraded to 03000011 for DACs to be initialized to 0 by loading -8192 to DACs as default and default servo_mode is constant rather than undefined
---
--- Revision 1.42  2006/06/30 17:09:08  bburger
--- raw_mode enabled, filter disabled, Q42
---
--- Revision 1.41  2006/06/09 16:48:46  mandana
--- fixed pix_addr_cnt  reset problem in wbs_frame_data to fix a bug with readout data of reduced number of rows
---
--- Revision 1.40  2006/06/07 19:49:45  bburger
--- Bryce:  rc_v0300000d
---
--- Revision 1.39  2006/05/16 21:22:33  mandana
--- revision upgraded to 0300000b (from 03000000a) for slot_id, default LED status, fpga_temp
---
--- Revision 1.38  2006/05/05 19:56:26  mandana
--- use all_cards_pack.vhd
--- added fpga_thermo and slot_id
--- added err_o interface for slot_id, fw_rev, id_thermo, fpga_thermo
--- revision upgraded to 030000000a for weighted_integral calculation
---
--- Revision 1.37  2006/04/28 18:11:24  mandana
--- revision upgraded to 03000009 (from 030000006) to compile for 1S40 and backplane Rev. C
---
--- Revision 1.36  2006/04/18 17:37:07  mandana
--- revision upgraded to 03000008 (from 030000006) to compile for 1S40 and backplane Rev. A/B
---
--- Revision 1.35  2006/04/12 23:25:09  mandana
--- revision upgraded to 03000007 to enable raw mode and disable filter
---
--- Revision 1.34  2006/04/10 23:53:47  mandana
--- revision upgraded to 03000006 for Rev. A/B BP, data_mode 4 adjusted and 2^12 scaling in fsfb_corr_pack
---
--- Revision 1.33  2006/04/03 23:32:47  mandana
--- revision upgraded to 03000005 for Rev. C BP, data_mode 4 adjusted and 2^12 scaling in fsfb_corr_pack
---
--- Revision 1.32  2006/03/24 21:01:44  mandana
--- revision 03000004 built based on 03000003 where dip_sw ports are added for dispatch block
---
--- Revision 1.31  2006/03/22 19:28:34  mandana
--- revision 03000003 built based on 02000009 with latest BB protocol
---
--- Revision 1.30  2006/03/17 18:29:18  mandana
--- revision upgraded to 02000009 for data_mode 4 adjusted and 2^12 scaling in fsfb_corr_pack
---
--- Revision 1.28  2006/03/15 23:41:22  mandana
--- revision upgraded to 02000007 for 2^10 scaling in fsfb_corr_pack
---
--- Revision 1.27  2006/03/15 18:18:48  mandana
--- revision upgraded to 02000006 for 2^12 scaling in fsfb_corr_pack
---
--- Revision 1.26  2006/03/14 23:31:43  mandana
--- revision upgraded to 02000005 for 4-pole filter and timing violations introduced by Q5.1 are fixed now
--- mem_clk finally deleted
---
--- Revision 1.23.2.3  2006/02/17 21:16:48  mandana
--- revision number changed to 02000004 for princeton filter and filter window set at 14
---
--- Revision 1.23.2.2  2006/02/15 22:22:40  bburger
--- Bryce:  changed revision number to 02000003
---
--- Revision 1.23.2.1  2006/02/15 22:07:39  mandana
--- old dispatch, revision number changed to 02000002
---
--- Revision 1.23  2006/02/15 21:53:29  mandana
--- added FLTR_RST_ADDR command
--- moved component declarations to readout_card.pak
--- revision number upgraded to 0200000001
---
--- Revision 1.22  2006/02/09 20:32:59  bburger
--- Bryce:
--- - Added a fltr_rst_o output signal from the frame_timing block
--- - Adjusted the top-levels of each card to reflect the frame_timing interface change
---
--- Revision 1.21  2006/02/09 17:24:57  bburger
--- Bryce:  committing v02000000 for tagging
---
--- Revision 1.20  2006/02/06 19:23:35  bburger
--- Bryce:  commital for intermediate tag
---
--- Revision 1.19  2006/01/18 21:40:44  mandana
--- revision num. updated to 01040002 for integration of new dispatch module that incorporates new BB protocol
---
--- Revision 1.18  2005/12/14 20:01:50  mandana
--- revision number updated to 01040001 for merged filter + flux_jump functionality
---
--- Revision 1.17  2005/11/28 19:21:20  bburger
--- Bryce:  changed from v01020001 to v01020002
---
--- Revision 1.16  2005/09/14 23:48:39  bburger
--- bburger:
--- Integrated flux-jumping into flux_loop
---
--- Revision 1.15  2005/06/23 17:19:32  mohsen
--- Mandana: added COUNT_MAX to prevent raw_memory bank from wrapping, changed RAW_ADDR_MAX, RAW_DATA_POSITION_POINTER
---
--- Revision 1.14  2005/05/09 23:48:51  mohsen
--- Bryce - v01010006 of the 8-channel readout card with a fix that enables it to sample the sync line in the middle of a clock period.
---
--- Revision 1.13  2005/05/06 20:02:31  bburger
--- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
--- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
---
--- Revision 1.12  2005/03/31 18:18:45  mohsen
--- new rev number. This rev number is exactly the same as 01010004 except for lvds_rx synchronizer bug fix.
--- Thus, the revision is the normal readout card firmware with the exception of having data_mode 0 in
--- wbs_frame_data connected to co-added values rather than the filter values.  This is needed for cold test.
---
--- Revision 1.11  2005/03/30 18:30:16  mohsen
--- new rev number for 8-channel firmware validation
---
--- Revision 1.10  2005/03/18 01:27:41  mohsen
--- Fixed compilation errors and added mictor connection
---
--- Revision 1.9  2005/02/21 22:29:26  mandana
--- added firmware revision RC_REVISION (fw_rev)
---
--- Revision 1.8  2005/01/19 23:39:06  bburger
--- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
---
--- Revision 1.7  2005/01/18 22:20:47  bburger
--- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
---
--- Revision 1.6  2005/01/13 22:38:54  mohsen
--- Dispatch interface change
---
--- Revision 1.5  2004/12/21 22:06:51  bburger
--- Bryce:  update
---
--- Revision 1.4  2004/12/10 20:23:40  mohsen
--- Mohsen & Anthony: Added mem and comm clock
--- Updated dispatch new interface, i.e., err_i
---
--- Revision 1.3  2004/12/07 20:22:21  mohsen
--- Anthony & Mohsen: Initial release
---
--- Revision 1.2  2004/12/06 07:22:34  bburger
--- Bryce:
--- Created pack files for the card top-levels.
--- Added some simulation signals to the top-levels (i.e. clocks)
---
--- Revision 1.1  2004/11/16 11:04:41  dca
--- Initial Version
---
---
--- 
---
 -----------------------------------------------------------------------------
 
 library ieee;
@@ -433,7 +161,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000e"; -- 12b pid pars , sa_bias/offset updated only when modified
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0400000f"; -- 12b pid pars , sa_bias/offset updated only when modified
                                                                      -- fixed gainpid/adc_offset/flx_quanta-read failure upon power-up (prior to reset)
                                                                      -- removed quartus.ini from synth directory
 -- Global signals
@@ -928,52 +656,50 @@ begin
    ----------------------------------------------------------------------------
    -- id_thermo Instantition
    ----------------------------------------------------------------------------
-
---   i_id_thermo: id_thermo
---      port map(
---         clk_i   => clk,
---         rst_i   => rst,  
---         
---         -- Wishbone signals
---         dat_i   => dispatch_dat_out, 
---         addr_i  => dispatch_addr_out,
---         tga_i   => dispatch_tga_out,
---         we_i    => dispatch_we_out,
---         stb_i   => dispatch_stb_out,
---         cyc_i   => dispatch_cyc_out,
---         err_o   => id_thermo_err,
---         dat_o   => id_thermo_data,
---         ack_o   => id_thermo_ack,
---            
---         -- silicon id/temperature chip signals
---         data_io => card_id
---      );
+   i_id_thermo: id_thermo
+      port map(
+         clk_i   => clk,
+         rst_i   => rst,  
+         
+         -- Wishbone signals
+         dat_i   => dispatch_dat_out, 
+         addr_i  => dispatch_addr_out,
+         tga_i   => dispatch_tga_out,
+         we_i    => dispatch_we_out,
+         stb_i   => dispatch_stb_out,
+         cyc_i   => dispatch_cyc_out,
+         err_o   => id_thermo_err,
+         dat_o   => id_thermo_data,
+         ack_o   => id_thermo_ack,
+            
+         -- silicon id/temperature chip signals
+         data_io => card_id
+      );
    
    ----------------------------------------------------------------------------
    -- fpga_thermo Instantition
    ----------------------------------------------------------------------------
-
---   i_fpga_thermo: fpga_thermo
---      port map(
---         clk_i   => clk,
---         rst_i   => rst,  
---         
---         -- Wishbone signals
---         dat_i   => dispatch_dat_out, 
---         addr_i  => dispatch_addr_out,
---         tga_i   => dispatch_tga_out,
---         we_i    => dispatch_we_out,
---         stb_i   => dispatch_stb_out,
---         cyc_i   => dispatch_cyc_out,
---         err_o   => fpga_thermo_err,
---         dat_o   => fpga_thermo_data,
---         ack_o   => fpga_thermo_ack,
---            
---         -- FPGA temperature chip signals
---         smbclk_o  => smb_clk,
---         smbalert_i => smb_nalert,
---         smbdat_io => smb_data
---   );
+   i_fpga_thermo: fpga_thermo
+      port map(
+         clk_i   => clk,
+         rst_i   => rst,  
+         
+         -- Wishbone signals
+         dat_i   => dispatch_dat_out, 
+         addr_i  => dispatch_addr_out,
+         tga_i   => dispatch_tga_out,
+         we_i    => dispatch_we_out,
+         stb_i   => dispatch_stb_out,
+         cyc_i   => dispatch_cyc_out,
+         err_o   => fpga_thermo_err,
+         dat_o   => fpga_thermo_data,
+         ack_o   => fpga_thermo_ack,
+            
+         -- FPGA temperature chip signals
+         smbclk_o  => smb_clk,
+         smbalert_i => smb_nalert,
+         smbdat_io => smb_data
+   );
 
    ----------------------------------------------------------------------------
    -- Mictor Connection

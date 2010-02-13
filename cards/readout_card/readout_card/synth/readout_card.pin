@@ -1,4 +1,4 @@
- -- Copyright (C) 1991-2008 Altera Corporation
+ -- Copyright (C) 1991-2010 Altera Corporation
  -- Your use of Altera Corporation's design tools, logic functions 
  -- and other software and tools, and its AMPP partner logic 
  -- functions, and any output files from any of the foregoing 
@@ -52,10 +52,9 @@
  --					This pin should be connected to GND. It may also be connected  to a
  --					valid signal  on the board  (low, high, or toggling)  if that signal
  --					is required for a different revision of the design.
- -- GND*          : Unused  I/O  pin.   For transceiver I/O banks (Bank 13, 14, 15, 16 and 17),
- --           	    connect each pin marked GND* either individually through a 10 kohm resistor
- --           	    to GND or tie all pins together and connect through a single 10 kohm resistor
- --           	    to GND.
+ -- GND*          : Unused  I/O  pin.   For transceiver I/O banks, connect each pin marked GND*
+ --           	    either individually through a 10k Ohm resistor to GND or tie all pins
+ --           	    together and connect through a single 10k Ohm resistor to GND.
  --           	    For non-transceiver I/O banks, connect each pin marked GND* directly to GND
  --           	    or leave it unconnected.
  -- RESERVED      : Unused I/O pin, which MUST be left unconnected.
@@ -71,7 +70,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 8.1 Build 163 10/28/2008 SJ Full Version
+Quartus II Version 9.1 Build 304 01/25/2010 Service Pack 1 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S40F780C6
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -335,7 +334,7 @@ mictor[18]                   : B8        : output : 3.3-V LVTTL       :         
 mictor[17]                   : B9        : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[4]                    : B10       : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[1]                    : B11       : output : 3.3-V LVTTL       :         : 4         : Y              
-RESERVED_INPUT               : B12       :        :                   :         : 4         :                
+mictor[6]                    : B12       : output : 3.3-V LVTTL       :         : 4         : N              
 mictor[8]                    : B13       : output : 3.3-V LVTTL       :         : 4         : Y              
 TEMPDIODEp                   : B14       :        :                   :         :           :                
 RESERVED_INPUT               : B15       :        :                   :         : 10        :                
@@ -366,7 +365,7 @@ mictor[2]                    : C11       : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : C12       :        :                   :         : 4         :                
 mictor[7]                    : C13       : output : 3.3-V LVTTL       :         : 4         : Y              
 TEMPDIODEn                   : C14       :        :                   :         :           :                
-mictor[5]                    : C15       : output : 3.3-V LVTTL       :         : 10        : N              
+RESERVED_INPUT               : C15       :        :                   :         : 10        :                
 RESERVED_INPUT               : C16       :        :                   :         : 3         :                
 RESERVED_INPUT               : C17       :        :                   :         : 3         :                
 RESERVED_INPUT               : C18       :        :                   :         : 3         :                
@@ -447,7 +446,7 @@ ttl_in2                      : F8        : input  : 3.3-V LVTTL       :         
 ttl_in3                      : F9        : input  : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : F10       :        :                   :         : 4         :                
 ttl_out1                     : F11       : output : 3.3-V LVTTL       :         : 4         : Y              
-RESERVED_INPUT               : F12       :        :                   :         : 4         :                
+~DATA1~ / RESERVED_INPUT     : F12       : input  : 3.3-V LVTTL       :         : 4         : N              
 TMS                          : F13       : input  :                   :         : 4         :                
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    :           :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
@@ -474,14 +473,14 @@ ttl_dir1                     : G7        : output : 3.3-V LVTTL       :         
 ttl_out2                     : G8        : output : 3.3-V LVTTL       :         : 4         : Y              
 ttl_dir2                     : G9        : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : G10       :        :                   :         : 4         :                
-RESERVED_INPUT               : G11       :        :                   :         : 4         :                
+mictor[5]                    : G11       : output : 3.3-V LVTTL       :         : 4         : N              
 ttl_out3                     : G12       : output : 3.3-V LVTTL       :         : 4         : Y              
 TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         :           :                
 GND                          : G15       : gnd    :                   :         :           :                
 VCC_PLL5_OUTB                : G16       : power  :                   : 3.3V    : 10        :                
 CONF_DONE                    : G17       :        :                   :         : 3         :                
-RESERVED_INPUT               : G18       :        :                   :         : 3         :                
+~DATA7~ / RESERVED_INPUT     : G18       : input  : 3.3-V LVTTL       :         : 3         : N              
 RESERVED_INPUT               : G19       :        :                   :         : 3         :                
 GND                          : G20       : gnd    :                   :         :           :                
 smb_nalert                   : G21       : input  : 3.3-V LVTTL       :         : 3         : Y              
@@ -508,8 +507,8 @@ TDO                          : H13       : output :                   :         
 RESERVED_INPUT               : H14       :        :                   :         : 9         :                
 RESERVED_INPUT               : H15       :        :                   :         : 9         :                
 GND                          : H16       : gnd    :                   :         :           :                
-RESERVED_INPUT               : H17       :        :                   :         : 3         :                
-RESERVED_INPUT               : H18       :        :                   :         : 3         :                
+~DATA4~ / RESERVED_INPUT     : H17       : input  : 3.3-V LVTTL       :         : 3         : N              
+~DATA6~ / RESERVED_INPUT     : H18       : input  : 3.3-V LVTTL       :         : 3         : N              
 ylw_led                      : H19       : output : 3.3-V LVTTL       :         : 3         : Y              
 red_led                      : H20       : output : 3.3-V LVTTL       :         : 3         : Y              
 adc8_dat[4]                  : H21       : input  : 3.3-V LVTTL       :         : 2         : Y              
@@ -531,7 +530,7 @@ dac_FB3_dat[1]               : J8        : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : J9        :        :                   :         : 4         :                
 RESERVED_INPUT               : J10       :        :                   :         : 4         :                
 RESERVED_INPUT               : J11       :        :                   :         : 4         :                
-RESERVED_INPUT               : J12       :        :                   :         : 4         :                
+~DATA2~ / RESERVED_INPUT     : J12       : input  : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
 VCCIO4                       : J14       : power  :                   : 3.3V    : 4         :                
 VCCIO3                       : J15       : power  :                   : 3.3V    : 3         :                
@@ -565,7 +564,7 @@ RESERVED_INPUT               : K14       :        :                   :         
 RESERVED_INPUT               : K15       :        :                   :         : 9         :                
 RESERVED_INPUT               : K16       :        :                   :         : 10        :                
 inclk                        : K17       : input  : 3.3-V LVTTL       :         : 3         : Y              
-RESERVED_INPUT               : K18       :        :                   :         : 3         :                
+~DATA5~ / RESERVED_INPUT     : K18       : input  : 3.3-V LVTTL       :         : 3         : N              
 RESERVED_INPUT               : K19       :        :                   :         : 3         :                
 GND                          : K20       : gnd    :                   :         :           :                
 adc7_dat[5]                  : K21       : input  : 3.3-V LVTTL       :         : 2         : Y              
@@ -615,7 +614,7 @@ dac_FB4_dat[7]               : M8        : output : 3.3-V LVTTL       :         
 dac_FB4_dat[0]               : M9        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB_clk[3]                : M10       : output : 3.3-V LVTTL       :         : 5         : Y              
 RESERVED_INPUT               : M11       :        :                   :         : 4         :                
-mictor[6]                    : M12       : output : 3.3-V LVTTL       :         : 4         : N              
+~DATA3~ / RESERVED_INPUT     : M12       : input  : 3.3-V LVTTL       :         : 4         : N              
 GND+                         : M13       :        :                   :         : 4         :                
 VCCINT                       : M14       : power  :                   : 1.5V    :           :                
 GND                          : M15       : gnd    :                   :         :           :                

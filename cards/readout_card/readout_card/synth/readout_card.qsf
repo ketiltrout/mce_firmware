@@ -35,7 +35,7 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 8.1
+set_global_assignment -name LAST_QUARTUS_VERSION "9.1 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -694,7 +694,7 @@ set_global_assignment -name INCREMENTAL_COMPILATION OFF
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
 set_global_assignment -name SEED 1
 set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS OUTPUT DRIVING AN UNSPECIFIED SIGNAL"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk2"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk3"
@@ -1112,6 +1112,22 @@ set_location_assignment PIN_F26 -to adc8_dat[10]
 set_location_assignment PIN_F25 -to adc8_dat[11]
 set_location_assignment PIN_K24 -to adc8_dat[12]
 set_location_assignment PIN_K23 -to adc8_dat[13]
+set_global_assignment -name STRATIX_CONFIGURATION_SCHEME "FAST PASSIVE PARALLEL"
+set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+set_global_assignment -name STRATIX_CONFIGURATION_DEVICE EPC16
+set_global_assignment -name AUTO_INCREMENT_CONFIG_DEVICE_JTAG_USER_CODE OFF
+set_global_assignment -name GENERATE_TTF_FILE ON
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name GENERATE_HEX_FILE ON
+set_global_assignment -name GENERATE_SVF_FILE ON
+set_global_assignment -name GENERATE_JAM_FILE ON
+set_global_assignment -name GENERATE_JBC_FILE ON
+set_global_assignment -name GENERATE_CONFIG_SVF_FILE ON
+set_global_assignment -name GENERATE_CONFIG_JAM_FILE ON
+set_global_assignment -name GENERATE_CONFIG_JBC_FILE ON
+set_global_assignment -name GENERATE_CONFIG_HEXOUT_FILE ON
+set_global_assignment -name CONFIGURATION_CLOCK_DIVISOR 1.0
+set_global_assignment -name RESERVE_DATA7_THROUGH_DATA1_AFTER_CONFIGURATION "AS INPUT TRI-STATED"
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -1216,5 +1232,3 @@ set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
 set_global_assignment -name SIGNALTAP_FILE ../../fsfb_calc/source/rtl/raw.stp
 set_global_assignment -name SIGNALTAP_FILE raw.stp
-set_global_assignment -name QIP_FILE ../../flux_loop/source/rtl/raw_ram_bank.qip
-set_global_assignment -name QIP_FILE ../../fsfb_calc/source/rtl/ram_40x64.qip
