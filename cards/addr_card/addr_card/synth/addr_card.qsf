@@ -33,7 +33,7 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:26:58  DECEMBER 15, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "9.0 SP2"
+set_global_assignment -name LAST_QUARTUS_VERSION "9.1 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -339,7 +339,7 @@ set_location_assignment PIN_Y27 -to ttl_txena3
 # Timing Assignments
 # ==================
 set_global_assignment -name IGNORE_CLOCK_SETTINGS OFF
-set_global_assignment -name FMAX_REQUIREMENT "20 ns"
+set_global_assignment -name FMAX_REQUIREMENT "20.0 ns"
 
 # Analysis & Synthesis Assignments
 # ================================
@@ -350,7 +350,7 @@ set_global_assignment -name FAMILY Stratix
 set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name TOP_LEVEL_ENTITY addr_card
-set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
+set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
 
 # Fitter Assignments
 # ==================
@@ -396,7 +396,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
+	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
@@ -412,13 +412,6 @@ set_parameter -name "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|tpram_32b
 # ---------------------
 
 set_global_assignment -name SAFE_STATE_MACHINE ON
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
-set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
-set_global_assignment -name INCREMENTAL_COMPILATION FULL_INCREMENTAL_COMPILATION
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/tpram_14bit_x_64.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
@@ -488,6 +481,3 @@ set_global_assignment -name SIGNALTAP_FILE ac_v02000004_resetmcebug_.stp
 set_global_assignment -name SIGNALTAP_FILE ac_v02000006c.stp
 set_global_assignment -name SIGNALTAP_FILE "ac_v02000006-1.stp"
 set_global_assignment -name SIGNALTAP_FILE ac_v02000006v1.stp
-set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
-set_global_assignment -name SAVE_DISK_SPACE OFF
-set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION OFF
