@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.31  2009/01/16 01:27:01  bburger
+-- BB:  v05000000 again, due to a signal name change in addr_card.vhd
+--
 -- Revision 1.30  2008/12/22 20:36:45  bburger
 -- BB:  Added a second LVDS reply channel to dispatch
 --
@@ -132,7 +135,7 @@ entity addr_card is
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
       smb_clk    : out std_logic;
-      smb_nalert : in std_logic;
+      smb_nalert : out std_logic;
       smb_data   : inout std_logic;
 
       -- debug ports:
@@ -150,7 +153,7 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"05000000";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"05000004";
 
    -- clocks
    signal clk      : std_logic;
@@ -426,7 +429,7 @@ begin
 
       -- FPGA temperature chip signals
       smbclk_o   => smb_clk,
-      smbalert_i => smb_nalert,
+      smbalert_i => '1',
       smbdat_io  => smb_data
    );
 
