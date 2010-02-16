@@ -29,8 +29,11 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2007/12/18 20:09:40 $>	- <initials $Author: bburger $>
+-- <date $Date: 2010/01/29 21:54:37 $>	- <initials $Author: mandana $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.12  2010/01/29 21:54:37  mandana
+-- v3.1 generated for Rev. D address cards
+--
 -- Revision 1.11  2007/12/18 20:09:40  bburger
 -- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
 --
@@ -304,7 +307,7 @@ begin
 
    
    with tx_count select 
-      -- reset message is AC Test v3.1
+      -- reset message is AC Test v3.2
       reset_msg <= newline   when 0,
                    newline   when 1,
                    shift(a)  when 2,
@@ -319,7 +322,7 @@ begin
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   one      when 14,
+                   two       when 14,
                    newline   when others;
 
    with tx_count select
@@ -384,7 +387,7 @@ begin
       end if;
    end process;
 
-   process(pres_state, rx_rdy, rx_data, tx_count, fixed_dac_done, ramp_dac_done)
+   process(pres_state, rx_rdy, rx_data, tx_count, fixed_dac_done, ramp_dac_done, ramp_enabled)
    begin
       next_state <= pres_state;
 

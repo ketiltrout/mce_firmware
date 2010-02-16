@@ -29,8 +29,11 @@
 -- testbench for the ac_dac_ctrl, very simple: assert enable and wait for done!
 --
 -- Revision history:
--- <date $Date: 2004/05/04 00:10:45 $>	- <initials $Author: mandana $>
+-- <date $Date: 2006/08/02 22:46:47 $>	- <initials $Author: mandana $>
 -- $Log: tb_ac_dac_ramp.vhd,v $
+-- Revision 1.2  2006/08/02 22:46:47  mandana
+-- updated to improve coverage
+--
 -- Revision 1.1  2004/05/04 00:10:45  mandana
 -- initial release
 --
@@ -141,7 +144,7 @@ begin
       W_EN_I        <= '1';     
       wait until W_DONE_O = '1';
       W_EN_I        <= '0';
-      wait for PERIOD*10;
+      wait for PERIOD*100;
       assert FALSE report "Simulation done." severity failure;    
 
    end process STIMULI;
