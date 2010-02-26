@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.79 2010/01/21 18:47:07 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.80 2010/01/26 19:53:28 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.80  2010/01/26 19:53:28  bburger
+-- BB: AWG bug testing
+--
 -- Revision 1.79  2010/01/21 18:47:07  bburger
 -- BB: internal_cmd_mode = 2
 --
@@ -324,6 +327,14 @@ architecture tb of tb_cc_rcs_bcs_ac is
       fibre_tx_enn      : out std_logic;
       fibre_tx_bisten   : out std_logic;
       fibre_tx_foto     : out std_logic;
+
+      -- JTAG
+      fpga_tdo          : out std_logic; -- TDI (into JTAG chain)
+      fpga_tck          : out std_logic; -- TCK
+      fpga_tms          : out std_logic; -- TMS
+      epc_tdo           : in std_logic;  -- TDO (out of JTAG chain)
+      jtag_sel          : out std_logic; -- JTAG source: '0'=Header, '1'=FGPA
+      nbb_jtag          : in std_logic;  -- JTAG source:  readback (jtag_sel)
 
       nreconf           : out std_logic;
       nepc_sel          : out std_logic
@@ -823,6 +834,10 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_awg_data_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_DATA_ADDR;
    constant cc_awg_addr_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & AWG_ADDR_ADDR;
 
+   constant cc_jtag0_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG0_ADDR;
+   constant cc_jtag1_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG1_ADDR;
+   constant cc_jtag2_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG2_ADDR;
+
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
    constant psu_cut_pow_cmd         : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CUT_POW_ADDR;
@@ -1060,6 +1075,12 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal fibre_tx_data      : std_logic_vector (7 downto 0);
    signal fibre_tx_ena       : std_logic;
    signal fibre_tx_sc_nd     : std_logic;
+
+   signal jtag_loopback      : std_logic;
+   signal jtag_tck           : std_logic;
+   signal jtag_tms           : std_logic;
+   signal jtag_sel           : std_logic;
+   signal jtag_ena           : std_logic;
 
    signal nreconf            : std_logic;
    signal nepc_sel           : std_logic;
@@ -1726,6 +1747,14 @@ begin
          fibre_tx_data    => fibre_tx_data,
          fibre_tx_ena     => fibre_tx_ena,
          fibre_tx_sc_nd   => fibre_tx_sc_nd,
+   
+         -- JTAG
+         fpga_tdo         => jtag_loopback, 
+         fpga_tck         => jtag_tck,
+         fpga_tms         => jtag_tms,
+         epc_tdo          => jtag_loopback,  -- Clock
+         jtag_sel         => jtag_sel, 
+         nbb_jtag         => jtag_sel,  
 
          nreconf          => nreconf,
          nepc_sel         => nepc_sel
@@ -2335,70 +2364,70 @@ begin
 --         tx            => bc1_rs232_tx
 --      );
 --
-   i_addr_card : addr_card
-      port map
-      (
-         -- PLL input:
-         inclk            => lvds_clk,
-         rst_n            => rst_n,
-
-         -- LVDS interface:
-         lvds_cmd         => lvds_cmd,
-         lvds_sync        => lvds_sync,
-         lvds_spare       => lvds_spare,
-         lvds_txa         => lvds_reply_ac_a,
-         lvds_txb         => lvds_reply_ac_b,
-
-         -- TTL interface:
-         ttl_nrx1         => bclr_n,
-         ttl_tx1          => open,
-         ttl_txena1       => ac_ttl_txena1,
-
-         ttl_nrx2         => ac_ttl_nrx2,
-         ttl_tx2          => open,
-         ttl_txena2       => ac_ttl_txena2,
-
-         ttl_nrx3         => ac_ttl_nrx3,
-         ttl_tx3          => open,
-         ttl_txena3       => ac_ttl_txena3,
-
-         -- eeprom interface:
-         eeprom_si        => ac_eeprom_si,
-         eeprom_so        => ac_eeprom_so,
-         eeprom_sck       => ac_eeprom_sck,
-         eeprom_cs        => ac_eeprom_cs,
-
-         -- dac interface:
-         dac_data0        => ac_dac_data0,
-         dac_data1        => ac_dac_data1,
-         dac_data2        => ac_dac_data2,
-         dac_data3        => ac_dac_data3,
-         dac_data4        => ac_dac_data4,
-         dac_data5        => ac_dac_data5,
-         dac_data6        => ac_dac_data6,
-         dac_data7        => ac_dac_data7,
-         dac_data8        => ac_dac_data8,
-         dac_data9        => ac_dac_data9,
-         dac_data10       => ac_dac_data10,
-         dac_clk          => ac_dac_clk,
-
-         -- miscellaneous ports:
-         red_led          => ac_red_led,
-         ylw_led          => ac_ylw_led,
-         grn_led          => ac_grn_led,
-         dip_sw3          => ac_dip_sw3,
-         dip_sw4          => ac_dip_sw4,
-         wdog             => ac_wdog,
-         slot_id          => ac_slot_id,
-         smb_nalert       => open,
-
-         -- debug ports:
-         test             => ac_test,
-         mictor           => ac_mictor,
-         mictorclk        => ac_mictorclk,
-         rx               => ac_rs232_rx,
-         tx               => ac_rs232_tx
-      );
+--   i_addr_card : addr_card
+--      port map
+--      (
+--         -- PLL input:
+--         inclk            => lvds_clk,
+--         rst_n            => rst_n,
+--
+--         -- LVDS interface:
+--         lvds_cmd         => lvds_cmd,
+--         lvds_sync        => lvds_sync,
+--         lvds_spare       => lvds_spare,
+--         lvds_txa         => lvds_reply_ac_a,
+--         lvds_txb         => lvds_reply_ac_b,
+--
+--         -- TTL interface:
+--         ttl_nrx1         => bclr_n,
+--         ttl_tx1          => open,
+--         ttl_txena1       => ac_ttl_txena1,
+--
+--         ttl_nrx2         => ac_ttl_nrx2,
+--         ttl_tx2          => open,
+--         ttl_txena2       => ac_ttl_txena2,
+--
+--         ttl_nrx3         => ac_ttl_nrx3,
+--         ttl_tx3          => open,
+--         ttl_txena3       => ac_ttl_txena3,
+--
+--         -- eeprom interface:
+--         eeprom_si        => ac_eeprom_si,
+--         eeprom_so        => ac_eeprom_so,
+--         eeprom_sck       => ac_eeprom_sck,
+--         eeprom_cs        => ac_eeprom_cs,
+--
+--         -- dac interface:
+--         dac_data0        => ac_dac_data0,
+--         dac_data1        => ac_dac_data1,
+--         dac_data2        => ac_dac_data2,
+--         dac_data3        => ac_dac_data3,
+--         dac_data4        => ac_dac_data4,
+--         dac_data5        => ac_dac_data5,
+--         dac_data6        => ac_dac_data6,
+--         dac_data7        => ac_dac_data7,
+--         dac_data8        => ac_dac_data8,
+--         dac_data9        => ac_dac_data9,
+--         dac_data10       => ac_dac_data10,
+--         dac_clk          => ac_dac_clk,
+--
+--         -- miscellaneous ports:
+--         red_led          => ac_red_led,
+--         ylw_led          => ac_ylw_led,
+--         grn_led          => ac_grn_led,
+--         dip_sw3          => ac_dip_sw3,
+--         dip_sw4          => ac_dip_sw4,
+--         wdog             => ac_wdog,
+--         slot_id          => ac_slot_id,
+--         smb_nalert       => open,
+--
+--         -- debug ports:
+--         test             => ac_test,
+--         mictor           => ac_mictor,
+--         mictorclk        => ac_mictorclk,
+--         rx               => ac_rs232_rx,
+--         tx               => ac_rs232_tx
+--      );
 
    ------------------------------------------------
    -- Create test bench stimuli
@@ -2816,165 +2845,97 @@ begin
       present_sim_state <= NOTHING;
       wait for 150 us;
 
-      -- Set command mode to mls.
-      command <= command_wb;
-      address_id <= cc_step_period_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000005";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
+      --constant cc_jtag0_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG0_ADDR;
+      --constant cc_jtag1_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG1_ADDR;
+      --constant cc_jtag2_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG2_ADDR;
 
+      -- Enable CC access to the JTAG Chain.
       command <= command_wb;
-      address_id <= cc_step_param_id_cmd;
-      data_valid <= X"00000001";
-      data       <= X"000000" & LED_ADDR;
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_step_card_addr_cmd;
-      data_valid <= X"00000001";
-      data       <= X"000000" & ADDRESS_CARD;
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_step_data_num_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
---      command <= command_wb;
---      address_id <= cc_step_minimum_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
---
---      command <= command_wb;
---      address_id <= cc_step_size_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
---
---      command <= command_wb;
---      address_id <= cc_step_maximum_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000007";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_awg_sequence_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000008";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_awg_data_cmd;
-      data_valid <= X"00000008";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_awg_addr_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_internal_cmd_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 3000 us;
-
-      command <= command_wb;
-      address_id <= cc_awg_sequence_len_cmd;
+      address_id <= cc_jtag2_cmd;
       data_valid <= X"00000001";
       data       <= X"00000002";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 3000 us;
+      wait for 100 us;
+      
 
---      command <= command_wb;
---      address_id <= cc_step_period_cmd;
---      data_valid <= X"00000001";
---      data       <= X"0000000A";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 3000 us;
---
---
---      --
---      command <= command_wb;
---      address_id <= cc_data_rate_cmd;
---      data_valid <= X"00000001";
---      data       <= X"0000000A"; --38
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;           
---      
---      --
---      -- Set up data acquisition:
---      command <= command_wb;
---      address_id <= cc_ret_dat_s_cmd;
---      data_valid <= X"00000002";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
---
---      --
---      command <= command_go;
---      address_id <= rc1_ret_dat_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 3000 us;      
---
---      --
---      command <= command_go;
---      address_id <= rc1_ret_dat_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 3000 us;          
+      -- wr, wr, wr: first triad of a RESET
+      command <= command_wb;
+      address_id <= cc_jtag0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= cc_jtag0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= cc_jtag0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      
+      -- wr, rd, wr, wr: first triad of a IRSCAN
+      command <= command_wb;
+      address_id <= cc_jtag0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000040";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_rb;
+      address_id <= cc_jtag1_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000"; -- Should be 0x30
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= cc_jtag0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000041";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= cc_jtag0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000040";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+
+      -- Disable CC access to the JTAG Chain.
+      command <= command_wb;
+      address_id <= cc_jtag2_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
 
 ------------------------------------------------------
 
