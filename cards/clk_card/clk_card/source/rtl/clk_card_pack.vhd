@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.17 2010/01/18 20:39:32 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.18 2010/01/21 18:48:51 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.18  2010/01/21 18:48:51  bburger
+-- BB: awg_addr interfaces
+--
 -- Revision 1.17  2010/01/18 20:39:32  bburger
 -- BB: Changed "MLS" prefixes to "AWG" for "Abitrary Waveform Generator"
 --
@@ -255,6 +258,14 @@ package clk_card_pack is
       cyc_i         : in std_logic;
       dat_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o         : out std_logic;
+
+      -- JTAG interface
+      fpga_tdo_o    : out std_logic; -- TDO
+      fpga_tck_o    : out std_logic; -- TCK
+      fpga_tms_o    : out std_logic; -- TMS
+      epc_tdo_i     : in std_logic;  -- TDI (into the FPGA)
+      jtag_sel_o    : out std_logic; -- JTAG source: '0'=Header, '1'=FGPA
+      nbb_jtag_i    : in std_logic;  -- JTAG source:  readback (jtag_sel)
 
       -- Configuration Interface
       config_n_o    : out std_logic;

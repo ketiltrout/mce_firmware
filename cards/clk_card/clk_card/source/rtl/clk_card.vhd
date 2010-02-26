@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.92 2010/01/18 20:39:32 bburger Exp $
+-- $Id: clk_card.vhd,v 1.93 2010/01/21 18:48:34 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -90,11 +90,9 @@ entity clk_card is
       ttl_nrx1          : in std_logic;
       ttl_tx1           : out std_logic;
       ttl_txena1        : out std_logic;
-
       ttl_nrx2          : in std_logic;
       ttl_tx2           : out std_logic;
       ttl_txena2        : out std_logic;
-
       ttl_nrx3          : in std_logic;
       ttl_tx3           : out std_logic;
       ttl_txena3        : out std_logic;
@@ -188,8 +186,16 @@ entity clk_card is
       fibre_tx_bisten   : out std_logic;
       fibre_tx_foto     : out std_logic;
 
-      nreconf           : out std_logic;
-      nepc_sel          : out std_logic
+      -- JTAG
+      fpga_tdo          : out std_logic; -- TDI (into JTAG chain)
+      fpga_tck          : out std_logic; -- TCK
+      fpga_tms          : out std_logic; -- TMS
+      epc_tdo           : in std_logic;  -- TDO (out of JTAG chain)
+      jtag_sel          : out std_logic; -- JTAG source: '0'=Header, '1'=FGPA
+      nbb_jtag          : in std_logic;  -- JTAG source:  readback (jtag_sel)
+      
+      nreconf           : out std_logic; -- To CPLD: triggers a reconfiguration
+      nepc_sel          : out std_logic  -- To CPLD: selects factory/application EPC16
    );
 end clk_card;
 
@@ -199,7 +205,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000003";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000004";
 
    -- reset
    signal rst                : std_logic;
@@ -399,7 +405,7 @@ architecture top of clk_card is
    signal awg_addr_incr      : std_logic;
 
 begin
-
+   
    ----------------------------------------------------------------
    -- Manchester Clock Pll
    ----------------------------------------------------------------
@@ -579,7 +585,7 @@ begin
          led_data            when LED_ADDR,
 --         sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          sync_gen_data       when USE_DV_ADDR | USE_SYNC_ADDR,
-         config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR,
          select_clk_data     when SELECT_CLK_ADDR,
          sram_ctrl_data      when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          all_cards_data      when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
@@ -603,7 +609,7 @@ begin
          led_ack             when LED_ADDR,
 --         sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          sync_gen_ack        when USE_DV_ADDR | USE_SYNC_ADDR,
-         config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR,
          select_clk_ack      when SELECT_CLK_ADDR,
          sram_ctrl_ack       when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          all_cards_ack       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
@@ -627,7 +633,7 @@ begin
                                   LED_ADDR |
 --                                  USE_DV_ADDR | USE_SYNC_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR |
                                   USE_DV_ADDR | USE_SYNC_ADDR | 
-                                  CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
+                                  CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR |
                                   SELECT_CLK_ADDR |
                                   SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          all_cards_err       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
@@ -900,6 +906,14 @@ begin
       cyc_i         => cyc,
       dat_o         => config_fpga_data,
       ack_o         => config_fpga_ack,
+
+      -- JTAG interface
+      fpga_tdo_o    => fpga_tdo,
+      fpga_tck_o    => fpga_tck,
+      fpga_tms_o    => fpga_tms,
+      epc_tdo_i     => epc_tdo, 
+      jtag_sel_o    => jtag_sel,
+      nbb_jtag_i    => nbb_jtag,
 
       -- Configuration Interface
       config_n_o    => nreconf,
