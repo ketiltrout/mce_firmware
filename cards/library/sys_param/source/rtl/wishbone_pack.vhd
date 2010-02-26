@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2010/01/13 20:28:43 $> - <initials $Author: bburger $>
+-- <date $Date: 2010/01/18 20:39:38 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.57  2010/01/18 20:39:38  bburger
+-- BB: Changed "MLS" prefixes to "AWG" for "Abitrary Waveform Generator"
+--
 -- Revision 1.56  2010/01/13 20:28:43  bburger
 -- BB: added the following commands: MLS_SEQUENCE_LEN, MLS_DATA, MLS_ADDR
 --
@@ -423,7 +426,6 @@ package wishbone_pack is
    ---------------------------------------------------------------------------------------
    -- Clock Card Specific Parameter IDs
    ---------------------------------------------------------------------------------------
-   constant UPLOAD_FW_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
    constant CONFIG_FAC_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"51";
    constant CONFIG_APP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
    constant RET_DAT_S_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
@@ -436,8 +438,8 @@ package wishbone_pack is
    constant BOX_ID_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
    constant CARDS_PRESENT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5A";
    constant CARDS_TO_REPORT_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
-   constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
-   constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
+   constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C"; -- Unused
+   constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E"; -- Unused
    constant RET_DAT_CARD_ADDR_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F"; -- Obsolete.  Replaced by RCS_TO_REPORT_DATA_ADDR
    constant RCS_TO_REPORT_DATA_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
@@ -455,7 +457,6 @@ package wishbone_pack is
 
    constant BOX_TEMP_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A8";
    constant CRC_ERR_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A9";
-   constant CONFIG_JTAG             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AA";
    constant MCE_BCLR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AB";
    constant CC_BCLR_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AC";
    constant NUM_COLS_REPORTED_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AD";
@@ -477,6 +478,11 @@ package wishbone_pack is
    constant AWG_DATA_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BA";
    constant BRYCE_BURGER_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BB";
    constant AWG_ADDR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BC";
+   
+   -- JTAG Commands
+   constant JTAG0_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BD"; -- Output data
+   constant JTAG1_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BE"; -- Input data
+   constant JTAG2_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BF"; -- JTAG Chain control
 
    ---------------------------------------------------------------------------------------
    -- Power Card Specific Parameter IDs
