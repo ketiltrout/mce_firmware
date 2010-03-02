@@ -144,6 +144,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.16.2.1  2009/11/13 20:28:09  bburger
+-- BB: added support for the I_CLAMP_VAL command
+--
 -- Revision 1.16  2008/07/10 18:31:46  mandana
 -- reduced servo_mode storage to 2 bits to fix the timing
 --
@@ -339,8 +342,8 @@ architecture rtl of misc_banks_admin is
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
   constant ZERO_XTND_SERVO : std_logic_vector(WB_DATA_WIDTH-SERVO_MODE_SEL_WIDTH-1 downto 0) := (others => '0');
 
-  -- Currently leaves a bit of 
-  constant I_CLAMP_VAL : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := "01000000000000000000000000000000";
+  -- I_CLAMP_VAL is set to zero to disable the functionality by default.
+  constant I_CLAMP_VAL : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
 
   -----------------------------------------------------------------------------
   -- Registers for each value
