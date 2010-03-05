@@ -16,8 +16,6 @@
 /*																			*/
 /****************************************************************************/
 
-#include <stdio.h>
-
 #include "jamexprt.h"
 #include "jamdefs.h"
 #include "jamsym.h"
@@ -565,10 +563,6 @@ void jam_jtag_reset_idle(void)
 	/*
 	*	Go to Test Logic Reset (no matter what the starting state may be)
 	*/
-
-//	printf(">> jam_jtag_reset_idle: Entering STATE RESET.\n");
-//	fflush(stdout);
-
 	for (i = 0; i < 5; ++i)
 	{
 		jam_jtag_io(TMS_HIGH, TDI_LOW, IGNORE_TDO);
@@ -577,9 +571,6 @@ void jam_jtag_reset_idle(void)
 	/*
 	*	Now step to Run Test / Idle
 	*/
-//	printf(">> jam_jtag_reset_idle: Entering STATE IDLE.\n");
-//	fflush(stdout);
-
 	jam_jtag_io(TMS_LOW, TDI_LOW, IGNORE_TDO);
 
 	jam_jtag_state = IDLE;
@@ -622,12 +613,6 @@ JAM_RETURN_TYPE jam_goto_jtag_state
 		}
 		else if (state == RESET)
 		{
-			// Bryce
-//			fprintf(stderr, ">> jam_goto_jtag_state: Stay in RESET.\n");
-//			fflush(stderr);
-			printf(">> jam_goto_jtag_state: Stay in RESET.\n");
-			fflush(stdout);
-
 			jam_jtag_io(TMS_HIGH, TDI_LOW, IGNORE_TDO);
 		}
 	}

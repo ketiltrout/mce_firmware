@@ -28,8 +28,6 @@
 //--------------------------------------------------------
 // For commands via the MCE to the JTAG chain
 //--------------------------------------------------------
-//#define MCE_CMD 1
-//#ifdef MCE_CMD
 
 // These are the MCE include files
 #include <mce_library.h>
@@ -39,15 +37,6 @@
 #define CONFIG_FILE "/etc/mce/mce.cfg"
 
 #define SIZE 256
-
-void print_u32(u32 *data, int count)
-{
-	int i;
-	for (i=0; i<count; i++) {
-		printf("%u ", data[i]);
-	}
-	printf("\n");
-}
 
 int mce_error = 0;
 int mce_num_param = 0;
@@ -96,7 +85,17 @@ typedef unsigned long DWORD;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <io.h>
+
+#if PORT == WINDOWS || PORT == DOS
+#include <io.h>
+#endif
+
+#if PORT == UNIX
+#include <sys/io.h>
+#define LPT_OPEN  1
+#define LPT_CLOSE 0
+#endif
+
 #include <fcntl.h>
 #include <process.h>
 #if defined(USE_STATIC_MEMORY)
@@ -108,7 +107,9 @@ typedef unsigned long DWORD;
 	#define POINTER_ALIGNMENT sizeof(BYTE)
 #endif /* USE_STATIC_MEMORY */
 #include <time.h>
-//#include <conio.h>
+#if PORT != UNIX
+#include <conio.h>
+#endif
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -199,12 +200,6 @@ void close_jtag_hardware(void);
 #endif /* MEM_TRACKER */
 
 #if PORT == WINDOWS || PORT == DOS || PORT == UNIX
-#include <sys/io.h>
-#define OPEN 1
-#define CLOSED 0
-//#include <sys/ioctl.h>
-//#define outp outb
-//#define inp inb
 long tck_freq = 10000000;
 
 /* parallel port interface available on PC only */
@@ -399,15 +394,7 @@ int jam_jtag_io(int tms, int tdi, int read_tdo)
 			      // This is the statement executed
 			      // The TDO bit is the MSB.  This un-inverts the bit..  See p.13 of AN122.
 			      ((tdo & 0x80) ? 0 : 1)));
-//			      ((tdo & 0x80) ? 1 : 0)));
 		}
-
-//		if (verbose)
-//		{
-//			// Bryce
-//			printf("tdo: %#x\n", tdo);
-//		    fflush(stdout);
-//		}
 
 		// Write #2
 		// OR in "00000001" with data.  TCK is bit 0 of data.  TCK is always asserted on the second write of a triad.
@@ -732,14 +719,14 @@ int jam_vector_io
 	return (matched_count);
 }
 
-int jam_set_frequency(long tck_freq)
+int jam_set_frequency(long hertz)
 {
-	if (tck_freq == -1)
+	if (hertz == -1)
 	{
 		/* no frequency limit */
 		tck_delay = 0;
 	}
-	else if (tck_freq == 0)
+	else if (hertz == 0)
 	{
 		/* stop the clock */
 		tck_delay = -1;
@@ -748,13 +735,13 @@ int jam_set_frequency(long tck_freq)
 	{
 		/* set the clock delay to the period */
 		/* corresponding to the selected frequency */
-		tck_delay = (one_ms_delay * 1000) / tck_freq;
+		tck_delay = (one_ms_delay * 1000) / hertz;
 	}
 
 	if (verbose)
 	{
 		// Bryce
-		printf(">> jam_set_frequency: TCK frequency = %ld kHz\n", tck_freq);
+		printf(">> jam_set_frequency: TCK frequency = %ld kHz\n", hertz);
 	    fflush(stdout);
 	}
 
@@ -1388,14 +1375,14 @@ int main(int argc, char **argv)
 
 				// Load MCE config information ("xml")
 				if (mceconfig_open(mce, CONFIG_FILE, NULL) != 0) {
-					fprintf(stderr, "Failed to load MCE configuration file %s.\n",
+					fprintf(stderr, ">> main: failed to load MCE configuration file %s.\n",
 						CONFIG_FILE);
 					return 1;
 				}
 
 				// Connect to an mce_cmd device.
 				if (mcecmd_open(mce, CMD_DEVICE) != 0) {
-					fprintf(stderr, "Failed to open %s.\n", CMD_DEVICE);;
+					fprintf(stderr, ">> main: failed to open %s.\n", CMD_DEVICE);;
 					return 1;
 				}
 
@@ -1404,26 +1391,24 @@ int main(int argc, char **argv)
 				//------------------------------------------------------------------
 				// Lookup "cc led"
 				if ((mce_error=mcecmd_load_param(mce, &cc_fw_rev, "cc", "fw_rev")) != 0) {
-					fprintf(stderr, "Lookup failed.\n");
+					fprintf(stderr, ">> main: cc fw_rev lookup failed.\n");
 					return 1;
 				}
 				//mce_param_t cc_jtag0;
 				if ((mce_error=mcecmd_load_param(mce, &cc_jtag0, "cc", "jtag0")) != 0) {
-					fprintf(stderr, "Lookup failed.\n");
+					fprintf(stderr, ">> main: cc jtag0 lookup failed.\n");
 					return 1;
 				}
 				//mce_param_t cc_jtag1;
 				if ((mce_error=mcecmd_load_param(mce, &cc_jtag1, "cc", "jtag1")) != 0) {
-					fprintf(stderr, "Lookup failed.\n");
+					fprintf(stderr, ">> main: cc jtag1 lookup failed.\n");
 					return 1;
 				}
 				//mce_param_t cc_jtag2;
 				if ((mce_error=mcecmd_load_param(mce, &cc_jtag2, "cc", "jtag2")) != 0) {
-					fprintf(stderr, "Lookup failed.\n");
+					fprintf(stderr, ">> main: cc jtag2 lookup failed.\n");
 					return 1;
 				}
-
-
 
 				// Read.
 				mce_error = mcecmd_read_block(mce,
@@ -1432,106 +1417,19 @@ int main(int argc, char **argv)
 						       mce_data         /* buffer for the words */);
 
 				if (mce_error != 0) {
-					fprintf(stderr, "MCE command failed: '%s'\n",
+					fprintf(stderr, ">> main: MCE command failed: '%s'\n",
 						mcelib_error_string(mce_error));
 					return 1;
 				}
 
 				if (verbose) {
-					printf(">> rb cc fw_rev = %u (%#x)\n", mce_data[0], mce_data[0]);
+					printf(">>main: rb cc fw_rev = %u (%#x)\n", mce_data[0], mce_data[0]);
 				}
 
-//				// Try to read 2 words, this will fail.
-//				// Note that we are re-using cc_led; it remains valid.
-//				mce_error = mcecmd_read_block(mce,
-//						       &cc_led  /* mce_param_t for the card/para */,
-//						       2            /* number of words to read, per card */,
-//						       mce_data         /* buffer for the words */);
-//
-//				printf("Reading 2 words from rc1 fw_rev returns mce_error -%#x and message '%s'\n",
-//				       -mce_error, mcelib_error_string(mce_error));
-//
-//				// Multi-value read:
-//				mce_param_t gainp0;
-//				if ( mcecmd_load_param(mce, &gainp0, "rc1", "gainp0") != 0) {
-//					fprintf(stdout, "Couldn't load gainp0.\n");
-//					return 1;
-//				}
-//
-//				// Number of values in in gainp0.param.count
-//				mce_num_param = gainp0.param.count;
-//				mce_error = mcecmd_read_block(mce, &gainp0, mce_num_param, mce_data);
-//				printf("rc1 gainp0: ");
-//				print_u32(mce_data, mce_num_param);
-//
-//				// Manipulate
-//				printf("Replacing with 10*i...\n");
-//				for (int i=0; i<mce_num_param; i++) {
-//					mce_data[i] = 10*i;
-//				}
-//				mce_error = mcecmd_write_block(mce, &gainp0, mce_num_param, mce_data);
-//
-//				mce_error = mcecmd_read_block(mce, &gainp0, mce_num_param, mce_data);
-//				printf("rc1 gainp0: ");
-//				print_u32(mce_data, mce_num_param);
-//
-//				// Manipulate single elements
-//				printf("Setting elements 3 and 12...\n");
-//				mce_error = mcecmd_write_element(mce, &gainp0, 3, 66);
-//				mce_error = mcecmd_write_element(mce, &gainp0, 12, 88);
-//
-//				mce_error = mcecmd_read_block(mce, &gainp0, mce_num_param, mce_data);
-//				printf("rc1 gainp0: ");
-//				print_u32(mce_data, mce_num_param);
-//
-//				/*
-//				  Sys: multi-card read abstraction; other contents of mce_param_t structure
-//				*/
-//
-//				mce_param_t sys_row_len;
-//				if (mcecmd_load_param(mce, &sys_row_len, "sys", "row_len") != 0) {
-//					fprintf(stderr, "Couldn't load 'sys row_len'\n");
-//					return 1;
-//				}
-//
-//				// The natural 'size' of the parameter is obtained like this:
-//				int n_write = sys_row_len.param.count;
-//
-//				// On reads, some parameters query multiple cards and return
-//                    // n_cards * n_write data elements.
-//				int n_read  = mcecmd_read_size(&sys_row_len, n_write);
-//
-//				// mce_param_t contains much useful information...
-//				printf("'%s %s' operates on %i cards\n",
-//				       sys_row_len.card.name, sys_row_len.param.name,
-//				       sys_row_len.card.card_count);
-//
-//				// Note that we can pass "-1" as the count to query for all data
-//				//  (i.e. -1 should return the same number of data as n_write)
-//				mce_error = mcecmd_read_block(mce, &sys_row_len, -1, mce_data);
-//				printf(" mce_data: ");
-//				print_u32(mce_data, n_read);
-//
-//				// Let's change those
-//				printf("Set to 50...\n");
-//				more_data[0] = 50;
-//				mce_error = mcecmd_write_block(mce, &sys_row_len, -1, more_data);
-//
-//				mce_error = mcecmd_read_block(mce, &sys_row_len, -1, more_data);
-//				printf(" mce_data: ");
-//				print_u32(more_data, n_read);
-//
-//				// Restore...
-//				printf("Restore...\n");
-//				mce_error = mcecmd_write_block(mce, &sys_row_len, -1, mce_data);
-//
-//				mce_error = mcecmd_read_block(mce, &sys_row_len, -1, more_data);
-//				printf(" mce_data: ");
-//				print_u32(more_data, n_read);
 			}
 			else {
 				if (verbose) {
-					printf(">> main: Using Byte Blaster");
+					printf(">> main: Using Byte Blaster\n");
 				}
 			}
 
@@ -2075,7 +1973,7 @@ void initialize_jtag_hardware()
 			fflush(stdout);
 		}
 
-		if (ioperm(lpt_addr, 3, OPEN)!= 0)
+		if (ioperm(lpt_addr, 3, LPT_OPEN)!= 0)
 		{
 			// Bryce
 			fprintf(stderr, ">> initialize_jtag_hardware: Error opening parallel port %#x!\n", lpt_addr);
@@ -2144,7 +2042,7 @@ void close_jtag_hardware()
 			fflush(stdout);
 		}
 
-		if (ioperm(lpt_addr, 3, CLOSED)!= 0) {
+		if (ioperm(lpt_addr, 3, LPT_CLOSE)!= 0) {
 			fprintf(stderr, ">> close_jtag_hardware: Error closing parallel port %#x.\n", lpt_addr);
 			fflush(stderr);
 		}
@@ -2261,7 +2159,6 @@ void write_byteblaster
 /*                                                                        */
 /**************************************************************************/
 {
-  //	printf("write\n");
 #if PORT == WINDOWS
 	BOOL status = FALSE;
 
@@ -2307,40 +2204,51 @@ void write_byteblaster
 			}
 		}
 	}
-	else
-#endif
+    else
 	{
-		if (verbose) {
-//			printf("TDI = %#x (port=%d)\n", data, port);
-//			fflush(stdout);
+		/*
+		 *       On Windows 95/DOS, access hardware directly
+		 */
+		outp((WORD)(port + lpt_addr), (WORD)data);
+	}
+#endif
+
+#if PORT == DOS
+	outp((WORD)(port + lpt_addr), (WORD)data);
+#endif
+
+#if PORT == UNIX
+	if (verbose) {
+		//Bryce
+//		printf("TDI = %#x (port=%d)\n", data, port);
+	}
+
+	if (lpt_addr == PORT_MCE) {
+		mce_data[0] = data; // WORD => u32
+
+		if (port == PORT0) {
+			mce_error = mcecmd_write_block(mce,
+					       &cc_jtag0  /* mce_param_t for the card/para */,
+					       1          /* number of words to write, per card */,
+					       mce_data   /* buffer for the words */);
 		}
-
-		if (lpt_addr == PORT_MCE) {
-			mce_data[0] = data; // WORD => u32
-
-			if (port == PORT0) {
-				mce_error = mcecmd_write_block(mce,
-						       &cc_jtag0  /* mce_param_t for the card/para */,
-						       1          /* number of words to write, per card */,
-						       mce_data   /* buffer for the words */);
-			}
-			else if (port == PORT1) {
-				// Not used for writing TDI
-			}
-			else if (port == PORT2) { //port == PORT2
-				mce_error = mcecmd_write_block(mce,
-						       &cc_jtag2  /* mce_param_t for the card/para */,
-						       1          /* number of words to write, per card */,
-						       mce_data   /* buffer for the words */);
-			}
-			else {
-				printf(">> write_byteblaster: Write error.");
-		    }
+		else if (port == PORT1) {
+			// Not used for writing TDI
+		}
+		else if (port == PORT2) { //port == PORT2
+			mce_error = mcecmd_write_block(mce,
+					       &cc_jtag2  /* mce_param_t for the card/para */,
+					       1          /* number of words to write, per card */,
+					       mce_data   /* buffer for the words */);
 		}
 		else {
-			outb(data, (port + lpt_addr));
+			printf(">> write_byteblaster: Write error.");
 		}
 	}
+	else {
+		outb(data, (port + lpt_addr));
+	}
+#endif // PORT == UNIX
 }
 
 /**************************************************************************/
@@ -2355,7 +2263,6 @@ int read_byteblaster
 /**************************************************************************/
 {
 	int data = 0;
-	//	printf("read\n");
 #if PORT == WINDOWS
 
 	BOOL status = FALSE;
@@ -2389,40 +2296,49 @@ int read_byteblaster
 		}
 	}
 	else
+        {
+		/*
+		 *       On Windows 95, access hardware directly
+		 */
+		data = inp((WORD)(port + lpt_addr));
+	}
 #endif
-	{
-		if (lpt_addr == PORT_MCE) {
-			if (port == PORT0) {
-				// Not used for reading TDO
-			}
-			else if (port == PORT1) {
-				mce_error = mcecmd_read_block(mce,
-						       &cc_jtag1  /* mce_param_t for the card/para */,
-						       1          /* number of words to read, per card */,
-						       mce_data   /* buffer for the words */);
 
-				// data is a WORD.  Is this cast OK?  Yes.
-				data = mce_data[0]; //u32 => WORD
-			}
-			else if (port == PORT2) {
-				// Not used for reading TDO
-			}
-			else {
-				printf(">> read_byteblaster: Read error.");
-		    }
+#if PORT == DOS
+	data = inp((WORD)(port + lpt_addr));
+#endif // PORT == DOS
+
+#if PORT == UNIX
+	if (lpt_addr == PORT_MCE) {
+		if (port == PORT0) {
+			// Not used for reading TDO
+		}
+		else if (port == PORT1) {
+			mce_error = mcecmd_read_block(mce,
+						      &cc_jtag1  /* mce_param_t for the card/para */,
+						      1          /* number of words to read, per card */,
+						      mce_data   /* buffer for the words */);
+
+			// data is a WORD.  Is this cast OK?  Yes.
+			data = mce_data[0]; //u32 => WORD
+		}
+		else if (port == PORT2) {
+			// Not used for reading TDO
 		}
 		else {
-			data = inb(port + lpt_addr);
-		}
-
-		if (verbose)
-		{
-			// Bryce
-			// printf("TDO: %#x\n", data);
-//			printf("TDO: %#x (port=%d)\n", data, port);
-//		    fflush(stdout);
+			printf(">> read_byteblaster: Read error.");
 		}
 	}
+	else {
+		data = inb(port + lpt_addr);
+	}
+
+	if (verbose)
+	{
+		// Bryce
+//		printf("TDO: %#x (port=%d)\n", data, port);
+	}
+#endif // PORT == UNIX
 
 	return (data & 0xff);
 }
@@ -2453,9 +2369,9 @@ void flush_ports(void)
 	port_io_count = 0;
 }
 #endif /* PORT == WINDOWS */
-#endif /* PORT == WINDOWS || PORT == DOS */
+#endif /* PORT == WINDOWS || PORT == DOS || PORT == UNIX for 3 functions above */
 
-#if !defined (DEBUG)
+#if !defined (DEBUG) && PORT != UNIX
 #pragma optimize ("ceglt", off)
 #endif
 

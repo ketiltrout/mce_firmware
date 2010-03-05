@@ -19,6 +19,9 @@
 /*																			*/
 /****************************************************************************/
 
+#ifdef NULL
+#undef NULL
+#endif
 #define NULL (0)
 #define EOF (-1)
 #define BOOL int

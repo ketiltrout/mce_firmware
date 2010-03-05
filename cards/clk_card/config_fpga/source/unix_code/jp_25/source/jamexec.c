@@ -21,8 +21,6 @@
 /*																			*/
 /****************************************************************************/
 
-#include <stdio.h>
-
 #include "jamport.h"
 #include "jamexprt.h"
 #include "jamdefs.h"
@@ -1907,6 +1905,8 @@ JAM_RETURN_TYPE jam_process_uses_item
 							}
 						}
 						break;
+					default:
+						0; //Suppress enumeration case warnings?
 					}
 				}
 			}
@@ -2250,6 +2250,8 @@ JAM_RETURN_TYPE jam_call_procedure
 							}
 						}
 						break;
+					default:
+						0; //Suppress enumeration case warnings?
 					}
 				}
 			}
@@ -3161,7 +3163,7 @@ JAM_RETURN_TYPE jam_process_call_or_goto
 				}
 			}
 
-			/*
+			/*		
 			*	Call a procedure block in Jam 2.0
 			*/
 			if (call_statement && (jam_version == 2))
@@ -3657,9 +3659,6 @@ JAM_RETURN_TYPE jam_process_drscan
 	JAMS_HEAP_RECORD *heap_record = NULL;
 	JAM_RETURN_TYPE status = JAMC_SYNTAX_ERROR;
 
-//	printf(">> jam_process_drscan: Entering STATE DRSCAN.\n");
-//	fflush(stdout);
-
 	if ((jam_version == 2) && (jam_phase != JAM_PROCEDURE_PHASE))
 	{
 		return (JAMC_PHASE_ERROR);
@@ -3968,7 +3967,7 @@ JAM_RETURN_TYPE jam_process_exit
 	*	(from -32767 to 32767) for compatibility with 16-bit systems.
 	*/
 	if ((status == JAMC_SUCCESS) &&
-		((exit_code_value < -32767L)) || (exit_code_value > 32767L))
+	    ((exit_code_value < -32767L) || (exit_code_value > 32767L)))
 	{
 		status = JAMC_INTEGER_OVERFLOW;
 	}
@@ -4436,15 +4435,11 @@ JAM_RETURN_TYPE jam_process_frequency
 
 				if (status == JAMC_SUCCESS)
 				{
-					//printf(">> jam_process_frequency: TCK delay = %d\n", expr_value);
-				    //fflush(stdout);
 					ret = jam_set_frequency(expr_value);
 				}
 			}
 			else
 			{
-				//printf(">> jam_process_frequency: TCK delay unspecified\n", expr_value);
-			    //fflush(stdout);
 				ret = jam_set_frequency(-1L);	/* set default frequency */
 			}
 		}
@@ -5180,9 +5175,6 @@ JAM_RETURN_TYPE jam_process_irscan
 	JAMS_SYMBOL_RECORD *symbol_record = NULL;
 	JAMS_HEAP_RECORD *heap_record = NULL;
 	JAM_RETURN_TYPE status = JAMC_SYNTAX_ERROR;
-
-//	printf(">> jam_process_irscan: Entering STATE IRSCAN.\n");
-//	fflush(stdout);
 
 	if ((jam_version == 2) && (jam_phase != JAM_PROCEDURE_PHASE))
 	{
@@ -8478,7 +8470,8 @@ JAM_RETURN_TYPE jam_execute_statement
 		break;
 
 	case JAM_NEXT_INSTR:
-		status = jam_process_next(statement_buffer);		break;
+		status = jam_process_next(statement_buffer);
+		break;
 
 	case JAM_NOTE_INSTR:
 		/* ignore NOTE statements during execution */
@@ -8527,7 +8520,6 @@ JAM_RETURN_TYPE jam_execute_statement
 		status = jam_process_return(statement_buffer, FALSE);
 		break;
 
-	// "i.e. STATE RESET"
 	case JAM_STATE_INSTR:
 		status = jam_process_state(statement_buffer);
 		break;

@@ -5,12 +5,11 @@
 #
 #	Description:	Makefile for JAM Interpreter
 #
+
+TARGET=jam
 CC=gcc
-
 LIB=-L/usr/local/lib -lmcecmd -lconfig -lmaslog -lpthread
-
 CFLAGS = -Wall -std=c99 -I/usr/local/include
-#CFLAGS += -Wall
 
 OBJS = \
 	jamstub.o \
@@ -31,18 +30,18 @@ OBJS = \
 
 # LINK: add appropriate linker command here
 
-jam.exe : $(OBJS)
-	gcc $(CFLAGS) $(OBJS) -o jam.exe $(LIB)
+$(TARGET) : $(OBJS)
+	gcc $(OBJS) -o $(TARGET) $(LIB)
 
 clean:
-	rm *.o jam.exe
+	rm *.o $(TARGET)
 
 # Dependencies:
 
 jamstub.o : \
 	jamstub.c \
 	jamport.h \
-	jamexprt.h 
+	jamexprt.h
 
 jamexec.o : \
 	jamexec.c \
