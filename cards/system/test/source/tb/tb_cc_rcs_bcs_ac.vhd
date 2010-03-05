@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.80 2010/01/26 19:53:28 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.81 2010/02/26 09:20:10 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.81  2010/02/26 09:20:10  bburger
+-- BB: JTAG command testing.
+--
 -- Revision 1.80  2010/01/26 19:53:28  bburger
 -- BB: AWG bug testing
 --
@@ -837,6 +840,10 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_jtag0_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG0_ADDR;
    constant cc_jtag1_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG1_ADDR;
    constant cc_jtag2_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG2_ADDR;
+   constant cc_tms_tdi_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TMS_TDI_ADDR;
+   constant cc_tdo_cmd              : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TDO_ADDR;
+   constant cc_tdo_sample_dly_cmd   : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TDO_SAMPLE_DLY_ADDR;
+   constant cc_tck_half_period_cmd  : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TCK_HALF_PERIOD_ADDR;
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -2844,10 +2851,7 @@ begin
       -- Wait for the BRst to finish, which takes 100us
       present_sim_state <= NOTHING;
       wait for 150 us;
-
-      --constant cc_jtag0_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG0_ADDR;
-      --constant cc_jtag1_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG1_ADDR;
-      --constant cc_jtag2_cmd            : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & JTAG2_ADDR;
+      --
 
       -- Enable CC access to the JTAG Chain.
       command <= command_wb;
@@ -2857,75 +2861,45 @@ begin
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;
-      
+      wait for 100 us;      
 
-      -- wr, wr, wr: first triad of a RESET
+      -- JTAG Encaplsulation Enignma Testing
+      --   constant cc_tdo_sample_dly_cmd   : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TDO_SAMPLE_DLY_ADDR;
       command <= command_wb;
-      address_id <= cc_jtag0_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
+      address_id <= cc_tms_tdi_cmd;
+      data_valid <= X"00000003";
+      data       <= X"00000036";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;
+      wait for 200 us;      
 
       command <= command_wb;
-      address_id <= cc_jtag0_cmd;
+      address_id <= cc_tck_half_period_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000003";
+      data       <= X"00000005";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;
+      wait for 200 us;      
 
       command <= command_wb;
-      address_id <= cc_jtag0_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
+      address_id <= cc_tms_tdi_cmd;
+      data_valid <= X"00000004";
+      data       <= X"00000060";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;
-
-      
-      -- wr, rd, wr, wr: first triad of a IRSCAN
-      command <= command_wb;
-      address_id <= cc_jtag0_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000040";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
+      wait for 200 us;      
 
       command <= command_rb;
-      address_id <= cc_jtag1_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000"; -- Should be 0x30
+      address_id <= cc_tdo_cmd;
+      data_valid <= X"00000004";
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_jtag0_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000041";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= cc_jtag0_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000040";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
+      wait for 200 us;      
 
       -- Disable CC access to the JTAG Chain.
       command <= command_wb;
