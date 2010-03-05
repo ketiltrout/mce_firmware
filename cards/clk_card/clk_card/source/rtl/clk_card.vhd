@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.93 2010/01/21 18:48:34 bburger Exp $
+-- $Id: clk_card.vhd,v 1.94 2010/02/26 09:32:44 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -205,7 +205,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000004";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000005";
 
    -- reset
    signal rst                : std_logic;
@@ -585,7 +585,7 @@ begin
          led_data            when LED_ADDR,
 --         sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          sync_gen_data       when USE_DV_ADDR | USE_SYNC_ADDR,
-         config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR,
+         config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR | TMS_TDI_ADDR | TDO_ADDR | TDO_SAMPLE_DLY_ADDR | TCK_HALF_PERIOD_ADDR,
          select_clk_data     when SELECT_CLK_ADDR,
          sram_ctrl_data      when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          all_cards_data      when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
@@ -609,7 +609,7 @@ begin
          led_ack             when LED_ADDR,
 --         sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          sync_gen_ack        when USE_DV_ADDR | USE_SYNC_ADDR,
-         config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR,
+         config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR | TMS_TDI_ADDR | TDO_ADDR | TDO_SAMPLE_DLY_ADDR | TCK_HALF_PERIOD_ADDR,
          select_clk_ack      when SELECT_CLK_ADDR,
          sram_ctrl_ack       when SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          all_cards_ack       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
@@ -633,7 +633,7 @@ begin
                                   LED_ADDR |
 --                                  USE_DV_ADDR | USE_SYNC_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR |
                                   USE_DV_ADDR | USE_SYNC_ADDR | 
-                                  CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR |
+                                  CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR | TMS_TDI_ADDR | TDO_ADDR | TDO_SAMPLE_DLY_ADDR | TCK_HALF_PERIOD_ADDR |
                                   SELECT_CLK_ADDR |
                                   SRAM_ADDR_ADDR | SRAM_DATA_ADDR,
          all_cards_err       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
