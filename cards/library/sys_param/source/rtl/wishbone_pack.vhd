@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2010/01/18 20:39:38 $> - <initials $Author: bburger $>
+-- <date $Date: 2010/02/26 09:16:09 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.58  2010/02/26 09:16:09  bburger
+-- BB: Removed a couple of unused commands, and added JTAG0_ADDR, JTAG1_ADDR, and JTAG2_ADDR
+--
 -- Revision 1.57  2010/01/18 20:39:38  bburger
 -- BB: Changed "MLS" prefixes to "AWG" for "Abitrary Waveform Generator"
 --
@@ -445,7 +448,6 @@ package wishbone_pack is
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
    constant SELECT_CLK_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A2";
-
    -- Obsolete ---------------------------------------------------------------------------
    constant RET_DAT_REQ_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D"; -- Obsolete
    constant TES_TGL_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A3"; -- Obsolete
@@ -454,15 +456,12 @@ package wishbone_pack is
    constant TES_TGL_RATE_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A6"; -- Obsolete
    constant INT_CMD_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A7"; -- Obsolete
    -- Obsolete ---------------------------------------------------------------------------
-
    constant BOX_TEMP_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A8";
    constant CRC_ERR_EN_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A9";
    constant MCE_BCLR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AB";
    constant CC_BCLR_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AC";
    constant NUM_COLS_REPORTED_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AD";
-
-   constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";
-   
+   constant INTERNAL_CMD_MODE_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B0";   
    -- Certain "RAMP" parameters also apply to the MLS internal command mode..
    constant RAMP_STEP_PERIOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B1"; -- Applies to MLS too
    constant RAMP_MIN_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B2";
@@ -470,19 +469,21 @@ package wishbone_pack is
    constant RAMP_MAX_VAL_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B4";
    constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5"; -- Applies to MLS too
    constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6"; -- Applies to MLS too
-   constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7"; -- Applies to MLS too
-   
-   constant STOP_DLY_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B8";
-   
+   constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7"; -- Applies to MLS too   
+   constant STOP_DLY_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B8";   
    constant AWG_SEQUENCE_LEN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B9";
    constant AWG_DATA_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BA";
    constant BRYCE_BURGER_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BB";
-   constant AWG_ADDR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BC";
-   
-   -- JTAG Commands
+   constant AWG_ADDR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BC";   
+   -- JTAG Commands - Emulate a parallel port
    constant JTAG0_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BD"; -- Output data
    constant JTAG1_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BE"; -- Input data
-   constant JTAG2_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BF"; -- JTAG Chain control
+   constant JTAG2_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BF"; -- JTAG Chain control   
+   -- JTAG Commands - These solve the "packing problem," aka the "encoding enigma."
+   constant TMS_TDI_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
+   constant TDO_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AA";
+   constant TDO_SAMPLE_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AE";
+   constant TCK_HALF_PERIOD_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AF";
 
    ---------------------------------------------------------------------------------------
    -- Power Card Specific Parameter IDs
