@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.6 2010/02/26 09:26:35 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.7 2010/03/05 19:05:47 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -108,7 +108,7 @@ architecture top of config_fpga is
    signal next_timer_state    : timer_states;
 
    -- WBS states:
-   type states is (IDLE, WR, RD); 
+   type states is (IDLE, WR, RD1, RD2); 
    signal current_state       : states;
    signal next_state          : states;
 
@@ -177,7 +177,7 @@ architecture top of config_fpga is
    ----------------------------------------------------------------
    signal tdi_rd_addr       : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
    signal tdi_rd_addr_new   : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
-   signal tdi_rd_addr_incr  : std_logic;
+   signal tdi_rden          : std_logic;
 
    signal tdi_wr_addr       : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
    signal tdi_wr_addr_new   : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
@@ -188,6 +188,11 @@ architecture top of config_fpga is
    signal tdo_wren          : std_logic;
    signal tdo_wr_addr_clr   : std_logic;
    signal tdo_dat           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
+   signal tdo_rd_addr       : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
+   signal tdo_rd_addr_new   : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
+   signal tdo_rden          : std_logic;
+   signal tdo_rd_addr_clr   : std_logic;
   
 begin
 
@@ -443,7 +448,7 @@ begin
       if(rst_i = '1') then
          tdi_rd_addr <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
-         if(tdi_rd_addr_incr = '1') then
+         if(tdi_rden = '1') then
             tdi_rd_addr <= tdi_rd_addr_new;
          end if;
       end if;
@@ -493,7 +498,7 @@ begin
       ena_i      => tdi_sh_ena,
       load_i     => tdi_sh_load,
       clr_i      => tdi_sh_clear,
-      shr_i      => tdi_sh_shr  ,
+      shr_i      => tdi_sh_shr,
       serial_i   => '0',
       serial_o   => branch2_tdi,
       parallel_i => tdi_sh_dat,
@@ -510,7 +515,7 @@ begin
       ena_i      => tms_sh_ena,
       load_i     => tms_sh_load,
       clr_i      => tms_sh_clear,
-      shr_i      => tms_sh_shr  ,
+      shr_i      => tms_sh_shr,
       serial_i   => '0',
       serial_o   => branch2_tms,
       parallel_i => tdi_sh_dat,
@@ -553,16 +558,25 @@ begin
 
    -- For writing TDO words from Shift Register (JTAG) to RAM
    tdo_wr_addr_new <= tdo_wr_addr + 1;
+   tdo_rd_addr_new <= tdo_rd_addr + 1;
    tdo_wr_addr_reg : process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          tdo_wr_addr <= (others => '0');
+         tdo_rd_addr <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(tdo_wr_addr_clr = '1') then
             tdo_wr_addr <= (others => '0');
          elsif(tdo_wren = '1') then
             tdo_wr_addr <= tdo_wr_addr_new;
          end if;
+         
+         if(tdo_rd_addr_clr = '1') then
+            tdo_rd_addr <= (others => '0');
+         elsif(tdo_rden = '1') then
+            tdo_rd_addr <= tdo_rd_addr_new;
+         end if;
+         
       end if;
    end process tdo_wr_addr_reg;
 
@@ -572,7 +586,7 @@ begin
    (
       clock     => clk_i,
       data      => tdo_sh_dat,
-      rdaddress => tga_i(JTAG_ADDR_WIDTH-1 downto 0),
+      rdaddress => tdo_rd_addr,
       wraddress => tdo_wr_addr,
       wren      => tdo_wren,
       q         => tdo_dat
@@ -650,7 +664,7 @@ begin
    jtag_state_out: process(current_jtag_state, bit_count, bit_num, tck_count, tdo_sample_dly, wbit_count, tck_hlf_period)
    begin
       -- Default assignments      
-      tdi_rd_addr_incr  <= '0';
+      tdi_rden  <= '0';
       
       bit_count_ena     <= '0';
       bit_count_clr     <= '0';
@@ -671,6 +685,7 @@ begin
       tdo_sh_clear      <= '0';
       tdo_wren          <= '0';
       tdo_wr_addr_clr   <= '0';
+--      tdo_rd_addr_clr   <= '0';
 
       tck_level         <= '0';
       tck_count_en      <= '0';
@@ -684,7 +699,7 @@ begin
             -- Latch number of bit to write to JTAG
             bit_num_wren      <= '1';
             -- Increment RAM address
-            tdi_rd_addr_incr  <= '1';
+            tdi_rden  <= '1';
             -- Reset the bit counter value
             bit_count_clr     <= '1';
             
@@ -698,7 +713,7 @@ begin
             tms_sh_load       <= '1';
             
             -- Once the TDI and TMS registers are latched, we can prime the next word
-            tdi_rd_addr_incr  <= '1';          
+            tdi_rden  <= '1';          
             
          when SYNC_TMS_BIT =>
             -- Shift over to TMS bit
@@ -775,6 +790,7 @@ begin
          when SEQUENCE_DONE =>
             -- Reset the TDO RAM pointer for the next sequence.
             tdo_wr_addr_clr   <= '1';            
+--            tdo_rd_addr_clr   <= '1';
             
          when others =>
          
@@ -872,7 +888,7 @@ begin
             if(wr_cmd = '1') then
                next_state <= WR;            
             elsif(rd_cmd = '1') then
-               next_state <= RD;
+               next_state <= RD1;
             end if;                  
             
          when WR =>     
@@ -880,7 +896,7 @@ begin
                next_state <= IDLE;
             end if;
          
-         when RD =>
+         when RD1 =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
@@ -892,7 +908,7 @@ begin
    end process state_NS;
    
    -- Output states for DAC controller   
-   state_out: process(current_state, stb_i, addr_i)
+   state_out: process(current_state, stb_i, addr_i, next_state, rd_cmd)
    begin
       -- Default assignments
       ack_o                <= '0';
@@ -903,10 +919,18 @@ begin
       tdi_wren             <= '0';
       tdo_sample_dly_wren  <= '0';
       tck_half_period_wren <= '0';
+      tdo_rden             <= '0';
+      tdo_rd_addr_clr      <= '0';
      
       case current_state is         
          when IDLE  =>                   
             ack_o <= '0';
+
+            if(rd_cmd = '1') then
+               if(addr_i = TDO_ADDR) then
+                  tdo_rden <= '1';
+               end if;
+            end if;
             
          when WR =>
             ack_o <= '1';
@@ -942,8 +966,17 @@ begin
                end if;
             end if;
          
-         when RD =>
-            ack_o <= '1';
+         when RD1 =>
+            if(next_state /= IDLE) then
+               ack_o <= '1';               
+               
+               if(addr_i = TDO_ADDR) then
+                  -- Don't assert ack_o if we are reading from the RAM becuase of it's 3-cycle latency
+                  tdo_rden <= '1';
+               end if;
+            else
+               tdo_rd_addr_clr      <= '1';           
+            end if;
          
          when others =>
          
