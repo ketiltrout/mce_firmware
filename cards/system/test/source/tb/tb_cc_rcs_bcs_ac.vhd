@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.81 2010/02/26 09:20:10 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.82 2010/03/05 19:07:47 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.82  2010/03/05 19:07:47  bburger
+-- BB: JTAG testing
+--
 -- Revision 1.81  2010/02/26 09:20:10  bburger
 -- BB: JTAG command testing.
 --
@@ -2894,7 +2897,7 @@ begin
 
       command <= command_rb;
       address_id <= cc_tdo_cmd;
-      data_valid <= X"00000004";
+      data_valid <= X"00000003";
       data       <= X"00000000";
       load_preamble;
       load_command;
