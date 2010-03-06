@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2010/02/26 09:16:09 $> - <initials $Author: bburger $>
+-- <date $Date: 2010/03/05 19:07:27 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.59  2010/03/05 19:07:27  bburger
+-- BB: added the following commands: TMS_TDI_ADDR, TDO_ADDR, TDO_SAMPLE_DLY_ADDR, TCK_HALF_PERIOD_ADDR.
+--
 -- Revision 1.58  2010/02/26 09:16:09  bburger
 -- BB: Removed a couple of unused commands, and added JTAG0_ADDR, JTAG1_ADDR, and JTAG2_ADDR
 --
@@ -441,8 +444,8 @@ package wishbone_pack is
    constant BOX_ID_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
    constant CARDS_PRESENT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5A";
    constant CARDS_TO_REPORT_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
-   constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C"; -- Unused
-   constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E"; -- Unused
+   constant SRAM_DATA_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C"; -- used by sram_ctrl block!
+   constant SRAM_ADDR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E"; -- used by sram_ctrl block!
    constant RET_DAT_CARD_ADDR_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F"; -- Obsolete.  Replaced by RCS_TO_REPORT_DATA_ADDR
    constant RCS_TO_REPORT_DATA_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
    constant DATA_RATE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
