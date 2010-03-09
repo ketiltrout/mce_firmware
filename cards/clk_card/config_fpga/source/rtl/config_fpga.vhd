@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.7 2010/03/05 19:05:47 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.8 2010/03/06 10:55:44 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -118,6 +118,7 @@ architecture top of config_fpga is
 
    signal config_n            : std_logic;
    signal epc16_sel_n         : std_logic;
+   signal n_epc_tdo           : std_logic;
    
    signal jtag0_dat           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal jtag1_dat           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -195,6 +196,9 @@ architecture top of config_fpga is
    signal tdo_rd_addr_clr   : std_logic;
   
 begin
+
+   -- Invert the signal.
+   n_epc_tdo <= not epc_tdo_i;
 
    ----------------------------------------------------------------
    -- JTAG Output Data Path #1:  write_byteblaster()
@@ -311,7 +315,7 @@ begin
          tck_dly2 <= tck_dly1;
 
          if(jtag1_wren = '1') then
-            jtag1_dat <= "000000000000000000000000" & not epc_tdo_i & "0110000"; -- TDO
+            jtag1_dat <= "000000000000000000000000" & n_epc_tdo & "0110000"; -- TDO
          end if;
       end if;
    end process jtag_reg1;
@@ -550,7 +554,7 @@ begin
       load_i     => '0',
       clr_i      => tdo_sh_clear,
       shr_i      => tdo_sh_shr,
-      serial_i   => epc_tdo_i,
+      serial_i   => n_epc_tdo,
       serial_o   => open,
       parallel_i => (others => '0'),
       parallel_o => tdo_sh_dat
