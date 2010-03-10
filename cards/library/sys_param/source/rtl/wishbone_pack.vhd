@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2010/03/05 19:07:27 $> - <initials $Author: bburger $>
+-- <date $Date: 2010/03/06 01:04:43 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.60  2010/03/06 01:04:43  mandana
+-- changed the comment on sram commands, not to risk losing their space holders
+--
 -- Revision 1.59  2010/03/05 19:07:27  bburger
 -- BB: added the following commands: TMS_TDI_ADDR, TDO_ADDR, TDO_SAMPLE_DLY_ADDR, TCK_HALF_PERIOD_ADDR.
 --
@@ -345,7 +348,8 @@ package wishbone_pack is
    constant RAMP_STEP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1E"; -- RCS
    constant FB_CONST_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F"; -- RCS
    
-   constant I_CLAMP_VAL_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"66";
+   constant FLTR_TYPE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"65"; -- RCS
+   constant I_CLAMP_VAL_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"66"; -- RCS
    constant READOUT_PRIORITY_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"67"; -- Obsolete.
    constant ADC_OFFSET0_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"68";
    constant ADC_OFFSET1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"69";
