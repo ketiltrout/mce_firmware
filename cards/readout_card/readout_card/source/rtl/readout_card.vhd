@@ -31,6 +31,22 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.84.2.3  2009/10/15 20:56:32  mandana
+-- fw_rev 5.0.8 has wider input to the filter and sticky bits removed from internal filter calcs.
+--
+-- Revision 1.84.2.2  2009/10/09 21:24:19  mandana
+--  low-pass-filter to f(3db)=75Hz for f(sample)=30000.
+-- sticky bit removed in internal filter arithmetic
+-- filter-input width increased to 20bits
+-- removed correction in fsfb_proc_pidz
+-- 5.0.7
+--
+-- Revision 1.84.2.1  2009/09/04 23:25:17  mandana
+-- rev. 5.0.5, added filter coeffs for fs=30000, fc=75Hz and adjusted midstage gains
+--
+-- Revision 1.88  2009/11/24 23:51:24  bburger
+-- BB: Made a top-level modification that does not affect old cards with the MAX1618, but enables the LM95235 on new cards.
+--
 -- Revision 1.87  2009/08/28 17:51:02  bburger
 -- BB: re_v05000004
 --
@@ -73,6 +89,8 @@ use work.all_cards_pack.all;
 use work.adc_sample_coadd_pack.all;
 
 entity readout_card is
+generic(
+   CARD            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1);
 port(  
    -- Global Interface
    rst_n           : in std_logic;
@@ -183,7 +201,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05000004";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000A";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
