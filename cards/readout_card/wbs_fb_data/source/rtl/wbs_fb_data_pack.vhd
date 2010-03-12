@@ -32,6 +32,12 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.8.2.1  2009/11/13 20:32:18  bburger
+-- BB: Added i-term clamp interface signals
+--
+-- Revision 1.8  2008/06/27 20:48:11  mandana
+-- merged with generic_pid_ram branch to have 12-bit pid_ram
+--
 -- Revision 1.7  2007/10/31 20:03:46  mandana
 -- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify higher blocks when these are updated
 --
@@ -303,6 +309,7 @@ package wbs_fb_data_pack is
       ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
       num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
       flux_jumping_en_o       : out std_logic;
+      i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       dat_i                   : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                  : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
       tga_i                   : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);

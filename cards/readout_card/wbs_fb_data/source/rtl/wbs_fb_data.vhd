@@ -81,6 +81,12 @@
 -- Revision history:
 --
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.10.2.1  2009/11/13 20:30:10  bburger
+-- BB: Added i-term clamp interface signals
+--
+-- Revision 1.10  2008/08/14 23:06:46  bburger
+-- BB: Reinstated an interface signal (const_val_ch0_o ) that was accidentally deleted while adding the sa_bias and offset update interfaces.  This fixes the channel 0 clipping problem that we were seeing in 4.0.9, 4.0.a, and 4.0.b.
+--
 -- Revision 1.9  2007/10/31 20:03:46  mandana
 -- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify higher blocks when these are updated
 --
@@ -296,6 +302,7 @@ entity wbs_fb_data is
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
     flux_jumping_en_o       : out std_logic;
+    i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 
     -- signals to/from dispatch  (wishbone interface)
@@ -594,6 +601,7 @@ begin  -- struct
         ramp_amp_o              => ramp_amp_o,
         num_ramp_frame_cycles_o => num_ramp_frame_cycles_o,
         flux_jumping_en_o       => flux_jumping_en_o,
+        i_clamp_val_o           => i_clamp_val_o,
         dat_i                   => dat_i,
         addr_i                  => addr_i,
         tga_i                   => tga_i,
@@ -635,7 +643,7 @@ begin  -- struct
                              ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR,
     qa_misc_bank        when FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
+                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR | I_CLAMP_VAL_ADDR,
 
     (others => '0')     when others;        -- default to zero
 
