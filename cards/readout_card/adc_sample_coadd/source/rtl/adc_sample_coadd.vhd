@@ -109,6 +109,12 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.9.2.1  2009/11/13 19:26:03  bburger
+-- BB: Added i-term clamp interface signals
+--
+-- Revision 1.9  2009/05/27 01:21:45  bburger
+-- BB: removed unused raw data interface signals and entities
+--
 -- Revision 1.8  2009/03/19 21:23:05  bburger
 -- BB:
 -- - Added the ADC_LATENCY generic to generalize this block for Readout Card Rev. C
@@ -173,6 +179,8 @@ port (
    -- Global signals 
    clk_50_i                  : in  std_logic;
    rst_i                     : in  std_logic;
+
+   i_clamp_val_i              : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
    -- Frame timing signals
    adc_coadd_en_i            : in  std_logic;
@@ -375,6 +383,7 @@ begin  -- struc
    port map (
       rst_i                  => rst_i,                  -- system input
       clk_i                  => clk_50_i,               -- system input
+      i_clamp_val_i          => i_clamp_val_i,
       initialize_window_i    => initialize_window_i,    -- system input
       current_coadd_dat_i    => samples_coadd_reg,      -- frm coadd data path
       current_bank_i         => current_bank,           -- frm coadd controller
