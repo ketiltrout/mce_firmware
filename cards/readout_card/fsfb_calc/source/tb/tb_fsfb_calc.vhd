@@ -21,7 +21,7 @@
 --
 -- tb_fsfb_calc.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko
 -- Organisation:  UBC
 --
@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.10  2009/09/04 23:19:15  mandana
+-- added pack file
+--
 -- Revision 1.9  2009/02/04 16:11:08  mandana
 -- updated to PIDZ_DATA_WIDTH and pid_ram to compile with latest 12b pid parameters
 --
@@ -213,7 +216,7 @@ architecture test of tb_fsfb_calc is
    component fsfb_calc is
       generic (
          start_val                 : integer := FSFB_QUEUE_INIT_VAL;                               -- value read from the queue when initialize_window_i is asserted
-         lock_dat_left             : integer := LOCK_MSB_POS;                                      -- most significant bit position of lock mode data output
+         lock_dat_lsb              : integer;                                                      -- least significant bit position of lock mode data output
          filter_lock_dat_lsb       : integer := FILTER_LOCK_LSB_POS                                -- lsb position of the pidz results fed as input to the filter         
          );
          
@@ -397,7 +400,7 @@ architecture test of tb_fsfb_calc is
          -- lock mode setting and invalid
          when others => const_val_o         <= (others => 'X');
                         ramp_step_size_o    <= (others => 'X');
-		        ramp_amp_o          <= (others => 'X');
+              ramp_amp_o          <= (others => 'X');
                         ramp_frame_cycles_o <= (others => 'X');
       end case sel;
    end procedure cfg_test_mode;
@@ -569,7 +572,7 @@ begin
    UUT : fsfb_calc
       generic map (
          start_val                 => 0,
-         lock_dat_left             => 37, -- to work with FSFB_QUEUE_DATA_WIDTH=39
+         lock_dat_lsb              => 0, 
          filter_lock_dat_lsb       => 0
          )
       port map (

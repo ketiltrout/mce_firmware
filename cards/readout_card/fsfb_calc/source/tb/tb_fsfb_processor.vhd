@@ -21,7 +21,7 @@
 --
 -- tb_fsfb_processor.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko/Mandana Amiri
 -- Organisation:  UBC
 --
@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.7  2006/03/14 22:52:06  mandana
+-- interface changes to accomodate 4-pole filter
+--
 -- Revision 1.6  2005/12/14 20:03:06  mandana
 -- added filter-response test for impulse and stimulus read from a file
 --
@@ -99,7 +102,7 @@ architecture test of tb_fsfb_processor is
    constant num_row_frame            :     integer   := 41;      -- number of rows per frame
    constant coadd_done_cyc           :     integer   := 5;       -- cycle number at which coadd_done occurs
    constant num_ramp_frame_cycles    :     integer   := 2;       -- num of frame_cycles for fixed ramp output
-   constant lock_dat_msb_pos         :     integer   := 37;      -- most significant bit position of lock mode data output 
+   constant lock_dat_lsb_pos         :     integer   := 0;       -- least significant bit position of lock mode data output 
    constant fltr_lock_dat_lsb_pos    :     integer   := 0;       -- least significant bit position of lock-mode data output that goes to the filter block
     
      
@@ -439,33 +442,33 @@ begin
    
    UUT : fsfb_processor
       generic map (
-         lock_dat_left            => lock_dat_msb_pos,
+         lock_dat_lsb             => lock_dat_lsb_pos,
          filter_lock_dat_lsb      => fltr_lock_dat_lsb_pos
       )
       port map (
          rst_i                    => rst,
-   	 clk_50_i                 => processor_clk_i,
-   	 coadd_done_i             => adc_coadd_done_i,
-   	 current_coadd_dat_i      => adc_coadd_dat_i,
-   	 current_diff_dat_i       => adc_diff_dat_i,
-   	 current_integral_dat_i   => adc_integral_dat_i,
-   	 ramp_update_new_i        => io_ramp_update_new_i,
-   	 initialize_window_ext_i  => io_initialize_window_ext_i,
-   	 previous_fsfb_dat_rdy_i  => io_fsfb_dat_rdy_i,   
-   	 previous_fsfb_dat_i      => io_fsfb_dat_i,   
-   	 servo_mode_i             => ws_servo_mode_i,
-   	 ramp_step_size_i         => ws_ramp_step_size_i,
-   	 ramp_amp_i               => ws_ramp_amp_i,
-   	 const_val_i              => ws_const_val_i,
-   	 p_dat_i                  => ws_p_dat_i,
-   	 i_dat_i                  => ws_i_dat_i,
-   	 d_dat_i                  => ws_d_dat_i,
-   	 wn12_dat_i               => wn12_dat_i,
-   	 wn11_dat_i               => wn11_dat_i,
-   	 wn10_dat_o               => wn10_dat_o,
-   	 wn22_dat_i               => wn22_dat_i,
-   	 wn21_dat_i               => wn21_dat_i,
-   	 wn20_dat_o               => wn20_dat_o,
+       clk_50_i                 => processor_clk_i,
+       coadd_done_i             => adc_coadd_done_i,
+       current_coadd_dat_i      => adc_coadd_dat_i,
+       current_diff_dat_i       => adc_diff_dat_i,
+       current_integral_dat_i   => adc_integral_dat_i,
+       ramp_update_new_i        => io_ramp_update_new_i,
+       initialize_window_ext_i  => io_initialize_window_ext_i,
+       previous_fsfb_dat_rdy_i  => io_fsfb_dat_rdy_i,   
+       previous_fsfb_dat_i      => io_fsfb_dat_i,   
+       servo_mode_i             => ws_servo_mode_i,
+       ramp_step_size_i         => ws_ramp_step_size_i,
+       ramp_amp_i               => ws_ramp_amp_i,
+       const_val_i              => ws_const_val_i,
+       p_dat_i                  => ws_p_dat_i,
+       i_dat_i                  => ws_i_dat_i,
+       d_dat_i                  => ws_d_dat_i,
+       wn12_dat_i               => wn12_dat_i,
+       wn11_dat_i               => wn11_dat_i,
+       wn10_dat_o               => wn10_dat_o,
+       wn22_dat_i               => wn22_dat_i,
+       wn21_dat_i               => wn21_dat_i,
+       wn20_dat_o               => wn20_dat_o,
          fsfb_proc_update_o       => processor_update_o,
          fsfb_proc_dat_o          => processor_dat_o,
          fsfb_proc_fltr_update_o  => proc_fltr_update_o,

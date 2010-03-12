@@ -34,6 +34,11 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.21  2009/10/19 19:45:07  mandana
+-- FILTER_SCALE_LSB set to 0, previously when set to 1, this was not used anywhere.
+-- This file now contains coeffs for original filter and new filter (fc/fs=75/30000 commented)
+-- obsolete comments removed
+--
 -- Revision 1.20  2009/10/09 20:31:38  mandana
 -- increased filter_input_width from 18 to 20
 -- added adder45 component, but not used in this version.
@@ -131,6 +136,7 @@ package fsfb_calc_pack is
    ---------------------------------------------------------------------------------
    constant FSFB_QUEUE_INIT_VAL    : integer := 0;                    -- initialized read value from the first stage feedback queue
    constant LOCK_MSB_POS           : integer := 37;                   -- most significant bit position of lock mode data output
+   constant LOCK_LSB_POS           : integer := 0;                    -- least significant bit position of lock mode data output
    -- constant MOST_SIG_LOCK_POS      : integer := 22;                   -- most significant bit position of lock mode data output
    
    ---------------------------------------------------------------------------------
@@ -259,7 +265,7 @@ package fsfb_calc_pack is
       
    component fsfb_processor is
       generic (
-         lock_dat_left               : integer := 30;
+         lock_dat_lsb                : integer;
          filter_lock_dat_lsb         : integer := 0
          );
 
