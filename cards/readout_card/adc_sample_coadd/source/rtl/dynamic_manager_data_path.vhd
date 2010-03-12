@@ -21,7 +21,7 @@
 --
 -- dynamic_manager_data_path.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -100,6 +100,15 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.5.2.2  2010/03/02 19:53:27  bburger
+-- BB: Added logic for disabling the PID calculation clamping feature when clamp_val = 0
+--
+-- Revision 1.5.2.1  2009/11/13 19:28:44  bburger
+-- BB: Added i-term clamp interface signals and logic.  The clamping occurs in this file.
+--
+-- Revision 1.5  2009/04/09 19:10:44  bburger
+-- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
+--
 -- Revision 1.4  2004/12/13 21:50:22  mohsen
 -- To avoid synthesis complication, changed the construct to generate shift register.
 --
@@ -141,6 +150,7 @@ entity dynamic_manager_data_path is
     -- From System
     rst_i                  : in  std_logic;
     clk_i                  : in  std_logic;
+    i_clamp_val_i          : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     initialize_window_i    : in  std_logic;
     
     -- From coadd_manager_data_path
@@ -186,6 +196,8 @@ architecture rtl of dynamic_manager_data_path is
   signal diff_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal previous_coadd : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   
+  -- Signals needed for the Coadd Finder
+  signal coadd_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   
   
 begin  -- rtl
@@ -220,14 +232,30 @@ begin  -- rtl
   -- banks has higher priority in the code wirtten here.  Also note that when
   -- current_bank_i=1, inputs from bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
-
-  integral_result <= current_coadd_dat_i + previous_intgral;
-
   previous_intgral <=
     (others => '0')        when initialize_window_max_dly = '1' else
     intgrl_dat_frm_bank1_i when current_bank_i = '0' else
     intgrl_dat_frm_bank0_i;
 
+  -----------------------------------------------------------------------------
+  -- I-Term Clamping:
+  -----------------------------------------------------------------------------
+  -- This is where the clamp needs to be to prevent wrapping.
+  -- A clamp any later in the chain will not prevent the I term from wrapping and causing a whiplash effect
+  -- Since a large FSFB is due to a ramping I term, the I term is the most important thing to be clamped; The P & D terms less so.
+  -- However, since we want to avoid small-scale fluctuations in the FSFB once the I term is clamped, we should also clamp the P and D terms to zero.
+  -- The way to do this is to check for an I term above/below a certain threshold, and if that happens, clamp to a fixed value above/below those thresholds
+  -- That way, the integral term gets frozen until a flx_lp_init command clears the pipeline.
+  -- Note that when i_clamp_val_i = 0, clamping is disabled.
+  -- See the wiki for the formula to calculate the correct clamping value for any set of PID parameters and flux-jump quanta:
+  -- http://e-mode.phas.ubc.ca/mcewiki/index.php/FSFB_Clamping_Commands
+  -----------------------------------------------------------------------------
+  integral_result <= 
+    i_clamp_val_i  when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" else
+    -i_clamp_val_i when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" else    
+    current_coadd_dat_i + previous_intgral;
+
+  -- For running integral storage
   integral_result_o <= integral_result;
 
 
@@ -239,15 +267,23 @@ begin  -- rtl
   -- a MUX by current_bank_i.  Note that when current_bank_i=0, inputs from
   -- bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
-
-  diff_result <= current_coadd_dat_i - previous_coadd;
-
   previous_coadd <=
     (others => '0')       when initialize_window_max_dly = '1' else
     coadd_dat_frm_bank1_i when current_bank_i = '0' else
     coadd_dat_frm_bank0_i;
 
+  diff_result <= 
+    (others => '0') when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" else
+    (others => '0') when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" else    
+    current_coadd_dat_i - previous_coadd;
  
+  -----------------------------------------------------------------------------
+  -- Coadd finder
+  -----------------------------------------------------------------------------
+  coadd_result <=
+    (others => '0') when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" else
+    (others => '0') when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" else    
+    current_coadd_dat_i;
 
   -----------------------------------------------------------------------------
   -- Register Outputs for fsfb_calc
@@ -263,7 +299,8 @@ begin  -- rtl
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
 
       if wren_for_fsfb_i = '1' then
-        current_coadd_dat_o    <= current_coadd_dat_i;
+        -- For PID loop calculation
+        current_coadd_dat_o    <= coadd_result;
         current_integral_dat_o <= integral_result;
         current_diff_dat_o     <= diff_result;
       end if;
