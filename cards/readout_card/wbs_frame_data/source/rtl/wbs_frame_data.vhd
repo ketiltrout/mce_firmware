@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2009/05/27 22:39:34 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2009/11/13 20:33:43 $> - <text> - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -67,6 +67,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+use std.textio.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -183,6 +184,8 @@ end wbs_frame_data;
 
 architecture rtl of wbs_frame_data is
 
+   
+   signal ack              : std_logic;
    ------------------------------------------------------------------------------------------------
    -- Wishbone read request enable
    ------------------------------------------------------------------------------------------------
@@ -286,6 +289,38 @@ architecture rtl of wbs_frame_data is
    signal rect_next_state      : rect_states;   
 
 begin
+
+--   -----------------------------------------------------------------------------------------
+--   -- Storing simulation data to file
+--   -----------------------------------------------------------------------------------------
+--   -- storing filter results to files   
+--   write_to_file: process (rect_wren) is 
+--      file output1 : TEXT open WRITE_MODE is "data05_fsfb_dat_ch0";
+--      file output2 : TEXT open WRITE_MODE is "data05_flux_cnt_dat_ch0";
+--
+--      --variable my_line : LINE;
+--      variable my_output_line : LINE;
+--   begin
+--      if(rect_wren = '1') then -- latches the data from address 0 just before the data switch.
+--         write(my_output_line, conv_integer(fsfb_dat_ch0_i));
+--         writeline(output1, my_output_line);   
+--         write(my_output_line, conv_integer(flux_cnt_dat_ch0_i));
+--         writeline(output2, my_output_line);
+--      end if;
+--   end process write_to_file;
+--
+--   write_to_file2: process (ack) is 
+--      file output3 : TEXT open WRITE_MODE is "data05_data_packets";
+--
+--      --variable my_line2 : LINE;
+--      variable my_output_line2 : LINE;
+--   begin
+--      if (ack = '1') then
+--         write(my_output_line2, conv_integer(rect_dat));
+--         writeline(output3, my_output_line2);
+--      end if;
+--   end process write_to_file2;
+
 
    -----------------------------------------------------------------------------------------
    -- Pixel Address Delay for Pipelining Data from the FSFB Queues
@@ -781,6 +816,7 @@ begin
          
    end process nextstate_fsm;
    
+   ack_o <= ack;
    output_fsm: process (current_state, addr_i, stb_i, cyc_i, data_mode)
    begin
       -- default states
@@ -788,7 +824,7 @@ begin
       readout_row_wren      <= '0';
       readout_col_wren      <= '0';
       readout_priority_wren <= '0';
-      ack_o                 <= '0';
+      ack                   <= '0';
       raw_req               <= '0';
       raw_addr_clr          <= '0';
       raw_addr_save         <= '0';
@@ -797,7 +833,7 @@ begin
       when IDLE  => 
          
       when WR =>
-         ack_o <= '1';
+         ack <= '1';
          if(stb_i = '1') then
             if(addr_i = DATA_MODE_ADDR) then
                data_mode_wren <= '1';
@@ -818,7 +854,7 @@ begin
       when RD1 =>
 
       when RD2 =>
-         ack_o    <= '1';
+         ack    <= '1';
          
          if(cyc_i = '0' and data_mode = MODE12_RAW_1_COL) then
             -- If we're in raw mode, we save the last addressed index as the starting point for the next read.
