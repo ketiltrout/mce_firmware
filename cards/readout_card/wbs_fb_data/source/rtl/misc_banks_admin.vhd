@@ -144,6 +144,15 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.16.2.2  2010/03/02 19:54:46  bburger
+-- BB: change the default value of clamp_val to '0' -- which disables the feature by default.
+--
+-- Revision 1.16.2.1  2009/11/13 20:28:09  bburger
+-- BB: added support for the I_CLAMP_VAL command
+--
+-- Revision 1.16  2008/07/10 18:31:46  mandana
+-- reduced servo_mode storage to 2 bits to fix the timing
+--
 -- Revision 1.15  2008/06/27 20:46:59  mandana
 -- merged with filter_coef_disabled branch
 -- added a register to the misc_bank output to relax timing of addr_gen:tga_o to dispatch_wishbone:buf
@@ -297,7 +306,7 @@ entity misc_banks_admin is
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
     flux_jumping_en_o       : out std_logic;
-
+    i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     
     -- signals to/from dispatch  (wishbone interface)
     dat_i                   : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
@@ -330,13 +339,17 @@ architecture rtl of misc_banks_admin is
   constant SA_BIAS_INDEX_OFFSET    : integer := 11;   -- Index of sa_bias in array register
   constant OFFSET_DAT_INDEX_OFFSET : integer := 19;   -- Index of offset_dat in array register
   constant EN_FB_JUMP_OFFSET       : integer := 27;   -- Index of enable flag for the flux-jumping block
---  constant FILTER_INDEX_OFFSET     : integer := 36;   -- Index of filter_coeff in array register (2 values common for all channels)
---  constant MISC_BANK_MAX_RANGE     : integer := 44;   -- Maximum number of parameters in the Miscellanous bank
-  constant MISC_BANK_MAX_RANGE     : integer := 28;   -- Maximum number of parameters in the Miscellanous bank
+  constant I_CLAMP_VAL_OFFSET      : integer := 28;
+--  constant FILTER_INDEX_OFFSET     : integer := 37;   -- Index of filter_coeff in array register (2 values common for all channels)
+--  constant MISC_BANK_MAX_RANGE     : integer := 45;   -- Maximum number of parameters in the Miscellanous bank
+  constant MISC_BANK_MAX_RANGE     : integer := 29;   -- Maximum number of parameters in the Miscellanous bank
  
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
   constant ZERO_XTND_SERVO : std_logic_vector(WB_DATA_WIDTH-SERVO_MODE_SEL_WIDTH-1 downto 0) := (others => '0');
   
+  -- I_CLAMP_VAL is set to zero to disable the functionality by default.
+  constant I_CLAMP_VAL : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
+
   -----------------------------------------------------------------------------
   -- Registers for each value
   -- Note: we have used 32-bit registers across the board, as the wishbone
@@ -394,6 +407,9 @@ begin  -- rtl
         if(i >= CONST_VAL_INDEX_OFFSET and i <= (CONST_VAL_INDEX_OFFSET +7) ) then
           reg_temp(i) <= conv_std_logic_vector(DAC_INIT_VAL,WB_DATA_WIDTH);
           reg(i) <= conv_std_logic_vector(DAC_INIT_VAL,WB_DATA_WIDTH);
+        elsif(i = I_CLAMP_VAL_OFFSET) then
+          reg_temp(i) <= I_CLAMP_VAL;
+          reg(i) <= I_CLAMP_VAL;          
         else
           reg_temp(i) <= (others => '0');
           reg(i) <= (others => '0');
@@ -465,6 +481,8 @@ begin  -- rtl
         wren(NUM_RAM_INDEX_OFFSET) <= we_i;
       when EN_FB_JUMP_ADDR =>
         wren(EN_FB_JUMP_OFFSET) <= we_i;
+      when I_CLAMP_VAL_ADDR =>
+        wren(I_CLAMP_VAL_OFFSET) <= we_i;
 
       when SA_BIAS_ADDR =>
         case tga_i(MAX_BIT_TAG-1 downto 0) is
@@ -640,6 +658,7 @@ begin  -- rtl
     offset_dat                    when OFFSET_ADDR,
     fb_const                      when FB_CONST_ADDR,
     reg(EN_FB_JUMP_OFFSET)        when EN_FB_JUMP_ADDR,
+    reg(I_CLAMP_VAL_OFFSET)       when I_CLAMP_VAL_ADDR,
     ZERO_XTND_SERVO & servo_dat   when others;
     --ext(servo_dat, qa_misc_bank_o'length) when others;           -- default to first value in bank
     -- !!Strangely, ext function to zero-extend worked well in modelsim but would 
@@ -693,6 +712,7 @@ begin  -- rtl
   const_val_ch6_o         <= reg(CONST_VAL_INDEX_OFFSET+6)(CONST_VAL_WIDTH-1 downto 0);
   const_val_ch7_o         <= reg(CONST_VAL_INDEX_OFFSET+7)(CONST_VAL_WIDTH-1 downto 0);  
   flux_jumping_en_o       <= '0' when reg(EN_FB_JUMP_OFFSET) = ZERO else '1';
+  i_clamp_val_o           <= reg(I_CLAMP_VAL_OFFSET);
   
   sa_bias_rdy_ch0_o       <= sa_bias_rdy(0);
   sa_bias_rdy_ch1_o       <= sa_bias_rdy(1);
