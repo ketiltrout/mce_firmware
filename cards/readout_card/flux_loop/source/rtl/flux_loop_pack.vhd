@@ -32,6 +32,12 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.19.2.1  2009/11/13 19:33:17  bburger
+-- BB: Added i-term clamp interface signals
+--
+-- Revision 1.19  2009/05/27 22:33:24  bburger
+-- BB: Added data_size_i interface to wishbone entity for rectangle mode data acquisition
+--
 -- Revision 1.18  2009/05/27 01:24:40  bburger
 -- BB: Added raw-data components, new to v5.x from 4.0.d
 --
@@ -240,6 +246,7 @@ package flux_loop_pack is
       offset_dac_spi_o            : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
       fsfb_fltr_dat_rdy_o         : out std_logic;
       fsfb_fltr_dat_o             : out std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
+      i_clamp_val_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         : out std_logic;                                             
@@ -568,6 +575,7 @@ package flux_loop_pack is
       ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
       num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
       flux_jumping_en_o       : out std_logic;
+      i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       dat_i                   : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                  : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
       tga_i                   : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);

@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.9.2.1  2009/11/13 19:27:19  bburger
+-- BB: Added i-term clamp interface signals
+--
+-- Revision 1.9  2009/05/27 01:22:23  bburger
+-- BB: removed unused entity declarations and constants.
+--
 -- Revision 1.8  2009/04/09 19:10:44  bburger
 -- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
 --
@@ -177,18 +183,19 @@ package adc_sample_coadd_pack is
     port (
       rst_i                  : in  std_logic;
       clk_i                  : in  std_logic;
+      i_clamp_val_i          : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       initialize_window_i    : in  std_logic;
-      current_coadd_dat_i    : in  std_logic_vector(31 downto 0);
+      current_coadd_dat_i    : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       current_bank_i         : in  std_logic;
       wren_for_fsfb_i        : in  std_logic;
-      coadd_dat_frm_bank0_i  : in  std_logic_vector(31 downto 0);
-      coadd_dat_frm_bank1_i  : in  std_logic_vector(31 downto 0);
-      intgrl_dat_frm_bank0_i : in  std_logic_vector(31 downto 0);
-      intgrl_dat_frm_bank1_i : in  std_logic_vector(31 downto 0);
-      current_coadd_dat_o    : out std_logic_vector(31 downto 0);
-      current_diff_dat_o     : out std_logic_vector(31 downto 0);
-      current_integral_dat_o : out std_logic_vector(31 downto 0);
-      integral_result_o      : out std_logic_vector(31 downto 0));
+      coadd_dat_frm_bank0_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      coadd_dat_frm_bank1_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      intgrl_dat_frm_bank0_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      intgrl_dat_frm_bank1_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      current_coadd_dat_o    : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      current_diff_dat_o     : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      current_integral_dat_o : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      integral_result_o      : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0));
   end component;
 
   -----------------------------------------------------------------------------
