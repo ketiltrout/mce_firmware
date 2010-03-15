@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.8 2010/03/06 10:55:44 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.9 2010/03/09 21:33:47 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -98,7 +98,7 @@ architecture top of config_fpga is
    signal current_out_state : out_states;
    signal next_out_state    : out_states;
 
-   type jtag_states is (IDLE, SYNC_TMS_BIT, LATCH_WORD, LATCH_SIZE, TDI_SETTLE, TCK_HIGH, TCK_LOW,
+   type jtag_states is (IDLE, SYNC_TMS_BIT, LATCH_WORD, LATCH_SIZE, TCK_HIGH, TCK_LOW,
       JTAG_ENGINE1, JTAG_ENGINE2, SHIFT_WORD, SEQUENCE_DONE, ADDR_DLY1, ADDR_DLY2); 
    signal current_jtag_state  : jtag_states;
    signal next_jtag_state     : jtag_states;
@@ -131,7 +131,7 @@ architecture top of config_fpga is
    signal tck_half_period_wren : std_logic;
    
    signal tck_dly1            : std_logic;
-   signal tck_dly2            : std_logic;
+--   signal tck_dly2            : std_logic;
    signal tck_count         : integer; -- range 0 to TCK_HALF_PERIOD + 1;
    signal tck_count_new     : integer; -- range 0 to TCK_HALF_PERIOD + 1;
    signal tck_level         : std_logic;
@@ -183,6 +183,7 @@ architecture top of config_fpga is
    signal tdi_wr_addr       : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
    signal tdi_wr_addr_new   : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
    signal tdi_wren          : std_logic;
+   signal tdi_wr_addr_clr   : std_logic;
 
    signal tdo_wr_addr       : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
    signal tdo_wr_addr_new   : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
@@ -194,11 +195,41 @@ architecture top of config_fpga is
    signal tdo_rd_addr_new   : std_logic_vector(JTAG_ADDR_WIDTH-1 downto 0);
    signal tdo_rden          : std_logic;
    signal tdo_rd_addr_clr   : std_logic;
+   
+--   1- sample TDO on the rising edge of the clock!
+--   2- don't let TMS and TDI switch while rolling through the bits.
+--   Both of these changes will better emulated the code for the Byte Blaster.
+   signal tdi           : std_logic;
+   signal tdi_reg_wren  : std_logic;
+   signal tms           : std_logic;
+   signal tms_reg_wren  : std_logic;
   
 begin
 
    -- Invert the signal.
    n_epc_tdo <= not epc_tdo_i;
+
+   tdi_reg : process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         tdi <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if(tdi_reg_wren = '1') then
+            tdi <= branch2_tdi;
+         end if;
+      end if;
+   end process tdi_reg;
+
+   tms_reg : process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         tms <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if(tms_reg_wren = '1') then
+            tms <= branch2_tms;
+         end if;
+      end if;
+   end process tms_reg;
 
    ----------------------------------------------------------------
    -- JTAG Output Data Path #1:  write_byteblaster()
@@ -225,8 +256,8 @@ begin
    -- Bit 2: --
    -- Bit 1: TMS.
    -- Bit 0: TCK. Toggles on the middle bit of every triad.      
-   fpga_tdo_o <= jtag0_dat(6) or branch2_tdi; -- TDI (into JTAG chain)
-   fpga_tms_o <= jtag0_dat(1) or branch2_tms; -- TMS
+   fpga_tdo_o <= jtag0_dat(6) or tdi; -- TDI (into JTAG chain)
+   fpga_tms_o <= jtag0_dat(1) or tms; -- TMS
    fpga_tck_o <= jtag0_dat(0) or tck_level; -- TCK
    
    jtag_reg0 : process(clk_i, rst_i)
@@ -280,13 +311,6 @@ begin
    -- Bit 1: --
    -- Bit 0: --
 
---   tdo_timer : us_timer
---   port map (
---      clk => clk_i,
---      timer_reset_i => timer_rst,
---      timer_count_o => timer
---   );
-   
    timer_new <= timer + 1;   
    tdo_timer : process(clk_i, rst_i)
    begin
@@ -307,12 +331,10 @@ begin
          
          jtag1_dat <= (others => '0');         
          tck_dly1  <= '0';
-         tck_dly2  <= '0';
          
       elsif(clk_i'event and clk_i = '1') then
          -- According to datasheets, TDO is valid 25ns after the falling edge of TCK.
          tck_dly1 <= jtag0_dat(0); --TCK
-         tck_dly2 <= tck_dly1;
 
          if(jtag1_wren = '1') then
             jtag1_dat <= "000000000000000000000000" & n_epc_tdo & "0110000"; -- TDO
@@ -331,7 +353,6 @@ begin
       case current_timer_state is
          when IDLE =>
             -- If there is a falling edge on TCK..
---            if(tck_dly1 = '0' and tck_dly2 = '1') then
             if(jtag0_dat(0) = '0' and tck_dly1 = '1') then
                if(tdo_sample_dly = 0) then
                   next_timer_state <= IDLE;
@@ -439,7 +460,9 @@ begin
       if(rst_i = '1') then
          tdi_wr_addr <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
-         if(tdi_wren = '1') then
+         if(tdi_wr_addr_clr = '1') then
+            tdi_wr_addr <= (others => '0');
+         elsif(tdi_wren = '1') then
             tdi_wr_addr <= tdi_wr_addr_new;
          end if;
       end if;
@@ -452,7 +475,9 @@ begin
       if(rst_i = '1') then
          tdi_rd_addr <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
-         if(tdi_rden = '1') then
+         if(tdi_wr_addr_clr = '1') then
+            tdi_rd_addr <= (others => '0');
+         elsif(tdi_rden = '1') then
             tdi_rd_addr <= tdi_rd_addr_new;
          end if;
       end if;
@@ -626,19 +651,17 @@ begin
             next_jtag_state <= SYNC_TMS_BIT;
          
          when SYNC_TMS_BIT =>            
-            next_jtag_state <= TDI_SETTLE;
+            next_jtag_state <= TCK_LOW;
 
-         when TDI_SETTLE =>
-            if(tck_count = tck_hlf_period-1) then
-               next_jtag_state <= TCK_HIGH;
-            end if;
+--         when LATCH_OUTPUT =>
+--            next_jtag_state <= TCK_LOW;
+
+--         when TDI_SETTLE =>
+--            if(tck_count = tck_hlf_period-1) then
+--               next_jtag_state <= TCK_HIGH;
+--            end if;
         
          when TCK_HIGH => 
-            if(tck_count = tck_hlf_period-1) then
-               next_jtag_state <= TCK_LOW;
-            end if;
-         
-         when TCK_LOW => 
             -- On the last clock cycle of the TCK = 0, where are we in the JTAG words?
             -- The bit count is updating at this point, so we have have to synchronize with what that value is on the last cycle.
             if(tck_count = tck_hlf_period-1) then
@@ -651,8 +674,13 @@ begin
                   next_jtag_state <= ADDR_DLY1;
                -- Keep trucking trough the word
                else
-                  next_jtag_state <= TCK_HIGH;
+                  next_jtag_state <= TCK_LOW;
                end if;               
+            end if;
+         
+         when TCK_LOW => 
+            if(tck_count = tck_hlf_period-1) then
+               next_jtag_state <= TCK_HIGH;
             end if;
          
          when SEQUENCE_DONE =>
@@ -694,6 +722,11 @@ begin
       tck_level         <= '0';
       tck_count_en      <= '0';
       jtag_busy_o       <= '1';
+      
+      tdi_reg_wren      <= '0';
+      tms_reg_wren      <= '0';
+      
+      tdi_wr_addr_clr   <= '0';
 
       case current_jtag_state is         
          when IDLE  =>
@@ -723,54 +756,17 @@ begin
             -- Shift over to TMS bit
             tms_sh_ena        <= '1';
          
-         when TDI_SETTLE =>
-            -- Count out the duration of the TCK half-period
-            tck_count_en      <= '1';
-            tck_level         <= '0';
+--         when LATCH_OUTPUT =>
+         
+--         when TDI_SETTLE =>
+--            -- Count out the duration of the TCK half-period
+--            tck_count_en      <= '1';
 
          when TCK_HIGH => 
             -- Count out the duration of the TCK half-period
             tck_count_en      <= '1';
             tck_level         <= '1';
 
-            -- While TCK is high, shift to the next TDI and TMS positions in the shift registers (See AN39, p.24)
-            if(tck_count = tdo_sample_dly) then
-               -- Shift to next TMS/TDI bits
-               tdi_sh_ena        <= '1';
-               tms_sh_ena        <= '1';
---               bit_count_ena     <= '1';
-            elsif(tck_count = tdo_sample_dly+1) then
-               -- Shift to next TMS/TDI bits
-               tdi_sh_ena        <= '1';
-               tms_sh_ena        <= '1';
---               bit_count_ena     <= '1';
-            end if;
-         
-         when TCK_LOW => 
-            -- Count out the duration of the TCK half-period
-            tck_count_en      <= '1';
-            tck_level         <= '0';
-
-            -- Capture TDO at after a delay = tdo_sample_dly
-            if(tck_count = tdo_sample_dly) then
-               tdo_sh_ena        <= '1';
-            end if;
-            
---            -- If it's that time, store the TDO word in RAM and clear the shift register
---            if(tck_count = tck_hlf_period-1) then
---               -- No more bits to shift out, cuz we just shifted out the last TMS/TCK
---               if(bit_count = bit_num-2) then 
---                  -- It takes one cycle to clear the shift register, so storing it output at the same time is legit.
---                  tdo_wren          <= '1';
---                  tdo_sh_clear      <= '1';
---               -- At the end of a word
---               elsif(wbit_count = WB_DATA_WIDTH-2) then 
---                  tdo_wren          <= '1';
---                  tdo_sh_clear      <= '1';
---               -- Keep trucking trough the word
---               end if;               
---            end if;
-            
             if(tck_count = tck_hlf_period-1) then
                -- No more bits to shift out, cuz we just shifted out the last TMS/TCK
                if(bit_count = bit_num-1) then 
@@ -784,16 +780,37 @@ begin
                end if;               
             end if;
 
-            -- On the last clock cycle of the TCK = 0, update the bit counter.
+            -- On the last 2 clock cycles of the TCK = 1, update the bit counter and the shift registers.
             if(tck_count = tck_hlf_period-2) then
                bit_count_ena     <= '1';
+               tdi_sh_ena        <= '1';
+               tms_sh_ena        <= '1';
             elsif(tck_count = tck_hlf_period-1) then
                bit_count_ena     <= '1';
+               tdi_sh_ena        <= '1';
+               tms_sh_ena        <= '1';
             end if;
+        
+         when TCK_LOW => 
+            -- Count out the duration of the TCK half-period
+            tck_count_en      <= '1';
+
+            if(tck_count = 0) then
+               tdi_reg_wren      <= '1';
+               tms_reg_wren      <= '1';
+            end if;
+          
+            -- Capture TDO at after a delay = tdo_sample_dly
+            if(tck_count = tdo_sample_dly) then
+               tdo_sh_ena        <= '1';
+            end if;
+                        
 
          when SEQUENCE_DONE =>
             -- Reset the TDO RAM pointer for the next sequence.
             tdo_wr_addr_clr   <= '1';            
+            tdi_wr_addr_clr   <= '1';
+           
 --            tdo_rd_addr_clr   <= '1';
             
          when others =>
