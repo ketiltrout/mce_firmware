@@ -81,6 +81,9 @@
 -- Revision history:
 --
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.11  2010/03/12 21:02:23  bburger
+-- BB: added i_clamp_val interface signals
+--
 -- Revision 1.10.2.1  2009/11/13 20:30:10  bburger
 -- BB: Added i-term clamp interface signals
 --
@@ -643,7 +646,8 @@ begin  -- struct
                              ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR,
     qa_misc_bank        when FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR | I_CLAMP_VAL_ADDR,
+                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR | I_CLAMP_VAL_ADDR |
+                             FLTR_TYPE_ADDR,
 
     (others => '0')     when others;        -- default to zero
 

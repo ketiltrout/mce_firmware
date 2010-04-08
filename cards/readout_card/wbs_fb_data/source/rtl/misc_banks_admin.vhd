@@ -144,6 +144,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.17  2010/03/12 21:01:40  bburger
+-- BB: added i_clamp_val interface signals, and wishbone logic.
+--
 -- Revision 1.16.2.2  2010/03/02 19:54:46  bburger
 -- BB: change the default value of clamp_val to '0' -- which disables the feature by default.
 --
@@ -231,7 +234,7 @@ library work;
 use work.readout_card_pack.all;
 use work.wbs_fb_data_pack.all;
 use work.flux_loop_pack.all;
-
+use work.fsfb_calc_pack.all;  -- very unusual, but for simplifying ports ?! not justified I know
 
 
 entity misc_banks_admin is
@@ -546,7 +549,8 @@ begin  -- rtl
     ack_read_misc_bank <=
     (stb_i and cyc_i) when SERVO_MODE_ADDR | RAMP_STEP_ADDR | -- FILT_COEF_ADDR | 
                            RAMP_AMP_ADDR | FB_CONST_ADDR | RAMP_DLY_ADDR |
-                           SA_BIAS_ADDR |  OFFSET_ADDR | EN_FB_JUMP_ADDR,
+                           SA_BIAS_ADDR |  OFFSET_ADDR | EN_FB_JUMP_ADDR |
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
     '0'               when others;
 
   -- ack_write_misc_bank <= ack_read_misc_bank;
@@ -658,6 +662,7 @@ begin  -- rtl
     offset_dat                    when OFFSET_ADDR,
     fb_const                      when FB_CONST_ADDR,
     reg(EN_FB_JUMP_OFFSET)        when EN_FB_JUMP_ADDR,
+    ext(FILTER_TYPE, qa_misc_bank_o'length)   when FLTR_TYPE_ADDR,
     reg(I_CLAMP_VAL_OFFSET)       when I_CLAMP_VAL_ADDR,
     ZERO_XTND_SERVO & servo_dat   when others;
     --ext(servo_dat, qa_misc_bank_o'length) when others;           -- default to first value in bank
