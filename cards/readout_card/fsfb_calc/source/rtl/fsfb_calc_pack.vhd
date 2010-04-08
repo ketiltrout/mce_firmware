@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.22  2010/03/12 20:50:55  bburger
+-- BB: changed lock_dat_left to lock_dat_lsb
+--
 -- Revision 1.21  2009/10/19 19:45:07  mandana
 -- FILTER_SCALE_LSB set to 0, previously when set to 1, this was not used anywhere.
 -- This file now contains coeffs for original filter and new filter (fc/fs=75/30000 commented)
@@ -167,14 +170,17 @@ package fsfb_calc_pack is
    --                                         1  2  1  1  -1.9066292518523014  0.90916270571237567 (2nd biquad)       
    --                           Scale Values: 0.00065067508393319923                                       
    --                                         0.00063336346501859835       
+   --                           Filter Type : 1
    ------------------------------------------------------------------------------------------------------------
    -- for Spider/Bicep fc/fs=75/30000,  SOS: 1  2  1  1  -1.9711486088510415  0.97139181456687917         
    --                                         1  2  1  1  -1.9878047097960421  0.98804997058724808         
    --                           Scale Values: 0.0000000037280516432624239
    --                                         1                                                            
-                                                               
+   --                           Filter Type : 2
+   --
 
    -- To convert to signed binary fractional, multiply the number by 2^14 and convert to hex. 
+   constant FILTER_TYPE             : std_logic_vector(7 downto 0) := x"01";
                                                                                          
    constant FILTER_B11_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"111111000100111"; -- 0x7E27, -1.9711486088510415
                                                                                         "111110101011100"; -- 0x7D5C, -1.9587428340882587
