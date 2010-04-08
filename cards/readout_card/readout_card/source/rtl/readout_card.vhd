@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.89  2010/03/12 20:54:23  bburger
+-- BB: re-introduced a generic that had gone missing, and upped the revision to v0500000A
+--
 -- Revision 1.84.2.3  2009/10/15 20:56:32  mandana
 -- fw_rev 5.0.8 has wider input to the filter and sticky bits removed from internal filter calcs.
 --
@@ -381,7 +384,8 @@ begin
                             ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
+                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
+                            I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
       dat_frame        when DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
                             READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       dat_led          when LED_ADDR,
@@ -412,7 +416,8 @@ begin
                            ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
                            FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                            RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                           SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
+                           SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
       ack_frame       when DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
                            READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       ack_led         when LED_ADDR,
@@ -448,7 +453,8 @@ begin
                            LED_ADDR |
                            ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                            SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
       all_cards_err   when FW_REV_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_err   when CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_err when FPGA_TEMP_ADDR,
