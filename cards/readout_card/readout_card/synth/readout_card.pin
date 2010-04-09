@@ -1,4 +1,4 @@
- -- Copyright (C) 1991-2009 Altera Corporation
+ -- Copyright (C) 1991-2010 Altera Corporation
  -- Your use of Altera Corporation's design tools, logic functions 
  -- and other software and tools, and its AMPP partner logic 
  -- functions, and any output files from any of the foregoing 
@@ -52,10 +52,9 @@
  --					This pin should be connected to GND. It may also be connected  to a
  --					valid signal  on the board  (low, high, or toggling)  if that signal
  --					is required for a different revision of the design.
- -- GND*          : Unused  I/O  pin.   For transceiver I/O banks (Bank 13, 14, 15, 16 and 17),
- --           	    connect each pin marked GND* either individually through a 10k Ohm resistor
- --           	    to GND or tie all pins together and connect through a single 10k Ohm resistor
- --           	    to GND.
+ -- GND*          : Unused  I/O  pin.   For transceiver I/O banks, connect each pin marked GND*
+ --           	    either individually through a 10k Ohm resistor to GND or tie all pins
+ --           	    together and connect through a single 10k Ohm resistor to GND.
  --           	    For non-transceiver I/O banks, connect each pin marked GND* directly to GND
  --           	    or leave it unconnected.
  -- RESERVED      : Unused I/O pin, which MUST be left unconnected.
@@ -71,7 +70,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 9.1 Build 222 10/21/2009 SJ Full Version
+Quartus II Version 9.1 Build 304 01/25/2010 Service Pack 1 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S40F780C6
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -87,7 +86,7 @@ mictor[16]                   : A9        : output : 3.3-V LVTTL       :         
 mictor[3]                    : A10       : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[0]                    : A11       : output : 3.3-V LVTTL       :         : 4         : Y              
 VCCIO4                       : A12       : power  :                   : 3.3V    : 4         :                
-mictor[6]                    : A13       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : A13       :        :                   :         : 4         :                
 GND                          : A14       : gnd    :                   :         :           :                
 GND                          : A15       : gnd    :                   :         :           :                
 card_id                      : A16       : bidir  : 3.3-V LVTTL       :         : 3         : Y              
@@ -473,7 +472,7 @@ RESERVED_INPUT               : G6        :        :                   :         
 ttl_dir1                     : G7        : output : 3.3-V LVTTL       :         : 4         : Y              
 ttl_out2                     : G8        : output : 3.3-V LVTTL       :         : 4         : Y              
 ttl_dir2                     : G9        : output : 3.3-V LVTTL       :         : 4         : Y              
-mictor[5]                    : G10       : output : 3.3-V LVTTL       :         : 4         : N              
+mictor[6]                    : G10       : output : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : G11       :        :                   :         : 4         :                
 ttl_out3                     : G12       : output : 3.3-V LVTTL       :         : 4         : Y              
 TDI                          : G13       : input  :                   :         : 4         :                
@@ -529,7 +528,7 @@ dac_FB2_dat[10]              : J6        : output : 3.3-V LVTTL       :         
 dac_FB3_dat[2]               : J7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB3_dat[1]               : J8        : output : 3.3-V LVTTL       :         : 5         : Y              
 RESERVED_INPUT               : J9        :        :                   :         : 4         :                
-RESERVED_INPUT               : J10       :        :                   :         : 4         :                
+mictor[5]                    : J10       : output : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : J11       :        :                   :         : 4         :                
 RESERVED_INPUT               : J12       :        :                   :         : 4         :                
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
