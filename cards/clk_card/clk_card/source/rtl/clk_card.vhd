@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.94 2010/02/26 09:32:44 bburger Exp $
+-- $Id: clk_card.vhd,v 1.95 2010/03/05 19:14:01 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -148,7 +148,7 @@ entity clk_card is
       box_id_ena_n      : out std_logic;
 
       extend_n          : in std_logic;
-      crc_error_out     : inout std_logic;
+--      crc_error_out     : inout std_logic;
 
       -- debug ports:
 --      auto_stp_trigger_out_0 : out std_logic;
@@ -159,8 +159,8 @@ entity clk_card is
 
       mictor1_o         : out std_logic_vector(15 downto 0);
       mictor1clk_o      : out std_logic;
-      mictor1_e         : out std_logic_vector(15 downto 0);
-      mictor1clk_e      : out std_logic;
+--      mictor1_e         : out std_logic_vector(15 downto 0);
+--      mictor1clk_e      : out std_logic;
 
       rx                : in std_logic;
       tx                : out std_logic;
@@ -205,7 +205,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000005";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000006";
 
    -- reset
    signal rst                : std_logic;
@@ -419,23 +419,23 @@ begin
    ----------------------------------------------------------------------------
    -- CRC_ERROR WYSIWYG Atom Instantiation
    ----------------------------------------------------------------------------
-   i_stratix_crcblock : stratix_crcblock
-   port map(
-      clk => clk,
-      shiftnld => '0',
-      ldsrc => '0',
-      crcerror => crc_error_out,
-      regout => open
-   );
-
-   -- According an539.pdf, p. 7:
-   -- To route the crcerror port to user I/O, you must insert a D flipflop (DFF) in between the crcerror port and the I/O.
-   i_d_flipflop : d_flipflop
-   PORT map(
-      clock => clk,
-      data  => crc_error_out,  
-      q     => crc_error_ff  
-   );
+--   i_stratix_crcblock : stratix_crcblock
+--   port map(
+--      clk => clk,
+--      shiftnld => '0',
+--      ldsrc => '0',
+--      crcerror => crc_error_out,
+--      regout => open
+--   );
+--
+--   -- According an539.pdf, p. 7:
+--   -- To route the crcerror port to user I/O, you must insert a D flipflop (DFF) in between the crcerror port and the I/O.
+--   i_d_flipflop : d_flipflop
+--   PORT map(
+--      clock => clk,
+--      data  => crc_error_out,  
+--      q     => crc_error_ff  
+--   );
    
    ylw_led <= manchester_sigdet;
 --   process(rst, clk)

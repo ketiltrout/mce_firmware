@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.12  2010/01/13 20:08:42  bburger
+# BB:  Added a crc_error_out signal for the CRC_ERROR functionality
+#
 # Revision 1.11  2007/07/26 20:27:02  bburger
 # BB:  commented out the external trigger pin from the .tcl file, and uncommented the mictor header interface that uses the same pins.
 #
@@ -196,7 +199,7 @@ puts "   Assigned: DIP switch pins."
 
 # assign watchdog
 cmp add_assignment $top_name "" wdog LOCATION "Pin_E6"
-cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_AA20"
+# cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_AA20"
 puts "   Assigned: Watchdog pin."
 
 

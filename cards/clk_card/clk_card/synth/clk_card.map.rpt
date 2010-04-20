@@ -1,5 +1,5 @@
 Analysis & Synthesis report for clk_card
-Thu Mar 11 20:51:29 2010
+Tue Apr 20 15:48:25 2010
 Quartus II Version 9.1 Build 304 01/25/2010 Service Pack 1 SJ Full Version
 
 
@@ -241,450 +241,448 @@ Quartus II Version 9.1 Build 304 01/25/2010 Service Pack 1 SJ Full Version
 233. Source assignments for dispatch:psuc_dispatch_block|altsyncram:buf|altsyncram_a9p3:auto_generated
 234. Source assignments for psu_ctrl:psu_ctrl_slave|ram_32bit_x_64:status_ram|altsyncram:altsyncram_component|altsyncram_kal1:auto_generated
 235. Parameter Settings for User Entity Instance: manch_pll:manch_pll_block|altpll:altpll_component
-236. Parameter Settings for User Entity Instance: d_flipflop:i_d_flipflop|lpm_ff:lpm_ff_component
-237. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block
-238. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver
-239. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx
-240. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter
-241. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_sample
-242. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer
-243. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer
-244. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc
-245. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr0
-246. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr1
-247. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|binary_counter:word_counter
-248. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter
-249. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer
-250. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|altsyncram:fifo_storage
-251. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:write_pointer
-252. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:read_pointer
-253. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer
-254. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|counter:bit_counter
-255. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer
-256. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|altsyncram:fifo_storage
-257. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:write_pointer
-258. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:read_pointer
-259. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|shift_reg:tx_buffer
-260. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc
-261. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|binary_counter:word_counter
-262. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|reg:hdr0
-263. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|reg:hdr1
-264. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|altsyncram:buf
-265. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component
-266. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|altsyncram:mem0
-267. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg
-268. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:par_id_reg
-269. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:data_size_reg_t
-270. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:issue_sync_reg
-271. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:cmd_code_reg
-272. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:bit_status_reg
-273. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:frame_seq_num_reg
-274. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:step_value_reg
-275. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component
-276. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|counter:bit_counter
-277. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer
-278. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer|altsyncram:fifo_storage
-279. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer|lpm_counter:write_pointer
-280. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer|lpm_counter:read_pointer
-281. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|shift_reg:tx_buffer
-282. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc
-283. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|shift_reg:sh_reg
-284. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|counter:bit_ctr
-285. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_translator_frame_head_ram:i_reply_translator_frame_head_ram|altsyncram:altsyncram_component
-286. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:cmd_code_reg
-287. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:card_addr_reg
-288. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:par_id_reg
-289. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:data_size_reg_t
-290. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:bit_status_reg
-291. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:frame_seq_num_reg
-292. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:issue_sync_num_reg
-293. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:status_reg
-294. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a
-295. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-296. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-297. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-298. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-299. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b
-300. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-301. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-302. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-303. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-304. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|parallel_crc:crc_calc
-305. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer
-306. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer|altsyncram:fifo_storage
-307. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer|lpm_counter:write_pointer
-308. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer|lpm_counter:read_pointer
-309. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header0_reg
-310. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header1_reg
-311. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|binary_counter:word_counter
-312. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a
-313. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-314. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-315. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-316. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-317. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b
-318. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-319. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-320. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-321. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-322. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|parallel_crc:crc_calc
-323. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer
-324. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer|altsyncram:fifo_storage
-325. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer|lpm_counter:write_pointer
-326. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer|lpm_counter:read_pointer
-327. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|reg:header0_reg
-328. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|reg:header1_reg
-329. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|binary_counter:word_counter
-330. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a
-331. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-332. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-333. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-334. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-335. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b
-336. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-337. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-338. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-339. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-340. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|parallel_crc:crc_calc
-341. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer
-342. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer|altsyncram:fifo_storage
-343. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer|lpm_counter:write_pointer
-344. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer|lpm_counter:read_pointer
-345. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|reg:header0_reg
-346. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|reg:header1_reg
-347. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|binary_counter:word_counter
-348. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a
-349. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-350. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-351. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-352. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-353. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b
-354. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-355. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-356. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-357. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-358. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|parallel_crc:crc_calc
-359. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer
-360. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer|altsyncram:fifo_storage
-361. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer|lpm_counter:write_pointer
-362. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer|lpm_counter:read_pointer
-363. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|reg:header0_reg
-364. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|reg:header1_reg
-365. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|binary_counter:word_counter
-366. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a
-367. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-368. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-369. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-370. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-371. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b
-372. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-373. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-374. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-375. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-376. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|parallel_crc:crc_calc
-377. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer
-378. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer|altsyncram:fifo_storage
-379. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer|lpm_counter:write_pointer
-380. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer|lpm_counter:read_pointer
-381. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|reg:header0_reg
-382. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|reg:header1_reg
-383. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|binary_counter:word_counter
-384. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a
-385. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-386. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-387. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-388. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-389. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b
-390. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-391. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-392. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-393. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-394. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|parallel_crc:crc_calc
-395. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer
-396. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer|altsyncram:fifo_storage
-397. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer|lpm_counter:write_pointer
-398. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer|lpm_counter:read_pointer
-399. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|reg:header0_reg
-400. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|reg:header1_reg
-401. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|binary_counter:word_counter
-402. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a
-403. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-404. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-405. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-406. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-407. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b
-408. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-409. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-410. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-411. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-412. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|parallel_crc:crc_calc
-413. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer
-414. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer|altsyncram:fifo_storage
-415. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer|lpm_counter:write_pointer
-416. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer|lpm_counter:read_pointer
-417. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|reg:header0_reg
-418. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|reg:header1_reg
-419. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|binary_counter:word_counter
-420. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a
-421. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-422. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-423. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-424. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-425. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b
-426. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-427. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-428. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-429. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-430. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|parallel_crc:crc_calc
-431. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer
-432. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer|altsyncram:fifo_storage
-433. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer|lpm_counter:write_pointer
-434. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer|lpm_counter:read_pointer
-435. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|reg:header0_reg
-436. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|reg:header1_reg
-437. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|binary_counter:word_counter
-438. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a
-439. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-440. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-441. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-442. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-443. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b
-444. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-445. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-446. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-447. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-448. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|parallel_crc:crc_calc
-449. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer
-450. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer|altsyncram:fifo_storage
-451. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer|lpm_counter:write_pointer
-452. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer|lpm_counter:read_pointer
-453. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|reg:header0_reg
-454. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|reg:header1_reg
-455. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|binary_counter:word_counter
-456. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a
-457. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
-458. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
-459. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
-460. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
-461. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b
-462. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
-463. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
-464. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
-465. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
-466. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|parallel_crc:crc_calc
-467. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer
-468. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer|altsyncram:fifo_storage
-469. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer|lpm_counter:write_pointer
-470. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer|lpm_counter:read_pointer
-471. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|reg:header0_reg
-472. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|reg:header1_reg
-473. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|binary_counter:word_counter
-474. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component
-475. Parameter Settings for User Entity Instance: all_cards:i_all_cards
-476. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:0:all_cards_reg
-477. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:1:all_cards_reg
-478. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:2:all_cards_reg
-479. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:3:all_cards_reg
-480. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:4:all_cards_reg
-481. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:5:all_cards_reg
-482. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:6:all_cards_reg
-483. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:7:all_cards_reg
-484. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:8:all_cards_reg
-485. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:9:all_cards_reg
-486. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:10:all_cards_reg
-487. Parameter Settings for User Entity Instance: fw_rev:fw_rev_slave
-488. Parameter Settings for User Entity Instance: clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component
-489. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|jtag_data_bank:tdi_bank|altsyncram:altsyncram_component
-490. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|shift_reg:tdi_tx
-491. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|shift_reg:tms_tx
-492. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|shift_reg:tdo_rx
-493. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|jtag_data_bank:tdo_bank|altsyncram:altsyncram_component
-494. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master
-495. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:tx_data_reg
-496. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:rx_data_reg
-497. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:bit_counter
-498. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:timer_counter
-499. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|counter:byte_counter
-500. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data0
-501. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data1
-502. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data2
-503. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data3
-504. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data4
-505. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data5
-506. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:thermo_data0
-507. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:thermo_data1
-508. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:tx_data_reg
-509. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:rx_data_reg
-510. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:bit_counter
-511. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:timer_counter
-512. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter
-513. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data0
-514. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data1
-515. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data2
-516. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data3
-517. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data4
-518. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data5
-519. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:thermo_data0
-520. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:thermo_data1
-521. Parameter Settings for User Entity Instance: fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:tx_addr_reg
-522. Parameter Settings for User Entity Instance: fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:rx_data_reg
-523. Parameter Settings for User Entity Instance: fpga_thermo:fpga_thermo_slave|reg:thermo_data
-524. Parameter Settings for User Entity Instance: sync_gen:sync_gen_slave|sync_gen_wbs:wbi|reg:dv_en_reg
-525. Parameter Settings for User Entity Instance: sync_gen:sync_gen_slave|sync_gen_wbs:wbi|reg:sync_mode_reg
-526. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:sample_delay_reg
-527. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:sample_num_reg
-528. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:feedback_delay_reg
-529. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:address_on_delay_reg
-530. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:resync_req_reg
-531. Parameter Settings for User Entity Instance: dv_rx:dv_rx_slave|shift_reg:rx_buffer
-532. Parameter Settings for User Entity Instance: dv_rx:dv_rx_slave|binary_counter:sample_counter
-533. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:awg_sequence_len_reg
-534. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|awg_data_bank:awg|altsyncram:altsyncram_component
-535. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:cards_present_reg
-536. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:run_file_id_reg
-537. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:user_writable_reg
-538. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:internal_cmd_mode_reg
-539. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_period_reg
-540. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_minimum_reg
-541. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_size_reg
-542. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_maximum_reg
-543. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_param_id_reg
-544. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_card_addr_reg
-545. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:start_reg
-546. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:stop_reg
-547. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:crc_error_enable_reg
-548. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_enable_reg
-549. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_max_reg
-550. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_min_reg
-551. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_rate_reg
-552. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:internal_command_enable_reg
-553. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block
-554. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver
-555. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx
-556. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter
-557. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_sample
-558. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer
-559. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer
-560. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc
-561. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr0
-562. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr1
-563. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|binary_counter:word_counter
-564. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter
-565. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer
-566. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|altsyncram:fifo_storage
-567. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:write_pointer
-568. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:read_pointer
-569. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer
-570. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|counter:bit_counter
-571. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer
-572. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|altsyncram:fifo_storage
-573. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:write_pointer
-574. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:read_pointer
-575. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|shift_reg:tx_buffer
-576. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc
-577. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|binary_counter:word_counter
-578. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|reg:hdr0
-579. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|reg:hdr1
-580. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|altsyncram:buf
-581. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|ram_32bit_x_64:status_ram|altsyncram:altsyncram_component
-582. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_rx
-583. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_tx
-584. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|counter:bit_ctr
-585. Parameter Settings for Inferred Entity Instance: sync_gen:sync_gen_slave|sync_gen_core:sgc|lpm_mult:Mult0
-586. Parameter Settings for Inferred Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0
-587. Parameter Settings for Inferred Entity Instance: issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|lpm_mult:Mult0
-588. altpll Parameter Settings by Entity Instance
-589. dcfifo Parameter Settings by Entity Instance
-590. altsyncram Parameter Settings by Entity Instance
-591. lpm_mult Parameter Settings by Entity Instance
-592. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|counter:bit_ctr"
-593. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_tx"
-594. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_rx"
-595. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|ram_32bit_x_64:status_ram"
-596. Port Connectivity Checks: "dispatch:psuc_dispatch_block"
-597. Port Connectivity Checks: "ret_dat_wbs:ret_dat_parameter_slave|reg:cards_present_reg"
-598. Port Connectivity Checks: "dv_rx:dv_rx_slave|binary_counter:sample_counter"
-599. Port Connectivity Checks: "dv_rx:dv_rx_slave|shift_reg:rx_buffer"
-600. Port Connectivity Checks: "frame_timing:frame_timing_slave|frame_timing_core:ftc"
-601. Port Connectivity Checks: "frame_timing:frame_timing_slave"
-602. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|reg:thermo_data"
-603. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:rx_data_reg"
-604. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:tx_addr_reg"
-605. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|smb_master:master2"
-606. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave"
-607. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|reg:thermo_data0"
-608. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|reg:id_data5"
-609. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|reg:id_data4"
-610. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter"
-611. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:timer_counter"
-612. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:bit_counter"
-613. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:rx_data_reg"
-614. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:tx_data_reg"
-615. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|reg:thermo_data0"
-616. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|reg:id_data5"
-617. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|reg:id_data4"
-618. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|counter:byte_counter"
-619. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:timer_counter"
-620. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:bit_counter"
-621. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:rx_data_reg"
-622. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:tx_data_reg"
-623. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master"
-624. Port Connectivity Checks: "leds:led_slave"
-625. Port Connectivity Checks: "config_fpga:config_fpga_slave|shift_reg:tdo_rx"
-626. Port Connectivity Checks: "config_fpga:config_fpga_slave|shift_reg:tms_tx"
-627. Port Connectivity Checks: "config_fpga:config_fpga_slave|shift_reg:tdi_tx"
-628. Port Connectivity Checks: "config_fpga:config_fpga_slave"
-629. Port Connectivity Checks: "clk_switchover:clk_switchover_slave|cc_pll:pll0"
-630. Port Connectivity Checks: "fw_rev:fw_rev_slave"
-631. Port Connectivity Checks: "all_cards:i_all_cards|reg:\i_all_cards_bank:2:all_cards_reg"
-632. Port Connectivity Checks: "all_cards:i_all_cards|reg:\i_all_cards_bank:1:all_cards_reg"
-633. Port Connectivity Checks: "all_cards:i_all_cards|reg:\i_all_cards_bank:0:all_cards_reg"
-634. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_translator:i_reply_translator"
-635. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu"
-636. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc"
-637. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4"
-638. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3"
-639. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2"
-640. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1"
-641. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3"
-642. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2"
-643. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1"
-644. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|binary_counter:word_counter"
-645. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header1_reg"
-646. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header0_reg"
-647. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer"
-648. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|parallel_crc:crc_calc"
-649. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac"
-650. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq"
-651. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:bit_status_reg"
-652. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue"
-653. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|us_timer:trigger_timer"
-654. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|counter:bit_ctr"
-655. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|shift_reg:sh_reg"
-656. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc"
-657. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst"
-658. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:bit_status_reg"
-659. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue"
-660. Port Connectivity Checks: "issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|us_timer:timeout_timer_b"
-661. Port Connectivity Checks: "issue_reply:issue_reply_block|fibre_rx:i_fibre_rx"
-662. Port Connectivity Checks: "issue_reply:issue_reply_block"
-663. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|binary_counter:word_counter"
-664. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc"
-665. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer"
-666. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer"
-667. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter"
-668. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|binary_counter:word_counter"
-669. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc"
-670. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer"
-671. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_sample"
-672. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter"
-673. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx"
-674. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver"
-675. Port Connectivity Checks: "dispatch:cc_dispatch_block"
-676. Port Connectivity Checks: "d_flipflop:i_d_flipflop"
-677. Port Connectivity Checks: "manch_pll:manch_pll_block"
-678. Analysis & Synthesis INI Usage
-679. Analysis & Synthesis Messages
+236. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block
+237. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver
+238. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx
+239. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter
+240. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_sample
+241. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer
+242. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer
+243. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc
+244. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr0
+245. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr1
+246. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|binary_counter:word_counter
+247. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter
+248. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer
+249. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|altsyncram:fifo_storage
+250. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:write_pointer
+251. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:read_pointer
+252. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer
+253. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|counter:bit_counter
+254. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer
+255. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|altsyncram:fifo_storage
+256. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:write_pointer
+257. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:read_pointer
+258. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|shift_reg:tx_buffer
+259. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc
+260. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|binary_counter:word_counter
+261. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|reg:hdr0
+262. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|reg:hdr1
+263. Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block|altsyncram:buf
+264. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component
+265. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|altsyncram:mem0
+266. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:card_addr_reg
+267. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:par_id_reg
+268. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:data_size_reg_t
+269. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:issue_sync_reg
+270. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:cmd_code_reg
+271. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:bit_status_reg
+272. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:frame_seq_num_reg
+273. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:step_value_reg
+274. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component
+275. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|counter:bit_counter
+276. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer
+277. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer|altsyncram:fifo_storage
+278. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer|lpm_counter:write_pointer
+279. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|fifo:data_buffer|lpm_counter:read_pointer
+280. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|shift_reg:tx_buffer
+281. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc
+282. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|shift_reg:sh_reg
+283. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|counter:bit_ctr
+284. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_translator_frame_head_ram:i_reply_translator_frame_head_ram|altsyncram:altsyncram_component
+285. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:cmd_code_reg
+286. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:card_addr_reg
+287. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:par_id_reg
+288. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:data_size_reg_t
+289. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:bit_status_reg
+290. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:frame_seq_num_reg
+291. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:issue_sync_num_reg
+292. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:status_reg
+293. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a
+294. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+295. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+296. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+297. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+298. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b
+299. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+300. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+301. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+302. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+303. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|parallel_crc:crc_calc
+304. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer
+305. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer|altsyncram:fifo_storage
+306. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer|lpm_counter:write_pointer
+307. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer|lpm_counter:read_pointer
+308. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header0_reg
+309. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header1_reg
+310. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|binary_counter:word_counter
+311. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a
+312. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+313. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+314. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+315. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+316. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b
+317. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+318. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+319. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+320. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+321. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|parallel_crc:crc_calc
+322. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer
+323. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer|altsyncram:fifo_storage
+324. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer|lpm_counter:write_pointer
+325. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer|lpm_counter:read_pointer
+326. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|reg:header0_reg
+327. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|reg:header1_reg
+328. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|binary_counter:word_counter
+329. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a
+330. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+331. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+332. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+333. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+334. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b
+335. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+336. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+337. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+338. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+339. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|parallel_crc:crc_calc
+340. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer
+341. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer|altsyncram:fifo_storage
+342. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer|lpm_counter:write_pointer
+343. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|fifo:packet_buffer|lpm_counter:read_pointer
+344. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|reg:header0_reg
+345. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|reg:header1_reg
+346. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|binary_counter:word_counter
+347. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a
+348. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+349. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+350. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+351. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+352. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b
+353. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+354. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+355. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+356. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+357. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|parallel_crc:crc_calc
+358. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer
+359. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer|altsyncram:fifo_storage
+360. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer|lpm_counter:write_pointer
+361. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer|lpm_counter:read_pointer
+362. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|reg:header0_reg
+363. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|reg:header1_reg
+364. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|binary_counter:word_counter
+365. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a
+366. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+367. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+368. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+369. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+370. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b
+371. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+372. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+373. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+374. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+375. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|parallel_crc:crc_calc
+376. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer
+377. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer|altsyncram:fifo_storage
+378. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer|lpm_counter:write_pointer
+379. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|fifo:packet_buffer|lpm_counter:read_pointer
+380. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|reg:header0_reg
+381. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|reg:header1_reg
+382. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1|binary_counter:word_counter
+383. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a
+384. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+385. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+386. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+387. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+388. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b
+389. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+390. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+391. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+392. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+393. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|parallel_crc:crc_calc
+394. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer
+395. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer|altsyncram:fifo_storage
+396. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer|lpm_counter:write_pointer
+397. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|fifo:packet_buffer|lpm_counter:read_pointer
+398. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|reg:header0_reg
+399. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|reg:header1_reg
+400. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|binary_counter:word_counter
+401. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a
+402. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+403. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+404. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+405. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+406. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b
+407. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+408. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+409. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+410. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+411. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|parallel_crc:crc_calc
+412. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer
+413. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer|altsyncram:fifo_storage
+414. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer|lpm_counter:write_pointer
+415. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|fifo:packet_buffer|lpm_counter:read_pointer
+416. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|reg:header0_reg
+417. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|reg:header1_reg
+418. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|binary_counter:word_counter
+419. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a
+420. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+421. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+422. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+423. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+424. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b
+425. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+426. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+427. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+428. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+429. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|parallel_crc:crc_calc
+430. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer
+431. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer|altsyncram:fifo_storage
+432. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer|lpm_counter:write_pointer
+433. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|fifo:packet_buffer|lpm_counter:read_pointer
+434. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|reg:header0_reg
+435. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|reg:header1_reg
+436. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4|binary_counter:word_counter
+437. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a
+438. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+439. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+440. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+441. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+442. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b
+443. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+444. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+445. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+446. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+447. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|parallel_crc:crc_calc
+448. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer
+449. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer|altsyncram:fifo_storage
+450. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer|lpm_counter:write_pointer
+451. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|fifo:packet_buffer|lpm_counter:read_pointer
+452. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|reg:header0_reg
+453. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|reg:header1_reg
+454. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|binary_counter:word_counter
+455. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a
+456. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|binary_counter:sample_counter
+457. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|shift_reg:rx_sample
+458. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer
+459. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_a|dcfifo:data_buffer
+460. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b
+461. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|binary_counter:sample_counter
+462. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|shift_reg:rx_sample
+463. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|shift_reg:rx_buffer
+464. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|lvds_rx:lvds_receiver_b|dcfifo:data_buffer
+465. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|parallel_crc:crc_calc
+466. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer
+467. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer|altsyncram:fifo_storage
+468. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer|lpm_counter:write_pointer
+469. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|fifo:packet_buffer|lpm_counter:read_pointer
+470. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|reg:header0_reg
+471. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|reg:header1_reg
+472. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu|binary_counter:word_counter
+473. Parameter Settings for User Entity Instance: issue_reply:issue_reply_block|fibre_tx:i_fibre_tx|sync_fifo_tx:tx_fifo|dcfifo:dcfifo_component
+474. Parameter Settings for User Entity Instance: all_cards:i_all_cards
+475. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:0:all_cards_reg
+476. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:1:all_cards_reg
+477. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:2:all_cards_reg
+478. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:3:all_cards_reg
+479. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:4:all_cards_reg
+480. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:5:all_cards_reg
+481. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:6:all_cards_reg
+482. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:7:all_cards_reg
+483. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:8:all_cards_reg
+484. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:9:all_cards_reg
+485. Parameter Settings for User Entity Instance: all_cards:i_all_cards|reg:\i_all_cards_bank:10:all_cards_reg
+486. Parameter Settings for User Entity Instance: fw_rev:fw_rev_slave
+487. Parameter Settings for User Entity Instance: clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component
+488. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|jtag_data_bank:tdi_bank|altsyncram:altsyncram_component
+489. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|shift_reg:tdi_tx
+490. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|shift_reg:tms_tx
+491. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|shift_reg:tdo_rx
+492. Parameter Settings for User Entity Instance: config_fpga:config_fpga_slave|jtag_data_bank:tdo_bank|altsyncram:altsyncram_component
+493. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master
+494. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:tx_data_reg
+495. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:rx_data_reg
+496. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:bit_counter
+497. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:timer_counter
+498. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|counter:byte_counter
+499. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data0
+500. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data1
+501. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data2
+502. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data3
+503. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data4
+504. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:id_data5
+505. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:thermo_data0
+506. Parameter Settings for User Entity Instance: id_thermo:card_id_thermo_slave|reg:thermo_data1
+507. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:tx_data_reg
+508. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:rx_data_reg
+509. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:bit_counter
+510. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:timer_counter
+511. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter
+512. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data0
+513. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data1
+514. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data2
+515. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data3
+516. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data4
+517. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:id_data5
+518. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:thermo_data0
+519. Parameter Settings for User Entity Instance: backplane_id_thermo:backplane_id_thermo_slave|reg:thermo_data1
+520. Parameter Settings for User Entity Instance: fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:tx_addr_reg
+521. Parameter Settings for User Entity Instance: fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:rx_data_reg
+522. Parameter Settings for User Entity Instance: fpga_thermo:fpga_thermo_slave|reg:thermo_data
+523. Parameter Settings for User Entity Instance: sync_gen:sync_gen_slave|sync_gen_wbs:wbi|reg:dv_en_reg
+524. Parameter Settings for User Entity Instance: sync_gen:sync_gen_slave|sync_gen_wbs:wbi|reg:sync_mode_reg
+525. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:sample_delay_reg
+526. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:sample_num_reg
+527. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:feedback_delay_reg
+528. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:address_on_delay_reg
+529. Parameter Settings for User Entity Instance: frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:resync_req_reg
+530. Parameter Settings for User Entity Instance: dv_rx:dv_rx_slave|shift_reg:rx_buffer
+531. Parameter Settings for User Entity Instance: dv_rx:dv_rx_slave|binary_counter:sample_counter
+532. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:awg_sequence_len_reg
+533. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|awg_data_bank:awg|altsyncram:altsyncram_component
+534. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:cards_present_reg
+535. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:run_file_id_reg
+536. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:user_writable_reg
+537. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:internal_cmd_mode_reg
+538. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_period_reg
+539. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_minimum_reg
+540. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_size_reg
+541. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_maximum_reg
+542. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_param_id_reg
+543. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:step_card_addr_reg
+544. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:start_reg
+545. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:stop_reg
+546. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:crc_error_enable_reg
+547. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_enable_reg
+548. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_max_reg
+549. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_min_reg
+550. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:tes_toggle_rate_reg
+551. Parameter Settings for User Entity Instance: ret_dat_wbs:ret_dat_parameter_slave|reg:internal_command_enable_reg
+552. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block
+553. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver
+554. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx
+555. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter
+556. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_sample
+557. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer
+558. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer
+559. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc
+560. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr0
+561. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|reg:hdr1
+562. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_cmd_receive:receiver|binary_counter:word_counter
+563. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter
+564. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer
+565. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|altsyncram:fifo_storage
+566. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:write_pointer
+567. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|lpm_counter:read_pointer
+568. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer
+569. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|counter:bit_counter
+570. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer
+571. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|altsyncram:fifo_storage
+572. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:write_pointer
+573. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|lpm_counter:read_pointer
+574. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|shift_reg:tx_buffer
+575. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc
+576. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|dispatch_reply_transmit:transmitter|binary_counter:word_counter
+577. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|reg:hdr0
+578. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|reg:hdr1
+579. Parameter Settings for User Entity Instance: dispatch:psuc_dispatch_block|altsyncram:buf
+580. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|ram_32bit_x_64:status_ram|altsyncram:altsyncram_component
+581. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_rx
+582. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_tx
+583. Parameter Settings for User Entity Instance: psu_ctrl:psu_ctrl_slave|counter:bit_ctr
+584. Parameter Settings for Inferred Entity Instance: sync_gen:sync_gen_slave|sync_gen_core:sgc|lpm_mult:Mult0
+585. Parameter Settings for Inferred Entity Instance: issue_reply:issue_reply_block|reply_queue:i_reply_queue|lpm_mult:Mult0
+586. Parameter Settings for Inferred Entity Instance: issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|lpm_mult:Mult0
+587. altpll Parameter Settings by Entity Instance
+588. dcfifo Parameter Settings by Entity Instance
+589. altsyncram Parameter Settings by Entity Instance
+590. lpm_mult Parameter Settings by Entity Instance
+591. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|counter:bit_ctr"
+592. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_tx"
+593. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|shift_reg:sh_reg_rx"
+594. Port Connectivity Checks: "psu_ctrl:psu_ctrl_slave|ram_32bit_x_64:status_ram"
+595. Port Connectivity Checks: "dispatch:psuc_dispatch_block"
+596. Port Connectivity Checks: "ret_dat_wbs:ret_dat_parameter_slave|reg:cards_present_reg"
+597. Port Connectivity Checks: "dv_rx:dv_rx_slave|binary_counter:sample_counter"
+598. Port Connectivity Checks: "dv_rx:dv_rx_slave|shift_reg:rx_buffer"
+599. Port Connectivity Checks: "frame_timing:frame_timing_slave|frame_timing_core:ftc"
+600. Port Connectivity Checks: "frame_timing:frame_timing_slave"
+601. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|reg:thermo_data"
+602. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:rx_data_reg"
+603. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|smb_master:master2|shift_reg:tx_addr_reg"
+604. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave|smb_master:master2"
+605. Port Connectivity Checks: "fpga_thermo:fpga_thermo_slave"
+606. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|reg:thermo_data0"
+607. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|reg:id_data5"
+608. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|reg:id_data4"
+609. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|counter:byte_counter"
+610. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:timer_counter"
+611. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|binary_counter:bit_counter"
+612. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:rx_data_reg"
+613. Port Connectivity Checks: "backplane_id_thermo:backplane_id_thermo_slave|three_wire_master:master|shift_reg:tx_data_reg"
+614. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|reg:thermo_data0"
+615. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|reg:id_data5"
+616. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|reg:id_data4"
+617. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|counter:byte_counter"
+618. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:timer_counter"
+619. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|binary_counter:bit_counter"
+620. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:rx_data_reg"
+621. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master|shift_reg:tx_data_reg"
+622. Port Connectivity Checks: "id_thermo:card_id_thermo_slave|one_wire_master:master"
+623. Port Connectivity Checks: "leds:led_slave"
+624. Port Connectivity Checks: "config_fpga:config_fpga_slave|shift_reg:tdo_rx"
+625. Port Connectivity Checks: "config_fpga:config_fpga_slave|shift_reg:tms_tx"
+626. Port Connectivity Checks: "config_fpga:config_fpga_slave|shift_reg:tdi_tx"
+627. Port Connectivity Checks: "config_fpga:config_fpga_slave"
+628. Port Connectivity Checks: "clk_switchover:clk_switchover_slave|cc_pll:pll0"
+629. Port Connectivity Checks: "fw_rev:fw_rev_slave"
+630. Port Connectivity Checks: "all_cards:i_all_cards|reg:\i_all_cards_bank:2:all_cards_reg"
+631. Port Connectivity Checks: "all_cards:i_all_cards|reg:\i_all_cards_bank:1:all_cards_reg"
+632. Port Connectivity Checks: "all_cards:i_all_cards|reg:\i_all_cards_bank:0:all_cards_reg"
+633. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_translator:i_reply_translator"
+634. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_psu"
+635. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc"
+636. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc4"
+637. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3"
+638. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2"
+639. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc1"
+640. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3"
+641. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2"
+642. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1"
+643. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|binary_counter:word_counter"
+644. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header1_reg"
+645. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|reg:header0_reg"
+646. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|fifo:packet_buffer"
+647. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|parallel_crc:crc_calc"
+648. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac"
+649. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq"
+650. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue|reg:bit_status_reg"
+651. Port Connectivity Checks: "issue_reply:issue_reply_block|reply_queue:i_reply_queue"
+652. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|us_timer:trigger_timer"
+653. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|counter:bit_ctr"
+654. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|shift_reg:sh_reg"
+655. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc"
+656. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst"
+657. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:bit_status_reg"
+658. Port Connectivity Checks: "issue_reply:issue_reply_block|cmd_queue:i_cmd_queue"
+659. Port Connectivity Checks: "issue_reply:issue_reply_block|fibre_rx:i_fibre_rx|us_timer:timeout_timer_b"
+660. Port Connectivity Checks: "issue_reply:issue_reply_block|fibre_rx:i_fibre_rx"
+661. Port Connectivity Checks: "issue_reply:issue_reply_block"
+662. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|binary_counter:word_counter"
+663. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc"
+664. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer"
+665. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer"
+666. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter"
+667. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|binary_counter:word_counter"
+668. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|parallel_crc:crc_calc"
+669. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer"
+670. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_sample"
+671. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter"
+672. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx"
+673. Port Connectivity Checks: "dispatch:cc_dispatch_block|dispatch_cmd_receive:receiver"
+674. Port Connectivity Checks: "dispatch:cc_dispatch_block"
+675. Port Connectivity Checks: "manch_pll:manch_pll_block"
+676. Analysis & Synthesis INI Usage
+677. Analysis & Synthesis Messages
 
 
 
@@ -710,13 +708,13 @@ applicable agreement for further details.
 +-----------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                ;
 +-----------------------------+-----------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Thu Mar 11 20:51:29 2010         ;
+; Analysis & Synthesis Status ; Successful - Tue Apr 20 15:48:25 2010         ;
 ; Quartus II Version          ; 9.1 Build 304 01/25/2010 SP 1 SJ Full Version ;
 ; Revision Name               ; clk_card                                      ;
 ; Top-level Entity Name       ; clk_card                                      ;
 ; Family                      ; Stratix                                       ;
 ; Total logic elements        ; 20,425                                        ;
-; Total pins                  ; 261                                           ;
+; Total pins                  ; 243                                           ;
 ; Total virtual pins          ; 0                                             ;
 ; Total memory bits           ; 957,952                                       ;
 ; DSP block 9-bit elements    ; 10                                            ;
@@ -836,7 +834,6 @@ applicable agreement for further details.
 +--------------------------------------------------------------------+-----------------+------------------------------+----------------------------------------------------------------------------------+
 ; ../../config_fpga/source/rtl/jtag_data_bank.vhd                    ; yes             ; User Wizard-Generated File   ; C:/mce/cards/clk_card/config_fpga/source/rtl/jtag_data_bank.vhd                  ;
 ; ../../ret_dat/source/rtl/awg_data_bank.vhd                         ; yes             ; User Wizard-Generated File   ; C:/mce/cards/clk_card/ret_dat/source/rtl/awg_data_bank.vhd                       ;
-; ../source/rtl/d_flipflop.vhd                                       ; yes             ; User Wizard-Generated File   ; C:/mce/cards/clk_card/clk_card/source/rtl/d_flipflop.vhd                         ;
 ; ../../../library/sys_param/source/rtl/command_pack.vhd             ; yes             ; User VHDL File               ; C:/mce/cards/library/sys_param/source/rtl/command_pack.vhd                       ;
 ; ../../../library/sys_param/source/rtl/data_types_pack.vhd          ; yes             ; User VHDL File               ; C:/mce/cards/library/sys_param/source/rtl/data_types_pack.vhd                    ;
 ; ../../../library/sys_param/source/rtl/general_pack.vhd             ; yes             ; User VHDL File               ; C:/mce/cards/library/sys_param/source/rtl/general_pack.vhd                       ;
@@ -910,7 +907,6 @@ applicable agreement for further details.
 ; ../../sram_ctrl/source/rtl/sram_ctrl.vhd                           ; yes             ; User VHDL File               ; C:/mce/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd                         ;
 ; ../source/rtl/clk_card.vhd                                         ; yes             ; User VHDL File               ; C:/mce/cards/clk_card/clk_card/source/rtl/clk_card.vhd                           ;
 ; altpll.tdf                                                         ; yes             ; Megafunction                 ; c:/altera/91/quartus/libraries/megafunctions/altpll.tdf                          ;
-; lpm_ff.tdf                                                         ; yes             ; Megafunction                 ; c:/altera/91/quartus/libraries/megafunctions/lpm_ff.tdf                          ;
 ; dcfifo.tdf                                                         ; yes             ; Megafunction                 ; c:/altera/91/quartus/libraries/megafunctions/dcfifo.tdf                          ;
 ; db/dcfifo_fd12.tdf                                                 ; yes             ; Auto-Generated Megafunction  ; C:/mce/cards/clk_card/clk_card/synth/db/dcfifo_fd12.tdf                          ;
 ; db/alt_sync_fifo_qcj.tdf                                           ; yes             ; Auto-Generated Megafunction  ; C:/mce/cards/clk_card/clk_card/synth/db/alt_sync_fifo_qcj.tdf                    ;
@@ -992,13 +988,13 @@ applicable agreement for further details.
 ;                                             ;                                                                               ;
 ; Total registers                             ; 8558                                                                          ;
 ; Total logic cells in carry chains           ; 3152                                                                          ;
-; I/O pins                                    ; 261                                                                           ;
+; I/O pins                                    ; 243                                                                           ;
 ; Total memory bits                           ; 957952                                                                        ;
 ; DSP block 9-bit elements                    ; 10                                                                            ;
 ; Total PLLs                                  ; 2                                                                             ;
 ; Maximum fan-out node                        ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk0 ;
-; Maximum fan-out                             ; 9861                                                                          ;
-; Total fan-out                               ; 107619                                                                        ;
+; Maximum fan-out                             ; 9860                                                                          ;
+; Total fan-out                               ; 107617                                                                        ;
 ; Average fan-out                             ; 4.85                                                                          ;
 +---------------------------------------------+-------------------------------------------------------------------------------+
 
@@ -1008,7 +1004,7 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
 ; Compilation Hierarchy Node                                                   ; Logic Cells ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                                                                                                                                                        ; Library Name ;
 +------------------------------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
-; |clk_card                                                                    ; 20425 (924) ; 8558         ; 957952      ; 10           ; 0       ; 1         ; 1         ; 261  ; 0            ; 11867 (924)  ; 3552 (0)          ; 5006 (0)         ; 3152 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                  ; work         ;
+; |clk_card                                                                    ; 20425 (924) ; 8558         ; 957952      ; 10           ; 0       ; 1         ; 1         ; 243  ; 0            ; 11867 (924)  ; 3552 (0)          ; 5006 (0)         ; 3152 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                  ; work         ;
 ;    |all_cards:i_all_cards|                                                   ; 414 (158)   ; 256          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 158 (158)    ; 256 (0)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|all_cards:i_all_cards                                                                                                                                                                                                                                            ;              ;
 ;       |reg:\i_all_cards_bank:10:all_cards_reg|                               ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|all_cards:i_all_cards|reg:\i_all_cards_bank:10:all_cards_reg                                                                                                                                                                                                     ;              ;
 ;       |reg:\i_all_cards_bank:3:all_cards_reg|                                ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|all_cards:i_all_cards|reg:\i_all_cards_bank:3:all_cards_reg                                                                                                                                                                                                      ;              ;
@@ -1511,10 +1507,10 @@ applicable agreement for further details.
 ;                   |binary_counter:sample_counter|                            ; 8 (8)       ; 8            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 8 (8)            ; 8 (8)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|binary_counter:sample_counter                                                                                            ;              ;
 ;                   |dcfifo:data_buffer|                                       ; 40 (0)      ; 25           ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 15 (0)       ; 15 (0)            ; 10 (0)           ; 24 (0)          ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer                                                                                                       ;              ;
 ;                      |dcfifo_fd12:auto_generated|                            ; 40 (0)      ; 25           ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 15 (0)       ; 15 (0)            ; 10 (0)           ; 24 (0)          ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated                                                                            ;              ;
-;                         |alt_sync_fifo_qcj:sync_fifo|                        ; 40 (30)     ; 25           ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 15 (10)      ; 15 (15)           ; 10 (5)           ; 24 (14)         ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo                                                ; work         ;
+;                         |alt_sync_fifo_qcj:sync_fifo|                        ; 40 (30)     ; 25           ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 15 (10)      ; 15 (15)           ; 10 (5)           ; 24 (14)         ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo                                                ;              ;
 ;                            |add_sub_pf8:add_sub2|                            ; 5 (5)       ; 0            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 5 (5)        ; 0 (0)             ; 0 (0)            ; 5 (5)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|add_sub_pf8:add_sub2                           ; work         ;
 ;                            |cntr_aua:cntr1|                                  ; 5 (5)       ; 5            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 5 (5)            ; 5 (5)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|cntr_aua:cntr1                                 ; work         ;
-;                            |dpram_t441:dpram4|                               ; 0 (0)       ; 0            ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|dpram_t441:dpram4                              ; work         ;
+;                            |dpram_t441:dpram4|                               ; 0 (0)       ; 0            ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|dpram_t441:dpram4                              ;              ;
 ;                               |altsyncram_6rh1:altsyncram14|                 ; 0 (0)       ; 0            ; 512         ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|dpram_t441:dpram4|altsyncram_6rh1:altsyncram14 ; work         ;
 ;                   |shift_reg:rx_buffer|                                      ; 33 (33)     ; 33           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 33 (33)          ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|shift_reg:rx_buffer                                                                                                      ;              ;
 ;                   |shift_reg:rx_sample|                                      ; 3 (3)       ; 3            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 3 (3)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver_a|shift_reg:rx_sample                                                                                                      ;              ;
@@ -5789,25 +5785,6 @@ Encoding Type: Safe One-Hot
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
 
-+----------------------------------------------------------------------------------------------+
-; Parameter Settings for User Entity Instance: d_flipflop:i_d_flipflop|lpm_ff:lpm_ff_component ;
-+------------------------+---------+-----------------------------------------------------------+
-; Parameter Name         ; Value   ; Type                                                      ;
-+------------------------+---------+-----------------------------------------------------------+
-; LPM_WIDTH              ; 1       ; Signed Integer                                            ;
-; LPM_AVALUE             ; UNUSED  ; Untyped                                                   ;
-; LPM_SVALUE             ; UNUSED  ; Untyped                                                   ;
-; LPM_FFTYPE             ; DFF     ; Untyped                                                   ;
-; DEVICE_FAMILY          ; Stratix ; Untyped                                                   ;
-; CBXI_PARAMETER         ; NOTHING ; Untyped                                                   ;
-; AUTO_CARRY_CHAINS      ; ON      ; AUTO_CARRY                                                ;
-; IGNORE_CARRY_BUFFERS   ; OFF     ; IGNORE_CARRY                                              ;
-; AUTO_CASCADE_CHAINS    ; ON      ; AUTO_CASCADE                                              ;
-; IGNORE_CASCADE_BUFFERS ; OFF     ; IGNORE_CASCADE                                            ;
-+------------------------+---------+-----------------------------------------------------------+
-Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
-
-
 +-------------------------------------------------------------------------+
 ; Parameter Settings for User Entity Instance: dispatch:cc_dispatch_block ;
 +--------------------+---------+------------------------------------------+
@@ -9990,7 +9967,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+----------------------------------+-----------------+
 ; Parameter Name ; Value                            ; Type            ;
 +----------------+----------------------------------+-----------------+
-; revision       ; 00000101000000000000000000000101 ; Unsigned Binary ;
+; revision       ; 00000101000000000000000000000110 ; Unsigned Binary ;
 ; card_type      ; 011                              ; Unsigned Binary ;
 +----------------+----------------------------------+-----------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
@@ -10111,7 +10088,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+----------------------------------+-----------------+
 ; Parameter Name ; Value                            ; Type            ;
 +----------------+----------------------------------+-----------------+
-; revision       ; 00000101000000000000000000000101 ; Unsigned Binary ;
+; revision       ; 00000101000000000000000000000110 ; Unsigned Binary ;
 +----------------+----------------------------------+-----------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
@@ -13459,15 +13436,6 @@ Note: In order to hide this table in the UI and the text report file, please set
 +-------------+--------+----------+-------------------------------------------------------------------------------------+
 
 
-+----------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "d_flipflop:i_d_flipflop"                                                            ;
-+------+--------+----------+-------------------------------------------------------------------------------------+
-; Port ; Type   ; Severity ; Details                                                                             ;
-+------+--------+----------+-------------------------------------------------------------------------------------+
-; q    ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
-+------+--------+----------+-------------------------------------------------------------------------------------+
-
-
 +------------------------------------------------------------------------------------------------------------------+
 ; Port Connectivity Checks: "manch_pll:manch_pll_block"                                                            ;
 +--------+--------+----------+-------------------------------------------------------------------------------------+
@@ -13493,7 +13461,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 9.1 Build 304 01/25/2010 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Mar 11 20:48:11 2010
+    Info: Processing started: Tue Apr 20 15:44:55 2010
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off clk_card -c clk_card
 Info: Using INI file C:/mce/cards/clk_card/clk_card/synth/quartus.ini
 Info: Parallel compilation is enabled and will use 2 of the 2 processors detected
@@ -13835,14 +13803,11 @@ Warning (10541): VHDL Signal Declaration warning at clk_card.vhd(155): used impl
 Warning (10541): VHDL Signal Declaration warning at clk_card.vhd(156): used implicit default value for signal "mictor0clk_o" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
 Warning (10541): VHDL Signal Declaration warning at clk_card.vhd(160): used implicit default value for signal "mictor1_o" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
 Warning (10541): VHDL Signal Declaration warning at clk_card.vhd(161): used implicit default value for signal "mictor1clk_o" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
-Warning (10541): VHDL Signal Declaration warning at clk_card.vhd(162): used implicit default value for signal "mictor1_e" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
-Warning (10541): VHDL Signal Declaration warning at clk_card.vhd(163): used implicit default value for signal "mictor1clk_e" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
 Warning (10541): VHDL Signal Declaration warning at clk_card.vhd(166): used implicit default value for signal "tx" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
 Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(303): object "fw_rev_data" assigned a value but never read
 Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(304): object "fw_rev_ack" assigned a value but never read
 Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(305): object "fw_rev_err" assigned a value but never read
 Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(363): object "debug" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at clk_card.vhd(401): object "crc_error_ff" assigned a value but never read
 Info: Elaborating entity "manch_pll" for hierarchy "manch_pll:manch_pll_block"
 Info: Elaborating entity "altpll" for hierarchy "manch_pll:manch_pll_block|altpll:altpll_component"
 Info: Elaborated megafunction instantiation "manch_pll:manch_pll_block|altpll:altpll_component"
@@ -13902,13 +13867,6 @@ Info: Instantiated megafunction "manch_pll:manch_pll_block|altpll:altpll_compone
     Info: Parameter "port_extclk3" = "PORT_UNUSED"
     Info: Parameter "spread_frequency" = "0"
     Info: Parameter "valid_lock_multiplier" = "1"
-Info: Elaborating entity "d_flipflop" for hierarchy "d_flipflop:i_d_flipflop"
-Info: Elaborating entity "lpm_ff" for hierarchy "d_flipflop:i_d_flipflop|lpm_ff:lpm_ff_component"
-Info: Elaborated megafunction instantiation "d_flipflop:i_d_flipflop|lpm_ff:lpm_ff_component"
-Info: Instantiated megafunction "d_flipflop:i_d_flipflop|lpm_ff:lpm_ff_component" with the following parameter:
-    Info: Parameter "lpm_fftype" = "DFF"
-    Info: Parameter "lpm_type" = "LPM_FF"
-    Info: Parameter "lpm_width" = "1"
 Info: Elaborating entity "cc_reset" for hierarchy "cc_reset:cc_reset_block"
 Warning (10036): Verilog HDL or VHDL warning at cc_reset.vhd(108): object "startmce_brst" assigned a value but never read
 Warning (10036): Verilog HDL or VHDL warning at cc_reset.vhd(109): object "start_cc_bclr" assigned a value but never read
@@ -14691,8 +14649,6 @@ Info: Ignored 834 buffer(s)
     Info: Ignored 797 SOFT buffer(s)
     Info: Ignored 37 LCELL buffer(s)
 Warning: LCELL buffers have been ignored
-Warning: The following nodes have both tri-state and non-tri-state drivers
-    Warning: Inserted always-enabled tri-state buffer between "crc_error_out" and its non-tri-state driver.
 Info: Performing gate-level register retiming
 Info: Not allowed to move 1246 registers
     Info: Not allowed to move at least 40 registers because they are in a sequence of registers directly fed by input pins
@@ -14705,8 +14661,6 @@ Info: The Quartus II software applied gate-level register retiming to 3 clock do
     Info: The Quartus II software applied gate-level register retiming to clock "fibre_rx_clkr": created 14 new registers, removed 8 registers, left 54 registers untouched
     Info: The Quartus II software applied gate-level register retiming to clock "manch_pll:manch_pll_block|altpll:altpll_component|_clk0": created 1 new registers, removed 1 registers, left 78 registers untouched
     Info: The Quartus II software applied gate-level register retiming to clock "clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2": created 66 new registers, removed 22 registers, left 328 registers untouched
-Warning: TRI or OPNDRN buffers permanently enabled
-    Warning: Node "crc_error_out~synth"
 Warning: Output pins are stuck at VCC or GND
     Warning (13410): Pin "lvds_spare" is stuck at GND
     Warning (13410): Pin "ttl_txena1" is stuck at GND
@@ -14761,23 +14715,6 @@ Warning: Output pins are stuck at VCC or GND
     Warning (13410): Pin "mictor1_o[14]" is stuck at GND
     Warning (13410): Pin "mictor1_o[15]" is stuck at GND
     Warning (13410): Pin "mictor1clk_o" is stuck at GND
-    Warning (13410): Pin "mictor1_e[0]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[1]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[2]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[3]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[4]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[5]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[6]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[7]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[8]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[9]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[10]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[11]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[12]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[13]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[14]" is stuck at GND
-    Warning (13410): Pin "mictor1_e[15]" is stuck at GND
-    Warning (13410): Pin "mictor1clk_e" is stuck at GND
     Warning (13410): Pin "tx" is stuck at GND
     Warning (13410): Pin "fibre_rx_a_nb" is stuck at VCC
     Warning (13410): Pin "fibre_rx_bisten" is stuck at VCC
@@ -14900,18 +14837,18 @@ Warning: Design contains 27 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "mictor0clk_e"
     Warning (15610): No output dependent on input pin "rx"
     Warning (15610): No output dependent on input pin "nbb_jtag"
-Info: Implemented 22195 device resources after synthesis - the final resource count might be different
+Info: Implemented 22176 device resources after synthesis - the final resource count might be different
     Info: Implemented 75 input pins
-    Info: Implemented 151 output pins
-    Info: Implemented 35 bidirectional pins
+    Info: Implemented 134 output pins
+    Info: Implemented 34 bidirectional pins
     Info: Implemented 20425 logic cells
     Info: Implemented 1496 RAM segments
     Info: Implemented 2 PLLs
     Info: Implemented 10 DSP elements
-Info: Quartus II Analysis & Synthesis was successful. 0 errors, 213 warnings
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 189 warnings
     Info: Peak virtual memory: 312 megabytes
-    Info: Processing ended: Thu Mar 11 20:51:30 2010
-    Info: Elapsed time: 00:03:19
-    Info: Total CPU time (on all processors): 00:03:17
+    Info: Processing ended: Tue Apr 20 15:48:26 2010
+    Info: Elapsed time: 00:03:31
+    Info: Total CPU time (on all processors): 00:03:25
 
 
