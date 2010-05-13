@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.12 2006/10/04 18:50:49 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.13 2010/01/20 22:00:06 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.13  2010/01/20 22:00:06  mandana
+-- added hardware-dependent constants here
+-- added array-type defs for the new firmware structure
+--
 -- Revision 1.12  2006/10/04 18:50:49  mandana
 -- renamed rs232_rx/tx to rx/tx to adhere to latest tcl
 --
@@ -84,12 +88,15 @@ use work.all_cards_pack.all;
 
 package bias_card_pack is
 
+-- Bias card only uses the concept of "rows" when operating in multiplexed mode
+constant ROW_ADDR_WIDTH         : integer := 6;
+
 --
 -- Constants driven by BC Hardware 
 --
 constant NUM_FLUX_FB_DACS       : integer := 32;
 constant FLUX_FB_DAC_DATA_WIDTH : integer := 16;
-constant FLUX_FB_DAC_ADDR_WIDTH : integer := 6;
+constant FLUX_FB_DAC_ADDR_WIDTH : integer := 5;
 
 constant NUM_LN_BIAS_DACS       : integer := 12; -- 1 prior to BC Rev. E hardware
 constant LN_BIAS_DAC_DATA_WIDTH : integer := 16;
@@ -133,6 +140,7 @@ component bc_dac_ctrl
       ack_o                   : out std_logic;
       
       -- frame_timing signals
+      row_switch_i      : in std_logic;
       update_bias_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;
       
