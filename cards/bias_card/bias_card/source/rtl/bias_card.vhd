@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.37 2010/01/20 21:57:19 mandana Exp $
+-- $Id: bias_card.vhd,v 1.38 2010/01/28 01:14:26 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.38  2010/01/28 01:14:26  mandana
+-- rev. 5.0.2
+-- removed eeprom interface from top-level as there is none on bias card!
+-- ln_bias lines are controlled individually
+--
 -- Revision 1.37  2010/01/20 21:57:19  mandana
 -- rev. 5.0.1
 -- Firmware changed to loading all DACs in parallel as opposed to one after next in preparation for SQ2_FB switching implementation
@@ -235,7 +240,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000002";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000003";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -284,6 +289,7 @@ signal fpga_thermo_err   : std_logic;
 -- frame_timing interface
 signal update_bias : std_logic;
 signal restart_frame_aligned : std_logic;
+signal row_switch  : std_logic;
 
 signal debug       : std_logic_vector (31 downto 0);
 
@@ -460,6 +466,7 @@ begin
       ack_o                      => bc_dac_ack,
 
       -- frame_timing signals
+      row_switch_i               => row_switch,
       update_bias_i              => update_bias,
       restart_frame_aligned_i    => restart_frame_aligned,
       
@@ -478,8 +485,9 @@ begin
       restart_frame_aligned_o    => restart_frame_aligned,
       restart_frame_1row_post_o  => open,
       initialize_window_o        => open,
-
-      row_switch_o               => open,
+      
+      row_count_o                => open,
+      row_switch_o               => row_switch,
       row_en_o                   => open,
 
       update_bias_o              => update_bias,
@@ -503,7 +511,12 @@ begin
       slave_data <=
          all_cards_data    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_data          when LED_ADDR,
-         bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
+         bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR |
+                                FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
+                                FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
+                                FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
+                                FB_COL30_ADDR | FB_COL31_ADDR,
+                                
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
@@ -513,7 +526,12 @@ begin
       slave_ack <=
          all_cards_ack    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          led_ack          when LED_ADDR,
-         bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR,
+         bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR |
+                               FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
+                               FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
+                               FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
+                               FB_COL30_ADDR | FB_COL31_ADDR,
+                               
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_ack  when FPGA_TEMP_ADDR,
@@ -521,7 +539,11 @@ begin
 
    with addr select
       slave_err <=
-         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | 
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR |
+                               FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
+                               FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
+                               FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
+                               FB_COL30_ADDR | FB_COL31_ADDR |                               
                                ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          all_cards_err    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
