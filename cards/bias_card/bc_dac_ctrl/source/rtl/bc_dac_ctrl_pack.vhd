@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_pack.vhd,v 1.6 2006/08/03 19:06:31 mandana Exp $
+-- $Id: bc_dac_ctrl_pack.vhd,v 1.7 2010/01/20 23:11:53 mandana Exp $
 --
 
 -- Project:       SCUBA2
@@ -31,6 +31,11 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_pack.vhd,v $
+-- Revision 1.7  2010/01/20 23:11:53  mandana
+-- moved hardware-dependent constants to bias_card_pack
+-- added low-noise bias interface
+-- added ram components for storing flux_fb and ln_bias values
+--
 -- Revision 1.6  2006/08/03 19:06:31  mandana
 -- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
 --
@@ -83,16 +88,22 @@ component bc_dac_ctrl_core
       dac_nclr_o        : out std_logic;
 
       -- wbs_bc_dac_ctrl interface:
+      row_addr_o        : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
       flux_fb_addr_o    : out std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
-      flux_fb_data_i    : in std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
+      flux_fb_data_i    : in flux_fb_dac_array; 
       flux_fb_changed_i : in std_logic;
       ln_bias_addr_o    : out std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_i    : in std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
       ln_bias_changed_i : in std_logic;
+
+      mux_flux_fb_data_i: in flux_fb_dac_array;    
+      enbl_mux_data_i   : in std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       
       -- frame_timing signals
+      row_switch_i      : in std_logic;
       update_bias_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;
+      
       -- Global Signals      
       clk_i             : in std_logic;
       spi_clk_i         : in std_logic;
@@ -106,11 +117,18 @@ component bc_dac_ctrl_wbs is
    (
       -- ac_dac_ctrl interface:
       flux_fb_addr_i    : in std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
-      flux_fb_data_o    : out std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
+      flux_fb_data_o    : out flux_fb_dac_array; 
       flux_fb_changed_o : out std_logic;
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);     
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0); 
       ln_bias_changed_o : out std_logic;
+
+      mux_flux_fb_data_o: out flux_fb_dac_array;    
+      enbl_mux_data_o   : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+
+      -- current_row to access the right flux_fb bank when in multiplexing mode (enbl_mux = 1)
+      row_addr_i        : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+      row_switch_i      : in std_logic;
 
       -- wishbone interface:
       dat_i             : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -132,28 +150,28 @@ end component;
 component ram_16x64 is
    PORT
    (
-      data     : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-      wraddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_a    : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_b    : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      data     : IN STD_LOGIC_VECTOR (FLUX_FB_DAC_DATA_WIDTH-1 DOWNTO 0);
+      wraddress      : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_a    : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_b    : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
       wren     : IN STD_LOGIC  := '1';
       clock    : IN STD_LOGIC ;
-      qa    : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-      qb    : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+      qa    : OUT STD_LOGIC_VECTOR (FLUX_FB_DAC_DATA_WIDTH-1 DOWNTO 0);
+      qb    : OUT STD_LOGIC_VECTOR (FLUX_FB_DAC_DATA_WIDTH-1 DOWNTO 0)
    );
 end component;
 
 component ram_16x16 is
    PORT
    (
-      data     : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-      wraddress      : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
-      rdaddress_a    : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
-      rdaddress_b    : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+      data     : IN STD_LOGIC_VECTOR (LN_BIAS_DAC_DATA_WIDTH-1 DOWNTO 0);
+      wraddress      : IN STD_LOGIC_VECTOR (LN_BIAS_DAC_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_a    : IN STD_LOGIC_VECTOR (LN_BIAS_DAC_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_b    : IN STD_LOGIC_VECTOR (LN_BIAS_DAC_ADDR_WIDTH-1 DOWNTO 0);
       wren     : IN STD_LOGIC  := '1';
       clock    : IN STD_LOGIC ;
-      qa    : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-      qb    : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+      qa    : OUT STD_LOGIC_VECTOR (LN_BIAS_DAC_DATA_WIDTH-1 DOWNTO 0);
+      qb    : OUT STD_LOGIC_VECTOR (LN_BIAS_DAC_DATA_WIDTH-1 DOWNTO 0)
    );
 end component;
 
