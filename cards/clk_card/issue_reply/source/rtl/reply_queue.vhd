@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.51 2009/01/16 01:51:03 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.52 2009/05/12 18:50:29 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.52  2009/05/12 18:50:29  bburger
+-- BB: Added the data_timing_err_i flag to the data packet status word.
+--
 -- Revision 1.51  2009/01/16 01:51:03  bburger
 -- BB: fixed a card_not_present logic error
 --
@@ -150,7 +153,8 @@ entity reply_queue is
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
-      rcs_to_report_data_i : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+      dead_card_i            : in std_logic;
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -201,7 +205,8 @@ architecture behav of reply_queue is
 
       card_not_present_o  : out std_logic_vector(9 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
-      rcs_to_report_data_i : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+      dead_card_i            : in std_logic;
 
       -- fibre interface:
 --      size_o            : out integer;
@@ -1229,6 +1234,7 @@ begin
          card_not_present_o => card_not_present_o,
          cards_to_report_i  => cards_to_report_i,
          rcs_to_report_data_i => rcs_to_report_data_i,
+         dead_card_i          => dead_card_i,
 
          card_data_size_i  => data_size_t,  -- Add this to the pack file
          -- cmd_translator interface

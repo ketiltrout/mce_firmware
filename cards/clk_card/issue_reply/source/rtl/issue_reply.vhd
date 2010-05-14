@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.80 2010/01/18 20:39:38 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.81 2010/01/21 19:45:15 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2010/01/18 20:39:38 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2010/01/21 19:45:15 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.81  2010/01/21 19:45:15  bburger
+-- BB: awg_addr interfaces
+--
 -- Revision 1.80  2010/01/18 20:39:38  bburger
 -- BB: Changed "MLS" prefixes to "AWG" for "Abitrary Waveform Generator"
 --
@@ -173,6 +176,7 @@ entity issue_reply is
       awg_dat_i              : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i             : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o        : out std_logic;
+      dead_card_i            : in std_logic;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -420,6 +424,7 @@ architecture rtl of issue_reply is
       user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       cards_to_report_i   : in std_logic_vector(9 downto 0);
       rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+      dead_card_i            : in std_logic;
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -809,6 +814,7 @@ begin
       user_writable_i      => user_writable_i,
       cards_to_report_i    => cards_to_report_i,
       rcs_to_report_data_i => rcs_to_report_data_i,
+      dead_card_i          => dead_card_i,
 
       -- clk_switchover interface
       active_clk_i        => active_clk_i,

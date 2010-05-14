@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.23  2009/09/14 19:56:35  bburger
+-- BB:  Added the FPGA_DEVICE_FAMILY generic for lvds_rx.  This wias added for automatic compilation for Stratix III FPGA's.
+--
 -- Revision 1.22  2009/08/21 21:15:31  bburger
 -- BB: added the FPGA_DEVICE_FAMILY generic for Stratix I
 --
@@ -150,7 +153,12 @@ begin
    ---------------------------------------------------------
    -- LVDS receiver
    ---------------------------------------------------------
-   pres_n_o <= pres_n_a or pres_n_b;
+   -- This is a wired or function.
+   -- pres_n_o is asserted if both of the LVDS receiver lines are high by default.
+   -- If both pres_n_a and pres_n_b are both high, then we conclude that the card is not present OR not configured -- can't differentiate.
+   -- In either case, the data returned should be 
+   -- If only one is high, then version 4- firmware is installed, and commands should return an error.
+   pres_n_o <= pres_n_a and pres_n_b;
 
    -- This block receives header0, and every even-indexed data word
    lvds_receiver_a : lvds_rx
