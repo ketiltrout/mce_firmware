@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.40  2009/01/16 01:52:44  bburger
+-- BB: Modified the card_not_present logic to work while using the 2nd LVDS line for data.
+--
 -- Revision 1.39  2008/12/22 20:56:42  bburger
 -- BB:  Added a second LVDS receiver for each card receiver block.
 --
@@ -121,7 +124,8 @@ port(
     lvds_reply_all_b_i : in std_logic_vector(9 downto 0);
     card_not_present_o : out std_logic_vector(9 downto 0);
     cards_to_report_i  : in std_logic_vector(9 downto 0);
-    rcs_to_report_data_i : in std_logic_vector(9 downto 0);
+    rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+    dead_card_i            : in std_logic;
 
     card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
     -- cmd_translator interface
@@ -192,6 +196,7 @@ architecture rtl of reply_queue_sequencer is
 --   signal card_rdy_or_np      : std_logic_vector(9 downto 0);
    signal card_should_reply   : std_logic_vector(9 downto 0);
    signal card_not_present    : std_logic_vector(9 downto 0);
+   signal card_dead           : std_logic_vector(9 downto 0);
 
    ---------------------------------------------------------
    -- FSM for latching out 0xDEADDEAD data
@@ -220,74 +225,76 @@ architecture rtl of reply_queue_sequencer is
    signal data_buf_b         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal data_buf_c         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
+   signal all_clear          : std_logic;
+   
    signal ac_error           : std_logic_vector(2 downto 0);
    signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal ac_rdy             : std_logic;
    signal ac_ack             : std_logic;
-   signal ac_clear           : std_logic;
+--   signal ac_clear           : std_logic;
    signal ac_pres_n          : std_logic;
 
    signal bc1_error          : std_logic_vector(2 downto 0);
    signal bc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc1_rdy            : std_logic;
    signal bc1_ack            : std_logic;
-   signal bc1_clear          : std_logic;
+--   signal bc1_clear          : std_logic;
    signal bc1_pres_n         : std_logic;
 
    signal bc2_error          : std_logic_vector(2 downto 0);
    signal bc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc2_rdy            : std_logic;
    signal bc2_ack            : std_logic;
-   signal bc2_clear          : std_logic;
+--   signal bc2_clear          : std_logic;
    signal bc2_pres_n         : std_logic;
 
    signal bc3_error          : std_logic_vector(2 downto 0);
    signal bc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc3_rdy            : std_logic;
    signal bc3_ack            : std_logic;
-   signal bc3_clear          : std_logic;
+--   signal bc3_clear          : std_logic;
    signal bc3_pres_n         : std_logic;
 
    signal rc1_error          : std_logic_vector(2 downto 0);
    signal rc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc1_rdy            : std_logic;
    signal rc1_ack            : std_logic;
-   signal rc1_clear          : std_logic;
+--   signal rc1_clear          : std_logic;
    signal rc1_pres_n         : std_logic;
 
    signal rc2_error          : std_logic_vector(2 downto 0);
    signal rc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc2_rdy            : std_logic;
    signal rc2_ack            : std_logic;
-   signal rc2_clear          : std_logic;
+--   signal rc2_clear          : std_logic;
    signal rc2_pres_n         : std_logic;
 
    signal rc3_error          : std_logic_vector(2 downto 0);
    signal rc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc3_rdy            : std_logic;
    signal rc3_ack            : std_logic;
-   signal rc3_clear          : std_logic;
+--   signal rc3_clear          : std_logic;
    signal rc3_pres_n         : std_logic;
 
    signal rc4_error          : std_logic_vector(2 downto 0);
    signal rc4_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc4_rdy            : std_logic;
    signal rc4_ack            : std_logic;
-   signal rc4_clear          : std_logic;
+--   signal rc4_clear          : std_logic;
    signal rc4_pres_n         : std_logic;
 
    signal cc_error           : std_logic_vector(2 downto 0);
    signal cc_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal cc_rdy             : std_logic;
    signal cc_ack             : std_logic;
-   signal cc_clear           : std_logic;
+--   signal cc_clear           : std_logic;
    signal cc_pres_n          : std_logic;
 
    signal psu_error          : std_logic_vector(2 downto 0);
    signal psu_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal psu_rdy            : std_logic;
    signal psu_ack            : std_logic;
-   signal psu_clear          : std_logic;
+--   signal psu_clear          : std_logic;
    signal psu_pres_n         : std_logic;
 
 begin
@@ -307,7 +314,7 @@ begin
          rdy_o          => ac_rdy,
          pres_n_o       => ac_pres_n,
          ack_i          => ac_ack,
-         clear_i        => ac_clear
+         clear_i        => all_clear
       );
 
    rx_bc1 : reply_queue_receive
@@ -322,7 +329,7 @@ begin
          rdy_o          => bc1_rdy,
          pres_n_o       => bc1_pres_n,
          ack_i          => bc1_ack,
-         clear_i        => bc1_clear
+         clear_i        => all_clear
       );
 
    rx_bc2 : reply_queue_receive
@@ -337,7 +344,7 @@ begin
          rdy_o          => bc2_rdy,
          pres_n_o       => bc2_pres_n,
          ack_i          => bc2_ack,
-         clear_i        => bc2_clear
+         clear_i        => all_clear
       );
 
    rx_bc3 : reply_queue_receive
@@ -352,7 +359,7 @@ begin
          rdy_o          => bc3_rdy,
          pres_n_o       => bc3_pres_n,
          ack_i          => bc3_ack,
-         clear_i        => bc3_clear
+         clear_i        => all_clear
       );
 
    rx_rc1 : reply_queue_receive
@@ -367,7 +374,7 @@ begin
          rdy_o          => rc1_rdy,
          pres_n_o       => rc1_pres_n,
          ack_i          => rc1_ack,
-         clear_i        => rc1_clear
+         clear_i        => all_clear
       );
 
    rx_rc2 : reply_queue_receive
@@ -382,7 +389,7 @@ begin
          rdy_o          => rc2_rdy,
          pres_n_o       => rc2_pres_n,
          ack_i          => rc2_ack,
-         clear_i        => rc2_clear
+         clear_i        => all_clear
       );
 
    rx_rc3 : reply_queue_receive
@@ -397,7 +404,7 @@ begin
          rdy_o          => rc3_rdy,
          pres_n_o       => rc3_pres_n,
          ack_i          => rc3_ack,
-         clear_i        => rc3_clear
+         clear_i        => all_clear
       );
 
    rx_rc4 : reply_queue_receive
@@ -412,7 +419,7 @@ begin
          rdy_o          => rc4_rdy,
          pres_n_o       => rc4_pres_n,
          ack_i          => rc4_ack,
-         clear_i        => rc4_clear
+         clear_i        => all_clear
       );
 
    rx_cc : reply_queue_receive
@@ -427,7 +434,7 @@ begin
          rdy_o          => cc_rdy,
          pres_n_o       => cc_pres_n,
          ack_i          => cc_ack,
-         clear_i        => cc_clear
+         clear_i        => all_clear
       );
 
    rx_psu : reply_queue_receive
@@ -442,7 +449,7 @@ begin
          rdy_o          => psu_rdy,
          pres_n_o       => psu_pres_n,
          ack_i          => psu_ack,
-         clear_i        => psu_clear
+         clear_i        => all_clear
       );
 
    ---------------------------------------------------------
@@ -524,6 +531,11 @@ begin
       end if;
    end process;
 
+   
+   -- This signal is not used right now, but could be used later when this signal is tri-stated by default on all other cards.
+   -- It will allow the reply_queue_sequencer to determine if a card is inserted and dead -- or if it is really not present.
+   card_dead <= dead_card_i & dead_card_i & dead_card_i & dead_card_i & dead_card_i & dead_card_i & dead_card_i & dead_card_i & dead_card_i & dead_card_i;
+   
    card_not_present_o <= card_not_present;
    card_not_present <=
       ac_pres_n &
@@ -1131,7 +1143,10 @@ begin
 
          -- All of the rdy signals may be asserted, but they are looked at in this order.
          -- They are in groups of 4 because that is how many inputs each LUT has in Stratix FPGAs
-         if (ac_rdy  = '1') then
+         -- The all_clear clause was added to fix a bug.  When a card was not present, it would return the data from the previous card quieried.
+         if (all_clear = '1') then
+            data_buf_a <= (others => '0');
+         elsif (ac_rdy  = '1') then
             data_buf_a  <= ac_data;
          elsif (bc1_rdy  = '1') then
             data_buf_a <= bc1_data;
@@ -1141,7 +1156,9 @@ begin
             data_buf_a <= bc3_data;
          end if;
 
-         if (rc1_rdy  = '1') then
+         if (all_clear = '1') then
+            data_buf_a <= (others => '0');
+         elsif (rc1_rdy  = '1') then
             data_buf_b  <= rc1_data;
          elsif (rc2_rdy  = '1') then
             data_buf_b <= rc2_data;
@@ -1151,7 +1168,9 @@ begin
             data_buf_b <= rc4_data;
          end if;
 
-         if (cc_rdy  = '1') then
+         if (all_clear = '1') then
+            data_buf_a <= (others => '0');
+         elsif (cc_rdy  = '1') then
             data_buf_c  <= cc_data;
          elsif (psu_rdy  = '1') then
             data_buf_c <= psu_data;
@@ -1186,26 +1205,27 @@ begin
       update_status <= '0';
       timeout_clr   <= '1';
 
+      all_clear     <= '0';
       ac_ack        <= '0';
-      ac_clear      <= '0';
+--      ac_clear      <= '0';
       bc1_ack       <= '0';
-      bc1_clear     <= '0';
+--      bc1_clear     <= '0';
       bc2_ack       <= '0';
-      bc2_clear     <= '0';
+--      bc2_clear     <= '0';
       bc3_ack       <= '0';
-      bc3_clear     <= '0';
+--      bc3_clear     <= '0';
       rc1_ack       <= '0';
-      rc1_clear     <= '0';
+--      rc1_clear     <= '0';
       rc2_ack       <= '0';
-      rc2_clear     <= '0';
+--      rc2_clear     <= '0';
       rc3_ack       <= '0';
-      rc3_clear     <= '0';
+--      rc3_clear     <= '0';
       rc4_ack       <= '0';
-      rc4_clear     <= '0';
+--      rc4_clear     <= '0';
       cc_ack        <= '0';
-      cc_clear      <= '0';
+--      cc_clear      <= '0';
       psu_ack       <= '0';
-      psu_clear     <= '0';
+--      psu_clear     <= '0';
 
       rdy_o         <= '0';
       matched_o     <= '0';
@@ -1363,16 +1383,17 @@ begin
          when DONE =>
             word_count_clr   <= '1';
             timeout_reg_clr  <= '1';
-            ac_clear         <= '1';
-            bc1_clear        <= '1';
-            bc2_clear        <= '1';
-            bc3_clear        <= '1';
-            rc1_clear        <= '1';
-            rc2_clear        <= '1';
-            rc3_clear        <= '1';
-            rc4_clear        <= '1';
-            cc_clear         <= '1';
-            psu_clear        <= '1';
+            all_clear        <= '1';
+--            ac_clear         <= '1';
+--            bc1_clear        <= '1';
+--            bc2_clear        <= '1';
+--            bc3_clear        <= '1';
+--            rc1_clear        <= '1';
+--            rc2_clear        <= '1';
+--            rc3_clear        <= '1';
+--            rc4_clear        <= '1';
+--            cc_clear         <= '1';
+--            psu_clear        <= '1';
 
          when others =>
             null;
