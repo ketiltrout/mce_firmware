@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.11  2010/02/12 19:49:55  mandana
+-- *** empty log message ***
+--
 -- Revision 1.10  2010/01/22 01:17:10  mandana
 -- Rev. 3.0 to accomodate 12 low-noise bias lines introduced in Bias Card Rev. E
 -- Note that xtalk test is not supported for ln-bias lines YET!
@@ -74,7 +77,7 @@ use ieee.std_logic_arith.all;
 package bc_test_pack is
 constant NUM_FLUX_FB_DACS       : integer := 32;
 constant FLUX_FB_DAC_DATA_WIDTH : integer := 16;
-constant FLUX_FB_DAC_ADDR_WIDTH : integer := 6;
+constant FLUX_FB_DAC_ADDR_WIDTH : integer := 5;
 
 constant NUM_LN_BIAS_DACS       : integer := 12; -- 1 prior to BC Rev. E hardware
 constant LN_BIAS_DAC_DATA_WIDTH : integer := 16;
