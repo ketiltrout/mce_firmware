@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.95 2010/03/05 19:14:01 bburger Exp $
+-- $Id: clk_card.vhd,v 1.96 2010/04/20 23:31:41 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -87,12 +87,14 @@ entity clk_card is
       manchester_sigdet : in std_logic;
 
       -- TTL interface:
-      ttl_nrx1          : in std_logic;
-      ttl_tx1           : out std_logic;
-      ttl_txena1        : out std_logic;
-      ttl_nrx2          : in std_logic;
-      ttl_tx2           : out std_logic;
-      ttl_txena2        : out std_logic;
+      ttl_nrx1          : in std_logic;  -- N/A
+      ttl_tx1           : out std_logic; -- BClr
+      ttl_txena1        : out std_logic; -- BClr
+
+      ttl_nrx2          : in std_logic;  -- 1+ Dead Card
+      ttl_tx2           : out std_logic; -- N/A
+      ttl_txena2        : out std_logic; -- 1+ Dead Card 
+
       ttl_nrx3          : in std_logic;
       ttl_tx3           : out std_logic;
       ttl_txena3        : out std_logic;
@@ -205,7 +207,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000006";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000007";
 
    -- reset
    signal rst                : std_logic;
@@ -472,8 +474,12 @@ begin
    fibre_rx_bisten <= '1';
    fibre_rx_rf     <= '1';
 
-   -- This is an active-low enable signal for the TTL transmitter.  This line is used as a BClr.
-   ttl_txena1 <= '0';
+   -- Pulling ttl_txena1 low enables the TTL transmitter.  This line is used as a BClr.
+   ttl_txena1 <= '0';   
+   -- Pulling ttl_txena2 high enables the TTL receiver.  This line is used for detecting unresponsive cards.
+   -- This line has a week pull up.  
+   -- A card that is inserted and not configured would pull this line down, but this line would stay high if cards are inserted and configured.
+   ttl_txena2 <= '1';
 
    -- ttl_tx1 is an active-low reset transmitted accross the bus backplane to clear FPGA registers (BClr)
    ttl_tx1 <= not mce_bclr;
@@ -739,6 +745,7 @@ begin
       awg_dat_i            => awg_dat,   
       awg_addr_i           => awg_addr,
       awg_addr_incr_o      => awg_addr_incr,
+      dead_card_i          => ttl_nrx2,
       
       -- dv_rx interface
       external_dv_i        => external_dv,
