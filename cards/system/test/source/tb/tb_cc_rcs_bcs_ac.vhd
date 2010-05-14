@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.83 2010/03/06 11:02:02 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.84 2010/03/15 14:31:47 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.84  2010/03/15 14:31:47  bburger
+-- BB: testing new tms_tdi and tdo commands
+--
 -- Revision 1.83  2010/03/06 11:02:02  bburger
 -- BB: JTAG testing
 --
@@ -2859,91 +2862,33 @@ begin
       -- Wait for the BRst to finish, which takes 100us
       present_sim_state <= NOTHING;
       wait for 150 us;
-      --
-
---      -- Enable CC access to the JTAG Chain.
---      command <= command_wb;
---      address_id <= cc_jtag2_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000002";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;      
-
-      -- JTAG Encaplsulation Enignma Testing
-      command <= command_wb;
-      address_id <= cc_tms_tdi_cmd;
-      data_valid <= X"00000002";
-      data       <= X"0000001C";  --0x1C = 28
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;      
 
       command <= command_rb;
-      address_id <= cc_tdo_cmd;
+      address_id <= ac_row_len_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000000";
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;      
-
-      command <= command_wb;
-      address_id <= cc_tms_tdi_cmd;
-      data_valid <= X"00000002";
-      data       <= X"0000001C";  --0x1C = 28
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;      
+      wait for 100 us;
 
       command <= command_rb;
-      address_id <= cc_tdo_cmd;
+      address_id <= bc1_row_len_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000000";
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 100 us;      
+      wait for 100 us;
 
---      command <= command_wb;
---      address_id <= cc_tms_tdi_cmd;
---      data_valid <= X"00000002";
---      data       <= X"0000001C";  --0x1C = 28
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;      
---
---      command <= command_wb;
---      address_id <= cc_tck_half_period_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000005";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 200 us;      
---
---      command <= command_wb;
---      address_id <= cc_tms_tdi_cmd;
---      data_valid <= X"00000004";
---      data       <= X"00000060";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 200 us;      
---
---      -- Disable CC access to the JTAG Chain.
---      command <= command_wb;
---      address_id <= cc_jtag2_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
+      command <= command_rb;
+      address_id <= ac_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
 
 ------------------------------------------------------
 
