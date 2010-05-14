@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.18 2010/01/21 18:48:51 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.19 2010/02/26 09:32:44 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.19  2010/02/26 09:32:44  bburger
+-- BB: cc_v05000004 -- JTAG support.
+--
 -- Revision 1.18  2010/01/21 18:48:51  bburger
 -- BB: awg_addr interfaces
 --
@@ -506,6 +509,7 @@ package clk_card_pack is
       awg_dat_i              : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i             : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o        : out std_logic;
+      dead_card_i            : in std_logic;
 
       -- clk_switchover interface
       active_clk_i           : in std_logic;
