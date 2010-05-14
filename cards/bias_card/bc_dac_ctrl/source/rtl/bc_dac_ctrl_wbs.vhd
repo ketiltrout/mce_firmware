@@ -18,18 +18,28 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.10 2008/07/15 17:48:04 bburger Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.11 2010/01/20 23:16:38 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
 -- Description:
--- Wishbone interface for a 16-bit serial DAC controller
--- This block was written to be coupled with bc_dac_ctrl
+-- Wishbone interface to handle read-write of bias-card parameters: 
+--   flux_fb, flux_fb_upper, bias, fb_col0 to fb_col31, enbl_mux
+-- It primarily interacts with bc_dac_ctrl block.
+-- This block includes storage for all parameters:
+--   fix_flux_fb_reg: to store upto 32 flux_fb values for non-multiplexing mode (flux_fb, flux_fb_upper)
+--   ln_bias_ram: to store upto 12 bias values (bias)
+--   flux_fb_mux_ram: to store upto 41 values per column (fb_col0 to fb_col31)
+--   enbl_mux_reg: to store multiplexing flag per column (whether mux is on or off)
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.11  2010/01/20 23:16:38  mandana
+-- ram storage is now 16-bit wide (as wide as DAC itself) and data is extended to 32b to match wishbone width
+-- changed bias to ln_bias to accomodate multiple bias lines
+--
 -- Revision 1.10  2008/07/15 17:48:04  bburger
 -- BB: added tga_i to the state_out FSM's sensitivity list
 --
@@ -80,17 +90,27 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.bias_card_pack.all;
 use work.bc_dac_ctrl_pack.all;
+use work.frame_timing_pack.all; -- for NUM_OF_ROWS
 
 entity bc_dac_ctrl_wbs is
    port
    (
       -- ac_dac_ctrl interface:
       flux_fb_addr_i    : in std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);   -- address index to read DAC data from RAM
-      flux_fb_data_o    : out std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);  -- data read from RAM to be consumed by bc_dac_ctrl_core
+      flux_fb_data_o    : out flux_fb_dac_array;  -- data read from RAM to be consumed by bc_dac_ctrl_core      
       flux_fb_changed_o : out std_logic;
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
       ln_bias_changed_o : out std_logic;
+      
+      mux_flux_fb_data_o: out flux_fb_dac_array;
+      enbl_mux_data_o   : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+
+      -- row_addr_i to access the right flux_fb bank when in multiplexing mode (enbl_mux = 1)
+      row_addr_i        : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+      
+      -- frame_timing interface
+      row_switch_i      : in std_logic;
 
       -- wishbone interface:
       dat_i             : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -111,41 +131,81 @@ end bc_dac_ctrl_wbs;
 
 architecture rtl of bc_dac_ctrl_wbs is
 
-   -- FSM inputs
-   signal wr_cmd           : std_logic;
-   signal rd_cmd           : std_logic;
-   signal master_wait      : std_logic;
-
    -- RAM/Register signals
-   signal flux_fb_wren     : std_logic;
-   signal flux_fb_data     : std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
+   signal flux_fb_wren     : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+   signal fix_flux_fb_data : flux_fb_dac_array; 
+   signal mux_flux_fb_data : flux_fb_dac_array;
+   signal wb_mux_flux_fb_data : flux_fb_dac_array;
+
    signal ln_bias_wren     : std_logic;
    signal ln_bias_data     : std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
+   
+   signal enbl_mux_wren    : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0); 
+   signal enbl_mux_data    : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
+   -- index of the ram_16x16 block used to store non-multiplexed values for flux_fb
    signal ram_addr         : std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
-   signal addr             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+   signal addr             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);   
 
-
-   -- WBS states:
-   type states is (IDLE, WR, RD1, RD2);
-   signal current_state    : states;
-   signal next_state       : states;
-
+   -- index of the ram_16x64 blocks dedicated to store flux_fb values for the particular column
+   signal mux_ram_addr     : std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);  
+   signal row_flux_fb_wren : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+   
+   signal mux_ram_addr_int : integer range 0 to NUM_FLUX_FB_DACS-1 := 0;   
+   signal ram_addr_int     : integer range 0 to NUM_FLUX_FB_DACS-1 := 0;
+   
+   -- used for generating wishbone ack 
+   signal addr_qualifier   : std_logic;
+   signal ack_read         : std_logic;
+   signal ack_write        : std_logic;
+   
 begin
-   -- port a is used for updating DACs and port b for wishbone read
-   flux_fb_ram : ram_16x64
-   port map
-      (
-         clock             => clk_i,
-         data              => dat_i(FLUX_FB_DAC_DATA_WIDTH-1 downto 0),
-         wren              => flux_fb_wren,
-         wraddress         => ram_addr,
-         rdaddress_a       => flux_fb_addr_i,
-         rdaddress_b       => ram_addr,
-         qa                => flux_fb_data_o,
-         qb                => flux_fb_data
-      );
-      
+   -----------------------------------------------------------------
+   -- RAM blocks for storing distinct values for each row (up to 41)
+   -- FB_COL0 to FB_COL31  
+   -- flux-fb storage when multiplexing is on
+   -----------------------------------------------------------------
+   ram_bank: for i in 0 to NUM_FLUX_FB_DACS-1 generate
+      -- port a is used for updating DACs and port b for wishbone read
+      flux_fb_mux_ram : ram_16x64
+      port map
+         (
+            clock             => clk_i,
+            data              => dat_i(FLUX_FB_DAC_DATA_WIDTH-1 downto 0),
+            wren              => row_flux_fb_wren(i),
+            wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0),
+            rdaddress_a       => row_addr_i, --flux_fb_addr_i,
+            rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0),
+            qa                => mux_flux_fb_data(i),
+            qb                => wb_mux_flux_fb_data(i)
+         );
+                  
+   end generate ram_bank;
+   mux_flux_fb_data_o <= mux_flux_fb_data;
+   
+   -----------------------------------------------------------------
+   -- flux-fb storage when multiplexing is off (enbl_mux = 0)
+   -----------------------------------------------------------------   
+   reg_bank: for i in 0 to NUM_FLUX_FB_DACS-1 generate
+      -- port a is used for updating DACs and port b for wishbone read
+     fix_flux_fb_reg: process(clk_i, rst_i)
+     begin
+       if(rst_i = '1') then
+         fix_flux_fb_data(i) <= (others => '0');            
+       elsif(clk_i'event and clk_i = '1') then
+         if(flux_fb_wren(i) = '1') then
+           fix_flux_fb_data(i) <= dat_i(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
+         else
+           fix_flux_fb_data(i) <= fix_flux_fb_data(i);
+         end if;
+       end if;
+     end process fix_flux_fb_reg;                  
+   end generate reg_bank;
+   flux_fb_data_o <= fix_flux_fb_data;   
+   
+   -----------------------------------------------------------------
+   -- RAM storage for up-to 16 ln_bias values
+   -----------------------------------------------------------------
    -- port a is used for updating DACs and port b for wishbone read
    ln_bias_ram : ram_16x16
    port map
@@ -160,145 +220,142 @@ begin
          qb                => ln_bias_data
       );
 
-
-   addr_reg: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         addr <= (others => '0');
-      elsif(clk_i'event and clk_i = '1') then
-         addr <= addr;
-         if(cyc_i = '1') then
-            addr <= addr_i;
+   -----------------------------------------------------------------   
+   -- register multiplex mode enabled or not per column
+   -----------------------------------------------------------------
+   enbl_mux_data_o <= enbl_mux_data;
+   enbl_mux_bank: for i in 0 to NUM_FLUX_FB_DACS-1 generate
+     enbl_mux_reg: process (clk_i, rst_i)
+     begin 
+       if(rst_i = '1') then
+         enbl_mux_data(i) <= '0'; --(others => '0');
+       elsif(clk_i'event and clk_i = '1') then
+         if(enbl_mux_wren(i) = '1') then
+            enbl_mux_data(i) <= dat_i(0);
          end if;
-      end if;
-   end process addr_reg;
+       end if;  
+     end process enbl_mux_reg;
+   end generate enbl_mux_bank;   
+   
+   ------------------------------------------------------------
+   -- generate wren signals
+   ------------------------------------------------------------
+   i_gen_wren_signals: process (addr_i, we_i, ram_addr_int, mux_ram_addr_int)
+   begin  -- process i_gen_wren_signals
+   
+     flux_fb_wren <= (others => '0');
+     ln_bias_wren <= '0';
+     row_flux_fb_wren <= (others => '0');
+         
+     for i in 0 to NUM_FLUX_FB_DACS-1 loop
+       enbl_mux_wren(i) <= '0';
+     end loop;  -- i
+     
+     case addr_i is
+       when FLUX_FB_ADDR | FLUX_FB_UPPER_ADDR =>
+         flux_fb_wren(ram_addr_int) <= we_i;
 
-------------------------------------------------------------
---  WB FSM
-------------------------------------------------------------
+       when BIAS_ADDR =>
+         ln_bias_wren <= we_i;
+         
+       when ENBL_MUX_ADDR =>
+         enbl_mux_wren(ram_addr_int) <= we_i;
+     
+       when FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR |
+            FB_COL8_ADDR | FB_COL9_ADDR | FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR |
+            FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR | FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR |
+            FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR | FB_COL30_ADDR | FB_COL31_ADDR =>
+         row_flux_fb_wren(mux_ram_addr_int) <= we_i;
+             
+       when others => null;
+                      
+     end case;    
+   end process i_gen_wren_signals;
+   
+   ------------------------------------------------------------
+   -- generate ram addresses
+   ------------------------------------------------------------
+   i_gen_addr_signals: process (addr_i, tga_i)
+   begin -- process i_gen_addr_signals
+     ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
+     case addr_i is
+        when FLUX_FB_UPPER_ADDR =>
+           ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0) + 16;
+           
+        when others => null;     
+     end case;
+   end process i_gen_addr_signals;  
+   
+   mux_ram_addr <= addr_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
+      
+   mux_ram_addr_int <= conv_integer(mux_ram_addr);
+   ram_addr_int <= conv_integer(ram_addr);
+   
 
-   -- clocked FSMs, advance the state for both FSMs
-   state_FF: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         current_state     <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
-         current_state     <= next_state;
-      end if;
-   end process state_FF;
+   ------------------------------------------------------------
+   -- generate flux_fb_changed_o and ln_bias_changed_o
+   ------------------------------------------------------------
+   ln_bias_changed_o <= '1' when (addr_i = BIAS_ADDR and cyc_i = '1' and we_i = '1') else '0';
+   flux_fb_changed_o <= '1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
+ 
+   ------------------------------------------------------------
+   --  Wishbone interface
+   ------------------------------------------------------------
+   dat_o <= 
+      ext(fix_flux_fb_data(ram_addr_int), WB_DATA_WIDTH)  when ((addr_i = FLUX_FB_ADDR) or (addr_i = FLUX_FB_UPPER_ADDR)) else
+      ext(ln_bias_data, WB_DATA_WIDTH) when (addr_i =  BIAS_ADDR) else      
+      ext("0",WB_DATA_WIDTH-1) & enbl_mux_data(ram_addr_int) when (addr_i =  ENBL_MUX_ADDR) else      
+      ext(wb_mux_flux_fb_data(mux_ram_addr_int), WB_DATA_WIDTH) when (( addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL31_ADDR)) else
+      (others => '0');
 
-   -- Transition table for DAC controller
-   state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
-   begin
-      -- Default assignments
-      next_state <= current_state;
-
-      case current_state is
-         when IDLE =>
-            if(wr_cmd = '1') then
-               next_state <= WR;
-            elsif(rd_cmd = '1') then
-               next_state <= RD1;
-            end if;
-
-         when WR =>
-            if(cyc_i = '0') then
-               next_state <= IDLE;
-            end if;
-
-         when RD1 =>
-            next_state <= RD2;
-
-         when RD2 =>
-            if(cyc_i = '0') then
-               next_state <= IDLE;
-            else
-               next_state <= RD1;
-            end if;
-
-         when others =>
-            next_state <= IDLE;
-
-      end case;
-   end process state_NS;
-
-   -- Output states for DAC controller
-   state_out: process(current_state, stb_i, addr_i, cyc_i, addr, tga_i)
-   begin
-      -- Default assignments
-      flux_fb_wren      <= '0';
-      ln_bias_wren      <= '0';
-      ack_o             <= '0';
-      flux_fb_changed_o <= '0';
-      ln_bias_changed_o <= '0';
-      ram_addr          <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
-
-      case current_state is
-         when IDLE  =>
-            ack_o <= '0';
-
-         when WR =>
-            ack_o <= '1';
-
-            if(stb_i = '1') then
-               if(addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) then
-                  flux_fb_wren <= '1';
-               end if;
-               if (addr_i = FLUX_FB_UPPER_ADDR) then
-                  ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0) + 16;
-               end if;
-               if(addr = BIAS_ADDR) then
-                  ln_bias_wren <= '1';
-               end if;
-               
-            end if;
-
-            -- This is so that the bias block does not update bias during every frame - only when the values are changed
-            if(cyc_i = '0') then
-               if(addr = FLUX_FB_ADDR or addr = FLUX_FB_UPPER_ADDR) then
-                  flux_fb_changed_o <= '1';
-               end if;
-               if(addr = BIAS_ADDR) then
-                  ln_bias_changed_o <= '1';
-               end if;
-            end if;
-
-         when RD1 =>
-            if (addr = FLUX_FB_UPPER_ADDR) then
-               ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0) + 16;
-            end if;
-            ack_o <= '0';
-
-         when RD2 =>
-            if (addr = FLUX_FB_UPPER_ADDR) then
-               ram_addr <= tga_i(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0) + 16;
-            end if;
-            ack_o  <= '1';
-
-         when others =>
-            null;
-
-      end case;
-   end process state_out;
-
-------------------------------------------------------------
---  Wishbone interface
-------------------------------------------------------------
-
-   with addr_i select dat_o <=
-      ext(flux_fb_data, WB_DATA_WIDTH)  when FLUX_FB_ADDR,
-      ext(flux_fb_data, WB_DATA_WIDTH)  when FLUX_FB_UPPER_ADDR,
-      ext(ln_bias_data, WB_DATA_WIDTH) when BIAS_ADDR,
-      (others => '0') when others;
-
-   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';
-
-   rd_cmd  <= '1' when
-      (stb_i = '1' and cyc_i = '1' and we_i = '0') and
-      (addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR or addr_i = BIAS_ADDR) else '0';
-
-   wr_cmd  <= '1' when
-      (stb_i = '1' and cyc_i = '1' and we_i = '1') and
-      (addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR or addr_i = BIAS_ADDR) else '0';
-
+   with addr_i select
+      addr_qualifier <= '1' when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR |
+                                 FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR |
+                                 FB_COL8_ADDR | FB_COL9_ADDR | FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR |
+                                 FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR | FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR |
+                                 FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR | FB_COL30_ADDR | FB_COL31_ADDR,
+      '0'                   when others; 
+      
+   -- Wishbone Acknowlege signals
+   i_gen_ack: process (clk_i, rst_i)    
+     variable count : integer :=0;       -- counts number of clock cycles passed
+     
+   begin  -- process i_gen_ack
+     if rst_i = '1' then                
+        ack_read  <= '0';
+        ack_write <= '0';
+        count:=0;
+             
+     elsif clk_i'event and clk_i = '1' then  
+       -- Write Acknowledge
+       if (we_i = '1') and (addr_qualifier = '1') then
+          if (stb_i = '1') and (ack_write = '0') then
+             ack_write <= '1';
+          else
+             ack_write <= '0';
+          end if;
+       else
+          ack_write <= '0';
+       end if;
+       
+       -- Read Acknowledge
+       if (we_i = '0') and ( addr_qualifier = '1') then        
+          if (stb_i = '1') and (ack_read = '0') then
+             count:=count+1;
+             if count=2 then
+                ack_read <= '1';
+                count:=0;
+             else 
+                ack_read <= '0';
+             end if;
+          else
+             ack_read <= '0';
+          end if;              
+       else
+          ack_read <= '0';        
+       end if;      
+     end if;
+   end process i_gen_ack;  
+   ack_o <= ack_read or ack_write;
+   
 end rtl;
