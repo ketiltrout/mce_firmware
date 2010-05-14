@@ -28,7 +28,7 @@
 set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:26:51  DECEMBER 15, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "9.0 SP2"
+set_global_assignment -name LAST_QUARTUS_VERSION "9.1 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -578,6 +578,7 @@ set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_ncs[1]
 set_location_assignment PIN_N6 -to lvds_dac_ncs[0]
 set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_ncs[0]
 set_location_assignment PIN_V28 -to dev_clr_fpga_out
+set_global_assignment -name INCREMENTAL_COMPILATION OFF
 set_global_assignment -name VHDL_FILE card_type_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
@@ -639,6 +640,7 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dis
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/bc_pll.vhd
+set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/ram_16x32.vhd
 set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/ram_16x64.vhd
 set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/ram_16x16.vhd
 set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd
@@ -651,5 +653,5 @@ set_global_assignment -name HEX_FILE ../source/tb/bias_card_wb.hex
 set_global_assignment -name SIGNALTAP_FILE bias.stp
 set_global_assignment -name SIGNALTAP_FILE bias_card.stp
 set_global_assignment -name SIGNALTAP_FILE upper.stp
-set_global_assignment -name INCREMENTAL_COMPILATION OFF
 set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/mandana/Desktop/newrc.cdf"
+set_global_assignment -name MISC_FILE "C:/mce/cards/bias_card/bias_card/synth/bias_card.dpf"
