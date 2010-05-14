@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.70.2.1 2009/07/15 21:04:27 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.70.4.1 2010/01/21 18:39:59 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.70.4.1  2010/01/21 18:39:59  mandana
+-- bc_test
+--
 -- Revision 1.70.2.1  2009/07/15 21:04:27  bburger
 -- BB: Fixed a bug that did not store data properly if reading back 1 or 2 pixels only.
 --
@@ -419,10 +422,10 @@ architecture tb of tb_cc_rcs_bcs_ac is
       ttl_txena3 : out std_logic;
 
       -- eeprom interface:
-      eeprom_si  : in std_logic;
-      eeprom_so  : out std_logic;
-      eeprom_sck : out std_logic;
-      eeprom_cs  : out std_logic;
+--      eeprom_si  : in std_logic;
+--      eeprom_so  : out std_logic;
+--      eeprom_sck : out std_logic;
+--      eeprom_cs  : out std_logic;
 
       -- dac interface:
       dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -747,6 +750,48 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant bc1_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & ROW_LEN_ADDR;
    constant bc1_num_rows_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & NUM_ROWS_ADDR;
    constant bc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_2       & x"00" & LED_ADDR;
+   constant bc1_enbl_mux_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & ENBL_MUX_ADDR;
+   constant bc1_fb_col0_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL0_ADDR;
+   constant bc1_fb_col1_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL1_ADDR;
+   constant bc1_fb_col2_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL2_ADDR;
+   constant bc1_fb_col3_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL3_ADDR;
+   constant bc1_fb_col4_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL4_ADDR;
+   constant bc1_fb_col5_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL5_ADDR;
+   constant bc1_fb_col6_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL6_ADDR;
+   constant bc1_fb_col7_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL7_ADDR;
+   constant bc1_fb_col8_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL8_ADDR;
+   constant bc1_fb_col9_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL9_ADDR;
+   constant bc1_fb_col10_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL10_ADDR;
+   constant bc1_fb_col11_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL11_ADDR;
+   constant bc1_fb_col12_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL12_ADDR;
+   constant bc1_fb_col13_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL13_ADDR;
+   constant bc1_fb_col14_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL14_ADDR;
+   constant bc1_fb_col15_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL15_ADDR;
+   constant bc1_fb_col16_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL16_ADDR;
+   constant bc1_fb_col17_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL17_ADDR;
+   constant bc1_fb_col18_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL18_ADDR;
+   constant bc1_fb_col19_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL19_ADDR;
+   constant bc1_fb_col20_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL20_ADDR;
+   constant bc1_fb_col21_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL21_ADDR;
+   constant bc1_fb_col22_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL22_ADDR;
+   constant bc1_fb_col23_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL23_ADDR;
+   constant bc1_fb_col24_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL24_ADDR;
+   constant bc1_fb_col25_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL25_ADDR;
+   constant bc1_fb_col26_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL26_ADDR;
+   constant bc1_fb_col27_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL27_ADDR;
+   constant bc1_fb_col28_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL28_ADDR;
+   constant bc1_fb_col29_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL29_ADDR;
+   constant bc1_fb_col30_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL30_ADDR;
+   constant bc1_fb_col31_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL31_ADDR;
+   constant bc1_fb_col32_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL32_ADDR;
+   constant bc1_fb_col33_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL33_ADDR;
+   constant bc1_fb_col34_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL34_ADDR;
+   constant bc1_fb_col35_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL35_ADDR;
+   constant bc1_fb_col36_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL36_ADDR;
+   constant bc1_fb_col37_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL37_ADDR;
+   constant bc1_fb_col38_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL38_ADDR;
+   constant bc1_fb_col39_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL39_ADDR;
+   constant bc1_fb_col40_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL40_ADDR;   
 
    constant all_led_cmd             : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & LED_ADDR;
    constant all_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & ROW_LEN_ADDR;
@@ -2067,10 +2112,10 @@ begin
          ttl_txena3    => bc1_ttl_txena3,
 
          -- eeprom ice:nterface:
-         eeprom_si     => bc1_eeprom_si,
-         eeprom_so     => bc1_eeprom_so,
-         eeprom_sck    => bc1_eeprom_sck,
-         eeprom_cs     => bc1_eeprom_cs,
+--         eeprom_si     => bc1_eeprom_si,
+--         eeprom_so     => bc1_eeprom_so,
+--         eeprom_sck    => bc1_eeprom_sck,
+--         eeprom_cs     => bc1_eeprom_cs,
 
          -- dac interface:
          dac_ncs       => bc1_dac_ncs,
@@ -2262,7 +2307,7 @@ begin
    fibre_rx_nrdy <= '1';
    wait for pci_dsp_dly;
 
-   assert false report "preamble OK" severity NOTE;
+--   assert false report "preamble OK" severity NOTE;
    end load_preamble;
 
    ---------------------------------------------------------
@@ -2296,7 +2341,7 @@ begin
       wait for fibre_clkr_prd * 0.6;
 
 
-      assert false report "command code loaded" severity NOTE;
+--      assert false report "command code loaded" severity NOTE;
       fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
@@ -2327,7 +2372,7 @@ begin
       fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      assert false report "address id loaded" severity NOTE;
+--      assert false report "address id loaded" severity NOTE;
       fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
@@ -2359,7 +2404,7 @@ begin
       fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      assert false report "data valid loaded" severity NOTE;
+--      assert false report "data valid loaded" severity NOTE;
       fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
@@ -2446,7 +2491,7 @@ begin
          wait for pci_dsp_dly;
       end loop;
 
-      assert false report "data words loaded to memory...." severity NOTE;
+--      assert false report "data words loaded to memory...." severity NOTE;
 
    end load_command;
 
@@ -2533,7 +2578,7 @@ begin
          wait for fibre_clkr_prd * 0.6;
       end if;
 
-      assert false report "checksum loaded...." severity NOTE;
+--      assert false report "checksum loaded...." severity NOTE;
 
       fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
@@ -2602,23 +2647,23 @@ begin
 --      load_checksum;
 --      wait for 50 us;
 --
---      command <= command_wb;
---      address_id <= cc_num_rows_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000021"; --33
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= cc_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000064"; --100
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
+      command <= command_wb;
+      address_id <= cc_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000021"; --33
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
 --
 --      command <= command_wb;
 --      address_id <= cc_num_rows_reported_cmd;
@@ -2642,13 +2687,74 @@ begin
       -- BC1
       -------------------------------------
       command <= command_wb;
-      address_id <= bc1_flux_fb_cmd;
-      data_valid <= X"00000020";
-      data       <= X"0000AAAA"; 
+      address_id <= bc1_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000021"; --33
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;
+
+      command <= command_wb;
+      address_id <= bc1_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
+      command <= command_wb;
+      address_id <= bc1_fb_col0_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000A000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= bc1_fb_col29_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000F000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_wb;
+      address_id <= bc1_enbl_mux_cmd;
+      data_valid <= X"00000020";
+      data       <= X"00000001"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_rb;
+      address_id <= bc1_fb_col0_cmd;
+      data_valid <= X"00000029";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_rb;
+      address_id <= bc1_fb_col0_cmd;
+      data_valid <= X"00000029";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_rb;
+      address_id <= bc1_enbl_mux_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000A000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
 
       command <= command_wb;
       address_id <= bc1_bias_cmd;
@@ -2659,23 +2765,49 @@ begin
       load_checksum;
       wait for 50 us;
 
-      command <= command_wb;
-      address_id <= rc1_num_cols_reported_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
+      command <= command_rb;
+      address_id <= bc1_bias_cmd;
+      data_valid <= X"0000000c";
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;
 
       command <= command_wb;
-      address_id <= rc1_num_rows_reported_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
+      address_id <= bc1_flux_fb_cmd;
+      data_valid <= X"00000020";
+      data       <= X"0000AAAA"; 
       load_preamble;
       load_command;
       load_checksum;
-      wait for 50 us;      
+      wait for 50 us;
+      
+      command <= command_rb;
+      address_id <= bc1_flux_fb_cmd;
+      data_valid <= X"00000020";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
+
+--      command <= command_wb;
+--      address_id <= rc1_num_cols_reported_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_num_rows_reported_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;      
 
 --      command <= command_wb;
 --      address_id <= rc1_readout_col_index_cmd;
