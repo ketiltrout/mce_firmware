@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.84 2010/03/15 14:31:47 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.85 2010/05/14 22:27:13 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.85  2010/05/14 22:27:13  bburger
+-- BB:  Testbench for a bug that caused stale data to be returned in responses from cards that are not present
+--
 -- Revision 1.84  2010/03/15 14:31:47  bburger
 -- BB: testing new tms_tdi and tdo commands
 --
@@ -313,8 +316,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
       mictor0clk_e      : in std_logic;
       mictor1_o         : out std_logic_vector(15 downto 0);
       mictor1clk_o      : out std_logic;
-      mictor1_e         : out std_logic_vector(15 downto 0);
-      mictor1clk_e      : out std_logic;
+--      mictor1_e         : out std_logic_vector(15 downto 0);
+--      mictor1clk_e      : out std_logic;
 
       rx                : in std_logic;
       tx                : out std_logic;
