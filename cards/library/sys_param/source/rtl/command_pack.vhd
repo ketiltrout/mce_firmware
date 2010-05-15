@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: command_pack.vhd,v $
+-- Revision 1.24  2010/01/19 23:03:02  mandana
+-- BC_CARD_TYPE and RC_CARD_TYPE are now managed by card_type.vhd generated through tcl file.
+--
 -- Revision 1.23  2008/02/22 01:34:12  bburger
 -- BB: Renamed "PSCUC_CARD" to "PS_CARD"
 --
@@ -122,6 +125,8 @@ package command_pack is
    constant CARD_TYPE_WIDTH    : integer := 3;
 
    constant AC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "000";
+   constant BC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "001";
+   constant RC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "010";
    constant BC_D_CARD_TYPE     : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "001"; -- Bias Card  Revision D 
    constant RC_B_CARD_TYPE     : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "010"; -- Readout Card Revision B
    constant CC_CARD_TYPE       : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := "011";
