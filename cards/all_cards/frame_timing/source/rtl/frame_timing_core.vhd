@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.14 2009/03/19 20:15:51 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.15 2009/09/14 20:02:19 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.15  2009/09/14 20:02:19  bburger
+-- BB: added the row_count_o interface for the Address Card row-specific BIAS_START command
+--
 -- Revision 1.14  2009/03/19 20:15:51  bburger
 -- *** empty log message ***
 --
@@ -252,7 +255,7 @@ begin
 
    -- The bias card DACs begin to be updated approximately 6 cycles after update_bias_o is asserted.
    -- The length of time required to update all 32 flux_feedback values on the bias card is longer than one row dwell period.
-   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS else '0';
+   update_bias_o              <= '1' when row_count_int = row_len_i - UPDATE_BIAS else '0';
 
    -- row_switch_o is pulsed on the last clock cycle of every
    row_switch_o               <= '1' when row_count_int = row_len_i - 1 or sync_received = '1' else '0';
