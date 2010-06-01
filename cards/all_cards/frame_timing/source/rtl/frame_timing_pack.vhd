@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.13 2009/09/14 19:57:24 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.14 2009/09/16 20:10:52 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2009/09/14 19:57:24 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2009/09/16 20:10:52 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.14  2009/09/16 20:10:52  bburger
+-- BB: re-instated 3 constants that are used in older versions of firmware
+--
 -- Revision 1.13  2009/09/14 19:57:24  bburger
 -- BB:  Added ROW_COUNT_WIDTH and MAX_NUM_OF_ROWS for use on the Address Card.
 --
@@ -145,8 +148,9 @@ package frame_timing_pack is
    constant END_OF_FRAME_1ROW_POST : integer := MUX_LINE_PERIOD-1;
 
    ------------------------------------------------------------------------------------
-   -- Bias Card begins updating its bias values on the second clock cycle of a frame
-   constant UPDATE_BIAS : integer := 0;
+   -- UPDATE_BIAS specifies the number of clock cycles before the beginning of a new frame needed to prime the DACs with data.
+   -- It takes 16 x 25MHz clock cycles or 32 clock cycles to update the DAC plus 10 clock cycles of over head, total of 42
+   constant UPDATE_BIAS : integer := 42;
    
    ------------------------------------------------------------------------------------
    -- For data readout
