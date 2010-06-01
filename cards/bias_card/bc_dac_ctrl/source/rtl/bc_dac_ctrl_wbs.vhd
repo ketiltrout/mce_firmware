@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.11 2010/01/20 23:16:38 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.12 2010/05/14 22:43:30 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -36,6 +36,10 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.12  2010/05/14 22:43:30  mandana
+-- adds support for fb_col0 to fb_col31 and enbl_mux commands
+-- fix_flux_fb values are stored in registers as oppose to RAM
+--
 -- Revision 1.11  2010/01/20 23:16:38  mandana
 -- ram storage is now 16-bit wide (as wide as DAC itself) and data is extended to 32b to match wishbone width
 -- changed bias to ln_bias to accomodate multiple bias lines
@@ -98,7 +102,7 @@ entity bc_dac_ctrl_wbs is
       -- ac_dac_ctrl interface:
       flux_fb_addr_i    : in std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);   -- address index to read DAC data from RAM
       flux_fb_data_o    : out flux_fb_dac_array;  -- data read from RAM to be consumed by bc_dac_ctrl_core      
-      flux_fb_changed_o : out std_logic;
+      flux_fb_changed_o : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
       ln_bias_changed_o : out std_logic;
@@ -206,7 +210,8 @@ begin
    -----------------------------------------------------------------
    -- RAM storage for up-to 16 ln_bias values
    -----------------------------------------------------------------
-   -- port a is used for updating DACs and port b for wishbone read
+   -- port a is used for updating DACs (bc_dac_ctrl_core interface) and
+   -- port b is for wishbone read
    ln_bias_ram : ram_16x16
    port map
       (
@@ -296,7 +301,7 @@ begin
    -- generate flux_fb_changed_o and ln_bias_changed_o
    ------------------------------------------------------------
    ln_bias_changed_o <= '1' when (addr_i = BIAS_ADDR and cyc_i = '1' and we_i = '1') else '0';
-   flux_fb_changed_o <= '1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
+   flux_fb_changed_o <= flux_fb_wren; --'1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
  
    ------------------------------------------------------------
    --  Wishbone interface
