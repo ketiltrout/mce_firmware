@@ -358,9 +358,9 @@ signal next_state    : states;
 
 begin
 
-   --------------------------------------------------------
-   -- Instantiations
-   --------------------------------------------------------
+   -------------------------------
+   -- Arithmetic
+   -------------------------------
    mult1 : fsfb_corr_multiplier
       port map (
          dataa  => flux_quanta1,
@@ -390,11 +390,31 @@ begin
          dataa  => pid_prev2,
          datab  => mult_res2_xtnd,
          result => sub_res2
-      );              
+      );
+              
 
-   --------------------------------------------------------
+   ----------------------------------------------------------------------------
+   -- start_corr has been simplified so that it only looks for an assertion from channel 0.  This will ease timing.  
+   -- All the other channels are asserted at the same time.
+   ----------------------------------------------------------------------------
+   start_corr <= fsfb_ctrl_dat_rdy0;   
+  
+   rdy_reg: process (clk_i, rst_i)
+   begin
+      if rst_i = '1' then
+         fsfb_ctrl_dat_rdy0 <= '0';      
+      elsif clk_i'event and clk_i = '1' then
+         if(rdy_clr = '1') then
+            fsfb_ctrl_dat_rdy0 <= '0';
+         else   
+            fsfb_ctrl_dat_rdy0 <= fsfb_ctrl_dat_rdy0_i;
+         end if;   
+      end if;
+   end process; -- rdy_reg   
+      
+   -------------------------------
    -- State machine
-   --------------------------------------------------------
+   -------------------------------
    state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -562,7 +582,137 @@ begin
       end case;
    end process;
 
+   column_mux1 : process (column_switch1, 
+                 flux_quanta_reg0, flux_quanta_reg1, flux_quanta_reg2, flux_quanta_reg3, 
+                 flux_quanta_reg4, flux_quanta_reg5, flux_quanta_reg6, flux_quanta_reg7,
+                 m_prev_reg0, m_prev_reg1, m_prev_reg2, m_prev_reg3, 
+                 m_prev_reg4, m_prev_reg5, m_prev_reg6, m_prev_reg7,
+                 pid_prev_reg0, pid_prev_reg1, pid_prev_reg2, pid_prev_reg3, 
+                 pid_prev_reg4, pid_prev_reg5, pid_prev_reg6, pid_prev_reg7)
+   begin
+      col_mux1: case column_switch1 is
+         when COL0 => flux_quanta1 <= flux_quanta_reg0;
+                      m_prev       <= m_prev_reg0;
+                      pid_prev1    <= pid_prev_reg0;            
+                      
+         when COL1 => flux_quanta1 <= flux_quanta_reg1;
+                      m_prev       <= m_prev_reg1;
+                      pid_prev1    <= pid_prev_reg1;
+         
+         when COL2 => flux_quanta1 <= flux_quanta_reg2;
+                      m_prev       <= m_prev_reg2;
+                      pid_prev1    <= pid_prev_reg2;
+         
+         when COL3 => flux_quanta1 <= flux_quanta_reg3;
+                      m_prev       <= m_prev_reg3;
+                      pid_prev1    <= pid_prev_reg3;
+         
+         when COL4 => flux_quanta1 <= flux_quanta_reg4;
+                      m_prev       <= m_prev_reg4;
+                      pid_prev1    <= pid_prev_reg4;
+         
+         when COL5 => flux_quanta1 <= flux_quanta_reg5;
+                      m_prev       <= m_prev_reg5;
+                      pid_prev1    <= pid_prev_reg5;
+         
+         when COL6 => flux_quanta1 <= flux_quanta_reg6;
+                      m_prev       <= m_prev_reg6;
+                      pid_prev1    <= pid_prev_reg6;
+         
+         when COL7 => flux_quanta1 <= flux_quanta_reg7;
+                      m_prev       <= m_prev_reg7;
+                      pid_prev1    <= pid_prev_reg7;
+         
+         when others => flux_quanta1 <= (others => '0');
+                        m_prev       <= (others => '0');
+                        pid_prev1    <= (others => '0');
+         
+      end case;
+   end process;
+
    --------------------------------------------------------
+   register_result_a: process(clk_i, rst_i)
+   begin    
+      if(rst_i = '1') then         
+         res_a_reg0 <= (others => '0'); 
+         res_a_reg1 <= (others => '0'); 
+         res_a_reg2 <= (others => '0'); 
+         res_a_reg3 <= (others => '0'); 
+         res_a_reg4 <= (others => '0'); 
+         res_a_reg5 <= (others => '0'); 
+         res_a_reg6 <= (others => '0'); 
+         res_a_reg7 <= (others => '0'); 
+      elsif(clk_i'event and clk_i = '1') then         
+         if(res_a_en0 = '1') then
+            res_a_reg0 <= sub_res1; 
+         end if;
+         if(res_a_en1 = '1') then
+            res_a_reg1 <= sub_res1; 
+         end if;
+         if(res_a_en2 = '1') then
+            res_a_reg2 <= sub_res1; 
+         end if;
+         if(res_a_en3 = '1') then
+            res_a_reg3 <= sub_res1; 
+         end if;
+         if(res_a_en4 = '1') then
+            res_a_reg4 <= sub_res1; 
+         end if;
+         if(res_a_en5 = '1') then
+            res_a_reg5 <= sub_res1; 
+         end if;
+         if(res_a_en6 = '1') then
+            res_a_reg6 <= sub_res1; 
+         end if;
+         if(res_a_en7 = '1') then
+            res_a_reg7 <= sub_res1; 
+         end if;
+      end if;
+   end process;
+
+   ----------------------------------------------------------------------------
+   -- Clamping is now implemented in coadd_manager_data_path, so it has been removed from here.
+   m_pres0 <=
+      m_prev_reg0 - 1 when (signed(res_a_reg0) < signed(FSFB_MIN)) and (flux_quanta_reg0 /= ZERO_QUANTA) else
+      m_prev_reg0 + 1 when (signed(res_a_reg0) > signed(FSFB_MAX)) and (flux_quanta_reg0 /= ZERO_QUANTA) else
+      m_prev_reg0;
+
+   m_pres1 <=
+      m_prev_reg1 - 1 when (signed(res_a_reg1) < signed(FSFB_MIN)) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
+      m_prev_reg1 + 1 when (signed(res_a_reg1) > signed(FSFB_MAX)) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
+      m_prev_reg1;
+
+   m_pres2 <=
+      m_prev_reg2 - 1 when (signed(res_a_reg2) < signed(FSFB_MIN)) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
+      m_prev_reg2 + 1 when (signed(res_a_reg2) > signed(FSFB_MAX)) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
+      m_prev_reg2;
+
+   m_pres3 <=
+      m_prev_reg3 - 1 when (signed(res_a_reg3) < signed(FSFB_MIN)) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
+      m_prev_reg3 + 1 when (signed(res_a_reg3) > signed(FSFB_MAX)) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
+      m_prev_reg3;
+
+   m_pres4 <=
+      m_prev_reg4 - 1 when (signed(res_a_reg4) < signed(FSFB_MIN)) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
+      m_prev_reg4 + 1 when (signed(res_a_reg4) > signed(FSFB_MAX)) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
+      m_prev_reg4;
+
+   m_pres5 <=
+      m_prev_reg5 - 1 when (signed(res_a_reg5) < signed(FSFB_MIN)) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
+      m_prev_reg5 + 1 when (signed(res_a_reg5) > signed(FSFB_MAX)) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
+      m_prev_reg5;
+
+   m_pres6 <=
+      m_prev_reg6 - 1 when (signed(res_a_reg6) < signed(FSFB_MIN)) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
+      m_prev_reg6 + 1 when (signed(res_a_reg6) > signed(FSFB_MAX)) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
+      m_prev_reg6;
+
+   m_pres7 <=
+      m_prev_reg7 - 1 when (signed(res_a_reg7) < signed(FSFB_MIN)) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
+      m_prev_reg7 + 1 when (signed(res_a_reg7) > signed(FSFB_MAX)) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
+      m_prev_reg7;
+      
+   ---------------------------------------------
    m_regs: process(clk_i, rst_i)
    begin
       if rst_i = '1' then
@@ -576,8 +726,10 @@ begin
          m_pres_reg7 <= (others => '0');    
          
       elsif (clk_i'event and clk_i = '1') then   
+         ----------------------------------------------------------------------------
          -- When flux jumping is disabled or we are not in lock-mode, we set all the m_pres values back to 0
          -- This is what they should be if we were to re-enable the flux jumping
+         ----------------------------------------------------------------------------
          
          if(m_pres_en0 = '1') then
             ----------------------------------------------------------------------------
@@ -650,7 +802,57 @@ begin
       end if;   
    end process;      
 
-   --------------------------------------------------------
+   column_mux2 : process (column_switch2,
+                 flux_quanta_reg0, flux_quanta_reg1, flux_quanta_reg2, flux_quanta_reg3, 
+                 flux_quanta_reg4, flux_quanta_reg5, flux_quanta_reg6, flux_quanta_reg7,
+                 m_pres_reg0, m_pres_reg1, m_pres_reg2, m_pres_reg3, 
+                 m_pres_reg4, m_pres_reg5, m_pres_reg6, m_pres_reg7,
+                 pid_prev_reg0, pid_prev_reg1, pid_prev_reg2, pid_prev_reg3, 
+                 pid_prev_reg4, pid_prev_reg5, pid_prev_reg6, pid_prev_reg7)
+   begin
+      col_mux2: case column_switch2 is
+         when COL0 => flux_quanta2 <= flux_quanta_reg0;
+                      m_pres       <= m_pres_reg0;
+                      pid_prev2    <= pid_prev_reg0;
+                      
+         when COL1 => flux_quanta2 <= flux_quanta_reg1;
+                      m_pres       <= m_pres_reg1;
+                      pid_prev2    <= pid_prev_reg1;
+                              
+         when COL2 => flux_quanta2 <= flux_quanta_reg2;
+                      m_pres       <= m_pres_reg2;
+                      pid_prev2    <= pid_prev_reg2;
+                              
+         when COL3 => flux_quanta2 <= flux_quanta_reg3;
+                      m_pres       <= m_pres_reg3;
+                      pid_prev2    <= pid_prev_reg3;
+                               
+         when COL4 => flux_quanta2 <= flux_quanta_reg4;
+                      m_pres       <= m_pres_reg4;
+                      pid_prev2    <= pid_prev_reg4;
+                              
+         when COL5 => flux_quanta2 <= flux_quanta_reg5;
+                      m_pres       <= m_pres_reg5;
+                      pid_prev2    <= pid_prev_reg5;
+                              
+         when COL6 => flux_quanta2 <= flux_quanta_reg6;
+                      m_pres       <= m_pres_reg6;
+                      pid_prev2    <= pid_prev_reg6;
+                              
+         when COL7 => flux_quanta2 <= flux_quanta_reg7;
+                      m_pres       <= m_pres_reg7;
+                      pid_prev2    <= pid_prev_reg7;     
+                      
+         when others => flux_quanta2 <= (others => '0');
+                        m_pres       <= (others => '0');
+                        pid_prev2    <= (others => '0');          
+      end case;
+   end process;
+   
+   -------------------------------
+   -- More Arithmetic
+   -------------------------------
+   --------------------------------------------- 
    -- Clamping is now implemented in coadd_manager_data_path, so it has been removed from here.
    res_b0 <= sub_res2;   
    res_b1 <= sub_res2;
@@ -660,46 +862,6 @@ begin
    res_b5 <= sub_res2;
    res_b6 <= sub_res2;
    res_b7 <= sub_res2;
-
-   --------------------------------------------------------
-   register_result_a: process(clk_i, rst_i)
-   begin    
-      if(rst_i = '1') then         
-         res_a_reg0 <= (others => '0'); 
-         res_a_reg1 <= (others => '0'); 
-         res_a_reg2 <= (others => '0'); 
-         res_a_reg3 <= (others => '0'); 
-         res_a_reg4 <= (others => '0'); 
-         res_a_reg5 <= (others => '0'); 
-         res_a_reg6 <= (others => '0'); 
-         res_a_reg7 <= (others => '0'); 
-      elsif(clk_i'event and clk_i = '1') then         
-         if(res_a_en0 = '1') then
-            res_a_reg0 <= sub_res1; 
-         end if;
-         if(res_a_en1 = '1') then
-            res_a_reg1 <= sub_res1; 
-         end if;
-         if(res_a_en2 = '1') then
-            res_a_reg2 <= sub_res1; 
-         end if;
-         if(res_a_en3 = '1') then
-            res_a_reg3 <= sub_res1; 
-         end if;
-         if(res_a_en4 = '1') then
-            res_a_reg4 <= sub_res1; 
-         end if;
-         if(res_a_en5 = '1') then
-            res_a_reg5 <= sub_res1; 
-         end if;
-         if(res_a_en6 = '1') then
-            res_a_reg6 <= sub_res1; 
-         end if;
-         if(res_a_en7 = '1') then
-            res_a_reg7 <= sub_res1; 
-         end if;
-      end if;
-   end process;
 
    --------------------------------------------------------
    register_result_b: process(clk_i, rst_i)
@@ -740,21 +902,7 @@ begin
          end if;                  
       end if;
    end process;
-
-   --------------------------------------------------------
-   rdy_reg: process (clk_i, rst_i)
-   begin
-      if rst_i = '1' then
-         fsfb_ctrl_dat_rdy0 <= '0';      
-      elsif clk_i'event and clk_i = '1' then
-         if(rdy_clr = '1') then
-            fsfb_ctrl_dat_rdy0 <= '0';
-         else   
-            fsfb_ctrl_dat_rdy0 <= fsfb_ctrl_dat_rdy0_i;
-         end if;   
-      end if;
-   end process; -- rdy_reg   
-      
+   
    -------------------------------
    -- Registered inputs and outputs:
    -------------------------------
@@ -908,117 +1056,6 @@ begin
       end if; 
    end process;   
       
-   column_mux1 : process (column_switch1, 
-                 flux_quanta_reg0, flux_quanta_reg1, flux_quanta_reg2, flux_quanta_reg3, 
-                 flux_quanta_reg4, flux_quanta_reg5, flux_quanta_reg6, flux_quanta_reg7,
-                 m_prev_reg0, m_prev_reg1, m_prev_reg2, m_prev_reg3, 
-                 m_prev_reg4, m_prev_reg5, m_prev_reg6, m_prev_reg7,
-                 pid_prev_reg0, pid_prev_reg1, pid_prev_reg2, pid_prev_reg3, 
-                 pid_prev_reg4, pid_prev_reg5, pid_prev_reg6, pid_prev_reg7)
-   begin
-      col_mux1: case column_switch1 is
-         when COL0 => flux_quanta1 <= flux_quanta_reg0;
-                      m_prev       <= m_prev_reg0;
-                      pid_prev1    <= pid_prev_reg0;            
-                      
-         when COL1 => flux_quanta1 <= flux_quanta_reg1;
-                      m_prev       <= m_prev_reg1;
-                      pid_prev1    <= pid_prev_reg1;
-         
-         when COL2 => flux_quanta1 <= flux_quanta_reg2;
-                      m_prev       <= m_prev_reg2;
-                      pid_prev1    <= pid_prev_reg2;
-         
-         when COL3 => flux_quanta1 <= flux_quanta_reg3;
-                      m_prev       <= m_prev_reg3;
-                      pid_prev1    <= pid_prev_reg3;
-         
-         when COL4 => flux_quanta1 <= flux_quanta_reg4;
-                      m_prev       <= m_prev_reg4;
-                      pid_prev1    <= pid_prev_reg4;
-         
-         when COL5 => flux_quanta1 <= flux_quanta_reg5;
-                      m_prev       <= m_prev_reg5;
-                      pid_prev1    <= pid_prev_reg5;
-         
-         when COL6 => flux_quanta1 <= flux_quanta_reg6;
-                      m_prev       <= m_prev_reg6;
-                      pid_prev1    <= pid_prev_reg6;
-         
-         when COL7 => flux_quanta1 <= flux_quanta_reg7;
-                      m_prev       <= m_prev_reg7;
-                      pid_prev1    <= pid_prev_reg7;
-         
-         when others => flux_quanta1 <= (others => '0');
-                        m_prev       <= (others => '0');
-                        pid_prev1    <= (others => '0');
-         
-      end case;
-   end process;
-
-   column_mux2 : process (column_switch2,
-                 flux_quanta_reg0, flux_quanta_reg1, flux_quanta_reg2, flux_quanta_reg3, 
-                 flux_quanta_reg4, flux_quanta_reg5, flux_quanta_reg6, flux_quanta_reg7,
-                 m_pres_reg0, m_pres_reg1, m_pres_reg2, m_pres_reg3, 
-                 m_pres_reg4, m_pres_reg5, m_pres_reg6, m_pres_reg7,
-                 pid_prev_reg0, pid_prev_reg1, pid_prev_reg2, pid_prev_reg3, 
-                 pid_prev_reg4, pid_prev_reg5, pid_prev_reg6, pid_prev_reg7)
-   begin
-      col_mux2: case column_switch2 is
-         when COL0 => flux_quanta2 <= flux_quanta_reg0;
-                      m_pres       <= m_pres_reg0;
-                      pid_prev2    <= pid_prev_reg0;
-                      
-         when COL1 => flux_quanta2 <= flux_quanta_reg1;
-                      m_pres       <= m_pres_reg1;
-                      pid_prev2    <= pid_prev_reg1;
-                              
-         when COL2 => flux_quanta2 <= flux_quanta_reg2;
-                      m_pres       <= m_pres_reg2;
-                      pid_prev2    <= pid_prev_reg2;
-                              
-         when COL3 => flux_quanta2 <= flux_quanta_reg3;
-                      m_pres       <= m_pres_reg3;
-                      pid_prev2    <= pid_prev_reg3;
-                               
-         when COL4 => flux_quanta2 <= flux_quanta_reg4;
-                      m_pres       <= m_pres_reg4;
-                      pid_prev2    <= pid_prev_reg4;
-                              
-         when COL5 => flux_quanta2 <= flux_quanta_reg5;
-                      m_pres       <= m_pres_reg5;
-                      pid_prev2    <= pid_prev_reg5;
-                              
-         when COL6 => flux_quanta2 <= flux_quanta_reg6;
-                      m_pres       <= m_pres_reg6;
-                      pid_prev2    <= pid_prev_reg6;
-                              
-         when COL7 => flux_quanta2 <= flux_quanta_reg7;
-                      m_pres       <= m_pres_reg7;
-                      pid_prev2    <= pid_prev_reg7;     
-                      
-         when others => flux_quanta2 <= (others => '0');
-                        m_pres       <= (others => '0');
-                        pid_prev2    <= (others => '0');          
-      end case;
-   end process;
-   
-   num_flux_quanta_pres0_o <= m_pres_reg0;
-   num_flux_quanta_pres1_o <= m_pres_reg1;
-   num_flux_quanta_pres2_o <= m_pres_reg2;
-   num_flux_quanta_pres3_o <= m_pres_reg3;
-   num_flux_quanta_pres4_o <= m_pres_reg4;
-   num_flux_quanta_pres5_o <= m_pres_reg5;
-   num_flux_quanta_pres6_o <= m_pres_reg6;
-   num_flux_quanta_pres7_o <= m_pres_reg7;
-   num_flux_quanta_pres_rdy_o <= m_pres_rdy;   
-
-   ----------------------------------------------------------------------------
-   -- start_corr has been simplified so that it only looks for an assertion from channel 0.  This will ease timing.  
-   -- All the other channels are asserted at the same time.
-   ----------------------------------------------------------------------------
-   start_corr <= fsfb_ctrl_dat_rdy0;   
-  
    ----------------------------------------------------------------------------
    -- FSFB Outputs:
    -- This is where the by-passing occurs if either flux_jumping_en_i = 0 or fsfb_ctrl_lock_en0_i = 0
@@ -1049,49 +1086,16 @@ begin
       pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en7_i = '0' else
       res_b_reg7(DAC_DAT_WIDTH-1 downto 0);        
    
+   num_flux_quanta_pres0_o <= m_pres_reg0;
+   num_flux_quanta_pres1_o <= m_pres_reg1;
+   num_flux_quanta_pres2_o <= m_pres_reg2;
+   num_flux_quanta_pres3_o <= m_pres_reg3;
+   num_flux_quanta_pres4_o <= m_pres_reg4;
+   num_flux_quanta_pres5_o <= m_pres_reg5;
+   num_flux_quanta_pres6_o <= m_pres_reg6;
+   num_flux_quanta_pres7_o <= m_pres_reg7;
+
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
-
-   ----------------------------------------------------------------------------
-   -- Clamping is now implemented in coadd_manager_data_path, so it has been removed from here.
-   ----------------------------------------------------------------------------
-   m_pres0 <=
-      m_prev_reg0 - 1 when (signed(res_a_reg0) < signed(FSFB_MIN)) and (flux_quanta_reg0 /= ZERO_QUANTA) else
-      m_prev_reg0 + 1 when (signed(res_a_reg0) > signed(FSFB_MAX)) and (flux_quanta_reg0 /= ZERO_QUANTA) else
-      m_prev_reg0;
-
-   m_pres1 <=
-      m_prev_reg1 - 1 when (signed(res_a_reg1) < signed(FSFB_MIN)) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
-      m_prev_reg1 + 1 when (signed(res_a_reg1) > signed(FSFB_MAX)) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
-      m_prev_reg1;
-
-   m_pres2 <=
-      m_prev_reg2 - 1 when (signed(res_a_reg2) < signed(FSFB_MIN)) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
-      m_prev_reg2 + 1 when (signed(res_a_reg2) > signed(FSFB_MAX)) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
-      m_prev_reg2;
-
-   m_pres3 <=
-      m_prev_reg3 - 1 when (signed(res_a_reg3) < signed(FSFB_MIN)) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
-      m_prev_reg3 + 1 when (signed(res_a_reg3) > signed(FSFB_MAX)) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
-      m_prev_reg3;
-
-   m_pres4 <=
-      m_prev_reg4 - 1 when (signed(res_a_reg4) < signed(FSFB_MIN)) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
-      m_prev_reg4 + 1 when (signed(res_a_reg4) > signed(FSFB_MAX)) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
-      m_prev_reg4;
-
-   m_pres5 <=
-      m_prev_reg5 - 1 when (signed(res_a_reg5) < signed(FSFB_MIN)) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
-      m_prev_reg5 + 1 when (signed(res_a_reg5) > signed(FSFB_MAX)) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
-      m_prev_reg5;
-
-   m_pres6 <=
-      m_prev_reg6 - 1 when (signed(res_a_reg6) < signed(FSFB_MIN)) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
-      m_prev_reg6 + 1 when (signed(res_a_reg6) > signed(FSFB_MAX)) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
-      m_prev_reg6;
-
-   m_pres7 <=
-      m_prev_reg7 - 1 when (signed(res_a_reg7) < signed(FSFB_MIN)) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
-      m_prev_reg7 + 1 when (signed(res_a_reg7) > signed(FSFB_MAX)) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
-      m_prev_reg7;
+   num_flux_quanta_pres_rdy_o <= m_pres_rdy;   
   
 end rtl;
