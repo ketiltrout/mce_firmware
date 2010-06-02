@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.13 2010/01/20 22:00:06 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.14 2010/05/13 19:23:24 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.14  2010/05/13 19:23:24  mandana
+-- added support for row-specific flux_fb values by adding:
+-- ROW_ADDR_WIDTH constant
+-- row_switch_i portto bc_dac_ctrl interface
+--
 -- Revision 1.13  2010/01/20 22:00:06  mandana
 -- added hardware-dependent constants here
 -- added array-type defs for the new firmware structure
@@ -143,6 +148,7 @@ component bc_dac_ctrl
       row_switch_i      : in std_logic;
       update_bias_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;
+      restart_frame_1row_prev_i : in std_logic;
       
       -- Global Signals      
       clk_i             : in std_logic;
