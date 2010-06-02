@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_pack.vhd,v 1.7 2010/01/20 23:11:53 mandana Exp $
+-- $Id: bc_dac_ctrl_pack.vhd,v 1.8 2010/05/14 22:50:04 mandana Exp $
 --
 
 -- Project:       SCUBA2
@@ -31,6 +31,10 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_pack.vhd,v $
+-- Revision 1.8  2010/05/14 22:50:04  mandana
+-- parametrized ram interfaces
+-- adds interface ports for mux_flux_fb_data, row_switch, row_addr
+--
 -- Revision 1.7  2010/01/20 23:11:53  mandana
 -- moved hardware-dependent constants to bias_card_pack
 -- added low-noise bias interface
@@ -91,7 +95,7 @@ component bc_dac_ctrl_core
       row_addr_o        : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
       flux_fb_addr_o    : out std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
       flux_fb_data_i    : in flux_fb_dac_array; 
-      flux_fb_changed_i : in std_logic;
+      flux_fb_changed_i : in std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       ln_bias_addr_o    : out std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_i    : in std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
       ln_bias_changed_i : in std_logic;
@@ -103,6 +107,7 @@ component bc_dac_ctrl_core
       row_switch_i      : in std_logic;
       update_bias_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;
+      restart_frame_1row_prev_i : in std_logic;
       
       -- Global Signals      
       clk_i             : in std_logic;
@@ -118,7 +123,7 @@ component bc_dac_ctrl_wbs is
       -- ac_dac_ctrl interface:
       flux_fb_addr_i    : in std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
       flux_fb_data_o    : out flux_fb_dac_array; 
-      flux_fb_changed_o : out std_logic;
+      flux_fb_changed_o : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);     
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0); 
       ln_bias_changed_o : out std_logic;
