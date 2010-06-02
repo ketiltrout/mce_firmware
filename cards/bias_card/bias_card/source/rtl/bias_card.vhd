@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.38 2010/01/28 01:14:26 mandana Exp $
+-- $Id: bias_card.vhd,v 1.39 2010/05/13 23:58:36 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.39  2010/05/13 23:58:36  mandana
+-- 5.0.3 adds support for fb_col0 to fb_col31 and enbl_mux commands to allow fast switching of sq2fb values
+--
 -- Revision 1.38  2010/01/28 01:14:26  mandana
 -- rev. 5.0.2
 -- removed eeprom interface from top-level as there is none on bias card!
@@ -240,7 +243,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000003";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000004";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -289,6 +292,7 @@ signal fpga_thermo_err   : std_logic;
 -- frame_timing interface
 signal update_bias : std_logic;
 signal restart_frame_aligned : std_logic;
+signal restart_frame_1row_prev: std_logic;
 signal row_switch  : std_logic;
 
 signal debug       : std_logic_vector (31 downto 0);
@@ -469,6 +473,7 @@ begin
       row_switch_i               => row_switch,
       update_bias_i              => update_bias,
       restart_frame_aligned_i    => restart_frame_aligned,
+      restart_frame_1row_prev_i  => restart_frame_1row_prev,
       
       -- Global Signals
       clk_i                      => clk,
@@ -481,7 +486,7 @@ begin
    port map(
       dac_dat_en_o               => open,
       adc_coadd_en_o             => open,
-      restart_frame_1row_prev_o  => open,
+      restart_frame_1row_prev_o  => restart_frame_1row_prev,
       restart_frame_aligned_o    => restart_frame_aligned,
       restart_frame_1row_post_o  => open,
       initialize_window_o        => open,
