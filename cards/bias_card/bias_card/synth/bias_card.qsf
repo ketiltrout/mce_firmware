@@ -640,7 +640,6 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dis
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/bc_pll.vhd
-set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/ram_16x32.vhd
 set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/ram_16x64.vhd
 set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/ram_16x16.vhd
 set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd
