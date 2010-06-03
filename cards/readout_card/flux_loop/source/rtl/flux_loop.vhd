@@ -1078,6 +1078,7 @@ begin  -- struct
    port map (
       -- fsfb_calc interface
       flux_jumping_en_i          => flux_jumping_en,
+      initialize_window_i        => initialize_window_i,
 
       fsfb_ctrl_lock_en0_i        => fsfb_ctrl_lock_en0,
       fsfb_ctrl_lock_en1_i        => fsfb_ctrl_lock_en1,
