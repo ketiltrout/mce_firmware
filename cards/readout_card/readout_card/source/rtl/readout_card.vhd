@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.90  2010/04/08 20:41:37  mandana
+-- revision 5.0.a with added FLTR_TYPE and I_CLAMP_VAL commands
+--
 -- Revision 1.89  2010/03/12 20:54:23  bburger
 -- BB: re-introduced a generic that had gone missing, and upped the revision to v0500000A
 --
@@ -204,7 +207,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000A";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000B";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
