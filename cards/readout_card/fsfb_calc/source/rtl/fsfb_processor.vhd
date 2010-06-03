@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.13  2010/03/12 20:51:35  bburger
+-- BB: changed lock_dat_left to lock_dat_lsb
+--
 -- Revision 1.12  2008/10/03 00:35:19  mandana
 -- BB: Removed the z_dat_i port in fsfb_processor.vhd and fsfb_calc_pack.vhd to the fsfb_proc_pidz block, in an effort to make it clearer within that block that the z-term is always = 0.
 --
@@ -194,13 +197,13 @@ architecture rtl of fsfb_processor is
 begin
 
    -- Generate enable signals for different servo mode settings
-   -- 00:  Default is constant mode
+   -- 00:  Constant (Default)
    -- 01:  Constant
-   const_mode_en <= not(servo_mode_i(1));-- and servo_mode_i(0)); 
+   const_mode_en <= '1' when (servo_mode_i = CONSTANT_MODE0 or servo_mode_i = CONSTANT_MODE1) else '0'; 
    -- 10:  Ramp (Sawtooth)
-   ramp_mode_en  <= servo_mode_i(1) and not(servo_mode_i(0));
+   ramp_mode_en  <= '1' when (servo_mode_i = RAMP_MODE) else '0';
    -- 11:  Lock 
-   lock_mode_en  <= servo_mode_i(1) and servo_mode_i(0);
+   lock_mode_en  <= '1' when (servo_mode_i = LOCK_MODE) else '0';
    
    -- Output the mode indicator to fsfb_ctrl downstream block
    fsfb_proc_lock_en_o <= lock_mode_en;
@@ -266,15 +269,15 @@ begin
       update_dat : case servo_mode_i is
          
          -- constant mode setting
-         when "00"   => 
+         when CONSTANT_MODE0 => 
             fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- constant mode setting
-         when "01"   => 
+         when CONSTANT_MODE1 => 
             fsfb_proc_dat_o <= sxt(const_dat_ltch, fsfb_proc_dat_o'length);
          
          -- ramp mode setting
-         when "10"   => 
+         when RAMP_MODE => 
             fsfb_proc_dat_o <= sxt(ramp_dat_ltch, fsfb_proc_dat_o'length);
         
          -- lock mode setting      
@@ -283,7 +286,7 @@ begin
          
          -- Bit 39 always gets zero as it is ignored in lock mode.  Therefore, the
          -- magnitude only covers bit 38 down to 0.
-         when "11"   => 
+         when LOCK_MODE => 
             -- lock_dat_left = 0
             -- FSFB_QUEUE_DATA_WIDTH = 39
             fsfb_proc_dat_o      <= '0' & pidz_sum(FSFB_QUEUE_DATA_WIDTH+lock_dat_lsb-1 downto lock_dat_lsb);
