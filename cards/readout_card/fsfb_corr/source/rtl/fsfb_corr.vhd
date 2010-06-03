@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.17 2008/10/03 00:36:35 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.19 2010/06/02 23:37:18 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.19  2010/06/02 23:37:18  bburger
+-- BB: moved segments of code around to make the data flow through this block much easier to follow.  It now flows from top to bottom.
+--
 -- Revision 1.17  2008/10/03 00:36:35  mandana
 -- BB:  Removed the sticky bit in fsfb_corr.vhd, which was enabled when flux-jumping was turned on. Because the feedback is signed, the sticky bit would usually reflect the value of the 14th bit, except in situations when the number of flux quanta to jump was greater than 1 (i.e. cosmic rays, IV-curves, etc). Flux jumps are made at a maximum rate of one per frame period, so that if the First-Stage Feedback increased past the 13th bit, it would not be reflected in the feedback applied. Now it is.
 --
@@ -358,41 +361,6 @@ signal next_state    : states;
 
 begin
 
-   -------------------------------
-   -- Arithmetic
-   -------------------------------
-   mult1 : fsfb_corr_multiplier
-      port map (
-         dataa  => flux_quanta1,
-         datab  => m_prev,
-         result => mult_res1
-      );
-   
-   mult_res1_xtnd <= sxt(mult_res1, SUB_WIDTH);
-   
-   sub1 : fsfb_corr_subtractor
-      port map (
-         dataa  => pid_prev1,
-         datab  => mult_res1_xtnd,
-         result => sub_res1
-      );
-
-   mult2 : fsfb_corr_multiplier
-      port map (
-         dataa  => flux_quanta2,
-         datab  => m_pres,
-         result => mult_res2
-      );   
-   mult_res2_xtnd <= sxt(mult_res2, SUB_WIDTH);   
-   
-   sub2 : fsfb_corr_subtractor
-      port map (
-         dataa  => pid_prev2,
-         datab  => mult_res2_xtnd,
-         result => sub_res2
-      );
-              
-
    ----------------------------------------------------------------------------
    -- start_corr has been simplified so that it only looks for an assertion from channel 0.  This will ease timing.  
    -- All the other channels are asserted at the same time.
@@ -630,6 +598,25 @@ begin
       end case;
    end process;
 
+   -------------------------------
+   -- Arithmetic
+   -------------------------------
+   mult1 : fsfb_corr_multiplier
+      port map (
+         dataa  => flux_quanta1,
+         datab  => m_prev,
+         result => mult_res1
+      );
+   
+   mult_res1_xtnd <= sxt(mult_res1, SUB_WIDTH);
+   
+   sub1 : fsfb_corr_subtractor
+      port map (
+         dataa  => pid_prev1,
+         datab  => mult_res1_xtnd,
+         result => sub_res1
+      );
+
    --------------------------------------------------------
    register_result_a: process(clk_i, rst_i)
    begin    
@@ -672,6 +659,7 @@ begin
 
    ----------------------------------------------------------------------------
    -- Clamping is now implemented in coadd_manager_data_path, so it has been removed from here.
+   -- The flux_quanta_reg0 /= ZERO_QUANTA condition is to avoid winding up the flux counter if the flx_quanta values are zero.
    m_pres0 <=
       m_prev_reg0 - 1 when (signed(res_a_reg0) < signed(FSFB_MIN)) and (flux_quanta_reg0 /= ZERO_QUANTA) else
       m_prev_reg0 + 1 when (signed(res_a_reg0) > signed(FSFB_MAX)) and (flux_quanta_reg0 /= ZERO_QUANTA) else
@@ -852,6 +840,22 @@ begin
    -------------------------------
    -- More Arithmetic
    -------------------------------
+   mult2 : fsfb_corr_multiplier
+      port map (
+         dataa  => flux_quanta2,
+         datab  => m_pres,
+         result => mult_res2
+      );
+   
+   mult_res2_xtnd <= sxt(mult_res2, SUB_WIDTH);   
+   
+   sub2 : fsfb_corr_subtractor
+      port map (
+         dataa  => pid_prev2,
+         datab  => mult_res2_xtnd,
+         result => sub_res2
+      );
+              
    --------------------------------------------- 
    -- Clamping is now implemented in coadd_manager_data_path, so it has been removed from here.
    res_b0 <= sub_res2;   
