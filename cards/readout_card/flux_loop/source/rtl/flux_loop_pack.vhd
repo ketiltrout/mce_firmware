@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.20  2010/03/12 20:39:50  bburger
+-- BB: added i_clamp_val interface signals
+--
 -- Revision 1.19.2.1  2009/11/13 19:33:17  bburger
 -- BB: Added i-term clamp interface signals
 --
@@ -129,7 +132,11 @@ package flux_loop_pack is
    constant PIDZ_MAX               : integer := (2**(PIDZ_DATA_WIDTH-1))-1;
    constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
    
-   constant SERVO_MODE_SEL_WIDTH   : integer := WB_DATA_WIDTH-30;     -- data width of servo mode selection
+   constant SERVO_MODE_SEL_WIDTH   : integer := 2;     -- data width of servo mode selection:  00,01=constant; 10=ramp; 11=servo.
+   constant CONSTANT_MODE0         : std_logic_vector(1 downto 0) := "00";
+   constant CONSTANT_MODE1         : std_logic_vector(1 downto 0) := "01";
+   constant RAMP_MODE              : std_logic_vector(1 downto 0) := "10";
+   constant LOCK_MODE              : std_logic_vector(1 downto 0) := "11";
 
    constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH;     -- data width of constant value
    constant RAMP_STEP_WIDTH        : integer := CONST_VAL_WIDTH;     -- data width of ramp step size
@@ -269,6 +276,7 @@ package flux_loop_pack is
    port (
       -- fsfb_calc interface
       flux_jumping_en_i          : in std_logic;
+      initialize_window_i        : in std_logic;
 
       fsfb_ctrl_lock_en0_i       : in std_logic;
       fsfb_ctrl_lock_en1_i       : in std_logic;
