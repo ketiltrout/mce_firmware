@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.19 2010/06/02 23:37:18 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.20 2010/06/03 00:15:21 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.20  2010/06/03 00:15:21  bburger
+-- BB: For some reason, the changes for the last committal were not complete!
+--
 -- Revision 1.19  2010/06/02 23:37:18  bburger
 -- BB: moved segments of code around to make the data flow through this block much easier to follow.  It now flows from top to bottom.
 --
@@ -140,6 +143,7 @@ entity fsfb_corr is
    (
       -- fsfb_calc interface
       flux_jumping_en_i          : in std_logic;
+      initialize_window_i        : in std_logic;
       
       fsfb_ctrl_lock_en0_i       : in std_logic;
       fsfb_ctrl_lock_en1_i       : in std_logic;
@@ -723,65 +727,66 @@ begin
             ----------------------------------------------------------------------------
             -- I don't really understand why the "pid_prev_reg0 /= ZERO_PID" condition was in here..
             -- When the pid wraps, it is not garunteed to hit zero, so there was no point in having it there for that.
-            -- When things start out, the pid will initially be zero, so then the m_pres automatically gets set to zero
-            -- So this condition basically holds the m_pres_reg value at zero as long as flux_jumping is disabled, and the pid loop is zero -- whichever is longer.
-            -- Was this necessary?  I don't think so.  
+            -- When things start out, the pid will initially be zero, so then the m_pres automatically gets set to zero.
+            -- Also, whe flx_lp_init is commanded, it sets the pid_prev_reg0 = ZERO_PID, so in this case, the m_pres_reg0 gets reset too.
+            -- However, this is dangerous because if the pid_prev_reg ever randomly hits zero with flux-jumping enabled, then the flux-jump counter gets cleared.
+            -- This has been fixed by running initialize_window_i to this block instead.
             ----------------------------------------------------------------------------
             -- Flux jumping is only enabled when flux_jumping_en_i = '1' and fsfb_ctrl_lock_en0_i = '1'.
             -- Flux jumping when fsfb_ctrl_lock_en0_i = '0' is unnecessary, and causes different DAC values to be applied for fb_const values > FSFB_MAX or < FSFB_MIN to pixels that have flx_quanta=0, vs. those that don't.
             -- This is what causes spikes in the raw data -- the abrupt changes in the DAC values applied for the same value of fb_const.
             -- Thus flux-jumping is disabled when fsfb_ctrl_lock_en0_i = '0' (i.e. servo_mode=0,1,2).
             ----------------------------------------------------------------------------
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en0_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en0_i = '1' and initialize_window_i = '0') then
                m_pres_reg0 <= m_pres0; 
             else
                m_pres_reg0 <= (others => '0');                
             end if;
          end if;         
          if(m_pres_en1 = '1') then
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en1_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en1_i = '1' and initialize_window_i = '0') then
                m_pres_reg1 <= m_pres1; 
             else
                m_pres_reg1 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en2 = '1') then
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en2_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en2_i = '1' and initialize_window_i = '0') then
                m_pres_reg2 <= m_pres2; 
             else
                m_pres_reg2 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en3 = '1') then
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en3_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en3_i = '1' and initialize_window_i = '0') then
                m_pres_reg3 <= m_pres3; 
             else
                m_pres_reg3 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en4 = '1') then
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en4_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en4_i = '1' and initialize_window_i = '0') then
                m_pres_reg4 <= m_pres4; 
             else
                m_pres_reg4 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en5 = '1') then
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en5_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en5_i = '1' and initialize_window_i = '0') then
                m_pres_reg5 <= m_pres5; 
             else
                m_pres_reg5 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en6 = '1') then
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en6_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en6_i = '1' and initialize_window_i = '0') then
                m_pres_reg6 <= m_pres6; 
             else
                m_pres_reg6 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en7 = '1') then
-            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en7_i = '1') then
+            if(flux_jumping_en_i = '1' and fsfb_ctrl_lock_en7_i = '1' and initialize_window_i = '0') then
                m_pres_reg7 <= m_pres7; 
             else
                m_pres_reg7 <= (others => '0'); 
@@ -1066,28 +1071,28 @@ begin
    -- Bypassing is done to prevent jumps in the feedback if flx_quanta is zero/non-zero, and if fsfb (ramp/constant mode) is greater than FSFB_MAX or smaller than FSFB_MIN
    ----------------------------------------------------------------------------
    fsfb_ctrl_dat0_o <=
-      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en0_i = '0' else -- Bypass
-      res_b_reg0(DAC_DAT_WIDTH-1 downto 0);                                                                   -- Flux-jumping path
+      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en0_i = '0' or initialize_window_i = '1' else -- Bypass
+      res_b_reg0(DAC_DAT_WIDTH-1 downto 0);                                                                                                -- Flux-jumping path
    fsfb_ctrl_dat1_o <=
-      pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en1_i = '0' else
+      pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en1_i = '0' or initialize_window_i = '1' else
       res_b_reg1(DAC_DAT_WIDTH-1 downto 0);           
    fsfb_ctrl_dat2_o <=
-      pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en2_i = '0' else
+      pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en2_i = '0' or initialize_window_i = '1' else
       res_b_reg2(DAC_DAT_WIDTH-1 downto 0);           
    fsfb_ctrl_dat3_o <=
-      pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en3_i = '0' else
+      pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en3_i = '0' or initialize_window_i = '1' else
       res_b_reg3(DAC_DAT_WIDTH-1 downto 0);           
    fsfb_ctrl_dat4_o <=
-      pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en4_i = '0' else
+      pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en4_i = '0' or initialize_window_i = '1' else
       res_b_reg4(DAC_DAT_WIDTH-1 downto 0);           
    fsfb_ctrl_dat5_o <=
-      pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en5_i = '0' else
+      pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en5_i = '0' or initialize_window_i = '1' else
       res_b_reg5(DAC_DAT_WIDTH-1 downto 0);           
    fsfb_ctrl_dat6_o <=
-      pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en6_i = '0' else
+      pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en6_i = '0' or initialize_window_i = '1' else
       res_b_reg6(DAC_DAT_WIDTH-1 downto 0);           
    fsfb_ctrl_dat7_o <=
-      pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en7_i = '0' else
+      pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' or fsfb_ctrl_lock_en7_i = '0' or initialize_window_i = '1' else
       res_b_reg7(DAC_DAT_WIDTH-1 downto 0);        
    
    num_flux_quanta_pres0_o <= m_pres_reg0;
