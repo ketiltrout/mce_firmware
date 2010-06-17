@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.41  2010/05/14 23:09:54  bburger
+-- BB:  Fixed a bug that caused stale data to be returned in responses from cards that were not present
+--
 -- Revision 1.40  2009/01/16 01:52:44  bburger
 -- BB: Modified the card_not_present logic to work while using the 2nd LVDS line for data.
 --
@@ -231,70 +234,60 @@ architecture rtl of reply_queue_sequencer is
    signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal ac_rdy             : std_logic;
    signal ac_ack             : std_logic;
---   signal ac_clear           : std_logic;
    signal ac_pres_n          : std_logic;
 
    signal bc1_error          : std_logic_vector(2 downto 0);
    signal bc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc1_rdy            : std_logic;
    signal bc1_ack            : std_logic;
---   signal bc1_clear          : std_logic;
    signal bc1_pres_n         : std_logic;
 
    signal bc2_error          : std_logic_vector(2 downto 0);
    signal bc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc2_rdy            : std_logic;
    signal bc2_ack            : std_logic;
---   signal bc2_clear          : std_logic;
    signal bc2_pres_n         : std_logic;
 
    signal bc3_error          : std_logic_vector(2 downto 0);
    signal bc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc3_rdy            : std_logic;
    signal bc3_ack            : std_logic;
---   signal bc3_clear          : std_logic;
    signal bc3_pres_n         : std_logic;
 
    signal rc1_error          : std_logic_vector(2 downto 0);
    signal rc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc1_rdy            : std_logic;
    signal rc1_ack            : std_logic;
---   signal rc1_clear          : std_logic;
    signal rc1_pres_n         : std_logic;
 
    signal rc2_error          : std_logic_vector(2 downto 0);
    signal rc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc2_rdy            : std_logic;
    signal rc2_ack            : std_logic;
---   signal rc2_clear          : std_logic;
    signal rc2_pres_n         : std_logic;
 
    signal rc3_error          : std_logic_vector(2 downto 0);
    signal rc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc3_rdy            : std_logic;
    signal rc3_ack            : std_logic;
---   signal rc3_clear          : std_logic;
    signal rc3_pres_n         : std_logic;
 
    signal rc4_error          : std_logic_vector(2 downto 0);
    signal rc4_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc4_rdy            : std_logic;
    signal rc4_ack            : std_logic;
---   signal rc4_clear          : std_logic;
    signal rc4_pres_n         : std_logic;
 
    signal cc_error           : std_logic_vector(2 downto 0);
    signal cc_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal cc_rdy             : std_logic;
    signal cc_ack             : std_logic;
---   signal cc_clear           : std_logic;
    signal cc_pres_n          : std_logic;
 
    signal psu_error          : std_logic_vector(2 downto 0);
    signal psu_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal psu_rdy            : std_logic;
    signal psu_ack            : std_logic;
---   signal psu_clear          : std_logic;
    signal psu_pres_n         : std_logic;
 
 begin
@@ -1143,6 +1136,8 @@ begin
 
          -- All of the rdy signals may be asserted, but they are looked at in this order.
          -- They are in groups of 4 because that is how many inputs each LUT has in Stratix FPGAs
+         
+         -- Bug fix:
          -- The all_clear clause was added to fix a bug.  When a card was not present, it would return the data from the previous card quieried.
          if (all_clear = '1') then
             data_buf_a <= (others => '0');
@@ -1157,7 +1152,7 @@ begin
          end if;
 
          if (all_clear = '1') then
-            data_buf_a <= (others => '0');
+            data_buf_b <= (others => '0');
          elsif (rc1_rdy  = '1') then
             data_buf_b  <= rc1_data;
          elsif (rc2_rdy  = '1') then
@@ -1169,7 +1164,7 @@ begin
          end if;
 
          if (all_clear = '1') then
-            data_buf_a <= (others => '0');
+            data_buf_c <= (others => '0');
          elsif (cc_rdy  = '1') then
             data_buf_c  <= cc_data;
          elsif (psu_rdy  = '1') then
@@ -1207,25 +1202,15 @@ begin
 
       all_clear     <= '0';
       ac_ack        <= '0';
---      ac_clear      <= '0';
       bc1_ack       <= '0';
---      bc1_clear     <= '0';
       bc2_ack       <= '0';
---      bc2_clear     <= '0';
       bc3_ack       <= '0';
---      bc3_clear     <= '0';
       rc1_ack       <= '0';
---      rc1_clear     <= '0';
       rc2_ack       <= '0';
---      rc2_clear     <= '0';
       rc3_ack       <= '0';
---      rc3_clear     <= '0';
       rc4_ack       <= '0';
---      rc4_clear     <= '0';
       cc_ack        <= '0';
---      cc_clear      <= '0';
       psu_ack       <= '0';
---      psu_clear     <= '0';
 
       rdy_o         <= '0';
       matched_o     <= '0';
@@ -1384,16 +1369,6 @@ begin
             word_count_clr   <= '1';
             timeout_reg_clr  <= '1';
             all_clear        <= '1';
---            ac_clear         <= '1';
---            bc1_clear        <= '1';
---            bc2_clear        <= '1';
---            bc3_clear        <= '1';
---            rc1_clear        <= '1';
---            rc2_clear        <= '1';
---            rc3_clear        <= '1';
---            rc4_clear        <= '1';
---            cc_clear         <= '1';
---            psu_clear        <= '1';
 
          when others =>
             null;
