@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.24  2010/05/14 22:58:26  bburger
+-- BB:  Added dead_card_i interface signals
+--
 -- Revision 1.23  2009/09/14 19:56:35  bburger
 -- BB:  Added the FPGA_DEVICE_FAMILY generic for lvds_rx.  This wias added for automatic compilation for Stratix III FPGA's.
 --
@@ -153,11 +156,13 @@ begin
    ---------------------------------------------------------
    -- LVDS receiver
    ---------------------------------------------------------
-   -- This is a wired or function.
-   -- pres_n_o is asserted if both of the LVDS receiver lines are high by default.
-   -- If both pres_n_a and pres_n_b are both high, then we conclude that the card is not present OR not configured -- can't differentiate.
-   -- In either case, the data returned should be 
-   -- If only one is high, then version 4- firmware is installed, and commands should return an error.
+   -- Bug fix:
+   -- This is now a wired-OR function.
+   -- pres_n_o is active low, meaning that when pres_n_o = 0, the card is present and has 5.x.x firmware installed.
+   -- If pres_n_a and pres_n_b are both high, then we conclude that the card is not present OR not configured -- we can't differentiate, but they're essentially the same thing.
+   -- In either case, the data returned should be zero, and the card_not_present flag should be asserted in the packet header.
+   -- If only one is high, then version 4.x.x firmware is installed, and commands should return an error.
+   -- If both are low, then version 5.x.x firmware is installed, and the card is fully functional.
    pres_n_o <= pres_n_a and pres_n_b;
 
    -- This block receives header0, and every even-indexed data word
