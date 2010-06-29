@@ -29,123 +29,11 @@
 # Description:
 # This script allows you to make pin assignments to the clock card
 #
-# Revision history:
-#
-# $Log: cc_pin_assign_rev_B.tcl,v $
-# Revision 1.12  2010/01/13 20:08:42  bburger
-# BB:  Added a crc_error_out signal for the CRC_ERROR functionality
-#
-# Revision 1.11  2007/07/26 20:27:02  bburger
-# BB:  commented out the external trigger pin from the .tcl file, and uncommented the mictor header interface that uses the same pins.
-#
-# Revision 1.10  2007/07/25 18:52:37  bburger
-# BB:
-# - added the extend_n pin to the clk_card interface
-# - renamed box_id_ena to box_id_ena_n because the signal is active low
-# - commented out the mictor interface to use one of this pins as an external signaltap trigger
-#
-# Revision 1.9  2006/10/19 21:58:02  bburger
-# Bryce:  added nplus7vok and renamed rs232_rx/tx to rx/tx
-#
-# Revision 1.8  2006/09/06 00:21:51  bburger
-# Bryce:  Renamed some of the PSUC interface signals to match their functionality.  The CC schematic names were poor.
-#
-# Revision 1.7  2006/08/02 16:24:30  bburger
-# Bryce:  trying to fixed occasional wb bugs in issue_reply
-#
-# Revision 1.6  2006/07/12 01:59:11  bburger
-# Bryce:  Fixed some mistakes in the .tcl file
-#
-# Revision 1.5  2006/07/11 18:46:03  bburger
-# Bryce:  Corrected the mictor debug port interfaces
-#
-# Revision 1.4  2006/05/13 07:38:49  bburger
-# Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
-#
-# Revision 1.3  2006/04/26 22:55:08  bburger
-# Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
-# In the process:
-# - fixed a bug in cmd_translator_simple_cmd_fsm that output the wrong read/write code.
-# - updated the cc_pin_assign_rev_b.tcl file to include the fpga output pins for epc16 control
-# - updated the clock card top level with a new version number.
-#
-# Revision 1.2  2006/03/01 02:59:20  bburger
-# Bryce:  fixed a physical pin conflict between fibre_rx_a_nb and manchester_data which both were declared to use AF11
-#
-# Revision 1.1  2006/02/24 00:40:14  bburger
-# Bryce:  revisioned to v02000002, to create a clock card download for rev B or the Clock Card hardware, which is used with rev C of the Bus Backplane hardware
-#
-# Revision 1.17  2005/12/01 20:49:47  bburger
-# Bryce:  Added different sections for the fibre optic fibre_rx_clkr input.  Depending on the version of firmware and hardware, you will have to choose which line to uncomment
-#
-# Revision 1.16  2005/10/21 20:40:36  erniel
-# minor name changes to fibre clocks
-#
-# Revision 1.15  2005/10/21 01:06:53  erniel
-# updated pins for revision B:
-#      new mictor debug port
-#      new PLL clock inputs
-#      new RTC interface
-#      new SRAM0, SRAM1 chip enables
-#      additional fibre tx & rx control signals
-#      changed rs232 interface
-#
-# Revision 1.14  2005/10/20 21:31:57  bburger
-# Bryce: for Clock Card Rev. B.  There have been some minor changes from Rev. AA:
-# - fr3v3_ckr has changed from AE10 to R2
-# - A new fibre optic port has been added, requiring pins AD6, AF7, AH7, AF11, AE11, AH11
-# - f_dvpb (AF12) has been removed
-#
-# Revision 1.13  2005/01/18 22:20:47  bburger
-# Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
-#
-# Revision 1.12  2004/12/06 07:22:35  bburger
-# Bryce:
-# Created pack files for the card top-levels.
-# Added some simulation signals to the top-levels (i.e. clocks)
-#
-# Revision 1.11  2004/11/25 01:09:12  bench2
-# Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
-#
-# Revision 1.10  2004/11/24 01:15:52  bench2
-# Greg: Broke apart issue reply and created pack files for all of its sub-components
-#
-# Revision 1.9  2004/10/20 18:53:46  erniel
-# updated pins for revision AA
-#
-# Revision 1.8  2004/10/13 05:44:58  bench2
-# Bryce:  Added a new top-level signal to the clock card issue_reply_test block:  fibre_ckr aka fibre_clkr
-#
-# Revision 1.7  2004/05/30 23:11:51  erniel
-# changed fo to fibre!
-#
-# Revision 1.6  2004/05/29 20:14:28  mandana
-# added fibre tx/rx pins
-#
-# Revision 1.5  2004/05/17 00:12:57  erniel
-# renamed PLL 5 input pin to inclk
-#
-# Revision 1.4  2004/05/14 18:44:37  erniel
-# renamed spare TTL pins
-# renamed SMB pins
-#
-# Revision 1.3  2004/05/12 18:36:47  erniel
-# added device settings
-#
-# Revision 1.2  2004/05/12 08:17:09  erniel
-# added auto-detect of top-level entity name
-# added auto-recompile after pin assignment
-# increased script verbosity
-#
-# Revision 1.1  2004/05/12 01:57:39  erniel
-# initial version
-#
-#
-#
 #############################################################################
 
 
 # print welcome message
+puts "-------------------------------------"
 puts "\n\nClock Card Pin Assignment Script v1.0"
 puts "-------------------------------------"
 puts "\n(for clock card rev. AA)"
@@ -565,5 +453,9 @@ puts "   Assigned: Configuration device selection pins."
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
 execute_flow -compile
+
+
+puts "\nInfo: Generating .pof file after waiting 10s to let compilation finish."
+after 10000 "exec quartus_cpf -c cc_sof2pof.cof"
 
 puts "\nInfo: Process completed."
