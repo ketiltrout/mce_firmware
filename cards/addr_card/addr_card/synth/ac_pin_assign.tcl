@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: ac_pin_assign.tcl,v $
+# Revision 1.1  2006/03/08 23:08:33  bburger
+# Bryce:  New
+#
 # Revision 1.14  2005/01/18 22:20:47  bburger
 # Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
 #
@@ -504,5 +507,10 @@ puts "   Assigned: DAC clock pins."
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
 execute_flow -compile
+
+
+puts "\nInfo: Generating .pof file after waiting 10s to let compilation finish."
+after 10000 "exec quartus_cpf -c addr_card_sof2pof.cof"
+
 
 puts "\nInfo: Process completed."

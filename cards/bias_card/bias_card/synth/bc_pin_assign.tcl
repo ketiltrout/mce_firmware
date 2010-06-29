@@ -32,6 +32,12 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.4  2010/01/21 17:17:02  mandana
+# v2.0
+# supports Rev. E Bias cards
+# dynamically creates card_type_pack.vhd to set card_type=BC_E_CARD_TYPE
+# as is: we need to branch Rev. D and Rev. E tcl files, but this will be the only different file
+#
 # Revision 1.3  2006/10/02 22:39:15  mandana
 # renamed rs232 pins to rx/tx not to conflict with async component rs232_rx and rs232_tx
 # assigned rs232 dedicated pins as per Rev. D schematics
@@ -501,5 +507,10 @@ puts "   Assigned: DAC data pins."
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
 execute_flow -compile
+
+
+puts "\nInfo: Generating .pof file after waiting 10s to let compilation finish."
+after 10000 "exec quartus_cpf -c bias_card_sof2pof.cof"
+
 
 puts "\nInfo: Process completed."

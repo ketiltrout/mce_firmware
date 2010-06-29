@@ -456,6 +456,7 @@ execute_flow -compile
 
 
 puts "\nInfo: Generating .pof file after waiting 10s to let compilation finish."
-after 10000 "exec quartus_cpf -c cc_sof2pof.cof"
+after 10000 "exec quartus_cpf -c clk_card_sof2pof.cof"
+
 
 puts "\nInfo: Process completed."

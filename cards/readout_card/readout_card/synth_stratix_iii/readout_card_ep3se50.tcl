@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.11 2009/12/10 00:15:54 bburger Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.12 2010/01/11 23:03:26 bburger Exp $
 
 
 
@@ -593,5 +593,8 @@ set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to 
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
 execute_flow -compile
+
+puts "\nInfo: Generating .pof file after waiting 10s to let compilation finish."
+after 10000 "exec quartus_cpf -c readout_card_sof2jic.cof"
 
 puts "\nInfo: Process completed."

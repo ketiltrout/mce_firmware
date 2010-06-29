@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: readout_card_ep1s40.tcl,v $
+# Revision 1.4  2006/05/16 21:23:49  mandana
+# added pins dedicated to RS232 comm introduced in Rev. B boards
+#
 # Revision 1.3  2006/04/13 17:04:38  mandana
 # added mictor_clk pins introduced in Rev. B RC
 #
@@ -597,5 +600,10 @@ puts "   Assigned: ADC pins."
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
 execute_flow -compile
+
+
+puts "\nInfo: Generating .pof file after waiting 10s to let compilation finish."
+after 10000 "exec quartus_cpf -c readout_card_sof2pof.cof"
+
 
 puts "\nInfo: Process completed."
