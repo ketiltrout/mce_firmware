@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.5  2010/06/29 01:37:17  bburger
+# BB:  Automatic .pof generation
+#
 # Revision 1.4  2010/01/21 17:17:02  mandana
 # v2.0
 # supports Rev. E Bias cards
@@ -99,59 +102,11 @@
 # initial release
 #
 ###############################################################################
-proc generate_vhdl { hex_value } {
-
-    set num_digits [string length $hex_value]
-    set bit_width [expr { 4 * $num_digits } ]
-    set high_index [expr { $bit_width - 1 } ]
-    set reset_value [string repeat "0" $num_digits]
-
-    if { [catch {
-        set fh [open "card_type_pack.vhd" w ]
-        puts $fh "LIBRARY ieee;\nUSE ieee.std_logic_1164.ALL;"
-        puts $fh "LIBRARY sys_param;\nUSE sys_param.command_pack.ALL;"
-        puts $fh "PACKAGE card_type_pack IS"        
-        puts $fh "   constant BC_CARD_TYPE      : std_logic_vector(CARD_TYPE_WIDTH-1 downto 0) := BC_E_CARD_TYPE;"
-        puts $fh "END card_type_pack;"
-        close $fh
-        set fh [open "version_reg.vhd" w ]
-        puts $fh "LIBRARY ieee;\nUSE ieee.std_logic_1164.ALL;"
-        puts $fh "ENTITY version_reg IS"
-        puts $fh "    PORT ("
-        puts $fh "        clock: IN STD_LOGIC;"
-        puts $fh "        reset: IN STD_LOGIC;"
-        puts $fh "        data_out: OUT STD_LOGIC_VECTOR(${high_index} \
-             downto 0)"
-        puts $fh "    );"
-        puts $fh "END version_reg;"
-        puts $fh "ARCHITECTURE rtl OF version_reg IS"
-        puts $fh "BEGIN"
-        puts $fh "PROCESS (clock,reset)"
-        puts $fh "    BEGIN"
-        puts $fh "    IF (reset='0') THEN"
-        puts $fh "        data_out <=X\"${reset_value}\";"
-        puts $fh "    ELSIF rising_edge (clock) THEN"
-        puts $fh "        data_out <= X\"${hex_value}\";"
-        puts $fh "    END IF;"
-        puts $fh "END PROCESS;"
-        puts $fh "END rtl;"
-        close $fh        
-    } res ] } {
-        return -code error $res
-    } else {
-        return 1
-    }
-}
-set my_hex_number "[lindex $argv 0]"
-if { [catch { generate_vhdl $my_hex_number } res] } {
-    post_message -type error "Couldn't generate VHDL file\n$res"
-}
-# If the script gets here, there were no errors.
 
 # print welcome message
-puts "\n\nBias Card Pin Assignment Script v2.0"	
-puts "\n Inclusive of Rev. D and Rev. E pin assignment"
-puts     "------------------------------------"
+puts "\n\nBias Card Pin Assignment Script v4.0"	
+puts "\n compatible for Rev. D and Rev. F pin assignment"
+puts     "----------------------------------------------"
 
 
 # include Quartus Tcl API
@@ -206,14 +161,21 @@ cmp add_assignment $top_name "" dev_clr_fpga_out LOCATION "Pin_V28"
 puts "   Assigned: miscellaneous pins."
 
 
-# assign ID pins
+# assign ID pins 
 cmp add_assignment $top_name "" "slot_id\[0\]" LOCATION "Pin_V25"
 cmp add_assignment $top_name "" "slot_id\[1\]" LOCATION "Pin_V26"
 cmp add_assignment $top_name "" "slot_id\[2\]" LOCATION "Pin_T25"
 cmp add_assignment $top_name "" "slot_id\[3\]" LOCATION "Pin_T26"
+
 cmp add_assignment $top_name "" card_id LOCATION "Pin_T21"
 puts "   Assigned: ID pins."
 
+# assign Hardware Revision pins (as of Rev. F Hardware)
+cmp add_assignment $top_name "" "pcb_rev\[0\]" LOCATION "Pin_AF7"
+cmp add_assignment $top_name "" "pcb_rev\[1\]" LOCATION "Pin_AF6"
+cmp add_assignment $top_name "" "pcb_rev\[2\]" LOCATION "Pin_AE6"
+cmp add_assignment $top_name "" "pcb_rev\[3\]" LOCATION "Pin_AD6"
+puts "   Assigned: Hardware Revision pins."
 
 # assign LVDS pins
 # for LVDS clk, see PLL section
@@ -358,11 +320,10 @@ puts "   Assigned: Mictor header pins."
 #
 # assign DAC clocks	
 
-# Only Valid prior to Rev. E, pin serves as lvds_ncs09 in Rev. E		
-# cmp add_assignment $top_name "" lvds_dac_sclk LOCATION "Pin_T5"
+cmp add_assignment $top_name "" lvds_dac_sclk LOCATION "Pin_T5"
 
-# Only valid in Rev. E, pin unused in Rev. E
-cmp add_assignment $top_name "" lvds_dac_sclk LOCATION "Pin_T9"
+# Only valid in Rev. E, pin unused in Rev. D, ncs11 in rev F
+#cmp add_assignment $top_name "" lvds_dac_sclk LOCATION "Pin_T9"
 
 cmp add_assignment $top_name "" lvds_dac_sclk IO_STANDARD LVDS
 cmp add_assignment $top_name "" "dac_sclk\[15\]" LOCATION "Pin_L23"
@@ -406,11 +367,11 @@ puts "   Assigned: DAC clock pins."
 #cmp add_assignment $top_name "" lvds_dac_ncs IO_STANDARD LVDS
 
 # Rev. E adds 12 "new" low-noise bias lines
-cmp add_assignment $top_name "" "lvds_dac_ncs\[11\]" LOCATION "Pin_T3"
+cmp add_assignment $top_name "" "lvds_dac_ncs\[11\]" LOCATION "Pin_U10"
 cmp add_assignment $top_name "" "lvds_dac_ncs\[11\]" IO_STANDARD LVDS
 cmp add_assignment $top_name "" "lvds_dac_ncs\[10\]" LOCATION "Pin_N3"
 cmp add_assignment $top_name "" "lvds_dac_ncs\[10\]" IO_STANDARD LVDS
-cmp add_assignment $top_name "" "lvds_dac_ncs\[9\]" LOCATION "Pin_T5"
+cmp add_assignment $top_name "" "lvds_dac_ncs\[9\]" LOCATION "Pin_T9"
 cmp add_assignment $top_name "" "lvds_dac_ncs\[9\]" IO_STANDARD LVDS
 cmp add_assignment $top_name "" "lvds_dac_ncs\[8\]" LOCATION "Pin_T8"
 cmp add_assignment $top_name "" "lvds_dac_ncs\[8\]" IO_STANDARD LVDS
