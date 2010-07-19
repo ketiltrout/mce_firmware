@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.14 2010/05/13 19:23:24 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.15 2010/06/02 17:39:56 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.15  2010/06/02 17:39:56  mandana
+-- adds 1row_prev port to bc_dac_ctrl interface
+--
 -- Revision 1.14  2010/05/13 19:23:24  mandana
 -- added support for row-specific flux_fb values by adding:
 -- ROW_ADDR_WIDTH constant
@@ -216,6 +219,7 @@ component bias_card
       dip_sw4    : in std_logic;
       wdog       : out std_logic;
       slot_id    : in std_logic_vector(3 downto 0);
+      pcb_rev    : in std_logic_vector(3 downto 0);
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
