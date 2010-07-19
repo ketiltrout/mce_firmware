@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/09/14 20:03:08 $>    - <initials $Author: bburger $>
+-- <date $Date: 2009/12/09 00:31:54 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.11  2009/12/09 00:31:54  mandana
+-- added spi_dac_ctrl for controlling SPI DACs
+--
 -- Revision 1.10  2009/09/14 20:03:08  bburger
 -- BB: added the row_count_o interface for the Address Card row-specific BIAS_START command
 --
@@ -80,7 +83,7 @@ library work;
 use work.frame_timing_pack.all;
 
 package all_cards_pack is
-
+   constant PCB_REV_BITS : integer := 4;
    constant SLOT_ID_BITS : integer := 4;
    constant SPI_DATA_WIDTH:  integer := 3;
    -----------------------------------------------------------------------------
@@ -103,6 +106,7 @@ package all_cards_pack is
          stb_i   : in std_logic;
          cyc_i   : in std_logic;
          slot_id_i         : in std_logic_vector(SLOT_ID_BITS-1 downto 0);
+         pcb_rev_i : in std_logic_vector(PCB_REV_BITS-1 downto 0);
          err_o   : out std_logic;
          dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
          ack_o   : out std_logic
@@ -131,55 +135,6 @@ package all_cards_pack is
          power   : out std_logic;
          status  : out std_logic;
          fault   : out std_logic
-      );
-   end component;
-
-   -----------------------------------------------------------------------------
-   -- Firmware Revision Component
-   -- OBSOLETE: use all_cards instead!
-   -----------------------------------------------------------------------------
-   component fw_rev
-      generic(
-         REVISION: std_logic_vector(31 downto 0) := X"01010000"
-      );
-      port(
-         clk_i   : in std_logic;
-         rst_i   : in std_logic;
-
-         -- Wishbone signals
-         dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
-         addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-         tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-         we_i    : in std_logic;
-         stb_i   : in std_logic;
-         cyc_i   : in std_logic;
-         err_o   : out std_logic;
-         dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         ack_o   : out std_logic
-      );
-   end component;
-
-   -----------------------------------------------------------------------------
-   -- slot_id component
-   -- OBSOLETE: use all_cards bp_slot_id instead!
-   -----------------------------------------------------------------------------
-   component bp_slot_id
-      port (
-         clk_i   : in std_logic;
-         rst_i   : in std_logic;
-
-         slot_id_i : in std_logic_vector(SLOT_ID_BITS-1 downto 0);
-
-         -- wishbone signals
-         dat_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
-         addr_i  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-         tga_i   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-         we_i    : in std_logic;
-         stb_i   : in std_logic;
-         cyc_i   : in std_logic;
-         err_o   : out std_logic;
-         dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         ack_o   : out std_logic
       );
    end component;
 
