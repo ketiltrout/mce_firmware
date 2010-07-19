@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.39 2010/05/13 23:58:36 mandana Exp $
+-- $Id: bias_card.vhd,v 1.40 2010/06/02 17:38:54 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.40  2010/06/02 17:38:54  mandana
+-- 5.0.4 biases (regular and low noise) are refreshed 1 clock cycle after the start of a new row, regardless of enbl_mux =0 or 1
+-- use 1row_prev signal from frame_timing interface to reset the index of bias value memory
+--
 -- Revision 1.39  2010/05/13 23:58:36  mandana
 -- 5.0.3 adds support for fb_col0 to fb_col31 and enbl_mux commands to allow fast switching of sq2fb values
 --
@@ -171,12 +175,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library sys_param;
+use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
 use work.bias_card_pack.all;
 use work.all_cards_pack.all;
-use work.card_type_pack.all;
 
 entity bias_card is
    port(
@@ -224,6 +228,7 @@ entity bias_card is
       wdog       : out std_logic;
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
+      pcb_rev    : in std_logic_vector(3 downto 0);
       smb_clk    : out std_logic;
       smb_nalert : out std_logic;
       smb_data   : inout std_logic;
@@ -243,7 +248,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000004";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000005";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -437,6 +442,7 @@ begin
        stb_i  => stb,
        cyc_i  => cyc,
        slot_id_i => slot_id,
+       pcb_rev_i => pcb_rev,
        err_o           => all_cards_err,
        dat_o           => all_cards_data,
        ack_o           => all_cards_ack
