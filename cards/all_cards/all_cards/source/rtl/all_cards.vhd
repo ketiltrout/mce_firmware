@@ -66,6 +66,7 @@ entity all_cards is
       stb_i           : in std_logic;
       cyc_i           : in std_logic;
       slot_id_i       : in std_logic_vector (SLOT_ID_BITS-1 downto 0);
+      pcb_rev_i       : in std_logic_vector (PCB_REV_BITS-1 downto 0);
       err_o           : out std_logic;
       dat_o           : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       ack_o           : out std_logic
@@ -75,13 +76,10 @@ end all_cards;
 architecture rtl of all_cards is
 
    -- These values determine the storage locations in RAM
-   constant FW_REV_INDEX_OFFSET         : integer := 0;   -- Index of firmware revision
-   constant CARD_TYPE_INDEX_OFFSET      : integer := 1;   -- Index of card_type
-   constant SLOT_ID_INDEX_OFFSET        : integer := 2;
-   constant SCRATCH_INDEX_OFFSET        : integer := 3;   -- A Read/write wakeup register that is reset to 0 everytime the firmware is reset.
+   constant SCRATCH_INDEX_OFFSET        : integer := 0;   -- A Read/write wakeup register that is reset to 0 everytime the firmware is reset.
 
    -- This value must be one more than the last RAM index used
-   constant ALL_CARDS_BANK_MAX_RANGE    : integer := 11;  -- Maximum number of parameters in the Miscellanous bank
+   constant ALL_CARDS_BANK_MAX_RANGE    : integer := 8;  -- Maximum number of parameters in the Miscellanous bank
 
    -- RAM width
    constant ALL_CARDS_BANK_MAX_WIDTH    : integer := WB_DATA_WIDTH;
@@ -190,7 +188,7 @@ begin --rtl
 
    with addr_i select dat_o <=
       REVISION                      when FW_REV_ADDR,
-      ext(CARD_TYPE, WB_DATA_WIDTH) when CARD_TYPE_ADDR,
+      ext("0000" & pcb_rev_i & "00000" & CARD_TYPE, WB_DATA_WIDTH) when CARD_TYPE_ADDR,
       ext(slot_id_i, WB_DATA_WIDTH) when SLOT_ID_ADDR,
       scratch                       when SCRATCH_ADDR,
       REVISION                      when others; -- default to first value in bank
