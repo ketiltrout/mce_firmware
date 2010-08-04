@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.86 2010/05/15 00:44:03 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.87 2010/06/03 20:43:00 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.87  2010/06/03 20:43:00  bburger
+-- BB:  Flux-jumping simulation
+--
 -- Revision 1.86  2010/05/15 00:44:03  bburger
 -- BB:  Removed a couple of interface signals that conflict with CRC_ERROR on the Clock Card.
 --
@@ -2891,7 +2894,7 @@ begin
       command <= command_wb;
       address_id <= rc1_gaini0_cmd;
       data_valid <= X"00000001"; -- was x21
-      data       <= X"000000FF"; --50
+      data       <= X"00000F00"; -- 2047=0x7FF; -2048=0x800; -512=0xE00; 511=0x1FF; -256=0xF00; 256=0x0FF (The last two are the largest numbers allowed)
       load_preamble;
       load_command;
       load_checksum;
@@ -2909,7 +2912,7 @@ begin
       command <= command_wb;
       address_id <= rc1_flx_quanta0_cmd;
       data_valid <= X"00000001";
-      data       <= X"00001000"; -- RC1, flx_quanta0, row 0
+      data       <= X"00002020"; -- RC1, flx_quanta0, row 0.  0x1000=4064, 0x2020=8224
       load_preamble;
       load_command;
       load_checksum;
@@ -2942,14 +2945,6 @@ begin
       load_checksum;
       wait for 4000 us;
       
-      command <= command_wb;
-      address_id <= rc1_flx_lp_init_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 4000 us;
 ------------------------------------------------------
 
       assert false report "Simulation done." severity FAILURE;
