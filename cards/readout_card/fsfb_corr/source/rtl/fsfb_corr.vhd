@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.21 2010/06/03 20:40:09 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.22 2010/06/17 01:07:11 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.22  2010/06/17 01:07:11  bburger
+-- BB: re-introduced flux-count clamping to maintain continuity of behavior between versions of firmware in the field.
+--
 -- Revision 1.21  2010/06/03 20:40:09  bburger
 -- BB:  added an interface for initialize_window to replace faulty logic for trying to detect one
 --
@@ -256,6 +259,9 @@ signal clear_fj_col7         : std_logic;
 -- Data-path signals
 signal flux_quanta1          : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
 signal flux_quanta2          : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0);
+
+signal flux_quanta1_zxt      : std_logic_vector(MULT_WIDTH-1 downto 0); -- bug fix: for unsigned parameters larger than 8191
+signal flux_quanta2_zxt      : std_logic_vector(MULT_WIDTH-1 downto 0); -- bug fix: for unsigned parameters larger than 8191
 
 signal m_prev                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_pres                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
@@ -628,9 +634,10 @@ begin
    -------------------------------
    -- Arithmetic
    -------------------------------
+   flux_quanta1_zxt <= ext(flux_quanta1, MULT_WIDTH);
    mult1 : fsfb_corr_multiplier
       port map (
-         dataa  => flux_quanta1,
+         dataa  => flux_quanta1_zxt,
          datab  => m_prev,
          result => mult_res1
       );
@@ -862,9 +869,10 @@ begin
    -------------------------------
    -- More Arithmetic
    -------------------------------
+   flux_quanta2_zxt <= ext(flux_quanta2, MULT_WIDTH);
    mult2 : fsfb_corr_multiplier
       port map (
-         dataa  => flux_quanta2,
+         dataa  => flux_quanta2_zxt,
          datab  => m_pres,
          result => mult_res2
       );
