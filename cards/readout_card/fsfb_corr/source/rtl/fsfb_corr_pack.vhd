@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr_pack.vhd,v 1.8.2.3 2007/03/22 17:44:29 mandana Exp $
+-- $Id: fsfb_corr_pack.vhd,v 1.9 2009/01/19 20:23:35 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr_pack.vhd,v $
+-- Revision 1.9  2009/01/19 20:23:35  bburger
+-- BB:  Merged v1.8.2.3 to head
+--
 -- Revision 1.8.2.3  2007/03/22 17:44:29  mandana
 -- reduced sub & mult width, made the widths parameterized.
 -- cleaned up unused functions and vars
@@ -87,8 +90,8 @@ package fsfb_corr_pack is
    constant LSB_WINDOW_INDEX       : integer := 12;  
    
    constant SUB_WIDTH              : integer := FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX; -- length of pid_prev as it comes to fsfb_corr (40-12=28)
-   constant MULT_WIDTH             : integer := FLUX_QUANTA_DATA_WIDTH; -- 14
-   constant PROD_WIDTH             : integer := FLUX_QUANTA_DATA_WIDTH+FLUX_QUANTA_CNT_WIDTH; --14+8 =22   
+   constant MULT_WIDTH             : integer := FLUX_QUANTA_DATA_WIDTH+1; -- Has to be one bit wider than FLUX_QUANTA_DATA_WIDTH to force it to be positive value for signed multiplication.
+   constant PROD_WIDTH             : integer := MULT_WIDTH+FLUX_QUANTA_CNT_WIDTH; -- 15+8=23
 
    constant FSFB_MAX               : std_logic_vector(SUB_WIDTH-1 downto 0) := sxt(b"01111001111000", SUB_WIDTH);-- 1E78"; --  7800
    constant FSFB_MIN               : std_logic_vector(SUB_WIDTH-1 downto 0) := sxt(b"10000110001000", SUB_WIDTH);-- E188"; -- -7800
