@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.19  2010/02/12 19:48:51  mandana
+-- upgraded to 3.2 to pass a 12.5MHz clock to ln_bias lines as oppose to 50MHz
+--
 -- Revision 1.18  2010/01/28 23:09:52  mandana
 -- version 3.1 and also eliminated rst_cmd which caused combinational loop
 --
@@ -326,11 +329,11 @@ begin
                    s         when 7,
                    t         when 8,
                    space     when 9,
-                   v         when 10, -- text for version number 3.2
+                   v         when 10, -- text for version number 3.3
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   two       when 14,
+                   three     when 14,
                    newline   when others;
 
    with tx_count select
