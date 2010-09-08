@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.9  2009/08/21 21:07:24  bburger
+-- BB: added FPGA_DEVICE_FAMILY generic to interfaces for synthesis for Stratix I or III
+--
 -- Revision 1.8  2005/01/12 22:49:25  erniel
 -- updated lvds_rx component
 --
@@ -111,6 +114,7 @@ package async_pack is
 
    component rs232_rx
    port(clk_i      : in std_logic;
+        comm_clk_i : in std_logic;
         rst_i      : in std_logic;
      
         dat_o      : out std_logic_vector(7 downto 0);

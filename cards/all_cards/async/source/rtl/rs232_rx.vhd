@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: rs232_rx.vhd,v $
+-- Revision 1.5  2005/01/13 00:26:30  erniel
+-- replaced comm_clk_i with clk_i
+-- recalculated sample_count intervals
+--
 -- Revision 1.4  2005/01/12 22:47:11  erniel
 -- removed async_rx instantiation
 -- removed clk_i from ports
@@ -55,12 +59,17 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+library altera_mf;
+use altera_mf.altera_mf_components.all;
 
 library components;
 use components.component_pack.all;
 
 entity rs232_rx is
 port(clk_i      : in std_logic;
+     comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
      dat_o      : out std_logic_vector(7 downto 0);
@@ -72,13 +81,19 @@ end rs232_rx;
 
 architecture rtl of rs232_rx is
 
-signal sample_count     : integer range 0 to 4340;
+--signal sample_count     : integer range 0 to 4340;
+signal sample_count     : std_logic_vector(7 downto 0);
 signal sample_count_ena : std_logic;
 signal sample_count_clr : std_logic;
 
 signal sample_buf     : std_logic_vector(2 downto 0);
 signal sample_buf_ena : std_logic;
 signal sample_buf_clr : std_logic;
+
+signal data_buf_write : std_logic;
+signal data_buf_read  : std_logic;
+signal data_buf_full  : std_logic;
+signal data_buf_empty : std_logic;
 
 signal rx_bit     : std_logic;
 signal rx_buf     : std_logic_vector(9 downto 0);
@@ -90,41 +105,64 @@ signal data_ld : std_logic;
 signal rdy : std_logic;
 signal ack : std_logic;
 
+signal rs232_temp : std_logic;
+signal rs232_sig  : std_logic;
+signal serial_receiving: std_logic;
+signal data_ready: std_logic;
+
 type states is (IDLE, RECV, READY);
 signal pres_state : states;
 signal next_state : states;
 
 begin
-    
-   sample_counter: counter
-   generic map(MAX => 4339,
-               WRAP_AROUND => '0')
-   port map(clk_i   => clk_i,
+   -- bring rs232_i into comm_clk domain from asynch domain using a synchronizer:
+   process(rst_i, comm_clk_i)
+   begin
+      if(rst_i = '1') then   
+         rs232_temp <= '1';   -- idle state of rs232_i line is high
+         rs232_sig  <= '1';
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
+         rs232_temp <= rs232_i;
+         rs232_sig  <= rs232_temp;
+      end if;
+   end process;
+ 
+   sample_counter: binary_counter
+   generic map(WIDTH => 8)
+   port map(clk_i   => comm_clk_i,
             rst_i   => rst_i,
             ena_i   => sample_count_ena,
-            load_i  => sample_count_clr,
-            count_i => 0,
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => sample_count_clr,
+            count_i => (others => '0'),
             count_o => sample_count);
+
+   sample_count_ena <= serial_receiving;
+   sample_count_clr <= not serial_receiving;
             
    rx_sample: shift_reg
    generic map(WIDTH => 3)
-   port map(clk_i      => clk_i,
+   port map(clk_i      => comm_clk_i,
             rst_i      => rst_i,
             ena_i      => sample_buf_ena,
             load_i     => '0',
             clr_i      => sample_buf_clr,
             shr_i      => '1',
-            serial_i   => rs232_i,
+            serial_i   => rs232_sig,
             serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => sample_buf);
+
+   sample_buf_ena <= serial_receiving;
+   sample_buf_clr <= not serial_receiving;
             
    -- received bit is majority function of sample buffer
    rx_bit <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
    
    rx_buffer: shift_reg
    generic map(WIDTH => 10)
-   port map(clk_i      => clk_i,
+   port map(clk_i      => comm_clk_i,
             rst_i      => rst_i,
             ena_i      => rx_buf_ena,
             load_i     => '0',
@@ -135,112 +173,60 @@ begin
             parallel_i => (others => '0'),
             parallel_o => rx_buf);
             
-   data_buffer: reg
-   generic map(WIDTH => 8)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => data_ld,
- 
-            reg_i  => rx_buf(8 downto 1),
-            reg_o  => dat_o);
+   rx_buf_ena <= '1' when sample_count(1 downto 0) = "10" else '0';
+   rx_buf_clr <= not serial_receiving;
+   
+            
+   data_buffer: dcfifo
+   generic map(intended_device_family  => "Stratix",
+               lpm_width               => 8,
+               lpm_numwords            => 16,
+               lpm_widthu              => 4,
+               clocks_are_synchronized => "TRUE",
+               lpm_type                => "dcfifo",
+               lpm_showahead           => "OFF",
+               overflow_checking       => "ON",
+               underflow_checking      => "ON",
+               use_eab                 => "ON",
+               add_ram_output_register => "ON",
+               lpm_hint                => "RAM_BLOCK_TYPE=AUTO")
+   port map(wrclk   => comm_clk_i,
+            rdclk   => clk_i,
+            wrreq   => data_buf_write,
+            rdreq   => data_buf_read,
+            data    => rx_buf(8 downto 1),
+            q       => dat_o,
+            aclr    => rst_i,
+            wrfull  => data_buf_full,
+            rdempty => data_buf_empty); 
 
+   data_buf_write <= not data_buf_full when sample_count = 39 else '0';   
+   data_buf_read <= not data_buf_empty and not data_ready;    
 
-------------------------------------------------------------
---
---  Receive FSM : Controls the receiver datapath
---
-------------------------------------------------------------
-
-   stateFF: process(rst_i, clk_i)
+   -- serial_receiving flag (high when a transfer is in progress):
+   process(rst_i, comm_clk_i)
    begin
       if(rst_i = '1') then
-         pres_state <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
-         pres_state <= next_state;
-      end if;
-   end process stateFF;
-   
-   stateNS: process(pres_state, rs232_i, sample_count)
-   begin
-      case pres_state is
-         when IDLE => if(rs232_i = '0') then
-                         next_state <= RECV;
-                      else
-                         next_state <= IDLE;
-                      end if;
-                      
-         when RECV => if(sample_count = 4339) then
-                         next_state <= READY;
-                      else
-                         next_state <= RECV;
-                      end if;
-                      
-         when READY => next_state <= IDLE;
-      end case;
-   end process stateNS;
-   
-   stateOut: process(pres_state, sample_count)
-   begin
-      sample_count_ena <= '0';
-      sample_count_clr <= '0';
-      sample_buf_ena   <= '0';
-      sample_buf_clr   <= '0';
-      rx_buf_ena       <= '0';
-      rx_buf_clr       <= '0';
-      data_ld          <= '0';
-      rdy              <= '0';
-      
-      case pres_state is
-         when IDLE =>  sample_count_ena <= '1';
-                       sample_count_clr <= '1';
-                       sample_buf_ena   <= '1';
-                       sample_buf_clr   <= '1';
-                       rx_buf_ena       <= '1';
-                       rx_buf_clr       <= '1';
-                       
-         when RECV =>  sample_count_ena <= '1';
-                       -- for RS232 bitrate of 115 kbps, sample each bit for every 54 clk_i periods.
-                       if(sample_count = 53   or sample_count = 107  or sample_count = 161  or sample_count = 216  or 
-                          sample_count = 270  or sample_count = 324  or sample_count = 487  or sample_count = 541  or 
-                          sample_count = 595  or sample_count = 650  or sample_count = 704  or sample_count = 758  or
-                          sample_count = 921  or sample_count = 975  or sample_count = 1029 or sample_count = 1084 or 
-                          sample_count = 1138 or sample_count = 1192 or sample_count = 1355 or sample_count = 1409 or 
-                          sample_count = 1463 or sample_count = 1518 or sample_count = 1572 or sample_count = 1626 or 
-                          sample_count = 1789 or sample_count = 1843 or sample_count = 1897 or sample_count = 1952 or 
-                          sample_count = 2006 or sample_count = 2060 or sample_count = 2223 or sample_count = 2277 or 
-                          sample_count = 2331 or sample_count = 2386 or sample_count = 2440 or sample_count = 2494 or 
-                          sample_count = 2657 or sample_count = 2711 or sample_count = 2765 or sample_count = 2820 or 
-                          sample_count = 2874 or sample_count = 2928 or sample_count = 3091 or sample_count = 3145 or 
-                          sample_count = 3199 or sample_count = 3254 or sample_count = 3308 or sample_count = 3362 or 
-                          sample_count = 3525 or sample_count = 3579 or sample_count = 3633 or sample_count = 3688 or 
-                          sample_count = 3742 or sample_count = 3796 or sample_count = 3959 or sample_count = 4013 or 
-                          sample_count = 4067 or sample_count = 4122 or sample_count = 4176 or sample_count = 4230) then
-                          sample_buf_ena <= '1';
-                       end if;
-                       if(sample_count = 325  or sample_count = 759  or sample_count = 1193 or sample_count = 1627 or 
-                          sample_count = 2061 or sample_count = 2495 or sample_count = 2929 or sample_count = 3363 or 
-                          sample_count = 3797 or sample_count = 4231) then 
-                          rx_buf_ena <= '1';
-                       end if;
-                       if(sample_count = 4339) then 
-                          data_ld       <= '1';
-                       end if;
-                       
-         when READY => rdy              <= '1';
-      end case;
-   end process stateOut;
-   
-   process(rst_i, clk_i)
-   begin
-      if(rst_i = '1') then
-         rdy_o <= '0';
-      elsif(clk_i'event and clk_i = '1') then
-         if(rdy = '1') then
-            rdy_o <= '1';
-         elsif(ack_i = '1') then
-            rdy_o <= '0';
+         serial_receiving <= '0';
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
+         if((rs232_sig = '0' and serial_receiving = '0') or (sample_count = 39 and serial_receiving = '1')) then
+            serial_receiving <= not serial_receiving;
          end if;
       end if;
    end process;
+
+   -- data_ready flag (high when a datum is output and waiting for an ack):
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         data_ready <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if((data_buf_empty = '0' and data_ready = '0') or (ack_i = '1' and data_ready = '1')) then
+            data_ready <= not data_ready;
+         end if;
+      end if;
+   end process;
+   
+   rdy_o <= data_ready;
                       
 end rtl;
