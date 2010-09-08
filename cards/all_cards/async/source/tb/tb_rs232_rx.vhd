@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_rs232_rx.vhd,v $
+-- Revision 1.1  2004/06/18 22:15:29  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -55,17 +58,16 @@ architecture BEH of TB_RS232_RX is
 
    component RS232_TX
       port(CLK_I        : in std_logic ;
-           COMM_CLK_I   : in std_logic ;
            RST_I        : in std_logic ;
            DAT_I        : in std_logic_vector ( 7 downto 0 );
-           START_I      : in std_logic ;
-           DONE_O       : out std_logic ;
+           RDY_I      : in std_logic ;
+           BUSY_O       : out std_logic ;
            RS232_O      : out std_logic );
 
    end component;
 
-   constant PERIOD : time := 40 ns;
-   constant COMM_PERIOD : time := 10 ns;   
+   constant PERIOD : time := 20 ns; -- 50MHz clock, because PLL is not instantiated here.
+   constant COMM_PERIOD : time :=  2170ns;   --corresponds to 115200 baud rate
 
    -- common signals
    signal W_CLK_I        : std_logic := '1';
@@ -96,11 +98,10 @@ begin
 
    tx : RS232_TX
       port map(CLK_I        => W_CLK_I,
-               COMM_CLK_I   => W_COMM_CLK_I,
                RST_I        => W_RST_I,
                DAT_I        => W_DAT_I,
-               START_I      => W_START_I,
-               DONE_O       => W_DONE_O,
+               RDY_I      => W_START_I,
+               BUSY_O       => W_DONE_O,
                RS232_O      => W_RS232);
    
    W_CLK_I <= not W_CLK_I after PERIOD/2;
@@ -114,7 +115,7 @@ begin
       W_START_I      <= '0';
       W_ACK_I        <= '0';
       
-      wait for PERIOD;
+      wait for 100*PERIOD;
       
       W_RST_I        <= '0';
       W_DAT_I        <= (others => '0');
@@ -135,11 +136,13 @@ begin
       
       W_START_I      <= '0';
       
+      --wait until W_DONE_O = '1';
       wait until W_RDY_O = '1';
+      
       
       W_ACK_I <= '1';
       
-      wait for PERIOD;
+      wait for 100*PERIOD;
       
       W_ACK_I <= '0';
       
@@ -154,8 +157,11 @@ begin
       do_transmit("00001111");
       do_transmit("01010101");
       do_transmit("11111100");
+      do_transmit("10100110");
+      do_transmit("01100010");
+      do_transmit("01100111");
       
-      wait for PERIOD*10000;
+      wait for PERIOD*100000;
       
       assert FALSE report "End of simulation." severity FAILURE;
          
