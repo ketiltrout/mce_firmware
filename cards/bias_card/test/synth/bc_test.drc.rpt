@@ -1,5 +1,5 @@
 Design Assistant report for bc_test
-Thu Aug 05 13:13:16 2010
+Wed Sep 08 15:19:14 2010
 Quartus II Version 9.1 Build 350 03/24/2010 Service Pack 2 SJ Full Version
 
 
@@ -37,7 +37,7 @@ applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Design Assistant Summary                                                ;
 +-----------------------------------+-------------------------------------+
-; Design Assistant Status           ; Analyzed - Thu Aug 05 13:13:16 2010 ;
+; Design Assistant Status           ; Analyzed - Wed Sep 08 15:19:14 2010 ;
 ; Revision Name                     ; bc_test                             ;
 ; Top-level Entity Name             ; bc_test                             ;
 ; Family                            ; Stratix                             ;
@@ -99,204 +99,204 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+----+
 
 
-+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Medium Violations                                                                                                                                                                                           ;
-+----------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
-; Rule name                                                                                    ; Name                                                                                                         ;
-+----------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
-; Rule C104: Clock signal source should drive only clock input ports                           ; bc_sa_htr_test:sa_htr1_toggle|clk_count[9]                                                                   ;
-;  Clock ports destination node(s) list                                                        ; bc_sa_htr_test:sa_htr1_toggle|toggle                                                                         ;
-; Rule C104: Clock signal source should drive only clock input ports                           ; bc_sa_htr_test:sa_htr2_toggle|clk_count[9]                                                                   ;
-;  Clock ports destination node(s) list                                                        ; bc_sa_htr_test:sa_htr2_toggle|toggle                                                                         ;
-; Rule C104: Clock signal source should drive only clock input ports                           ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.IDLE                                                          ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|idat[0]                                                                     ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|idat[1]                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.PUSH_DATA                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1                                                         ;
-;  Non-clock ports destination node(s) list                                                    ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~0                                                         ;
-; Rule C104: Clock signal source should drive only clock input ports                           ; bc_dac_xtalk_test_wrapper:dac_xtalk|clk_count[14]                                                            ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.PUSH_DATA                                                  ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.DONE                                                       ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                                  ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.IDLE                                                       ;
-; Rule C104: Clock signal source should drive only clock input ports                           ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                               ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[15]                                                              ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta                  ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                                    ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                                     ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                                         ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.IDLE                                                          ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[14]                                                              ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_temp                  ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.PUSH_DATA                                                    ;
-;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|fast2slow_clk_domain_crosser:enable_extend|output_slow                      ;
-;  Non-clock ports destination node(s) list                                                    ; Mux113~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux112~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux111~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux110~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux109~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux108~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux107~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux106~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux105~1                                                                                                     ;
-;  Non-clock ports destination node(s) list                                                    ; Mux104~1                                                                                                     ;
-; Rule C106: Clock signal source should not drive registers triggered by different clock edges ; bc_dac_xtalk_test_wrapper:dac_xtalk|clk_count[14]                                                            ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.PUSH_DATA                                                  ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.DONE                                                       ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                                  ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.IDLE                                                       ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:5:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:6:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:7:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:8:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:9:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-; Rule C106: Clock signal source should not drive registers triggered by different clock edges ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                               ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|idx[0]                                                                   ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|idx[1]                                                                   ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|mode_reg                                                                 ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[15] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[15] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[15] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[15] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[15] ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[14] ;
-; Rule C106: Clock signal source should not drive registers triggered by different clock edges ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                               ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[15]                                                              ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|dac_done_1dly                                                            ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta                  ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                                    ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                                     ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                                         ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.IDLE                                                          ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[14]                                                              ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[13]                                                              ;
-;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[12]                                                              ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:5:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:6:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:7:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:8:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:9:dac_write_spi|shift_reg:spi_shift|reg[15]   ;
-; Rule R102: External reset signals should be synchronized using two cascaded registers        ; rst_n                                                                                                        ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[8]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[2]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[7]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[4]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[6]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[3]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[10]                                                                ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[9]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[1]                                                                 ;
-;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|counter:sample_counter|count[5]                                                                 ;
-+----------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Medium Violations                                                                                                                                                                                              ;
++----------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+; Rule name                                                                                    ; Name                                                                                                            ;
++----------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+; Rule C104: Clock signal source should drive only clock input ports                           ; bc_sa_htr_test:sa_htr1_toggle|clk_count[9]                                                                      ;
+;  Clock ports destination node(s) list                                                        ; bc_sa_htr_test:sa_htr1_toggle|toggle                                                                            ;
+; Rule C104: Clock signal source should drive only clock input ports                           ; bc_sa_htr_test:sa_htr2_toggle|clk_count[9]                                                                      ;
+;  Clock ports destination node(s) list                                                        ; bc_sa_htr_test:sa_htr2_toggle|toggle                                                                            ;
+; Rule C104: Clock signal source should drive only clock input ports                           ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.IDLE                                                             ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|idat[0]                                                                        ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|idat[1]                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.PUSH_DATA                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1                                                            ;
+;  Non-clock ports destination node(s) list                                                    ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~0                                                            ;
+; Rule C104: Clock signal source should drive only clock input ports                           ; bc_dac_xtalk_test_wrapper:dac_xtalk|clk_count[14]                                                               ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.PUSH_DATA                                                     ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.DONE                                                          ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                                     ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.IDLE                                                          ;
+; Rule C104: Clock signal source should drive only clock input ports                           ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                                  ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[15]                                                                 ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta                     ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                                       ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                                        ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                                            ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.IDLE                                                             ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[14]                                                                 ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_temp                     ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.PUSH_DATA                                                       ;
+;  Clock ports destination node(s) list                                                        ; bc_dac_ctrl_test_wrapper:dac_fix|fast2slow_clk_domain_crosser:enable_extend|output_slow                         ;
+;  Non-clock ports destination node(s) list                                                    ; Mux113~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux112~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux111~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux110~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux109~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux108~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux107~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux106~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux105~1                                                                                                        ;
+;  Non-clock ports destination node(s) list                                                    ; Mux104~1                                                                                                        ;
+; Rule C106: Clock signal source should not drive registers triggered by different clock edges ; bc_dac_xtalk_test_wrapper:dac_xtalk|clk_count[14]                                                               ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.PUSH_DATA                                                     ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.DONE                                                          ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                                     ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.IDLE                                                          ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:5:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:6:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:7:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:8:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:9:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+; Rule C106: Clock signal source should not drive registers triggered by different clock edges ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                                  ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|idx[0]                                                                      ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|mode_reg                                                                    ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|idx[1]                                                                      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[15]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[15]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[15]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[15]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[15]    ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[14]    ;
+; Rule C106: Clock signal source should not drive registers triggered by different clock edges ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                                  ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[15]                                                                 ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|dac_done_1dly                                                               ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta                     ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                                       ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                                        ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                                            ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.IDLE                                                             ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[14]                                                                 ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[13]                                                                 ;
+;  Positive edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[12]                                                                 ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:1:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:2:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:3:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:4:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:5:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:6:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:7:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:8:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+;  Negative edge destination node(s) list                                                      ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:9:dac_write_spi|shift_reg:spi_shift|reg[15]      ;
+; Rule R102: External reset signals should be synchronized using two cascaded registers        ; rst_n                                                                                                           ;
+;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_ca12:auto_generated|alt_sync_fifo_dbj:sync_fifo|cntr_aua:cntr1|safe_q[4] ;
+;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|binary_counter:sample_counter|count[7]                                                             ;
+;  Reset signal destination node(s) list                                                       ; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_ca12:auto_generated|alt_sync_fifo_dbj:sync_fifo|dffe5a[4]                ;
+;  Reset signal destination node(s) list                                                       ; counter:tx_char_counter|count[5]                                                                                ;
+;  Reset signal destination node(s) list                                                       ; counter:tx_char_counter|count[3]                                                                                ;
+;  Reset signal destination node(s) list                                                       ; counter:tx_char_counter|count[4]                                                                                ;
+;  Reset signal destination node(s) list                                                       ; rs232_tx:tx0|fifo:data_buffer|lpm_counter:read_pointer|cntr_ivi:auto_generated|safe_q[5]                        ;
+;  Reset signal destination node(s) list                                                       ; rs232_tx:tx0|fifo:data_buffer|lpm_counter:write_pointer|cntr_ivi:auto_generated|safe_q[5]                       ;
+;  Reset signal destination node(s) list                                                       ; bc_sa_htr_test:sa_htr2_toggle|clk_count[9]                                                                      ;
+;  Reset signal destination node(s) list                                                       ; bc_sa_htr_test:sa_htr1_toggle|clk_count[9]                                                                      ;
++----------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
 
 
-+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Information only Violations                                                                                                                                                     ;
-+------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------+
-; Rule name                                                        ; Name                                                                                               ; Fan-Out ;
-+------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------+
-; Rule T101: Nodes with more than the specified number of fan-outs ; rst_n                                                                                              ; 2056    ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~0                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~0                                               ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dac_test_mode_reg[0]                                                                               ; 133     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dac_test_mode_reg[1]                                                                               ; 133     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                               ; 50      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|mode_reg                                                       ; 37      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                        ; 69      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta        ; 65      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                          ; 67      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                           ; 68      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~1                                                  ; 238     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~1                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1                                               ; 495     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~0                                                  ; 224     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~0                                                  ; 35      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[3]                                                                   ; 40      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[0]                                                                   ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[1]                                                                   ; 36      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~2                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[2]                                                                   ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; rs232_rx:rx0|counter:sample_counter|count[11]                                                      ; 34      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~3                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~4                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~5                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~6                                               ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~7                                               ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~8                                               ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~9                                               ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~10                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~11                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~12                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~13                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~14                                              ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]                                                     ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                     ; 139     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                     ; 2457    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                     ; 2457    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rst_n                                                                                              ; 2056    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1                                               ; 495     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~1                                                  ; 238     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~0                                                  ; 224     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                     ; 139     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dac_test_mode_reg[0]                                                                               ; 133     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dac_test_mode_reg[1]                                                                               ; 133     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                        ; 69      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                           ; 68      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                          ; 67      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta        ; 65      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                               ; 50      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[3]                                                                   ; 40      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|mode_reg                                                       ; 37      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[1]                                                                   ; 36      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~0                                                  ; 35      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[11]                                                      ; 34      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~4                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[2]                                                                   ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~3                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~0                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~7                                               ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]                                                     ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~14                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~13                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~12                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~11                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~0                                               ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~6                                               ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~10                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~2                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~8                                               ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~5                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~9                                               ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~1                                              ; 33      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[0]                                                                   ; 32      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[12]                                                      ; 29      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|pres_state.IDLE                                                                       ; 29      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[8]                                                       ; 25      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[7]                                                       ; 23      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[1]                                                       ; 22      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[2]                                                       ; 22      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[9]                                                       ; 22      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[5]                                                       ; 21      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[4]                                                       ; 21      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_rx:rx0|counter:sample_counter|count[3]                                                       ; 21      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rs232_tx:tx0|counter:bit_counter|count[11]                                                         ; 20      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:29:dac_write_spi|current_state.IDLE ; 19      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:25:dac_write_spi|current_state.IDLE  ; 19      ;
-+------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Information only Violations                                                                                                                                                       ;
++------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+---------+
+; Rule name                                                        ; Name                                                                                                 ; Fan-Out ;
++------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+---------+
+; Rule T101: Nodes with more than the specified number of fan-outs ; rst_n                                                                                                ; 2070    ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~0                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~0                                                 ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dac_test_mode_reg[0]                                                                                 ; 133     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dac_test_mode_reg[1]                                                                                 ; 133     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                                 ; 50      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|mode_reg                                                         ; 37      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                          ; 69      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta          ; 65      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                            ; 67      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                             ; 68      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~1                                                    ; 238     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~1                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1                                                 ; 495     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~0                                                    ; 224     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~0                                                    ; 35      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[1]                                                                     ; 36      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[0]                                                                     ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[3]                                                                     ; 37      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~2                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; counter:tx_char_counter|count[2]                                                                     ; 35      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~3                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~4                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~5                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~6                                                 ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~7                                                 ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~8                                                 ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~9                                                 ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~10                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~11                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~12                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~13                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~14                                                ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]                                                       ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                       ; 114     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                       ; 2457    ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_test_pll:clk0|altpll:altpll_component|_clk2                                                       ; 41      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                       ; 2457    ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; rst_n                                                                                                ; 2070    ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1                                                 ; 495     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~1                                                    ; 238     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~0                                                    ; 224     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dac_test_mode_reg[0]                                                                                 ; 133     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dac_test_mode_reg[1]                                                                                 ; 133     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                       ; 114     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START                                          ; 69      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START                                             ; 68      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START                                            ; 67      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta          ; 65      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE                                                 ; 50      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_test_pll:clk0|altpll:altpll_component|_clk2                                                       ; 41      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[3]                                                                     ; 37      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|mode_reg                                                         ; 37      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[1]                                                                     ; 36      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~0                                                    ; 35      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[2]                                                                     ; 35      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]                                                       ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~3                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~13                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~0                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~0                                                 ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~8                                                 ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~9                                                 ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~1                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~10                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~11                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~14                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~12                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~7                                                 ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~4                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~2                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~5                                                ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~6                                                 ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; counter:tx_char_counter|count[0]                                                                     ; 33      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:9:dac_write_spi|current_state.IDLE    ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:15:dac_write_spi|current_state.IDLE   ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:21:dac_write_spi|current_state.IDLE    ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:23:dac_write_spi|current_state.IDLE   ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:9:dac_write_spi|current_state.IDLE     ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:29:dac_write_spi|current_state.IDLE ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:13:dac_write_spi|current_state.IDLE ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:31:dac_write_spi|current_state.IDLE    ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:28:dac_write_spi|current_state.IDLE   ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|current_state.IDLE  ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:1:dac_write_spi|current_state.IDLE     ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:0:dac_write_spi|current_state.IDLE    ; 19      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:14:dac_write_spi|current_state.IDLE    ; 19      ;
++------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+---------+
 
 
 +---------------------------+
@@ -305,7 +305,7 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Design Assistant
     Info: Version 9.1 Build 350 03/24/2010 Service Pack 2 SJ Full Version
-    Info: Processing started: Thu Aug 05 13:13:13 2010
+    Info: Processing started: Wed Sep 08 15:19:11 2010
 Info: Command: quartus_drc --read_settings_files=off --write_settings_files=off bc_test -c bc_test
 Warning: (Medium) Rule C104: Clock signal source should drive only clock input ports. Found 5 nodes related to this rule.
     Warning: Node  "bc_sa_htr_test:sa_htr1_toggle|clk_count[9]"
@@ -336,12 +336,11 @@ Info: (Information) Rule T101: Nodes with more than the specified number of fan-
     Info: Node  "bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~0"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~0"
-    Info: Node  "counter:tx_char_counter|count[3]"
-    Info: Node  "counter:tx_char_counter|count[0]"
     Info: Node  "counter:tx_char_counter|count[1]"
+    Info: Node  "counter:tx_char_counter|count[0]"
+    Info: Node  "counter:tx_char_counter|count[3]"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~2"
     Info: Node  "counter:tx_char_counter|count[2]"
-    Info: Node  "rs232_rx:rx0|counter:sample_counter|count[11]"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~3"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~4"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~5"
@@ -350,6 +349,7 @@ Info: (Information) Rule T101: Nodes with more than the specified number of fan-
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~8"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~9"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~10"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~11"
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
 Info: (Information) Rule T102: Top nodes with the highest number of fan-outs. (Value defined:50). Found 50 node(s) with highest fan-out.
     Info: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk1"
@@ -357,36 +357,36 @@ Info: (Information) Rule T102: Top nodes with the highest number of fan-outs. (V
     Info: Node  "bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~1"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~1"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~0"
-    Info: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk0"
     Info: Node  "dac_test_mode_reg[0]"
     Info: Node  "dac_test_mode_reg[1]"
+    Info: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk0"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.SPI_START"
     Info: Node  "bc_dac_ctrl_test_wrapper:dac_fix|present_state.SPI_START"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|present_state.SPI_START"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|present_state.IDLE"
+    Info: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk2"
     Info: Node  "counter:tx_char_counter|count[3]"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|mode_reg"
     Info: Node  "counter:tx_char_counter|count[1]"
     Info: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~0"
-    Info: Node  "rs232_rx:rx0|counter:sample_counter|count[11]"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~4"
     Info: Node  "counter:tx_char_counter|count[2]"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~3"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~0"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~7"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~14"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~3"
     Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~13"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~12"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~11"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~0"
     Info: Node  "bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~0"
-    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~6"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~8"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~9"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~1"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~10"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~11"
+    Info: Node  "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~14"
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
 Info: Design Assistant information: finished post-fitting analysis of current design -- generated 87 information messages and 9 warning messages
 Info: Quartus II Design Assistant was successful. 0 errors, 12 warnings
-    Info: Peak virtual memory: 145 megabytes
-    Info: Processing ended: Thu Aug 05 13:13:16 2010
+    Info: Peak virtual memory: 146 megabytes
+    Info: Processing ended: Wed Sep 08 15:19:14 2010
     Info: Elapsed time: 00:00:03
     Info: Total CPU time (on all processors): 00:00:03
 

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.20  2010/08/11 22:29:52  mandana
+-- version 3.3, tcl file for Rev. F
+--
 -- Revision 1.19  2010/02/12 19:48:51  mandana
 -- upgraded to 3.2 to pass a 12.5MHz clock to ln_bias lines as oppose to 50MHz
 --
@@ -257,7 +260,8 @@ begin
    clk0: bc_test_pll
    port map(inclk0 => inclk,
             c0 => clk,
-            c1 => clk_4);
+            c1 => clk_4,
+            c2 => rx_clk);
 
 
    --------------------------------------------------------
@@ -266,6 +270,7 @@ begin
 
    rx0: rs232_rx
    port map(clk_i   => clk,
+            comm_clk_i => rx_clk,
             rst_i   => rst,
             dat_o   => rx_data,
             rdy_o   => rx_rdy,
@@ -329,11 +334,11 @@ begin
                    s         when 7,
                    t         when 8,
                    space     when 9,
-                   v         when 10, -- text for version number 3.3
+                   v         when 10, -- text for version number 3.4
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   three     when 14,
+                   four      when 14,
                    newline   when others;
 
    with tx_count select
@@ -554,7 +559,7 @@ begin
                                tx_count_ena <= '1';
                                tx_count_clr <= '1';
                             end if;
-                            tx_data <= error_msg;
+                            tx_data <= error_msg; -- tx_data <= bin2asc(rx_data(tx_count)); -- to print the faulty character
 
          when RX_CMD1 =>    rx_ack       <= '1';
                             tx_count_ena <= '1';

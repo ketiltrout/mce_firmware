@@ -477,33 +477,6 @@ set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
 set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter_xstep.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slow2fast_clk_domain_crosser.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fast2slow_clk_domain_crosser.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/hex2ascii.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/prand.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
-set_global_assignment -name VHDL_FILE ../../pll/source/rtl/pll.vhd
-set_global_assignment -name VHDL_FILE ../source/bc_dac_ramp_test.vhd
-set_global_assignment -name VHDL_FILE ../source/bc_test_pll.vhd
-set_global_assignment -name VHDL_FILE ../source/bc_sa_htr_test.vhd
-set_global_assignment -name VHDL_FILE ../source/bc_dac_xtalk_test.vhd
-set_global_assignment -name VHDL_FILE ../source/bc_dac_ctrl_test.vhd
-set_global_assignment -name VHDL_FILE ../source/bc_test_pack.vhd
-set_global_assignment -name VHDL_FILE ../source/bc_test.vhd
 set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
 set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
 set_global_assignment -name MISC_FILE "C:/mce/cards/bias_card/test/synth/bc_test.dpf"
@@ -538,8 +511,36 @@ set_location_assignment PIN_N6 -to lvds_dac_ncs[0]
 set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_ncs[0]
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER OFF
-set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/mandana/Desktop/don.cdf"
 set_location_assignment PIN_AF7 -to pcb_rev[0]
 set_location_assignment PIN_AF6 -to pcb_rev[1]
 set_location_assignment PIN_AE6 -to pcb_rev[2]
 set_location_assignment PIN_AD6 -to pcb_rev[3]
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter_xstep.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slow2fast_clk_domain_crosser.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fast2slow_clk_domain_crosser.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/hex2ascii.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/prand.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
+set_global_assignment -name VHDL_FILE ../../pll/source/rtl/pll.vhd
+set_global_assignment -name VHDL_FILE ../source/bc_dac_ramp_test.vhd
+set_global_assignment -name VHDL_FILE ../source/bc_test_pll.vhd
+set_global_assignment -name VHDL_FILE ../source/bc_sa_htr_test.vhd
+set_global_assignment -name VHDL_FILE ../source/bc_dac_xtalk_test.vhd
+set_global_assignment -name VHDL_FILE ../source/bc_dac_ctrl_test.vhd
+set_global_assignment -name VHDL_FILE ../source/bc_test_pack.vhd
+set_global_assignment -name VHDL_FILE ../source/bc_test.vhd
+set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/mandana/Desktop/don.cdf"

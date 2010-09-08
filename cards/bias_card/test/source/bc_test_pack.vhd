@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.12  2010/05/14 23:11:22  mandana
+-- *** empty log message ***
+--
 -- Revision 1.11  2010/02/12 19:49:55  mandana
 -- *** empty log message ***
 --
@@ -86,7 +89,8 @@ constant LN_BIAS_DAC_ADDR_WIDTH : integer :=  4; -- 1 prior to BC Rev. E hardwar
   component bc_test_pll
      port(inclk0 : in std_logic;
           c0 : out std_logic;
-          c1 : out std_logic);
+          c1 : out std_logic;
+          c2 : out std_logic);
      end component;
  
   ------------------------------------------------------------------
