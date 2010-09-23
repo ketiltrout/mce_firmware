@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.87 2010/06/03 20:43:00 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.88 2010/08/04 21:47:23 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -27,163 +27,12 @@
 -- Description:
 --
 -- Revision history:
--- $Log: tb_cc_rcs_bcs_ac.vhd,v $
--- Revision 1.87  2010/06/03 20:43:00  bburger
--- BB:  Flux-jumping simulation
+-- tb_cc_rcs_bcs_ac.vhd
+-- MA: removed log
+-- Revision 1.88  2010/08/04 21:47:23  bburger
+-- BB:  for simulating rc_v0500000d (flux-jumping)
 --
--- Revision 1.86  2010/05/15 00:44:03  bburger
--- BB:  Removed a couple of interface signals that conflict with CRC_ERROR on the Clock Card.
---
--- Revision 1.85  2010/05/14 22:27:13  bburger
--- BB:  Testbench for a bug that caused stale data to be returned in responses from cards that are not present
---
--- Revision 1.84  2010/03/15 14:31:47  bburger
--- BB: testing new tms_tdi and tdo commands
---
--- Revision 1.83  2010/03/06 11:02:02  bburger
--- BB: JTAG testing
---
--- Revision 1.82  2010/03/05 19:07:47  bburger
--- BB: JTAG testing
---
--- Revision 1.81  2010/02/26 09:20:10  bburger
--- BB: JTAG command testing.
---
--- Revision 1.80  2010/01/26 19:53:28  bburger
--- BB: AWG bug testing
---
--- Revision 1.79  2010/01/21 18:47:07  bburger
--- BB: internal_cmd_mode = 2
---
--- Revision 1.78  2010/01/18 20:39:38  bburger
--- BB: Changed "MLS" prefixes to "AWG" for "Abitrary Waveform Generator"
---
--- Revision 1.77  2010/01/13 20:32:46  bburger
--- BB: Added command declarations for MLS testing
---
--- Revision 1.76  2009/11/13 19:12:36  bburger
--- BB: Tests for finding the FSFB jumps seen at Caltech
---
--- Revision 1.75  2009/10/09 16:45:28  bburger
--- BB: address card heater_bias testing
---
--- Revision 1.74  2009/09/14 20:06:54  bburger
--- BB: BIAS_START_ADDR added
---
--- Revision 1.73  2009/08/21 22:26:21  bburger
--- BB: changed a wait period from 50 to 150 us
---
--- Revision 1.72  2009/07/11 00:18:53  bburger
--- BB: stratix iii development
---
--- Revision 1.71  2009/07/03 23:45:01  bburger
--- BB:  Pinout name changes.
---
--- Revision 1.70  2009/05/27 22:40:22  bburger
--- BB: Readout Card testing
---
--- Revision 1.69  2009/05/27 01:34:57  bburger
--- BB: Readout Card testing
---
--- Revision 1.68  2009/05/13 00:50:56  bburger
--- BB:  STOP commands again
---
--- Revision 1.67  2009/05/12 19:44:57  bburger
--- BB: STOP command testing.
---
--- Revision 1.66  2009/01/16 02:04:39  bburger
--- BB:  New test commands for column data from Readout Cards
---
--- Revision 1.65  2008/12/22 21:12:21  bburger
--- BB: For testing column data readout.
---
--- Revision 1.64  2008/10/17 00:37:20  bburger
--- BB:  cc_v0400000a
---
--- Revision 1.63  2008/07/15 17:49:50  bburger
--- BB: minor modifications for testing ST commands
---
--- Revision 1.62  2008/06/19 21:48:42  bburger
--- BB: Interface fix
---
--- Revision 1.61  2008/06/17 19:00:52  bburger
--- BB:  Added a couple of cases for testing const_val39
---
--- Revision 1.61  2008/06/12 21:45:07  bburger
--- BB:  Added a couple of cases for testing const_val39
---
--- Revision 1.60  2008/05/29 21:24:49  bburger
--- BB:  Modified for testing const_mode and const_val commands on the address/ fast biasing cards.
---
--- Revision 1.59  2008/02/27 17:53:20  bburger
--- BB: cc_v04000009
---
--- Revision 1.58  2008/02/03 09:54:06  bburger
--- BB:  Clock Card STOP command testing
---
--- Revision 1.57  2008/01/21 19:38:32  bburger
--- BB: testing sq2fb multiplexing firmware (Address Card)
---
--- Revision 1.56  2007/10/18 22:45:42  bburger
--- BB:  v04000005
---
--- Revision 1.55  2007/09/20 20:02:13  bburger
--- BB: cc_v04000002
---
--- Revision 1.54  2007/09/05 04:04:35  bburger
--- BB:  wbs_fb_data testing
---
--- Revision 1.53  2007/09/04 21:19:18  bburger
--- BB:  inputting unique values to readout card adc inputs
---
--- Revision 1.52  2007/08/30 18:35:13  bburger
--- BB:  cc_v04000000 (with ramp_value fix)
---
--- Revision 1.51  2007/08/28 23:37:17  bburger
--- BB: Added code for testing ramps and internal commands on the Clock Card.
---
--- Revision 1.50  2007/07/25 19:26:37  bburger
--- BB:  More tests
---
--- Revision 1.49  2007/03/22 21:14:57  bburger
--- Bryce:  ac_v02000003
---
--- Revision 1.48  2007/03/06 01:00:42  bburger
--- Bryce:  For fpga_temp testing
---
--- Revision 1.47  2007/02/19 22:01:35  mandana
--- added test case for rewrite of wbs_frame_data and capture_raw bugs in rc_v03000019 and on
---
--- Revision 1.44  2007/02/01 21:06:13  bburger
--- Bryce:  Added a delay between the two preamble words
---
--- Revision 1.43  2007/01/31 01:48:46  bburger
--- Bryce: added some more tiest cases
---
--- Revision 1.42  2007/01/24 01:36:58  bburger
--- Bryce:  More test cases
---
--- Revision 1.41  2006/12/22 22:05:44  bburger
--- Bryce:  Added a few more test cases
---
--- Revision 1.40  2006/12/06 02:18:26  bburger
--- Bryce:  Interim committal for v02000013d.  :)
---
--- Revision 1.39  2006/11/22 01:00:16  bburger
--- Bryce:  Interim commital
---
--- Revision 1.38  2006/11/03 01:06:00  bburger
--- Bryce:  Additional test cases.
---
--- Revision 1.37  2006/10/28 00:12:25  bburger
--- Bryce:  Added several more test cases
---
--- Revision 1.36  2006/10/24 17:17:59  bburger
--- Bryce:  Nothing new
---
--- Revision 1.35  2006/10/19 22:14:22  bburger
--- Bryce:  Added interface signals for BOX_ID to clock card
---
+
 -------------------------------------------------------
 
 library ieee;
@@ -193,8 +42,8 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library work;
-use work.bc_dac_ctrl_pack.all;
-use work.addr_card_pack.all;
+use work.system_pack.all;
+use work.all_cards_pack.all;
 use work.bias_card_pack.all;
 use work.readout_card_pack.all;
 use work.cc_reset_pack.all;
@@ -211,493 +60,6 @@ entity tb_cc_rcs_bcs_ac is
 end tb_cc_rcs_bcs_ac;
 
 architecture tb of tb_cc_rcs_bcs_ac is
-
-   component clk_card
-   port(
-      -- Crystal Clock PLL input:
-      inclk14           : in std_logic; -- Crystal Clock Input
-      rst_n             : in std_logic;
-
-      -- Manchester Clock PLL inputs:
-      inclk15           : in std_logic;
-      inclk1            : in std_logic;
-      inclk5            : in std_logic;
-
-      -- LVDS interface:
-      lvds_cmd          : out std_logic;
-      lvds_sync         : out std_logic;
-      lvds_spare        : out std_logic;
-      lvds_clk          : out std_logic;
-      lvds_reply_ac_a   : in std_logic;
-      lvds_reply_ac_b   : in std_logic;
-      lvds_reply_bc1_a  : in std_logic;
-      lvds_reply_bc1_b  : in std_logic;
-      lvds_reply_bc2_a  : in std_logic;
-      lvds_reply_bc2_b  : in std_logic;
-      lvds_reply_bc3_a  : in std_logic;
-      lvds_reply_bc3_b  : in std_logic;
-      lvds_reply_rc1_a  : in std_logic;
-      lvds_reply_rc1_b  : in std_logic;
-      lvds_reply_rc2_a  : in std_logic;
-      lvds_reply_rc2_b  : in std_logic;
-      lvds_reply_rc3_a  : in std_logic;
-      lvds_reply_rc3_b  : in std_logic;
-      lvds_reply_rc4_a  : in std_logic;
-      lvds_reply_rc4_b  : in std_logic;
-
-      -- DV interface:
-      dv_pulse_fibre    : in std_logic;
-      manchester_data   : in std_logic;
-      manchester_sigdet : in std_logic;
-
-      -- TTL interface:
-      ttl_nrx1          : in std_logic;
-      ttl_tx1           : out std_logic;
-      ttl_txena1        : out std_logic;
-
-      ttl_nrx2          : in std_logic;
-      ttl_tx2           : out std_logic;
-      ttl_txena2        : out std_logic;
-
-      ttl_nrx3          : in std_logic;
-      ttl_tx3           : out std_logic;
-      ttl_txena3        : out std_logic;
-
-      -- eeprom interface:
-      eeprom_si         : in std_logic;
-      eeprom_so         : out std_logic;
-      eeprom_sck        : out std_logic;
-      eeprom_cs         : out std_logic;
-
-      mosii             : in std_logic;
-      sclki             : in std_logic;
-      ccssi             : in std_logic;
-      misoo             : out std_logic;
-      sreqo             : out std_logic;
-
-      -- SRAM bank 0 interface
-      sram0_addr : out std_logic_vector(19 downto 0);
-      sram0_data : inout std_logic_vector(15 downto 0);
-      sram0_nbhe : out std_logic;
-      sram0_nble : out std_logic;
-      sram0_noe  : out std_logic;
-      sram0_nwe  : out std_logic;
-      sram0_nce1 : out std_logic;
-      sram0_ce2  : out std_logic;
-
-      -- SRAM bank 1 interface
-      sram1_addr : out std_logic_vector(19 downto 0);
-      sram1_data : inout std_logic_vector(15 downto 0);
-      sram1_nbhe : out std_logic;
-      sram1_nble : out std_logic;
-      sram1_noe  : out std_logic;
-      sram1_nwe  : out std_logic;
-      sram1_nce1 : out std_logic;
-      sram1_ce2  : out std_logic;
-
-      -- miscellaneous ports:
-      red_led           : out std_logic;
-      ylw_led           : out std_logic;
-      grn_led           : out std_logic;
-      dip_sw3           : in std_logic;
-      dip_sw4           : in std_logic;
-      wdog              : out std_logic;
-      slot_id           : in std_logic_vector(3 downto 0);
-      array_id          : in std_logic_vector(2 downto 0);
-      card_id           : inout std_logic;
-      smb_clk           : out std_logic;
-      smb_data          : inout std_logic;
-      smb_nalert        : out std_logic;
-
-      box_id_in         : in std_logic;
-      box_id_out        : out std_logic;
-      box_id_ena_n      : out std_logic;
-
-      extend_n          : in std_logic;
-
-      -- debug ports:
-      mictor0_o         : out std_logic_vector(15 downto 0);
-      mictor0clk_o      : out std_logic;
-      mictor0_e         : in std_logic_vector(15 downto 0);
-      mictor0clk_e      : in std_logic;
-      mictor1_o         : out std_logic_vector(15 downto 0);
-      mictor1clk_o      : out std_logic;
---      mictor1_e         : out std_logic_vector(15 downto 0);
---      mictor1clk_e      : out std_logic;
-
-      rx                : in std_logic;
-      tx                : out std_logic;
-
-      -- interface to HOTLINK fibre receiver
-      fibre_rx_data     : in std_logic_vector (7 downto 0);
-      fibre_rx_rdy      : in std_logic;
-      fibre_rx_rvs      : in std_logic;
-      fibre_rx_status   : in std_logic;
-      fibre_rx_sc_nd    : in std_logic;
-      fibre_rx_clkr     : in std_logic;
-      fibre_rx_refclk   : out std_logic;
-      fibre_rx_a_nb     : out std_logic;
-      fibre_rx_bisten   : out std_logic;
-      fibre_rx_rf       : out std_logic;
-
-      -- interface to hotlink fibre transmitter
-      fibre_tx_clkw     : out std_logic;
-      fibre_tx_data     : out std_logic_vector (7 downto 0);
-      fibre_tx_ena      : out std_logic;
-      fibre_tx_sc_nd    : out std_logic;
-      fibre_tx_enn      : out std_logic;
-      fibre_tx_bisten   : out std_logic;
-      fibre_tx_foto     : out std_logic;
-
-      -- JTAG
-      fpga_tdo          : out std_logic; -- TDI (into JTAG chain)
-      fpga_tck          : out std_logic; -- TCK
-      fpga_tms          : out std_logic; -- TMS
-      epc_tdo           : in std_logic;  -- TDO (out of JTAG chain)
-      jtag_sel          : out std_logic; -- JTAG source: '0'=Header, '1'=FGPA
-      nbb_jtag          : in std_logic;  -- JTAG source:  readback (jtag_sel)
-
-      nreconf           : out std_logic;
-      nepc_sel          : out std_logic
-   );
-   end component;
-
-   component readout_card
-      port (
-         rst_n          : in  std_logic;
-         inclk          : in  std_logic;
-         adc1_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc2_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc3_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc4_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc5_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc6_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc7_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc8_dat       : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-         adc1_ovr       : in  std_logic;
-         adc2_ovr       : in  std_logic;
-         adc3_ovr       : in  std_logic;
-         adc4_ovr       : in  std_logic;
-         adc5_ovr       : in  std_logic;
-         adc6_ovr       : in  std_logic;
-         adc7_ovr       : in  std_logic;
-         adc8_ovr       : in  std_logic;
-         adc1_rdy       : in  std_logic;
-         adc2_rdy       : in  std_logic;
-         adc3_rdy       : in  std_logic;
-         adc4_rdy       : in  std_logic;
-         adc5_rdy       : in  std_logic;
-         adc6_rdy       : in  std_logic;
-         adc7_rdy       : in  std_logic;
-         adc8_rdy       : in  std_logic;
-         adc1_clk       : out std_logic;
-         adc2_clk       : out std_logic;
-         adc3_clk       : out std_logic;
-         adc4_clk       : out std_logic;
-         adc5_clk       : out std_logic;
-         adc6_clk       : out std_logic;
-         adc7_clk       : out std_logic;
-         adc8_clk       : out std_logic;
-         dac_FB1_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB2_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB3_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB4_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB5_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB6_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB7_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB8_dat    : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_FB_clk     : out std_logic_vector(7 downto 0);
-         dac_clk        : out std_logic_vector(7 downto 0);
-         dac_dat        : out std_logic_vector(7 downto 0);
-         bias_dac_ncs   : out std_logic_vector(7 downto 0);
-         offset_dac_ncs : out std_logic_vector(7 downto 0);
-         lvds_cmd       : in  std_logic;
-         lvds_sync      : in  std_logic;
-         lvds_spare     : in  std_logic;
-         lvds_txa       : out std_logic;
-         lvds_txb       : out std_logic;
-
-         -- TTL interface:
-         ttl_dir1        : out std_logic;
-         ttl_in1         : in std_logic;
-         ttl_out1        : out std_logic;
-         ttl_dir2        : out std_logic;
-         ttl_in2         : in std_logic;
-         ttl_out2        : out std_logic;
-         ttl_dir3        : out std_logic;
-         ttl_in3         : in std_logic;
-         ttl_out3        : out std_logic;
-
-         smb_clk         : out std_logic;
-         smb_nalert      : out std_logic;
-         smb_data        : inout std_logic;
-
-         red_led        : out std_logic;
-         ylw_led        : out std_logic;
-         grn_led        : out std_logic;
-         dip_sw3        : in  std_logic;
-         dip_sw4        : in  std_logic;
-         wdog           : out std_logic;
-         slot_id        : in  std_logic_vector(3 downto 0);
-         card_id        : inout  std_logic;
-         mictor         : out std_logic_vector(31 downto 0)
-      );
-   end component;
-
-
-   component readout_card_stratix_iii
-      port(
-         -- Global Interface
-         dev_clr_n           : in std_logic;
-
-         -- PLL Interface
-         inclk           : in std_logic;
-         inclk6          : in std_logic;
-         inclk_ddr       : in std_logic;
-         
-         -- ADC Interface for Readout Card Rev. C 
-         -- How do I instantiate and LVDS receiver?
-         adc0_lvds : in std_logic; 
-         adc1_lvds : in std_logic; 
-         adc2_lvds : in std_logic; 
-         adc3_lvds : in std_logic; 
-         adc4_lvds : in std_logic; 
-         adc5_lvds : in std_logic; 
-         adc6_lvds : in std_logic; 
-         adc7_lvds : in std_logic; 
-         adc_fco   : in std_logic;
-         adc_clk   : out std_logic; 
-         adc_sclk    : out std_logic;
-         adc_sdio    : inout std_logic; 
-         adc_csb_n   : out std_logic; 
-         adc_pdwn    : out std_logic;
-         adc_dco   : in std_logic;
-
-         -- DAC Interface
-         dac_clr_n        : in std_logic; -- Implement this!!
-         dac0_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac1_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac2_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac3_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac4_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac5_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac6_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac7_dfb_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-         dac_dfb_clk      : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         
-         -- Sa_bias and Offset_ctrl Interface
-         dac_clk         : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         dac_dat         : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         bias_dac_ncs    : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         offset_dac_ncs  : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-         
-         -- LVDS interface:
-         lvds_cmd        : in std_logic;
-         lvds_sync       : in std_logic;
-         lvds_spare      : in std_logic;
-         lvds_txa        : out std_logic;
-         lvds_txb        : out std_logic;
-
-         -- TTL interface:
-         ttl_dir1        : out std_logic;
-         ttl_in1         : in std_logic;
-         ttl_out1        : out std_logic;
-         
-         ttl_dir2        : out std_logic;
-         ttl_in2         : in std_logic;
-         ttl_out2        : out std_logic;
-         
-         ttl_dir3        : out std_logic;
-         ttl_in3         : in std_logic;
-         ttl_out3        : out std_logic;
-
-         -- LED Interface
-         red_led         : out std_logic;
-         ylw_led         : out std_logic;
-         grn_led         : out std_logic;
-         
-         -- miscellaneous ports
-         dip_sw0            : in std_logic;
-         dip_sw1            : in std_logic;
-         dip_sw2            : in std_logic;
-         dip_sw3            : in std_logic;
-         wdog             : out std_logic;
-         rs232_tx        : out std_logic;
-         rs232_rx        : in std_logic;
-         eeprom_si       : in std_logic; -- Implement this
-         eeprom_so       : out std_logic; -- Implement this
-         eeprom_sck      : out std_logic; -- Implement this
-         eeprom_cs_n     : out std_logic; -- Implement this
-         crc_error_in    : in std_logic; -- Implement this
-         critical_error  : in std_logic; -- Implement this
-         extend_n        : in std_logic; -- Implement this   
-
-         -- slot id interface  
-         slot_id         : in std_logic_vector(3 downto 0);
-
-         -- silicon_id/temperature interface
-         card_id         : inout std_logic;
-         
-         -- fpga_thermo serial interface
-         smb_clk         : out std_logic;
-         smb_nalert      : out std_logic;
-         smb_data        : inout std_logic;      
-
-         -- DDR2 interface
-         -- outputs:
-         mem_addr       : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
-         mem_ba         : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_cas_n      : OUT STD_LOGIC;
-         mem_cke        : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_clk        : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_clk_n      : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_cs_n       : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_dm         : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_dq         : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-         mem_dqs        : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_dqsn       : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_odt        : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_ras_n      : OUT STD_LOGIC;
-         mem_we_n       : OUT STD_LOGIC;
-         pnf            : OUT STD_LOGIC;
-         pnf_per_byte   : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-         test_complete  : OUT STD_LOGIC;
-         test_status    : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-         mictor_clk     : out std_logic -- Implement this!!!
-      );  
-   end component;
-
-
-   component bias_card
-   port(
-      -- PLL input:
-      inclk      : in std_logic;
-      rst_n      : in std_logic;
-
-      -- LVDS interface:
-      lvds_cmd   : in std_logic;
-      lvds_sync  : in std_logic;
-      lvds_spare : in std_logic;
-      lvds_txa   : out std_logic;
-      lvds_txb   : out std_logic;
-
-      -- TTL interface:
-      ttl_nrx1   : in std_logic;
-      ttl_tx1    : out std_logic;
-      ttl_txena1 : out std_logic;
-
-      ttl_nrx2   : in std_logic;
-      ttl_tx2    : out std_logic;
-      ttl_txena2 : out std_logic;
-
-      ttl_nrx3   : in std_logic;
-      ttl_tx3    : out std_logic;
-      ttl_txena3 : out std_logic;
-
-      -- eeprom interface:
-      eeprom_si  : in std_logic;
-      eeprom_so  : out std_logic;
-      eeprom_sck : out std_logic;
-      eeprom_cs  : out std_logic;
-
-      -- dac interface:
-      dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      dac_data      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      lvds_dac_ncs  : out std_logic;
-      lvds_dac_sclk : out std_logic;
-      lvds_dac_data : out std_logic;
-      dac_nclr      : out std_logic; -- add to tcl file
-
-      -- miscellaneous ports:
-      red_led    : out std_logic;
-      ylw_led    : out std_logic;
-      grn_led    : out std_logic;
-      dip_sw3    : in std_logic;
-      dip_sw4    : in std_logic;
-      wdog       : out std_logic;
-      slot_id    : in std_logic_vector(3 downto 0);
-      card_id    : inout std_logic;
-      smb_clk           : out std_logic;
-      smb_data          : inout std_logic;
-      smb_nalert : out std_logic;
-
-      -- debug ports:
-      test       : inout std_logic_vector(16 downto 3);
-      mictor     : out std_logic_vector(31 downto 0);
-      mictorclk  : out std_logic_vector(2 downto 1);
-      rx   : in std_logic;
-      tx   : out std_logic
-   );
-   end component;
-
-   component addr_card
-   port(
-      -- PLL input:
-      inclk      : in std_logic;
-      rst_n      : in std_logic;
-
-      -- LVDS interface:
-      lvds_cmd   : in std_logic;
-      lvds_sync  : in std_logic;
-      lvds_spare : in std_logic;
-      lvds_txa   : out std_logic;
-      lvds_txb   : out std_logic;
-
-      -- TTL interface:
-      ttl_nrx1   : in std_logic;
-      ttl_tx1    : out std_logic;
-      ttl_txena1 : out std_logic;
-
-      ttl_nrx2   : in std_logic;
-      ttl_tx2    : out std_logic;
-      ttl_txena2 : out std_logic;
-
-      ttl_nrx3   : in std_logic;
-      ttl_tx3    : out std_logic;
-      ttl_txena3 : out std_logic;
-
-      -- eeprom interface:
-      eeprom_si  : in std_logic;
-      eeprom_so  : out std_logic;
-      eeprom_sck : out std_logic;
-      eeprom_cs  : out std_logic;
-
-      -- dac interface:
-      dac_data0  : out std_logic_vector(13 downto 0);
-      dac_data1  : out std_logic_vector(13 downto 0);
-      dac_data2  : out std_logic_vector(13 downto 0);
-      dac_data3  : out std_logic_vector(13 downto 0);
-      dac_data4  : out std_logic_vector(13 downto 0);
-      dac_data5  : out std_logic_vector(13 downto 0);
-      dac_data6  : out std_logic_vector(13 downto 0);
-      dac_data7  : out std_logic_vector(13 downto 0);
-      dac_data8  : out std_logic_vector(13 downto 0);
-      dac_data9  : out std_logic_vector(13 downto 0);
-      dac_data10 : out std_logic_vector(13 downto 0);
-      dac_clk    : out std_logic_vector(40 downto 0);
-
-      -- miscellaneous ports:
-      red_led    : out std_logic;
-      ylw_led    : out std_logic;
-      grn_led    : out std_logic;
-      dip_sw3    : in std_logic;
-      dip_sw4    : in std_logic;
-      wdog       : out std_logic;
-      slot_id    : in std_logic_vector(3 downto 0);
-      card_id    : inout std_logic;
-      smb_clk    : out std_logic;
-      smb_nalert : out std_logic;
-      smb_data   : inout std_logic;
-
-      -- debug ports:
-      test       : inout std_logic_vector(16 downto 3);
-      mictor     : out std_logic_vector(32 downto 1);
-      mictorclk  : out std_logic_vector(2 downto 1);
-      rx         : in std_logic;
-      tx         : out std_logic
-   );
-   end component;
 
    ------------------------------------------------
    -- Simulation Signals
@@ -934,6 +296,48 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant bc1_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & ROW_LEN_ADDR;
    constant bc1_num_rows_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & NUM_ROWS_ADDR;
    constant bc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_2       & x"00" & LED_ADDR;
+   constant bc1_enbl_mux_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & ENBL_MUX_ADDR;
+   constant bc1_fb_col0_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL0_ADDR;
+   constant bc1_fb_col1_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL1_ADDR;
+   constant bc1_fb_col2_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL2_ADDR;
+   constant bc1_fb_col3_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL3_ADDR;
+   constant bc1_fb_col4_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL4_ADDR;
+   constant bc1_fb_col5_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL5_ADDR;
+   constant bc1_fb_col6_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL6_ADDR;
+   constant bc1_fb_col7_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL7_ADDR;
+   constant bc1_fb_col8_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL8_ADDR;
+   constant bc1_fb_col9_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL9_ADDR;
+   constant bc1_fb_col10_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL10_ADDR;
+   constant bc1_fb_col11_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL11_ADDR;
+   constant bc1_fb_col12_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL12_ADDR;
+   constant bc1_fb_col13_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL13_ADDR;
+   constant bc1_fb_col14_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL14_ADDR;
+   constant bc1_fb_col15_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL15_ADDR;
+   constant bc1_fb_col16_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL16_ADDR;
+   constant bc1_fb_col17_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL17_ADDR;
+   constant bc1_fb_col18_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL18_ADDR;
+   constant bc1_fb_col19_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL19_ADDR;
+   constant bc1_fb_col20_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL20_ADDR;
+   constant bc1_fb_col21_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL21_ADDR;
+   constant bc1_fb_col22_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL22_ADDR;
+   constant bc1_fb_col23_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL23_ADDR;
+   constant bc1_fb_col24_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL24_ADDR;
+   constant bc1_fb_col25_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL25_ADDR;
+   constant bc1_fb_col26_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL26_ADDR;
+   constant bc1_fb_col27_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL27_ADDR;
+   constant bc1_fb_col28_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL28_ADDR;
+   constant bc1_fb_col29_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL29_ADDR;
+   constant bc1_fb_col30_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL30_ADDR;
+   constant bc1_fb_col31_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL31_ADDR;
+   constant bc1_fb_col32_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL32_ADDR;
+   constant bc1_fb_col33_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL33_ADDR;
+   constant bc1_fb_col34_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL34_ADDR;
+   constant bc1_fb_col35_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL35_ADDR;
+   constant bc1_fb_col36_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL36_ADDR;
+   constant bc1_fb_col37_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL37_ADDR;
+   constant bc1_fb_col38_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL38_ADDR;
+   constant bc1_fb_col39_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL39_ADDR;
+   constant bc1_fb_col40_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL40_ADDR;   
 
    constant all_led_cmd             : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & LED_ADDR;
    constant sys_num_rows_reported_cmd : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS  & x"00" & NUM_ROWS_REPORTED_ADDR;
@@ -994,6 +398,14 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
    signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
    signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
+   
+   signal ac_pcb_rev : std_logic_vector(PCB_REV_BITS-1 downto 0) := "0100"; --rev D let's say!
+   signal bc1_pcb_rev : std_logic_vector(PCB_REV_BITS-1 downto 0) := "0110"; --rev F let's say!
+   signal bc2_pcb_rev : std_logic_vector(PCB_REV_BITS-1 downto 0) := "0110"; --rev F let's say!
+   signal bc3_pcb_rev : std_logic_vector(PCB_REV_BITS-1 downto 0) := "0110"; --rev F let's say!
+   signal rc1_pcb_rev : std_logic_vector(PCB_REV_BITS-1 downto 0) := "0101"; --rev E let's say!
+   signal rc2_pcb_rev : std_logic_vector(PCB_REV_BITS-1 downto 0) := "0101"; --rev E let's say!
+   signal cc_pcb_rev : std_logic_vector(PCB_REV_BITS-1 downto 0) := "0001"; --rev A let's say!
 
    ------------------------------------------------
    -- Clock Card Signals
@@ -1434,17 +846,11 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc1_ttl_nrx2      : std_logic := '0';
    signal bc1_ttl_nrx3      : std_logic := '0';
 
-   -- eeprom ice:nterface:
-   signal bc1_eeprom_si     : std_logic;
-   signal bc1_eeprom_so     : std_logic;
-   signal bc1_eeprom_sck    : std_logic;
-   signal bc1_eeprom_cs     : std_logic;
-
    -- dac interface:
    signal bc1_dac_ncs       : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc1_dac_sclk      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc1_dac_data      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-   signal bc1_lvds_dac_ncs  : std_logic;
+   signal bc1_lvds_dac_ncs  : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
    signal bc1_lvds_dac_sclk : std_logic;
    signal bc1_lvds_dac_data : std_logic;
    signal bc1_dac_nclr      : std_logic; -- add to tcl file
@@ -1475,17 +881,11 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc2_ttl_nrx2      : std_logic := '0';
    signal bc2_ttl_nrx3      : std_logic := '0';
 
-   -- eeprom ice:nterface:
-   signal bc2_eeprom_si     : std_logic;
-   signal bc2_eeprom_so     : std_logic;
-   signal bc2_eeprom_sck    : std_logic;
-   signal bc2_eeprom_cs     : std_logic;
-
    -- dac interface:
    signal bc2_dac_ncs       : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc2_dac_sclk      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc2_dac_data      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-   signal bc2_lvds_dac_ncs  : std_logic;
+   signal bc2_lvds_dac_ncs  : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
    signal bc2_lvds_dac_sclk : std_logic;
    signal bc2_lvds_dac_data : std_logic;
    signal bc2_dac_nclr      : std_logic; -- add to tcl file
@@ -1516,17 +916,11 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc3_ttl_nrx2      : std_logic := '0';
    signal bc3_ttl_nrx3      : std_logic := '0';
 
-   -- eeprom ice:nterface:
-   signal bc3_eeprom_si     : std_logic;
-   signal bc3_eeprom_so     : std_logic;
-   signal bc3_eeprom_sck    : std_logic;
-   signal bc3_eeprom_cs     : std_logic;
-
    -- dac interface:
    signal bc3_dac_ncs       : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc3_dac_sclk      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal bc3_dac_data      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-   signal bc3_lvds_dac_ncs  : std_logic;
+   signal bc3_lvds_dac_ncs  : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
    signal bc3_lvds_dac_sclk : std_logic;
    signal bc3_lvds_dac_data : std_logic;
    signal bc3_dac_nclr      : std_logic; -- add to tcl file
@@ -2237,12 +1631,6 @@ begin
 --         ttl_tx3       => open,
 --         ttl_txena3    => bc3_ttl_txena3,
 --
---         -- eeprom ice:nterface:
---         eeprom_si     => bc3_eeprom_si,
---         eeprom_so     => bc3_eeprom_so,
---         eeprom_sck    => bc3_eeprom_sck,
---         eeprom_cs     => bc3_eeprom_cs,
---
 --         -- dac interface:
 --         dac_ncs       => bc3_dac_ncs,
 --         dac_sclk      => bc3_dac_sclk,
@@ -2297,12 +1685,6 @@ begin
 --         ttl_tx3       => open,
 --         ttl_txena3    => bc2_ttl_txena3,
 --
---         -- eeprom ice:nterface:
---         eeprom_si     => bc2_eeprom_si,
---         eeprom_so     => bc2_eeprom_so,
---         eeprom_sck    => bc2_eeprom_sck,
---         eeprom_cs     => bc2_eeprom_cs,
---
 --         -- dac interface:
 --         dac_ncs       => bc2_dac_ncs,
 --         dac_sclk      => bc2_dac_sclk,
@@ -2330,130 +1712,126 @@ begin
 --         tx            => bc2_rs232_tx
 --      );
 --
---   i_bias_card1: bias_card
---      port map
---      (
---         -- PLL input:
---         inclk         => lvds_clk,
---         rst_n         => rst_n,
---
---         -- LVDS interface:
---         lvds_cmd      => lvds_cmd,
---         lvds_sync     => lvds_sync,
---         lvds_spare    => lvds_spare,
---         lvds_txa      => lvds_reply_bc1_a,
---         lvds_txb      => lvds_reply_bc1_b,
---
---         -- TTL interface:
---         ttl_nrx1      => bclr_n,
---         ttl_tx1       => open,
---         ttl_txena1    => bc1_ttl_txena1,
---
---         ttl_nrx2      => bc1_ttl_nrx2,
---         ttl_tx2       => open,
---         ttl_txena2    => bc1_ttl_txena2,
---
---         ttl_nrx3      => bc1_ttl_nrx3,
---         ttl_tx3       => open,
---         ttl_txena3    => bc1_ttl_txena3,
---
---         -- eeprom ice:nterface:
---         eeprom_si     => bc1_eeprom_si,
---         eeprom_so     => bc1_eeprom_so,
---         eeprom_sck    => bc1_eeprom_sck,
---         eeprom_cs     => bc1_eeprom_cs,
---
---         -- dac interface:
---         dac_ncs       => bc1_dac_ncs,
---         dac_sclk      => bc1_dac_sclk,
---         dac_data      => bc1_dac_data,
---         lvds_dac_ncs  => bc1_lvds_dac_ncs,
---         lvds_dac_sclk => bc1_lvds_dac_sclk,
---         lvds_dac_data => bc1_lvds_dac_data,
---         dac_nclr      => bc1_dac_nclr,
---
---         -- miscellaneous ports:
---         red_led       => bc1_red_led,
---         ylw_led       => bc1_ylw_led,
---         grn_led       => bc1_grn_led,
---         dip_sw3       => bc1_dip_sw3,
---         dip_sw4       => bc1_dip_sw4,
---         wdog          => bc1_wdog,
---         slot_id       => bc1_slot_id,
---         smb_nalert       => open,
---
---         -- debug ports:
---         test          => bc1_test,
---         mictor        => bc1_mictor,
---         mictorclk     => bc1_mictorclk,
---         rx            => bc1_rs232_rx,
+   i_bias_card1: bias_card
+      port map
+      (
+         -- PLL input:
+         inclk         => lvds_clk,
+         rst_n         => rst_n,
+
+         -- LVDS interface:
+         lvds_cmd      => lvds_cmd,
+         lvds_sync     => lvds_sync,
+         lvds_spare    => lvds_spare,
+         lvds_txa      => lvds_reply_bc1_a,
+         lvds_txb      => lvds_reply_bc1_b,
+
+         -- TTL interface:
+         ttl_nrx1      => bclr_n,
+         ttl_tx1       => open,
+         ttl_txena1    => bc1_ttl_txena1,
+
+         ttl_nrx2      => bc1_ttl_nrx2,
+         ttl_tx2       => open,
+         ttl_txena2    => bc1_ttl_txena2,
+
+         ttl_nrx3      => bc1_ttl_nrx3,
+         ttl_tx3       => open,
+         ttl_txena3    => bc1_ttl_txena3,
+
+         -- dac interface:
+         dac_ncs       => bc1_dac_ncs,
+         dac_sclk      => bc1_dac_sclk,
+         dac_data      => bc1_dac_data,
+         lvds_dac_ncs  => bc1_lvds_dac_ncs,
+         lvds_dac_sclk => bc1_lvds_dac_sclk,
+         lvds_dac_data => bc1_lvds_dac_data,
+         dac_nclr      => bc1_dac_nclr,
+
+         -- miscellaneous ports:
+         red_led       => bc1_red_led,
+         ylw_led       => bc1_ylw_led,
+         grn_led       => bc1_grn_led,
+         dip_sw3       => bc1_dip_sw3,
+         dip_sw4       => bc1_dip_sw4,
+         wdog          => bc1_wdog,
+         slot_id       => bc1_slot_id,
+         pcb_rev       => bc1_pcb_rev,
+         smb_nalert    => open,
+
+         -- debug ports:
+         test          => bc1_test,
+         mictor        => bc1_mictor,
+         mictorclk     => bc1_mictorclk,
+         rx            => bc1_rs232_rx
 --         tx            => bc1_rs232_tx
---      );
---
---   i_addr_card : addr_card
---      port map
---      (
---         -- PLL input:
---         inclk            => lvds_clk,
---         rst_n            => rst_n,
---
---         -- LVDS interface:
---         lvds_cmd         => lvds_cmd,
---         lvds_sync        => lvds_sync,
---         lvds_spare       => lvds_spare,
---         lvds_txa         => lvds_reply_ac_a,
---         lvds_txb         => lvds_reply_ac_b,
---
---         -- TTL interface:
---         ttl_nrx1         => bclr_n,
---         ttl_tx1          => open,
---         ttl_txena1       => ac_ttl_txena1,
---
---         ttl_nrx2         => ac_ttl_nrx2,
---         ttl_tx2          => open,
---         ttl_txena2       => ac_ttl_txena2,
---
---         ttl_nrx3         => ac_ttl_nrx3,
---         ttl_tx3          => open,
---         ttl_txena3       => ac_ttl_txena3,
---
---         -- eeprom interface:
---         eeprom_si        => ac_eeprom_si,
---         eeprom_so        => ac_eeprom_so,
---         eeprom_sck       => ac_eeprom_sck,
---         eeprom_cs        => ac_eeprom_cs,
---
---         -- dac interface:
---         dac_data0        => ac_dac_data0,
---         dac_data1        => ac_dac_data1,
---         dac_data2        => ac_dac_data2,
---         dac_data3        => ac_dac_data3,
---         dac_data4        => ac_dac_data4,
---         dac_data5        => ac_dac_data5,
---         dac_data6        => ac_dac_data6,
---         dac_data7        => ac_dac_data7,
---         dac_data8        => ac_dac_data8,
---         dac_data9        => ac_dac_data9,
---         dac_data10       => ac_dac_data10,
---         dac_clk          => ac_dac_clk,
---
---         -- miscellaneous ports:
---         red_led          => ac_red_led,
---         ylw_led          => ac_ylw_led,
---         grn_led          => ac_grn_led,
---         dip_sw3          => ac_dip_sw3,
---         dip_sw4          => ac_dip_sw4,
---         wdog             => ac_wdog,
---         slot_id          => ac_slot_id,
---         smb_nalert       => open,
---
---         -- debug ports:
---         test             => ac_test,
---         mictor           => ac_mictor,
---         mictorclk        => ac_mictorclk,
---         rx               => ac_rs232_rx,
---         tx               => ac_rs232_tx
---      );
+      );
+
+   i_addr_card : addr_card
+      port map
+      (
+         -- PLL input:
+         inclk            => lvds_clk,
+         rst_n            => rst_n,
+
+         -- LVDS interface:
+         lvds_cmd         => lvds_cmd,
+         lvds_sync        => lvds_sync,
+         lvds_spare       => lvds_spare,
+         lvds_txa         => lvds_reply_ac_a,
+         lvds_txb         => lvds_reply_ac_b,
+
+         -- TTL interface:
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => open,
+         ttl_txena1       => ac_ttl_txena1,
+
+         ttl_nrx2         => ac_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => ac_ttl_txena2,
+
+         ttl_nrx3         => ac_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => ac_ttl_txena3,
+
+         -- eeprom interface:
+         eeprom_si        => ac_eeprom_si,
+         eeprom_so        => ac_eeprom_so,
+         eeprom_sck       => ac_eeprom_sck,
+         eeprom_cs        => ac_eeprom_cs,
+
+         -- dac interface:
+         dac_data0        => ac_dac_data0,
+         dac_data1        => ac_dac_data1,
+         dac_data2        => ac_dac_data2,
+         dac_data3        => ac_dac_data3,
+         dac_data4        => ac_dac_data4,
+         dac_data5        => ac_dac_data5,
+         dac_data6        => ac_dac_data6,
+         dac_data7        => ac_dac_data7,
+         dac_data8        => ac_dac_data8,
+         dac_data9        => ac_dac_data9,
+         dac_data10       => ac_dac_data10,
+         dac_clk          => ac_dac_clk,
+
+         -- miscellaneous ports:
+         red_led          => ac_red_led,
+         ylw_led          => ac_ylw_led,
+         grn_led          => ac_grn_led,
+         dip_sw3          => ac_dip_sw3,
+         dip_sw4          => ac_dip_sw4,
+         wdog             => ac_wdog,
+         slot_id          => ac_slot_id,
+--         pcb_rev          => ac_pcb_rev,
+         smb_nalert       => open,
+
+         -- debug ports:
+         test             => ac_test,
+         mictor           => ac_mictor,
+         mictorclk        => ac_mictorclk,
+         rx               => ac_rs232_rx,
+         tx               => ac_rs232_tx
+      );
 
    ------------------------------------------------
    -- Create test bench stimuli
@@ -2553,7 +1931,7 @@ begin
    fibre_rx_nrdy <= '1';
    wait for pci_dsp_dly;
 
-   assert false report "preamble OK" severity NOTE;
+--   assert false report "preamble OK" severity NOTE;
    end load_preamble;
 
    ---------------------------------------------------------
@@ -2618,7 +1996,7 @@ begin
       fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      assert false report "address id loaded" severity NOTE;
+--      assert false report "address id loaded" severity NOTE;
       fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
@@ -2650,7 +2028,7 @@ begin
       fibre_rx_nrdy   <= '0';
       wait for fibre_clkr_prd * 0.6;
 
-      assert false report "data valid loaded" severity NOTE;
+--      assert false report "data valid loaded" severity NOTE;
       fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
 
@@ -2739,7 +2117,7 @@ begin
          wait for pci_dsp_dly;
       end loop;
 
-      assert false report "data words loaded to memory...." severity NOTE;
+--      assert false report "data words loaded to memory...." severity NOTE;
 
    end load_command;
 
@@ -2826,7 +2204,7 @@ begin
          wait for fibre_clkr_prd * 0.6;
       end if;
 
-      assert false report "checksum loaded...." severity NOTE;
+--      assert false report "checksum loaded...." severity NOTE;
 
       fibre_rx_nrdy <= '1';
       wait for pci_dsp_dly;
@@ -2868,6 +2246,170 @@ begin
 ------------------------------------------------------
 
    begin
+      -------------------------------------
+      -- CC
+      -------------------------------------
+--      command <= command_wb;
+--      address_id <= cc_rcs_to_report_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000003C"; --60
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_data_rate_cmd;
+--      data_valid <= X"00000001";
+----      data       <= X"00000100"; --256
+--      data       <= X"0000000A"; --256
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+      command <= command_wb;
+      address_id <= cc_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000021"; --33
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_num_rows_reported_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000020"; --32
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_num_cols_reported_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000008"; --8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+   
+      -------------------------------------
+      -- BC1
+      -------------------------------------
+      command <= command_wb;
+      address_id <= bc1_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000021"; --33
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= bc1_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
+      command <= command_wb;
+      address_id <= bc1_fb_col0_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000A000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= bc1_fb_col29_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000F000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_wb;
+      address_id <= bc1_enbl_mux_cmd;
+      data_valid <= X"00000020";
+      data       <= X"00000001"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_rb;
+      address_id <= bc1_fb_col0_cmd;
+      data_valid <= X"00000029";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_rb;
+      address_id <= bc1_fb_col0_cmd;
+      data_valid <= X"00000029";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_rb;
+      address_id <= bc1_enbl_mux_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000A000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_wb;
+      address_id <= bc1_bias_cmd;
+      data_valid <= X"0000000c";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_rb;
+      address_id <= bc1_bias_cmd;
+      data_valid <= X"0000000c";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= bc1_flux_fb_cmd;
+      data_valid <= X"00000020";
+      data       <= X"0000AAAA"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
+      command <= command_rb;
+      address_id <= bc1_flux_fb_cmd;
+      data_valid <= X"00000020";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
 
       -- Wait for the BRst to finish, which takes 100us
       present_sim_state <= NOTHING;
