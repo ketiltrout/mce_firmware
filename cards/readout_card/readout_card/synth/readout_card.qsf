@@ -35,7 +35,7 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "9.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -1111,6 +1111,9 @@ set_location_assignment PIN_F25 -to adc8_dat[11]
 set_location_assignment PIN_K24 -to adc8_dat[12]
 set_location_assignment PIN_K23 -to adc8_dat[13]
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+set_global_assignment -name MISC_FILE "C:/mce/cards/readout_card/readout_card/synth/readout_card.dpf"
+set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER ON
+set_global_assignment -name SDC_FILE readout_card.sdc
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -1140,7 +1143,6 @@ set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/raw_ram_bank.vh
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/dpram_32bit_x_16.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
@@ -1215,4 +1217,5 @@ set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 set_global_assignment -name MIF_FILE ../../fsfb_calc/source/rtl/ram_40x64.mif
 set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
-set_global_assignment -name MISC_FILE "C:/mce/cards/readout_card/readout_card/synth/readout_card.dpf"
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
+set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING ON
