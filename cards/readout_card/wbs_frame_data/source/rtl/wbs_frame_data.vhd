@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2009/11/13 20:33:43 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2010/03/12 21:04:13 $> - <text> - <initials $Author: bburger $>
 --
 -----------------------------------------------------------------------------
 
@@ -229,8 +229,8 @@ architecture rtl of wbs_frame_data is
    signal pix_addr_incr    : std_logic;
    signal row_index        : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    signal col_index        : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0);
-   signal row_index_temp   : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-   signal col_index_temp   : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0);
+--   signal row_index_temp   : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+--   signal col_index_temp   : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0);
    
    -- channel select ch 0 --> 7
    signal ch_mux_sel       : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0);          
@@ -262,7 +262,7 @@ architecture rtl of wbs_frame_data is
    signal raw_addr_clr     : std_logic;
    signal raw_addr_save    : std_logic;   
    signal raw_req          : std_logic;  -- signal fed to all 8 flux loop cntr channels
-   signal raw_ack          : std_logic;  -- acknowledgements from all 8 flux loop cntr channels
+--   signal raw_ack          : std_logic;  -- acknowledgements from all 8 flux loop cntr channels
 
    ------------------------------------------------------------------------------------------------
    -- Miscellaneous
@@ -562,8 +562,8 @@ begin
    pix_address       <= row_index & col_index;   
    num_rows_reported <= conv_std_logic_vector(num_rows_reported_i, ROW_ADDR_WIDTH); 
    num_cols_reported <= conv_std_logic_vector(num_cols_reported_i, ROW_ADDR_WIDTH);   
-   row_index_temp    <= readout_row_index + num_rows_reported;
-   col_index_temp    <= readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0);
+--   row_index_temp    <= readout_row_index + num_rows_reported;
+--   col_index_temp    <= readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0);
 
    address_rectangler: process (clk_i, rst_i)
    begin
@@ -870,7 +870,7 @@ begin
    -- Raw-Mode Signals
    ------------------------------------------------------------------------------------------------
    -- We ignore raw_ack_i because we don't want to hang the FSM while the raw RAM fills up.
-   raw_ack    <= raw_ack_i;  
+--   raw_ack    <= raw_ack_i;  
    raw_req_o  <= raw_req;
    raw_addr   <= raw_addr_offset(RAW_ADDR_WIDTH-1 downto 0) + tga_i(RAW_ADDR_WIDTH-1 downto 0);
    raw_dat    <= sxt(raw_dat_i, raw_dat'length) when raw_addr < RAW_ADDR_MAX + 1 else RAW_NULL_DATA;
