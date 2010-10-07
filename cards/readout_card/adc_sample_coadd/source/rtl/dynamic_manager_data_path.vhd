@@ -100,6 +100,9 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.6  2010/03/12 20:38:03  bburger
+-- BB: added i_clamp_val interface signals and logic
+--
 -- Revision 1.5.2.2  2010/03/02 19:53:27  bburger
 -- BB: Added logic for disabling the PID calculation clamping feature when clamp_val = 0
 --
@@ -196,9 +199,8 @@ architecture rtl of dynamic_manager_data_path is
   signal diff_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal previous_coadd : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   
-  -- Signals needed for the Coadd Finder
-  signal coadd_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-  
+  -- Signals needed for the Coadd Finder  
+  signal en_clamp     : std_logic;  
   
 begin  -- rtl
 
@@ -220,8 +222,6 @@ begin  -- rtl
     end if;
   end process i_delay_initialize_window;
 
-
-
   -----------------------------------------------------------------------------
   -- Integral Adder
   -- This is a combinational adder that addes the present current coadded value
@@ -236,9 +236,9 @@ begin  -- rtl
     (others => '0')        when initialize_window_max_dly = '1' else
     intgrl_dat_frm_bank1_i when current_bank_i = '0' else
     intgrl_dat_frm_bank0_i;
-
+    
   -----------------------------------------------------------------------------
-  -- I-Term Clamping:
+  -- strictly Integral-Term Clamping:
   -----------------------------------------------------------------------------
   -- This is where the clamp needs to be to prevent wrapping.
   -- A clamp any later in the chain will not prevent the I term from wrapping and causing a whiplash effect
@@ -250,15 +250,40 @@ begin  -- rtl
   -- See the wiki for the formula to calculate the correct clamping value for any set of PID parameters and flux-jump quanta:
   -- http://e-mode.phas.ubc.ca/mcewiki/index.php/FSFB_Clamping_Commands
   -----------------------------------------------------------------------------
-  integral_result <= 
-    i_clamp_val_i  when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" else
-    -i_clamp_val_i when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" else    
-    current_coadd_dat_i + previous_intgral;
+  en_clamp <= '0' when i_clamp_val_i = x"00000000" else
+              '1' ;
+              
+  i_clamp_process: process (clk_i, rst_i)
+  begin  -- process i_clamp_process
+    if rst_i = '1' then                 -- asynchronous reset (active high)
+      integral_result <= (others => '0'); 
+      integral_result_o <= (others => '0'); 
+      current_integral_dat_o <= (others => '0');
+      
+    elsif clk_i'event and clk_i = '1' then  -- rising clock edge
+      if en_clamp = '1' then
+        if previous_intgral > i_clamp_val_i then 
+          integral_result <= i_clamp_val_i;
+        elsif previous_intgral < (-i_clamp_val_i) then
+          integral_result <= -i_clamp_val_i;
+        else 
+          integral_result <= current_coadd_dat_i + previous_intgral;
+        end if;  
+      else
+        integral_result <= current_coadd_dat_i + previous_intgral;
+      end if;
+      
+      -- For running integral storage 
+      integral_result_o <= integral_result; 
+      
+      if wren_for_fsfb_i = '1' then
+        -- For PID loop calculation      
+        current_integral_dat_o <= integral_result;        
+      end if;
 
-  -- For running integral storage
-  integral_result_o <= integral_result;
-
-
+    end if;
+  end process i_clamp_process;
+                  
 
   -----------------------------------------------------------------------------
   -- Difference finder
@@ -267,24 +292,15 @@ begin  -- rtl
   -- a MUX by current_bank_i.  Note that when current_bank_i=0, inputs from
   -- bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
+
+  diff_result <= current_coadd_dat_i - previous_coadd;
+
   previous_coadd <=
     (others => '0')       when initialize_window_max_dly = '1' else
     coadd_dat_frm_bank1_i when current_bank_i = '0' else
     coadd_dat_frm_bank0_i;
 
-  diff_result <= 
-    (others => '0') when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" else
-    (others => '0') when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" else    
-    current_coadd_dat_i - previous_coadd;
- 
-  -----------------------------------------------------------------------------
-  -- Coadd finder
-  -----------------------------------------------------------------------------
-  coadd_result <=
-    (others => '0') when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" else
-    (others => '0') when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" else    
-    current_coadd_dat_i;
-
+  
   -----------------------------------------------------------------------------
   -- Register Outputs for fsfb_calc
   -----------------------------------------------------------------------------
@@ -293,15 +309,16 @@ begin  -- rtl
   begin  -- process i_output_for_fsfb
     if rst_i = '1' then                 -- asynchronous reset (active high)
       current_coadd_dat_o    <= (others => '0');
-      current_integral_dat_o <= (others => '0');
+      --current_integral_dat_o <= (others => '0');
       current_diff_dat_o     <= (others => '0');
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
 
       if wren_for_fsfb_i = '1' then
         -- For PID loop calculation
-        current_coadd_dat_o    <= coadd_result;
-        current_integral_dat_o <= integral_result;
+        current_coadd_dat_o    <= current_coadd_dat_i;
+        -- the integral term is now 
+      --  current_integral_dat_o <= integral_result_o;
         current_diff_dat_o     <= diff_result;
       end if;
       
