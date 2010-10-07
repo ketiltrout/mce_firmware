@@ -58,6 +58,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dynamic_manager_data_path.vhd,v $
+-- Revision 1.3  2004/11/26 18:25:54  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/10/29 02:03:56  mohsen
 -- Sorted out library use and use parameters
 --
@@ -97,7 +100,7 @@ architecture beh of tb_dynamic_manager_data_path is
   component dynamic_manager_data_path
     
     generic (
-      MAX_SHIFT : integer := ADC_LATENCY+1);  -- delay stages for
+      MAX_SHIFT : integer);  -- delay stages for
                                               -- initialize_window_i
                                           
     port (
@@ -105,6 +108,7 @@ architecture beh of tb_dynamic_manager_data_path is
       rst_i                  : in  std_logic;
       clk_i                  : in  std_logic;
       initialize_window_i    : in  std_logic;
+      i_clamp_val_i          : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       current_coadd_dat_i    : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       current_bank_i         : in  std_logic;
       wren_for_fsfb_i        : in  std_logic;
@@ -123,6 +127,7 @@ architecture beh of tb_dynamic_manager_data_path is
   signal rst_i                  : std_logic;
   signal clk_i                  : std_logic;
   signal initialize_window_i    : std_logic;
+  signal i_clamp_val_i          : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal current_coadd_dat_i    : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal current_bank_i         : std_logic;
   signal wren_for_fsfb_i        : std_logic;
@@ -171,6 +176,7 @@ begin  -- beh
       rst_i                  => rst_i,
       clk_i                  => clk_i,
       initialize_window_i    => initialize_window_i,
+      i_clamp_val_i          => i_clamp_val_i,
       current_coadd_dat_i    => current_coadd_dat_i,
       current_bank_i         => current_bank_i,
       wren_for_fsfb_i        => wren_for_fsfb_i,
@@ -246,6 +252,7 @@ begin  -- beh
       else
         initialize_window_i <= '0' after PERIOD;
       end if;
+      i_clamp_val_i <= x"00200000";
       
       wait for CLOCKS_PER_ROW*PERIOD;     -- wait for one row
       restart_frame_1row_post <= '1',
