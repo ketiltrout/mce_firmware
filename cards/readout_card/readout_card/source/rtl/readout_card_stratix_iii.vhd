@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.13  2010/01/11 23:00:55  bburger
+-- BB: re-integrated the DDR2 RAM interface, temporarily removed the CRC_ERROR interface, updated comments regarding ADC sampling-clock phases.
+--
 -- Revision 1.12  2009/12/10 00:13:36  bburger
 -- BB: Added CRC_ERROR entities and test functionality.
 --
@@ -88,15 +91,11 @@ use ieee.std_logic_unsigned.all;
 LIBRARY altera_mf;
 USE altera_mf.all;
 
---library stratixiii;
---use stratixiii.all;
 
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
-library components;
-use components.component_pack.all;
 
 library work;
 use work.readout_card_pack.all;
@@ -202,6 +201,9 @@ port(
    smb_clk         : out std_logic;
    smb_nalert      : out std_logic;
    smb_data        : inout std_logic;      
+   
+   -- pcb revision identification pins
+   pcb_rev         : in std_logic_vector(PCB_REV_BITS-1 downto 0);
 
    -- DDR2 interface
    -- outputs:
@@ -232,9 +234,8 @@ architecture top of readout_card_stratix_iii is
    -- The REVISION format is RRrrBBBB where 
    --               RR is the major revision number
    --               rr is the minor revision number
-   --               BBBB is the build number
-   -- firmware major/minor revision set to ffff for trial/debug firmware
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"ffff0006";
+   --               BBBB is the build number   
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0500000e";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
@@ -550,7 +551,6 @@ begin
       locked      => adc_clk_pll_locked
    );
    
-   -- http://e-mode.phas.ubc.ca/intmcewiki/index.php/Readout_Card_Rev._D
    i_adc_pll: adc_pll_stratix_iii
    port map (
       areset => rst,
@@ -709,7 +709,8 @@ begin
                             ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
+                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
+                            I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
       dat_frame        when DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
                             READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       dat_led          when LED_ADDR,
@@ -740,7 +741,8 @@ begin
                            ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
                            FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                            RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                           SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
+                           SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
       ack_frame       when DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
                            READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       ack_led         when LED_ADDR,
@@ -776,7 +778,8 @@ begin
                            LED_ADDR |
                            ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                            SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
       all_cards_err   when FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_err   when CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_err when FPGA_TEMP_ADDR,
@@ -1043,6 +1046,7 @@ begin
       stb_i  => dispatch_stb_out,
       cyc_i  => dispatch_cyc_out,
       slot_id_i => slot_id,
+      pcb_rev_i => pcb_rev,
       err_o     => all_cards_err,
       dat_o     => all_cards_data,
       ack_o     => all_cards_ack
