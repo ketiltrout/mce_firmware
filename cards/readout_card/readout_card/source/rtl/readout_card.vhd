@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.93  2010/08/04 21:37:59  bburger
+-- BB:  0500000d
+--
 -- Revision 1.92  2010/06/17 01:07:57  bburger
 -- BB: rc_v0500000c
 --
@@ -213,7 +216,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000d";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000e";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
@@ -294,6 +297,8 @@ architecture top of readout_card is
    signal num_rows_reported       : integer;
    signal num_cols_reported       : integer;
    signal data_size               : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+
+   signal pcb_rev            : std_logic_vector(PCB_REV_BITS-1 downto 0);
   
 begin
 
@@ -321,6 +326,8 @@ begin
 
    -- This line will be used by clock card to check card presence
    --lvds_txb <= '0';
+   
+   pcb_rev <= (others => '0');
 
    ----------------------------------------------------------------------------
    -- PLL Instantiation
@@ -722,6 +729,7 @@ begin
       stb_i     => dispatch_stb_out,
       cyc_i     => dispatch_cyc_out,
       slot_id_i => slot_id,
+      pcb_rev_i => pcb_rev,
       err_o     => all_cards_err,
       dat_o     => all_cards_data,
       ack_o     => all_cards_ack
