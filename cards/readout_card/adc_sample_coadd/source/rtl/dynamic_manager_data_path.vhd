@@ -100,6 +100,10 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.7  2010/10/07 18:39:52  mandana
+-- fixed a bug that caused servo instability when a clamp value was specified.
+-- removed clamping of diff and coadd values, this is strictly an integral clamp.
+--
 -- Revision 1.6  2010/03/12 20:38:03  bburger
 -- BB: added i_clamp_val interface signals and logic
 --
@@ -262,13 +266,17 @@ begin  -- rtl
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
       if en_clamp = '1' then
-        if previous_intgral > i_clamp_val_i then 
-          integral_result <= i_clamp_val_i;
-        elsif previous_intgral < (-i_clamp_val_i) then
-          integral_result <= -i_clamp_val_i;
+        if initialize_window_max_dly = '0' then
+          if previous_intgral >= i_clamp_val_i then 
+            integral_result <= i_clamp_val_i;
+          elsif previous_intgral <= (-i_clamp_val_i) then
+            integral_result <= -i_clamp_val_i;
+          else 
+            integral_result <= current_coadd_dat_i + previous_intgral;
+          end if;  
         else 
-          integral_result <= current_coadd_dat_i + previous_intgral;
-        end if;  
+            integral_result <= current_coadd_dat_i + previous_intgral;
+        end if;    
       else
         integral_result <= current_coadd_dat_i + previous_intgral;
       end if;
