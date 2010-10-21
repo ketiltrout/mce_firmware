@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.12 2010/01/11 23:03:26 bburger Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.13 2010/06/29 01:37:32 bburger Exp $
 
 
 
@@ -29,12 +29,12 @@ puts "----------------------------------------"
 # Run DDR tcl assignments first
 cd ../../ddr2_sdram_ctrl/source/rtl/
 source micron_ctrl_pin_assignments.tcl
-cd ../../../readout_card/synth_stratix_iii/
+cd ../../readout_card/synth_stratix_iii/
 
 
 # include Quartus Tcl API
 package require ::quartus::flow
-package require ::quartus::project
+package require ::quartus::project_ui
 
 # get entity name
 set top_name [get_project_settings -cmp]

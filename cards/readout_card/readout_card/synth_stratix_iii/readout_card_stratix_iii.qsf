@@ -27,7 +27,7 @@ set_global_assignment -name FAMILY "Stratix III"
 set_global_assignment -name DEVICE EP3SE50F780C4
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 9.1
+set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1.124"
 set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
 set_global_assignment -name EDA_INPUT_DATA_FORMAT VHDL -section_id eda_design_synthesis
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
@@ -365,7 +365,7 @@ set_global_assignment -name IGNORE_TRANSLATE_OFF_AND_SYNTHESIS_OFF OFF
 set_global_assignment -name STRATIXGX_BYPASS_REMAPPING_OF_FORCE_SIGNAL_DETECT_SIGNAL_THRESHOLD_SELECT OFF
 set_global_assignment -name SYNTH_TIMING_DRIVEN_REGISTER_DUPLICATION OFF
 set_global_assignment -name SYNTH_TIMING_DRIVEN_BALANCED_MAPPING OFF
-set_global_assignment -name SHOW_PARAMETER_SETTINGS_TABLES_IN_SYNTHESIS_REPORT ON
+set_global_assignment -name REPORT_PARAMETER_SETTINGS ON
 set_global_assignment -name IGNORE_MAX_FANOUT_ASSIGNMENTS OFF
 set_global_assignment -name SYNCHRONIZATION_REGISTER_CHAIN_LENGTH 2
 set_global_assignment -name HDL_MESSAGE_LEVEL LEVEL2
@@ -432,7 +432,7 @@ set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING "EXTRA EFFORT"
 set_global_assignment -name OPTIMIZE_TIMING "NORMAL COMPILATION"
 set_global_assignment -name ECO_OPTIMIZE_TIMING OFF
 set_global_assignment -name ECO_REGENERATE_REPORT OFF
-set_global_assignment -name OPTIMIZE_IOC_REGISTER_PLACEMENT_FOR_TIMING ON
+set_global_assignment -name OPTIMIZE_IOC_REGISTER_PLACEMENT_FOR_TIMING NORMAL
 set_global_assignment -name DISABLE_PLL_COMPENSATION_DELAY_CHANGE_WARNING OFF
 set_global_assignment -name FIT_ONLY_ONE_ATTEMPT OFF
 set_global_assignment -name FITTER_AGGRESSIVE_ROUTABILITY_OPTIMIZATION AUTOMATICALLY
@@ -487,13 +487,11 @@ set_global_assignment -name GENERATE_GXB_RECONFIG_MIF OFF
 set_global_assignment -name GENERATE_GXB_RECONFIG_MIF_WITH_PLL OFF
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-STATED"
 set_global_assignment -name STOP_AFTER_CONGESTION_MAP OFF
-set_global_assignment -name SAVE_INTERMEDIATE_FITTING_RESULTS OFF
 set_global_assignment -name ENABLE_HOLD_BACK_OFF ON
 set_global_assignment -name FORCE_CONFIGURATION_VCCIO OFF
 set_global_assignment -name SYNCHRONIZER_IDENTIFICATION OFF
 set_global_assignment -name ENABLE_BENEFICIAL_SKEW_OPTIMIZATION OFF
 set_global_assignment -name OPTIMIZE_FOR_METASTABILITY OFF
-set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
 set_global_assignment -name MAX_GLOBAL_CLOCKS_ALLOWED "-1"
 set_global_assignment -name MAX_REGIONAL_CLOCKS_ALLOWED "-1"
 set_global_assignment -name MAX_PERIPHERY_CLOCKS_ALLOWED "-1"
@@ -605,7 +603,6 @@ set_global_assignment -name SIGNALPROBE_ALLOW_OVERUSE OFF
 set_global_assignment -name SIGNALPROBE_DURING_NORMAL_COMPILATION OFF
 set_global_assignment -name HUB_ENTITY_NAME sld_hub
 set_global_assignment -name HUB_INSTANCE_NAME auto_hub
-set_global_assignment -name LL_OLD_BEHAVIOR OFF
 set_global_assignment -name POWER_DEFAULT_TOGGLE_RATE 12.5%
 set_global_assignment -name POWER_DEFAULT_INPUT_IO_TOGGLE_RATE 12.5%
 set_global_assignment -name POWER_USE_PVA ON
@@ -1229,13 +1226,8 @@ set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 set_global_assignment -name MIF_FILE ../../fsfb_calc/source/rtl/ram_40x64.mif
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
 set_global_assignment -name QIP_FILE ../../pll/source/rtl/rc_pll_stratix_iii.qip
-set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name SIGNALTAP_FILE stp2.stp
-set_global_assignment -name SIGNALTAP_FILE stp3.stp
 set_global_assignment -name CDF_FILE readout_card_stratix_iii_rc_pof.cdf
-set_global_assignment -name CDF_FILE readout_card_stratix_iii_two_cards.cdf
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-set_global_assignment -name CDF_FILE readout_card_stratix_iii_two_cards01.cdf
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc_fco
 set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc7_lvds
@@ -1246,58 +1238,7 @@ set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc3_lvds
 set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc2_lvds
 set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc1_lvds
 set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to adc0_lvds
-set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "rc_pll_stratix_iii:i_rc_pll|c0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=14" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=14" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=63" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=128" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=53125" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=128" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
-set_global_assignment -name SIGNALTAP_FILE adc_serdes01_ch0_intterm01.stp
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "flux_loop:i_flux_loop|adc_dat_ch0_i[9]" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=38465" -section_id auto_signaltap_0
-set_global_assignment -name SIGNALTAP_FILE "../../../../../Documents and Settings/Bryce/Desktop/latest sofs/readout_card_stratix_iii_15 c0 -135.stp"
+set_location_assignment PIN_AH19 -to pcb_rev[3]
+set_location_assignment PIN_AH18 -to pcb_rev[2]
+set_location_assignment PIN_AH16 -to pcb_rev[0]
+set_location_assignment PIN_AH17 -to pcb_rev[1]
