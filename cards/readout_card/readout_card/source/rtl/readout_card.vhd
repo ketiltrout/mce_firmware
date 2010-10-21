@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.94  2010/10/07 20:05:25  mandana
+-- rev. 5.0.e with clamp bug fix
+-- added virtual pcb_rev signals to be compatible with latest all_cards (that has pcb_rev interface to support new hardware)
+--
 -- Revision 1.93  2010/08/04 21:37:59  bburger
 -- BB:  0500000d
 --
@@ -216,7 +220,7 @@ architecture top of readout_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000e";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000f";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk

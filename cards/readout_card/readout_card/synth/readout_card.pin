@@ -67,7 +67,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
+Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1.124 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S40F780C6
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -469,7 +469,7 @@ RESERVED_INPUT               : G6        :        :                   :         
 ttl_dir1                     : G7        : output : 3.3-V LVTTL       :         : 4         : Y              
 ttl_out2                     : G8        : output : 3.3-V LVTTL       :         : 4         : Y              
 ttl_dir2                     : G9        : output : 3.3-V LVTTL       :         : 4         : Y              
-mictor[5]                    : G10       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : G10       :        :                   :         : 4         :                
 RESERVED_INPUT               : G11       :        :                   :         : 4         :                
 ttl_out3                     : G12       : output : 3.3-V LVTTL       :         : 4         : Y              
 TDI                          : G13       : input  :                   :         : 4         :                
@@ -527,7 +527,7 @@ dac_FB3_dat[1]               : J8        : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : J9        :        :                   :         : 4         :                
 RESERVED_INPUT               : J10       :        :                   :         : 4         :                
 RESERVED_INPUT               : J11       :        :                   :         : 4         :                
-RESERVED_INPUT               : J12       :        :                   :         : 4         :                
+mictor[5]                    : J12       : output : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
 VCCIO4                       : J14       : power  :                   : 3.3V    : 4         :                
 VCCIO3                       : J15       : power  :                   : 3.3V    : 3         :                

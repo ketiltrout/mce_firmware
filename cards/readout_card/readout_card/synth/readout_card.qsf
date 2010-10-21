@@ -35,7 +35,7 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1.124"
 
 # Pin & Location Assignments
 # ==========================
@@ -657,11 +657,11 @@ set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch
 
 	# Timing Assignments
 	# ==================
-set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
-set_instance_assignment -name OUTPUT_MAX_DELAY "0 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
-set_instance_assignment -name INPUT_MAX_DELAY "11.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
-set_instance_assignment -name INPUT_MIN_DELAY "3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
-set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
+# set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
+# set_instance_assignment -name OUTPUT_MAX_DELAY "0 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
+# set_instance_assignment -name INPUT_MAX_DELAY "11.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
+# set_instance_assignment -name INPUT_MIN_DELAY "3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
+# set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
 
 	# Analysis & Synthesis Assignments
 	# ================================
@@ -1217,5 +1217,5 @@ set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 set_global_assignment -name MIF_FILE ../../fsfb_calc/source/rtl/ram_40x64.mif
 set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING ON
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
