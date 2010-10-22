@@ -72,7 +72,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
+Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1.124 SJ Full Version
 CHIP  "readout_card_stratix_iii"  ASSIGNED TO AN: EP3SE50F780C4
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -99,7 +99,7 @@ dac1_dfb_dat[4]              : A20       : output : 3.3-V LVTTL       :         
 dac1_dfb_dat[5]              : A21       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac1_dfb_dat[7]              : A22       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac1_dfb_dat[9]              : A23       : output : 3.3-V LVTTL       :         : 8A        : Y              
-RESERVED_INPUT               : A24       :        :                   :         : 8A        :                
+mictor_clk                   : A24       : output : 3.3-V LVTTL       :         : 8A        : N              
 dac1_dfb_dat[11]             : A25       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac1_dfb_dat[13]             : A26       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac_dfb_clk[1]               : A27       : output : 3.3-V LVTTL       :         : 8A        : Y              
@@ -530,7 +530,7 @@ dac7_dfb_dat[12]             : J6        : output : 3.3-V LVTTL       :         
 VREFB6AN0                    : J7        : power  :                   :         : 6A        :                
 GND                          : J8        : gnd    :                   :         :           :                
 MSEL1                        : J9        :        :                   :         : 1A        :                
-mictor_clk                   : J10       : output : 3.3-V LVTTL       :         : 7A        : N              
+RESERVED_INPUT               : J10       :        :                   :         : 7A        :                
 offset_dac_ncs[2]            : J11       : output : 3.3-V LVTTL       :         : 7A        : Y              
 RESERVED_INPUT               : J12       :        :                   :         : 7A        :                
 GND                          : J13       : gnd    :                   :         :           :                

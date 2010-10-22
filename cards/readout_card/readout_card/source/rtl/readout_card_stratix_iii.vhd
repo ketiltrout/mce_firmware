@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.14  2010/10/07 23:43:59  mandana
+-- added pcb_rev interface for Rev. E cards
+-- added clamp and fltr_rst commands to bring forward to 5.0.e version
+-- cleaned up unused libraries
+--
 -- Revision 1.13  2010/01/11 23:00:55  bburger
 -- BB: re-integrated the DDR2 RAM interface, temporarily removed the CRC_ERROR interface, updated comments regarding ADC sampling-clock phases.
 --
@@ -235,7 +240,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number   
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0500000e";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0500000f";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
