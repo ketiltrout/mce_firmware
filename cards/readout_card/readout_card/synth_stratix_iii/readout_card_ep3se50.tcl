@@ -16,20 +16,20 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.13 2010/06/29 01:37:32 bburger Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.14 2010/10/21 18:04:06 mandana Exp $
 
 
 
 # print welcome message
 puts ""
-puts "----------------------------------------"
-puts "Readout Card Rev D Pin Assignment Script"
-puts "----------------------------------------"
+puts "-----------------------------------------"
+puts "Readout Card Rev D/E Pin Assignment Script"
+puts "-----------------------------------------"
 
 # Run DDR tcl assignments first
 cd ../../ddr2_sdram_ctrl/source/rtl/
 source micron_ctrl_pin_assignments.tcl
-cd ../../readout_card/synth_stratix_iii/
+cd ../../../readout_card/synth_stratix_iii/
 
 
 # include Quartus Tcl API
@@ -42,7 +42,7 @@ puts "Info: Top-level entity is $top_name."
 
 set_global_assignment -name FAMILY "Stratix III"
 set_global_assignment -name DEVICE EP3SE50F780C4
-cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 puts "   Assigned: EP3SE50 device parameters."
 
 puts "\n Assigning Pins:"
@@ -66,17 +66,17 @@ set_location_assignment PIN_G16 -to pll_t1_out[3]
 ## rs232 interface
 puts "Info: Assigning: RS232 pins."
 #####################################################
-cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_M23"
-cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_M22"
+set_location_assignment Pin_M23 -to rs232_tx
+set_location_assignment Pin_M22 -to rs232_rx
 
 #####################################################
 ## EEPROM pins
 puts "Info: Assigning EEPROM pins."
 #####################################################
-cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_M20"
-cmp add_assignment $top_name "" eeprom_so LOCATION "Pin_K28"
-cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_N20"
-cmp add_assignment $top_name "" eeprom_cs_n LOCATION "Pin_L25"
+set_location_assignment Pin_M20 -to eeprom_si 
+set_location_assignment Pin_K28 -to eeprom_so 
+set_location_assignment Pin_N20 -to eeprom_sck
+set_location_assignment Pin_L25 -to eeprom_cs_n
 
 #####################################################
 ## misc pins
@@ -84,10 +84,10 @@ puts "   Assigning miscellaneous pins."
 #####################################################
 
 # Note that crc_error_out is special fpga pin ...set_location_assignment PIN_P23 -to ~ALTERA_CRC_ERROR~
-cmp add_assignment $top_name "" crc_error_out LOCATION "Pin_P23"
-cmp add_assignment $top_name "" crc_error_in LOCATION "Pin_T23"
-cmp add_assignment $top_name "" critical_error LOCATION "Pin_M24"
-cmp add_assignment $top_name "" extend_n LOCATION "Pin_AH12"
+set_location_assignment Pin_P23  -to  crc_error_out
+set_location_assignment Pin_T23  -to  crc_error_in
+set_location_assignment Pin_M24  -to  critical_error 
+set_location_assignment Pin_AH12 -to  extend_n 
 #set_location_assignment PIN_AC28 -to ddr_shutdown_n
 
 #####################################################
