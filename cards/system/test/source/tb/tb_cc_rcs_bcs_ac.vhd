@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.90 2010/10/07 23:52:20 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.91 2010/10/19 23:26:52 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -2310,59 +2310,59 @@ begin
       -- AC
       -------------------------------------
 
-      command <= command_wb;
-      address_id <= ac_fb_col0_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_fb_col1_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000101";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_row_order_cmd;
-      data_valid <= X"00000029";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-   
-      command <= command_wb;
-      address_id <= ac_on_bias_cmd;
-      data_valid <= X"00000029";
-      data       <= conv_std_logic_vector(1000, 32);
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= ac_enbl_mux_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= ac_enbl_mux_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
+--      command <= command_wb;
+--      address_id <= ac_fb_col0_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_fb_col1_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000101";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_row_order_cmd;
+--      data_valid <= X"00000029";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--   
+--      command <= command_wb;
+--      address_id <= ac_on_bias_cmd;
+--      data_valid <= X"00000029";
+--      data       <= conv_std_logic_vector(1000, 32);
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_enbl_mux_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_enbl_mux_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;
 
       -------------------------------------
       -- BC1
@@ -2534,8 +2534,8 @@ begin
 
       command <= command_wb;
       address_id <= rc1_adc_offset0_cmd;
-      data_valid <= X"00000001";
-      data       <= conv_std_logic_vector(3500, 32);
+      data_valid <= X"00000021";
+      data       <= conv_std_logic_vector(0, 32);	-- change 0 to any decimal number you wish
       load_preamble;
       load_command;
       load_checksum;
