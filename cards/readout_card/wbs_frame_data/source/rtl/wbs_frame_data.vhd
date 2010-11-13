@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2010/03/12 21:04:13 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2010/10/07 18:35:42 $> - <text> - <initials $Author: mandana $>
 --
 -----------------------------------------------------------------------------
 
@@ -488,14 +488,14 @@ begin
 
    -- Data Mode 7
    with ch_mux_sel select filtfb_error_2_dat <=
-      filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 7) & coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 4) when "000",
-      filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 7) & coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 4) when "001",
-      filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 7) & coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 4) when "010",
-      filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 7) & coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 4) when "011",
-      filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 7) & coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 4) when "100",
-      filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 7) & coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 4) when "101",
-      filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 7) & coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 4) when "110",
-      filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 7) & coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 4) when others;
+      filtered_dat_ch0_i(28 downto 7) & coadded_dat_ch0_i(13 downto 4) when "000",
+      filtered_dat_ch1_i(28 downto 7) & coadded_dat_ch1_i(13 downto 4) when "001",
+      filtered_dat_ch2_i(28 downto 7) & coadded_dat_ch2_i(13 downto 4) when "010",
+      filtered_dat_ch3_i(28 downto 7) & coadded_dat_ch3_i(13 downto 4) when "011",
+      filtered_dat_ch4_i(28 downto 7) & coadded_dat_ch4_i(13 downto 4) when "100",
+      filtered_dat_ch5_i(28 downto 7) & coadded_dat_ch5_i(13 downto 4) when "101",
+      filtered_dat_ch6_i(28 downto 7) & coadded_dat_ch6_i(13 downto 4) when "110",
+      filtered_dat_ch7_i(28 downto 7) & coadded_dat_ch7_i(13 downto 4) when others;
 
    -- Data Mode 8
 --   with ch_mux_sel select filtfb_flx_cnt_dat3 <=
