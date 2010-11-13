@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.15  2010/10/22 21:34:23  mandana
+-- 5.0.f with integral_clamp fixed, tcl file fixed
+--
 -- Revision 1.14  2010/10/07 23:43:59  mandana
 -- added pcb_rev interface for Rev. E cards
 -- added clamp and fltr_rst commands to bring forward to 5.0.e version
@@ -237,10 +240,10 @@ end readout_card_stratix_iii;
 architecture top of readout_card_stratix_iii is
 
    -- The REVISION format is RRrrBBBB where 
-   --               RR is the major revision number
-   --               rr is the minor revision number
-   --               BBBB is the build number   
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0500000f";
+   --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
+   --               rr is the minor revision number, incremented when new features added
+   --               BBBB is the build number, incremented for bug fixes
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010000";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
