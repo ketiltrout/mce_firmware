@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.12  2010/03/12 20:46:59  bburger
+-- BB: added i_clamp_val interface signals, and changed lock_dat_left to lock_dat_lsb
+--
 -- Revision 1.11.2.1  2009/11/13 20:06:06  bburger
 -- BB: Added i-term clamp interface signals and removed the lock_dat_left generic
 --
@@ -180,8 +183,14 @@ package flux_loop_ctrl_pack is
          d_dat_i                    : in    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          flux_quanta_addr_o         : out   std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
          flux_quanta_dat_i          : in    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-         fsfb_ws_fltr_addr_i       : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fsfb filter queue 
-         fsfb_ws_fltr_dat_o        : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations         
+         filter_coeff0_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         filter_coeff1_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         filter_coeff2_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         filter_coeff3_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         filter_coeff4_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         filter_coeff5_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         fsfb_ws_fltr_addr_i        : in    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fsfb filter queue 
+         fsfb_ws_fltr_dat_o         : out   std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations         
          fsfb_ws_addr_i             : in    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
          fsfb_ws_dat_o              : out   std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
          flux_cnt_ws_dat_o          : out   std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
