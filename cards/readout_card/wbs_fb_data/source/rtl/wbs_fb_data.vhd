@@ -81,6 +81,9 @@
 -- Revision history:
 --
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.12  2010/04/08 20:35:47  mandana
+-- added FLTR_TYPE and I_CLAMP_VAL commands
+--
 -- Revision 1.11  2010/03/12 21:02:23  bburger
 -- BB: added i_clamp_val interface signals
 --
