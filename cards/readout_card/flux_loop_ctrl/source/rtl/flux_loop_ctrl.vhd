@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.17  2010/03/12 20:46:21  bburger
+-- BB: added i_clamp_val interface signals, and changed lock_dat_left to lock_dat_lsb
+--
 -- Revision 1.16.2.1  2009/11/13 20:04:02  bburger
 -- BB: Added i-term clamp interface signals and removed the lock_dat_left generic
 --
@@ -289,6 +292,12 @@ begin  -- struct
       d_dat_i                    => d_dat_i,
       flux_quanta_addr_o         => flux_quanta_addr_o,
       flux_quanta_dat_i          => flux_quanta_dat_i,
+      filter_coeff0_i            => filter_coeff0_i,
+      filter_coeff1_i            => filter_coeff1_i,
+      filter_coeff2_i            => filter_coeff2_i,
+      filter_coeff3_i            => filter_coeff3_i,
+      filter_coeff4_i            => filter_coeff4_i,
+      filter_coeff5_i            => filter_coeff5_i,
 
       fsfb_ws_fltr_addr_i        => filtered_addr_i,
       fsfb_ws_fltr_dat_o         => filtered_dat_o,
