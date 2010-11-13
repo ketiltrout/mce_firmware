@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.95  2010/10/21 22:05:16  mandana
+-- 5.0.f with integral_clamp fixed in dynamic_data_manager
+--
 -- Revision 1.94  2010/10/07 20:05:25  mandana
 -- rev. 5.0.e with clamp bug fix
 -- added virtual pcb_rev signals to be compatible with latest all_cards (that has pcb_rev interface to support new hardware)
@@ -217,10 +220,10 @@ end readout_card;
 architecture top of readout_card is
 
    -- The REVISION format is RRrrBBBB where
-   --               RR is the major revision number
-   --               rr is the minor revision number
-   --               BBBB is the build number
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0500000f";
+   --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
+   --               rr is the minor revision number, incremented when new features added
+   --               BBBB is the build number, incremented for bug fixes
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010000";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
