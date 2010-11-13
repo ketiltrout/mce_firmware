@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.14  2010/06/03 20:48:06  bburger
+-- BB:  Now uses CONSTANT_MODE, RAMP_MODE, and LOCK_MODE constants instead of literals.
+--
 -- Revision 1.13  2010/03/12 20:51:35  bburger
 -- BB: changed lock_dat_left to lock_dat_lsb
 --
@@ -135,6 +138,14 @@ entity fsfb_processor is
       p_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- P,I,D,Z coefficients 
       i_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
       d_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+
+      -- Filter Coefficients
+      filter_coeff0_i         : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff1_i         : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff2_i         : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff3_i         : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff4_i         : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff5_i         : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
 
       -- filter intermediate results 
       -- 1st biquad
@@ -318,6 +329,12 @@ begin
          i_dat_i                   => i_dat_i,  
          d_dat_i                   => d_dat_i,  
 --         z_dat_i                   => (others => '0'),  
+         filter_coeff0_i           => filter_coeff0_i,
+         filter_coeff1_i           => filter_coeff1_i,
+         filter_coeff2_i           => filter_coeff2_i,
+         filter_coeff3_i           => filter_coeff3_i,
+         filter_coeff4_i           => filter_coeff4_i,
+         filter_coeff5_i           => filter_coeff5_i,
          wn12_dat_i                => wn12_dat_i,
          wn11_dat_i                => wn11_dat_i,
          wn10_dat_o                => wn10_dat_o,

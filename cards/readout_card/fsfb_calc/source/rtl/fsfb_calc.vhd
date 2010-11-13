@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.13  2010/03/12 20:50:17  bburger
+-- BB: changed lock_dat_left to lock_dat_lsb
+--
 -- Revision 1.12  2009/05/27 01:27:58  bburger
 -- BB: Increased the filter storage size to make filtered data available on demand
 --
@@ -143,6 +146,13 @@ entity fsfb_calc is
       d_dat_i                    : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
       flux_quanta_addr_o         : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
       flux_quanta_dat_i          : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+
+      filter_coeff0_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff1_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff2_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff3_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff4_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff5_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       
       -- first stage feedback queue (dedicated wishbone slave interface)
       fsfb_ws_addr_i             : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
@@ -325,6 +335,13 @@ begin
          p_dat_i                      => p_dat_i,
          i_dat_i                      => i_dat_i,
          d_dat_i                      => d_dat_i,
+         filter_coeff0_i              => filter_coeff0_i(FILTER_COEF_WIDTH-1 downto 0),
+         filter_coeff1_i              => filter_coeff1_i(FILTER_COEF_WIDTH-1 downto 0),
+         filter_coeff2_i              => filter_coeff2_i(FILTER_COEF_WIDTH-1 downto 0),
+         filter_coeff3_i              => filter_coeff3_i(FILTER_COEF_WIDTH-1 downto 0),
+         filter_coeff4_i              => filter_coeff4_i(FILTER_COEF_WIDTH-1 downto 0),
+         filter_coeff5_i              => filter_coeff5_i(FILTER_COEF_WIDTH-1 downto 0),
+
          wn11_dat_i                   => wn11_dat,
          wn12_dat_i                   => wn12_dat,
          wn10_dat_o                   => wn10_dat,
