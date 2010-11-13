@@ -144,6 +144,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.18  2010/04/08 20:38:45  mandana
+-- added FLTR_TYPE and I_CLAMP_VAL commands
+--
 -- Revision 1.17  2010/03/12 21:01:40  bburger
 -- BB: added i_clamp_val interface signals, and wishbone logic.
 --
@@ -343,12 +346,13 @@ architecture rtl of misc_banks_admin is
   constant OFFSET_DAT_INDEX_OFFSET : integer := 19;   -- Index of offset_dat in array register
   constant EN_FB_JUMP_OFFSET       : integer := 27;   -- Index of enable flag for the flux-jumping block
   constant I_CLAMP_VAL_OFFSET      : integer := 28;
---  constant FILTER_INDEX_OFFSET     : integer := 37;   -- Index of filter_coeff in array register (2 values common for all channels)
---  constant MISC_BANK_MAX_RANGE     : integer := 45;   -- Maximum number of parameters in the Miscellanous bank
-  constant MISC_BANK_MAX_RANGE     : integer := 29;   -- Maximum number of parameters in the Miscellanous bank
+  constant FILTER_INDEX_OFFSET     : integer := 29;   -- Index of filter_coeff in array register (2 values common for all channels)
+  constant MISC_BANK_MAX_RANGE     : integer := 35;   -- Maximum number of parameters in the Miscellanous bank
  
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
   constant ZERO_XTND_SERVO : std_logic_vector(WB_DATA_WIDTH-SERVO_MODE_SEL_WIDTH-1 downto 0) := (others => '0');
+  
+  constant ZERO_XTND_COEFF : std_logic_vector(WB_DATA_WIDTH-FILTER_COEF_WIDTH-1 downto 0) := (others => '0');
   
   -- I_CLAMP_VAL is set to zero to disable the functionality by default.
   constant I_CLAMP_VAL : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
@@ -396,7 +400,7 @@ architecture rtl of misc_banks_admin is
   -----------------------------------------------------------------------------
   signal sa_bias_rdy    : std_logic_vector(7 downto 0);
   signal offset_dat_rdy : std_logic_vector(7 downto 0);
- 
+
 begin  -- rtl
 
   -----------------------------------------------------------------------------
@@ -405,6 +409,7 @@ begin  -- rtl
 
   i_misc_bank: for i in 0 to MISC_BANK_MAX_RANGE-1 generate
     i_reg: process (clk_50_i, rst_i)
+    variable j : integer := 0;
     begin  -- process i_reg
       if rst_i = '1' then               -- asynchronous reset (active high)
         if(i >= CONST_VAL_INDEX_OFFSET and i <= (CONST_VAL_INDEX_OFFSET +7) ) then
@@ -413,6 +418,10 @@ begin  -- rtl
         elsif(i = I_CLAMP_VAL_OFFSET) then
           reg_temp(i) <= I_CLAMP_VAL;
           reg(i) <= I_CLAMP_VAL;          
+        elsif(i >= FILTER_INDEX_OFFSET and i <= (FILTER_INDEX_OFFSET +5) ) then
+          j := i - FILTER_INDEX_OFFSET;
+          reg_temp(i) <= conv_std_logic_vector(FILT_COEF_DEFAULTS(j),WB_DATA_WIDTH);
+          reg(i) <= conv_std_logic_vector(FILT_COEF_DEFAULTS(j),WB_DATA_WIDTH);
         else
           reg_temp(i) <= (others => '0');
           reg(i) <= (others => '0');
@@ -464,17 +473,17 @@ begin  -- rtl
     end loop; --j     
 
     case addr_i is
---      when FILT_COEF_ADDR =>
---       case tga_i(MAX_BIT_TAG-1 downto 0) is
---          when "000" => wren(FILTER_INDEX_OFFSET+0) <= we_i;
---          when "001" => wren(FILTER_INDEX_OFFSET+1) <= we_i;
---          when "010" => wren(FILTER_INDEX_OFFSET+2) <= we_i;
---          when "011" => wren(FILTER_INDEX_OFFSET+3) <= we_i;
---          when "100" => wren(FILTER_INDEX_OFFSET+4) <= we_i;
---          when "101" => wren(FILTER_INDEX_OFFSET+5) <= we_i;
+      when FILT_COEF_ADDR =>
+       case tga_i(MAX_BIT_TAG-1 downto 0) is
+          when "000" => wren(FILTER_INDEX_OFFSET+0) <= we_i;
+          when "001" => wren(FILTER_INDEX_OFFSET+1) <= we_i;
+          when "010" => wren(FILTER_INDEX_OFFSET+2) <= we_i;
+          when "011" => wren(FILTER_INDEX_OFFSET+3) <= we_i;
+          when "100" => wren(FILTER_INDEX_OFFSET+4) <= we_i;
+          when "101" => wren(FILTER_INDEX_OFFSET+5) <= we_i;
 --          when "110" => wren(FILTER_INDEX_OFFSET+6) <= we_i;
---          when others => null;
---        end case;
+          when others => null;
+        end case;
 
       when RAMP_STEP_ADDR =>
         wren(RAMP_STEP_INDEX_OFFSET) <= we_i;
@@ -550,7 +559,7 @@ begin  -- rtl
     (stb_i and cyc_i) when SERVO_MODE_ADDR | RAMP_STEP_ADDR | -- FILT_COEF_ADDR | 
                            RAMP_AMP_ADDR | FB_CONST_ADDR | RAMP_DLY_ADDR |
                            SA_BIAS_ADDR |  OFFSET_ADDR | EN_FB_JUMP_ADDR |
-                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR | FILT_COEF_ADDR,
     '0'               when others;
 
   -- ack_write_misc_bank <= ack_read_misc_bank;
@@ -588,16 +597,16 @@ begin  -- rtl
   -- based on the address present on addr_i.
   -----------------------------------------------------------------------------
 
---  with tga_i(2 downto 0) select
---    filter_coeff <=
---    reg(FILTER_INDEX_OFFSET+0) when "000",
---    reg(FILTER_INDEX_OFFSET+1) when "001",
---    reg(FILTER_INDEX_OFFSET+2) when "010",
---    reg(FILTER_INDEX_OFFSET+3) when "011",
---    reg(FILTER_INDEX_OFFSET+4) when "100",
---    reg(FILTER_INDEX_OFFSET+5) when "101",
+  with tga_i(2 downto 0) select
+    filter_coeff <=
+    reg(FILTER_INDEX_OFFSET+0) when "000",
+    reg(FILTER_INDEX_OFFSET+1) when "001",
+    reg(FILTER_INDEX_OFFSET+2) when "010",
+    reg(FILTER_INDEX_OFFSET+3) when "011",
+    reg(FILTER_INDEX_OFFSET+4) when "100",
+    reg(FILTER_INDEX_OFFSET+5) when "101",
 --    reg(FILTER_INDEX_OFFSET+6) when "110",
---    reg(FILTER_INDEX_OFFSET+0) when others;
+    reg(FILTER_INDEX_OFFSET+0) when others;
 
 
   with tga_i(MAX_BIT_TAG-1 downto 0) select
@@ -652,7 +661,7 @@ begin  -- rtl
   
   with addr_i select
     qa_misc_bank_o <=
---    filter_coeff                  when FILT_COEF_ADDR,
+    filter_coeff                  when FILT_COEF_ADDR,
     --ext(servo_dat, qa_misc_bank_o'length) when SERVO_MODE_ADDR,
     ZERO_XTND_SERVO & servo_dat   when SERVO_MODE_ADDR,
     reg(RAMP_STEP_INDEX_OFFSET)   when RAMP_STEP_ADDR,
@@ -674,12 +683,12 @@ begin  -- rtl
   -- Outputs to flux_loop_ctrl
   -----------------------------------------------------------------------------
 
-  filter_coeff0_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+0);
-  filter_coeff1_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+1);
-  filter_coeff2_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+2);
-  filter_coeff3_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+3);
-  filter_coeff4_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+4);
-  filter_coeff5_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+5);
+  filter_coeff0_o         <= reg(FILTER_INDEX_OFFSET+0);
+  filter_coeff1_o         <= reg(FILTER_INDEX_OFFSET+1);
+  filter_coeff2_o         <= reg(FILTER_INDEX_OFFSET+2);
+  filter_coeff3_o         <= reg(FILTER_INDEX_OFFSET+3);
+  filter_coeff4_o         <= reg(FILTER_INDEX_OFFSET+4);
+  filter_coeff5_o         <= reg(FILTER_INDEX_OFFSET+5);
   filter_coeff6_o         <= (others => '0'); --reg(FILTER_INDEX_OFFSET+6);
   servo_mode_ch0_o        <= servo_mode_reg(0);
   servo_mode_ch1_o        <= servo_mode_reg(1);
