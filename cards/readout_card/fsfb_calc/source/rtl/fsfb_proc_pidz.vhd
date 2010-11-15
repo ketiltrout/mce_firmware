@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.14  2009/10/19 20:41:47  mandana
+-- merged from filter_30000_75Hz branch to remove sticky bits in arithmetic, window filter output with FILTER_SCALE_LSB, and turn the (presumably) unnecessary correction off
+--
 -- Revision 1.13.2.2  2009/10/09 21:18:16  mandana
 -- properly initilize bxx_product_regs
 -- remove sticky bits in internal arithmetic
@@ -125,6 +128,13 @@ entity fsfb_proc_pidz is
       i_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- I coefficient input, to be multiplied with current integral
       d_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- D coefficient input, to be multiplied with current difference
 --      z_dat_i                  : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  -- Z coefficient input, to be added to the three multiply results
+      -- Filter Coefficients
+      filter_coeff0_i          : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff1_i          : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff2_i          : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff3_i          : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff4_i          : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff5_i          : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
       wn11_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       wn12_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       wn21_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
@@ -182,7 +192,16 @@ architecture rtl of fsfb_proc_pidz is
 
    signal multiplicand_a_reg       : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);         -- registered multiplicand A
    signal multiplicand_b_reg       : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- registered multiplicand B
-         
+
+   alias  filter_b11_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff0_i(FILTER_COEF_WIDTH-1 downto 0);
+   alias  filter_b12_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff1_i(FILTER_COEF_WIDTH-1 downto 0);
+   alias  filter_b21_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff2_i(FILTER_COEF_WIDTH-1 downto 0);
+   alias  filter_b22_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff3_i(FILTER_COEF_WIDTH-1 downto 0);
+--   alias  filter_scale_lsb_vec         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff4_i(FILTER_COEF_WIDTH-1 downto 0);
+--   alias  filter_gain_width_vec        : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff5_i(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_scale_lsb         : integer range 0 to 32 := 0;                                  -- to default to the original filter (type I) parameters
+   signal filter_gain_width        : integer range 0 to 32 := 11;                                 -- to default to the original filter (type I) parameters
+   
    signal p_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn (64 + 1 bits)
    signal i_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered I*In (64 + 1 bits)
    signal d_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered D*Dn (64 + 1 bits)
@@ -191,7 +210,7 @@ architecture rtl of fsfb_proc_pidz is
    signal b21_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b21*Wn21 (15 + 29 + 1 bits)
    signal b22_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b22*Wn22 (15 + 29 + 1 bits)
 
-   signal z_dat_65                 : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- Z input extended to 65 bits
+--   signal z_dat_65                 : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- Z input extended to 65 bits
    
    signal pi_sum                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- P*Xn+I*In adder output (65 bits)
    signal dz_sum                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- D*Dn+Z adder output    (65 bits)
@@ -231,7 +250,9 @@ architecture rtl of fsfb_proc_pidz is
    signal wn22_shift               : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-2 downto 0);
         
 begin
-  
+   filter_scale_lsb  <= conv_integer(filter_coeff4_i);
+   filter_gain_width <= conv_integer(filter_coeff5_i);
+   
    -- create calc_shift_state to time the different operations
    calc_shift_state_proc : process (rst_i, clk_50_i)
    begin
@@ -286,6 +307,7 @@ begin
                               current_diff_dat_reg, d_dat_i,
                               current_integral_dat_reg, i_dat_i,
                               wn11_dat_i, wn12_dat_i, wn21_dat_i, wn22_dat_i,
+                              filter_b11_coef, filter_b12_coef, filter_b21_coef, filter_b22_coef,
                               calc_shift_state(6 downto 0))
    begin
       operand_select : case calc_shift_state(6 downto 0) is
@@ -551,10 +573,25 @@ begin
    
    -- filter wn stage addition  (1st biquad)
    -- wn <= fltr_sum_reg - wtemp;
-   --fltr1_sum_reg_shift <= fltr1_sum_reg(fltr1_sum_reg'left) & fltr1_sum_reg(fltr1_sum_reg'left) 
-   --                      & fltr1_sum_reg(FILTER_DLY_WIDTH-3+FILTER_GAIN_WIDTH downto FILTER_GAIN_WIDTH);
-   fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FILTER_DLY_WIDTH+2-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
-   fltr1_sum_reg_shift(FLTR_QUEUE_DATA_WIDTH-1-FILTER_GAIN_WIDTH downto 0) <= fltr1_sum_reg(FLTR_QUEUE_DATA_WIDTH-1 downto FILTER_GAIN_WIDTH);
+   inter_stage_gain_proc : process (clk_50_i, rst_i)
+   variable k :  integer:= 0;
+   begin
+     if (rst_i = '1') then
+       fltr1_sum_reg_shift <= (others => '0');
+     elsif (clk_50_i'event and clk_50_i = '1') then
+       k := filter_gain_width;
+       for i in 0 to FILTER_DLY_WIDTH-1 loop
+         if i >= (FILTER_DLY_WIDTH + 2 - filter_gain_width) then
+           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(fltr1_sum_reg'left);
+         else
+           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(k);
+           k := k + 1;
+         end if;
+       end loop;   
+     end if;
+   end process inter_stage_gain_proc;
+   --fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FILTER_DLY_WIDTH+2-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
+   --fltr1_sum_reg_shift(FLTR_QUEUE_DATA_WIDTH-1-FILTER_GAIN_WIDTH downto 0) <= fltr1_sum_reg(FLTR_QUEUE_DATA_WIDTH-1 downto FILTER_GAIN_WIDTH);
    i_wn20_sub : fsfb_calc_sub29
       port map (
          dataa                              => fltr1_sum_reg_shift,
@@ -598,7 +635,8 @@ begin
          fltr1_tmp_reg <= (others => '0');
          fltr1_sum_reg <= (others => '0');
          fltr2_tmp_reg <= (others => '0');
-         fltr2_sum_reg <= (others => '0');         
+         fltr2_sum_reg <= (others => '0');
+         wtemp_reg_shift <= (others => '0');
       elsif (clk_50_i'event and clk_50_i = '1') then
       
          -- 1st stage sum
@@ -661,7 +699,25 @@ begin
    -- Output results 
    fsfb_proc_pidz_sum_o    <= pidz_sum_reg;
    fsfb_proc_pidz_update_o <= calc_shift_state(6) when lock_mode_en_i = '1' else '0';
-   fsfb_proc_fltr_sum_o    <= sxt(fltr2_sum_reg(fltr2_sum_reg'length-1 downto FILTER_SCALE_LSB), fltr2_sum_reg'length);
+--   fsfb_proc_fltr_sum_o    <= sxt(fltr2_sum_reg(fltr2_sum_reg'length-1 downto FILTER_SCALE_LSB), fltr2_sum_reg'length);
+   
+   filter_scale_proc : process (clk_50_i, rst_i)
+   variable k : integer := 0;
+   begin
+     if (rst_i = '1') then
+       fsfb_proc_fltr_sum_o <= (others => '0');
+     elsif (clk_50_i'event and clk_50_i = '1') then
+       k := filter_scale_lsb;
+       for i in 0 to fsfb_proc_fltr_sum_o'length -1  loop       
+         if i <= fltr2_sum_reg'length-1-filter_scale_lsb then
+           fsfb_proc_fltr_sum_o(i) <= fltr2_sum_reg(k);
+         else
+           fsfb_proc_fltr_sum_o(i) <= fltr2_sum_reg(fltr2_sum_reg'left);                      
+         end if;
+         k := k + 1;
+       end loop;   
+     end if;
+   end process filter_scale_proc;
    
    -- This had a pointless control signal choking it.
    -- The filter does alter the feedback and therefore values can be writted to regardless of being in lock mode or not.
