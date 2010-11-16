@@ -1242,3 +1242,5 @@ set_location_assignment PIN_AH19 -to pcb_rev[3]
 set_location_assignment PIN_AH18 -to pcb_rev[2]
 set_location_assignment PIN_AH16 -to pcb_rev[0]
 set_location_assignment PIN_AH17 -to pcb_rev[1]
+set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name CDF_FILE readout_card_stratix_iii_reve.cdf

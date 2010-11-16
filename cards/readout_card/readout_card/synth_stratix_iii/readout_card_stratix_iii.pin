@@ -99,7 +99,7 @@ dac1_dfb_dat[4]              : A20       : output : 3.3-V LVTTL       :         
 dac1_dfb_dat[5]              : A21       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac1_dfb_dat[7]              : A22       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac1_dfb_dat[9]              : A23       : output : 3.3-V LVTTL       :         : 8A        : Y              
-mictor_clk                   : A24       : output : 3.3-V LVTTL       :         : 8A        : N              
+RESERVED_INPUT               : A24       :        :                   :         : 8A        :                
 dac1_dfb_dat[11]             : A25       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac1_dfb_dat[13]             : A26       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac_dfb_clk[1]               : A27       : output : 3.3-V LVTTL       :         : 8A        : Y              
@@ -506,7 +506,7 @@ dac5_dfb_dat[5]              : H10       : output : 3.3-V LVTTL       :         
 offset_dac_ncs[1]            : H11       : output : 3.3-V LVTTL       :         : 7A        : Y              
 GND                          : H12       : gnd    :                   :         :           :                
 VREFB7CN0                    : H13       : power  :                   :         : 7C        :                
-RESERVED_INPUT               : H14       :        :                   :         : 7C        :                
+mictor_clk                   : H14       : output : 3.3-V LVTTL       :         : 7C        : N              
 GND                          : H15       : gnd    :                   :         :           :                
 RESERVED_INPUT               : H16       :        :                   :         : 8C        :                
 VREFB8CN0                    : H17       : power  :                   :         : 8C        :                
