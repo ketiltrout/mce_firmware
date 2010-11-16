@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.23  2010/04/08 20:33:50  mandana
+-- added filter_type parameter for type 1 and 2
+--
 -- Revision 1.22  2010/03/12 20:50:55  bburger
 -- BB: changed lock_dat_left to lock_dat_lsb
 --
@@ -148,8 +151,6 @@ package fsfb_calc_pack is
 
    constant FILTER_LOCK_LSB_POS    : integer := 12;            -- scaling factor for the input to the filter chain
                                                                -- a sliding window of the 66b result is used as the filter input
-   constant FILTER_SCALE_LSB       : integer := 0;             -- is the number of bits dropped after the second biquad
-   constant FILTER_GAIN_WIDTH      : integer := 11;            -- 1/2^11 is the gain scaling between two filter stages.
  
    constant FILTER_INPUT_WIDTH     : integer := 20;            -- number of bits in the input NOT USED 
    constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
@@ -178,21 +179,24 @@ package fsfb_calc_pack is
    --                                         1                                                            
    --                           Filter Type : 2
    --
-
+   
+   -- This filter implementation takes 6 parameters: filter_coeff0 to filter_coeff5 as follows:
+   -- filter_coeff0 to filter_coeff3 are: b11, b12, b21, b22 or the Butterworth coefficients as noted above
+   -- filter_coeff4 or filter_scale_lsb is the number of bits dropped after the second biquad (see above)
+   -- filter_coeff5 or filter_gain_width is the gain scaling between the two biquads (1/2^gain) to preserve dynamic range.
+   
    -- To convert to signed binary fractional, multiply the number by 2^14 and convert to hex. 
-   constant FILTER_TYPE             : std_logic_vector(7 downto 0) := x"01";
-                                                                                         
-   constant FILTER_B11_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"111111000100111"; -- 0x7E27, -1.9711486088510415
-                                                                                        "111110101011100"; -- 0x7D5C, -1.9587428340882587
-
-   constant FILTER_B12_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"011111000101011"; -- 0x3E2B, 0.97139181456687917
-                                                                                        "011110110000110"; -- 0x3D86, 0.96134553442399129
-
-   constant FILTER_B21_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"111111100111000"; -- 0x7F38, -1.9878047097960421
-                                                                                        "111101000000110"; -- 0x7A06, -1.9066292518523014
-
-   constant FILTER_B22_COEF         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) := --"011111100111100"; -- 0x3F3C, 0.98804997058724808
-                                                                                        "011101000101111"; -- 0x3A2F, 0.90916270571237567                                                                                          
+   constant FILTER_TYPE             : std_logic_vector(7 downto 0) := x"FF";
+   
+   -- Filter Type: xFF is programmable filter coefficients.
+   subtype word_coeff is std_logic_vector(FILTER_COEF_WIDTH-1 downto  0);
+   type coeff_array is array (0 to 5) of integer; 
+   
+   -- Filter coefficients for Filter Type: 1
+   constant FILT_COEF_DEFAULTS : coeff_array := (32092,15750,31238,14895,0, 11);
+   
+   -- Filter coefficients for Filter Type: 1
+   -- constant FILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14); 
 
    ---------------------------------------------------------------------------------
    -- First stage feedback input output controller component
@@ -293,6 +297,12 @@ package fsfb_calc_pack is
          p_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          i_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          d_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+         filter_coeff0_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff1_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff2_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff3_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff4_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff5_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
          wn12_dat_i                  : in           std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
          wn11_dat_i                  : in           std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
          wn10_dat_o                  : out          std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
@@ -328,6 +338,12 @@ package fsfb_calc_pack is
          i_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
          d_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
 --         z_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
+         filter_coeff0_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff1_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff2_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff3_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff4_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff5_i             : in           std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
          wn11_dat_i                  : in           std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
          wn12_dat_i                  : in           std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);        
          wn10_dat_o                  : out          std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
