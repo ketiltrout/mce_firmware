@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.91 2010/10/19 23:26:52 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.92 2010/10/22 18:14:17 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -46,6 +46,7 @@ use work.system_pack.all;
 use work.all_cards_pack.all;
 use work.bias_card_pack.all;
 use work.readout_card_pack.all;
+use work.fsfb_calc_pack.all;
 use work.cc_reset_pack.all;
 
 library components;
@@ -140,8 +141,9 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_readout_priority_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & READOUT_PRIORITY_ADDR;
    constant rc1_readout_col_index_cmd : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & READOUT_COL_INDEX_ADDR;
    constant rc1_readout_row_index_cmd : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & READOUT_ROW_INDEX_ADDR;
-   constant rc1_i_clamp_val_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1  & x"00" & I_CLAMP_VAL_ADDR;
- 
+   constant rc1_i_clamp_val_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & I_CLAMP_VAL_ADDR;
+   constant rc1_filter_coeff_cmd    : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FILT_COEF_ADDR;
+
    constant rc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_2    & x"00" & LED_ADDR;
    constant rc2_ret_dat_cmd         : std_logic_vector(31 downto 0) := X"00040016";  -- card_addr=READOUT_CARD_2, param_id=RET_DAT_ADDR
 
@@ -359,6 +361,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal data_valid                : std_logic_vector(31 downto 0); -- used to be set to constant X"00000028"
    signal data                      : std_logic_vector(31 downto 0) := X"00000001";--integer := 1;
    signal data_constant             : std_logic := '0';
+    
    ------------------------------------------------
    -- Counter Signals
    ------------------------------------------------
@@ -2035,8 +2038,6 @@ begin
       -- load up data block
       -- first load valid data
       for I in 0 to (conv_integer(data_valid)-1) loop
-      --for I in 0 to (data_valid-1) loop
-
          fibre_rx_nrdy   <= '1';
 
          fibre_rx_data <= data(7 downto 0);
@@ -2080,6 +2081,13 @@ begin
             when cc_tms_tdi_cmd   => data <= "01100110011001100110011001100110";
             --when ac_const_val_cmd => data <= data;
             when ac_row_order_cmd => data <= data + 1;
+            when rc1_filter_coeff_cmd => 
+              -- the way this loop is written, it prepares data for next tga_i, hence it overruns array index!
+              if i< data_valid-1 then 
+                data <= conv_std_logic_vector(FILT_COEF_DEFAULTS(i+1), WB_DATA_WIDTH);               
+              else
+                data <= data;
+              end if;
             when others           => data <= data;
          end case;
          wait for fibre_clkr_prd * 0.6;
@@ -2568,7 +2576,15 @@ begin
       load_command;
       load_checksum;
       wait for 20 us;
-
+      
+      command <= command_wb;
+      address_id <= rc1_filter_coeff_cmd;
+      data_valid <= X"00000006";
+      data       <= conv_std_logic_vector(FILT_COEF_DEFAULTS(0), 32);
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
 --      command <= command_wb;
 --      address_id <= rc1_i_clamp_val_cmd;
 --      data_valid <= X"00000001";
