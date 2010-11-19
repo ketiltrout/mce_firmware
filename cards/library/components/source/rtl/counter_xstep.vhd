@@ -20,7 +20,7 @@
 
 -- counter.vhd
 --
--- <revision control keyword substitutions e.g. $Id: counter_xstep.vhd,v 1.1 2004/04/23 00:54:46 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: counter.vhd,v 1.1 2004/03/23 02:00:42 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin/Mandana Amiri
@@ -30,11 +30,8 @@
 -- generic integer up counter with asynch. reset, count enable and counting step specified
 --
 -- Revision history:
--- <date $Date: 2004/04/23 00:54:46 $>	- <initials $Author: mandana $>
--- $Log: counter_xstep.vhd,v $
--- Revision 1.1  2004/04/23 00:54:46  mandana
--- added counter_xstep counts 'step' at each clock.
---   
+-- <date $Date$>	- <initials $Author$>
+-- $Log$   
 --
 -----------------------------------------------------------------------------
 

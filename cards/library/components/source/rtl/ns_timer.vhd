@@ -20,7 +20,7 @@
 
 -- ns_timer.vhd
 --
--- <revision control keyword substitutions e.g. $Id: ns_timer.vhd,v 1.1 2004/03/23 23:53:42 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: ns_timer.vhd,v 1.2 2004/03/16 18:59:10 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Jonathan Jacob
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/03/23 23:53:42 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/16 18:59:10 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 ------------------------------------------------------------------------

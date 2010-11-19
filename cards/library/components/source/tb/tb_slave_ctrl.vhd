@@ -2,7 +2,7 @@
 --
 -- tb_slave_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_slave_ctrl.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id$>
 --
 -- Project:		SCUBA 2
 -- Author:		jjacob
@@ -12,7 +12,7 @@
 -- This code implements the testbench for the Wishbone Slave state machine
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date$>	-		<text>		- <initials $Author$>
 --
 ------------------------------------------------------------------------
 

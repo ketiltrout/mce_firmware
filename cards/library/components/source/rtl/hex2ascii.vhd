@@ -20,7 +20,7 @@
 
 -- hex2ascii.vhd
 --
--- <revision control keyword substitutions e.g. $Id: hex2ascii.vhd,v 1.1 2004/05/05 21:21:55 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: hex2ascii.vhd,v 1.1 2004/04/14 22:16:23 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,11 +30,8 @@
 -- Implements hexadecimal-to-ascii decoder
 --
 -- Revision history:
--- <date $Date: 2004/05/05 21:21:55 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/04/14 22:16:23 $>	- <initials $Author: jjacob $>
 -- $Log: hex2ascii.vhd,v $
--- Revision 1.1  2004/05/05 21:21:55  erniel
--- initial version
---
 -- Revision 1.1  2004/04/14 22:16:23  jjacob
 -- new directory structure
 --

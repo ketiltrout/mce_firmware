@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl_test_wrapper.vhd,v 1.1 2004/05/06 18:18:01 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl_test_wrapper.vhd,v 1.1 2004/04/14 22:05:26 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,11 +31,8 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/05/06 18:18:01 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/14 22:05:26 $>	-		<text>		- <initials $Author: jjacob $>
 -- $Log: tb_eeprom_ctrl_test_wrapper.vhd,v $
--- Revision 1.1  2004/05/06 18:18:01  jjacob
--- first version
---
 -- Revision 1.1  2004/04/14 22:05:26  jjacob
 -- new directory structure
 --
