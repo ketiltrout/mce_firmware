@@ -1,0 +1,93 @@
+------------------------------------------------------------
+TimeQuest Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack : -2.755
+TNS   : -75.051
+
+Type  : Slow Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
+Slack : 3.772
+TNS   : 0.000
+
+Type  : Slow Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
+Slack : 15.996
+TNS   : 0.000
+
+Type  : Slow Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack : 0.741
+TNS   : 0.000
+
+Type  : Slow Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
+Slack : 0.762
+TNS   : 0.000
+
+Type  : Slow Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
+Slack : 0.924
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
+Slack : 3.889
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack : 8.889
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk4'
+Slack : 8.889
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'inclk'
+Slack : 20.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
+Slack : 38.889
+TNS   : 0.000
+
+Type  : Fast Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack : 4.753
+TNS   : 0.000
+
+Type  : Fast Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
+Slack : 6.845
+TNS   : 0.000
+
+Type  : Fast Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
+Slack : 18.047
+TNS   : 0.000
+
+Type  : Fast Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack : -1.437
+TNS   : -11.326
+
+Type  : Fast Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
+Slack : 0.368
+TNS   : 0.000
+
+Type  : Fast Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
+Slack : 0.444
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk4'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'inclk'
+Slack : 20.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
+Slack : 39.000
+TNS   : 0.000
+
+------------------------------------------------------------
