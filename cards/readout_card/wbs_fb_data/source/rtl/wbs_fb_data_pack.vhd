@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.9  2010/03/12 21:02:58  bburger
+-- BB: added i_clamp_val interface signals
+--
 -- Revision 1.8.2.1  2009/11/13 20:32:18  bburger
 -- BB: Added i-term clamp interface signals
 --
@@ -298,13 +301,13 @@ package wbs_fb_data_pack is
       offset_dat_rdy_ch7_o    : out std_logic;
       const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
-      filter_coeff0_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff1_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff2_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff3_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff4_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff5_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff6_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff0_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff1_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff2_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff3_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff4_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff5_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff6_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
       ramp_step_size_o        : out std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
       ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
       num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);

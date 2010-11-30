@@ -81,6 +81,9 @@
 -- Revision history:
 --
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.13  2010-11-13 00:44:30  mandana
+-- *** empty log message ***
+--
 -- Revision 1.12  2010/04/08 20:35:47  mandana
 -- added FLTR_TYPE and I_CLAMP_VAL commands
 --
@@ -297,13 +300,13 @@ entity wbs_fb_data is
 
 
     -- All Flux_Loop_Ctrl Channels
-    filter_coeff0_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff1_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff2_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff3_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff4_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff5_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff6_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff0_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff1_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff2_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff3_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff4_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff5_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff6_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
     ramp_step_size_o        : out std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
