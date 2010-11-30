@@ -77,6 +77,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.8  2009/05/27 01:26:54  bburger
+-- BB: Removed un-used old raw-data interface signals for v5.x from 4.0.d
+--
 -- Revision 1.7  2005/12/12 23:45:15  mandana
 -- Interfaces updated with latest flux-jump and filter features added, so the testbench compiles. But the testbench has to be updated later to test the newly added features.
 --
@@ -192,13 +195,13 @@ architecture beh of tb1_flux_loop_ctrl is
     d_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     sa_bias_dat_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff0_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff1_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff2_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff3_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff4_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff5_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff6_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff0_i           : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff1_i           : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff2_i           : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff3_i           : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff4_i           : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff5_i           : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+    filter_coeff6_i           : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
 
     -- DAC Interface
     dac_dat_o                 : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);

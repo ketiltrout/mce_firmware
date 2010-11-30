@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.18  2010-11-13 00:36:01  mandana
+-- added filtr_coeff interface
+--
 -- Revision 1.17  2010/03/12 20:46:21  bburger
 -- BB: added i_clamp_val interface signals, and changed lock_dat_left to lock_dat_lsb
 --
@@ -120,7 +123,6 @@ use work.flux_loop_ctrl_pack.all;
 -- Parent Library Call
 use work.flux_loop_pack.all;
 use work.readout_card_pack.all;
-use work.fsfb_calc_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -181,13 +183,13 @@ port (
    sa_bias_dat_rdy_i          : in  std_logic;
    offset_dat_i               : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    offset_dat_rdy_i           : in  std_logic;
-   filter_coeff0_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   filter_coeff1_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   filter_coeff2_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   filter_coeff3_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   filter_coeff4_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   filter_coeff5_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   filter_coeff6_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   filter_coeff0_i            : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   filter_coeff1_i            : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   filter_coeff2_i            : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   filter_coeff3_i            : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   filter_coeff4_i            : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   filter_coeff5_i            : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   filter_coeff6_i            : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
    
    -- DAC Interface
    dac_dat_o                  : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);

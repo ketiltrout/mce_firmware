@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.13  2010-11-13 00:37:05  mandana
+-- added filter_coeff interface
+--
 -- Revision 1.12  2010/03/12 20:46:59  bburger
 -- BB: added i_clamp_val interface signals, and changed lock_dat_left to lock_dat_lsb
 --
@@ -118,6 +121,13 @@ package flux_loop_ctrl_pack is
   -- offset_ctrl Specific
   constant OFFSET_DATA_WIDTH      : integer := 16;                     -- maximum data width of offset value determined by DAC device
   
+   ---------------------------------------------------------------------------------
+   -- First stage feedback calculator block constants
+   ---------------------------------------------------------------------------------
+   constant FSFB_QUEUE_INIT_VAL    : integer := 0;                    -- initialized read value from the first stage feedback queue
+   constant LOCK_MSB_POS           : integer := 37;                   -- most significant bit position of lock mode data output
+   constant LOCK_LSB_POS           : integer := 0;                    -- least significant bit position of lock mode data output
+   -- constant MOST_SIG_LOCK_POS      : integer := 22;                   -- most significant bit position of lock mode data output
   
   -----------------------------------------------------------------------------
   -- ADC Sample Coadd Block
@@ -183,12 +193,12 @@ package flux_loop_ctrl_pack is
          d_dat_i                    : in    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          flux_quanta_addr_o         : out   std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
          flux_quanta_dat_i          : in    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-         filter_coeff0_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         filter_coeff1_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         filter_coeff2_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         filter_coeff3_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         filter_coeff4_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         filter_coeff5_i            : in    std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         filter_coeff0_i            : in    std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff1_i            : in    std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff2_i            : in    std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff3_i            : in    std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff4_i            : in    std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff5_i            : in    std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
          fsfb_ws_fltr_addr_i        : in    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fsfb filter queue 
          fsfb_ws_fltr_dat_o         : out   std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations         
          fsfb_ws_addr_i             : in    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
