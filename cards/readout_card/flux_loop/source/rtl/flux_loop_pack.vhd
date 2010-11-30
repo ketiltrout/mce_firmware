@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.21  2010/06/03 20:46:11  bburger
+-- BB:  added a initialize_window_i interface to fsfb_corr, and clarified the value of SERVO_MODE_SEL_WIDTH.
+--
 -- Revision 1.20  2010/03/12 20:39:50  bburger
 -- BB: added i_clamp_val interface signals
 --
@@ -171,6 +174,42 @@ package flux_loop_pack is
    constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
    constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
+   constant NUM_FILTER_COEFF       : integer := 6;        -- number of filter coefficients
+   constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
+
+   -- This filter implementation takes 6 parameters: filter_coeff0 to filter_coeff5.
+   -- The coefficients are chosen through Simulink FDAtool interface when a 4-pole Butterworth filter is chosen
+   -- filter_coeff0 to filter_coeff3 are: b11, b12, b21, b22 or the Butterworth coefficients 
+   -- filter_coeff4 or filter_scale_lsb is the number of bits dropped after the second biquad 
+   -- filter_coeff5 or filter_gain_width is the gain scaling between the two biquads (1/2^gain) to preserve dynamic range.
+   -- Here are the coefficients for filter type 1 and 2:
+   -- (SOS: Second-order sections)
+   --                                    SOS: a0 a1 a2 b0 b1                   b2
+   -- for princeton act fc/fs=100/12195, SOS: 1  2  1  1  -1.9587428340882587  0.96134553442399129 (1st biquad)       
+   --                                         1  2  1  1  -1.9066292518523014  0.90916270571237567 (2nd biquad)       
+   --                           Scale Values: 0.00065067508393319923                                       
+   --                                         0.00063336346501859835       
+   --                           Filter Type : 1
+   ------------------------------------------------------------------------------------------------------------
+   -- for Spider/Bicep fc/fs=75/30000,  SOS: 1  2  1  1  -1.9711486088510415  0.97139181456687917         
+   --                                         1  2  1  1  -1.9878047097960421  0.98804997058724808         
+   --                           Scale Values: 0.0000000037280516432624239
+   --                                         1                                                            
+   --                           Filter Type : 2
+   
+   -- To convert to signed binary fractional, multiply the number by 2^14 and convert to hex. 
+   constant FILTER_TYPE             : std_logic_vector(7 downto 0) := x"FF";
+   -- Filter Type: xFF is programmable filter coefficients.
+
+   subtype word_coeff is std_logic_vector(FILTER_COEF_WIDTH-1 downto  0);
+   type coeff_array is array (0 to NUM_FILTER_COEFF-1) of integer; 
+  
+   -- Filter coefficients for Filter Type: 1
+   constant FILT_COEF_DEFAULTS : coeff_array := (32092,15750,31238,14895,0, 11);
+   
+   -- Filter coefficients for Filter Type: 1
+   -- constant FILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14); 
+
    -----------------------------------------------------------------------------
    -- Raw Data/ Rectangle Mode RAM Bank
    -----------------------------------------------------------------------------
@@ -240,13 +279,13 @@ package flux_loop_pack is
       sa_bias_dat_rdy_i           : in  std_logic;
       offset_dat_i                : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       offset_dat_rdy_i            : in  std_logic;
-      filter_coeff0_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff1_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff2_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff3_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff4_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff5_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff6_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff0_i             : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff1_i             : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff2_i             : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff3_i             : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff4_i             : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff5_i             : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff6_i             : in  std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
       dac_dat_o                   : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
       dac_clk_o                   : out std_logic;
       sa_bias_dac_spi_o           : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
@@ -572,13 +611,13 @@ package flux_loop_pack is
       offset_dat_rdy_ch7_o    : out std_logic;
       const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
       servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
-      filter_coeff0_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff1_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff2_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff3_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff4_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff5_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff6_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff0_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff1_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff2_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff3_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff4_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff5_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff6_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
       ramp_step_size_o        : out std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
       ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
       num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
