@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.15  2010-11-15 23:23:05  mandana
+-- added filter_coeff interface and b11, b12, b21, b22 are not constants anymore
+-- With filter_gain_width and filter_scale_lsb being variable now and since the right bound of std_logic_vector needs to be constant, we need to copy bit-by-bit for fltr1_sum_reg_shift and fltr2_sum_reg.
+--
 -- Revision 1.14  2009/10/19 20:41:47  mandana
 -- merged from filter_30000_75Hz branch to remove sticky bits in arithmetic, window filter output with FILTER_SCALE_LSB, and turn the (presumably) unnecessary correction off
 --
@@ -103,6 +107,7 @@ use work.fsfb_calc_pack.all;
 
 use work.flux_loop_ctrl_pack.all;
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 entity fsfb_proc_pidz is
    generic (
@@ -197,10 +202,8 @@ architecture rtl of fsfb_proc_pidz is
    alias  filter_b12_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff1_i(FILTER_COEF_WIDTH-1 downto 0);
    alias  filter_b21_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff2_i(FILTER_COEF_WIDTH-1 downto 0);
    alias  filter_b22_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff3_i(FILTER_COEF_WIDTH-1 downto 0);
---   alias  filter_scale_lsb_vec         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff4_i(FILTER_COEF_WIDTH-1 downto 0);
---   alias  filter_gain_width_vec        : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff5_i(FILTER_COEF_WIDTH-1 downto 0);
-   signal filter_scale_lsb         : integer range 0 to 32 := 0;                                  -- to default to the original filter (type I) parameters
-   signal filter_gain_width        : integer range 0 to 32 := 11;                                 -- to default to the original filter (type I) parameters
+   signal filter_scale_lsb         : integer range 0 to 15 := 0;                                  -- to default to the original filter (type I) parameters
+   signal filter_gain_width        : integer range 0 to 31 := 11;                                 -- to default to the original filter (type I) parameters
    
    signal p_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn (64 + 1 bits)
    signal i_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered I*In (64 + 1 bits)
