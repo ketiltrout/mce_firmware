@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.18  2009/12/10 00:13:36  bburger
+-- BB: Added CRC_ERROR entities and test functionality.
+--
 -- Revision 1.17  2009/10/06 06:03:58  bburger
 -- BB: Added a PLL declaration for the adc_clk output
 --
