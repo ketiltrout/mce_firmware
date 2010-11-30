@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.14  2010-11-13 00:39:12  mandana
+-- added filter_coeff interface
+--
 -- Revision 1.13  2010/03/12 20:50:17  bburger
 -- BB: changed lock_dat_left to lock_dat_lsb
 --
@@ -147,12 +150,12 @@ entity fsfb_calc is
       flux_quanta_addr_o         : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
       flux_quanta_dat_i          : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
 
-      filter_coeff0_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff1_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff2_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff3_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff4_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      filter_coeff5_i            : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      filter_coeff0_i            : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff1_i            : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff2_i            : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff3_i            : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff4_i            : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+      filter_coeff5_i            : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
       
       -- first stage feedback queue (dedicated wishbone slave interface)
       fsfb_ws_addr_i             : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
