@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_wbs_fb_data.vhd,v $
+-- Revision 1.6  2007/10/31 19:58:03  mandana
+-- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify higher blocks when these are updated
+--
 -- Revision 1.5  2006/11/24 21:12:07  mandana
 -- splitted fb_const to be channel specific
 --
@@ -357,13 +360,13 @@ architecture beh of tb1_wbs_fb_data is
   signal offset_dat_ch7_o        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_rdy_ch7_o    : std_logic;
   signal const_val_ch7_o         : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal filter_coeff0_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff1_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff2_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff3_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff4_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff5_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal filter_coeff6_o         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff0_o         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+  signal filter_coeff1_o         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+  signal filter_coeff2_o         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+  signal filter_coeff3_o         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+  signal filter_coeff4_o         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+  signal filter_coeff5_o         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+  signal filter_coeff6_o         : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
   signal servo_mode_ch0_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
   signal servo_mode_ch1_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
   signal servo_mode_ch2_o        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
