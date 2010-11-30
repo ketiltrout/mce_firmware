@@ -31,6 +31,11 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.96  2010-11-13 00:40:35  mandana
+-- filter_coeff added
+-- revision 5.1.0
+-- comments added for more structured revision numbering
+--
 -- Revision 1.95  2010/10/21 22:05:16  mandana
 -- 5.0.f with integral_clamp fixed in dynamic_data_manager
 --
@@ -223,7 +228,7 @@ architecture top of readout_card is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010000";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010001";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
