@@ -3,15 +3,15 @@ TimeQuest Timing Analyzer Summary
 ------------------------------------------------------------
 
 Type  : Slow Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
-Slack : -2.755
-TNS   : -75.051
+Slack : 1.039
+TNS   : 0.000
 
 Type  : Slow Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
-Slack : 3.772
+Slack : 3.542
 TNS   : 0.000
 
 Type  : Slow Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
-Slack : 15.996
+Slack : 17.089
 TNS   : 0.000
 
 Type  : Slow Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
@@ -19,11 +19,11 @@ Slack : 0.741
 TNS   : 0.000
 
 Type  : Slow Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
-Slack : 0.762
+Slack : 0.759
 TNS   : 0.000
 
 Type  : Slow Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
-Slack : 0.924
+Slack : 0.881
 TNS   : 0.000
 
 Type  : Slow Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
@@ -47,15 +47,15 @@ Slack : 38.889
 TNS   : 0.000
 
 Type  : Fast Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
-Slack : 4.753
+Slack : 4.699
 TNS   : 0.000
 
 Type  : Fast Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
-Slack : 6.845
+Slack : 6.730
 TNS   : 0.000
 
 Type  : Fast Model Setup 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
-Slack : 18.047
+Slack : 18.563
 TNS   : 0.000
 
 Type  : Fast Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk0'
@@ -63,11 +63,11 @@ Slack : -1.437
 TNS   : -11.326
 
 Type  : Fast Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk3'
-Slack : 0.368
+Slack : 0.366
 TNS   : 0.000
 
 Type  : Fast Model Hold 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
-Slack : 0.444
+Slack : 0.410
 TNS   : 0.000
 
 Type  : Fast Model Minimum Pulse Width 'rc_pll:i_rc_pll|altpll:altpll_component|_clk2'
