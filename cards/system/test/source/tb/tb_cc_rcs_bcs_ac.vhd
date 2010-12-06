@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.92 2010/10/22 18:14:17 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.93 2010-11-17 19:21:35 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -46,7 +46,7 @@ use work.system_pack.all;
 use work.all_cards_pack.all;
 use work.bias_card_pack.all;
 use work.readout_card_pack.all;
-use work.fsfb_calc_pack.all;
+use work.flux_loop_pack.all;
 use work.cc_reset_pack.all;
 
 library components;
@@ -2602,6 +2602,15 @@ begin
       load_command;
       load_checksum;
       wait for 4000 us;
+      command <= command_wb;
+
+      address_id <= rc1_filter_coeff_cmd;
+      data_valid <= X"00000006";
+      data       <= conv_std_logic_vector(FILT_COEF_DEFAULTS(0), 32);
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
       
 ------------------------------------------------------
 
