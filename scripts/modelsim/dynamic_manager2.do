@@ -28,7 +28,7 @@ add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctr
 add wave -noupdate -color gold -itemcolor gold -label {ARZ - restart_frame_aligned} /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/restart_frame_aligned_i
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/row_switch_i
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/i_dynamic_manager_data_path/current_diff_dat_o
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/i_dynamic_manager_data_path/diff_result
+add wave -noupdate -radix decimal /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/i_dynamic_manager_data_path/diff_result
 add wave -noupdate -divider adc_sample_coadd
 add wave -noupdate -color Orchid -itemcolor Orchid /tb_cc_rcs_bcs_ac/i_readout_card1/i_frame_timing/adc_coadd_en_o
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/restart_frame_1row_prev_i
@@ -46,21 +46,21 @@ add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctr
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/coadd_dat_porta_bank0
 add wave -noupdate -radix decimal /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/coadd_dat_portb_bank0
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/coadd_dat_porta_bank1
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/coadd_dat_portb_bank1
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/intgrl_dat_portb_bank0
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/intgrl_dat_portb_bank1
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/adc_coadd_en_5delay
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/adc_coadd_en_4delay
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/adc_coadd_en_4delay
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/samples_coadd_reg
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/coadd_write_addr
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/clr_samples_coadd_reg
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/address_count_en
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/clr_address_count
+add wave -noupdate -color Aquamarine -itemcolor aquamarine -label adc_sample_coadd/INTEGRAL_RESULT /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/integral_result
+add wave -noupdate -color pink -itemcolor pink -label Intgrl_dat_portb_bank1 /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/coadd_dat_portb_bank1
+add wave -noupdate -color gold -itemcolor gold -label WREN_BANK1 /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/wren_bank1
+add wave -noupdate -label coadd_WR_ADDR /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/coadd_write_addr
+add wave -noupdate -color Violet -itemcolor violet -label Intrgrl_dat_portb_bank0 /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/intgrl_dat_portb_bank0
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/wren_bank0
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/wren_bank1
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/wren_for_fsfb
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/current_bank
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/integral_result
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/adc_dat_i
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/i_clamp_val_i
 add wave -noupdate -divider {Frame Timing}
@@ -1242,7 +1242,7 @@ add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctr
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/i_dynamic_manager_data_path/en_clamp
 add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_adc_sample_coadd/i_dynamic_manager_data_path/initialize_window_max_dly
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {939776448 ps} 0} {Trace {888499999 ps} 0}
+WaveRestoreCursors {{Cursor 1} {3931521935 ps} 0} {Trace {1308347296 ps} 0} {{Cursor 3} {1412362941 ps} 0}
 configure wave -namecolwidth 409
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -1257,4 +1257,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {888096287 ps} {889303711 ps}
+WaveRestoreZoom {1266187050 ps} {1413999402 ps}
