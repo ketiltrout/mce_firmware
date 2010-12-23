@@ -29,8 +29,11 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2010/01/29 21:54:37 $>	- <initials $Author: mandana $>
+-- <date $Date: 2010/02/16 19:09:34 $>	- <initials $Author: mandana $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.13  2010/02/16 19:09:34  mandana
+-- v3.02, trying to resolve the ramp issue, but it still doesn't work! needs further investigation.
+--
 -- Revision 1.12  2010/01/29 21:54:37  mandana
 -- v3.1 generated for Rev. D address cards
 --
@@ -82,6 +85,8 @@ use components.component_pack.all;
 
 library work;
 use work.ascii_pack.all;
+use work.async_pack.all;
+use work.ac_test_pack.all;
 
 entity ac_test is
 port(inclk : in std_logic;
@@ -115,41 +120,18 @@ signal clk  : std_logic;
 signal clk_4: std_logic;
 signal rst  : std_logic;
 
-component ac_test_pll
-port(inclk0 : in std_logic;
-     c0 : out std_logic;
-     c1 : out std_logic);
-end component;
-
-type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, RX_CMD1, RX_CMD2, FIXED_DAC_TEST, RAMP_OFF_MSG, RAMP_DAC_TEST, WAIT_DAC_DONE);
+type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, RX_CMD1, RX_CMD2, FIXED_DAC_TEST, RAMP_OFF_MSG, RAMP_DAC_TEST, WAIT_DAC_DONE, WAIT_RAMP_DONE);
 signal pres_state : states;
 signal next_state : states;
-
-component rs232_tx
-port(clk_i   : in std_logic;
-     rst_i   : in std_logic;
-     dat_i   : in std_logic_vector(7 downto 0);
-     rdy_i   : in std_logic;
-     busy_o  : out std_logic;
-     rs232_o : out std_logic);
-end component;
 
 signal tx_data : std_logic_vector(7 downto 0);
 signal tx_rdy  : std_logic;
 signal tx_busy : std_logic;
 
-component rs232_rx
-port(clk_i   : in std_logic;
-     rst_i   : in std_logic;
-     dat_o   : out std_logic_vector(7 downto 0);
-     rdy_o   : out std_logic;
-     ack_i   : in std_logic;
-     rs232_i : in std_logic);
-end component;
-
 signal rx_data : std_logic_vector(7 downto 0);
 signal rx_ack  : std_logic;
 signal rx_rdy  : std_logic;
+signal rx_clk  : std_logic;
 
 signal tx_count : integer range 0 to 70;
 signal tx_count_ena : std_logic;
@@ -160,31 +142,7 @@ signal idle_msg   : std_logic_vector(7 downto 0);
 signal error_msg  : std_logic_vector(7 downto 0);
 signal ramp_msg   : std_logic_vector(7 downto 0);
 
-signal cmd1    : std_logic_vector(7 downto 0);
-signal cmd2    : std_logic_vector(7 downto 0);
-signal cmd1_ld : std_logic;
-signal cmd2_ld : std_logic;
-
 signal rst_cmd : std_logic;
-
-component ac_dac_ctrl_test
-port(rst_i       : in std_logic;
-     clk_i       : in std_logic;
-     en_i        : in std_logic;
-     done_o      : out std_logic;
-     dac_dat0_o  : out std_logic_vector(13 downto 0);
-     dac_dat1_o  : out std_logic_vector(13 downto 0);
-     dac_dat2_o  : out std_logic_vector(13 downto 0);
-     dac_dat3_o  : out std_logic_vector(13 downto 0);
-     dac_dat4_o  : out std_logic_vector(13 downto 0);
-     dac_dat5_o  : out std_logic_vector(13 downto 0);
-     dac_dat6_o  : out std_logic_vector(13 downto 0);
-     dac_dat7_o  : out std_logic_vector(13 downto 0);
-     dac_dat8_o  : out std_logic_vector(13 downto 0);
-     dac_dat9_o  : out std_logic_vector(13 downto 0);
-     dac_dat10_o : out std_logic_vector(13 downto 0);
-     dac_clk_o   : out std_logic_vector (40 downto 0));
-end component;
 
 signal fixed_dac_ena  : std_logic;
 signal fixed_dac_done : std_logic;
@@ -201,27 +159,6 @@ signal fix_dac_data9  : std_logic_vector(13 downto 0);
 signal fix_dac_data10 : std_logic_vector(13 downto 0);
 signal fix_dac_clk    : std_logic_vector(40 downto 0);
 
-
-component ac_dac_ramp
-port(rst_i       : in std_logic;
-     clk_i       : in std_logic;
-     clk_4_i     : in std_logic;
-     en_i        : in std_logic;
-     done_o      : out std_logic;
-     dac_dat0_o  : out std_logic_vector(13 downto 0);
-     dac_dat1_o  : out std_logic_vector(13 downto 0);
-     dac_dat2_o  : out std_logic_vector(13 downto 0);
-     dac_dat3_o  : out std_logic_vector(13 downto 0);
-     dac_dat4_o  : out std_logic_vector(13 downto 0);
-     dac_dat5_o  : out std_logic_vector(13 downto 0);
-     dac_dat6_o  : out std_logic_vector(13 downto 0);
-     dac_dat7_o  : out std_logic_vector(13 downto 0);
-     dac_dat8_o  : out std_logic_vector(13 downto 0);
-     dac_dat9_o  : out std_logic_vector(13 downto 0);
-     dac_dat10_o : out std_logic_vector(13 downto 0);
-     dac_clk_o   : out std_logic_vector(40 downto 0));
-end component;
-
 signal ramp_dac_ena    : std_logic;
 signal ramp_dac_done   : std_logic;
 signal ramp_dac_data0  : std_logic_vector(13 downto 0);
@@ -237,7 +174,9 @@ signal ramp_dac_data9  : std_logic_vector(13 downto 0);
 signal ramp_dac_data10 : std_logic_vector(13 downto 0);
 signal ramp_dac_clk    : std_logic_vector(40 downto 0);
 
-signal ramp_enabled : std_logic;
+signal ramp_mode     : std_logic;
+signal ramp_mode_reg :std_logic;
+signal ramp_mode_en  : std_logic;
 
 begin
 
@@ -246,7 +185,8 @@ begin
    clk0: ac_test_pll
    port map(inclk0 => inclk,
             c0 => clk,
-            c1 => clk_4);
+            c1 => clk_4,
+            c2 => rx_clk);
 
 
    --------------------------------------------------------
@@ -255,6 +195,7 @@ begin
 
    rx0: rs232_rx
    port map(clk_i   => clk,
+            comm_clk_i => rx_clk,
             rst_i   => rst,
             dat_o   => rx_data,
             rdy_o   => rx_rdy,
@@ -268,28 +209,6 @@ begin
             rdy_i   => tx_rdy,
             busy_o  => tx_busy,
             rs232_o => tx);
-
-
-   --------------------------------------------------------
-   -- Command character storage
-   --------------------------------------------------------
-
-   cmdchar1 : reg
-   generic map(WIDTH => 8)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => cmd1_ld,
-            reg_i  => rx_data,
-            reg_o  => cmd1);
-
-   cmdchar2 : reg
-   generic map(WIDTH => 8)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => cmd2_ld,
-            reg_i  => rx_data,
-            reg_o  => cmd2);
-
 
    --------------------------------------------------------
    -- Message logic
@@ -307,7 +226,7 @@ begin
 
    
    with tx_count select 
-      -- reset message is AC Test v3.2
+      -- reset message is AC Test v3.4
       reset_msg <= newline   when 0,
                    newline   when 1,
                    shift(a)  when 2,
@@ -322,7 +241,7 @@ begin
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   two       when 14,
+                   four      when 14,
                    newline   when others;
 
    with tx_count select
@@ -387,7 +306,7 @@ begin
       end if;
    end process;
 
-   process(pres_state, rx_rdy, rx_data, tx_count, fixed_dac_done, ramp_dac_done, ramp_enabled)
+   process(pres_state, rx_rdy, rx_data, tx_count, fixed_dac_done, ramp_dac_done)
    begin
       next_state <= pres_state;
 
@@ -423,11 +342,7 @@ begin
                                    next_state <= RX_CMD1;
                                 end if;
 
-         when FIXED_DAC_TEST => if(ramp_enabled = '0') then
-                                  next_state <= WAIT_DAC_DONE;
-                                else
-                                  next_state <= RAMP_OFF_MSG;
-                                end if;
+         when FIXED_DAC_TEST => next_state <= WAIT_DAC_DONE;                                
          
          when RAMP_OFF_MSG  =>  if(tx_count = RAMP_OFF_MSG_LEN - 1) then
                                    next_state <= TX_IDLE;
@@ -435,12 +350,17 @@ begin
                                    next_state <= RAMP_OFF_MSG;
                                 end if;                     
 
-         when RAMP_DAC_TEST =>  next_state <= WAIT_DAC_DONE;
+         when RAMP_DAC_TEST =>  next_state <= WAIT_RAMP_DONE;
 
-         when WAIT_DAC_DONE =>  if(fixed_dac_done = '1' or ramp_dac_done = '1') then
+         when WAIT_DAC_DONE =>  if fixed_dac_done = '1' or ramp_dac_done = '1' then
                                    next_state <= TX_IDLE;
                                 else
                                    next_state <= WAIT_DAC_DONE;
+                                end if;
+         when WAIT_RAMP_DONE =>  if fixed_dac_done = '1' or ramp_dac_done = '1' then
+                                   next_state <= TX_IDLE;
+                                else
+                                   next_state <= WAIT_RAMP_DONE;
                                 end if;
 
          when others =>         next_state <= TX_IDLE;
@@ -448,24 +368,25 @@ begin
       end case;
    end process;
 
-   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, ramp_enabled)
+   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, ramp_msg)
    begin
       rx_ack        <= '0';
       tx_rdy        <= '0';
       tx_data       <= (others => '0');
       tx_count_ena  <= '0';
       tx_count_clr  <= '0';
-      cmd1_ld       <= '0';
-      cmd2_ld       <= '0';
 
       rst_cmd       <= '0';
       fixed_dac_ena <= '0';
       ramp_dac_ena  <= '0';
+      
+      ramp_mode_en  <= '0';
 
       case pres_state is
          when RESET =>      tx_count_ena <= '1';
                             tx_count_clr <= '1';
                             rst_cmd      <= '1';
+                            ramp_mode    <= '0';
 
          when TX_RESET =>   if(tx_busy = '0') then
                                tx_rdy       <= '1';
@@ -476,6 +397,7 @@ begin
                                tx_count_clr <= '1';
                             end if;
                             tx_data <= reset_msg;
+                            ramp_mode <= '0';
 
          when TX_IDLE =>    if(tx_busy = '0') then
                                tx_rdy       <= '1';
@@ -495,16 +417,22 @@ begin
                                tx_count_ena <= '1';
                                tx_count_clr <= '1';
                             end if;
-                            tx_data <= error_msg;
+                            --tx_data <= error_msg;
+                            tx_data <= bin2asc(rx_data(tx_count)); -- to print the faulty character
+
 
          when RX_CMD1 =>    rx_ack       <= '1';
                             tx_count_ena <= '1';
                             tx_count_clr <= '1';
-                            cmd1_ld      <= '1';
 
-         when FIXED_DAC_TEST => if(ramp_enabled = '0') then   -- only turn on fixed dac when ramp is off
-                                   fixed_dac_ena <= '1';
-                                end if;
+         when FIXED_DAC_TEST => 
+                            fixed_dac_ena <= '1';
+                            ramp_mode <= '0';
+                            ramp_dac_ena <= '1';
+
+         when WAIT_DAC_DONE => 
+                            ramp_mode_en <= '1';
+                                
          when RAMP_OFF_MSG  => 
                             if (tx_busy = '0') then
                                tx_rdy       <= '1';
@@ -516,12 +444,18 @@ begin
                             end if;   
                             tx_data <= ramp_msg;
 
-         when RAMP_DAC_TEST =>  ramp_dac_ena <= '1';
+         when RAMP_DAC_TEST =>  
+                            ramp_dac_ena <= '1';
+                            ramp_mode <= '1';
+
+         when WAIT_RAMP_DONE => 
+                            ramp_mode_en <= '1';
 
          when others =>     null;
 
       end case;
    end process;
+
 
    --------------------------------------------------------
    -- DAC (Fixed Mode) block
@@ -576,26 +510,26 @@ begin
    process(clk, rst)
    begin
       if(rst = '1') then
-         ramp_enabled <= '0';
+         ramp_mode_reg <= '0';
       elsif(clk'event and clk = '1') then
-         if(ramp_dac_ena = '1') then
-            ramp_enabled <= not ramp_enabled;
+         if(ramp_mode_en = '1') then
+            ramp_mode_reg <= ramp_mode;
          end if;
       end if;
    end process;
 
    -- Multiplexing fixed mode and ramp mode DAC test wrapper outputs:
-   dac_data0  <= ramp_dac_data0  when ramp_enabled = '1' else fix_dac_data0;
-   dac_data1  <= ramp_dac_data1  when ramp_enabled = '1' else fix_dac_data1;
-   dac_data2  <= ramp_dac_data2  when ramp_enabled = '1' else fix_dac_data2;
-   dac_data3  <= ramp_dac_data3  when ramp_enabled = '1' else fix_dac_data3;
-   dac_data4  <= ramp_dac_data4  when ramp_enabled = '1' else fix_dac_data4;
-   dac_data5  <= ramp_dac_data5  when ramp_enabled = '1' else fix_dac_data5;
-   dac_data6  <= ramp_dac_data6  when ramp_enabled = '1' else fix_dac_data6;
-   dac_data7  <= ramp_dac_data7  when ramp_enabled = '1' else fix_dac_data7;
-   dac_data8  <= ramp_dac_data8  when ramp_enabled = '1' else fix_dac_data8;
-   dac_data9  <= ramp_dac_data9  when ramp_enabled = '1' else fix_dac_data9;
-   dac_data10 <= ramp_dac_data10 when ramp_enabled = '1' else fix_dac_data10;
-   dac_clk    <= ramp_dac_clk    when ramp_enabled = '1' else fix_dac_clk;
+   dac_data0  <= ramp_dac_data0  when ramp_mode_reg = '1' else fix_dac_data0;
+   dac_data1  <= ramp_dac_data1  when ramp_mode_reg = '1' else fix_dac_data1;
+   dac_data2  <= ramp_dac_data2  when ramp_mode_reg = '1' else fix_dac_data2;
+   dac_data3  <= ramp_dac_data3  when ramp_mode_reg = '1' else fix_dac_data3;
+   dac_data4  <= ramp_dac_data4  when ramp_mode_reg = '1' else fix_dac_data4;
+   dac_data5  <= ramp_dac_data5  when ramp_mode_reg = '1' else fix_dac_data5;
+   dac_data6  <= ramp_dac_data6  when ramp_mode_reg = '1' else fix_dac_data6;
+   dac_data7  <= ramp_dac_data7  when ramp_mode_reg = '1' else fix_dac_data7;
+   dac_data8  <= ramp_dac_data8  when ramp_mode_reg = '1' else fix_dac_data8;
+   dac_data9  <= ramp_dac_data9  when ramp_mode_reg = '1' else fix_dac_data9;
+   dac_data10 <= ramp_dac_data10 when ramp_mode_reg = '1' else fix_dac_data10;
+   dac_clk    <= ramp_dac_clk    when ramp_mode_reg = '1' else fix_dac_clk;
 
 end rtl;

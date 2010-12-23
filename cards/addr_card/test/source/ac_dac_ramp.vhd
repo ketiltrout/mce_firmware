@@ -100,13 +100,15 @@ begin
    nclk <= not (clkcount);
     
    -- ramp mode
-   process(en_i)
+   process(rst_i, clk_i)
    begin      
-      --if (clk_i'event and clk_i = '1') then
-         if(en_i = '1') then
-            ramp <= not ramp;
-         end if;
-      --end if;   
+      if (rst_i = '1') then
+        ramp <= '0';
+      elsif (clk_i'event and clk_i = '1') then        
+        if(en_i = '1') then
+          ramp <= not ramp;
+        end if;
+      end if;   
    end process;
    
    gen1: for idac in 0 to 40 generate
@@ -126,9 +128,11 @@ begin
    dac_dat10_o <= data_ramp;
       
    
-   process(clk_i)
+   process(rst_i, clk_i)
    begin
-      if(clk_i'event and clk_i = '1') then
+      if (rst_i = '1') then
+         done_o <= '0';
+      elsif(clk_i'event and clk_i = '1') then
          done_o <= en_i;
       end if;
    end process;

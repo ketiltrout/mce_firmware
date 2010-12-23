@@ -106,7 +106,6 @@ begin
    end process gen_dac_clk; 
    
    dac_clk_o <= (others=> dac_clk_1dly);
-   done_o <= dac_clk_1dly;
         
    data (0) <= "00000000000000";--x0000
    data (1) <= "00000000000001";--x0001
@@ -138,6 +137,14 @@ begin
    dac_dat9_o <= data(idat);
    dac_dat10_o <= data(idat);
                
+   process(rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         done_o <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         done_o <= en_i;
+      end if;
+   end process;
       
 
    
