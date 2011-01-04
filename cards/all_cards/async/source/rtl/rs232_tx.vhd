@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: rs232_tx.vhd,v $
+-- Revision 1.6  2007/12/18 20:28:36  bburger
+-- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
+--
 -- Revision 1.5  2006/05/11 22:27:27  bench2
 -- fixed incomplete state machine
 --
@@ -73,7 +76,7 @@ end rs232_tx;
 
 architecture rtl of rs232_tx is
 
-signal bit_count     : integer range 0 to 4339;
+signal bit_count     : integer range 0 to 52079;--13019--4339;
 signal bit_count_ena : std_logic;
 signal bit_count_clr : std_logic;
 
@@ -94,7 +97,7 @@ signal next_state : states;
 begin
 
    bit_counter: counter
-   generic map(MAX => 4339,
+   generic map(MAX => 52079,--13019*4,--4339,
                WRAP_AROUND => '0')
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
@@ -156,7 +159,7 @@ begin
 
          when SETUP => next_state <= SEND;
 
-         when SEND =>  if(bit_count = 4339) then
+         when SEND =>  if(bit_count = 52079) then --4339) then
                           next_state <= DONE;
                        else
                           next_state <= SEND;
@@ -186,10 +189,13 @@ begin
                        tx_ld         <= '1';
 
          when SEND =>  bit_count_ena <= '1';
-                       -- for RS232 bitrate of 115 kbps, hold each bit for 434 clk_i periods.
-                       if(bit_count = 433  or bit_count = 867  or bit_count = 1301 or bit_count = 1735 or
-                          bit_count = 2169 or bit_count = 2603 or bit_count = 3037 or bit_count = 3471 or
-                          bit_count = 3905 or bit_count = 4339) then tx_ena <= '1';
+                       -- for RS232 bitrate of 115 kbps, hold each bit for 434x3=1302 clk_i periods.
+--                       if(bit_count = 1301  or bit_count = 2603  or bit_count = 3905 or bit_count = 5207 or
+--                          bit_count = 6509 or bit_count = 7811 or bit_count = 9113 or bit_count = 10415 or
+--                          bit_count = 11717 or bit_count = 13019) then tx_ena <= '1';
+                       if(bit_count = 5207  or bit_count = 10415  or bit_count = 15623 or bit_count = 20831 or
+                          bit_count = 26039 or bit_count = 31247 or bit_count = 36455 or bit_count = 41663 or
+                          bit_count = 46871 or bit_count = 52079) then tx_ena <= '1';
                        end if;
                        rs232_o <= tx_bit;
 
