@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: rs232_rx.vhd,v $
+-- Revision 1.6  2010/09/08 22:35:51  mandana
+-- added comm_clk_i to rs232_rx interface. This is 4x115200 PLL-generated clock. rs232_rx block is rewritten to use a fifo to synchronize between clock domains.
+--
 -- Revision 1.5  2005/01/13 00:26:30  erniel
 -- replaced comm_clk_i with clk_i
 -- recalculated sample_count intervals
@@ -81,12 +84,11 @@ end rs232_rx;
 
 architecture rtl of rs232_rx is
 
---signal sample_count     : integer range 0 to 4340;
-signal sample_count     : std_logic_vector(7 downto 0);
+signal sample_count     : std_logic_vector(8 downto 0);
 signal sample_count_ena : std_logic;
 signal sample_count_clr : std_logic;
 
-signal sample_buf     : std_logic_vector(2 downto 0);
+signal sample_buf     : std_logic_vector(10 downto 0);
 signal sample_buf_ena : std_logic;
 signal sample_buf_clr : std_logic;
 
@@ -128,7 +130,7 @@ begin
    end process;
  
    sample_counter: binary_counter
-   generic map(WIDTH => 8)
+   generic map(WIDTH => 9)
    port map(clk_i   => comm_clk_i,
             rst_i   => rst_i,
             ena_i   => sample_count_ena,
@@ -142,7 +144,7 @@ begin
    sample_count_clr <= not serial_receiving;
             
    rx_sample: shift_reg
-   generic map(WIDTH => 3)
+   generic map(WIDTH => 11)
    port map(clk_i      => comm_clk_i,
             rst_i      => rst_i,
             ena_i      => sample_buf_ena,
@@ -158,7 +160,7 @@ begin
    sample_buf_clr <= not serial_receiving;
             
    -- received bit is majority function of sample buffer
-   rx_bit <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
+   rx_bit <= (sample_buf(10) and sample_buf(5)) or (sample_buf(10) and sample_buf(0)) or (sample_buf(5) and sample_buf(0));
    
    rx_buffer: shift_reg
    generic map(WIDTH => 10)
@@ -173,7 +175,7 @@ begin
             parallel_i => (others => '0'),
             parallel_o => rx_buf);
             
-   rx_buf_ena <= '1' when sample_count(1 downto 0) = "10" else '0';
+   rx_buf_ena <= '1' when sample_count(3 downto 0) = "1010" else '0';
    rx_buf_clr <= not serial_receiving;
    
             
@@ -200,7 +202,7 @@ begin
             wrfull  => data_buf_full,
             rdempty => data_buf_empty); 
 
-   data_buf_write <= not data_buf_full when sample_count = 39 else '0';   
+   data_buf_write <= not data_buf_full when sample_count = 479 else '0';   
    data_buf_read <= not data_buf_empty and not data_ready;    
 
    -- serial_receiving flag (high when a transfer is in progress):
@@ -209,7 +211,7 @@ begin
       if(rst_i = '1') then
          serial_receiving <= '0';
       elsif(comm_clk_i'event and comm_clk_i = '1') then
-         if((rs232_sig = '0' and serial_receiving = '0') or (sample_count = 39 and serial_receiving = '1')) then
+         if((rs232_sig = '0' and serial_receiving = '0') or (sample_count = 479 and serial_receiving = '1')) then
             serial_receiving <= not serial_receiving;
          end if;
       end if;
