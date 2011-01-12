@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2006/05/11 22:25:01 $>	- <initials $Author: bench2 $>
+-- <date $Date: 2009/06/25 14:28:34 $>	- <initials $Author: mandana $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.15  2009/06/25 14:28:34  mandana
+-- changed version to 5.0
+--
 -- Revision 1.14  2006/05/11 22:25:01  bench2
 -- modified error_msg, added 12.5MHz pll output, upgraded version number to 4.0
 --
@@ -80,10 +83,13 @@ use components.component_pack.all;
 
 library work;
 use work.ascii_pack.all;
+use work.async_pack.all;
+use work.rc_test_pack.all;
 
 entity rc_test is
 port(inclk : in std_logic;
-     rst_n  : in std_logic;
+     dev_clr_n  : in std_logic;
+     ttl_in1    : in std_logic;
 
      rx : in std_logic;
      tx : out std_logic;
@@ -95,24 +101,16 @@ port(inclk : in std_logic;
      offset_dac_ncs : out std_logic_vector (7 downto 0); 
 
      -- rc parallel dac interface
-     dac_FB1_dat    : out std_logic_vector (13 downto 0);
-     dac_FB2_dat    : out std_logic_vector (13 downto 0);
-     dac_FB3_dat    : out std_logic_vector (13 downto 0);
-     dac_FB4_dat    : out std_logic_vector (13 downto 0);
-     dac_FB5_dat    : out std_logic_vector (13 downto 0);
-     dac_FB6_dat    : out std_logic_vector (13 downto 0);
-     dac_FB7_dat    : out std_logic_vector (13 downto 0);
-     dac_FB8_dat    : out std_logic_vector (13 downto 0);
-     dac_FB_clk   : out std_logic_vector (7 downto 0));     
-      
-     -- SRAM bank interface
---     sram_addr : out std_logic_vector(19 downto 0);
---     sram_data : inout std_logic_vector(15 downto 0);
---     sram_nbhe : out std_logic;
---     sram_nble : out std_logic;
---     sram_noe  : out std_logic;
---     sram_nwe  : out std_logic;
---     sram_ncs  : out std_logic);
+     dac0_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac1_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac2_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac3_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac4_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac5_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac6_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac7_dfb_dat    : out std_logic_vector (13 downto 0);
+     dac_dfb_clk   : out std_logic_vector (7 downto 0));     
+     
 end rc_test;
 
 architecture rtl of rc_test is
@@ -125,38 +123,17 @@ constant EASTER_MSG_LEN   : integer := 24;
 signal clk_4: std_logic;
 signal clk : std_logic;
 signal rst : std_logic;
+signal rst_n : std_logic;
+signal rx_clk: std_logic;
 
-component rc_test_pll
-port(inclk0 : in std_logic;
-     c0 : out std_logic;
-     c1 : out std_logic);
-end component;
 
 type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, TX_EASTER, RX_CMD1, RX_CMD2, DAC_TEST_SETUP, WAIT_DAC_DONE);
 signal pres_state : states;
 signal next_state : states;
 
-component rs232_tx
-port(clk_i   : in std_logic;
-     rst_i   : in std_logic;
-     dat_i   : in std_logic_vector(7 downto 0);
-     rdy_i   : in std_logic;
-     busy_o  : out std_logic;
-     rs232_o : out std_logic);
-end component;
-
 signal tx_data : std_logic_vector(7 downto 0);
 signal tx_rdy  : std_logic;
 signal tx_busy : std_logic;
-
-component rs232_rx
-port(clk_i   : in std_logic;
-     rst_i   : in std_logic;
-     dat_o   : out std_logic_vector(7 downto 0);
-     rdy_o   : out std_logic;
-     ack_i   : in std_logic;
-     rs232_i : in std_logic);
-end component;
 
 signal rx_data : std_logic_vector(7 downto 0);
 signal rx_ack  : std_logic;
@@ -178,40 +155,12 @@ signal cmd2_ld : std_logic;
 
 signal rst_cmd : std_logic;
 
-component rc_serial_dac_test_wrapper
-port(rst_i     : in std_logic; 
-     clk_i     : in std_logic; 
-     clk_4_i   : in std_logic;
-     en_i      : in std_logic; 
-     mode      : in std_logic_vector(1 downto 0); 
-     done_o    : out std_logic;
-     dac_dat_o : out std_logic_vector (7 downto 0); 
-     dac_ncs_o : out std_logic_vector (7 downto 0); 
-     dac_clk_o : out std_logic_vector (7 downto 0)); 
-end component;
 
 signal serial_dac_ena : std_logic;
 signal serial_dac_done : std_logic;
 signal serial_dac_mode : std_logic_vector(1 downto 0);
 
 signal dac_ncs : std_logic_vector(7 downto 0);
-
-component rc_parallel_dac_test_wrapper
-port(rst_i      : in std_logic;
-     clk_i      : in std_logic;
-     en_i       : in std_logic;
-     mode       : in std_logic_vector(1 downto 0);
-     done_o     : out std_logic;
-     dac0_dat_o : out std_logic_vector(13 downto 0);
-     dac1_dat_o : out std_logic_vector(13 downto 0);
-     dac2_dat_o : out std_logic_vector(13 downto 0);
-     dac3_dat_o : out std_logic_vector(13 downto 0);
-     dac4_dat_o : out std_logic_vector(13 downto 0);
-     dac5_dat_o : out std_logic_vector(13 downto 0);
-     dac6_dat_o : out std_logic_vector(13 downto 0);
-     dac7_dat_o : out std_logic_vector(13 downto 0);
-     dac_clk_o  : out std_logic_vector(7 downto 0));   
-end component;
 
 signal parallel_dac_ena : std_logic;
 signal parallel_dac_done : std_logic;
@@ -221,12 +170,15 @@ signal test_mode_ld : std_logic;
 
 begin
 
-   rst <= not rst_n or rst_cmd;
+--   rst <= not rst_n or rst_cmd;
+   rst <= (not dev_clr_n) or (ttl_in1) or rst_cmd;
+   rst_n <= dev_clr_n;
 
    clk0: rc_test_pll
    port map(inclk0 => inclk,
             c0 => clk,
-            c1 => clk_4);
+            c1 => clk_4,
+            c2 => rx_clk);
 
 
    --------------------------------------------------------
@@ -235,6 +187,7 @@ begin
 
    rx0: rs232_rx
    port map(clk_i   => clk,
+            comm_clk_i => rx_clk,
             rst_i   => rst,
             dat_o   => rx_data,
             rdy_o   => rx_rdy,
@@ -299,9 +252,9 @@ begin
                    space     when 9,
                    v         when 10,
                    period    when 11, 
-                   five      when 12, -- v5.0 test firmware
+                   five      when 12, -- v5.1 test firmware
                    period    when 13,
-                   zero      when 14,
+                   one      when 14,
                    newline   when others;
 
    with tx_count select
@@ -590,14 +543,14 @@ begin
                mode        => parallel_dac_mode,               
                done_o      => parallel_dac_done,
                
-               dac0_dat_o  => dac_FB1_dat,
-               dac1_dat_o  => dac_FB2_dat,
-               dac2_dat_o  => dac_FB3_dat,
-               dac3_dat_o  => dac_FB4_dat,
-               dac4_dat_o  => dac_FB5_dat,
-               dac5_dat_o  => dac_FB6_dat,
-               dac6_dat_o  => dac_FB7_dat,
-               dac7_dat_o  => dac_FB8_dat,
-               dac_clk_o   => dac_FB_clk);
+               dac0_dat_o  => dac0_dfb_dat,
+               dac1_dat_o  => dac1_dfb_dat,
+               dac2_dat_o  => dac2_dfb_dat,
+               dac3_dat_o  => dac3_dfb_dat,
+               dac4_dat_o  => dac4_dfb_dat,
+               dac5_dat_o  => dac5_dfb_dat,
+               dac6_dat_o  => dac6_dfb_dat,
+               dac7_dat_o  => dac7_dfb_dat,
+               dac_clk_o   => dac_dfb_clk);
 
 end rtl;
