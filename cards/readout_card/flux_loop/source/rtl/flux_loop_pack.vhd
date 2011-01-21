@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.22  2010-11-30 19:43:46  mandana
+-- filter_coeff ports reduced to filter_coef_width instead of wb_data_width to help fitting in EP1S40.
+-- reorganized pack files and moved filter_coef definitions here to keep hierarchical pack files
+--
 -- Revision 1.21  2010/06/03 20:46:11  bburger
 -- BB:  added a initialize_window_i interface to fsfb_corr, and clarified the value of SERVO_MODE_SEL_WIDTH.
 --
@@ -207,7 +211,7 @@ package flux_loop_pack is
    -- Filter coefficients for Filter Type: 1
    constant FILT_COEF_DEFAULTS : coeff_array := (32092,15750,31238,14895,0, 11);
    
-   -- Filter coefficients for Filter Type: 1
+   -- Filter coefficients for Filter Type: 2
    -- constant FILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14); 
 
    -----------------------------------------------------------------------------
