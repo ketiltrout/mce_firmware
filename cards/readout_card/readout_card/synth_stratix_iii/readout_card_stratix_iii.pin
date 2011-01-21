@@ -72,7 +72,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1.124 SJ Full Version
+Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 CHIP  "readout_card_stratix_iii"  ASSIGNED TO AN: EP3SE50F780C4
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -506,7 +506,7 @@ dac5_dfb_dat[5]              : H10       : output : 3.3-V LVTTL       :         
 offset_dac_ncs[1]            : H11       : output : 3.3-V LVTTL       :         : 7A        : Y              
 GND                          : H12       : gnd    :                   :         :           :                
 VREFB7CN0                    : H13       : power  :                   :         : 7C        :                
-mictor_clk                   : H14       : output : 3.3-V LVTTL       :         : 7C        : N              
+RESERVED_INPUT               : H14       :        :                   :         : 7C        :                
 GND                          : H15       : gnd    :                   :         :           :                
 RESERVED_INPUT               : H16       :        :                   :         : 8C        :                
 VREFB8CN0                    : H17       : power  :                   :         : 8C        :                
@@ -679,7 +679,7 @@ DNU                          : P15       :        :                   :         
 VCCL                         : P16       : power  :                   : 1.1V    :           :                
 GND                          : P17       : gnd    :                   :         :           :                
 VCCL                         : P18       : power  :                   : 1.1V    :           :                
-RESERVED_INPUT               : P19       :        :                   :         : 1C        :                
+mictor_clk                   : P19       : output : 3.3-V LVTTL       :         : 1C        : N              
 RESERVED_INPUT               : P20       :        :                   :         : 1C        :                
 GND                          : P21       : gnd    :                   :         :           :                
 VCCD_PLL_L2                  : P22       : power  :                   : 1.1V    :           :                

@@ -27,7 +27,7 @@ set_global_assignment -name FAMILY "Stratix III"
 set_global_assignment -name DEVICE EP3SE50F780C4
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1.124"
+set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
 set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
 set_global_assignment -name EDA_INPUT_DATA_FORMAT VHDL -section_id eda_design_synthesis
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
