@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.97  2010-11-30 19:52:45  mandana
+-- rev. 5.1.1 with reduced range for filter_scale_lsb to resolve timing failures
+-- restructured pack files
+--
 -- Revision 1.96  2010-11-13 00:40:35  mandana
 -- filter_coeff added
 -- revision 5.1.0
@@ -228,7 +232,7 @@ architecture top of readout_card is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010001";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010002";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
