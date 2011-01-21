@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.16  2010-11-30 19:49:55  mandana
+-- filter_scale_lsb had to be reduced so the design can fit in EP1S40. The new range is a more realistic range.
+--
 -- Revision 1.15  2010-11-15 23:23:05  mandana
 -- added filter_coeff interface and b11, b12, b21, b22 are not constants anymore
 -- With filter_gain_width and filter_scale_lsb being variable now and since the right bound of std_logic_vector needs to be constant, we need to copy bit-by-bit for fltr1_sum_reg_shift and fltr2_sum_reg.
@@ -175,7 +178,7 @@ architecture rtl of fsfb_proc_pidz is
    constant ONES                   : std_logic_vector(31 downto 0) := x"11111111";
 
    -- internal signal declarations  
-   signal calc_shift_state         : std_logic_vector(12 downto 0);                               -- calculator shift state 
+   signal calc_shift_state         : std_logic_vector(13 downto 0);                               -- calculator shift state 
    signal store_1st_add            : std_logic;                                                   -- clock enable to register 1st stage adder outputs
    signal store_2nd_add            : std_logic;                                                   -- clock enable to register 2nd stage adder outputs
    signal store_1st_wtemp          : std_logic;                                                   -- clock enable to register wtemp output(1st filter biquad intermediate results)
@@ -263,7 +266,7 @@ begin
          calc_shift_state <= (others => '0');
       elsif (clk_50_i'event and clk_50_i = '1') then
          calc_shift_state(0)          <= coadd_done_i;
-         calc_shift_state(12 downto 1) <= calc_shift_state(11 downto 0);
+         calc_shift_state(13 downto 1) <= calc_shift_state(12 downto 0);
       end if;
    end process calc_shift_state_proc;   
      
@@ -279,8 +282,8 @@ begin
    store_fltr1_sum  <= calc_shift_state(8);
    
    store_fltr2_tmp  <= calc_shift_state(3); -- pipeline later/ put a mux in front of...
-   store_wn20       <= calc_shift_state(9); 
-   store_fltr2_sum  <= calc_shift_state(10);
+   store_wn20       <= calc_shift_state(10); 
+   store_fltr2_sum  <= calc_shift_state(11);
    
 
    -- Store the operand inputs 
@@ -593,8 +596,8 @@ begin
        end loop;   
      end if;
    end process inter_stage_gain_proc;
-   --fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FILTER_DLY_WIDTH+2-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
-   --fltr1_sum_reg_shift(FLTR_QUEUE_DATA_WIDTH-1-FILTER_GAIN_WIDTH downto 0) <= fltr1_sum_reg(FLTR_QUEUE_DATA_WIDTH-1 downto FILTER_GAIN_WIDTH);
+--   fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FILTER_DLY_WIDTH+2-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
+--   fltr1_sum_reg_shift(FLTR_QUEUE_DATA_WIDTH-1-FILTER_GAIN_WIDTH downto 0) <= fltr1_sum_reg(FLTR_QUEUE_DATA_WIDTH-1 downto FILTER_GAIN_WIDTH);
    i_wn20_sub : fsfb_calc_sub29
       port map (
          dataa                              => fltr1_sum_reg_shift,
@@ -702,7 +705,7 @@ begin
    -- Output results 
    fsfb_proc_pidz_sum_o    <= pidz_sum_reg;
    fsfb_proc_pidz_update_o <= calc_shift_state(6) when lock_mode_en_i = '1' else '0';
---   fsfb_proc_fltr_sum_o    <= sxt(fltr2_sum_reg(fltr2_sum_reg'length-1 downto FILTER_SCALE_LSB), fltr2_sum_reg'length);
+--   fsfb_proc_fltr_sum_o <= sxt(fltr2_sum_reg(fltr2_sum_reg'length-1 downto 0), fltr2_sum_reg'length);
    
    filter_scale_proc : process (clk_50_i, rst_i)
    variable k : integer := 0;
@@ -723,9 +726,9 @@ begin
    end process filter_scale_proc;
    
    -- This had a pointless control signal choking it.
-   -- The filter does alter the feedback and therefore values can be writted to regardless of being in lock mode or not.
+   -- The filter does alter the feedback and therefore values can be written to regardless of being in lock mode or not.
    -- We clear the filter when servo mode changes, and when the servo is off, zero inputs effectively null the servo.
-   fsfb_proc_fltr_update_o <= calc_shift_state(11); -- when lock_mode_en_i = '1' else '0';
+   fsfb_proc_fltr_update_o <= calc_shift_state(13); -- when lock_mode_en_i = '1' else '0';
    
    wn10_dat_o              <= wn10_reg(FILTER_DLY_WIDTH-1 downto 0);
    wn20_dat_o              <= wn20_reg(FILTER_DLY_WIDTH-1 downto 0);
