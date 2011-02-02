@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: watchdog_pack.vhd,v 1.1 2004/04/14 21:48:20 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: watchdog_pack.vhd,v 1.3 2004/04/08 18:42:26 erniel Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,11 +30,8 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/04/14 21:48:20 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/08 18:42:26 $>	-		<text>		- <initials $Author: erniel $>
 -- $Log: watchdog_pack.vhd,v $
--- Revision 1.1  2004/04/14 21:48:20  jjacob
--- new directory structure
---
 -- Revision 1.3  2004/04/08 18:42:26  erniel
 -- removed obsolete signals
 --
