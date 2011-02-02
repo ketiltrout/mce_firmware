@@ -1109,7 +1109,7 @@ set_location_assignment PIN_K24 -to adc8_dat[12]
 set_location_assignment PIN_K23 -to adc8_dat[13]
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_global_assignment -name MISC_FILE "C:/mce/cards/readout_card/readout_card/synth/readout_card.dpf"
-set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER ON
+set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER OFF
 set_global_assignment -name SDC_FILE readout_card.sdc
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
@@ -1223,3 +1223,4 @@ set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
 set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name CDF_FILE readout_card2.cdf
