@@ -1,5 +1,5 @@
 TimeQuest Timing Analyzer report for readout_card
-Thu Jan 20 18:00:28 2011
+Thu Feb 03 14:52:51 2011
 Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 
 
@@ -92,12 +92,12 @@ applicable agreement for further details.
 ; Number detected on machine ; 4           ;
 ; Maximum allowed            ; 4           ;
 ;                            ;             ;
-; Average used               ; 1.49        ;
+; Average used               ; 1.55        ;
 ; Maximum used               ; 2           ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     1 processor            ; 100.0%      ;
-;     2 processors           ;  32.1%      ;
+;     2 processors           ;  37.9%      ;
 ;     3-4 processors         ;   0.0%      ;
 +----------------------------+-------------+
 
@@ -107,7 +107,7 @@ applicable agreement for further details.
 +------------------+--------+--------------------------+
 ; SDC File Path    ; Status ; Read at                  ;
 +------------------+--------+--------------------------+
-; readout_card.sdc ; OK     ; Thu Jan 20 18:00:12 2011 ;
+; readout_card.sdc ; OK     ; Thu Feb 03 14:52:35 2011 ;
 +------------------+--------+--------------------------+
 
 
@@ -2451,7 +2451,7 @@ No dedicated SERDES Receiver circuitry present in device or used in design
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
     Info: Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Jan 20 18:00:05 2011
+    Info: Processing started: Thu Feb 03 14:52:27 2011
 Info: Command: quartus_sta readout_card -c readout_card
 Info: qsta_default_script.tcl version: #1
 Info: Parallel compilation is enabled and will use up to 4 processors
@@ -3426,8 +3426,8 @@ Info: Design is not fully constrained for setup requirements
 Info: Design is not fully constrained for hold requirements
 Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 20 warnings
     Info: Peak virtual memory: 662 megabytes
-    Info: Processing ended: Thu Jan 20 18:00:28 2011
-    Info: Elapsed time: 00:00:23
+    Info: Processing ended: Thu Feb 03 14:52:51 2011
+    Info: Elapsed time: 00:00:24
     Info: Total CPU time (on all processors): 00:00:24
 
 

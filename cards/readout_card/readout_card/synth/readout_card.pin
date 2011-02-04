@@ -359,7 +359,7 @@ mictor[20]                   : C8        : output : 3.3-V LVTTL       :         
 slot_id[2]                   : C9        : input  : 3.3-V LVTTL       :         : 4         : Y              
 mictor[9]                    : C10       : output : 3.3-V LVTTL       :         : 4         : Y              
 mictor[2]                    : C11       : output : 3.3-V LVTTL       :         : 4         : Y              
-mictor[5]                    : C12       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : C12       :        :                   :         : 4         :                
 mictor[7]                    : C13       : output : 3.3-V LVTTL       :         : 4         : Y              
 TEMPDIODEn                   : C14       :        :                   :         :           :                
 RESERVED_INPUT               : C15       :        :                   :         : 10        :                
@@ -441,7 +441,7 @@ RESERVED_INPUT               : F6        :        :                   :         
 ttl_in1                      : F7        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in2                      : F8        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in3                      : F9        : input  : 3.3-V LVTTL       :         : 4         : Y              
-mictor[6]                    : F10       : output : 3.3-V LVTTL       :         : 4         : N              
+mictor[5]                    : F10       : output : 3.3-V LVTTL       :         : 4         : N              
 ttl_out1                     : F11       : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
 TMS                          : F13       : input  :                   :         : 4         :                
@@ -497,7 +497,7 @@ dac_FB2_dat[2]               : H6        : output : 3.3-V LVTTL       :         
 dac_FB2_dat[5]               : H7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB2_dat[6]               : H8        : output : 3.3-V LVTTL       :         : 5         : Y              
 ttl_dir3                     : H9        : output : 3.3-V LVTTL       :         : 4         : Y              
-RESERVED_INPUT               : H10       :        :                   :         : 4         :                
+mictor[6]                    : H10       : output : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : 3.3-V LVTTL       :         : 4         : N              
 TDO                          : H13       : output :                   :         : 4         :                
