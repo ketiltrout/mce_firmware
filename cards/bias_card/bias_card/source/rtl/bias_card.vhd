@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.40 2010/06/02 17:38:54 mandana Exp $
+-- $Id: bias_card.vhd,v 1.41 2010-07-19 23:42:56 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,12 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.41  2010-07-19 23:42:56  mandana
+-- rev. 5.0.5
+-- adds pcb_rev_i interface to read the hardware revision through card_type parameter
+-- This firmware can be run on both Rev. D and Rev. F cards
+-- card_type is set to 1 indicating bias card type!
+--
 -- Revision 1.40  2010/06/02 17:38:54  mandana
 -- 5.0.4 biases (regular and low noise) are refreshed 1 clock cycle after the start of a new row, regardless of enbl_mux =0 or 1
 -- use 1row_prev signal from frame_timing interface to reset the index of bias value memory
@@ -248,7 +254,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000005";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000006";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
