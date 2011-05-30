@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.11  2010/03/12 20:52:48  bburger
+-- BB: changed lock_dat_left to lock_dat_lsb
+--
 -- Revision 1.10  2009/09/04 23:19:15  mandana
 -- added pack file
 --
@@ -102,15 +105,13 @@ entity tb_fsfb_calc is
 end tb_fsfb_calc;
 
 
-
-
 architecture test of tb_fsfb_calc is
 
    -- constant/signal declarations
-
+   constant FILTER_COEF_WIDTH          : integer := 15;            -- number of bits in the coefficient
    constant clk_period                 :     time      := 20 ns;   -- 50 MHz clock period
-   constant num_clk_row                :     integer   := 20;      -- number of clock cycles per row
-   constant num_row_frame              :     integer   := 41;      -- number of rows per frame
+   constant num_clk_row                :     integer   := 98;      -- number of clock cycles per row
+   constant num_row_frame              :     integer   := 33;      -- number of rows per frame
    constant coadd_done_cyc             :     integer   := 6;       -- cycle number at which coadd_done occurs
    constant num_ramp_frame_cycles      :     integer   := 2;       -- num of frame_cycles for fixed ramp output
    
@@ -195,6 +196,14 @@ architecture test of tb_fsfb_calc is
    signal corr_flux_cnt_pres_i         :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal calc_flux_cnt_prev_o         :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
    signal calc_flux_quanta_o           :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+     
+   signal filter_coeff0                :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff1                :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);   
+   signal filter_coeff2                :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff3                :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff4                :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff5                :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   
    
    -- data to be written to the queue for the write operation
    signal dat                          :     integer;
@@ -246,6 +255,12 @@ architecture test of tb_fsfb_calc is
          d_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          flux_quanta_addr_o        : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
          flux_quanta_dat_i         : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+         filter_coeff0_i           : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff1_i           : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff2_i           : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff3_i           : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff4_i           : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+         filter_coeff5_i           : in     std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
          fsfb_ws_addr_i            : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
          fsfb_ws_dat_o             : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
          flux_cnt_ws_dat_o         : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
@@ -323,7 +338,7 @@ architecture test of tb_fsfb_calc is
    
    begin
       wait until restart_frame_1row_post_i = '1';      
-      for index in 0 to 40 loop
+      for index in 0 to num_row_frame-1 loop
          wait until clk_i = '0';        
          rd_addr_o <= conv_std_logic_vector(index, FSFB_QUEUE_ADDR_WIDTH);
          rd_fltr_addr_o <= conv_std_logic_vector(index, FLTR_QUEUE_ADDR_WIDTH);
@@ -337,7 +352,7 @@ architecture test of tb_fsfb_calc is
       ) is
    
    begin
-      for index in 0 to 40 loop
+      for index in 0 to num_row_frame-1 loop
          wait until clk_i = '0';
          rd_addr_o <= conv_std_logic_vector(index, FLTR_QUEUE_ADDR_WIDTH);
       end loop;
@@ -371,6 +386,23 @@ architecture test of tb_fsfb_calc is
       fltr_rst_o <= '0';
    end procedure fltr_rst;
   
+   procedure set_filter_coeffs(
+      signal coeff5, coeff4,coeff3, coeff2, coeff1, coeff0: out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0 )
+      ) is
+   begin 
+      -- Filter coefficients for Filter Type: 1
+      --constant FILT_COEF_DEFAULTS : coeff_array := (32092,15750,31238,14895,0, 11);
+
+      -- for type II filter
+      -- constant FILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14);          
+      coeff0 <= conv_std_logic_vector(32295, FILTER_COEF_WIDTH);
+      coeff1 <= conv_std_logic_vector(15915, FILTER_COEF_WIDTH);
+      coeff2 <= conv_std_logic_vector(32568, FILTER_COEF_WIDTH);
+      coeff3 <= conv_std_logic_vector(16188, FILTER_COEF_WIDTH);
+      coeff4 <= conv_std_logic_vector(3, FILTER_COEF_WIDTH);
+      coeff5 <= conv_std_logic_vector(14, FILTER_COEF_WIDTH);      
+   end procedure set_filter_coeffs;   
+   
    -- procedure for test mode setting
    procedure cfg_test_mode(
       servo_mode_i               : in  integer;
@@ -410,7 +442,7 @@ begin
 
    rst_i <= '1', '0' after 1000 * clk_period;
    
-   ft_num_rows_sub1_i <= conv_std_logic_vector(40, FSFB_QUEUE_ADDR_WIDTH);
+   ft_num_rows_sub1_i <= conv_std_logic_vector(num_row_frame-1, FSFB_QUEUE_ADDR_WIDTH);
    
 
    -- Configure the P,I,D coefficient values
@@ -524,7 +556,8 @@ begin
       elsif (calc_clk_i'event and calc_clk_i = '1') then
          dat <= dat + 1;
       end if;
-      if (dat > 2481 and dat<3294) then -- to generate an impulse after init_window is done and only for one frame period
+      --if (dat > 2481 and dat<3294) then -- to generate an impulse after init_window is done and only for one frame period
+      if (dat >(num_row_frame*num_clk_row)  and dat<(2*num_row_frame*num_clk_row)) then
         impulse <= 50000;
       else 
         impulse <= 0;
@@ -599,6 +632,12 @@ begin
          i_dat_i                   => calc_i_dat_i,
          d_addr_o                  => calc_d_addr_o,
          d_dat_i                   => calc_d_dat_i,
+         filter_coeff0_i           => filter_coeff0,
+         filter_coeff1_i           => filter_coeff1,
+         filter_coeff2_i           => filter_coeff2,
+         filter_coeff3_i           => filter_coeff3,
+         filter_coeff4_i           => filter_coeff4,
+         filter_coeff5_i           => filter_coeff5,         
          flux_quanta_addr_o        => calc_flux_quanta_addr_o,
          flux_quanta_dat_i         => calc_flux_quanta_dat_i,
          fsfb_ws_addr_i            => calc_ws_addr_i,
@@ -682,6 +721,7 @@ begin
    ws_rd_fsfb : process
    begin
       
+      --wait for num_row_frame*num_clk_row*clk_period;
       wait for 500*clk_period;
       ws_access(calc_clk_i, ft_restart_frame_1row_post_i, calc_ws_addr_i, calc_ws_fltr_addr_i);
       
@@ -691,6 +731,8 @@ begin
    -- Main test stimuli
    run_test : process 
    begin
+      set_filter_coeffs(filter_coeff5, filter_coeff4, filter_coeff3, filter_coeff2, filter_coeff1, filter_coeff0);
+
       -- for non-filter-related test, use 'index 1 to 2      
       for index in 1 to 1 loop   
       
@@ -736,7 +778,6 @@ begin
          -- wait for about 30 frame times
 --         wait for 30*41*num_clk_row*clk_period;
 --         wait for 20*num_clk_row*clk_period;
-      
          -- lock mode testing
          cfg_test_mode(3, 0, 0, 0, 0,
                        cfg_servo_mode_i, cfg_ramp_step_size_i, cfg_ramp_amp_i,
@@ -745,11 +786,11 @@ begin
          init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
       
          -- run for about 30 frame times 
-         wait for 30*41*num_clk_row*clk_period;
+         wait for 30*num_row_frame*num_clk_row*clk_period;
          
          -- NOTE: comment the following line for non-filter tests.
          -- run for more frames if testing filter in order to have enough points for FFT (2000 points)
-         wait for 4170*41*num_clk_row*clk_period;
+         wait for 15460*num_row_frame*num_clk_row*clk_period;
          
          wait for 20*num_clk_row*clk_period;
       
