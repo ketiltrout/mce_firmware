@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.22 2010/06/17 01:07:11 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.23 2010/08/04 21:46:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.23  2010/08/04 21:46:41  bburger
+-- BB:  Added two signals for zero-extending the flux-quanta parameter to fit the multiplier input that has been widened.
+--
 -- Revision 1.22  2010/06/17 01:07:11  bburger
 -- BB: re-introduced flux-count clamping to maintain continuity of behavior between versions of firmware in the field.
 --
@@ -387,9 +390,11 @@ begin
    -- start_corr has been simplified so that it only looks for an assertion from channel 0.  This will ease timing.  
    -- All the other channels of fsfb_ctrl_dat_rdy0 are asserted at the same time regardless of servo_mode.
    -- If this assumption ever becomes false, then this logic will need to change as would the logic that was here before.
+   --start_corr <= fsfb_ctrl_dat_rdy0 and fsfb_ctrl_dat_rdy1 and fsfb_ctrl_dat_rdy2 and fsfb_ctrl_dat_rdy3 and 
+   --              fsfb_ctrl_dat_rdy4 and fsfb_ctrl_dat_rdy5 and fsfb_ctrl_dat_rdy6 and fsfb_ctrl_dat_rdy7;   
    ----------------------------------------------------------------------------
    start_corr <= fsfb_ctrl_dat_rdy0;
-   
+     
    -- Determine whether to clear flux-jumping registers on a column-by-column basis
    clear_fj_col0 <= '1' when (flux_jumping_en_i = '0' or fsfb_ctrl_lock_en0_i = '0' or initialize_window_i = '1') else '0';
    clear_fj_col1 <= '1' when (flux_jumping_en_i = '0' or fsfb_ctrl_lock_en1_i = '0' or initialize_window_i = '1') else '0';
@@ -404,7 +409,7 @@ begin
    begin
       if rst_i = '1' then
          fsfb_ctrl_dat_rdy0 <= '0';      
-      elsif clk_i'event and clk_i = '1' then
+        elsif clk_i'event and clk_i = '1' then
          if(rdy_clr = '1') then
             fsfb_ctrl_dat_rdy0 <= '0';
          else   
@@ -510,9 +515,9 @@ begin
       -- Always wait for the flux jump block to go through the whole 11-cycle process, even if en_fb_jump = 0.
       -- When en_fb_jump = 1, flux-jumping can now be disabled on a column-by-column basis by setting servo_mode = 0,1,2 
       -- This means that constant values could have been applied with or without the 11-cycle delay if en_fb_jump= 1 or 0.
---            if(start_corr = '1' and flux_jumping_en_i = '0') then
---               pid_corr_rdy   <= '1';
---            end if;
+            if(start_corr = '1' and flux_jumping_en_i = '0') then
+               pid_corr_rdy   <= '1';
+            end if;
 
          when CALCA0 =>
             column_switch1 <= COL0;     
@@ -574,10 +579,10 @@ begin
             column_switch1 <= COL7;
             column_switch2 <= COL7;
 
---            -- If flux jumping is enabled, it takes a few clock cycles to calculate the correct feedback
---            if(flux_jumping_en_i = '1') then
+            -- If flux jumping is enabled, it takes a few clock cycles to calculate the correct feedback
+            if(flux_jumping_en_i = '1') then
                pid_corr_rdy   <= '1';
---            end if;
+            end if;
 
          when others =>
       end case;
@@ -1129,16 +1134,16 @@ begin
       res_b_reg2(DAC_DAT_WIDTH-1 downto 0);           
    fsfb_ctrl_dat3_o <=
       pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when clear_fj_col3 = '1' else
-      res_b_reg3(DAC_DAT_WIDTH-1 downto 0);           
+      res_b_reg3(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat4_o <=
       pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when clear_fj_col4 = '1' else
-      res_b_reg4(DAC_DAT_WIDTH-1 downto 0);           
+      res_b_reg4(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat5_o <=
       pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when clear_fj_col5 = '1' else
-      res_b_reg5(DAC_DAT_WIDTH-1 downto 0);           
+      res_b_reg5(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat6_o <=
       pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when clear_fj_col6 = '1' else
-      res_b_reg6(DAC_DAT_WIDTH-1 downto 0);           
+      res_b_reg6(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat7_o <=
       pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when clear_fj_col7 = '1' else
       res_b_reg7(DAC_DAT_WIDTH-1 downto 0);        
