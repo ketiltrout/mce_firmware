@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.23 2010/08/04 21:46:41 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.24 2011-06-02 20:45:48 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.24  2011-06-02 20:45:48  mandana
+-- revert back to applying SQ1FB after 7 clock cycles when flux-jumping is off.
+--
 -- Revision 1.23  2010/08/04 21:46:41  bburger
 -- BB:  Added two signals for zero-extending the flux-quanta parameter to fit the multiplier input that has been widened.
 --
@@ -467,7 +470,7 @@ begin
       end case;
    end process;
 
-   state_out: process(present_state)
+   state_out: process(present_state, start_corr, flux_jumping_en_i)
    begin   
       -- Default assignments
       rdy_clr           <= '0';
@@ -511,10 +514,8 @@ begin
          when IDLE =>
             column_switch1 <= COL7;
             column_switch2 <= COL7;
-
-      -- Always wait for the flux jump block to go through the whole 11-cycle process, even if en_fb_jump = 0.
-      -- When en_fb_jump = 1, flux-jumping can now be disabled on a column-by-column basis by setting servo_mode = 0,1,2 
-      -- This means that constant values could have been applied with or without the 11-cycle delay if en_fb_jump= 1 or 0.
+      -- for flux-jumping off, apply feedback without waiting for an additional 11 cycle that takes to calculate flux-jump
+      -- This means that constant values can be applied with or without the 11-cycle delay if en_fb_jump= 1 or 0.
             if(start_corr = '1' and flux_jumping_en_i = '0') then
                pid_corr_rdy   <= '1';
             end if;
