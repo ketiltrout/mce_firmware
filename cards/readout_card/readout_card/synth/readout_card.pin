@@ -441,7 +441,7 @@ RESERVED_INPUT               : F6        :        :                   :         
 ttl_in1                      : F7        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in2                      : F8        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in3                      : F9        : input  : 3.3-V LVTTL       :         : 4         : Y              
-mictor[5]                    : F10       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : F10       :        :                   :         : 4         :                
 ttl_out1                     : F11       : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
 TMS                          : F13       : input  :                   :         : 4         :                
@@ -497,7 +497,7 @@ dac_FB2_dat[2]               : H6        : output : 3.3-V LVTTL       :         
 dac_FB2_dat[5]               : H7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB2_dat[6]               : H8        : output : 3.3-V LVTTL       :         : 5         : Y              
 ttl_dir3                     : H9        : output : 3.3-V LVTTL       :         : 4         : Y              
-mictor[6]                    : H10       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : H10       :        :                   :         : 4         :                
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : 3.3-V LVTTL       :         : 4         : N              
 TDO                          : H13       : output :                   :         : 4         :                
@@ -525,8 +525,8 @@ dac_FB2_dat[10]              : J6        : output : 3.3-V LVTTL       :         
 dac_FB3_dat[2]               : J7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB3_dat[1]               : J8        : output : 3.3-V LVTTL       :         : 5         : Y              
 RESERVED_INPUT               : J9        :        :                   :         : 4         :                
-RESERVED_INPUT               : J10       :        :                   :         : 4         :                
-RESERVED_INPUT               : J11       :        :                   :         : 4         :                
+mictor[5]                    : J10       : output : 3.3-V LVTTL       :         : 4         : N              
+mictor[6]                    : J11       : output : 3.3-V LVTTL       :         : 4         : N              
 RESERVED_INPUT               : J12       :        :                   :         : 4         :                
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
 VCCIO4                       : J14       : power  :                   : 3.3V    : 4         :                
