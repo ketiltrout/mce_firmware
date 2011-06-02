@@ -43,6 +43,11 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.12  2011-05-30 23:44:41  mandana
+-- added support for filter_coeffs
+-- parametrized frame length for row_len and num_rows
+-- simulated filter type II for row_len=98 and num_rows=33
+--
 -- Revision 1.11  2010/03/12 20:52:48  bburger
 -- BB: changed lock_dat_left to lock_dat_lsb
 --
@@ -110,8 +115,8 @@ architecture test of tb_fsfb_calc is
    -- constant/signal declarations
    constant FILTER_COEF_WIDTH          : integer := 15;            -- number of bits in the coefficient
    constant clk_period                 :     time      := 20 ns;   -- 50 MHz clock period
-   constant num_clk_row                :     integer   := 98;      -- number of clock cycles per row
-   constant num_row_frame              :     integer   := 33;      -- number of rows per frame
+   constant num_clk_row                :     integer   := 64;      -- number of clock cycles per row
+   constant num_row_frame              :     integer   := 41;      -- number of rows per frame
    constant coadd_done_cyc             :     integer   := 6;       -- cycle number at which coadd_done occurs
    constant num_ramp_frame_cycles      :     integer   := 2;       -- num of frame_cycles for fixed ramp output
    
@@ -395,12 +400,22 @@ architecture test of tb_fsfb_calc is
 
       -- for type II filter
       -- constant FILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14);          
-      coeff0 <= conv_std_logic_vector(32295, FILTER_COEF_WIDTH);
-      coeff1 <= conv_std_logic_vector(15915, FILTER_COEF_WIDTH);
-      coeff2 <= conv_std_logic_vector(32568, FILTER_COEF_WIDTH);
-      coeff3 <= conv_std_logic_vector(16188, FILTER_COEF_WIDTH);
-      coeff4 <= conv_std_logic_vector(3, FILTER_COEF_WIDTH);
-      coeff5 <= conv_std_logic_vector(14, FILTER_COEF_WIDTH);      
+      
+      -- fs/fc= 12973/75Hz, row_len 94
+      -- (32297, 15934, 31683, 15320, 0, 11)
+      
+      -- fs/fc= 13550/75Hz, row_len 90
+      -- 32318, 15953, 31728, 15364, 0, 11
+
+      -- fs/fc= 19050/75Hz, row_len 64
+      -- 32451,16077, 32026, 15652, 0,12
+
+      coeff0 <= conv_std_logic_vector(32451, FILTER_COEF_WIDTH);
+      coeff1 <= conv_std_logic_vector(16077, FILTER_COEF_WIDTH);
+      coeff2 <= conv_std_logic_vector(32026, FILTER_COEF_WIDTH);
+      coeff3 <= conv_std_logic_vector(15652, FILTER_COEF_WIDTH);
+      coeff4 <= conv_std_logic_vector(1, FILTER_COEF_WIDTH);
+      coeff5 <= conv_std_logic_vector(11, FILTER_COEF_WIDTH);      
    end procedure set_filter_coeffs;   
    
    -- procedure for test mode setting
@@ -554,10 +569,14 @@ begin
          dat <= 0;
          impulse <= 0;
       elsif (calc_clk_i'event and calc_clk_i = '1') then
-         dat <= dat + 1;
+         --if (ft_initialize_window_i = '1') then
+           dat <= 0;
+         --else  
+           dat <= dat + 1;
+         --end if;  
       end if;
       --if (dat > 2481 and dat<3294) then -- to generate an impulse after init_window is done and only for one frame period
-      if (dat >(num_row_frame*num_clk_row)  and dat<(2*num_row_frame*num_clk_row)) then
+      if (dat > 3*num_row_frame*num_clk_row  and dat < 4*num_row_frame*num_clk_row) then
         impulse <= 50000;
       else 
         impulse <= 0;
