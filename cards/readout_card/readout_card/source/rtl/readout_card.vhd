@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.99  2011-06-02 20:53:39  mandana
+-- rev. 5.1.3 reverts back to applying SQ1FB after only 7 clock cycles when flux-jumping is off.
+--
 -- Revision 1.98  2011-01-21 01:40:19  mandana
 -- 5.1.2, bugfix for filtered data being 2 row behind
 --
@@ -235,7 +238,7 @@ architecture top of readout_card is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010003";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010004";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
