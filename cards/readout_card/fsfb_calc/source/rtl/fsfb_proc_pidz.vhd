@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.17  2011-01-21 01:35:35  mandana
+-- added two more stages to the calc_shift_state scheduler to account for the two extra clock cycles added due to configurable filter coeffs.
+-- fixing the bug associated with row0 filter data being written to RAM location 2, etc.
+--
 -- Revision 1.16  2010-11-30 19:49:55  mandana
 -- filter_scale_lsb had to be reduced so the design can fit in EP1S40. The new range is a more realistic range.
 --
@@ -205,7 +209,7 @@ architecture rtl of fsfb_proc_pidz is
    alias  filter_b12_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff1_i(FILTER_COEF_WIDTH-1 downto 0);
    alias  filter_b21_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff2_i(FILTER_COEF_WIDTH-1 downto 0);
    alias  filter_b22_coef          : std_logic_vector(FILTER_COEF_WIDTH-1 downto 0) is filter_coeff3_i(FILTER_COEF_WIDTH-1 downto 0);
-   signal filter_scale_lsb         : integer range 0 to 15 := 0;                                  -- to default to the original filter (type I) parameters
+   signal filter_scale_lsb         : integer range 0 to 7  := 0;                                   -- to default to the original filter (type I) parameters
    signal filter_gain_width        : integer range 0 to 31 := 11;                                 -- to default to the original filter (type I) parameters
    
    signal p_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn (64 + 1 bits)
