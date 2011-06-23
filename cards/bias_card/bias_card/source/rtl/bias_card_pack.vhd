@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.15 2010/06/02 17:39:56 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.16 2010/07/19 23:43:25 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.16  2010/07/19 23:43:25  mandana
+-- added pcb_rev_i interface
+--
 -- Revision 1.15  2010/06/02 17:39:56  mandana
 -- adds 1row_prev port to bc_dac_ctrl interface
 --
@@ -167,67 +170,6 @@ port(inclk0 : in std_logic;
      c1 : out std_logic;
      c2 : out std_logic;
      c3 : out std_logic);
-end component;
-
-component bias_card
-   port(
-
-      -- PLL input:
-      inclk      : in std_logic;
-      rst_n      : in std_logic;
-      
-      -- LVDS interface:
-      lvds_cmd   : in std_logic;
-      lvds_sync  : in std_logic;
-      lvds_spare : in std_logic;
-      lvds_txa   : out std_logic;
-      lvds_txb   : out std_logic;
-      
-      -- TTL interface:
-      ttl_nrx1   : in std_logic;
-      ttl_tx1    : out std_logic;
-      ttl_txena1 : out std_logic;
-      
-      ttl_nrx2   : in std_logic;
-      ttl_tx2    : out std_logic;
-      ttl_txena2 : out std_logic;
-      
-      ttl_nrx3   : in std_logic;
-      ttl_tx3    : out std_logic;
-      ttl_txena3 : out std_logic;
-
-      -- eeprom interface:
-      eeprom_si  : in std_logic;
-      eeprom_so  : out std_logic;
-      eeprom_sck : out std_logic;
-      eeprom_cs  : out std_logic;
-                  
-      -- dac interface:
-      dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      dac_data      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
-      lvds_dac_ncs  : out std_logic;
-      lvds_dac_sclk : out std_logic;
-      lvds_dac_data : out std_logic;
-      dac_nclr      : out std_logic; -- add to tcl file
-      
-      -- miscellaneous ports:
-      red_led    : out std_logic;
-      ylw_led    : out std_logic;
-      grn_led    : out std_logic;
-      dip_sw3    : in std_logic;
-      dip_sw4    : in std_logic;
-      wdog       : out std_logic;
-      slot_id    : in std_logic_vector(3 downto 0);
-      pcb_rev    : in std_logic_vector(3 downto 0);
-      
-      -- debug ports:
-      test       : inout std_logic_vector(16 downto 3);
-      mictor     : out std_logic_vector(31 downto 0);
-      mictorclk  : out std_logic_vector(2 downto 1);
-      rx         : in std_logic;
-      tx         : out std_logic
-   );     
 end component;
   
 -----------------------------------------------------------------------------
