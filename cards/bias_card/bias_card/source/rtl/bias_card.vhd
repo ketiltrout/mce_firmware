@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.41 2010-07-19 23:42:56 mandana Exp $
+-- $Id: bias_card.vhd,v 1.42 2011-05-11 21:32:13 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.42  2011-05-11 21:32:13  bburger
+-- BB:  bc_v05000006
+--
 -- Revision 1.41  2010-07-19 23:42:56  mandana
 -- rev. 5.0.5
 -- adds pcb_rev_i interface to read the hardware revision through card_type parameter
@@ -251,10 +254,10 @@ end bias_card;
 architecture top of bias_card is
 
 -- The REVISION format is RRrrBBBB where
---               RR is the major revision number
---               rr is the minor revision number
---               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000006";
+--               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
+--               rr is the minor revision number, incremented when new features added
+--               BBBB is the build number, incremented for bug fixes
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000007";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
