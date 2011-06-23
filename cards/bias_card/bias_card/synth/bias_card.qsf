@@ -28,7 +28,7 @@
 set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:26:51  DECEMBER 15, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "9.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -657,3 +657,6 @@ set_location_assignment PIN_AF7 -to pcb_rev[0]
 set_location_assignment PIN_AF6 -to pcb_rev[1]
 set_location_assignment PIN_AE6 -to pcb_rev[2]
 set_location_assignment PIN_AD6 -to pcb_rev[3]
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
+set_location_assignment CARD_ID -to Pin_T21

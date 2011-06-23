@@ -1,6 +1,6 @@
 Flow report for bias_card
-Fri May 06 17:23:48 2011
-Quartus II Version 9.1 Build 304 01/25/2010 Service Pack 1 SJ Full Version
+Wed Jun 22 17:06:42 2011
+Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 
 
 ---------------------
@@ -35,25 +35,25 @@ applicable agreement for further details.
 
 
 
-+--------------------------------------------------------------------------+
-; Flow Summary                                                             ;
-+--------------------------+-----------------------------------------------+
-; Flow Status              ; Analyzed - Fri May 06 17:23:48 2011           ;
-; Quartus II Version       ; 9.1 Build 304 01/25/2010 SP 1 SJ Full Version ;
-; Revision Name            ; bias_card                                     ;
-; Top-level Entity Name    ; bias_card                                     ;
-; Family                   ; Stratix                                       ;
-; Device                   ; EP1S10F780C5                                  ;
-; Timing Models            ; Final                                         ;
-; Met timing requirements  ; Yes                                           ;
-; Total logic elements     ; 6,278 / 10,570 ( 59 % )                       ;
-; Total pins               ; 209 / 427 ( 49 % )                            ;
-; Total virtual pins       ; 0                                             ;
-; Total memory bits        ; 133,120 / 920,448 ( 14 % )                    ;
-; DSP block 9-bit elements ; 8 / 48 ( 17 % )                               ;
-; Total PLLs               ; 1 / 6 ( 17 % )                                ;
-; Total DLLs               ; 0 / 2 ( 0 % )                                 ;
-+--------------------------+-----------------------------------------------+
++----------------------------------------------------------------------------+
+; Flow Summary                                                               ;
++---------------------------+------------------------------------------------+
+; Flow Status               ; Analyzed - Wed Jun 22 17:06:42 2011            ;
+; Quartus II 64-Bit Version ; 10.0 Build 262 08/18/2010 SP 1 SJ Full Version ;
+; Revision Name             ; bias_card                                      ;
+; Top-level Entity Name     ; bias_card                                      ;
+; Family                    ; Stratix                                        ;
+; Device                    ; EP1S10F780C5                                   ;
+; Timing Models             ; Final                                          ;
+; Met timing requirements   ; Yes                                            ;
+; Total logic elements      ; 6,286 / 10,570 ( 59 % )                        ;
+; Total pins                ; 209 / 427 ( 49 % )                             ;
+; Total virtual pins        ; 0                                              ;
+; Total memory bits         ; 133,120 / 920,448 ( 14 % )                     ;
+; DSP block 9-bit elements  ; 8 / 48 ( 17 % )                                ;
+; Total PLLs                ; 1 / 6 ( 17 % )                                 ;
+; Total DLLs                ; 0 / 2 ( 0 % )                                  ;
++---------------------------+------------------------------------------------+
 
 
 +-----------------------------------------+
@@ -61,7 +61,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 05/06/2011 17:20:51 ;
+; Start date & time ; 06/22/2011 17:04:08 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -80,7 +80,7 @@ applicable agreement for further details.
 ; AUTO_PACKED_REGISTERS_MAXII                       ; Normal                                               ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIX                     ; Normal                                               ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIXII                   ; Normal                                               ; Auto                           ; --          ; --             ;
-; COMPILER_SIGNATURE_ID                             ; 98432387396.130472765103396                          ; --                             ; --          ; --             ;
+; COMPILER_SIGNATURE_ID                             ; 167739110428.130878744806836                         ; --                             ; --          ; --             ;
 ; DO_COMBINED_ANALYSIS                              ; On                                                   ; Off                            ; --          ; --             ;
 ; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; On                                                   ; --                             ; --          ; eda_simulation ;
 ; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION        ; On                                                   ; --                             ; --          ; eda_simulation ;
@@ -113,26 +113,26 @@ applicable agreement for further details.
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name             ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis    ; 00:00:43     ; 1.0                     ; 244 MB              ; 00:00:43                           ;
-; Fitter                  ; 00:01:47     ; 1.2                     ; 288 MB              ; 00:01:55                           ;
-; Assembler               ; 00:00:03     ; 1.0                     ; 208 MB              ; 00:00:02                           ;
-; Classic Timing Analyzer ; 00:00:08     ; 1.0                     ; 159 MB              ; 00:00:08                           ;
-; Design Assistant        ; 00:00:09     ; 1.0                     ; 157 MB              ; 00:00:08                           ;
-; Total                   ; 00:02:50     ; --                      ; --                  ; 00:02:56                           ;
+; Analysis & Synthesis    ; 00:00:42     ; 1.0                     ; 438 MB              ; 00:00:42                           ;
+; Fitter                  ; 00:01:28     ; 1.7                     ; 495 MB              ; 00:01:39                           ;
+; Assembler               ; 00:00:02     ; 1.0                     ; 334 MB              ; 00:00:02                           ;
+; Classic Timing Analyzer ; 00:00:07     ; 1.0                     ; 288 MB              ; 00:00:07                           ;
+; Design Assistant        ; 00:00:07     ; 1.0                     ; 275 MB              ; 00:00:07                           ;
+; Total                   ; 00:02:26     ; --                      ; --                  ; 00:02:37                           ;
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
-+---------------------------------------------------------------------------------------+
-; Flow OS Summary                                                                       ;
-+-------------------------+------------------+------------+------------+----------------+
-; Module Name             ; Machine Hostname ; OS Name    ; OS Version ; Processor type ;
-+-------------------------+------------------+------------+------------+----------------+
-; Analysis & Synthesis    ; bluestone        ; Windows XP ; 5.1        ; i686           ;
-; Fitter                  ; bluestone        ; Windows XP ; 5.1        ; i686           ;
-; Assembler               ; bluestone        ; Windows XP ; 5.1        ; i686           ;
-; Classic Timing Analyzer ; bluestone        ; Windows XP ; 5.1        ; i686           ;
-; Design Assistant        ; bluestone        ; Windows XP ; 5.1        ; i686           ;
-+-------------------------+------------------+------------+------------+----------------+
++--------------------------------------------------------------------------------------+
+; Flow OS Summary                                                                      ;
++-------------------------+------------------+-----------+------------+----------------+
+; Module Name             ; Machine Hostname ; OS Name   ; OS Version ; Processor type ;
++-------------------------+------------------+-----------+------------+----------------+
+; Analysis & Synthesis    ; Amiskwi          ; Windows 7 ; 6.1        ; x86_64         ;
+; Fitter                  ; Amiskwi          ; Windows 7 ; 6.1        ; x86_64         ;
+; Assembler               ; Amiskwi          ; Windows 7 ; 6.1        ; x86_64         ;
+; Classic Timing Analyzer ; Amiskwi          ; Windows 7 ; 6.1        ; x86_64         ;
+; Design Assistant        ; Amiskwi          ; Windows 7 ; 6.1        ; x86_64         ;
++-------------------------+------------------+-----------+------------+----------------+
 
 
 ------------
