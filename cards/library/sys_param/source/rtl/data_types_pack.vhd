@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2008/08/13 20:52:47 $> - <initials $Author: bburger $>
+-- <date $Date: 2009/09/14 19:53:41 $> - <initials $Author: bburger $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.10  2009/09/14 19:53:41  bburger
+-- BB: added w1_array64 and w14_array64 for storing up to 64 values in address card RAM blocks.
+--
 -- Revision 1.9  2008/08/13 20:52:47  bburger
 -- BB:  Added a new data type: w32_array64
 --
@@ -104,6 +107,7 @@ package data_types_pack is
    type w14_array11 is array (10 downto 0) of word14; -- for address card bus (new naming convention)
    type w14_array41 is array (40 downto 0) of word14; -- for piping constant/ multiplexed values to the bus arbitrator (Address Card)
    type w14_array64 is array (63 downto 0) of word14; -- for piping constant/ multiplexed values to the bus arbitrator (Address Card)
+   type w16_array32 is array (31 downto 0) of word16; -- for Clock Card LAN91C111 register storage
    type w32_array32 is array (31 downto 0) of word32; -- for address card bus (new naming convention)
    type w32_array41 is array (40 downto 0) of word32; -- for address card bus (new naming convention)
    type w32_array64 is array (63 downto 0) of word32; -- for address card bus (new naming convention)
