@@ -27,9 +27,12 @@
 -- Description: package for cc_reset
 --
 -- Revision history:
--- <date $Date: 2005/03/09 18:08:23 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/01/24 01:19:41 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: cc_reset_pack.vhd,v $
+-- Revision 1.3  2007/01/24 01:19:41  bburger
+-- Bryce:  Added a timer to extend the BClr pulse over the Bus Backplane to all the whole subrak to be reset.  Also added FSMs for recording BRst and BClr events.
+--
 -- Revision 1.2  2005/03/09 18:08:23  bburger
 -- mohsen:  registered and widened TTL reset pulse (BClr)
 --
@@ -45,6 +48,6 @@ use ieee.std_logic_1164.all;
 package cc_reset_pack is
 
    constant SPEC_CHAR_RESET    : std_logic_vector (7 downto 0) := x"0B";
-   constant RESET_HOLD_TIME_US : integer := 100;
+   constant RESET_HOLD_TIME_US : integer := 5000000;
 
 end cc_reset_pack;
