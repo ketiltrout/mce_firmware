@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_switchover.vhd,v 1.6 2007/07/25 19:02:36 bburger Exp $
+-- $Id: clk_switchover.vhd,v 1.7 2009/03/19 20:22:03 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_switchover.vhd,v $
+-- Revision 1.7  2009/03/19 20:22:03  bburger
+-- BB: Corrected a comment about how many clock cycles it takes to switch from one PLL input to another
+--
 -- Revision 1.6  2007/07/25 19:02:36  bburger
 -- BB: added checking in the block for bad manchester or crystal clocks, and automoatic switchover if this occurs.
 --
@@ -90,21 +93,21 @@ architecture top of clk_switchover is
 
    component cc_pll
       port (
-         clkswitch      : IN STD_LOGIC  := '0';
+--         clkswitch      : IN STD_LOGIC  := '0';
          inclk0      : IN STD_LOGIC  := '0';
-         inclk1      : IN STD_LOGIC  := '0';
-         e2    : OUT STD_LOGIC ;
+--         inclk1      : IN STD_LOGIC  := '0';
+--         e2    : OUT STD_LOGIC ;
          c0    : OUT STD_LOGIC ;
          c1    : OUT STD_LOGIC ;
-         c2    : OUT STD_LOGIC ;
-         c3    : OUT STD_LOGIC ;
-         clkloss : out std_logic;
-         locked      : OUT STD_LOGIC ;
-         activeclock    : OUT STD_LOGIC ;
-         e0    : OUT STD_LOGIC ;
-         clkbad0     : OUT STD_LOGIC ;
-         e1    : OUT STD_LOGIC ;
-         clkbad1     : OUT STD_LOGIC
+         c2    : OUT STD_LOGIC 
+--         c3    : OUT STD_LOGIC ;
+--         clkloss : out std_logic;
+--         locked      : OUT STD_LOGIC ;
+--         activeclock    : OUT STD_LOGIC ;
+--         e0    : OUT STD_LOGIC ;
+--         clkbad0     : OUT STD_LOGIC ;
+--         e1    : OUT STD_LOGIC ;
+--         clkbad1     : OUT STD_LOGIC
       );
    end component;
 
@@ -142,21 +145,21 @@ begin
    c0_o <= clk;
    pll0: cc_pll
       port map(
-         clkswitch   => clkswitch,
+--         clkswitch   => clkswitch,
          inclk0      => xtal_clk_i,
-         inclk1      => manch_clk_i,
-         e2          => e2_o,
+--         inclk1      => manch_clk_i,
+--         e2          => e2_o, -- lvds_clk
          c0          => clk,
          c1          => c1_o,
-         c2          => c2_o,
-         c3          => c3_o,
-         clkloss     => clkloss,
-         locked      => locked,
-         activeclock => activeclock,
-         e0          => e0_o,
-         clkbad0     => xtal_clk_bad,
-         e1          => e1_o,
-         clkbad1     => manch_clk_bad
+         c2          => c2_o
+--         c3          => c3_o,
+--         clkloss     => clkloss,
+--         locked      => locked,
+--         activeclock => activeclock,
+--         e0          => e0_o,
+--         clkbad0     => xtal_clk_bad,
+--         e1          => e1_o,
+--         clkbad1     => manch_clk_bad
       );
 
    -- **Note:  make sure that the machester signal detect is double buffered.
