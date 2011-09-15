@@ -113,6 +113,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_manager_data_path.vhd,v $
+-- Revision 1.5  2009/04/09 19:10:44  bburger
+-- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
+--
 -- Revision 1.4  2004/12/13 21:50:22  mohsen
 -- To avoid synthesis complication, changed the construct to generate shift register.
 --
@@ -147,9 +150,8 @@ entity coadd_manager_data_path is
 
   generic (
     MAX_COUNT                 : integer := TOTAL_ROW_NO;
-    MAX_SHIFT                 : integer); -- = Delay stages
-                                                           -- for coadd enable
-                                                           -- signals
+    MAX_SHIFT                 : integer); -- = Delay stages for coadd enable (to compensate for ADC latency)
+                                          
                                                             
   port (
     rst_i                     : in  std_logic;
@@ -180,8 +182,8 @@ architecture beh of coadd_manager_data_path is
 
   -- Signals needed for the shift register
   signal shifted_adc_coadd_en : std_logic_vector(MAX_SHIFT-1 downto 0);
-  alias  adc_coadd_en_5delay  : std_logic is shifted_adc_coadd_en(4);
-  alias  adc_coadd_en_4delay  : std_logic is shifted_adc_coadd_en(3);
+  alias  adc_coadd_en_5delay  : std_logic is shifted_adc_coadd_en(MAX_SHIFT-1);
+  alias  adc_coadd_en_4delay  : std_logic is shifted_adc_coadd_en(MAX_SHIFT-2);
   
   
   -- Signals needed in the Registered Adder
