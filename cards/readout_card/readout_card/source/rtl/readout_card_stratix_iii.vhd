@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.17  2011-01-21 01:40:10  mandana
+-- 5.1.2, bugfix for filtered data being 2 row behind
+--
 -- Revision 1.16  2010-11-13 00:40:55  mandana
 -- filter_coeff added
 -- revision 5.1.0
@@ -248,7 +251,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010002";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010005";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals

@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.19  2010-11-30 19:51:01  mandana
+-- *** empty log message ***
+--
 -- Revision 1.18  2009/12/10 00:13:36  bburger
 -- BB: Added CRC_ERROR entities and test functionality.
 --
@@ -104,7 +107,7 @@ package readout_card_pack is
          crc_deld_disable  :  string := "off";
          error_delay :  natural := 0;
          error_dra_dl_bypass  :  string := "off";
-         lpm_hint :  string := "UNUSED";
+         --lpm_hint :  string := "UNUSED";
          lpm_type :  string := "stratixiii_crcblock";
          oscillator_divider   :  natural := 2);
       port(
