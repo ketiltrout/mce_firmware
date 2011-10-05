@@ -1,5 +1,5 @@
 Analysis & Synthesis report for bias_card
-Wed Jun 22 17:04:50 2011
+Tue Oct 04 12:20:38 2011
 Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 
 
@@ -407,12 +407,12 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                 ;
 +-----------------------------+------------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Wed Jun 22 17:04:50 2011          ;
+; Analysis & Synthesis Status ; Successful - Tue Oct 04 12:20:38 2011          ;
 ; Quartus II 64-Bit Version   ; 10.0 Build 262 08/18/2010 SP 1 SJ Full Version ;
 ; Revision Name               ; bias_card                                      ;
 ; Top-level Entity Name       ; bias_card                                      ;
 ; Family                      ; Stratix                                        ;
-; Total logic elements        ; 7,047                                          ;
+; Total logic elements        ; 7,019                                          ;
 ; Total pins                  ; 195                                            ;
 ; Total virtual pins          ; 0                                              ;
 ; Total memory bits           ; 133,120                                        ;
@@ -594,28 +594,28 @@ applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------+
 ; Resource                                    ; Usage                                     ;
 +---------------------------------------------+-------------------------------------------+
-; Total logic elements                        ; 7047                                      ;
-;     -- Combinational with no register       ; 3485                                      ;
+; Total logic elements                        ; 7019                                      ;
+;     -- Combinational with no register       ; 3457                                      ;
 ;     -- Register only                        ; 1694                                      ;
 ;     -- Combinational with a register        ; 1868                                      ;
 ;                                             ;                                           ;
 ; Logic element usage by number of LUT inputs ;                                           ;
-;     -- 4 input functions                    ; 2877                                      ;
-;     -- 3 input functions                    ; 1436                                      ;
-;     -- 2 input functions                    ; 912                                       ;
-;     -- 1 input functions                    ; 125                                       ;
+;     -- 4 input functions                    ; 2852                                      ;
+;     -- 3 input functions                    ; 1432                                      ;
+;     -- 2 input functions                    ; 914                                       ;
+;     -- 1 input functions                    ; 124                                       ;
 ;     -- 0 input functions                    ; 3                                         ;
 ;                                             ;                                           ;
 ; Logic elements by mode                      ;                                           ;
-;     -- normal mode                          ; 6429                                      ;
-;     -- arithmetic mode                      ; 618                                       ;
+;     -- normal mode                          ; 6398                                      ;
+;     -- arithmetic mode                      ; 621                                       ;
 ;     -- qfbk mode                            ; 0                                         ;
 ;     -- register cascade mode                ; 0                                         ;
 ;     -- synchronous clear/load mode          ; 1165                                      ;
 ;     -- asynchronous clear/load mode         ; 3443                                      ;
 ;                                             ;                                           ;
 ; Total registers                             ; 3562                                      ;
-; Total logic cells in carry chains           ; 700                                       ;
+; Total logic cells in carry chains           ; 703                                       ;
 ; I/O pins                                    ; 195                                       ;
 ; Total memory bits                           ; 133120                                    ;
 ; DSP block 9-bit elements                    ; 8                                         ;
@@ -624,8 +624,8 @@ applicable agreement for further details.
 ;                                             ;                                           ;
 ; Maximum fan-out node                        ; bc_pll:pll0|altpll:altpll_component|_clk0 ;
 ; Maximum fan-out                             ; 4779                                      ;
-; Total fan-out                               ; 44645                                     ;
-; Average fan-out                             ; 5.29                                      ;
+; Total fan-out                               ; 44536                                     ;
+; Average fan-out                             ; 5.30                                      ;
 +---------------------------------------------+-------------------------------------------+
 
 
@@ -634,8 +634,8 @@ applicable agreement for further details.
 +-----------------------------------------------------------------+-------------+--------------+-------------+------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
 ; Compilation Hierarchy Node                                      ; Logic Cells ; LC Registers ; Memory Bits ; DSP Blocks ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                                                                                                   ; Library Name ;
 +-----------------------------------------------------------------+-------------+--------------+-------------+------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
-; |bias_card                                                      ; 7047 (448)  ; 3562         ; 133120      ; 0          ; 8            ; 0       ; 0         ; 1         ; 195  ; 0            ; 3485 (448)   ; 1694 (0)          ; 1868 (0)         ; 700 (0)         ; 0 (0)      ; |bias_card                                                                                                                                                                                                            ; work         ;
-;    |all_cards:i_all_cards|                                      ; 396 (140)   ; 256          ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 140 (140)    ; 256 (0)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards                                                                                                                                                                                      ; work         ;
+; |bias_card                                                      ; 7019 (439)  ; 3562         ; 133120      ; 0          ; 8            ; 0       ; 0         ; 1         ; 195  ; 0            ; 3457 (439)   ; 1694 (0)          ; 1868 (0)         ; 703 (0)         ; 0 (0)      ; |bias_card                                                                                                                                                                                                            ; work         ;
+;    |all_cards:i_all_cards|                                      ; 395 (139)   ; 256          ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 139 (139)    ; 256 (0)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards                                                                                                                                                                                      ; work         ;
 ;       |reg:\i_all_cards_bank:0:all_cards_reg|                   ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards|reg:\i_all_cards_bank:0:all_cards_reg                                                                                                                                                ; work         ;
 ;       |reg:\i_all_cards_bank:1:all_cards_reg|                   ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards|reg:\i_all_cards_bank:1:all_cards_reg                                                                                                                                                ; work         ;
 ;       |reg:\i_all_cards_bank:2:all_cards_reg|                   ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards|reg:\i_all_cards_bank:2:all_cards_reg                                                                                                                                                ; work         ;
@@ -644,7 +644,7 @@ applicable agreement for further details.
 ;       |reg:\i_all_cards_bank:5:all_cards_reg|                   ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards|reg:\i_all_cards_bank:5:all_cards_reg                                                                                                                                                ; work         ;
 ;       |reg:\i_all_cards_bank:6:all_cards_reg|                   ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards|reg:\i_all_cards_bank:6:all_cards_reg                                                                                                                                                ; work         ;
 ;       |reg:\i_all_cards_bank:7:all_cards_reg|                   ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|all_cards:i_all_cards|reg:\i_all_cards_bank:7:all_cards_reg                                                                                                                                                ; work         ;
-;    |bc_dac_ctrl:bc_dac_ctrl_slave|                              ; 3571 (0)    ; 2209         ; 66048       ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 1362 (0)     ; 977 (0)           ; 1232 (0)         ; 266 (0)         ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave                                                                                                                                                                              ; work         ;
+;    |bc_dac_ctrl:bc_dac_ctrl_slave|                              ; 3567 (0)    ; 2209         ; 66048       ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 1358 (0)     ; 977 (0)           ; 1232 (0)         ; 266 (0)         ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave                                                                                                                                                                              ; work         ;
 ;       |bc_dac_ctrl_core:bcdc_core|                              ; 2094 (354)  ; 1631         ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 463 (91)     ; 434 (192)         ; 1197 (71)        ; 234 (14)        ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core                                                                                                                                                   ; work         ;
 ;          |spi_dac_ctrl:\gen_spi_flux_fb:0:spi_dac_ctrl_i|       ; 40 (1)      ; 31           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 9 (0)        ; 5 (0)             ; 26 (1)           ; 5 (0)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:0:spi_dac_ctrl_i                                                                                                    ; work         ;
 ;             |fast2slow_clk_domain_crosser:i_clk_domain_crosser| ; 6 (6)       ; 5            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 1 (1)        ; 3 (3)             ; 2 (2)            ; 0 (0)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:0:spi_dac_ctrl_i|fast2slow_clk_domain_crosser:i_clk_domain_crosser                                                  ; work         ;
@@ -778,7 +778,7 @@ applicable agreement for further details.
 ;          |spi_dac_ctrl:\gen_spi_ln_bias:9:spi_dac_ctrl_i|       ; 38 (1)      ; 31           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (0)        ; 7 (1)             ; 24 (0)           ; 5 (0)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_ln_bias:9:spi_dac_ctrl_i                                                                                                    ; work         ;
 ;             |fast2slow_clk_domain_crosser:i_clk_domain_crosser| ; 5 (5)       ; 5            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 4 (4)             ; 1 (1)            ; 0 (0)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_ln_bias:9:spi_dac_ctrl_i|fast2slow_clk_domain_crosser:i_clk_domain_crosser                                                  ; work         ;
 ;             |spi_if:i_spi_if|                                   ; 32 (32)     ; 25           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (7)        ; 2 (2)             ; 23 (23)          ; 5 (5)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_ln_bias:9:spi_dac_ctrl_i|spi_if:i_spi_if                                                                                    ; work         ;
-;       |bc_dac_ctrl_wbs:bcdc_wbs|                                ; 1477 (1477) ; 578          ; 66048       ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 899 (899)    ; 543 (543)         ; 35 (35)          ; 32 (32)         ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs                                                                                                                                                     ; work         ;
+;       |bc_dac_ctrl_wbs:bcdc_wbs|                                ; 1473 (1473) ; 578          ; 66048       ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 895 (895)    ; 543 (543)         ; 35 (35)          ; 32 (32)         ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs                                                                                                                                                     ; work         ;
 ;          |ram_16x16:ln_bias_ram|                                ; 0 (0)       ; 0            ; 512         ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|ram_16x16:ln_bias_ram                                                                                                                               ; work         ;
 ;             |alt3pram:alt3pram_component|                       ; 0 (0)       ; 0            ; 512         ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|ram_16x16:ln_bias_ram|alt3pram:alt3pram_component                                                                                                   ; work         ;
 ;                |altdpram:altdpram_component1|                   ; 0 (0)       ; 0            ; 256         ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|ram_16x16:ln_bias_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1                                                                      ; work         ;
@@ -1091,18 +1091,18 @@ applicable agreement for further details.
 ;          |us_timer:wdt|                                         ; 45 (45)     ; 36           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 9 (9)        ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |bias_card|dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt                                                                                                                                                      ; work         ;
 ;       |reg:hdr0|                                                ; 22 (22)     ; 22           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 22 (22)          ; 0 (0)           ; 0 (0)      ; |bias_card|dispatch:cmd0|reg:hdr0                                                                                                                                                                                     ; work         ;
 ;       |reg:hdr1|                                                ; 16 (16)     ; 16           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 0 (0)           ; 0 (0)      ; |bias_card|dispatch:cmd0|reg:hdr1                                                                                                                                                                                     ; work         ;
-;    |fpga_thermo:fpga_thermo0|                                   ; 221 (26)    ; 138          ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 83 (18)      ; 15 (1)            ; 123 (7)          ; 76 (0)          ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0                                                                                                                                                                                   ; work         ;
+;    |fpga_thermo:fpga_thermo0|                                   ; 223 (28)    ; 138          ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 85 (20)      ; 15 (1)            ; 123 (7)          ; 76 (0)          ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0                                                                                                                                                                                   ; work         ;
 ;       |reg:thermo_data|                                         ; 31 (31)     ; 31           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 31 (31)          ; 0 (0)           ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0|reg:thermo_data                                                                                                                                                                   ; work         ;
 ;       |smb_master:master2|                                      ; 118 (60)    ; 63           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 55 (45)      ; 11 (0)            ; 52 (15)          ; 40 (4)          ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0|smb_master:master2                                                                                                                                                                ; work         ;
 ;          |shift_reg:rx_data_reg|                                ; 8 (8)       ; 8            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0|smb_master:master2|shift_reg:rx_data_reg                                                                                                                                          ; work         ;
 ;          |shift_reg:tx_addr_reg|                                ; 4 (4)       ; 4            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 4 (4)            ; 0 (0)           ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0|smb_master:master2|shift_reg:tx_addr_reg                                                                                                                                          ; work         ;
 ;          |us_timer:smb_timer|                                   ; 46 (46)     ; 36           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer                                                                                                                                             ; work         ;
 ;       |us_timer:timeout_timer|                                  ; 46 (46)     ; 36           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |bias_card|fpga_thermo:fpga_thermo0|us_timer:timeout_timer                                                                                                                                                            ; work         ;
-;    |frame_timing:frame_timing_slave|                            ; 859 (0)     ; 417          ; 0           ; 0          ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 442 (0)      ; 282 (0)           ; 135 (0)          ; 154 (0)         ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave                                                                                                                                                                            ; work         ;
-;       |frame_timing_core:ftc|                                   ; 233 (233)   ; 62           ; 0           ; 0          ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 171 (171)    ; 2 (2)             ; 60 (60)          ; 154 (154)       ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_core:ftc                                                                                                                                                      ; work         ;
+;    |frame_timing:frame_timing_slave|                            ; 841 (0)     ; 417          ; 0           ; 0          ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 424 (0)      ; 282 (0)           ; 135 (0)          ; 157 (0)         ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave                                                                                                                                                                            ; work         ;
+;       |frame_timing_core:ftc|                                   ; 236 (236)   ; 62           ; 0           ; 0          ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 174 (174)    ; 2 (2)             ; 60 (60)          ; 157 (157)       ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_core:ftc                                                                                                                                                      ; work         ;
 ;          |lpm_mult:Mult0|                                       ; 0 (0)       ; 0            ; 0           ; 0          ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|lpm_mult:Mult0                                                                                                                                       ; work         ;
 ;             |mult_tqs:auto_generated|                           ; 0 (0)       ; 0            ; 0           ; 0          ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|lpm_mult:Mult0|mult_tqs:auto_generated                                                                                                               ; work         ;
-;       |frame_timing_wbs:wbi|                                    ; 626 (466)   ; 355          ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 271 (271)    ; 280 (120)         ; 75 (75)          ; 0 (0)           ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi                                                                                                                                                       ; work         ;
+;       |frame_timing_wbs:wbi|                                    ; 605 (445)   ; 355          ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 250 (250)    ; 280 (120)         ; 75 (75)          ; 0 (0)           ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi                                                                                                                                                       ; work         ;
 ;          |reg:address_on_delay_reg|                             ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:address_on_delay_reg                                                                                                                              ; work         ;
 ;          |reg:feedback_delay_reg|                               ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:feedback_delay_reg                                                                                                                                ; work         ;
 ;          |reg:resync_req_reg|                                   ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|reg:resync_req_reg                                                                                                                                    ; work         ;
@@ -1121,7 +1121,7 @@ applicable agreement for further details.
 ;       |reg:id_data3|                                            ; 8 (8)       ; 8            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|id_thermo:id_thermo0|reg:id_data3                                                                                                                                                                          ; work         ;
 ;       |reg:thermo_data0|                                        ; 6 (6)       ; 6            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 6 (6)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|id_thermo:id_thermo0|reg:thermo_data0                                                                                                                                                                      ; work         ;
 ;       |reg:thermo_data1|                                        ; 8 (8)       ; 8            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bias_card|id_thermo:id_thermo0|reg:thermo_data1                                                                                                                                                                      ; work         ;
-;    |leds:leds_slave|                                            ; 10 (10)     ; 7            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 3 (3)        ; 0 (0)             ; 7 (7)            ; 0 (0)           ; 0 (0)      ; |bias_card|leds:leds_slave                                                                                                                                                                                            ; work         ;
+;    |leds:leds_slave|                                            ; 12 (12)     ; 7            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 5 (5)        ; 0 (0)             ; 7 (7)            ; 0 (0)           ; 0 (0)      ; |bias_card|leds:leds_slave                                                                                                                                                                                            ; work         ;
 +-----------------------------------------------------------------+-------------+--------------+-------------+------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
 Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
 
@@ -1735,12 +1735,12 @@ Encoding Type: Safe One-Hot
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_to_read_data[0]                                                      ; 1       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_data[0]                                                              ; 3       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_data[6]                                                            ; 6       ;
+; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_cols_to_read_data[3]                                                      ; 1       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_to_read_data[3]                                                      ; 1       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_data[3]                                                              ; 3       ;
-; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_cols_to_read_data[3]                                                      ; 3       ;
+; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds                                                                    ; 2       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_to_read_data[5]                                                      ; 1       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_data[5]                                                              ; 3       ;
-; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds                                                                    ; 2       ;
 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_temp                                                               ; 1       ;
 ; Total number of inverted registers = 56                                                                                            ;         ;
 +------------------------------------------------------------------------------------------------------------------------------------+---------+
@@ -1883,7 +1883,7 @@ Encoding Type: Safe One-Hot
 ; 763:1              ; 2 bits    ; 1016 LEs      ; 62 LEs               ; 954 LEs                ; No         ; |bias_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[26]                                                                               ;
 ; 540:1              ; 8 bits    ; 2880 LEs      ; 512 LEs              ; 2368 LEs               ; No         ; |bias_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[6]                                                                                ;
 ; 794:1              ; 4 bits    ; 2116 LEs      ; 264 LEs              ; 1852 LEs               ; No         ; |bias_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[8]                                                                                ;
-; 795:1              ; 2 bits    ; 1060 LEs      ; 142 LEs              ; 918 LEs                ; No         ; |bias_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[2]                                                                                ;
+; 795:1              ; 2 bits    ; 1060 LEs      ; 132 LEs              ; 928 LEs                ; No         ; |bias_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[2]                                                                                ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
@@ -3613,7 +3613,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+----------------------------------+-----------------+
 ; Parameter Name ; Value                            ; Type            ;
 +----------------+----------------------------------+-----------------+
-; revision       ; 00000101000000000000000000000111 ; Unsigned Binary ;
+; revision       ; 00000101000000000000000000001000 ; Unsigned Binary ;
 ; card_type      ; 001                              ; Unsigned Binary ;
 +----------------+----------------------------------+-----------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
@@ -6953,7 +6953,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Analysis & Synthesis
     Info: Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
-    Info: Processing started: Wed Jun 22 17:04:08 2011
+    Info: Processing started: Tue Oct 04 12:19:55 2011
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off bias_card -c bias_card
 Info: Parallel compilation is enabled and will use 4 of the 4 processors detected
 Info: Found 1 design units, including 0 entities, in source file /mce/cards/library/sys_param/source/rtl/command_pack.vhd
@@ -7146,8 +7146,8 @@ Info: Found 2 design units, including 1 entities, in source file /mce/cards/bias
     Info: Found design unit 1: bias_card-top
     Info: Found entity 1: bias_card
 Info: Elaborating entity "bias_card" for the top level hierarchy
-Warning (10541): VHDL Signal Declaration warning at bias_card.vhd(245): used implicit default value for signal "mictorclk" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
-Warning (10541): VHDL Signal Declaration warning at bias_card.vhd(247): used implicit default value for signal "tx" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10541): VHDL Signal Declaration warning at bias_card.vhd(251): used implicit default value for signal "mictorclk" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10541): VHDL Signal Declaration warning at bias_card.vhd(253): used implicit default value for signal "tx" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
 Info: Elaborating entity "bc_pll" for hierarchy "bc_pll:pll0"
 Info: Elaborating entity "altpll" for hierarchy "bc_pll:pll0|altpll:altpll_component"
 Info: Elaborated megafunction instantiation "bc_pll:pll0|altpll:altpll_component"
@@ -7528,10 +7528,10 @@ Info: 3 registers lost all their fanouts during netlist optimizations. The first
     Info: Register "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving" lost all its fanouts during netlist optimizations.
 Warning: Ignored Maximum Fan-Out assignment
     Warning: Ignored Maximum Fan-Out logic option for node "rst"
-    Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]"
-    Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]"
-    Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]"
     Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]"
+    Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]"
+    Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]"
+    Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]"
     Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[4]"
     Warning: Ignored Maximum Fan-Out logic option for node "dispatch:cmd0|dispatch_wishbone:wishbone|addr[5]"
 Warning: Design contains 6 input pin(s) that do not drive logic
@@ -7541,18 +7541,18 @@ Warning: Design contains 6 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "dip_sw3"
     Warning (15610): No output dependent on input pin "dip_sw4"
     Warning (15610): No output dependent on input pin "rx"
-Info: Implemented 8435 device resources after synthesis - the final resource count might be different
+Info: Implemented 8407 device resources after synthesis - the final resource count might be different
     Info: Implemented 19 input pins
     Info: Implemented 160 output pins
     Info: Implemented 16 bidirectional pins
-    Info: Implemented 7047 logic cells
+    Info: Implemented 7019 logic cells
     Info: Implemented 1184 RAM segments
     Info: Implemented 1 PLLs
     Info: Implemented 8 DSP elements
 Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 92 warnings
-    Info: Peak virtual memory: 438 megabytes
-    Info: Processing ended: Wed Jun 22 17:04:51 2011
+    Info: Peak virtual memory: 447 megabytes
+    Info: Processing ended: Tue Oct 04 12:20:38 2011
     Info: Elapsed time: 00:00:43
-    Info: Total CPU time (on all processors): 00:00:42
+    Info: Total CPU time (on all processors): 00:00:39
 
 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.15 2005/04/20 20:54:51 mandana Exp $
+-- $Id: bc_sqwave_top.vhd,v 1.1 2005/05/02 16:18:52 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 --
 -- Revision history:
 -- 
--- $Log: $
+-- $Log: bc_sqwave_top.vhd,v $
+-- Revision 1.1  2005/05/02 16:18:52  mandana
+-- *** empty log message ***
+--
 -- Revision 1.15  2005/04/20 20:54:51  mandana
 -- build revision 0005, frame_timing updated
 --
@@ -45,13 +48,11 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
-use work.dispatch_pack.all;
-use work.leds_pack.all;
-use work.fw_rev_pack.all;
-use work.frame_timing_pack.all;
+use work.bias_card_pack.all;
+use work.all_cards_pack.all;
 use work.bc_dac_ctrl_pack.all;
 
-entity bias_card is
+entity bias_card_test is
    port(
  
       -- PLL input:
@@ -109,9 +110,9 @@ entity bias_card is
       rs232_rx   : in std_logic;
       rs232_tx   : out std_logic
    );
-end bias_card;
+end bias_card_test;
 
-architecture top of bias_card is
+architecture top of bias_card_test is
 
 -- The REVISION format is RRrrBBBB where 
 --               RR is the major revision number
@@ -125,7 +126,7 @@ signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
 -- clocks
 signal clk      : std_logic;
-signal mem_clk  : std_logic;
+signal clk_n    : std_logic;
 signal comm_clk : std_logic;
 
 signal rst      : std_logic;
@@ -170,7 +171,8 @@ component bc_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
-     c2 : out std_logic);
+     c2 : out std_logic;
+     c3 : out std_logic);
 end component;
 
 component bc_sqwave_spi_if is
@@ -221,10 +223,13 @@ begin
    --dac_sclk <= dac_sclk_temp;
    
    pll0: bc_pll
-   port map(inclk0 => inclk,
-            c0 => clk,
-            c1 => mem_clk,
-            c2 => comm_clk);
+   port map(
+      inclk0 => inclk,
+      c0 => clk,
+      c1 => comm_clk,
+      c2 => clk_n,
+      c3 => spi_clk
+   );
             
    cmd0: dispatch
       port map(
@@ -233,7 +238,7 @@ begin
          rst_i                      => rst,         
          
          lvds_cmd_i                 => lvds_cmd,
-         lvds_reply_o               => lvds_txa,
+         lvds_replya_o              => lvds_txa,
      
          dat_o                      => data,
          addr_o                     => addr,
@@ -245,7 +250,9 @@ begin
          ack_i                      => slave_ack,
          err_i                      => slave_err,      
          wdt_rst_o                  => wdog,
-         slot_i                     => slot_id
+         slot_i                     => slot_id,
+         dip_sw3                    => dip_sw3,
+         dip_sw4                    => dip_sw4
       );
             
    leds_slave: leds
@@ -267,21 +274,6 @@ begin
          fault                      => red_led
       );
    
-   fw_rev_slave: fw_rev
-      generic map( REVISION => BC_REVISION)
-      port map(
-         clk_i                      => clk,
-         rst_i                      => rst,
-
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => fw_rev_data,
-         ack_o                      => fw_rev_ack
-    );
             
    bc_dac_ctrl_slave: bc_dac_ctrl
       port map(
@@ -337,10 +329,9 @@ begin
          stb_i                      => stb,
          cyc_i                      => cyc,
          dat_o                      => frame_timing_data,
-         ack_o                      => frame_timing_ack,
-         
+         ack_o                      => frame_timing_ack,        
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
+         clk_n_i                    => clk_n,
          rst_i                      => rst,
          sync_i                     => lvds_sync
       );

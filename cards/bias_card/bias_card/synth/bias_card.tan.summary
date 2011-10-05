@@ -5,7 +5,7 @@ Slow Model Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 15.200 ns
+Actual Time    : 15.523 ns
 From           : lvds_sync
 To             : frame_timing:frame_timing_slave|frame_timing_core:ftc|sync_temp
 From Clock     : --
@@ -15,9 +15,9 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 9.915 ns
-From           : fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|us_count[9]
-To             : smb_data
+Actual Time    : 9.613 ns
+From           : fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|us_count[20]
+To             : smb_clk
 From Clock     : inclk
 To Clock       : --
 Failed Paths   : 0
@@ -25,7 +25,7 @@ Failed Paths   : 0
 Type           : Worst-case tpd
 Slack          : N/A
 Required Time  : None
-Actual Time    : 9.047 ns
+Actual Time    : 9.409 ns
 From           : rst_n
 To             : dac_nclr
 From Clock     : --
@@ -35,71 +35,71 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : -4.503 ns
-From           : smb_data
-To             : fpga_thermo:fpga_thermo0|smb_master:master2|shift_reg:rx_data_reg|reg[0]
+Actual Time    : -4.693 ns
+From           : card_id
+To             : id_thermo:id_thermo0|one_wire_master:master|shift_reg:rx_data_reg|reg[7]
 From Clock     : --
 To Clock       : inclk
 Failed Paths   : 0
 
 Type           : Slow Model Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 3.088 ns
+Slack          : 3.727 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 59.13 MHz ( period = 16.912 ns )
+Actual Time    : 61.45 MHz ( period = 16.273 ns )
 From           : dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE
-To             : dispatch:cmd0|altsyncram:buf|altsyncram_jis3:auto_generated|ram_block1a0~porta_datain_reg0
+To             : dispatch:cmd0|altsyncram:buf|altsyncram_jis3:auto_generated|ram_block1a14~porta_datain_reg0
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Slow Model Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : 4.466 ns
+Slack          : 4.550 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
-Actual Time    : 180.70 MHz ( period = 5.534 ns )
-From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|dffe9a[0]
+Actual Time    : 183.49 MHz ( period = 5.450 ns )
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|cntr_aua:cntr1|safe_q[1]
 To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_fd12:auto_generated|alt_sync_fifo_qcj:sync_fifo|dpram_t441:dpram4|altsyncram_6rh1:altsyncram14|ram_block15a20~porta_datain_reg13
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk1
 Failed Paths   : 0
 
 Type           : Slow Model Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk3'
-Slack          : 13.285 ns
+Slack          : 13.443 ns
 Required Time  : 25.00 MHz ( period = 40.000 ns )
 Actual Time    : N/A
-From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|ram_16x64:\ram_bank:11:flux_fb_mux_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_blo1:auto_generated|ram_block1a15~portb_address_reg5
-To             : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:11:spi_dac_ctrl_i|spi_if:i_spi_if|data_reg[8]
+From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|ram_16x64:\ram_bank:24:flux_fb_mux_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_blo1:auto_generated|ram_block1a6~portb_address_reg5
+To             : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:24:spi_dac_ctrl_i|spi_if:i_spi_if|data_reg[4]
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk3
 Failed Paths   : 0
 
-Type           : Slow Model Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk3'
-Slack          : 0.538 ns
-Required Time  : 25.00 MHz ( period = 40.000 ns )
-Actual Time    : N/A
-From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:14:spi_dac_ctrl_i|spi_if:i_spi_if|data_reg[1]
-To             : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:14:spi_dac_ctrl_i|spi_if:i_spi_if|data_reg[2]
-From Clock     : bc_pll:pll0|altpll:altpll_component|_clk3
-To Clock       : bc_pll:pll0|altpll:altpll_component|_clk3
-Failed Paths   : 0
-
 Type           : Slow Model Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 0.541 ns
+Slack          : 0.529 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
-From           : dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer|reg[25]
-To             : dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer|reg[24]
+From           : id_thermo:id_thermo0|one_wire_master:master|shift_reg:rx_data_reg|reg[1]
+To             : id_thermo:id_thermo0|one_wire_master:master|shift_reg:rx_data_reg|reg[0]
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Slow Model Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : 0.544 ns
+Slack          : 0.538 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
 Actual Time    : N/A
 From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_temp
 To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk1
+Failed Paths   : 0
+
+Type           : Slow Model Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk3'
+Slack          : 0.539 ns
+Required Time  : 25.00 MHz ( period = 40.000 ns )
+Actual Time    : N/A
+From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:30:spi_dac_ctrl_i|spi_if:i_spi_if|data_reg[1]
+To             : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|spi_dac_ctrl:\gen_spi_flux_fb:30:spi_dac_ctrl_i|spi_if:i_spi_if|data_reg[2]
+From Clock     : bc_pll:pll0|altpll:altpll_component|_clk3
+To Clock       : bc_pll:pll0|altpll:altpll_component|_clk3
 Failed Paths   : 0
 
 Type           : Total number of failed paths
