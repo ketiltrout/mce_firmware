@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.43 2011-06-23 16:13:07 mandana Exp $
+-- $Id: bias_card.vhd,v 1.44 2011-10-05 20:04:23 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.44  2011-10-05 20:04:23  mandana
+-- 5.0.8 update_bias parameter changed to 22 which causes biases to be loaded few (20?) clock cycles after row switch
+--
 -- Revision 1.43  2011-06-23 16:13:07  mandana
 -- 5.0.7 update_bias parameter changed to 32 which causes biases to be loaded few (10?) clock cycles after row switch
 --
@@ -260,7 +263,7 @@ architecture top of bias_card is
 --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
 --               rr is the minor revision number, incremented when new features added
 --               BBBB is the build number, incremented for bug fixes
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000008";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05000009";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
