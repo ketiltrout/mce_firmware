@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.17 2011-06-23 16:08:36 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.18 2011-10-05 20:05:24 mandana Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2011-06-23 16:08:36 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2011-10-05 20:05:24 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.18  2011-10-05 20:05:24  mandana
+-- update_bias parameter changed to 22 which causes biases to be loaded few (20?) clock cycles after row switch
+--
 -- Revision 1.17  2011-06-23 16:08:36  mandana
 -- modified update_bias so biias values are being pushed back by 10 clock cycles from the beginning of a row-switch
 --
@@ -159,7 +162,7 @@ package frame_timing_pack is
    ------------------------------------------------------------------------------------
    -- UPDATE_BIAS specifies the number of clock cycles before the beginning of a new frame needed to prime the DACs with data.
    -- It takes 16 x 25MHz clock cycles or 32 clock cycles to update the DAC plus 10 clock cycles of over head, total of 42
-   constant UPDATE_BIAS : integer := 22;
+   constant UPDATE_BIAS : integer := 10;
    
    ------------------------------------------------------------------------------------
    -- For data readout
