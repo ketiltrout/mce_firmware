@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: tb_rs232_rx.vhd,v $
+-- Revision 1.2  2010/09/08 22:36:47  mandana
+-- added comm_clk_i to rs232_rx interface. This is 4x115200 PLL-generated clock. rs232_rx block is rewritten to use a fifo to synchronize between clock domains.
+-- Note that the main clock is changed to 50MHz because PLL is not instantiated here.
+--
 -- Revision 1.1  2004/06/18 22:15:29  erniel
 -- initial version
 --
@@ -67,8 +71,8 @@ architecture BEH of TB_RS232_RX is
    end component;
 
    constant PERIOD : time := 20 ns; -- 50MHz clock, because PLL is not instantiated here.
-   constant COMM_PERIOD : time :=  2170ns;   --corresponds to 115200 baud rate
-
+   --constant COMM_PERIOD : time :=  2170ns;   --corresponds to 115200 baud rate
+   constant COMM_PERIOD : time :=  6510ns;   --corresponds to 38400 baud rate
    -- common signals
    signal W_CLK_I        : std_logic := '1';
    signal W_COMM_CLK_I   : std_logic := '1';
