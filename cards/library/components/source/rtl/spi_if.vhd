@@ -33,7 +33,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: spi_if.vhd,v $
+-- Revision 1.1  2009/12/09 00:35:02  mandana
+-- *** empty log message ***
+--
 -- Revision 1.2  2004/11/26 18:27:33  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -143,6 +146,8 @@ begin
             spi_csb_o <= '0';
          elsif (spi_dv = '0') then
             spi_csb_o <= '1';
+         else
+            spi_csb_o <= '0';
          end if;
       end if;
    end process spi_csb_proc;
