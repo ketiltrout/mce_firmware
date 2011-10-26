@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: spi_if.vhd,v $
+-- Revision 1.2  2011-10-24 20:28:30  mandana
+-- fixed the incomplete if-else statement
+--
 -- Revision 1.1  2009/12/09 00:35:02  mandana
 -- *** empty log message ***
 --
@@ -166,6 +169,8 @@ begin
             bit_count <= spi_pdat_i'length;
          elsif (bit_count /= 0) then
             bit_count <= bit_count - 1;
+         else 
+            bit_count <= bit_count;
          end if;
       end if;
    end process bit_counter;
