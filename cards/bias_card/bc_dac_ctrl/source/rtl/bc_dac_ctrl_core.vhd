@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.11 2010/05/14 22:56:10 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.12 2010/06/01 23:44:27 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -35,6 +35,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.12  2010/06/01 23:44:27  mandana
+-- update DACs when update_bias is asserted by frame_timing instead of restart_frame
+--
 -- Revision 1.11  2010/05/14 22:56:10  mandana
 -- all flux_fb DACs are updated at once when update_aligned is asserted
 -- ln_bias lines are still updated sequentially because the data lines are shared in hardware
@@ -170,6 +173,7 @@ constant RAM_LATENCY : integer := 1;
    signal update_aligned         : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);                    -- when to update
    signal flux_fb_dat_ready      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);                    -- asserted all the time when multiplexing is on, otherwise, only once when flux_fb is changed
    signal row_addr_clr_pending   : std_logic;                                                        -- reset the row_address counter when a new frame has started.
+   signal row_switch_1dly        : std_logic;
    
 begin
 
@@ -201,8 +205,19 @@ begin
       end if;
    end process rd_addr_counter;
 
-   flux_fb_addr_o <= rd_addr (FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
+   flux_fb_addr_o <= row_addr(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);--rd_addr (FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
    ln_bias_addr_o <= rd_addr (LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
+
+   ------------------------------------------------------------------------      
+   -- delay restart_frame_aligned for 1 cycle
+   row_switch_1dly_proc : process (rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         row_switch_1dly <= '0';
+      elsif (clk_i'event and clk_i = '1') then
+         row_switch_1dly <= row_switch_i;
+      end if;
+   end process row_switch_1dly_proc;      
          
    ------------------------------------------------------------------------      
    -- row counter
@@ -211,7 +226,7 @@ begin
       if (rst_i = '1') then
          row_addr <= (others =>'0');
       elsif (clk_i'event and clk_i = '1') then
-         if (row_addr_clr_pending = '1' and update_bias_i = '1') then 
+         if (restart_frame_1row_prev_i = '1' and update_bias_i = '1') then 
             row_addr <= (others =>'0');
          elsif (update_bias_i = '1') then
             row_addr <= row_addr + 1;
@@ -222,7 +237,7 @@ begin
    end process row_counter_proc;      
    row_addr_o <= row_addr;
    ------------------------------------------------------------------------
-   -- register the ln_bias change
+   -- register previous row 
    extend_1row_prev:process(rst_i, clk_i)
    begin
      if (rst_i = '1') then
@@ -238,7 +253,6 @@ begin
      end if;  
    end process; -- extend_1row_prev;
    
-
    ----------------------------------------------------------------------
    -- register the flux_fb change
    gen_flux_fb_update_pending: for k in 0 to NUM_FLUX_FB_DACS-1 generate
@@ -269,7 +283,7 @@ begin
       if (rst_i = '1') then
          ln_bias_dac_state <= (others => '0');
       elsif (clk_i'event and clk_i = '1') then
-         if (update_bias_i = '1') then 
+         if (restart_frame_aligned_i = '1') then 
             ln_bias_dac_state(0) <= ln_bias_update_pending;
          else
             ln_bias_dac_state(0) <= '0';
@@ -291,7 +305,7 @@ begin
        if (ln_bias_changed_i = '1') then
          ln_bias_update_pending <= '1';
        -- since all ln_bias lines are updated sequentially, we may reset the pending update after the first DAC ncs is asserted.
-       elsif (ln_bias_ncs(0) = '0') then 
+       elsif (restart_frame_aligned_i = '1' ) then 
          ln_bias_update_pending <= '0';
        else   
          ln_bias_update_pending <= ln_bias_update_pending;
@@ -308,7 +322,7 @@ begin
       -- on every row_switch when multiplexing is on (enbl_mux = 1)
       -- only when new values are written (through wishbone interface) when multiplexing is off (enbl_mux = 0) 
       update_aligned(k) <= update_bias_i when enbl_mux_data_i(k) = '1' else
-                           (update_bias_i and flux_fb_update_pending(k));
+                           (restart_frame_aligned_i and flux_fb_update_pending(k));
       
       flux_fb_dat_ready(k) <= enbl_mux_data_i(k) or flux_fb_changed_i(k); 
       
@@ -340,9 +354,9 @@ begin
       -- Bit 2:  chip select (active low)
       -- Bit 1:  serial clock out
       -- Bit 0:  serial data out
-      flux_fb_ncs_o (k)  <= flux_fb_dac_spi(k)(2);
+      flux_fb_ncs_o (k)  <= flux_fb_dac_spi(k)(2) when enbl_mux_data_i(k) = '0' else row_switch_1dly;
       flux_fb_clk_o (k)  <= flux_fb_dac_spi(k)(1);
-      flux_fb_data_o (k) <= flux_fb_dac_spi(k)(0);
+      flux_fb_data_o (k) <= flux_fb_dac_spi(k)(0) when rst_i ='0' else '0';
       
    end generate gen_spi_flux_fb;
    
