@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.12 2010/05/14 22:43:30 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.13 2010/06/01 23:45:21 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -36,6 +36,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.13  2010/06/01 23:45:21  mandana
+-- individual flux_fb_change flags as oppose to a single one for all channels
+--
 -- Revision 1.12  2010/05/14 22:43:30  mandana
 -- adds support for fb_col0 to fb_col31 and enbl_mux commands
 -- fix_flux_fb values are stored in registers as oppose to RAM
@@ -99,7 +102,7 @@ use work.frame_timing_pack.all; -- for NUM_OF_ROWS
 entity bc_dac_ctrl_wbs is
    port
    (
-      -- ac_dac_ctrl interface:
+      -- bc_dac_ctrl interface:
       flux_fb_addr_i    : in std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);   -- address index to read DAC data from RAM
       flux_fb_data_o    : out flux_fb_dac_array;  -- data read from RAM to be consumed by bc_dac_ctrl_core      
       flux_fb_changed_o : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -300,7 +303,7 @@ begin
    ------------------------------------------------------------
    -- generate flux_fb_changed_o and ln_bias_changed_o
    ------------------------------------------------------------
-   ln_bias_changed_o <= '1' when (addr_i = BIAS_ADDR and cyc_i = '1' and we_i = '1') else '0';
+   ln_bias_changed_o <= ln_bias_wren; -- '1' when (addr_i = BIAS_ADDR and cyc_i = '1' and we_i = '1') else '0';
    flux_fb_changed_o <= flux_fb_wren; --'1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
  
    ------------------------------------------------------------
