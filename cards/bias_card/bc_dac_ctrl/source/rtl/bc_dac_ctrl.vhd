@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.9 2010/05/14 00:03:24 mandana Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.10 2010/06/02 17:41:22 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.10  2010/06/02 17:41:22  mandana
+-- flux_fb_changed flag is now defined as 1 bit per column
+-- 1row_prev is added to the interface
+--
 -- Revision 1.9  2010/05/14 00:03:24  mandana
 -- added interface ports to read enbl_mux and mux_flux_fb_data
 -- added ports for row_switch_i to the interface
@@ -172,7 +176,7 @@ begin
    -- handles wishbone transactions  
    bcdc_wbs: bc_dac_ctrl_wbs
    port map(
-      -- ac_dac_ctrl interface: 32 flux_fb DACs and up to 12 low-noise bias DACs
+      -- bc_dac_ctrl interface: 32 flux_fb DACs and up to 12 low-noise bias DACs
       flux_fb_addr_i    => flux_fb_addr,
       flux_fb_data_o    => flux_fb_data,   
       flux_fb_changed_o => flux_fb_changed,
