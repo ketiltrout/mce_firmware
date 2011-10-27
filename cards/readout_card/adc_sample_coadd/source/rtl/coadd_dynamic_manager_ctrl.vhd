@@ -129,6 +129,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_dynamic_manager_ctrl.vhd,v $
+-- Revision 1.4  2009/04/09 19:10:44  bburger
+-- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
+--
 -- Revision 1.3  2004/12/13 21:50:22  mohsen
 -- To avoid synthesis complication, changed the construct to generate shift register.
 --
@@ -154,7 +157,7 @@ entity coadd_dynamic_manager_ctrl is
 
   generic (
     COADD_DONE_MAX_COUNT : integer := 7;  -- = max delay+1 for coadd_done 
-    MAX_SHIFT            : integer); -- = Delay stages for the
+    MAX_SHIFT            : integer := 5); -- = Delay stages for the
                                                       -- coadd enable signal 
  
   port (
@@ -188,7 +191,7 @@ architecture timing_beh of coadd_dynamic_manager_ctrl is
   signal wren              : std_logic;
   signal last_row          : std_logic;
   signal delayed_last_row  : std_logic_vector(MAX_SHIFT-1 downto 0);
-  alias  last_row_5delay   : std_logic is delayed_last_row(4);
+  alias  last_row_5delay   : std_logic is delayed_last_row(MAX_SHIFT-1);
   signal delay_row_switch  : std_logic_vector(COADD_DONE_MAX_COUNT-1 downto 0);
   alias  row_switch_max_dly: std_logic is delay_row_switch(COADD_DONE_MAX_COUNT-1);
   signal coadd_cycle       : std_logic;
