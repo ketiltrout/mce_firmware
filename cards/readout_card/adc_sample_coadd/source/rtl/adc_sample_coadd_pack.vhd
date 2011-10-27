@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.10  2010/03/12 20:35:10  bburger
+-- BB: added i_clamp_val interface signals
+--
 -- Revision 1.9.2.1  2009/11/13 19:27:19  bburger
 -- BB: Added i-term clamp interface signals
 --
@@ -88,7 +91,7 @@ package adc_sample_coadd_pack is
 
   
   constant TOTAL_ROW_NO              : integer := 64;
-  constant FSFB_DONE_DLY             : integer := 6;
+  constant FSFB_DONE_DLY             : integer := 6;                    -- This should really be tied to ADC_LATENCY
   constant NUMB_RAW_FRM_TO_GRAB      : integer := 2;                    -- =#of raw frames to grab
   constant RAW_DATA_POSITION_POINTER : integer := 13;--USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
   
