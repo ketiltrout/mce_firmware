@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.18  2011-09-16 23:08:26  mandana
+-- fix ADC_latency compensation bug in coadd window (is parameterized now)
+--
 -- Revision 1.17  2011-01-21 01:40:10  mandana
 -- 5.1.2, bugfix for filtered data being 2 row behind
 --
@@ -251,7 +254,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010005";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010006";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals

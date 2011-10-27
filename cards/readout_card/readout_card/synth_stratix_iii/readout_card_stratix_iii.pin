@@ -221,7 +221,7 @@ nIO_PULLUP                   : AE3       :        :                   :         
 pnf_per_byte[7]              : AE4       : output : 3.3-V LVTTL       :         : 4A        : Y              
 RESERVED_INPUT               : AE5       :        :                   :         : 4A        :                
 bias_dac_ncs[4]              : AE6       : output : 3.3-V LVTTL       :         : 4A        : Y              
-mictor_clk                   : AE7       : output : 3.3-V LVTTL       :         : 4A        : N              
+RESERVED_INPUT               : AE7       :        :                   :         : 4A        :                
 pnf_per_byte[2]              : AE8       : output : 3.3-V LVTTL       :         : 4A        : Y              
 dip_sw0                      : AE9       : input  : 3.3-V LVTTL       :         : 4A        : Y              
 test_status[7]               : AE10      : output : 3.3-V LVTTL       :         : 4A        : Y              
@@ -797,7 +797,7 @@ RESERVED_INPUT               : V21       :        :                   :         
 VCCIO2C                      : V22       : power  :                   : 3.3V    : 2C        :                
 RESERVED_INPUT               : V23       :        :                   :         : 2C        :                
 RESERVED_INPUT               : V24       :        :                   :         : 2C        :                
-RESERVED_INPUT               : V25       :        :                   :         : 2C        :                
+mictor_clk                   : V25       : output : 3.3-V LVTTL       :         : 2C        : N              
 dip_sw2                      : V26       : input  : 3.3-V LVTTL       :         : 2C        : Y              
 RESERVED_INPUT               : V27       :        :                   :         : 2C        :                
 RESERVED_INPUT               : V28       :        :                   :         : 2C        :                
