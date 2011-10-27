@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.10  2010/03/12 20:34:23  bburger
+-- BB: added i_clamp_val interface signals
+--
 -- Revision 1.9.2.1  2009/11/13 19:26:03  bburger
 -- BB: Added i-term clamp interface signals
 --
@@ -352,7 +355,7 @@ begin  -- struc
    -----------------------------------------------------------------------------
    i_coadd_dynamic_manager_ctrl : coadd_dynamic_manager_ctrl
    generic map (
-      COADD_DONE_MAX_COUNT => FSFB_DONE_DLY+1,
+      COADD_DONE_MAX_COUNT => ADC_LATENCY+3, --formerly FSFB_DONE_DLY+1 or 7
       MAX_SHIFT            => ADC_LATENCY+1)
    port map (
       rst_i                     => rst_i,                      -- system input
