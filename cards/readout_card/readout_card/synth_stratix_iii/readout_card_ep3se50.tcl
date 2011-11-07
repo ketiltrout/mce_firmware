@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.14 2010/10/21 18:04:06 mandana Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.15 2010/10/22 18:10:05 mandana Exp $
 
 
 
@@ -89,6 +89,12 @@ set_location_assignment Pin_T23  -to  crc_error_in
 set_location_assignment Pin_M24  -to  critical_error 
 set_location_assignment Pin_AH12 -to  extend_n 
 #set_location_assignment PIN_AC28 -to ddr_shutdown_n
+
+set_location_assignment Pin_AH16 -to pcb_rev[0]     
+set_location_assignment Pin_AH17 -to pcb_rev[1]     
+set_location_assignment Pin_AH18 -to pcb_rev[2]     
+set_location_assignment Pin_AH19 -to pcb_rev[3]     
+
 
 #####################################################
 # Clocks and Resets
