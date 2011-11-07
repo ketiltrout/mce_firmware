@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2010/03/06 01:04:43 $> - <initials $Author: mandana $>
+-- <date $Date: 2010/03/10 00:39:35 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.61  2010/03/10 00:39:35  bburger
+-- BB/MA:  added FLTR_TYPE_ADDR
+--
 -- Revision 1.60  2010/03/06 01:04:43  mandana
 -- changed the comment on sram commands, not to risk losing their space holders
 --
@@ -252,8 +255,10 @@ library sys_param;
 use sys_param.command_pack.all;
 
 package wishbone_pack is
-
-   ---------------------------------------------------------------------------------
+   --
+   -- unassigned parameter-id:0c-0f, 25-2F, 38-3F, 40, 42, 47-4f, 64, 9d-9f, E9-FF
+   --
+  ---------------------------------------------------------------------------------
    -- Wishbone bus widths
    ---------------------------------------------------------------------------------
    constant WB_ADDR_WIDTH     : integer := BB_PARAMETER_ID_WIDTH;
@@ -432,6 +437,8 @@ package wishbone_pack is
    constant CYC_OO_SYC_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";
    constant LED_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
    constant SCRATCH_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9A";
+   constant CRIT_ERR_RST_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9B"; 
+   constant DEV_CLR_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9C";
 
    ---------------------------------------------------------------------------------------
    -- Clock Card Specific Parameter IDs
