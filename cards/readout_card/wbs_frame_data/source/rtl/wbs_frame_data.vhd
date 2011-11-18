@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2010/10/07 18:35:42 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2010-11-13 00:46:03 $> - <text> - <initials $Author: mandana $>
 --
 -----------------------------------------------------------------------------
 
@@ -56,10 +56,7 @@
 --x rect_addr_offset may need some special handling to handle latency from the ram and to back up by a rectangle of indexes when read comes in....
 --x simulate.
 --x There is currently a 3-cycle delay that is artificially put in the raw data stream that can be removed once the rectangle mode ram becomes the interface to the wishbone master
---x increment rect_addr_offset based on tga_i
 --x remove the 3 cycle delay in the wishbone interface -- make it a normal wbs slave!!!!
---x implement smart logic for decrementing the memory pointer to the rectagle rame -- at the frame timing boundary, i.e.
---x address = addr at frame boundary - data size + rectangle size.   
 -- Fix filtered data modes so that they are available on demand.
 
 
@@ -229,8 +226,6 @@ architecture rtl of wbs_frame_data is
    signal pix_addr_incr    : std_logic;
    signal row_index        : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    signal col_index        : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0);
---   signal row_index_temp   : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
---   signal col_index_temp   : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0);
    
    -- channel select ch 0 --> 7
    signal ch_mux_sel       : std_logic_vector(CH_MUX_SEL_WIDTH-1 downto 0);          
@@ -445,13 +440,6 @@ begin
    -- Data Mode 3
 --   with raw_ch_mux_sel select raw_dat <=
 --      sxt(raw_dat_ch0_i, raw_dat'length) when "000",
---      sxt(raw_dat_ch1_i, raw_dat'length) when "001",
---      sxt(raw_dat_ch2_i, raw_dat'length) when "010",
---      sxt(raw_dat_ch3_i, raw_dat'length) when "011",
---      sxt(raw_dat_ch4_i, raw_dat'length) when "100",
---      sxt(raw_dat_ch5_i, raw_dat'length) when "101",
---      sxt(raw_dat_ch6_i, raw_dat'length) when "110",
---      sxt(raw_dat_ch7_i, raw_dat'length) when others;
 
    -- Data Mode 4
    with ch_mux_sel select fb_error_dat <=
@@ -478,13 +466,6 @@ begin
    -- Data Mode 6
 --   with ch_mux_sel select filtfb_error_dat <=
 --      filtered_dat_ch0_i(31) & filtered_dat_ch0_i(27 downto 11) & coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
---      filtered_dat_ch1_i(31) & filtered_dat_ch1_i(27 downto 11) & coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
---      filtered_dat_ch2_i(31) & filtered_dat_ch2_i(27 downto 11) & coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
---      filtered_dat_ch3_i(31) & filtered_dat_ch3_i(27 downto 11) & coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
---      filtered_dat_ch4_i(31) & filtered_dat_ch4_i(27 downto 11) & coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
---      filtered_dat_ch5_i(31) & filtered_dat_ch5_i(27 downto 11) & coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
---      filtered_dat_ch6_i(31) & filtered_dat_ch6_i(27 downto 11) & coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
---      filtered_dat_ch7_i(31) & filtered_dat_ch7_i(27 downto 11) & coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
 
    -- Data Mode 7
    with ch_mux_sel select filtfb_error_2_dat <=
@@ -497,28 +478,13 @@ begin
       filtered_dat_ch6_i(28 downto 7) & coadded_dat_ch6_i(13 downto 4) when "110",
       filtered_dat_ch7_i(28 downto 7) & coadded_dat_ch7_i(13 downto 4) when others;
 
-   -- Data Mode 8
+   -- Data Mode 8 obsolete
 --   with ch_mux_sel select filtfb_flx_cnt_dat3 <=
 --      filtered_dat_ch0_i (31 downto 8) & flux_cnt_dat_ch0_i when "000",
---      filtered_dat_ch1_i (31 downto 8) & flux_cnt_dat_ch1_i when "001",
---      filtered_dat_ch2_i (31 downto 8) & flux_cnt_dat_ch2_i when "010",
---      filtered_dat_ch3_i (31 downto 8) & flux_cnt_dat_ch3_i when "011",
---      filtered_dat_ch4_i (31 downto 8) & flux_cnt_dat_ch4_i when "100",
---      filtered_dat_ch5_i (31 downto 8) & flux_cnt_dat_ch5_i when "101",
---      filtered_dat_ch6_i (31 downto 8) & flux_cnt_dat_ch6_i when "110",
---      filtered_dat_ch7_i (31 downto 8) & flux_cnt_dat_ch7_i when others;
 
-
-   -- Data Mode 9
+   -- Data Mode 9 obsolete
 --   with ch_mux_sel select filtfb_flx_cnt_dat <=
 --      filtered_dat_ch0_i(31) & filtered_dat_ch0_i(23 downto 1) & flux_cnt_dat_ch0_i when "000",
---      filtered_dat_ch1_i(31) & filtered_dat_ch1_i(23 downto 1) & flux_cnt_dat_ch1_i when "001",
---      filtered_dat_ch2_i(31) & filtered_dat_ch2_i(23 downto 1) & flux_cnt_dat_ch2_i when "010",
---      filtered_dat_ch3_i(31) & filtered_dat_ch3_i(23 downto 1) & flux_cnt_dat_ch3_i when "011",
---      filtered_dat_ch4_i(31) & filtered_dat_ch4_i(23 downto 1) & flux_cnt_dat_ch4_i when "100",
---      filtered_dat_ch5_i(31) & filtered_dat_ch5_i(23 downto 1) & flux_cnt_dat_ch5_i when "101",
---      filtered_dat_ch6_i(31) & filtered_dat_ch6_i(23 downto 1) & flux_cnt_dat_ch6_i when "110",
---      filtered_dat_ch7_i(31) & filtered_dat_ch7_i(23 downto 1) & flux_cnt_dat_ch7_i when others;
 
    -- Data Mode 10
    with ch_mux_sel select filtfb_flx_cnt_dat2 <=
@@ -562,8 +528,6 @@ begin
    pix_address       <= row_index & col_index;   
    num_rows_reported <= conv_std_logic_vector(num_rows_reported_i, ROW_ADDR_WIDTH); 
    num_cols_reported <= conv_std_logic_vector(num_cols_reported_i, ROW_ADDR_WIDTH);   
---   row_index_temp    <= readout_row_index + num_rows_reported;
---   col_index_temp    <= readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0);
 
    address_rectangler: process (clk_i, rst_i)
    begin
@@ -596,12 +560,8 @@ begin
             end if;
          end if;
          
-         if(rect_wr_addr_clr = '1') then
-            rect_wr_addr <= (others => '0');
-         elsif(rect_wr_addr_inc = '1') then 
+         if(rect_wr_addr_inc = '1') then 
             rect_wr_addr <= rect_wr_addr + 1;
-         elsif(rect_wr_addr_dec = '1') then
-            rect_wr_addr <= rect_wr_addr - 1;
          end if;
          
       end if;
@@ -627,7 +587,6 @@ begin
             end if;
          
          when PRE_DELAY1 =>
---            rect_next_state <= PRE_DELAY2;
             if((row_index = readout_row_index + num_rows_reported - 1) and (col_index = readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0) - 1)) then
                -- This following is a special branch of the FSM if we are reading out one pixel per frame period
                -- State sequence is: PRE_DELAY1 (no wren) -> ONE_PIXEL_READOUT (no wren) -> POST_DELAY2 (wren)
@@ -637,7 +596,6 @@ begin
             end if;
             
          when PRE_DELAY2 =>
---            rect_next_state <= COPY_DATA;
             if((row_index = readout_row_index + num_rows_reported - 1) and (col_index = readout_col_index + num_cols_reported(CH_MUX_SEL_WIDTH-1 downto 0) - 1)) then
                -- This following is a special branch of the FSM if we are reading out two pixels per frame period
                -- State sequence is: PRE_DELAY1 (no wren) -> PRE_DELAY2 (no wren) -> POST_DELAY1 (wren) -> POST_DELAY2 (wren)
@@ -678,9 +636,7 @@ begin
       -- Signals to the address rectangler process for reading the fsfb RAMs etc.
       pix_addr_clr     <= '0';
       pix_addr_incr    <= '0';
-      rect_wr_addr_clr <= '0';
       rect_wr_addr_inc <= '0';
-      rect_wr_addr_dec <= '0';
 
       -- Signals to the rectangle RAM for storing the data frames.
       rect_wren      <= '0';
@@ -759,7 +715,7 @@ begin
          --------------------------------------------------------------------------------
          -- non-raw-mode address counter for readout of the rectangle_mode_ram
          --------------------------------------------------------------------------------
-         if(restart_frame_aligned_i = '1') then                 
+         if(restart_frame_aligned_i = '1' and cyc_i = '0' ) then                 
             -- rect_wr_addr forms the basis for reporting.  Readout returns the previous row_reported*cols_reported data points
             -- Readout assumes that frame periods are long enough that rect_addr_offset doesn't get updated during readout.
             -- before the start of a new frame pariod, rect_wr_addr points to one index past the last word written in the data RAM at each new frame period.
