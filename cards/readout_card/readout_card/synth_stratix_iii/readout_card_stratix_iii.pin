@@ -391,7 +391,7 @@ dac6_dfb_dat[5]              : D7        : output : 3.3-V LVTTL       :         
 dac7_dfb_dat[1]              : D8        : output : 3.3-V LVTTL       :         : 7A        : Y              
 dac7_dfb_dat[0]              : D9        : output : 3.3-V LVTTL       :         : 7A        : Y              
 bias_dac_ncs[0]              : D10       : output : 3.3-V LVTTL       :         : 7A        : Y              
-RESERVED_INPUT               : D11       :        :                   :         : 7C        :                
+mictor_clk                   : D11       : output : 3.3-V LVTTL       :         : 7C        : N              
 dac2_dfb_dat[3]              : D12       : output : 3.3-V LVTTL       :         : 7C        : Y              
 RESERVED_INPUT               : D13       :        :                   :         : 7C        :                
 RESERVED_INPUT               : D14       :        :                   :         : 7C        :                
@@ -797,7 +797,7 @@ RESERVED_INPUT               : V21       :        :                   :         
 VCCIO2C                      : V22       : power  :                   : 3.3V    : 2C        :                
 RESERVED_INPUT               : V23       :        :                   :         : 2C        :                
 RESERVED_INPUT               : V24       :        :                   :         : 2C        :                
-mictor_clk                   : V25       : output : 3.3-V LVTTL       :         : 2C        : N              
+RESERVED_INPUT               : V25       :        :                   :         : 2C        :                
 dip_sw2                      : V26       : input  : 3.3-V LVTTL       :         : 2C        : Y              
 RESERVED_INPUT               : V27       :        :                   :         : 2C        :                
 RESERVED_INPUT               : V28       :        :                   :         : 2C        :                

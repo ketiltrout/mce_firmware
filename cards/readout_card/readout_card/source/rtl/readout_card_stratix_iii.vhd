@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.19  2011-10-27 19:01:48  mandana
+-- 5.1.6 bugfix for correct handling of ADC latency of Rev. C cards with adjusting coadd_done_o to be tied to ADC_latency parameter
+--
 -- Revision 1.18  2011-09-16 23:08:26  mandana
 -- fix ADC_latency compensation bug in coadd window (is parameterized now)
 --
@@ -254,7 +257,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010006";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010007";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
