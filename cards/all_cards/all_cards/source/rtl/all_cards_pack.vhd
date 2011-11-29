@@ -30,8 +30,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2009/12/09 00:31:54 $>    - <initials $Author: mandana $>
+-- <date $Date: 2010/07/19 23:38:59 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.12  2010/07/19 23:38:59  mandana
+-- added pcb_rev_i defs
+-- took out obsolete packs
+--
 -- Revision 1.11  2009/12/09 00:31:54  mandana
 -- added spi_dac_ctrl for controlling SPI DACs
 --
@@ -298,6 +302,29 @@ package all_cards_pack is
    );   
    end component;
    
+   -----------------------------------------------------------------------------
+   -- reset_clr to handle critical_error and dev_clr commands
+   -----------------------------------------------------------------------------
+   component reset_clr 
+   port(-- global signals
+        clk_i   : in std_logic;
+        rst_i   : in std_logic;
 
+        -- Wishbone signals
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_i    : in std_logic;
+        stb_i   : in std_logic;
+        cyc_i   : in std_logic;
+        err_o   : out std_logic;
+        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        ack_o   : out std_logic;
+        
+        -- outputs
+        critical_error_o: out std_logic;
+        dev_clr_o : out std_logic        
+   );
+   end component;
 end all_cards_pack;
 
