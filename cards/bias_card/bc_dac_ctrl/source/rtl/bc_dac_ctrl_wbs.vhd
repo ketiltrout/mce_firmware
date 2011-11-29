@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.13 2010/06/01 23:45:21 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.14 2011-10-26 18:38:46 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -36,6 +36,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.14  2011-10-26 18:38:46  mandana
+-- ln_bias_changed is asserted when any of ln_bias values are re-written
+--
 -- Revision 1.13  2010/06/01 23:45:21  mandana
 -- individual flux_fb_change flags as oppose to a single one for all channels
 --
@@ -108,7 +111,7 @@ entity bc_dac_ctrl_wbs is
       flux_fb_changed_o : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
-      ln_bias_changed_o : out std_logic;
+      ln_bias_changed_o : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
       
       mux_flux_fb_data_o: out flux_fb_dac_array;
       enbl_mux_data_o   : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -160,11 +163,15 @@ architecture rtl of bc_dac_ctrl_wbs is
    
    signal mux_ram_addr_int : integer range 0 to NUM_FLUX_FB_DACS-1 := 0;   
    signal ram_addr_int     : integer range 0 to NUM_FLUX_FB_DACS-1 := 0;
+   signal ln_bias_ram_addr_int: integer range 0 to 2**LN_BIAS_DAC_ADDR_WIDTH-1 := 0;
    
    -- used for generating wishbone ack 
    signal addr_qualifier   : std_logic;
    signal ack_read         : std_logic;
    signal ack_write        : std_logic;
+   
+   -- temp wire
+   signal ln_bias_changed  : std_logic_vector(2**LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
    
 begin
    -----------------------------------------------------------------
@@ -252,7 +259,7 @@ begin
    begin  -- process i_gen_wren_signals
    
      flux_fb_wren <= (others => '0');
-     ln_bias_wren <= '0';
+--     ln_bias_wren <= '0';
      row_flux_fb_wren <= (others => '0');
          
      for i in 0 to NUM_FLUX_FB_DACS-1 loop
@@ -263,8 +270,8 @@ begin
        when FLUX_FB_ADDR | FLUX_FB_UPPER_ADDR =>
          flux_fb_wren(ram_addr_int) <= we_i;
 
-       when BIAS_ADDR =>
-         ln_bias_wren <= we_i;
+--       when BIAS_ADDR =>
+--         ln_bias_wren(ln_bias_ram_addr_int) <= we_i;
          
        when ENBL_MUX_ADDR =>
          enbl_mux_wren(ram_addr_int) <= we_i;
@@ -279,6 +286,8 @@ begin
                       
      end case;    
    end process i_gen_wren_signals;
+   
+   ln_bias_wren <= we_i when addr_i = BIAS_ADDR else '0';
    
    ------------------------------------------------------------
    -- generate ram addresses
@@ -298,12 +307,21 @@ begin
       
    mux_ram_addr_int <= conv_integer(mux_ram_addr);
    ram_addr_int <= conv_integer(ram_addr);
+   ln_bias_ram_addr_int <= conv_integer(ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0));
    
-
    ------------------------------------------------------------
    -- generate flux_fb_changed_o and ln_bias_changed_o
    ------------------------------------------------------------
-   ln_bias_changed_o <= ln_bias_wren; -- '1' when (addr_i = BIAS_ADDR and cyc_i = '1' and we_i = '1') else '0';
+   i_gen_bias_changed: process(addr_i, ln_bias_ram_addr_int, we_i)
+   begin
+      ln_bias_changed <= (others => '0');         
+     case addr_i is
+       when BIAS_ADDR =>
+         ln_bias_changed(ln_bias_ram_addr_int) <= we_i;
+       when others => null;           
+     end case;
+   end process i_gen_bias_changed;
+   ln_bias_changed_o <= ln_bias_changed(ln_bias_changed_o'length-1 downto 0);   
    flux_fb_changed_o <= flux_fb_wren; --'1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
  
    ------------------------------------------------------------
