@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.7  2011-06-23 16:03:26  mandana
+# made compatible with Q10.1 tcl format
+#
 # Revision 1.6  2010/07/19 23:51:44  mandana
 # updated for rev. F cards and it is compatible for Rev. D and F
 # It does not generate a card_type.pack anymore, instead it uses newly added pcb_rev_i pins to find out hardware revision
@@ -157,10 +160,10 @@ puts "   Assigned: Watchdog pin."
 # assign miscellaneous
 set_location_assignment Pin_U27 -to extend_n
 
-# Bias Card Rev. E Only! (next 4 pins) They are all unused in Rev. D
+# Bias Card Rev. E+ Only! (next 4 pins) They are all unused in Rev. D
 set_location_assignment Pin_AA20 -to crc_error_out
 set_location_assignment Pin_Y19 -to crc_error_in 			 
-set_location_assignment Pin_AB28 -to critical_error_in
+set_location_assignment Pin_AB28 -to critical_error
 set_location_assignment Pin_V28 -to dev_clr_fpga_out
 puts "   Assigned: miscellaneous pins."
 
