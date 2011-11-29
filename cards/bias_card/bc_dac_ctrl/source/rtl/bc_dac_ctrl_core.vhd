@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.12 2010/06/01 23:44:27 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.13 2011-10-26 18:48:55 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -35,6 +35,11 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.13  2011-10-26 18:48:55  mandana
+-- chip-select is now driven by row_switch_1dly and not the spi block anymore.
+-- bugfix: ln_bias is only refreshed once now, update_pending is reset at the start of the frame
+-- bugfix: flux-fb is updated frame-aligned as oppose to row-aligned, this will help the internal ramp on flux-fb be synchronized on all columns.
+--
 -- Revision 1.12  2010/06/01 23:44:27  mandana
 -- update DACs when update_bias is asserted by frame_timing instead of restart_frame
 --
@@ -126,7 +131,7 @@ entity bc_dac_ctrl_core is
       flux_fb_changed_i : in std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       ln_bias_addr_o    : out std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);       -- ln_bias ram address
       ln_bias_data_i    : in std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);        -- parallel ln_bias data
-      ln_bias_changed_i : in std_logic;
+      ln_bias_changed_i : in std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
       
       mux_flux_fb_data_i: in flux_fb_dac_array;
       enbl_mux_data_i   : in std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -147,7 +152,6 @@ end bc_dac_ctrl_core;
 
 
 architecture rtl of bc_dac_ctrl_core is
-constant RAM_LATENCY : integer := 1;
    
    -- Flux Feedback SPI interface
    signal flux_fb_data           : flux_fb_dac_array;
@@ -160,15 +164,18 @@ constant RAM_LATENCY : integer := 1;
    signal ln_bias_ncs_1dly       : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
    
    -- Counter for the Flux Feedback DACs
-   signal rd_addr                : std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);              -- assuming fewer ln_bias DACs than flux-fb DACs!!
+   signal ln_bias_rd_addr        : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);             
+   signal ln_bias_rd_addr_1d     : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);              -- to account for RAM read latency          
    signal row_addr               : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    
    -- control signals for DAC updates
    signal flux_fb_update_pending : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);                    -- extended update-request for flux_fb
    
    signal ln_bias_dac_state      : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);                    -- a shift register that controls which ln_bias DAC is being updated.
-   signal ln_bias_update_pending : std_logic;                                                        -- extended frame-aligned update-request for ln_bias
+   signal ln_bias_update_pending : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);                                                        -- extended frame-aligned update-request for ln_bias
    signal ln_bias_update_aligned : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);                    -- The first ln_bias dac is updated aligned with the start of a frame and then the rest of ln_bias DACs are updated sequentially
+   signal dat_rdy                : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
+   signal ln_change_extended     : std_logic;
    
    signal update_aligned         : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);                    -- when to update
    signal flux_fb_dat_ready      : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);                    -- asserted all the time when multiplexing is on, otherwise, only once when flux_fb is changed
@@ -179,37 +186,38 @@ begin
 
    dac_nclr_o <= not rst_i;
    
-   -- read-address counter for the flux_fb and ln-bias RAM blocks
-   rd_addr_counter : process (rst_i, clk_i)
-   variable j : integer range 0 to NUM_LN_BIAS_DACS + RAM_LATENCY := 0;
+   -- read-address counter for the ln-bias RAM block, note that there is 1 clock-cycle of ram latency
+   ln_bias_rd_addr_counter : process (rst_i, clk_i)
    begin
       if (rst_i = '1') then
-         rd_addr <= (others => '0');
+         ln_bias_rd_addr <= (others => '0');
+         ln_bias_rd_addr_1d <= (others => '0');
          for i in 0 to NUM_LN_BIAS_DACS-1   loop
-            ln_bias_data(i) <= (others => '0');
+            ln_bias_data(i) <= x"8000"; -- mid value
          end loop;
-         j := 0;
       elsif (clk_i'event and clk_i = '1') then            
-         if (update_bias_i = '1' and row_addr_clr_pending = '1') then
-            rd_addr <= (others => '0');           
-            j := 0;
+         -- if any of the values are refreshed
+         if (ln_bias_update_pending(0) /= '0' or ln_bias_rd_addr = NUM_LN_BIAS_DACS-1) then  
+            ln_bias_rd_addr <= (others => '0');               
          else
-            rd_addr <= rd_addr + 1;            
-            if (j < (NUM_LN_BIAS_DACS + RAM_LATENCY)) then
-               if (j > RAM_LATENCY-1) then
-                 ln_bias_data(j - RAM_LATENCY) <= ln_bias_data_i;
-               end if;  
-               j := j + 1;                            
-           end if;   
+            ln_bias_rd_addr <= ln_bias_rd_addr + 1;       
          end if;
-      end if;
-   end process rd_addr_counter;
 
-   flux_fb_addr_o <= row_addr(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);--rd_addr (FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
-   ln_bias_addr_o <= rd_addr (LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
+         ln_bias_rd_addr_1d <= ln_bias_rd_addr;
+         for j in 0 to NUM_LN_BIAS_DACS-1 loop
+            if (j /= conv_integer(ln_bias_rd_addr_1d)) then
+               ln_bias_data(j) <= ln_bias_data(j);
+            end if;   
+            ln_bias_data(conv_integer(ln_bias_rd_addr_1d)) <= ln_bias_data_i;            
+         end loop;
+      end if;
+   end process ln_bias_rd_addr_counter; 
+ 
+   flux_fb_addr_o <= row_addr(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
+   ln_bias_addr_o <= ln_bias_rd_addr (LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
 
    ------------------------------------------------------------------------      
-   -- delay restart_frame_aligned for 1 cycle
+   -- delay row_switch for 1 cycle
    row_switch_1dly_proc : process (rst_i, clk_i)
    begin
       if (rst_i = '1') then
@@ -276,44 +284,44 @@ begin
    -- create ln_bias_dac_state to update the DACs
    -- since all ln_bias DACS share data and clock line, we have to update them one after the other. 
    -- hence CS of each DAC is daisy chained to next-DAC's data_rdy
-   -- The first DAC to be updated is ln_bias_0 and its start is frame aligned, 
-   -- because the ln_bias_data is also read frame_aligned!
+   -- The first DAC, ln_bias0 is updated on the next ARZ(restart_frame_aligned)   
    ln_bias_dac_state_proc : process (rst_i, clk_i)
    begin
       if (rst_i = '1') then
          ln_bias_dac_state <= (others => '0');
+         ln_bias_ncs_1dly <= (others => '0');
       elsif (clk_i'event and clk_i = '1') then
          if (restart_frame_aligned_i = '1') then 
-            ln_bias_dac_state(0) <= ln_bias_update_pending;
+            ln_bias_dac_state(0) <= ln_bias_update_pending(0);
          else
             ln_bias_dac_state(0) <= '0';
          end if;   
          ln_bias_ncs_1dly <= ln_bias_ncs;               
          ln_bias_dac_state(NUM_LN_BIAS_DACS-1 downto 1) <= 
                  (ln_bias_ncs_1dly(NUM_LN_BIAS_DACS-2 downto 0) xor ln_bias_ncs(NUM_LN_BIAS_DACS-2 downto 0)) and ln_bias_ncs(NUM_LN_BIAS_DACS-2 downto 0);         
-         -- ln_bias_dac_state(NUM_LN_BIAS_DACS-1 downto 1) <= ln_bias_dac_state(NUM_LN_BIAS_DACS-2 downto 0);
       end if;
    end process ln_bias_dac_state_proc;      
    
-   ------------------------------------------------------------------------
+   ------------------------------------------------------------------------   
    -- register the ln_bias change
-   extend_ln_bias_update:process(rst_i, clk_i)
-   begin
-     if (rst_i = '1') then
-       ln_bias_update_pending <='0';       
-     elsif (clk_i'event and clk_i = '1') then
-       if (ln_bias_changed_i = '1') then
-         ln_bias_update_pending <= '1';
-       -- since all ln_bias lines are updated sequentially, we may reset the pending update after the first DAC ncs is asserted.
-       elsif (restart_frame_aligned_i = '1' ) then 
-         ln_bias_update_pending <= '0';
-       else   
-         ln_bias_update_pending <= ln_bias_update_pending;
-       end if;       
-     end if;  
-   end process; -- extend_ln_bias_update;
-   ln_bias_update_aligned(0) <= restart_frame_aligned_i;
-   ln_bias_update_aligned(NUM_LN_BIAS_DACS-1 downto 1) <= (others => '1');
+   gen_ln_bias_update_pending: for kk in 0 to NUM_LN_BIAS_DACS-1 generate   
+      extend_ln_bias_update:process(rst_i, clk_i)
+      begin
+      if (rst_i = '1') then
+         ln_bias_update_pending(kk) <= '0';       
+      elsif (clk_i'event and clk_i = '1') then
+        if (ln_bias_dac_state(kk) = '1') then
+            ln_bias_update_pending(kk) <= '0';
+         elsif (ln_bias_changed_i(kk) = '1') then
+            ln_bias_update_pending(kk) <= '1';
+         else   
+            ln_bias_update_pending(kk) <= ln_bias_update_pending(kk);
+         end if;       
+      end if;  
+      end process; -- extend_ln_bias_update_all;
+   end generate;   
+      
+   ln_bias_update_aligned(NUM_LN_BIAS_DACS-1 downto 0) <= (others => '1');
    
    ------------------------------------------------------------------------
    -- Instantiate spi interface blocks for flux-fb dacs
@@ -364,6 +372,9 @@ begin
    -- Instantiate spi interface blocks for ln_bias dacs
    ------------------------------------------------------------------------
    gen_spi_ln_bias: for k in 0 to NUM_LN_BIAS_DACS-1 generate
+      
+      dat_rdy(k) <= ln_bias_dac_state(k) and ln_bias_update_pending(k);
+      
       spi_dac_ctrl_i: spi_dac_ctrl
       generic map (
          DAC_DATA_WIDTH      => LN_BIAS_DAC_DATA_WIDTH
@@ -378,7 +389,7 @@ begin
          restart_frame_aligned_i => ln_bias_update_aligned(k),
          
          -- control signal indicates dat_i is updated
-         dat_rdy_i           => ln_bias_dac_state(k),
+         dat_rdy_i           => dat_rdy(k), 
          
          -- parallel data to be serialized
          dat_i               => ln_bias_data(k), 
@@ -389,7 +400,7 @@ begin
       -- Bit 2:  chip select (active low)
       -- Bit 1:  serial clock out
       -- Bit 0:  serial data out
-      ln_bias_ncs_o (k)  <= ln_bias_dac_spi(k)(2);
+      ln_bias_ncs_o (k)  <= ln_bias_dac_spi(k)(2) when rst_i = '0' else '1';
       ln_bias_ncs (k) <= ln_bias_dac_spi(k)(2); 
 --      ln_bias_clk_o (k)  <= ln_bias_dac_spi(k)(1);
 --      ln_bias_data_o (k) <= ln_bias_dac_spi(k)(0);
