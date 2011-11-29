@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.46 2011-10-24 20:25:44 mandana Exp $
+-- $Id: bias_card.vhd,v 1.47 2011-10-26 18:25:21 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.47  2011-10-26 18:25:21  mandana
+-- 5.1.0 with modified cs/clk timing for flux-fb DACs, cs is always active and deasserted only at restart_frame_timing_1dly
+-- In non-multiplex mode, flux_fb updates are frame aligned, previously row-aligned
+-- bugfix: ln_bias values are not loaded twice anymore, only once!
+--
 -- Revision 1.46  2011-10-24 20:25:44  mandana
 -- 5.0.a the only change is in spi_if.vhd to have a complete if statement! and update_bias=42 in frame_timing_pack
 --
@@ -253,7 +258,9 @@ entity bias_card is
       smb_clk    : out std_logic;
       smb_nalert : out std_logic;
       smb_data   : inout std_logic;
-
+      dev_clr_fpga_out: out std_logic;
+      critical_error: out std_logic;
+      
       -- debug ports:
       test       : inout std_logic_vector(14 downto 1);
       mictor     : out std_logic_vector(31 downto 0);
@@ -269,7 +276,7 @@ architecture top of bias_card is
 --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
 --               rr is the minor revision number, incremented when new features added
 --               BBBB is the build number, incremented for bug fixes
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05010000";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"05020000";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -315,13 +322,19 @@ signal fpga_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fpga_thermo_ack   : std_logic;
 signal fpga_thermo_err   : std_logic;
 
+signal reset_clr_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal reset_clr_ack   : std_logic;
+signal reset_clr_err   : std_logic;
+
 -- frame_timing interface
 signal update_bias : std_logic;
 signal restart_frame_aligned : std_logic;
 signal restart_frame_1row_prev: std_logic;
 signal row_switch  : std_logic;
 
+
 signal debug       : std_logic_vector (31 downto 0);
+   
 
 begin
 
@@ -444,6 +457,26 @@ begin
       fault                      => red_led
    );
 
+   i_reset_clr: reset_clr
+   port map(
+      clk_i                      => clk,
+      rst_i                      => rst,
+
+      -- Wishbone signals
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      err_o                      => reset_clr_err,
+      dat_o                      => reset_clr_data,
+      ack_o                      => reset_clr_ack,
+      
+      -- outputs
+      critical_error_o           => critical_error,
+      dev_clr_o                  => dev_clr_fpga_out
+   );
    ----------------------------------------------------------------------------
    -- all_cards registers Instantition
    ----------------------------------------------------------------------------
@@ -539,9 +572,12 @@ begin
       sync_i                     => lvds_sync
    );
 
+   --------------------------------------------------
+
    with addr select
       slave_data <=
          all_cards_data    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
+         reset_clr_data    when CRIT_ERR_RST_ADDR | DEV_CLR_ADDR,
          led_data          when LED_ADDR,
          bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR |
                                 FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
@@ -557,6 +593,7 @@ begin
    with addr select
       slave_ack <=
          all_cards_ack    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
+         reset_clr_ack    when CRIT_ERR_RST_ADDR | DEV_CLR_ADDR,         
          led_ack          when LED_ADDR,
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR |
                                FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR | FB_COL8_ADDR | FB_COL9_ADDR |
@@ -576,8 +613,10 @@ begin
                                FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR | FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR |
                                FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                FB_COL30_ADDR | FB_COL31_ADDR |                               
+                               CRIT_ERR_RST_ADDR | DEV_CLR_ADDR |
                                ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          all_cards_err    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
+         --reset_clr_err    when CRIT_ERR_RST_ADDR | DEV_CLR_ADDR,         
          id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err  when FPGA_TEMP_ADDR,
          '1'              when others;
