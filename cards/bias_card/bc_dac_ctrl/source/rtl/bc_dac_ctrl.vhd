@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.10 2010/06/02 17:41:22 mandana Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.11 2011-10-26 18:26:32 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.11  2011-10-26 18:26:32  mandana
+-- *** empty log message ***
+--
 -- Revision 1.10  2010/06/02 17:41:22  mandana
 -- flux_fb_changed flag is now defined as 1 bit per column
 -- 1row_prev is added to the interface
@@ -128,7 +131,7 @@ architecture rtl of bc_dac_ctrl is
    signal flux_fb_changed : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal ln_bias_addr    : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
    signal ln_bias_data    : std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
-   signal ln_bias_changed : std_logic;   
+   signal ln_bias_changed : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);   
    signal row_addr        : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    signal mux_flux_fb_data: flux_fb_dac_array;
    signal enbl_mux_data   : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
