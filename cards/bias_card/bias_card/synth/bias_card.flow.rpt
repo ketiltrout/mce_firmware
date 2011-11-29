@@ -1,5 +1,5 @@
 Flow report for bias_card
-Tue Oct 25 13:54:19 2011
+Mon Nov 28 16:55:19 2011
 Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 
 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +----------------------------------------------------------------------------+
 ; Flow Summary                                                               ;
 +---------------------------+------------------------------------------------+
-; Flow Status               ; Analyzed - Tue Oct 25 13:54:19 2011            ;
+; Flow Status               ; Analyzed - Mon Nov 28 16:55:19 2011            ;
 ; Quartus II 64-Bit Version ; 10.0 Build 262 08/18/2010 SP 1 SJ Full Version ;
 ; Revision Name             ; bias_card                                      ;
 ; Top-level Entity Name     ; bias_card                                      ;
@@ -46,8 +46,8 @@ applicable agreement for further details.
 ; Device                    ; EP1S10F780C5                                   ;
 ; Timing Models             ; Final                                          ;
 ; Met timing requirements   ; Yes                                            ;
-; Total logic elements      ; 6,300 / 10,570 ( 60 % )                        ;
-; Total pins                ; 209 / 427 ( 49 % )                             ;
+; Total logic elements      ; 6,410 / 10,570 ( 61 % )                        ;
+; Total pins                ; 211 / 427 ( 49 % )                             ;
 ; Total virtual pins        ; 0                                              ;
 ; Total memory bits         ; 133,120 / 920,448 ( 14 % )                     ;
 ; DSP block 9-bit elements  ; 8 / 48 ( 17 % )                                ;
@@ -61,7 +61,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 10/25/2011 13:51:33 ;
+; Start date & time ; 11/28/2011 16:52:47 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -80,7 +80,7 @@ applicable agreement for further details.
 ; AUTO_PACKED_REGISTERS_MAXII                       ; Normal                                               ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIX                     ; Normal                                               ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIXII                   ; Normal                                               ; Auto                           ; --          ; --             ;
-; COMPILER_SIGNATURE_ID                             ; 167739110428.131957589309200                         ; --                             ; --          ; --             ;
+; COMPILER_SIGNATURE_ID                             ; 167739110428.132252796605428                         ; --                             ; --          ; --             ;
 ; DO_COMBINED_ANALYSIS                              ; On                                                   ; Off                            ; --          ; --             ;
 ; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; On                                                   ; --                             ; --          ; eda_simulation ;
 ; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION        ; On                                                   ; --                             ; --          ; eda_simulation ;
@@ -104,7 +104,7 @@ applicable agreement for further details.
 ; SAFE_STATE_MACHINE                                ; On                                                   ; Off                            ; --          ; --             ;
 ; STATE_MACHINE_PROCESSING                          ; One-Hot                                              ; Auto                           ; --          ; --             ;
 ; STRATIX_OPTIMIZATION_TECHNIQUE                    ; Speed                                                ; Balanced                       ; --          ; --             ;
-; USE_SIGNALTAP_FILE                                ; upper.stp                                            ; --                             ; --          ; --             ;
+; USE_SIGNALTAP_FILE                                ; bias_card.stp                                        ; --                             ; --          ; --             ;
 +---------------------------------------------------+------------------------------------------------------+--------------------------------+-------------+----------------+
 
 
@@ -113,12 +113,12 @@ applicable agreement for further details.
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name             ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis    ; 00:00:41     ; 1.0                     ; 447 MB              ; 00:00:41                           ;
-; Fitter                  ; 00:01:44     ; 1.5                     ; 502 MB              ; 00:01:54                           ;
-; Assembler               ; 00:00:01     ; 1.0                     ; 338 MB              ; 00:00:02                           ;
-; Classic Timing Analyzer ; 00:00:07     ; 1.0                     ; 292 MB              ; 00:00:07                           ;
-; Design Assistant        ; 00:00:07     ; 1.0                     ; 278 MB              ; 00:00:07                           ;
-; Total                   ; 00:02:40     ; --                      ; --                  ; 00:02:51                           ;
+; Analysis & Synthesis    ; 00:00:40     ; 1.0                     ; 449 MB              ; 00:00:40                           ;
+; Fitter                  ; 00:01:31     ; 1.6                     ; 502 MB              ; 00:01:43                           ;
+; Assembler               ; 00:00:01     ; 1.0                     ; 339 MB              ; 00:00:02                           ;
+; Classic Timing Analyzer ; 00:00:07     ; 1.0                     ; 292 MB              ; 00:00:06                           ;
+; Design Assistant        ; 00:00:06     ; 1.0                     ; 279 MB              ; 00:00:07                           ;
+; Total                   ; 00:02:25     ; --                      ; --                  ; 00:02:38                           ;
 +-------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

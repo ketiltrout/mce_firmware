@@ -1,5 +1,5 @@
 Design Assistant report for bias_card
-Tue Oct 25 13:54:19 2011
+Mon Nov 28 16:55:19 2011
 Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 
 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Design Assistant Summary                                                ;
 +-----------------------------------+-------------------------------------+
-; Design Assistant Status           ; Analyzed - Tue Oct 25 13:54:19 2011 ;
+; Design Assistant Status           ; Analyzed - Mon Nov 28 16:55:19 2011 ;
 ; Revision Name                     ; bias_card                           ;
 ; Top-level Entity Name             ; bias_card                           ;
 ; Family                            ; Stratix                             ;
@@ -47,8 +47,8 @@ applicable agreement for further details.
 ; - Rule R101                       ; 1                                   ;
 ; Total Medium Violations           ; 1                                   ;
 ; - Rule C104                       ; 1                                   ;
-; Total Information only Violations ; 166                                 ;
-; - Rule T101                       ; 116                                 ;
+; Total Information only Violations ; 165                                 ;
+; - Rule T101                       ; 115                                 ;
 ; - Rule T102                       ; 50                                  ;
 +-----------------------------------+-------------------------------------+
 
@@ -154,31 +154,33 @@ applicable agreement for further details.
 +------------------------------------------------------------------+---------------------------------------------------------------------------------------------------+---------+
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|pres_state.SETUP             ; 36      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|Selector2~1                  ; 34      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; rst                                                                                               ; 3456    ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; ttl_nrx1                                                                                          ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; rst_n                                                                                             ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; rst                                                                                               ; 3501    ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; ttl_nrx1                                                                                          ; 45      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; rst_n                                                                                             ; 45      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|write_nread ; 36      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|pres_state.SETUP             ; 36      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|Selector2~1                  ; 34      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|write_nread ; 36      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_switch_1dly                          ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~9                                    ; 36      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.GOT_SYNC                      ; 82      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~15                                   ; 37      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~4                                    ; 34      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~4                                    ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.GOT_SYNC                      ; 78      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~15                                   ; 35      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~9                                    ; 35      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[0]~0                                               ; 149     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE                                      ; 151     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                  ; 92      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux96~0                                    ; 53      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                  ; 130     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]                                                  ; 317     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|Selector5~1                                                                         ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~15                                          ; 40      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|pres_state.FETCH                                                                    ; 67      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.DONE                                       ; 44      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]                                                  ; 349     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux97~0                                    ; 69      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]                                                  ; 321     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]                                                  ; 309     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]                                                  ; 343     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE                                      ; 157     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]                                                  ; 347     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]                                                  ; 315     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]                                                  ; 325     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[4]                                                  ; 122     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[20]                                                                  ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[19]                                                                  ; 39      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[1]~1                                               ; 118     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[2]~2                                               ; 118     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal0~1                                    ; 33      ;
@@ -186,21 +188,22 @@ applicable agreement for further details.
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx_data_a~0                                ; 89      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.IDLE                                 ; 54      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|fifo:data_buffer|Equal0~2    ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx_rdy_b~0                                 ; 91      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.TX_HDR                               ; 71      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.TX_DATA                              ; 94      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx_rdy_b~0                                 ; 91      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|Equal0~2    ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[5]                                                  ; 121     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~0                            ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~5                                              ; 220     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~6                                              ; 232     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                             ; 48      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[6]~29                                              ; 117     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[22]                                                                  ; 61      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[19]                                                                  ; 43      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[20]                                                                  ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[16]                                                                  ; 39      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[18]                                                                  ; 52      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[17]                                                                  ; 52      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[4]~7                                              ; 55      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux12~0                                                                     ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[18]                                                                  ; 51      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[16]                                                                  ; 41      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[17]                                                                  ; 51      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux64~0                                    ; 33      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[4]~1                                              ; 56      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[15]~20                                             ; 117     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[0]                              ; 54      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[1]                              ; 54      ;
@@ -219,105 +222,101 @@ applicable agreement for further details.
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[5]~30                                              ; 117     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[4]~31                                              ; 117     ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[3]~32                                              ; 117     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux65~0                                    ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~19                                   ; 67      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~2                                              ; 190     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~1                                              ; 252     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~4                                              ; 218     ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~3                                              ; 224     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~19                                   ; 66      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~0                                              ; 196     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~4                                              ; 252     ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[5]~2                                              ; 77      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|Selector5~2                                                                         ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux12~0                                                                     ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux14~0                                                                     ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux15~1                                                                     ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux15~0                                                                     ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux13~0                                                                     ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux8~0                                                                      ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux8~1                                                                      ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux10~0                                                                     ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux11~0                                                                     ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; all_cards:i_all_cards|Mux9~0                                                                      ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; id_thermo:id_thermo0|wb_ps.SEND_TEMP                                                              ; 35      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; id_thermo:id_thermo0|wb_ps.SEND_ID                                                                ; 34      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~5                                              ; 50      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[5]~6                                              ; 76      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~7                                              ; 48      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_to_read_wren~0                      ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_cols_to_read_wren~0                      ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_wren~0                              ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~0                          ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_num_wren~0                            ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|fltr_rst_ack_o~0                            ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_wren~0                          ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|feedback_delay_wren~0                        ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|address_on_delay_wren~0                      ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|init_window_ack_o~0                         ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_wren~0                       ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|init_window_ack_o~0                         ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|resync_req_wren~0                            ; 32      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~5                                     ; 31      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_wren~0                          ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|fltr_rst_ack_o~0                            ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_wren~0                              ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_num_wren~0                            ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~0                          ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Equal3~4                                     ; 34      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.IDLE                                       ; 48      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|ack_read~0                                 ; 33      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux31~2                                    ; 48      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|current_state.WR                                                         ; 34      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|Equal0~10                                                                ; 34      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux0~0                                     ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|current_state.WR                                                         ; 35      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|Equal0~5                                                                 ; 34      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; fpga_thermo:fpga_thermo0|reg_wren~0                                                               ; 31      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector76~7                                    ; 64      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg~1                 ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg~2                       ; 32      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[0] ; 35      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[1] ; 35      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving~3                       ; 42      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr_clr_pending                     ; 36      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg~1                 ; 32      ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr_clr_pending                     ; 33      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; ~STRATIX_FITTER_CREATED_GND~I                                                                     ; 56      ;
-; Rule T101: Nodes with more than the specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk0                                                         ; 2518    ;
+; Rule T101: Nodes with more than the specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk0                                                         ; 2563    ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk1                                                         ; 66      ;
 ; Rule T101: Nodes with more than the specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk3                                                         ; 1225    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; rst                                                                                               ; 3456    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_pll:pll0|altpll:altpll_component|_clk0                                                         ; 2518    ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; rst                                                                                               ; 3501    ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_pll:pll0|altpll:altpll_component|_clk0                                                         ; 2563    ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_pll:pll0|altpll:altpll_component|_clk3                                                         ; 1225    ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]                                                  ; 349     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]                                                  ; 343     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]                                                  ; 321     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]                                                  ; 309     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~1                                              ; 252     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~3                                              ; 224     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~4                                              ; 218     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~2                                              ; 190     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE                                      ; 151     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]                                                  ; 347     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]                                                  ; 325     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]                                                  ; 317     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]                                                  ; 315     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~4                                              ; 252     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~6                                              ; 232     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~5                                              ; 220     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~0                                              ; 196     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE                                      ; 157     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[0]~0                                               ; 149     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                  ; 130     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[4]                                                  ; 122     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr[5]                                                  ; 121     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[2]~2                                               ; 118     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[1]~1                                               ; 118     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[11]~24                                             ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[2]~2                                               ; 118     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[6]~29                                              ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[3]~32                                              ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[10]~25                                             ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[11]~24                                             ; 117     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[5]~30                                              ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[13]~22                                             ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[10]~25                                             ; 117     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[9]~26                                              ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[14]~21                                             ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[12]~23                                             ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[4]~31                                              ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[7]~28                                              ; 117     ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[15]~20                                             ; 117     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[8]~27                                              ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[3]~32                                              ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[7]~28                                              ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[4]~31                                              ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[14]~21                                             ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[13]~22                                             ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[15]~20                                             ; 117     ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[12]~23                                             ; 117     ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.TX_DATA                              ; 94      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                  ; 92      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx_rdy_b~0                                 ; 91      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx_data_a~0                                ; 89      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.GOT_SYNC                      ; 82      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[5]~6                                              ; 76      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.GOT_SYNC                      ; 78      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[5]~2                                              ; 77      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.TX_HDR                               ; 71      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux97~0                                    ; 69      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~19                                   ; 67      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|pres_state.FETCH                                                                    ; 67      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_pll:pll0|altpll:altpll_component|_clk1                                                         ; 66      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~19                                   ; 66      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector76~7                                    ; 64      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|reg:hdr1|reg_o[22]                                                                  ; 61      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; ~STRATIX_FITTER_CREATED_GND~I                                                                     ; 56      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[4]~7                                              ; 55      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[3]                              ; 54      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[4]~1                                              ; 56      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[5]                              ; 54      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[4]                              ; 54      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.IDLE                                 ; 54      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[3]                              ; 54      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[2]                              ; 54      ;
 ; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[1]                              ; 54      ;
-; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[4]                              ; 54      ;
+; Rule T102: Top nodes with the highest number of fan-outs         ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_addr[0]                              ; 54      ;
 +------------------------------------------------------------------+---------------------------------------------------------------------------------------------------+---------+
 
 
@@ -327,13 +326,13 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Design Assistant
     Info: Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
-    Info: Processing started: Tue Oct 25 13:54:12 2011
+    Info: Processing started: Mon Nov 28 16:55:13 2011
 Info: Command: quartus_drc --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 Critical Warning: (High) Rule R101: Combinational logic used as a reset signal should be synchronized. Found 1 node(s) related to this rule.
     Critical Warning: Node  "rst"
 Warning: (Medium) Rule C104: Clock signal source should drive only clock input ports. Found 1 nodes related to this rule.
     Warning: Node  "bc_pll:pll0|altpll:altpll_component|_clk3"
-Info: (Information) Rule T101: Nodes with more than the specified number of fan-outs. (Value defined:30). Found 116 node(s) with highest fan-out.
+Info: (Information) Rule T101: Nodes with more than the specified number of fan-outs. (Value defined:30). Found 115 node(s) with highest fan-out.
     Info: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|pres_state.SETUP"
     Info: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|Selector2~1"
     Info: Node  "rst"
@@ -344,63 +343,63 @@ Info: (Information) Rule T101: Nodes with more than the specified number of fan-
     Info: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|Selector2~1"
     Info: Node  "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|fifo:data_buffer|write_nread"
     Info: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|row_switch_1dly"
-    Info: Node  "frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~9"
+    Info: Node  "frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~4"
     Info: Node  "frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.GOT_SYNC"
     Info: Node  "frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~15"
-    Info: Node  "frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~4"
+    Info: Node  "frame_timing:frame_timing_slave|frame_timing_core:ftc|Equal3~9"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[0]~0"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE"
+    Info: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux96~0"
     Info: Node  "dispatch:cmd0|reg:hdr0|reg_o[11]"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]"
     Info: Node  "dispatch:cmd0|Selector5~1"
     Info: Node  "dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_valid~15"
     Info: Node  "dispatch:cmd0|pres_state.FETCH"
     Info: Node  "dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.DONE"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]"
-    Info: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|Mux97~0"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[4]"
+    Info: Node  "dispatch:cmd0|reg:hdr1|reg_o[20]"
+    Info: Node  "dispatch:cmd0|reg:hdr1|reg_o[19]"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[1]~1"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[2]~2"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal0~1"
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
 Info: (Information) Rule T102: Top nodes with the highest number of fan-outs. (Value defined:50). Found 50 node(s) with highest fan-out.
     Info: Node  "rst"
     Info: Node  "bc_pll:pll0|altpll:altpll_component|_clk0"
     Info: Node  "bc_pll:pll0|altpll:altpll_component|_clk3"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[2]"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[0]"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[3]"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[1]"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~1"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~3"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~4"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~2"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~4"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[0]~6"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~5"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[3]~0"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.WB_CYCLE"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[0]~0"
+    Info: Node  "dispatch:cmd0|reg:hdr0|reg_o[11]"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[4]"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|addr[5]"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[2]~2"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[1]~1"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[11]~24"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[2]~2"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[6]~29"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[3]~32"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[10]~25"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[11]~24"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[5]~30"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[13]~22"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[10]~25"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[9]~26"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[14]~21"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[12]~23"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[4]~31"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[7]~28"
-    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[15]~20"
     Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[8]~27"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[3]~32"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[7]~28"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[4]~31"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[14]~21"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[13]~22"
+    Info: Node  "dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[15]~20"
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
-Info: Design Assistant information: finished post-fitting analysis of current design -- generated 166 information messages and 2 warning messages
+Info: Design Assistant information: finished post-fitting analysis of current design -- generated 165 information messages and 2 warning messages
 Info: Quartus II 64-Bit Design Assistant was successful. 0 errors, 4 warnings
-    Info: Peak virtual memory: 278 megabytes
-    Info: Processing ended: Tue Oct 25 13:54:19 2011
+    Info: Peak virtual memory: 279 megabytes
+    Info: Processing ended: Mon Nov 28 16:55:20 2011
     Info: Elapsed time: 00:00:07
     Info: Total CPU time (on all processors): 00:00:07
 

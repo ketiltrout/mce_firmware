@@ -476,7 +476,7 @@ set_global_assignment -name ENABLE_DRC_SETTINGS ON
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE upper.stp
+set_global_assignment -name USE_SIGNALTAP_FILE bias_card.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -527,7 +527,7 @@ set_location_assignment PIN_AH9 -to rx
 set_location_assignment PIN_AE10 -to tx
 set_global_assignment -name ENABLE_CLOCK_LATENCY ON
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
-set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING ON
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name DO_COMBINED_ANALYSIS ON
 set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
 set_global_assignment -name SAFE_STATE_MACHINE ON
@@ -579,6 +579,16 @@ set_location_assignment PIN_N6 -to lvds_dac_ncs[0]
 set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_ncs[0]
 set_location_assignment PIN_V28 -to dev_clr_fpga_out
 set_global_assignment -name INCREMENTAL_COMPILATION OFF
+set_global_assignment -name MISC_FILE "C:/mce/cards/bias_card/bias_card/synth/bias_card.dpf"
+set_location_assignment PIN_AF7 -to pcb_rev[0]
+set_location_assignment PIN_AF6 -to pcb_rev[1]
+set_location_assignment PIN_AE6 -to pcb_rev[2]
+set_location_assignment PIN_AD6 -to pcb_rev[3]
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
+set_location_assignment CARD_ID -to Pin_T21
+set_location_assignment PIN_AB28 -to critical_error_out
+set_location_assignment PIN_AB28 -to critical_error
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
@@ -591,9 +601,8 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pa
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/reset_clr/source/rtl/reset_clr.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/spi_dac_ctrl/source/rtl/spi_dac_ctrl.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
@@ -625,7 +634,6 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/eeprom/source/rtl/eepro
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
@@ -648,15 +656,4 @@ set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/bc_dac_ctrl_w
 set_global_assignment -name VHDL_FILE ../source/rtl/bias_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/bias_card.vhd
 set_global_assignment -name HEX_FILE ../source/tb/bias_card_wb.hex
-set_global_assignment -name SIGNALTAP_FILE bias.stp
-set_global_assignment -name SIGNALTAP_FILE bias_card.stp
-set_global_assignment -name SIGNALTAP_FILE upper.stp
 set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/mandana/Desktop/newrc.cdf"
-set_global_assignment -name MISC_FILE "C:/mce/cards/bias_card/bias_card/synth/bias_card.dpf"
-set_location_assignment PIN_AF7 -to pcb_rev[0]
-set_location_assignment PIN_AF6 -to pcb_rev[1]
-set_location_assignment PIN_AE6 -to pcb_rev[2]
-set_location_assignment PIN_AD6 -to pcb_rev[3]
-set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
-set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
-set_location_assignment CARD_ID -to Pin_T21
