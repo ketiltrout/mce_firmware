@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.10 2007/07/26 22:09:20 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.11 2007/09/05 03:40:57 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson/ Bryce Burger
@@ -25,16 +25,17 @@
 -- fibre_rx
 --
 -- Description:
--- Fibre Optic front end receive firmware:
--- Instantiates:
---
+-- Fibre Optic front end receive is structured as follows:
 -- 1. fibre_rx_control
 -- 2. fibre_rx_fifo
--- 3. fibre_rx_protocol
+-- 3. fibre_rx_protocol (main FSM)
 --
 -- Revision history:
--- <date $Date: 2007/07/26 22:09:20 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2007/09/05 03:40:57 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.11  2007/09/05 03:40:57  bburger
+-- BB:  Added a timer to monitor the processing time of commands in the MCE
+--
 -- Revision 1.10  2007/07/26 22:09:20  bburger
 -- BB:  replaced the head of this file that has all of the changes that Ernie made to this block (v1.6 through v1.9) with the version that is compatible with the current issue_reply chain.  At a later date, we may incorporate some of Ernie's changes.
 --
@@ -85,18 +86,18 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-library work;
-use work.issue_reply_pack.all;
-use work.fibre_rx_pack.all;
-
-library components;
-use components.component_pack.all;
+library altera_mf;
+use altera_mf.altera_mf_components.all;
 
 library sys_param;
 use sys_param.command_pack.all;
 
-library altera_mf;
-use altera_mf.altera_mf_components.all;
+library components;
+use components.component_pack.all;
+
+-- Call Parent Library
+library work;
+use work.issue_reply_pack.all;
 
 entity fibre_rx is
 port(
@@ -119,7 +120,7 @@ port(
       dat_o          : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       fibre_clkr_i   : in std_logic;
-      fibre_data_i   : in std_logic_vector(RX_FIFO_DATA_WIDTH-1 downto 0);
+      fibre_data_i   : in std_logic_vector(7 downto 0);
       fibre_nrdy_i   : in std_logic;
       fibre_rvs_i    : in std_logic;
       fibre_rso_i    : in std_logic;
@@ -128,28 +129,13 @@ port(
 end fibre_rx;
 
 architecture rtl of fibre_rx is
-
+   
    -- Internal signal declarations
    signal rx_fr       : std_logic;                                        -- receive fifo read request
    signal rx_fw       : std_logic;                                        -- receive fifo write request
    signal rx_fe       : std_logic;                                        -- receive fifo empty
    signal rx_ff       : std_logic;                                        -- receive fifo full
-   signal rxd         : std_logic_vector(RX_FIFO_DATA_WIDTH-1 DOWNTO 0);  -- data ouput of fifo
-
---   component sync_fifo_rx
---   PORT
---   (
---      data     : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
---      wrreq    : IN STD_LOGIC ;
---      rdreq    : IN STD_LOGIC ;
---      rdclk    : IN STD_LOGIC ;
---      wrclk    : IN STD_LOGIC ;
---      aclr     : IN STD_LOGIC  := '0';
---      q     : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
---      rdempty     : OUT STD_LOGIC ;
---      wrfull      : OUT STD_LOGIC
---   );
---   END component;
+   signal rxd         : std_logic_vector(7 DOWNTO 0);                     -- data ouput of fifo
 
    -- FSM's states defined
    type states is (IDLE, RQ_BYTE, LD_BYTE, CKSM_CALC, WR_WORD, TEST_CKSM, CKSM_PASS, CKSM_FAIL, DATA_READ, DATA_SETL, DATA_TX, RX_ERROR, WAIT_FOR_ACK);

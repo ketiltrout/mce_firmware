@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.25  2010/06/17 23:42:33  bburger
+-- BB:  Clarified a comment
+--
 -- Revision 1.24  2010/05/14 22:58:26  bburger
 -- BB:  Added dead_card_i interface signals
 --
@@ -70,6 +73,9 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 
+library work;
+use work.async_pack.all;
+
 entity reply_queue_receive is
    port(
       clk_i          : in std_logic;
@@ -91,21 +97,6 @@ entity reply_queue_receive is
 end reply_queue_receive;
 
 architecture rtl of reply_queue_receive is
-
-   component lvds_rx
-      generic (
-         FPGA_DEVICE_FAMILY : string);
-      port(
-         clk_i      : in std_logic;
-         comm_clk_i : in std_logic;
-         rst_i      : in std_logic;
-         dat_o      : out std_logic_vector(31 downto 0);
-         rdy_o      : out std_logic;
-         pres_n_o   : out std_logic;
-         ack_i      : in std_logic;
-         lvds_i     : in std_logic
-      );
-   end component;
 
    signal lvds_rx_data_a : std_logic_vector(31 downto 0);
    signal lvds_rx_rdy_a  : std_logic;

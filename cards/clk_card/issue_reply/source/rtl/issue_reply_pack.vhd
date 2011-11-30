@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.57 2008/10/17 00:32:50 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.58 2010/01/21 19:44:52 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.58  2010/01/21 19:44:52  bburger
+-- BB: Added a comment.
+--
 -- Revision 1.57  2008/10/17 00:32:50  bburger
 -- BB:  added indexing constants.
 --
@@ -120,8 +123,18 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
+
+-- Call Parent Library
+use work.clk_card_pack.all;
 
 package issue_reply_pack is
+
+   -- cmd_queue_ram defines
+   constant QUEUE_LEN        : integer := 256; -- The u-op queue is 256 entries long
+   constant QUEUE_WIDTH      : integer :=  32;
+   constant QUEUE_ADDR_WIDTH : integer :=   8;
+   constant BB_NUM_CMD_HEADER_WORDS : integer := 2; -- cleanup at a later time
 
    -- Measured in clock cycles, CMD_TIMEOUT_LIMIT is slightly more than the amount of cycles necessary for an internal/ simple command to execute
    -- For a 58-word WB command, 100 us are required from receiving the last word of the command to sending the last word of the reply
@@ -168,5 +181,355 @@ package issue_reply_pack is
 
    -- This is the data pipeline propagation delay setting for the reply_translator
    constant DATA_PROPAGATION_DELAY : integer := 3;
+
+   -----------------------------------------------------------------------------
+   -- Fibre Recieve component
+   -----------------------------------------------------------------------------
+   component fibre_rx
+   port(
+      sbr_o          : out std_logic;
+
+      clk_i          : in std_logic;
+      rst_i          : in std_logic;
+
+      cmd_err_o      : out std_logic;
+      cmd_rdy_o      : out std_logic;
+      cmd_ack_i      : in std_logic;
+      rt_cmd_rdy_o   : out std_logic;
+      rdy_for_data_i : in std_logic;
+
+      cmd_code_o     : out std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      card_addr_o    : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      param_id_o     : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+      dat_size_o     : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+      dat_clk_o      : out std_logic;
+      dat_o          : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+
+      fibre_clkr_i   : in std_logic;
+      fibre_data_i   : in std_logic_vector (7 downto 0);
+      fibre_nrdy_i   : in std_logic;
+      fibre_rvs_i    : in std_logic;
+      fibre_rso_i    : in std_logic;
+      fibre_sc_nd_i  : in std_logic
+   );
+   end component;
+   -----------------------------------------------------------------------------
+   -- Fibre Transmit component      
+   -----------------------------------------------------------------------------
+   component fibre_tx
+   port(
+      -- global signals
+      clk_i  : in std_logic;
+      rst_i  : in std_logic;
+
+      -- interface to reply_translator
+      dat_i  : in std_logic_vector(31 downto 0);        
+      rdy_i  : in std_logic;
+      busy_o : out std_logic;
+      
+      -- interface to HOTLINK transmitter
+      fibre_clk_i   : in std_logic;                     -- 25MHz hotlink clock
+      fibre_data_o  : out std_logic_vector(7 downto 0); -- byte of data to be transmitted
+      fibre_sc_nd_o : out std_logic;                    -- hotlink tx special char/ data sel
+      fibre_nena_o  : out std_logic                     -- hotlink tx enable
+   );
+   end component;
+
+   -----------------------------------------------------------------------------
+   -- Command Translator component
+   -----------------------------------------------------------------------------
+   component cmd_translator
+   port(
+      -- global inputs
+      rst_i                 : in  std_logic;
+      clk_i                 : in  std_logic;
+
+      -- fibre_rx interface
+      card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      cmd_data_i            : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      cmd_rdy_i             : in  std_logic;
+      data_clk_i            : in  std_logic;
+      num_data_i            : in  std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+      param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+      -- output to fibre_rx
+      ack_o                 : out std_logic;
+
+      -- ret_dat_wbs interface:
+      start_seq_num_i       : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      stop_seq_num_i        : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      data_rate_i           : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i         : in std_logic;
+      awg_dat_i             : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
+      awg_addr_i            : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
+      awg_addr_incr_o       : out std_logic;
+
+      -- ret_dat_wbs interface
+      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
+      step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ret_dat_req_i          : in std_logic;
+      ret_dat_ack_o          : out std_logic;
+
+      -- other inputs
+      sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+      -- signals to cmd_queue
+      cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      card_addr_o           : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      param_id_o            : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      data_size_o           : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      data_o                : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      data_clk_o            : out std_logic;
+      instr_rdy_o           : out std_logic;
+      cmd_stop_o            : out std_logic;
+      last_frame_o          : out std_logic;
+      internal_cmd_o        : out std_logic;
+      num_rows_to_read_i    : in integer;
+      num_cols_to_read_i    : in integer;
+      override_sync_num_o   : out std_logic;
+      ret_dat_in_progress_o : out std_logic;
+
+      -- input from the cmd_queue
+--      busy_i                : in std_logic;
+      ack_i                 : in std_logic;
+      rdy_for_data_i        : in std_logic;
+      data_timing_err_i     : in std_logic;
+
+      -- outputs to the cmd_queue
+      frame_seq_num_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      frame_sync_num_o      : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
+   );
+   end component;
+
+   -----------------------------------------------------------------------------
+   -- Command Queue component
+   -----------------------------------------------------------------------------
+   component cmd_queue
+   port(
+      -- for testing
+      debug_o         : out std_logic_vector(31 downto 0);
+      timer_trigger_o : out std_logic;
+
+      -- reply_queue interface
+      uop_rdy_o       : out std_logic;
+      uop_ack_i       : in std_logic;
+      card_addr_o     : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      par_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      data_size_o     : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      cmd_code_o        : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      data_timing_err_o : out std_logic;
+
+      -- indicates a STOP command was recieved
+      cmd_stop_o      : out std_logic;
+
+      -- indicates the last frame of data for a ret_dat command
+      last_frame_o    : out std_logic;
+
+      frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_o  : out std_logic;
+      issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+--      tes_bias_step_level_o : out std_logic;
+      step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
+      -- cmd_translator interface
+      card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      par_id_i        : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      data_size_i     : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      data_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      data_clk_i      : in std_logic;
+      issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      mop_rdy_i       : in std_logic;
+      mop_ack_o       : out std_logic;
+      rdy_for_data_o  : out std_logic;
+--      busy_o          : out std_logic;
+      cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      cmd_stop_i      : in std_logic;
+      last_frame_i    : in std_logic;
+      frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_i  : in std_logic;
+--      tes_bias_step_level_i : in std_logic;
+      step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      override_sync_num_i : in std_logic;
+      ret_dat_in_progress_i : in std_logic;
+
+      -- lvds_tx interface
+      tx_o            : out std_logic;
+
+      -- frame_timing interface
+      sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+      -- Clock lines
+      clk_i           : in std_logic;
+      rst_i           : in std_logic
+   );
+   end component;
+   -----------------------------------------------------------------------------
+   -- Command Q tpram component
+   -----------------------------------------------------------------------------
+   component cmd_queue_tpram is
+      PORT
+      (
+         data        : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
+         wraddress   : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_a : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_b : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
+         wren        : IN STD_LOGIC;
+         clock       : IN STD_LOGIC;
+         qa          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
+         qb          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0)
+      );
+   END component;
+   
+   -----------------------------------------------------------------------------
+   -- Reply Queue
+   -----------------------------------------------------------------------------
+   component reply_queue
+   port(
+      -- cmd_queue interface
+      cmd_to_retire_i     : in std_logic;
+      cmd_sent_o          : out std_logic;
+      card_addr_i         : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      par_id_i            : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      data_size_i         : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      cmd_stop_i          : in std_logic;
+      last_frame_i        : in std_logic;
+      frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_i      : in std_logic;
+      data_rate_i         : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      row_len_i           : in integer;
+      num_rows_i          : in integer;
+      issue_sync_i        : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      cmd_code_i          : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
+      step_value_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_timing_err_i   : in std_logic;
+
+      -- cmd_translator interface
+      over_temperature_o  : out std_logic;
+
+      -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
+      size_o              : out integer;
+      data_o              : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      error_code_o        : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rdy_o               : out std_logic;
+      ack_i               : in std_logic;
+
+      -- reply_translator interface (from reply_queue_retire)
+      -- The reply_queue acks, based on how much data it has to give,
+      -- not how much the reply_transator thinks it needs!
+      --      cmd_sent_i          : in std_logic;
+      cmd_valid_o         : out std_logic;
+      cmd_code_o          : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      param_id_o          : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+      card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+--      stop_bit_o          : out std_logic;
+--      last_frame_bit_o    : out std_logic;
+--      frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+      -- ret_dat_wbs interface
+      num_rows_to_read_i  : in integer;
+      num_cols_to_read_i  : in integer;
+      ramp_card_addr_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      cards_to_report_i   : in std_logic_vector(9 downto 0);
+      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+      dead_card_i            : in std_logic;
+
+      -- clk_switchover interface
+      active_clk_i        : in std_logic;
+
+      -- cc_reset interface
+      reset_event_i       : in std_logic;
+      reset_ack_o         : out std_logic;
+
+      -- dv_rx interface
+      sync_box_err_i      : in std_logic;
+      sync_box_err_ack_o  : out std_logic;
+      sync_box_free_run_i : in std_logic;
+      external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+
+      -- Bus Backplane interface
+      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
+      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
+      card_not_present_o  : out std_logic_vector(9 downto 0);
+
+      -- Global signals
+      clk_i               : in std_logic;
+      clk_n_i             : in std_logic;
+      comm_clk_i          : in std_logic;
+      rst_i               : in std_logic
+   );
+   end component;
+
+   -----------------------------------------------------------------------------
+   -- Reply Translator component
+   -----------------------------------------------------------------------------
+   component reply_translator
+   port(
+      -- for testing
+      debug_o             : out std_logic_vector (31 downto 0);
+
+      -- global inputs
+      rst_i                   : in  std_logic;
+      clk_i                   : in  std_logic;
+
+      -- ret_dat_wbs interface
+      crc_err_en_i           : in std_logic;
+      stop_delay_i           : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+      -- signals to/from fibre_rx
+      cmd_rcvd_er_i           : in  std_logic;
+      cmd_rcvd_ok_i           : in  std_logic;
+      c_cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
+      c_card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      c_param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+
+      -- signals to/from cmd_translator
+--      stop_reply_req_i      : in std_logic;
+--      stop_reply_ack_o      : out std_logic;
+      cmd_stop_i              : in std_logic;
+
+      -- signals to/from reply queue
+      r_cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
+      r_card_addr_i           : in  std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      r_param_id_i            : in  std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+
+      -- signals to/from reply queue
+      r_cmd_rdy_i             : in  std_logic;
+      mop_error_code_i        : in  std_logic_vector(PACKET_WORD_WIDTH-1      downto 0);
+      fibre_word_i            : in  std_logic_vector(PACKET_WORD_WIDTH-1     downto 0);
+      num_fibre_words_i       : in  integer ;
+      fibre_word_ack_o        : out std_logic;
+      fibre_word_rdy_i        : in std_logic;
+-- The reply_queue acks, based on how much data it has to give,
+-- not how much the reply_transator thinks it needs!
+--      mop_ack_o               : out std_logic;
+--      last_frame_i            : in std_logic;
+--      frame_status_word_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--      frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+      -- input from the cmd_queue
+--      busy_i                  : in std_logic;
+
+      checksum_repeated_o   : out std_logic;
+      checksum_prev1_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
+      checksum_prev2_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
+
+      -- signals to / from fibre_tx
+      fibre_tx_busy_i         : in std_logic;
+      fibre_tx_rdy_o          : out std_logic;
+      fibre_tx_dat_o          : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0)
+      );
+   end component;
 
 end issue_reply_pack;

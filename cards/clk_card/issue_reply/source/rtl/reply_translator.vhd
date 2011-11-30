@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.63 2009/05/12 19:26:40 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.64 2009/05/12 19:39:59 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -39,14 +39,16 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-library work;
-use work.issue_reply_pack.all;
-
 library sys_param;
 use sys_param.command_pack.all;
 
 library components;
 use components.component_pack.all;
+
+-- Call Parent Library
+library work;
+use work.issue_reply_pack.all;
+
 
 entity reply_translator is
 port(
@@ -80,14 +82,6 @@ port(
    fibre_word_ack_o    : out std_logic;                                               -- asserted to requeset next fibre word
    fibre_word_rdy_i    : in std_logic;
    mop_ack_o           : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
-
-   -- We may choose to remove these signals once we move to the new protocol.
---   last_frame_i        : in std_logic;
---   frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
---   frame_status_word_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-
-   -- input from the cmd_queue
---   busy_i              : in std_logic;
 
    checksum_repeated_o   : out std_logic;
    checksum_prev1_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  

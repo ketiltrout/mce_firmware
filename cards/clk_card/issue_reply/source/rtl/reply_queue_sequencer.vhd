@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.42  2010/06/17 23:43:18  bburger
+-- BB:  fixed a bug that was introduced by a bug fix, and deleted unused signals.
+--
 -- Revision 1.41  2010/05/14 23:09:54  bburger
 -- BB:  Fixed a bug that caused stale data to be returned in responses from cards that were not present
 --
@@ -110,8 +113,10 @@ use sys_param.wishbone_pack.all;
 library components;
 use components.component_pack.all;
 
+-- Call Parent Library
 library work;
 use work.issue_reply_pack.all;
+use work.reply_queue_pack.all;
 
 entity reply_queue_sequencer is
 port(
@@ -150,26 +155,6 @@ port(
 end reply_queue_sequencer;
 
 architecture rtl of reply_queue_sequencer is
-
-   component reply_queue_receive
-   port(
-      clk_i          : in std_logic;
-      comm_clk_i     : in std_logic;
-      rst_i          : in std_logic;
-
-      lvds_reply_a_i : in std_logic;
-      lvds_reply_b_i : in std_logic;
-
-      error_o        : out std_logic_vector(2 downto 0);   -- 3 error bits: Tx CRC error, Rx CRC error, Execute Error
-      bad_preamble_o : out std_logic;
-
-      data_o         : out std_logic_vector(31 downto 0);
-      rdy_o          : out std_logic;
-      pres_n_o       : out std_logic;
-      ack_i          : in std_logic;
-      clear_i        : in std_logic
-   );
-   end component;
 
    type seq_states is (IDLE, WAIT_FOR_REPLY, READ_AC, READ_BC1, READ_BC2, READ_BC3, MATCHED, TIMED_OUT, READ_PSU,
       READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, DONE, STATUS_WORD, LATCH_ERROR, ERROR_WAIT1, ERROR_WAIT2, ERROR_WAIT3);

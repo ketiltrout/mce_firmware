@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.66 2010/01/21 19:46:29 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.67 2010/01/26 19:46:28 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -49,8 +49,11 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+
+-- Call Parent library
+use work.clk_card_pack.all;
 use work.issue_reply_pack.all;
-use work.ret_dat_wbs_pack.all;
+
 
 entity cmd_translator is
 

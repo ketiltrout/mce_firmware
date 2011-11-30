@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.52 2009/05/12 18:50:29 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.53 2010/05/14 22:57:17 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.53  2010/05/14 22:57:17  bburger
+-- BB:  Added dead_card_i interface signals
+--
 -- Revision 1.52  2009/05/12 18:50:29  bburger
 -- BB: Added the data_timing_err_i flag to the data packet status word.
 --
@@ -96,11 +99,14 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.cmd_queue_ram40_pack.all;
-use work.cmd_queue_pack.all;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+
+-- Call Parent Library
 use work.issue_reply_pack.all;
+
+-- Call won Library
+use work.reply_queue_pack.all;
 
 entity reply_queue is
    port(
@@ -184,53 +190,6 @@ entity reply_queue is
 end reply_queue;
 
 architecture behav of reply_queue is
-
-   component reply_queue_sequencer
-   port(
-      -- for debugging
-      timer_trigger_o   : out std_logic;
-
-      comm_clk_i        : in std_logic;
-      clk_i             : in std_logic;
-      rst_i             : in std_logic;
-
-      card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-      -- cmd_translator interface
-      cmd_code_i        : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
-      par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-
-      -- Bus Backplane interface
-      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
-      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
-
-      card_not_present_o  : out std_logic_vector(9 downto 0);
-      cards_to_report_i   : in std_logic_vector(9 downto 0);
-      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
-      dead_card_i            : in std_logic;
-
-      -- fibre interface:
---      size_o            : out integer;
-      error_o           : out std_logic_vector(29 downto 0);
-      data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      rdy_o             : out std_logic;
-      ack_i             : in std_logic;
-
-      -- cmd_queue interface:
-      card_addr_i       : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      cmd_valid_i       : in std_logic;
-      matched_o         : out std_logic
-   );
-   end component;
-
-   component reply_translator_frame_head_ram
-   port(
-      address  : in  std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
-      clock    : in  std_logic ;
-      data     : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      wren     : in  std_logic ;
-      q        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)
-   );
-   end component;
 
    constant DATA_PACKET_HEADER_REVISION: std_logic_vector (31 downto 0) := X"00000006";
 

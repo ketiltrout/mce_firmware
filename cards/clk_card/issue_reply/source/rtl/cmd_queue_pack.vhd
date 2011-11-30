@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.25 2006/03/09 00:55:07 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.26 2006/03/23 23:14:07 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.26  2006/03/23 23:14:07  bburger
+-- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
+--
 -- Revision 1.25  2006/03/09 00:55:07  bburger
 -- Bryce:  Added an issue_sync_o signal to the interface so that the reply_queue can include this information in data headers
 --
@@ -118,42 +121,47 @@ use sys_param.command_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
-use work.cmd_queue_ram40_pack.all;
 use work.frame_timing_pack.all;
 
 package cmd_queue_pack is
    
-constant MAX_NUM_UOPS     : integer :=   3;
+   constant MAX_NUM_UOPS     : integer :=   3;
+   
+   -- moved from cmd_queue_ram40_pack
+   constant QUEUE_LEN        : integer := 256; -- The u-op queue is 256 entries long
+   constant QUEUE_WIDTH      : integer :=  32;
+   constant QUEUE_ADDR_WIDTH : integer :=   8;
 
--- Calculated constants for inputing data on the correct lines into/out-of the queue
--- The following fields make up the first four lines of each u-op entry in the queue:
-constant NUM_NON_BB_CMD_HEADER_WORDS : integer := 2;
-constant BB_NUM_CMD_HEADER_WORDS : integer := 2;
-constant CQ_NUM_CMD_HEADER_WORDS : integer := BB_NUM_CMD_HEADER_WORDS + NUM_NON_BB_CMD_HEADER_WORDS;
+   -- Calculated constants for inputing data on the correct lines into/out-of the queue
+   -- The following fields make up the first four lines of each u-op entry in the queue:
+   constant NUM_NON_BB_CMD_HEADER_WORDS : integer := 2;
+   constant BB_NUM_CMD_HEADER_WORDS : integer := 2;
+   constant CQ_NUM_CMD_HEADER_WORDS : integer := BB_NUM_CMD_HEADER_WORDS + NUM_NON_BB_CMD_HEADER_WORDS;
+   
+   -- Line 1:
+   -- ISSUE_SYNC_WIDTH (16 bits),
+   -- COMMAND_TYPE_END (3 bits),
+   -- CQ_DATA_SIZE_BUS_WIDTH (13 bits)
+   constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH;
+   constant COMMAND_TYPE_END : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH;
+   constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH - BB_DATA_SIZE_WIDTH;
+   
+   -- Line 2:
+   -- BB_CARD_ADDRESS_WIDTH (8 bits),
+   -- BB_PARAMETER_ID_WIDTH (8 bits),
+   -- BB_MACRO_OP_SEQ_WIDTH (8 bits),
+   -- BB_MICRO_OP_SEQ_WIDTH (8 bits)
+   constant CARD_ADDR_END    : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH;
+   constant PARAM_ID_END     : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH;
+   --constant MOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
+   --constant UOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
 
--- Line 1:
--- ISSUE_SYNC_WIDTH (16 bits),
--- COMMAND_TYPE_END (3 bits),
--- CQ_DATA_SIZE_BUS_WIDTH (13 bits)
-constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH;
-constant COMMAND_TYPE_END : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH;
-constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH - BB_DATA_SIZE_WIDTH;
+   -- Line 3:
+   -- 'Data Frame Stop' bit (bit 1)
+   -- 'Last Data Frame' bit (bit 0)
+   
+   -- Line 4:
+   -- Data Frame Sequence Number (32 bits)   
 
--- Line 2:
--- BB_CARD_ADDRESS_WIDTH (8 bits),
--- BB_PARAMETER_ID_WIDTH (8 bits),
--- BB_MACRO_OP_SEQ_WIDTH (8 bits),
--- BB_MICRO_OP_SEQ_WIDTH (8 bits)
-constant CARD_ADDR_END    : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH;
-constant PARAM_ID_END     : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH;
---constant MOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
---constant UOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
-
--- Line 3:
--- 'Data Frame Stop' bit (bit 1)
--- 'Last Data Frame' bit (bit 0)
-
--- Line 4:
--- Data Frame Sequence Number (32 bits)   
 
 end cmd_queue_pack;

@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.7  2007/02/01 21:07:59  bburger
+-- Bryce:  removed unused states
+--
 -- Revision 1.6  2007/02/01 01:53:14  bburger
 -- Bryce:  completely re-wrote fibre_tx in an effort to track down a timing bug in the firmware that produces CRC errors
 --
@@ -69,18 +72,18 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-library components;
-use components.component_pack.all;
-
-library work;
-use work.issue_reply_pack.all;
+library altera_mf;
+use altera_mf.altera_mf_components.all;
 
 library sys_param;
 use sys_param.command_pack.all;
 
-library altera_mf;
-use altera_mf.altera_mf_components.all;
+library components;
+use components.component_pack.all;
 
+-- Call Parent Library
+library work;
+use work.issue_reply_pack.all;
 
 entity fibre_tx is
 port(
