@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.10  2010/09/08 22:35:51  mandana
+-- added comm_clk_i to rs232_rx interface. This is 4x115200 PLL-generated clock. rs232_rx block is rewritten to use a fifo to synchronize between clock domains.
+--
 -- Revision 1.9  2009/08/21 21:07:24  bburger
 -- BB: added FPGA_DEVICE_FAMILY generic to interfaces for synthesis for Stratix I or III
 --
@@ -80,20 +83,22 @@ package async_pack is
         dat_i      : in std_logic_vector(31 downto 0);
         rdy_i      : in std_logic;
         busy_o     : out std_logic;
-     
+         
         lvds_o     : out std_logic);
    end component;
 
    component lvds_rx
    generic (
      FPGA_DEVICE_FAMILY : string);
-   port(comm_clk_i : in std_logic;
+   port(clk_i      : in std_logic;
+        comm_clk_i : in std_logic;
         rst_i      : in std_logic;
      
         dat_o      : out std_logic_vector(31 downto 0);
         rdy_o      : out std_logic;
         ack_i      : in std_logic;
-     
+        
+        pres_n_o   : out std_logic;       -- to detect card-not-present
         lvds_i     : in std_logic);
    end component;
 
