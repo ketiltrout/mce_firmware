@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.9 2010/03/09 21:33:47 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.10 2010/03/15 05:11:54 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -108,7 +108,7 @@ architecture top of config_fpga is
    signal next_timer_state    : timer_states;
 
    -- WBS states:
-   type states is (IDLE, WR, RD1, RD2); 
+   type states is (IDLE, WR, RD); 
    signal current_state       : states;
    signal next_state          : states;
 
@@ -909,7 +909,7 @@ begin
             if(wr_cmd = '1') then
                next_state <= WR;            
             elsif(rd_cmd = '1') then
-               next_state <= RD1;
+               next_state <= RD;
             end if;                  
             
          when WR =>     
@@ -917,7 +917,7 @@ begin
                next_state <= IDLE;
             end if;
          
-         when RD1 =>
+         when RD =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
@@ -987,7 +987,7 @@ begin
                end if;
             end if;
          
-         when RD1 =>
+         when RD =>
             if(next_state /= IDLE) then
                ack_o <= '1';               
                
