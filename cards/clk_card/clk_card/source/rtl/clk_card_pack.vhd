@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.19 2010/02/26 09:32:44 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.20 2010/05/14 22:39:09 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.20  2010/05/14 22:39:09  bburger
+-- BB:  added a dead_card interface to issue_reply for dead_card detection.
+--
 -- Revision 1.19  2010/02/26 09:32:44  bburger
 -- BB: cc_v05000004 -- JTAG support.
 --
@@ -105,20 +108,67 @@ use ieee.std_logic_1164.all;
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
-use sys_param.data_types_pack.all;
+--use sys_param.data_types_pack.all;
 
 library work;
 use work.all_cards_pack.all;
-use work.sync_gen_pack.all;
-use work.issue_reply_pack.all;
-use work.cc_reset_pack.all;
-use work.ret_dat_wbs_pack.all;
 use work.frame_timing_pack.all;
 
 package clk_card_pack is
 
    constant ARRAY_ID_BITS : integer := 3;
+   
+   -------------------------------------------------------
+   -- Reply Queue and Ret_dat_wbs (!) definitions 
+   -------------------------------------------------------
+   -- number of cards with dedicated lvds reply lines to CC
+   constant NUM_CARDS_TO_REPLY : integer := 10;
+   
+   -- Offsets in the cards_to_report word
+   constant AC   : integer := 9;
+   constant BC1  : integer := 8;
+   constant BC2  : integer := 7;
+   constant BC3  : integer := 6;
+   constant RC1  : integer := 5;
+   constant RC2  : integer := 4;
+   constant RC3  : integer := 3;
+   constant RC4  : integer := 2;
+   constant CC   : integer := 1;
+   constant PSUC : integer := 0;
+   
+   -- All four RCs are set to report by default
+   constant DEFAULT_RCS_TO_REPORT    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000003C";
+   constant DEFAULT_CARDS_TO_REPORT  : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"000003FF";
+   constant DEFAULT_STEP_DATA_NUM    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";  -- Then default number of data words to be send in the ramp command.
 
+   -- Arbitrary Wave Generator RAM-size parameters (used in ret_dat_wbs, issue_reply, command translator)
+   constant AWG_DAT_WIDTH  : integer := 16;
+   constant AWG_ADDR_WIDTH : integer := 13; -- 16,384 values
+   
+   -------------------------------------------------------
+   -- DV-rx and Sync Gen definitions
+   -------------------------------------------------------
+   -- DV-mode, number of bits
+   constant DV_SELECT_WIDTH          : integer := 2;
+   -- DV-mode definitions
+   constant DV_INTERNAL              : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+   constant DV_EXTERNAL_FIBRE        : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
+   constant DV_EXTERNAL_MANCHESTER   : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
+ 
+   constant DV_NUM_WIDTH             : integer := PACKET_WORD_WIDTH;
+
+   -- Sync-mode, number of bits
+   constant SYNC_SELECT_WIDTH        : integer := 2;    
+
+   -- Sync Mode definitions
+   constant SYNC_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+   constant SYNC_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
+   constant SYNC_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
+
+   -------------------------------------------------------
+   --
+   -- Component Declarations 
+   -------------------------------------------------------
    component stratix_crcblock
       generic (
          crc_deld_disable  :  string := "off";
@@ -216,7 +266,9 @@ package clk_card_pack is
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic);
    end component;
-
+   -------------------------------------------------------
+   -- PSU Control component 
+   -------------------------------------------------------
    component psu_ctrl
    port(
       -- Clock and Reset:
@@ -245,7 +297,9 @@ package clk_card_pack is
       sreq_o        : out std_logic   -- Service Request
    );
    end component;
-
+   -------------------------------------------------------
+   -- Config FPGA component
+   -------------------------------------------------------
    component config_fpga
    port(
       -- Clock and Reset:
@@ -275,7 +329,9 @@ package clk_card_pack is
       epc16_sel_n_o : out std_logic
    );
    end component;
-
+   -------------------------------------------------------   
+   -- Clock Switch Over component
+   -------------------------------------------------------
    component clk_switchover
    port(
       -- wishbone interface:
@@ -301,7 +357,9 @@ package clk_card_pack is
       e1_o                : out std_logic
    );
    end component;
-
+   -------------------------------------------------------
+   -- Sync Generator Component
+   -------------------------------------------------------
    component sync_gen
    port(
       -- Inputs/Outputs
@@ -327,7 +385,9 @@ package clk_card_pack is
       rst_i                : in std_logic
    );
    end component;
-
+   -------------------------------------------------------
+   -- dv Receive component
+   -------------------------------------------------------
    component dv_rx
    port(
       -- Clock and Reset:
@@ -353,7 +413,9 @@ package clk_card_pack is
       sync_o              : out std_logic
    );
    end component;
-
+   -------------------------------------------------------
+   -- ret_dat_wbs component
+   -------------------------------------------------------
    component ret_dat_wbs is
    port(
       -- to issue_reply:
@@ -374,9 +436,9 @@ package clk_card_pack is
       crc_err_en_o           : out std_logic;
 --      num_rows_to_read_o     : out integer;
 --      num_cols_to_read_o     : out integer;
-      cards_present_i        : in std_logic_vector(9 downto 0);
-      cards_to_report_o      : out std_logic_vector(9 downto 0);
-      rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
+      cards_present_i        : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      cards_to_report_o      : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      rcs_to_report_data_o   : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
       awg_dat_o              : out std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
@@ -399,7 +461,24 @@ package clk_card_pack is
       ack_o                  : out std_logic
    );
    end component;
+   -------------------------------------------------------
+   -- Arbitrary Wave Generator (AWG) RAM block component (instantiated in ret_dat_wbs)
+   -------------------------------------------------------
 
+   component awg_data_bank IS
+      PORT
+      (
+         clock    : IN STD_LOGIC  := '1';
+         data     : IN STD_LOGIC_VECTOR (AWG_DAT_WIDTH-1 DOWNTO 0);
+         rdaddress      : IN STD_LOGIC_VECTOR (AWG_ADDR_WIDTH-1 DOWNTO 0);
+         wraddress      : IN STD_LOGIC_VECTOR (AWG_ADDR_WIDTH-1 DOWNTO 0);
+         wren     : IN STD_LOGIC  := '0';
+         q     : OUT STD_LOGIC_VECTOR (AWG_DAT_WIDTH-1 DOWNTO 0)
+      );
+   END component;
+   -------------------------------------------------------
+   -- Clock Card Reset component
+   -------------------------------------------------------   
    component cc_reset is
    port(
       clk_i            : in  std_logic;
@@ -436,6 +515,9 @@ package clk_card_pack is
       ack_o            : out std_logic
    );
    end component;
+   -------------------------------------------------------
+   -- Issue Reply Component
+   -------------------------------------------------------
 
    component issue_reply
    port(
@@ -449,21 +531,10 @@ package clk_card_pack is
       comm_clk_i             : in std_logic;
 
       -- inputs from the bus backplane
-      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
-      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
+      lvds_reply_all_a_i     : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      lvds_reply_all_b_i     : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
 
---      lvds_reply_ac_a        : in std_logic;
---      lvds_reply_bc1_a       : in std_logic;
---      lvds_reply_bc2_a       : in std_logic;
---      lvds_reply_bc3_a       : in std_logic;
---      lvds_reply_rc1_a       : in std_logic;
---      lvds_reply_rc2_a       : in std_logic;
---      lvds_reply_rc3_a       : in std_logic;
---      lvds_reply_rc4_a       : in std_logic;
---      lvds_reply_cc_a        : in std_logic;
---      lvds_reply_psu_a       : in std_logic;
-
-      card_not_present_o     : out std_logic_vector(9 downto 0);
+      card_not_present_o     : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
 
       -- inputs from the fibre receiver
       fibre_clkr_i           : in std_logic;
@@ -504,8 +575,8 @@ package clk_card_pack is
       num_cols_to_read_i     : in integer;
       ret_dat_req_i          : in std_logic;
       ret_dat_ack_o          : out std_logic;
-      cards_to_report_i      : in std_logic_vector(9 downto 0);
-      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
+      cards_to_report_i      : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      rcs_to_report_data_i   : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
       awg_dat_i              : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i             : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o        : out std_logic;
