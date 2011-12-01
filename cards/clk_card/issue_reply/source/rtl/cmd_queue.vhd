@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.106 2009/05/12 18:37:30 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.107 2011-11-30 22:06:05 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -46,7 +46,6 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
 use work.async_pack.all; -- for lvds_tx
 

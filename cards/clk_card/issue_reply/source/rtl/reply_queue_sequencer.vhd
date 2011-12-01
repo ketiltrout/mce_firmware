@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.43  2011-11-30 22:06:06  mandana
+-- re-organized pack files in hierarchical manner and moved all component declarations into pack files
+--
 -- Revision 1.42  2010/06/17 23:43:18  bburger
 -- BB:  fixed a bug that was introduced by a bug fix, and deleted unused signals.
 --
@@ -115,6 +118,7 @@ use components.component_pack.all;
 
 -- Call Parent Library
 library work;
+use work.clk_card_pack.all; -- for AC/BC1...
 use work.issue_reply_pack.all;
 use work.reply_queue_pack.all;
 

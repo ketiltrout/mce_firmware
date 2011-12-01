@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.54 2011-11-30 22:06:06 mandana Exp $
+-- $Id: reply_queue.vhd,v 1.55 2011-11-30 22:16:33 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.55  2011-11-30 22:16:33  mandana
+-- typo
+--
 -- Revision 1.54  2011-11-30 22:06:06  mandana
 -- re-organized pack files in hierarchical manner and moved all component declarations into pack files
 --
@@ -102,10 +105,10 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
 
 -- Call Parent Library
+use work.clk_card_pack.all;
 use work.issue_reply_pack.all;
 
 -- Call own Library

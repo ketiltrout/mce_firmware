@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.58 2010/01/21 19:44:52 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.59 2011-11-30 22:06:05 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.59  2011-11-30 22:06:05  mandana
+-- re-organized pack files in hierarchical manner and moved all component declarations into pack files
+--
 -- Revision 1.58  2010/01/21 19:44:52  bburger
 -- BB: Added a comment.
 --
@@ -122,7 +125,6 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
 
 -- Call Parent Library
@@ -150,18 +152,6 @@ package issue_reply_pack is
 
    -- Period of internal commands
    constant HOUSEKEEPING_COMMAND_PERIOD : integer := 1000000; -- in us
-
-   -- Offsets in the cards_to_report word
-   constant AC   : integer := 9;
-   constant BC1  : integer := 8;
-   constant BC2  : integer := 7;
-   constant BC3  : integer := 6;
-   constant RC1  : integer := 5;
-   constant RC2  : integer := 4;
-   constant RC3  : integer := 3;
-   constant RC4  : integer := 2;
-   constant CC   : integer := 1;
-   constant PSUC : integer := 0;
 
    -- Data sizes for internal commands
    constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word

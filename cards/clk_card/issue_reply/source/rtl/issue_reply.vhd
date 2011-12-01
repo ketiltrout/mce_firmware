@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.82 2010/05/14 22:56:16 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.83 2011-11-30 22:06:05 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2010/05/14 22:56:16 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2011-11-30 22:06:05 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.83  2011-11-30 22:06:05  mandana
+-- re-organized pack files in hierarchical manner and moved all component declarations into pack files
+--
 -- Revision 1.82  2010/05/14 22:56:16  bburger
 -- BB:  Added dead_card_i interface signals
 --
@@ -114,7 +117,6 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
 
 -- Call Parent Library
