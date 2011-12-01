@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.18  2009/01/16 01:57:58  bburger
+-- BB:  relocated num_rows and row_len registers on the Clock Card to frame_timing
+--
 -- Revision 1.17  2007/07/25 18:41:45  bburger
 -- BB: Added library declarations
 --
@@ -103,15 +106,18 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library sys_param;
-use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library components;
 use components.component_pack.all;
 
 library work;
+
+--Call Parent Library
+use work.clk_card_pack.all;
+
+-- Call Own Library
 use work.sync_gen_pack.all;
-use work.frame_timing_pack.all;
 
 entity sync_gen is
    port(
@@ -151,61 +157,15 @@ architecture beh of sync_gen is
    signal row_len          : integer;
    signal num_rows         : integer;
 
-   component sync_gen_core
-   port(
-      -- Wishbone Interface
-      dv_mode_i            : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      sync_mode_i          : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
-      row_len_i            : in integer;
-      num_rows_i           : in integer;
-
-      -- Inputs/Outputs
-      external_sync_i      : in std_logic;
-      encoded_sync_o       : out std_logic;
-
-      -- Global Signals
-      clk_i                : in std_logic;
-      rst_i                : in std_logic
-   );
-   end component;
-
-   component sync_gen_wbs
-   port(
-      -- sync_gen interface:
-      dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      sync_mode_o         : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
---      row_len_o           : out integer;
---      num_rows_o          : out integer;
-
-      -- wishbone interface:
-      dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                : in std_logic;
-      stb_i               : in std_logic;
-      cyc_i               : in std_logic;
-      dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o               : out std_logic;
-
-      -- global interface
-      clk_i               : in std_logic;
-      rst_i               : in std_logic
-   );
-   end component;
-
 begin
 
    dv_mode_o <= dv_mode;
    sync_mode_o <= sync_mode;
---   row_len_o <= row_len;
---   num_rows_o <= num_rows;
 
    wbi: sync_gen_wbs
       port map(
          dv_mode_o   => dv_mode,
          sync_mode_o => sync_mode,
---         row_len_o   => row_len,
---         num_rows_o  => num_rows,
 
          dat_i       => dat_i,
          addr_i      => addr_i,

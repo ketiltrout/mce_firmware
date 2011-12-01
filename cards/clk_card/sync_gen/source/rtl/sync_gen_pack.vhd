@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.12  2006/05/24 07:07:29  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.11  2006/03/28 01:03:39  bburger
 -- Bryce:
 -- - Moved constants from sync_gen_pack to frame_timing_pack
@@ -76,20 +79,49 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
-use sys_param.command_pack.all;
+
+library work;
+-- Call Parent Library
+use work.clk_card_pack.all;
 
 package sync_gen_pack is
-
-   constant DV_NUM_WIDTH             : integer := PACKET_WORD_WIDTH;
    
-   constant DV_SELECT_WIDTH          : integer := 2;
-   constant DV_INTERNAL              : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
-   constant DV_EXTERNAL_FIBRE        : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
-   constant DV_EXTERNAL_MANCHESTER   : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
+   component sync_gen_core
+   port(
+      -- Global Signals
+      clk_i                : in std_logic;
+      rst_i                : in std_logic;
 
-   constant SYNC_SELECT_WIDTH        : integer := 2;
-   constant SYNC_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
-   constant SYNC_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
-   constant SYNC_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
+      -- Wishbone Interface
+      dv_mode_i            : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      sync_mode_i          : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+      row_len_i            : in integer;
+      num_rows_i           : in integer;
+
+      -- Inputs/Outputs
+      external_sync_i      : in std_logic;
+      encoded_sync_o       : out std_logic   );
+   end component;
+
+   component sync_gen_wbs
+   port(
+      -- global interface
+      clk_i               : in std_logic;
+      rst_i               : in std_logic;
+      
+      -- sync_gen interface:
+      dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      sync_mode_o         : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+
+      -- wishbone interface:
+      dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                : in std_logic;
+      stb_i               : in std_logic;
+      cyc_i               : in std_logic;
+      dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o               : out std_logic);
+   end component;
 
 end sync_gen_pack;

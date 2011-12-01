@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.9 2007/07/25 18:43:44 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.10 2009/01/16 01:58:27 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.10  2009/01/16 01:58:27  bburger
+-- BB:  relocated num_rows and row_len registers on the Clock Card to frame_timing
+--
 -- Revision 1.9  2007/07/25 18:43:44  bburger
 -- BB:  Removed the unused master_wait signal from the sync_gen_wbs interface
 --
@@ -75,17 +78,15 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
+-- Call Parent Library
 library work;
-use work.frame_timing_pack.all;
-use work.sync_gen_pack.all;
+use work.clk_card_pack.all;
 
 entity sync_gen_wbs is
    port(
       -- sync_gen interface:
       dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       sync_mode_o         : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
---      row_len_o           : out integer;
---      num_rows_o          : out integer;
 
       -- wishbone interface:
       dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);

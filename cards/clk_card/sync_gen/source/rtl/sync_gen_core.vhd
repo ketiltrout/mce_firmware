@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.15  2007/07/25 18:42:32  bburger
+-- BB: Added library declarations
+--
 -- Revision 1.14  2006/05/25 05:41:26  bburger
 -- Bryce:  Intermediate committal
 --
@@ -130,8 +133,10 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+
+-- Call Parent Library
+use work.clk_card_pack.all;
 
 entity sync_gen_core is
    port(
