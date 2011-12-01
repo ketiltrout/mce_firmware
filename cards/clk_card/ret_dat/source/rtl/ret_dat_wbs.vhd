@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.25 2010/01/18 20:39:38 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.26 2010/01/21 19:22:25 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -41,9 +41,10 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.ret_dat_wbs_pack.all;
-use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+
+-- Call Parent library
+use work.clk_card_pack.all;
 
 entity ret_dat_wbs is
    port(
@@ -91,18 +92,6 @@ end ret_dat_wbs;
 
 architecture rtl of ret_dat_wbs is
 
-   component awg_data_bank IS
-      PORT
-      (
-         clock    : IN STD_LOGIC  := '1';
-         data     : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-         rdaddress      : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
-         wraddress      : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
-         wren     : IN STD_LOGIC  := '0';
-         q     : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
-      );
-   END component;
-
    constant AWG_ADDR_MIN        : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0) := (others => '0');
    signal awg_mem_dat           : std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
    signal awg_sequence_len_wren : std_logic;
@@ -138,7 +127,6 @@ architecture rtl of ret_dat_wbs is
    signal step_data_num_wren     : std_logic;
    signal run_file_id_wren       : std_logic;
    signal user_writable_wren     : std_logic;
-   signal cards_present_wren     : std_logic;
    signal cards_to_report_wren   : std_logic;
    signal ret_dat_req_wren       : std_logic;
    signal stop_delay_wren        : std_logic;
@@ -388,7 +376,7 @@ begin
          end if;
       end if;
    end process step_data_num_reg;
-
+   
    -----------------------------------------------------------------------
    start_seq_num_o <= start_data;
    start_reg : reg
@@ -620,7 +608,6 @@ begin
       step_data_num_wren     <= '0';
       run_file_id_wren       <= '0';
       user_writable_wren     <= '0';
-      cards_present_wren     <= '0';
       cards_to_report_wren   <= '0';
       rcs_to_report_wren     <= '0';
       ret_dat_req_wren       <= '0';
