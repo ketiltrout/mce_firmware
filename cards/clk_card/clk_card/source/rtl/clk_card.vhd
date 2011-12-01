@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.96 2010/04/20 23:31:41 bburger Exp $
+-- $Id: clk_card.vhd,v 1.97 2010/05/14 22:38:28 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -41,11 +41,10 @@ use sys_param.data_types_pack.all;
 
 library work;
 use work.all_cards_pack.all;
-use work.clk_card_pack.all;
-use work.sync_gen_pack.all;
-use work.issue_reply_pack.all;
 use work.frame_timing_pack.all;
-use work.ret_dat_wbs_pack.all;
+
+-- Call Own Library
+use work.clk_card_pack.all;
 
 entity clk_card is
    port(
@@ -207,7 +206,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000007";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"05000009";
 
    -- reset
    signal rst                : std_logic;
@@ -302,10 +301,6 @@ architecture top of clk_card is
    signal frame_timing_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal frame_timing_ack    : std_logic;
 
-   signal fw_rev_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal fw_rev_ack          : std_logic;
-   signal fw_rev_err          : std_logic;
-
    signal ret_dat_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ret_dat_ack         : std_logic;
    signal ret_dat_err         : std_logic;
@@ -358,8 +353,8 @@ architecture top of clk_card is
    signal lvds_reply_psu_a : std_logic;
    signal lvds_reply_cc_b  : std_logic;
    signal lvds_reply_psu_b : std_logic;
-   signal lvds_reply_all_a : std_logic_vector(9 downto 0);
-   signal lvds_reply_all_b : std_logic_vector(9 downto 0);
+   signal lvds_reply_all_a : std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+   signal lvds_reply_all_b : std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
 
    -- For testing
    signal debug       : std_logic_vector(31 downto 0);
@@ -395,16 +390,18 @@ architecture top of clk_card is
    signal run_file_id        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal user_writable      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal stop_delay         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal card_not_present   : std_logic_vector(9 downto 0);
-   signal cards_present      : std_logic_vector(9 downto 0);
-   signal cards_to_report    : std_logic_vector(9 downto 0);
-   signal rcs_to_report_data : std_logic_vector(9 downto 0);
+   signal card_not_present   : std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+   signal cards_present      : std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+   signal cards_to_report    : std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+   signal rcs_to_report_data : std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
 
    signal crc_error_ff : std_logic;
 
    signal awg_dat            : std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
    signal awg_addr           : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
    signal awg_addr_incr      : std_logic;
+   
+   signal pcb_rev            : std_logic_vector(PCB_REV_BITS-1 downto 0);
 
 begin
    
@@ -458,6 +455,9 @@ begin
 --   mictor0_e(8)          <= fib_tx_ena;
 --   mictor0_e(9)          <= fib_tx_scnd;
 
+   -- PCB Revision pins not present in PCB yet
+   pcb_rev <= (others => '0');
+   
    -- LED signals
    red_led <= fibre_rx_status;
 
@@ -786,44 +786,10 @@ begin
       stb_i  => stb,
       cyc_i  => cyc,
       slot_id_i => slot_id,
+      pcb_rev_i => pcb_rev,
       err_o           => all_cards_err,
       dat_o           => all_cards_data,
       ack_o           => all_cards_ack
-   );
-
---   slot_id_slave : bp_slot_id
---   port map(
---      clk_i  => clk,
---      rst_i  => rst,
---
---      slot_id_i => slot_id,
---
---      dat_i  => data,
---      addr_i => addr,
---      tga_i  => tga,
---      we_i   => we,
---      stb_i  => stb,
---      cyc_i  => cyc,
---      err_o  => slot_id_err,
---      dat_o  => slot_id_data,
---      ack_o  => slot_id_ack
---   );
-
-   fw_rev_slave: fw_rev
-   generic map(REVISION => CC_REVISION)
-   port map(
-      clk_i  => clk,
-      rst_i  => rst,
-
-      dat_i  => data,
-      addr_i => addr,
-      tga_i  => tga,
-      we_i   => we,
-      stb_i  => stb,
-      cyc_i  => cyc,
-      err_o  => fw_rev_err,
-      dat_o  => fw_rev_data,
-      ack_o  => fw_rev_ack
    );
 
    array_id_slave : subarray_id
