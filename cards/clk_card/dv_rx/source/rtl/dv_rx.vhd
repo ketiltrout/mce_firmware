@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.15 2007/09/20 19:56:05 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.16 2007/10/18 22:35:43 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.16  2007/10/18 22:35:43  bburger
+-- BB:  added a double synchronizer for the manchester input
+--
 -- Revision 1.15  2007/09/20 19:56:05  bburger
 -- BB:  Added a sync_box_err_ack signal to tell the dv_rx block when to clear an error
 --
@@ -88,8 +91,9 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.sync_gen_pack.all;
-use work.dv_rx_pack.all;
+
+-- Call Parent Library
+use work.clk_card_pack.all;
 
 entity dv_rx is
    port(
@@ -118,6 +122,8 @@ entity dv_rx is
 end dv_rx;
 
 architecture top of dv_rx is
+
+   constant MANCHESTER_WORD_WIDTH      : integer := 40;
 
    ---------------------------------------------------------
    -- Signal Declarations
@@ -164,9 +170,6 @@ architecture top of dv_rx is
 
    signal dv_sequence_num      : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
-   signal manch_ack            : std_logic;
-   signal manch_ack1           : std_logic;
-   signal manch_ack2           : std_logic;
 
    signal sync_box_err : std_logic;
 
@@ -215,13 +218,9 @@ begin
       if(rst_i = '1') then
          manch_dat <= '0';
          manch_det <= '0';
-         manch_ack1 <= '0';
-         manch_ack2 <= '0';
       elsif(manch_clk_i'event and manch_clk_i = '1') then
          manch_dat <= manch_dat_temp;
          manch_det <= manch_det_temp;
-         manch_ack1 <= manch_ack;
-         manch_ack2 <= manch_ack1;
       end if;
    end process;
 
@@ -337,7 +336,7 @@ begin
       end if;
    end process manch_state_ff;
 
-   manch_ns: process(current_m_state, manch_dat, sample_count, manch_det)--, manch_ack2)
+   manch_ns: process(current_m_state, manch_dat, sample_count, manch_det)
    begin
       next_m_state <= current_m_state;
       case current_m_state is
@@ -359,9 +358,7 @@ begin
             end if;
 
          when DONE =>
---            if(manch_ack2 = '1') then
                next_m_state <= IDLE;
---            end if;
 
          when others =>
             next_m_state <= IDLE;
@@ -520,7 +517,6 @@ begin
    begin
       -- Default Assignments
       sync_o <= '0';
---      manch_ack  <= '0';
 
       case current_s_state is
 
@@ -533,7 +529,6 @@ begin
             sync_o <= '1';
 
          when MANCH_SYNC_ACK =>
---            manch_ack <= '1';
 
          when others => NULL;
       end case;
