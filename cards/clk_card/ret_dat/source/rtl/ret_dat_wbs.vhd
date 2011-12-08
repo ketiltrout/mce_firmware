@@ -18,13 +18,43 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.26 2010/01/21 19:22:25 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.27 2011-12-01 21:04:58 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- Description:
+-- Description: This block is a wishbone slave that parses the  
+--              wishbone command and instantiates registers to
+--              save the parameters set by the command.
+--
+-- Following wishbone commands are processed by this block:
+-- RET_DAT_S_ADDR
+-- RCS_TO_REPORT_DATA_ADDR
+-- RET_DAT_REQ_ADDR
+-- DATA_RATE_ADDR
+-- TES_TGL_EN_ADDR
+-- TES_TGL_MAX_ADDR
+-- TES_TGL_MIN_ADDR
+-- TES_TGL_RATE_ADDR
+-- INTERNAL_CMD_MODE_ADDR
+-- RAMP_STEP_PERIOD_ADDR
+-- RAMP_MIN_VAL_ADDR
+-- RAMP_STEP_SIZE_ADDR
+-- RAMP_MAX_VAL_ADDR
+-- RAMP_PARAM_ID_ADDR
+-- RAMP_CARD_ADDR_ADDR
+-- RAMP_STEP_DATA_NUM_ADDR
+-- RUN_ID_ADDR
+-- USER_WRITABLE_ADDR
+-- INT_CMD_EN_ADDR
+-- CARDS_PRESENT_ADDR
+-- CARDS_TO_REPORT_ADDR 
+-- STOP_DLY_ADDR
+-- AWG_SEQUENCE_LEN_ADDR 
+-- AWG_ADDR_ADDR 
+-- AWG_DATA_ADDR 
+-- CRC_ERR_EN_ADDR) 
 --
 -----------------------------------------------------------------------------
 
@@ -48,11 +78,15 @@ use work.clk_card_pack.all;
 
 entity ret_dat_wbs is
    port(
+      -- global interface
+      clk_i                  : in std_logic;
+      rst_i                  : in std_logic;
+
       -- to issue_reply:
       start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      internal_cmd_mode_o    : out std_logic_vector(1 downto 0);
+      internal_cmd_mode_o    : out std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
       step_period_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_size_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -72,10 +106,6 @@ entity ret_dat_wbs is
       awg_dat_o              : out std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_o             : out std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_i        : in std_logic;
-
-      -- global interface
-      clk_i                  : in std_logic;
-      rst_i                  : in std_logic;
 
       -- wishbone interface:
       dat_i                  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -216,18 +246,18 @@ begin
    awg : awg_data_bank
       port map (
          clock     => clk_i,
-         data      => dat_i(15 downto 0),
+         data      => dat_i(AWG_DAT_WIDTH-1 downto 0),
          rdaddress => awg_addr,
          wraddress => awg_addr,
          wren      => awg_data_wren,
          q         => awg_mem_dat
       );
 
-   internal_cmd_mode_o <=
-      "00" when internal_cmd_mode_data = x"00000000" else
-      "01" when internal_cmd_mode_data = x"00000001" else
-      "10" when internal_cmd_mode_data = x"00000002" else
-      "11" when internal_cmd_mode_data = x"00000003" else "00";
+   internal_cmd_mode_o <= internal_cmd_mode_data(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
+--      "00" when internal_cmd_mode_data = x"00000000" else
+--     "01" when internal_cmd_mode_data = x"00000001" else
+--      "10" when internal_cmd_mode_data = x"00000002" else
+--      "11" when internal_cmd_mode_data = x"00000003" else "00";
 
    -- Custom register
    cards_to_report_o <= cards_to_report_data(9 downto 0);
