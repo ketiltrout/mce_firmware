@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.64 2009/05/12 19:39:59 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.65 2011-11-30 22:06:06 mandana Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -546,8 +546,6 @@ begin
          ok_or_er       <= (others => '0');
          crd_add_par_id <= (others => '0');
          status         <= (others => '0');
---         frame_status   <= (others => '0');
---         frame_seq_num  <= (others => '0');
          c_or_r         <= SERVICING_COMMAND;
 
       elsif(clk_i'event and clk_i = '1') then
@@ -610,12 +608,6 @@ begin
             packet_type    <= DATA;
             ok_or_er       <= (others => '0');
             status         <= (others => '0');
-
-            -- I think that the following signals are not used at all during data packets.
---            crd_add_par_id <= frame_seq_num_i;
---            frame_status   <= frame_status_word_i;
---            frame_seq_num  <= frame_seq_num_i;
-
             c_or_r         <= SERVICING_REPLY;
 
          else
