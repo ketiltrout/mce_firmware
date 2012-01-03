@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: psu_ctrl.vhd,v 1.6 2006/09/06 00:22:32 bburger Exp $
+-- $Id: psu_ctrl.vhd,v 1.7 2007/07/25 18:37:04 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: psu_ctrl.vhd,v $
+-- Revision 1.7  2007/07/25 18:37:04  bburger
+-- BB:
+-- - added the err_o signal to the psu_ctrl interface to assert a wishbone error when dispatch attempts to write to the psc_status register
+-- - implemented a set_flag/ clr_flag register to monitor the up-to-dateness of the status register and trigger a stale bit if it is not.
+--
 -- Revision 1.6  2006/09/06 00:22:32  bburger
 -- Bryce:  Ironed out some bugs
 --
@@ -179,7 +184,6 @@ architecture top of psu_ctrl is
    -- Shift Register Signals
    signal spi_tx_word         : std_logic_vector(COMMAND_LENGTH-1 downto 0);
    signal spi_rx_word         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal spi_rx_word2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- PSU update flag
    signal set_flag : std_logic;
@@ -194,7 +198,6 @@ begin
    bit_ctr_count_slv <= std_logic_vector(conv_unsigned(bit_ctr_count, WB_DATA_WIDTH));
    status_addr <= bit_ctr_count_slv(STATUS_ADDR_WIDTH+5-1 downto 5);
 
-   spi_rx_word2 <= "00000000000000000000000000" & status_addr(STATUS_ADDR_WIDTH-1 downto 0);
    status_ram : ram_32bit_x_64
    port map
    (
