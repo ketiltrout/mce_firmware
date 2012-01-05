@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.27 2011-12-01 21:04:58 mandana Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.28 2011-12-08 20:23:38 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -45,6 +45,7 @@
 -- RAMP_PARAM_ID_ADDR
 -- RAMP_CARD_ADDR_ADDR
 -- RAMP_STEP_DATA_NUM_ADDR
+-- RAMP_PHASE_ADDR
 -- RUN_ID_ADDR
 -- USER_WRITABLE_ADDR
 -- INT_CMD_EN_ADDR
@@ -94,6 +95,7 @@ entity ret_dat_wbs is
       step_param_id_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_card_addr_o       : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_phase_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       run_file_id_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_delay_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -155,6 +157,7 @@ architecture rtl of ret_dat_wbs is
    signal step_param_id_wren     : std_logic;
    signal step_card_addr_wren    : std_logic;
    signal step_data_num_wren     : std_logic;
+   signal step_phase_wren        : std_logic;
    signal run_file_id_wren       : std_logic;
    signal user_writable_wren     : std_logic;
    signal cards_to_report_wren   : std_logic;
@@ -179,6 +182,7 @@ architecture rtl of ret_dat_wbs is
    signal step_param_id_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_card_addr_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_data_num_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_phase_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal run_file_id_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal user_writable_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal cards_present_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -394,6 +398,17 @@ begin
          reg_o             => step_card_addr_data
       );
 
+   step_phase_o <= step_phase_data;
+   step_phase_reg : reg
+      generic map(WIDTH => WB_DATA_WIDTH)
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => step_phase_wren,
+         reg_i             => dat_i,
+         reg_o             => step_phase_data
+      );
+
    -- Custom register
    step_data_num_o <= step_data_num_data;
    step_data_num_reg: process(clk_i, rst_i)
@@ -543,26 +558,6 @@ begin
       end if;
    end process;
 
-     -- Can't put this here because ret_dat addresses refer to readout cards!!
-     -- Eventually this register will be used when the ret_dat handling is moved to this block
-     -- Custom register that indicates fresh ret_dat commands
---   ret_dat_req_o <= '0';
---   ret_dat_req_o <= data_req;
---   data_req_reg: process(clk_i, rst_i)
---   begin
---      if(rst_i = '1') then
---         data_req <= '0';
---      elsif(clk_i'event and clk_i = '1') then
---         if(stb_i = '1' and cyc_i = '1' and we_i = '1' and addr_i = RET_DAT_S_ADDR) then
---            data_req <= '1';
---         elsif(ret_dat_ack_i = '1') then
---            data_req <= '0';
---         else
---            data_req <= data_req;
---         end if;
---      end if;
---   end process data_req_reg;
-
 ------------------------------------------------------------
 --  WB FSM
 ------------------------------------------------------------
@@ -636,6 +631,7 @@ begin
       step_param_id_wren     <= '0';
       step_card_addr_wren    <= '0';
       step_data_num_wren     <= '0';
+      step_phase_wren        <= '0';      
       run_file_id_wren       <= '0';
       user_writable_wren     <= '0';
       cards_to_report_wren   <= '0';
@@ -709,6 +705,8 @@ begin
                   step_card_addr_wren <= '1';
                elsif(addr_i = RAMP_STEP_DATA_NUM_ADDR) then
                   step_data_num_wren <= '1';
+               elsif(addr_i = RAMP_PHASE_ADDR) then
+                  step_phase_wren <= '1';                  
                elsif(addr_i = CARDS_PRESENT_ADDR) then
                   -- Not writable.
                   err_o <= '1';
@@ -781,6 +779,7 @@ begin
       step_param_id_data              when (addr_i = RAMP_PARAM_ID_ADDR) else
       step_card_addr_data             when (addr_i = RAMP_CARD_ADDR_ADDR) else
       step_data_num_data              when (addr_i = RAMP_STEP_DATA_NUM_ADDR) else
+      step_phase_data                 when (addr_i = RAMP_PHASE_ADDR) else      
       run_file_id_data                when (addr_i = RUN_ID_ADDR) else
       user_writable_data              when (addr_i = USER_WRITABLE_ADDR) else
       cards_present_data              when (addr_i = CARDS_PRESENT_ADDR) else
@@ -809,6 +808,7 @@ begin
        addr_i = RAMP_PARAM_ID_ADDR or
        addr_i = RAMP_CARD_ADDR_ADDR or
        addr_i = RAMP_STEP_DATA_NUM_ADDR or
+       addr_i = RAMP_PHASE_ADDR or
        addr_i = RUN_ID_ADDR or
        addr_i = USER_WRITABLE_ADDR or
        addr_i = INT_CMD_EN_ADDR or
@@ -838,6 +838,7 @@ begin
        addr_i = RAMP_PARAM_ID_ADDR or
        addr_i = RAMP_CARD_ADDR_ADDR or
        addr_i = RAMP_STEP_DATA_NUM_ADDR or
+       addr_i = RAMP_PHASE_ADDR or
        addr_i = RUN_ID_ADDR or
        addr_i = USER_WRITABLE_ADDR or
        addr_i = INT_CMD_EN_ADDR or
