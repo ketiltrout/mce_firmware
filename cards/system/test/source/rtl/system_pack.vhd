@@ -5,6 +5,7 @@ use ieee.std_logic_arith.all;
 library work;
 use work.bias_card_pack.all;
 use work.readout_card_pack.all;
+use work.all_cards_pack.all;
 
 package system_pack is
 
@@ -339,6 +340,9 @@ package system_pack is
          smb_nalert      : out std_logic;
          smb_data        : inout std_logic;      
 
+         -- pcb revision identification pins
+         pcb_rev         : in std_logic_vector(PCB_REV_BITS-1 downto 0);
+
          -- DDR2 interface
          -- outputs:
          mem_addr       : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
@@ -412,6 +416,8 @@ package system_pack is
       smb_clk    : out std_logic;
       smb_data   : inout std_logic;
       smb_nalert : out std_logic;
+      critical_error : out std_logic;
+      dev_clr_fpga_out : out std_logic;     
 
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
