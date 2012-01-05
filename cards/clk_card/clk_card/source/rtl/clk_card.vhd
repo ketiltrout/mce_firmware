@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.97 2010/05/14 22:38:28 bburger Exp $
+-- $Id: clk_card.vhd,v 1.98 2011-12-01 21:01:42 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -379,7 +379,7 @@ architecture top of clk_card is
 
    signal num_rows_to_read   : integer;
    signal num_cols_to_read   : integer;
-   signal internal_cmd_mode  : std_logic_vector(1 downto 0);
+   signal internal_cmd_mode  : std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
    signal step_period        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_minimum       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_size          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -387,6 +387,7 @@ architecture top of clk_card is
    signal step_param_id      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_card_addr     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_data_num      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_phase         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
    signal run_file_id        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal user_writable      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal stop_delay         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -597,7 +598,7 @@ begin
          all_cards_data      when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_data        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
-                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR | RAMP_PHASE_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
                                   CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
@@ -621,7 +622,7 @@ begin
          all_cards_ack       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_ack         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
-                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR | RAMP_PHASE_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
                                   CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
@@ -645,7 +646,7 @@ begin
          all_cards_err       when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          ret_dat_err         when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR |
                                   TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR |
-                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR |
+                                  INTERNAL_CMD_MODE_ADDR | RAMP_STEP_PERIOD_ADDR | RAMP_MIN_VAL_ADDR | RAMP_PHASE_ADDR |
                                   RAMP_STEP_SIZE_ADDR | RAMP_MAX_VAL_ADDR | RAMP_PARAM_ID_ADDR | RAMP_CARD_ADDR_ADDR |
                                   RAMP_STEP_DATA_NUM_ADDR | RUN_ID_ADDR | USER_WRITABLE_ADDR | CARDS_TO_REPORT_ADDR |
                                   CARDS_PRESENT_ADDR | RET_DAT_REQ_ADDR | RCS_TO_REPORT_DATA_ADDR | STOP_DLY_ADDR |
@@ -732,14 +733,13 @@ begin
       step_param_id_i      => step_param_id,
       step_card_addr_i     => step_card_addr,
       step_data_num_i      => step_data_num,
+      step_phase_i         => step_phase,
       crc_err_en_i         => crc_err_en,
       num_rows_to_read_i   => num_rows_to_read,
       num_cols_to_read_i   => num_cols_to_read,
       run_file_id_i        => run_file_id,
       user_writable_i      => user_writable,
       stop_delay_i         => stop_delay,
-      ret_dat_req_i        => ret_dat_req,
-      ret_dat_ack_o        => ret_dat_done,
       cards_to_report_i    => cards_to_report,
       rcs_to_report_data_i => rcs_to_report_data,
       awg_dat_i            => awg_dat,   
@@ -1064,12 +1064,15 @@ begin
       sync_mode_i         => sync_mode,
       sync_o              => external_sync
    );
-
+   ret_dat_done <= '0';
    cards_present <= not card_not_present;
    ret_dat_parameter_slave: ret_dat_wbs
-   port map
-   (
-      -- ret_dat command signals (to cmd_translator)
+   port map(
+      -- global interface
+      clk_i                  => clk,
+      rst_i                  => rst,
+
+      -- cmd_translator interface
       start_seq_num_o        => start_seq_num,
       stop_seq_num_o         => stop_seq_num,
       data_rate_o            => data_rate,
@@ -1081,12 +1084,11 @@ begin
       step_param_id_o        => step_param_id,
       step_card_addr_o       => step_card_addr,
       step_data_num_o        => step_data_num,
+      step_phase_o           => step_phase,
       run_file_id_o          => run_file_id,
       user_writable_o        => user_writable,
       stop_delay_o           => stop_delay,
       crc_err_en_o           => crc_err_en,
---      num_rows_to_read_o     => num_rows_to_read,
---      num_cols_to_read_o     => num_cols_to_read,
       ret_dat_req_o          => ret_dat_req,
       ret_dat_ack_i          => ret_dat_done,
       cards_present_i        => cards_present,
@@ -1096,10 +1098,6 @@ begin
       awg_addr_o             => awg_addr,
       awg_addr_incr_i        => awg_addr_incr,
       
-      -- global interface
-      clk_i                  => clk,
-      rst_i                  => rst,
-
       -- wishbone interface:
       dat_i                  => data,
       addr_i                 => addr,
