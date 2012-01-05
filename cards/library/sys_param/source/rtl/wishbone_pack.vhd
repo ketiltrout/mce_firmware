@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2010/03/10 00:39:35 $> - <initials $Author: bburger $>
+-- <date $Date: 2011-11-07 23:24:35 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.62  2011-11-07 23:24:35  mandana
+-- added critical_error and dev_clr
+--
 -- Revision 1.61  2010/03/10 00:39:35  bburger
 -- BB/MA:  added FLTR_TYPE_ADDR
 --
@@ -256,7 +259,7 @@ use sys_param.command_pack.all;
 
 package wishbone_pack is
    --
-   -- unassigned parameter-id:0c-0f, 25-2F, 38-3F, 40, 42, 47-4f, 64, 9d-9f, E9-FF
+   -- unassigned parameter-id:0c-0f, 25-2F, 38-3F, 40, 42, 47-4f, 64, 9e-9f, E9-FF
    --
   ---------------------------------------------------------------------------------
    -- Wishbone bus widths
@@ -484,10 +487,10 @@ package wishbone_pack is
    constant RAMP_PARAM_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B5"; -- Applies to MLS too
    constant RAMP_CARD_ADDR_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B6"; -- Applies to MLS too
    constant RAMP_STEP_DATA_NUM_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B7"; -- Applies to MLS too   
+   constant RAMP_PHASE_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BB"; -- Applies to MLS too
    constant STOP_DLY_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B8";   
    constant AWG_SEQUENCE_LEN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"B9";
    constant AWG_DATA_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BA";
-   constant BRYCE_BURGER_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BB";
    constant AWG_ADDR_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BC";   
    -- JTAG Commands - Emulate a parallel port
    constant JTAG0_ADDR              : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"BD"; -- Output data
