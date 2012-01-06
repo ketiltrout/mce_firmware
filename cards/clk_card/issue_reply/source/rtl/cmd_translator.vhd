@@ -20,14 +20,23 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.68 2011-11-30 22:06:05 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.69 2011-12-01 19:46:11 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
 --
 -- Organisation:  UBC
 --
--- Description:  This module is the fibre command translator.
+-- Description:  This module has two main parts:
+-- 1. Translates incoming fibre commands and interfaces with the fibre_rx block
+-- 2. runs the command scheduler FSM that interfaces with the Command Queue block
+-- The command scheduler schedules: 
+-- a) simple (non-ret_dat) commands arriving over the fibre, 
+-- b) data-acquisition(ret_dat and stop) commands arriving over the fibre 
+-- c) internal housekeeping commands (internal_cmd_mode = 1) 
+--    (4 housekeeping commands so far: fpga_temp, card_temp, psc_status, box_temp)
+-- d) internal ramp/awg commands (internal_cmd_mode = 2)
+-- Note that when running internal ramp/awg, housekeeping commands are not issued
 --
 -- Revision history:
 -- See CVS.
@@ -55,23 +64,22 @@ use work.issue_reply_pack.all;
 
 
 entity cmd_translator is
-
-port(
+   port(
       -- global inputs
       rst_i                 : in  std_logic;
       clk_i                 : in  std_logic;
 
       -- inputs from fibre_rx
-      card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-      cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      cmd_data_i            : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      cmd_rdy_i             : in  std_logic;
-      data_clk_i            : in  std_logic;
-      num_data_i            : in  std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0);
-      param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+      card_addr_i           : in  std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies the target card for the incoming command
+      cmd_code_i            : in  std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);   
+      cmd_data_i            : in  std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);         
+      cmd_rdy_i             : in  std_logic;                                              -- indicates the fibre_rx outputs are valid
+      data_clk_i            : in  std_logic;                                              -- used to clock the data across
+      num_data_i            : in  std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0);     -- number of 32bit data words to be clocked across
+      param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- the parameter id of the command to be issued
 
       -- output to fibre_rx
-      ack_o                 : out std_logic;
+      ack_o                 : out std_logic;                                                     
 
       -- ret_dat_wbs interface:
       start_seq_num_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -82,99 +90,85 @@ port(
       awg_dat_i             : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i            : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o       : out std_logic;
+      internal_cmd_mode_i   : in std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);	  -- indicates one of NUM_INTERNAL_CMD_MODES
+      step_period_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- refresh rate for ramp/awg mode
+      step_minimum_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- minimum ramp value for ramp mode 
+      step_size_i           : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- step increment value for the ramp-mode
+      step_maximum_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- maximum ramp value for ramp mode
+      step_param_id_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- the parameter that is being ramped in ramp mode
+      step_card_addr_i      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- the target card for the ramp mode						     
+      step_data_num_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- number of data elements being ramped for the step_param_id_i in ramp mode
+      step_phase_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- startup phase in ramp mode
+      step_value_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- next ramp value
 
-      -- ret_dat_wbs interface
-      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
-      step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      step_maximum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      -- Unused as of yet.
-      ret_dat_req_i          : in std_logic;
-      ret_dat_ack_o          : out std_logic;
-
-      -- other inputs
+      -- frame_timing interface
       sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      sync_pulse_i          : in std_logic;
 
-      -- signals to cmd_queue
+      -- cmd_queue interface
       cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       card_addr_o           : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
       param_id_o            : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
       data_size_o           : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
       data_o                : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_o            : out std_logic;
-      instr_rdy_o           : out std_logic;
-      cmd_stop_o            : out std_logic;
-      last_frame_o          : out std_logic;
-      internal_cmd_o        : out std_logic;
+      data_clk_o            : out std_logic;                                              -- indicates an instruction is ready, and all the associated data is valid   
+      instr_rdy_o           : out std_logic;                                             
+      cmd_stop_o            : out std_logic;                                              -- indicates that a stop command is received
+      last_frame_o          : out std_logic;                                              -- identifies the last frame of data
+      internal_cmd_o        : out std_logic;                                              -- an internal command is being scheduled
+      simple_cmd_o          : out std_logic;                                              -- a simple command is being scheduled
       num_rows_to_read_i    : in integer;
       num_cols_to_read_i    : in integer;
       override_sync_num_o   : out std_logic;
       ret_dat_in_progress_o : out std_logic;
+      frame_seq_num_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      frame_sync_num_o      : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- input from the cmd_queue
       ack_i                 : in std_logic;
       rdy_for_data_i        : in std_logic;
       data_timing_err_i     : in std_logic;
-
-      -- outputs to the cmd_queue
-      frame_seq_num_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      frame_sync_num_o      : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
-);
+      busy_i                : in std_logic
+   );
 end cmd_translator;
 
-
 architecture rtl of cmd_translator is
-
-   -------------------------------------------------------------------------------------------
-   -- data command control signals
-   -------------------------------------------------------------------------------------------
-   constant INPUT_NUM_SEL          : std_logic := '1';
-   constant CURRENT_NUM_PLUS_1_SEL : std_logic := '0';
-
-   type state is (IDLE, SIMPLE, FPGA_TEMP, CARD_TEMP, PSC_STATUS, BOX_TEMP, INTERNAL_WB_PREP1, INTERNAL_WB_PREP2, INTERNAL_WB, INTERNAL_WB_DATA,
-      ADVANCE_INTERNAL_CMD_INDEX, UPDATE_FOR_NEXT, PROCESSING_RET_DAT, ONE_MORE, REQ_LAST_DATA_PACKET);
-
+   -- FSM signals
+   type state is (IDLE, SIMPLE, FPGA_TEMP, CARD_TEMP, PSC_STATUS, BOX_TEMP, INTERNAL_WB_PREP, INTERNAL_WB_WAIT, INTERNAL_WB, INTERNAL_WB_DATA,
+      NEXT_INTERNAL_CMD, UPDATE_FOR_NEXT, PROCESSING_RET_DAT, REQ_LAST_DATA_PACKET);
    signal current_state : state;
    signal next_state    : state;
 
-   -- For tracking requests
-   signal ret_dat_req         : std_logic;
-   signal ret_dat_stop_req    : std_logic;
-   -- For acknowledging requests
-   signal ret_dat_ack         : std_logic;
-   -- If a ret_dat command comes in during an internal command, the cmd_translator messes up in the ADVANCE_INTERNAL_CMD_INDEX state.
-   -- For indicating the start of a data run
-   signal ret_dat_start       : std_logic;
-   signal ret_dat_done        : std_logic;
-   -- For indicating a continuous data run
-   signal ret_dat_in_progress : std_logic;
+   -- For tracking ret_dat requests
+   signal ret_dat_req         : std_logic;                               -- request to issue a ret_dat command
+   signal ret_dat_stop_req    : std_logic;                               -- request to issue a stop command
+   signal ret_dat_ack         : std_logic;                               -- acknowledge a ret_dat command completion!
+   
+   -- If a ret_dat command comes in during an internal command, the cmd_translator messes up in the NEXT_INTERNAL_CMD state.
+   signal ret_dat_start       : std_logic;                               -- controlled by FSM to set ret_dat_in_progress
+   signal ret_dat_done        : std_logic;                               -- controlled by FSM to reset ret_dat_in_progress
+   signal ret_dat_in_progress : std_logic;                               -- indicates a ret_dat command is in progress
 
-   -- For ack'ing a data run
+   -- For ack'ing a data run: command parameters extrated from an incoming ret_dat command
    signal f_rx_ret_dat_ack       : std_logic;
    signal f_rx_ret_dat_card_addr : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal f_rx_ret_dat_param_id  : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
    signal f_rx_ret_dat_data      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal f_rx_ret_dat_cmd_code  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-   signal f_rx_ret_dat_num_data  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-
+   -- command parameters extracted from an incoming simple command
    signal f_rx_card_addr   : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal f_rx_param_id    : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-   signal f_rx_data        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--   signal f_rx_data        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal f_rx_cmd_code    : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal f_rx_num_data    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
-   signal external_dv_num  : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-   signal issue_sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal seq_num          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
-   signal increment_sync_num : std_logic;
-   signal jump_sync_num    : std_logic;   
-   signal load_seq_num     : std_logic;
-   signal next_seq_num     : std_logic;
+   signal frame_sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); -- sync number that a ret_dat command is scheduled to be issued
+   signal inc_sync_num     : std_logic;					  -- control signal to increment frame_sync_num by 1
+   signal jump_sync_num    : std_logic;   				  -- control signal to calculate next frame_sync_num based on data rate.
+   
+   signal seq_num          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);  -- the frame sequence number during data process
+   signal load_seq_num     : std_logic;   
+   signal inc_seq_num      : std_logic;
+   
    signal data_size        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
    signal data_size_int    : integer range 0 to (2**BB_DATA_SIZE_WIDTH)-1;
 
@@ -186,166 +180,60 @@ architecture rtl of cmd_translator is
    constant CARD_TEMPERATURE       : integer := 1;
    constant PSUC_STATUS            : integer := 2;
    constant BOX_TEMPERATURE        : integer := 3;
+   
+   signal internal_status_req      : std_logic;                            -- request to issue an internal housekeeping command
+   signal internal_status_ack      : std_logic;                            -- ack a completed internal housekeeping command
+   signal internal_wb_req          : std_logic;                            -- request to issue an internal ramp/awg command
+   signal internal_wb_ack          : std_logic;                            -- ack a completed internal ramp/awg command
+   
+   signal next_toggle_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); -- sync number that the next internal ramp/awg cmd is scheduled to be issued
+   signal update_next_toggle_sync  : std_logic;                            -- update next_toggle_sync
 
-   constant NUM_INTERNAL_CMD_MODES : integer := 4;
-   constant INTERNAL_OFF           : integer := 0;
-   constant INTERNAL_HOUSEKEEPING  : integer := 1;
-   constant INTERNAL_RAMP          : integer := 2;
-   constant INTERNAL_MEM           : integer := 3;
-  
-   signal internal_status_req      : std_logic;
-   signal internal_status_ack      : std_logic;
-   signal internal_wb_req          : std_logic;
-   signal internal_wb_ack          : std_logic;
-   signal next_toggle_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-   signal update_nts               : std_logic;
    signal timer_rst                : std_logic;
-   signal time                     : integer;
-   signal internal_rb_id           : integer range 0 to NUM_INTERNAL_CMD_MODES;
-   signal internal_rb_ack          : std_logic;
+   signal time_elapsed             : integer; --range 0 to HOUSEKEEPING_COMMAND_PERIOD+100; 
+   signal internal_rb_id           : integer range 0 to NUM_HOUSEKEEPING_CMD_TYPES;
+   signal internal_rb_ack          : std_logic;                                    -- ack for an internal command, asserted for 1 cycle after command completion
+
    signal ramp_value               : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_ramp_value          : std_logic;
-   signal step_period              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal internal_cmd_mode_1d     : std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
+   signal step_period_1d           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal step_phase_1d            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal awg_addr                 : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
 
-   -- For detecting changes in the mode.
-   signal internal_cmd_mode_delayed : std_logic_vector(1 downto 0);
+   -- For detecting changes in the internal-mode parameters
    signal cmd_mode_changing         : std_logic;
-   signal step_period_changing      : std_logic;
-
+   signal step_period_changing      : std_logic;   
+   signal step_phase_changing       : std_logic;   
+   
    -------------------------------------------------------------------------------------------
    -- simple command control signals
    -------------------------------------------------------------------------------------------
    signal simple_cmd_ack : std_logic;
    signal simple_cmd_req : std_logic;
 
-begin
-
-   -------------------------------------------------------------------------------------------
-   -- Combinatorial Logic
-   -------------------------------------------------------------------------------------------
-   -- Unused as of yet.
-   ret_dat_ack_o <= '0';
-   
+begin   
    -- Acknowledgement signal to fibre_rx
    ack_o <= f_rx_ret_dat_ack or simple_cmd_ack;
-
-   -- Registered outputs to cmd_queue
-   -- We need to make this funny assignment here instead of the register below, because ramp_value cannot be overwritten.
-   -- ramp_value is used to specify the data in WB commands
-   step_value_o         <= ext(awg_addr, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value;
-   frame_seq_num_o      <= seq_num;
-   frame_sync_num_o     <= issue_sync_num; -- when override_sync_num_o = '0' else sync_number_i;
-   cmd_mode_changing    <= '0' when internal_cmd_mode_delayed = internal_cmd_mode_i else '1';
-   step_period_changing <= '0' when step_period = step_period_i else '1';
    
    -- Size calculation logic for data packets
    data_size_int          <= num_cols_to_read_i * num_rows_to_read_i;
    data_size              <= conv_std_logic_vector(data_size_int,BB_DATA_SIZE_WIDTH);
-   ret_dat_in_progress_o  <= ret_dat_in_progress;
-
    -------------------------------------------------------------------------------------------
    -- Registers
    -------------------------------------------------------------------------------------------
-   process(rst_i, clk_i)
+   i_latch_fibre_cmd_param: process(rst_i, clk_i)
    begin
-      if(rst_i = '1') then
-         timer_rst                 <= '1';
-         internal_status_req       <= '0';
-         internal_wb_req           <= '0';
-         next_toggle_sync          <= (others => '0');
-         internal_cmd_mode_delayed <= "00";
-
+      if (rst_i = '1') then
          f_rx_ret_dat_card_addr    <= (others=>'0');
          f_rx_ret_dat_param_id     <= (others=>'0');
          f_rx_ret_dat_data         <= (others=>'0');
-         f_rx_ret_dat_cmd_code     <= (others=>'0');
-         f_rx_ret_dat_num_data     <= (others=>'0');
-
          f_rx_card_addr            <= (others=>'0');
          f_rx_param_id             <= (others=>'0');
-         f_rx_data                 <= (others=>'0');
+--         f_rx_data                 <= (others=>'0');
          f_rx_cmd_code             <= (others=>'0');
-         f_rx_num_data             <= (others=>'0');
-
-         external_dv_num           <= (others=>'0');
-         issue_sync_num            <= (others=>'0');
-         seq_num                   <= (others=>'0');
-         ret_dat_req               <= '0';
-         ret_dat_stop_req          <= '0';
-         internal_rb_id            <=  0;
-         simple_cmd_req            <= '0';
-         ret_dat_in_progress       <= '0';
-         ramp_value                <= (others => '0');
-         step_period               <= (others => '0');
-         awg_addr                  <= (others => '0');
-         
+         f_rx_num_data             <= (others=>'0');      
       elsif(clk_i'event and clk_i = '1') then
-
-         internal_cmd_mode_delayed <= internal_cmd_mode_i;
-         step_period               <= step_period_i;
-         timer_rst                 <= '0';
-         
-         -- internal_status_ack is asserted for two consecutive cycles to make sure that both timer and internal_status_req are cleared.
-         if(internal_status_ack = '1') then
-            internal_status_req  <= '0';
-            timer_rst            <= '1';
-         elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and time >= HOUSEKEEPING_COMMAND_PERIOD) then
-            internal_status_req  <= '1';
-         end if;
-
-         ------------------------------------------------------------
-         -- There is interplay between the following two registers
-         ------------------------------------------------------------
-         -- This register manages the internal command control signals after the start of internal commands.
-         -- It requests in internal command when we start a ret_dat to immediately sync up the bias steps to follow data packets.
-         if((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and (next_toggle_sync = sync_number_i or ret_dat_start = '1')) then
-            internal_wb_req <= '1';
-         elsif(internal_wb_ack = '1') then
-            internal_wb_req <= '0';
-         end if;
-
-         -- update_nts below is linked to internal_wb_req above via a FSM.
-         -- The next_toggle_sync is updated if the FSM requests it (during normal operation) -- or if there is a command that alters the contents of critical internal-command control registers
-         -- If it's time to toggle, or we detect a rising edge on the toggle enable line we update the TES toggle sync number.
-         if(update_nts = '1' or ((cmd_mode_changing = '1' or step_period_changing = '1') and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM))) then
-            next_toggle_sync <= sync_number_i + step_period_i;
-         end if;
-         ------------------------------------------------------------
-
-         -- If we are entering INTERNAL_RAMP mode, we set the starting ramp_value to step_minimum_i.
-         if(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_RAMP) then
-            ramp_value  <= step_minimum_i;
-         elsif(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_MEM) then
-            ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
-            awg_addr   <= awg_addr_i;
-         -- Otherwise, we increment the ramp_value by step_size, and wrap back down if it is to exceed step_maximum_i
-         elsif(step_ramp_value = '1' and internal_cmd_mode_i = INTERNAL_RAMP) then
-            if(ramp_value < (step_maximum_i + 1 - step_size_i)) then
-               ramp_value <= ramp_value + step_size_i;
-            else
-               ramp_value <= step_minimum_i;
-            end if;
-         elsif(step_ramp_value = '1' and internal_cmd_mode_i = INTERNAL_MEM) then
-            -- This assignement operates one data element behind the the mls_addr because the assignment in this register occurs at the same time as the address increment.
-            -- This is correct, because the step_ramp_value pulse occurs after the internal command has been issued and acknowledged. 
-            -- At that time, we are latching in the value for the next internal command to be issued 'step_period_i' from now.
-            -- However there is a bug here because the value is incremented after the internal command, but before the next data command is issued.
-            -- 1- An additional register needs to be implemented here to save the previous value?
-            -- 2- Alternatively, we could wait until the next data packet, but this will cause problems if there is not data process active.
-            -- 3- A third solution would be to update ramp_val and awg_val by adding a couple of states before we enter the internal command states.
-            -- If I implemented 2, I would still have to implement 3 because of the case where I wasn't taking data.  
-            -- On the otherhand, if I implement 3, I solve the problem for all cases, at the expense of a couple of extra states before handling an internal command
-            -- The problem with one is that the pipelined registers are not valid for the first cycle
-            ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
-            awg_addr   <= awg_addr_i;
-         else
-            ramp_value <= ramp_value;
-            awg_addr   <= awg_addr;
-         end if;
-
-         -- Latch important command information response to the cmd_queue's cmd_rdy signal
+         -- Latch important command information in response to the cmd_queue's cmd_rdy signal
          -- The information for ret_dat commands is latched seperately from simple commands
          -- This is so that simple command information does not corrupt the ret_dat information if it comes during a data run.
          if(cmd_rdy_i = '1') then
@@ -353,18 +241,99 @@ begin
                f_rx_ret_dat_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
                f_rx_ret_dat_param_id  <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
                f_rx_ret_dat_data      <= cmd_data_i;
-               f_rx_ret_dat_cmd_code  <= cmd_code_i;
-               f_rx_ret_dat_num_data  <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
             else
                f_rx_card_addr         <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
                f_rx_param_id          <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
-               f_rx_data              <= cmd_data_i;
+--               f_rx_data              <= cmd_data_i;
                f_rx_cmd_code          <= cmd_code_i;
                f_rx_num_data          <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
             end if;
+         end if;   
+      end if;   
+   end process i_latch_fibre_cmd_param;
+   -------------------------------------------------------------------------------------------      
+   internal_hk_cmd_index: process(rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         internal_rb_id            <=  0;
+      elsif(clk_i'event and clk_i = '1') then      
+         if(internal_rb_ack = '1') then
+            if (internal_rb_id < NUM_HOUSEKEEPING_CMD_TYPES-1) then
+               internal_rb_id <= internal_rb_id + 1;
+            else  
+               internal_rb_id <= 0;
+            end if;
+         else
+            internal_rb_id <= internal_rb_id;
          end if;
-
-         -- Track ret_dat commands
+      end if;
+   end process internal_hk_cmd_index;
+   -------------------------------------------------------------------------------------------         
+   i_seq_num_counter: process(rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         seq_num <= (others=>'0');
+      elsif(clk_i'event and clk_i = '1') then         
+         if(load_seq_num = '1') then
+            seq_num <= start_seq_num_i;
+         elsif(inc_seq_num = '1') then
+            seq_num <= seq_num + 1;
+         end if;
+      end if;
+   end process i_seq_num_counter;  
+   frame_seq_num_o      <= seq_num;   
+   -------------------------------------------------------------------------------------------         
+   i_frame_sync_num_counter: process(rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         frame_sync_num  <= (others=>'0');
+      elsif(clk_i'event and clk_i = '1') then      
+         if(inc_sync_num = '1') then
+            frame_sync_num <= sync_number_i + 1;
+         elsif(jump_sync_num = '1') then
+            frame_sync_num <= frame_sync_num + data_rate_i;
+-- No delay is necessary here, because the reply_translator takes of delaying the reply to the PCI card
+--         elsif(delay_sync_num = '1') then
+--            -- delay the issue of the last data command on a STOP to give the PCI card time
+--            frame_sync_num <= sync_number_i + STOP_DELAY;
+         end if;         
+      end if;         
+   end process i_frame_sync_num_counter;
+   frame_sync_num_o     <= frame_sync_num; -- when override_sync_num_o = '0' else sync_number_i;
+   -------------------------------------------------------------------------------------------   
+   i_track_cmd_req: process(rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         simple_cmd_req      <= '0';
+         internal_status_req <= '0';
+         internal_wb_req     <= '0';
+         ret_dat_req         <= '0';
+         ret_dat_stop_req    <= '0';        
+      elsif(clk_i'event and clk_i = '1') then
+         ------------------------- 
+         if(simple_cmd_ack = '1') then
+            simple_cmd_req <= '0';
+         elsif(cmd_rdy_i = '1') then
+            if(param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) /= RET_DAT_ADDR) then
+               simple_cmd_req <= '1';
+            end if;
+         end if;
+         -------------------------
+         -- internal_status_ack is asserted for two consecutive cycles to make sure that both timer and internal_status_req are cleared.
+         if(internal_status_ack = '1') then
+            internal_status_req  <= '0';
+         elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and time_elapsed >= HOUSEKEEPING_COMMAND_PERIOD) then
+            internal_status_req  <= '1';
+         end if;
+         -------------------------
+         -- Sync up internal commands with start of data acquisition (ret_dat)
+         if((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and 
+            (next_toggle_sync = sync_number_i ) and (next_toggle_sync /= frame_sync_num)) then --or ret_dat_start = '1')) then
+            internal_wb_req <= '1';
+         elsif(internal_wb_ack = '1') then
+            internal_wb_req <= '0';
+         end if;
+         -------------------------
          if(ret_dat_ack = '1') then
             -- Data run is done
             ret_dat_req <= '0';
@@ -375,66 +344,97 @@ begin
                   -- ret_dat_req stays asserted for the duration of the data acquisition
                   ret_dat_req <= '1';
                else
-                  -- Assume it's a stop command, and de-assert ret_dat_req
+                  -- Assume it's a stop command, and de-assert ret_dat_req, why ASSUME! why not trust cmd_stop_i from cmd_queue????
                   ret_dat_req <= '0';
                   ret_dat_stop_req <= '1';
                end if;
             end if;
-         end if;
-
+         end if;                       
+      end if; --clk
+   end process i_track_cmd_req;  
+   simple_cmd_o <= simple_cmd_req;
+   -------------------------------------------------------------------------------------------      
+   i_ret_dat_in_progress: process(rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         ret_dat_in_progress <= '0';
+      elsif(clk_i'event and clk_i = '1') then   
          if(ret_dat_done = '1') then
             ret_dat_in_progress <= '0';
          elsif(ret_dat_start = '1') then
             ret_dat_in_progress <= '1';
          end if;
-
-         -- Track simple commands
-         if(simple_cmd_ack = '1') then
-            -- Simple command is done
-            simple_cmd_req <= '0';
-         elsif(cmd_rdy_i = '1') then
-            if(param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) /= RET_DAT_ADDR) then
-               simple_cmd_req <= '1';
-            end if;
-         end if;
-         
-         -- Manage sync number
-         if(increment_sync_num = '1') then
-            -- issue ret_dat on the following frame period
-            issue_sync_num <= sync_number_i + 1;
-         elsif(jump_sync_num = '1') then
-            issue_sync_num <= issue_sync_num + data_rate_i;
--- No delay is necessary here, because the reply_translator takes of delaying the reply to the PCI card
---         elsif(delay_sync_num = '1') then
---            -- delay the issue of the last data command on a STOP to give the PCI card time
---            issue_sync_num <= sync_number_i + STOP_DELAY;
-         end if;
-
-         -- Manage sequence number
-         if(load_seq_num = '1') then
-            -- issue ret_dat on the following frame period
-            seq_num <= start_seq_num_i;
-         elsif(next_seq_num = '1') then
-            seq_num <= seq_num + 1;
-         end if;
-
-         -- internal_rb_ack is asserted for one cycle after an internal command is complete.
-         if(internal_rb_ack = '1') then
-            if(internal_rb_id = 0) then
-               internal_rb_id <= 1;
-            elsif(internal_rb_id = 1) then
-               internal_rb_id <= 2;
-            elsif(internal_rb_id = 2) then
-               internal_rb_id <= 3;
-            elsif(internal_rb_id = 3) then
-               internal_rb_id <= 0;
-            end if;
-         else
-            internal_rb_id <= internal_rb_id;
-         end if;
       end if;
-   end process;
-
+   end process i_ret_dat_in_progress;  
+   ret_dat_in_progress_o  <= ret_dat_in_progress;
+   
+   -------------------------------------------------------------------------------------------
+   i_regs: process(rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         internal_cmd_mode_1d <= "00";
+         step_period_1d <= (others => '0');      
+         step_phase_1d <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         internal_cmd_mode_1d <= internal_cmd_mode_i;
+         step_period_1d       <= step_period_i;
+         step_phase_1d        <= step_phase_i;
+      end if;
+   end process i_regs; 
+   
+   cmd_mode_changing    <= '0' when internal_cmd_mode_1d = internal_cmd_mode_i else '1';
+   step_period_changing <= '0' when step_period_1d = step_period_i else '1';
+   step_phase_changing  <= '0' when step_phase_1d = step_phase_i else '1';
+   -------------------------------------------------------------------------------------------      
+   i_ramp_awg_advance: process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         next_toggle_sync <= (others => '0');
+         ramp_value       <= (others => '0');
+         awg_addr         <= (others => '0');         
+      elsif(clk_i'event and clk_i = '1') then         
+         if (step_phase_changing = '1' or cmd_mode_changing = '1') then
+            next_toggle_sync <= sync_number_i + step_period_i + step_phase_i;
+         elsif(update_next_toggle_sync = '1' or sync_number_i = next_toggle_sync) then
+             -- and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM))) then
+            next_toggle_sync <= sync_number_i + step_period_i;
+         end if;
+         ------------------------------------------------------------
+         if(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_RAMP) then -- or (ret_dat_req = '1' and internal_cmd_mode_i = INTERNAL_RAMP)) then
+            ramp_value  <= step_minimum_i - step_size_i; -- to make sure we start from the minimum specified.
+         elsif(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_MEM) then
+            ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
+            awg_addr   <= awg_addr_i;         
+         elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_RAMP)  then
+            if(ramp_value < (step_maximum_i + 1 - step_size_i)) then
+               ramp_value <= ramp_value + step_size_i;
+            else
+               ramp_value <= step_minimum_i;
+            end if;
+         elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_MEM) then
+            ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
+            awg_addr   <= awg_addr_i;
+         else
+            ramp_value <= ramp_value;
+            awg_addr   <= awg_addr;
+         end if;
+      end if;  --clk    
+   end process i_ramp_awg_advance;   
+   step_value_o <= ext(awg_addr, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value;
+   
+   -------------------------------------------------------------------------------------------      
+   i_timer_rst: process (clk_i, rst_i)
+   begin
+      if (rst_i = '1') then
+         timer_rst <= '1';
+      elsif (clk_i'event and clk_i = '1') then      
+         if(internal_status_ack = '1') then
+            timer_rst            <= '1';
+         else
+            timer_rst <= '0';
+         end if;
+      end if;   
+   end process i_timer_rst;
    -------------------------------------------------------------------------------------------
    -- timer for issuing internal status commands
    -------------------------------------------------------------------------------------------
@@ -442,10 +442,10 @@ begin
    port map(
       clk           => clk_i,
       timer_reset_i => timer_rst,
-      timer_count_o => time);
+      timer_count_o => time_elapsed);
 
    -------------------------------------------------------------------------------------------
-   -- sequencer for ret_dat state machine
+   -- FSM Controller for the Command Scheduler 
    -------------------------------------------------------------------------------------------
    process(rst_i, clk_i)
    begin
@@ -455,36 +455,20 @@ begin
          current_state      <= next_state;
       end if;
    end process;
-
-   -------------------------------------------------------------------------------------------
-   -- State machine for issuing ret_dat macro-ops.
-   -- Next State logic
-   -------------------------------------------------------------------------------------------
-   process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
+   
+   state_ns: process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
       internal_cmd_mode_i, internal_status_req, internal_rb_id, internal_wb_req,
-      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress, ret_dat_stop_req, data_timing_err_i)
+      simple_cmd_req, rdy_for_data_i, ret_dat_in_progress, ret_dat_stop_req, data_timing_err_i, busy_i)
    begin
       next_state    <= current_state;
-      ret_dat_start <= '0';
-      ret_dat_done  <= '0';
-
       case current_state is
          when IDLE =>
-            -- If a data taking process has started
-            if(ret_dat_req = '1') then
-               -- Set the ret_dat_in_progress register
-               ret_dat_start <= '1';
-               -- if we are sourcing DV pulses internally
-               if(dv_mode_i = DV_INTERNAL) then
-                  -- Issue the first ret_dat immediately
-                  next_state <= PROCESSING_RET_DAT;
-               -- if we are sourcing DV pulses externally and a DV comes in
-               elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
+            if(ret_dat_req = '1') then               
+               if (dv_mode_i = DV_INTERNAL or (dv_mode_i /= DV_INTERNAL and external_dv_i = '1')) then
                   -- Issue the first ret_dat immediately
                   next_state <= PROCESSING_RET_DAT;
                end if;
             -------------------------------------------------------------------------------------------
-            -- Aside:
             -- Q: How do you differentiate between a STOP command when a data process has started from a STOP command when a process hasn't?
             -- A: A STOP immediately de-asserts ret_dat_req during a data acquisition, but leaves ret_dat_in_progress asserted.
             --    But when a data process is not in progress, ret_dat_in_progress = '0'.
@@ -495,19 +479,14 @@ begin
                next_state <= UPDATE_FOR_NEXT;
             -- If a STOP command arrives and no data process was active.
             elsif(ret_dat_stop_req = '1' and ret_dat_in_progress = '0') then
-               -- Stay in IDLE
                next_state <= IDLE;
-            -- If there is a simple command
             elsif(simple_cmd_req = '1') then
-               -- Issue the simple command
                next_state <= SIMPLE;
-            -- If it is time to toggle the bias
+            -- time to issue the next internal ramp/awg command
             elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
-               -- Toggle the bias
-               next_state <= INTERNAL_WB_PREP1;
-            -- If toggling is disabled and it is time to issue an internal command
+               next_state <= INTERNAL_WB_PREP;
+            -- time to issue the next internal housekeeping command
             elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
-               -- Issue the next internal command (happens in a cycle)
                if(internal_rb_id = FPGA_TEMPERATURE) then
                   next_state <= FPGA_TEMP;
                elsif(internal_rb_id = CARD_TEMPERATURE) then
@@ -520,26 +499,21 @@ begin
             end if;
 
          when PROCESSING_RET_DAT =>
-            -- This state determines if there are more frames to go, and acts accordingly.
-            -- If there are more frames, it checks to see if there are any internal commands to process first before issuing the next ret_dat
-            -- This state is entered on the heels of returning the last data packet to the PC, so internal commands are processed immediatly following a data packet
-            -- This is to give the MCE as much time as possible before the next data packet is required to be issued.
-            -- Upon finishing a simple/ internal command, the FSM moves direcly to UPDATE_FOR_NEXT.
+            -- If there are more frames, then process pending internal commands first, before issuing the next ret_dat
             -- Note that internal commands/ simple commands are issued asynchronously to sync_number, i.e. anytime.
-            -- If there are no more frames, it loops to IDLE
-            -- This state lasts only one clock cycle.
-
-            -- If there are more data frames to go:
-            if(ack_i = '1' and seq_num /= stop_seq_num_i) then
-               -- Before moving on to UPDATE_FOR_NEXT, let's check for pending commands
-               -- If there is a simple command
-               if(simple_cmd_req = '1') then
-                  -- Issue the simple command
-                  next_state <= SIMPLE;
-               -- If there is a TES toggling command
+            -- This state lasts only one clock cycle.! NOT TRUE!!!            
+            if (ack_i = '1') then
+               -- a healthy data process is here at the last frame
+               if (seq_num /= stop_seq_num_i-1) then -- why -1? MA
+                  next_state <= UPDATE_FOR_NEXT;
+               else 
+                  next_state <= IDLE;
+               end if;    
+            elsif (busy_i = '0') then
+               if(simple_cmd_req = '1') then                  
+                  next_state <= SIMPLE;            
                elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
-                  next_state <= INTERNAL_WB_PREP1;
-               -- If toggling is enabled, internal commands are disabled to preserve the timing of the toggle commands
+                  next_state <= INTERNAL_WB_PREP;                        
                elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
                   if(internal_rb_id = FPGA_TEMPERATURE) then
                      next_state <= FPGA_TEMP;
@@ -549,68 +523,44 @@ begin
                      next_state <= PSC_STATUS;
                   elsif(internal_rb_id = BOX_TEMPERATURE) then
                      next_state <= BOX_TEMP;
-                  end if;
-               -- If there are no pending internal commands, then we move on to the next data frame
-               else
-                  next_state <= UPDATE_FOR_NEXT;
-               end if;
-            -- There are no more data frames to be returned, so we return to IDLE
-            elsif(ack_i = '1' and seq_num = stop_seq_num_i) then
-               next_state <= IDLE;
-               ret_dat_done <= '1';
-            end if;
+                  end if;                                             
+               end if;   
+            end if;   
 
          when UPDATE_FOR_NEXT =>
-            -- This state determines if a STOP command was received or not, and either holds here, or forwards on to the right 'issue' state
-            -- This state takes one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
-
-            -- If there has been a frame timing error, close off the data acquisition
+            -- This state takes one cycle when in internal-dv mode, otherwise wait for the next dv-pulse
             if(data_timing_err_i = '1') then
-               next_state <= REQ_LAST_DATA_PACKET;
-            -- If we are sourcing DV pulses internally
-            elsif(dv_mode_i = DV_INTERNAL) then
-               -- If there still is an outstanding ret_dat request
-               if(ret_dat_req = '1') then
-                  -- Issue a ret_dat command
-                  next_state <= PROCESSING_RET_DAT;
-               -- Otherwise, if the ret_dat request is not asserted, a STOP command has occurred
-               elsif(ret_dat_req = '0') then
-                  -- Issue the last ret_dat command
-                  next_state <= REQ_LAST_DATA_PACKET;
-               end if;
-            -- Otherwise, if we are sourcing DV pulses externally
-            elsif(dv_mode_i /= DV_INTERNAL) then
-               -- If a stop command has been received
-               if(ret_dat_req = '0') then
-                  -- Issue the last ret_dat immediately
-                  next_state <= REQ_LAST_DATA_PACKET;
-               -- Otherwise, if the data run is still in progress, wait in this state for the next DV to come in.
-               elsif(ret_dat_req = '1' and external_dv_i = '1') then
-                  -- When a DV comes in, issue a ret_dat command
-                  next_state <= PROCESSING_RET_DAT;
-               end if;
-            end if;
+               next_state <= REQ_LAST_DATA_PACKET;            
+            -- if a stop command has arrived  
+            elsif(ret_dat_req = '0') then
+               -- Issue the last ret_dat command
+               next_state <= REQ_LAST_DATA_PACKET;                 
+            elsif(dv_mode_i = DV_INTERNAL) then      
+               -- if we are here, then ret_dat_req is 1, so issue a ret_dat command
+               next_state <= PROCESSING_RET_DAT;
+            -- Otherwise, if we are sourcing DV pulses externally, wait for DV pulse before moving on
+            elsif (external_dv_i = '1') then
+               next_state <= PROCESSING_RET_DAT;               
+            end if; 
 
          when REQ_LAST_DATA_PACKET =>
-            -- We remain in this state until the last data packet is complete.
-            if(ack_i = '1') then
+            --if(ack_i = '1') then
                next_state <= IDLE;
-               ret_dat_done <= '1';
-            end if;
+            --end if;
 
-         when SIMPLE =>
+         when SIMPLE | INTERNAL_WB_DATA | NEXT_INTERNAL_CMD =>
             if(ack_i = '1') then
                if(ret_dat_in_progress = '1') then
-                  next_state <= UPDATE_FOR_NEXT;
+                     next_state <= PROCESSING_RET_DAT;
                else
                   next_state <= IDLE;
                end if;
             end if;
 
-         when INTERNAL_WB_PREP1 =>
-               next_state <= INTERNAL_WB_PREP2;
+         when INTERNAL_WB_PREP =>
+               next_state <= INTERNAL_WB_WAIT;
                
-         when INTERNAL_WB_PREP2 =>
+         when INTERNAL_WB_WAIT =>
                next_state <= INTERNAL_WB;
 
          when INTERNAL_WB =>
@@ -618,59 +568,25 @@ begin
                next_state <= INTERNAL_WB_DATA;
             end if;
 
-         when INTERNAL_WB_DATA =>
+         when FPGA_TEMP | CARD_TEMP | PSC_STATUS | BOX_TEMP=>
             if(ack_i = '1') then
-               -- If there was no ret_dat request before issuing the internal command, then we go to IDLE
-               if(ret_dat_in_progress = '1') then
-                  next_state <= UPDATE_FOR_NEXT;
-               else
-                  next_state <= IDLE;
-               end if;
+               next_state <= NEXT_INTERNAL_CMD;
             end if;
-
-         when FPGA_TEMP =>
-            if(ack_i = '1') then
-               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
-            end if;
-
-         when CARD_TEMP =>
-            if(ack_i = '1') then
-               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
-            end if;
-
-         when PSC_STATUS =>
-            if(ack_i = '1') then
-               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
-            end if;
-
-         when BOX_TEMP =>
-            if(ack_i = '1') then
-               next_state <= ADVANCE_INTERNAL_CMD_INDEX;
-            end if;
-
-         when ADVANCE_INTERNAL_CMD_INDEX =>
-            -- The ADVANCE_INTERNAL_CMD_INDEX state is used to advance the index for which internal command to execute next
-            -- It is not used for anything else
-            if(ret_dat_in_progress = '1') then
-               next_state <= UPDATE_FOR_NEXT;
-            else
-               next_state <= IDLE;
-            end if;
-
+            
          when others =>
             next_state <= IDLE;
       end case;
-   end process;
+   end process state_ns;
 
    -------------------------------------------------------------------------------------------
-   -- Output logic:  signals that go to cmd_queue
+   -- FSM Output logic, Part 1:  cmd_queue interface signals
    -------------------------------------------------------------------------------------------
-   process(f_rx_card_addr, f_rx_param_id, f_rx_cmd_code, f_rx_num_data,
+   state_out1: process(current_state, f_rx_card_addr, f_rx_param_id, f_rx_cmd_code, f_rx_num_data,
       f_rx_ret_dat_card_addr, f_rx_ret_dat_param_id, f_rx_ret_dat_data,
       internal_status_req, data_clk_i, step_card_addr_i, step_param_id_i, ramp_value,
-      step_data_num_i, cmd_data_i, current_state, internal_wb_req, data_size)
+      step_data_num_i, cmd_data_i, internal_wb_req, data_size)
    begin
-      -- Default assignments for signals that are common for all commands
+      -- Default statements
       card_addr_o      <= (others => '0');
       param_id_o       <= (others => '0');
       cmd_code_o       <= (others => '0');
@@ -678,23 +594,17 @@ begin
       data_clk_o       <= '0';
       internal_cmd_o   <= '0';
       data_o           <= (others => '0');
-
-      case current_state is
+   
+      case current_state is            
          -- Note that the f_rx_... variables are shared between ret_dat and simple commands
          -- This introduces a bug whereby if a simple command is received during a data run, the run gets corrupted
          -- Instead of asking for data from the data slave, the CC asks for data from whichever other slave the simple command referred to.
          when UPDATE_FOR_NEXT | PROCESSING_RET_DAT | REQ_LAST_DATA_PACKET =>
             card_addr_o          <= f_rx_ret_dat_card_addr;
---            card_addr_o          <= f_rx_card_addr;
             param_id_o           <= f_rx_ret_dat_param_id;
---            param_id_o           <= f_rx_param_id;
             cmd_code_o           <= DATA;
             data_size_o          <= data_size;
-            data_clk_o           <= '0';
-            internal_cmd_o       <= '0';
-            -- Does this really need to be a registered value.  Do i really care what is passed for ret_dat commands?  Oh..  Yes..  I think so..
             data_o               <= f_rx_ret_dat_data;
---            data_o               <= f_rx_data;
 
          when SIMPLE =>
             card_addr_o          <= f_rx_card_addr;
@@ -702,11 +612,10 @@ begin
             cmd_code_o           <= f_rx_cmd_code;
             data_size_o          <= f_rx_num_data;
             data_clk_o           <= data_clk_i;
-            internal_cmd_o       <= '0';
             data_o               <= cmd_data_i;
 
-         when INTERNAL_WB_PREP1 =>            
-         when INTERNAL_WB_PREP2 =>
+         when INTERNAL_WB_PREP =>            
+         when INTERNAL_WB_WAIT =>
 
          when INTERNAL_WB =>
             if(internal_wb_req = '1') then
@@ -714,7 +623,6 @@ begin
                param_id_o        <= step_param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
                cmd_code_o        <= WRITE_BLOCK;
                data_size_o       <= step_data_num_i(BB_DATA_SIZE_WIDTH-1 downto 0); -- 1 word by default
-               data_clk_o        <= '0';
                internal_cmd_o    <= '1';
                data_o            <= ramp_value;
             end if;
@@ -737,9 +645,7 @@ begin
                param_id_o        <= FPGA_TEMP_ADDR;
                cmd_code_o        <= READ_BLOCK;
                data_size_o       <= FPGA_TEMP_DATA_SIZE;
-               data_clk_o        <= '0';
                internal_cmd_o    <= '1';
-               data_o            <= (others => '0');
             end if;
 
          when CARD_TEMP =>
@@ -748,9 +654,7 @@ begin
                param_id_o        <= CARD_TEMP_ADDR;
                cmd_code_o        <= READ_BLOCK;
                data_size_o       <= CARD_TEMP_DATA_SIZE;
-               data_clk_o        <= '0';
                internal_cmd_o    <= '1';
-               data_o            <= (others => '0');
             end if;
 
          when PSC_STATUS =>
@@ -759,9 +663,7 @@ begin
                param_id_o        <= PSC_STATUS_ADDR;
                cmd_code_o        <= READ_BLOCK;
                data_size_o       <= PSC_STATUS_DATA_SIZE; -- 9 words
-               data_clk_o        <= '0';
                internal_cmd_o    <= '1';
-               data_o            <= (others => '0');
             end if;
 
          when BOX_TEMP =>
@@ -770,32 +672,39 @@ begin
                param_id_o        <= BOX_TEMP_ADDR;
                cmd_code_o        <= READ_BLOCK;
                data_size_o       <= BOX_TEMP_DATA_SIZE;
-               data_clk_o        <= '0';
                internal_cmd_o    <= '1';
-               data_o            <= (others => '0');
-            end if;
+            end if;   
 
          when others =>
+            card_addr_o      <= (others => '0');
+            param_id_o       <= (others => '0');
+            cmd_code_o       <= (others => '0');
+            data_size_o      <= (others => '0');
+            data_clk_o       <= '0';
+            internal_cmd_o   <= '0';
+            data_o           <= (others => '0');                             
       end case;
-   end process;
-
+   end process state_out1;
+   
    -------------------------------------------------------------------------------------------
-   -- Control logic:  control signals used internally for book-keeping
+   -- FSM Output logic - Part 2: Internal control signals 
    -------------------------------------------------------------------------------------------
-   process(current_state, ret_dat_req, stop_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
+   state_out2: process(current_state, ret_dat_req, stop_seq_num_i, start_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
       internal_wb_req, simple_cmd_req, internal_cmd_mode_i, cmd_rdy_i,
       internal_status_req, internal_rb_id, ret_dat_stop_req, ret_dat_in_progress)
    begin
       -- default assignments
-      increment_sync_num   <= '0';
+      inc_sync_num         <= '0';
       jump_sync_num        <= '0';
       override_sync_num_o  <= '0';
 
       load_seq_num         <= '0';
-      next_seq_num         <= '0';
+      inc_seq_num          <= '0';
 
       instr_rdy_o          <= '0';
       ret_dat_ack          <= '0';
+      ret_dat_start        <= '0';
+      ret_dat_done         <= '0';
 
       last_frame_o         <= '0';
       cmd_stop_o           <= '0';
@@ -803,12 +712,10 @@ begin
       internal_wb_ack      <= '0';
       internal_status_ack  <= '0';
 
-      -- Check this NTS.
-      update_nts           <= '0';
-      step_ramp_value      <= '0';
+      update_next_toggle_sync <= '0';
       awg_addr_incr_o      <= '0';
 
-      internal_rb_ack     <= '0';
+      internal_rb_ack      <= '0';
       simple_cmd_ack       <= '0';
       f_rx_ret_dat_ack     <= '0';
 
@@ -817,18 +724,18 @@ begin
             -- ret_dat_req may be asserted for some time before the cmd_queue is ready for the first ret_dat command
             -- Thus slide the sync number until the cmd_queue accepts the ret_dat command
             if(ret_dat_req = '1') then
-               increment_sync_num <= '1';
+               inc_sync_num <= '1';
                load_seq_num  <= '1';
+               -- Set the ret_dat_in_progress register
+	       ret_dat_start <= '1';	       
 
                -- Ack fibre_rx one cycle before immediately entering the data process on the next cycle.
-               -- This frees up fibre_rx for now incoming commands, including STOP commands!!
+               -- This frees up fibre_rx for incoming commands, including STOP commands!!
                if(dv_mode_i = DV_INTERNAL) then
                   f_rx_ret_dat_ack <= '1';
-               -- This condition was modified to fix a bug that occurs if the MCE sources DV pulses
-               -- from the sync box, but doesn't ever receive them.
-               -- When this happened, the FSM would freeze here in IDLE with the fibre_rx cmd_rdy_i signal asserted,
-               -- and the MCE was unable to receive any more commands, including STOP commands.
-               -- I've crafted this statment to assert f_rx_ret_dat_ack until the acquisition is stopped.
+               -- Added following condition for a bugfix:   
+               -- if the MCE sources DV pulses from the sync box, but doesn't ever receive them, 
+               -- we need to free up fibre receive, so STOP command can be received!!
                elsif(dv_mode_i /= DV_INTERNAL and cmd_rdy_i = '1') then
                   f_rx_ret_dat_ack <= '1';
                end if;
@@ -842,72 +749,56 @@ begin
                -- Acknowledge the command and reply -- but do not return any data packets
                ret_dat_ack <= '1';
                f_rx_ret_dat_ack <= '1';
-            -- If there is a simple command
             elsif(simple_cmd_req = '1') then
                null;
-            -- If it is time to toggle the bias
-            -- OK, this condition might not be necessary here if we are already monitoring cmd_mode_changing and step_period_changing
-            -- In fact, this is necessary here for issuing internal commands when a ret_dat is not in progress.
-            -- internal_wb_req is asserted when next_toggle_sync = sync_number_i
             elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
-               -- If we aren't waiting to send the cmd_queue a ret_dat command, and if internal_wb_req is asserted
-               -- then update the next toggle sync number.
-               update_nts <= '1';
-            -- If toggling is disabled and it is time to issue an internal command
+               update_next_toggle_sync <= '1';
             elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
-               -- Issue the next internal command (happens in a cycle)
-               if(internal_rb_id = FPGA_TEMPERATURE) then
-                  null;
-               elsif(internal_rb_id = CARD_TEMPERATURE) then
-                  null;
-               elsif(internal_rb_id = PSUC_STATUS) then
-                  null;
-               elsif(internal_rb_id = BOX_TEMPERATURE) then
+               if(internal_rb_id < NUM_HOUSEKEEPING_CMD_TYPES ) then -- a valid housekeeping command
                   null;
                end if;
             end if;
 
          when PROCESSING_RET_DAT =>
             instr_rdy_o <= '1';
-
             if(seq_num = stop_seq_num_i) then
                last_frame_o <= '1';
             end if;
 
-            if(ack_i = '1' and seq_num /= stop_seq_num_i) then
-               if((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
-                  update_nts      <= '1';
-               end if;
-            elsif(ack_i = '1' and seq_num = stop_seq_num_i) then
-               -- Ack the data run.
-               ret_dat_ack <= '1';
-               -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
-               instr_rdy_o <= '0';
+            if(ack_i = '1') then 
+               if (seq_num /= stop_seq_num_i-1) then -- why -1?
+                  if(seq_num = start_seq_num_i and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
+                     update_next_toggle_sync <= '1';
+                  end if;
+               else               
+                  ret_dat_done <= '1';
+                  ret_dat_ack <= '1';
+                  -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
+                  instr_rdy_o <= '0';
+                  f_rx_ret_dat_ack <= '1';
+               end if;   
             end if;
 
-         when UPDATE_FOR_NEXT =>
+         when UPDATE_FOR_NEXT =>            
             -- Either of these conditions are only met on the last clock period in this state.
             if(dv_mode_i = DV_INTERNAL) then
                jump_sync_num <= '1';
-               next_seq_num  <= '1';
+               inc_seq_num  <= '1';
 
-               if(ret_dat_req = '1') then
-                  null;
-               elsif(ret_dat_req = '0') then
+               if(ret_dat_req = '0') then
                   f_rx_ret_dat_ack <= '1';
                end if;
 
             elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
-               -- Since the timing of the DV pulse dictates the next data packet,
-               -- we issue a ret_dat on the frame period immediately following a DV packet/pulse.
-               -- Until the DV packet/pulse arrives, we slide the sync number
-               increment_sync_num <= '1';
-               next_seq_num <= '1';
+               -- Timing of the DV pulse dictates the next data packet, so a ret_dat is issued on the sync# immediately after DV pulse
+               -- we slide the sync number until the DV packet/pulse arrives, 
+               inc_sync_num <= '1';
+               inc_seq_num <= '1';
 
                if(ret_dat_req = '0') then
                   f_rx_ret_dat_ack <= '1';
-               elsif(ret_dat_req = '1' and external_dv_i = '1') then
-                  null;
+               --elsif(ret_dat_req = '1' and external_dv_i = '1') then
+               --   null;
                end if;
             end if;
 
@@ -924,78 +815,51 @@ begin
                override_sync_num_o <= '1';
             end if;
 
-            if(ack_i = '1') then
+--            if(ack_i = '1') then
                -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
                instr_rdy_o <= '0';
                ret_dat_ack <= '1';
+               ret_dat_done <= '1';
                f_rx_ret_dat_ack <= '1';
-            end if;
+--            end if;
 
          when SIMPLE =>
-            -- This has changed so that I can isolate the internal ready signals (ret_dat_rdy, etc) from the input from fibre_rx (cmd_rdy_i).
+            -- isolate the internal ready signals (ret_dat_rdy, etc) from the fibre_rx rdy (cmd_rdy_i).
             -- This is necessary to receive STOP commands when the initial ret_dat has not been processed yet (i.e. a ret_dat with no dv pulses)
-            --instr_rdy_o <= cmd_rdy_i;
             instr_rdy_o <= simple_cmd_req;
 
             if(ack_i = '1') then
                simple_cmd_ack <= '1';
             end if;
 
-         when INTERNAL_WB_PREP1 =>
-            step_ramp_value <= '1';
+         when INTERNAL_WB_PREP =>
             awg_addr_incr_o <= '1';
                
-         -- This is a delay state for allowing the new AWG address to propagate the data.
-         when INTERNAL_WB_PREP2 =>
+         when INTERNAL_WB_WAIT =>
             
          when INTERNAL_WB =>
             instr_rdy_o <= '1';
 
          when INTERNAL_WB_DATA =>
             instr_rdy_o       <= '1';
-
-            -- When a internal_cmd_mode command is issued, expect this state to be cycled through immediately following the next command.  
-            -- See the comment titled "Manage the TES toggling control signals" above.
-            -- ack_i is asserted when the cmd_queue acknowledes the receipt of an internal command mode change, which causes the cmd_translator to prime itself with the first internal data/ address.            
+            -- ack_i is asserted when the cmd_queue acknowledes the receipt of 
+            --an internal command mode change, which causes the cmd_translator to prime itself with the first internal data/ address.            
             if(ack_i = '1') then
-               internal_wb_ack <= '1';
-               -- This signals moves the FSM onto the next internal command value.
--- This was moved to fix a bug 
---               step_ramp_value <= '1';
---               -- There is a bug here that causes the next AWG address to be embedded in the data packet in place of the current AWG address.
---               awg_addr_incr_o <= '1';
+               internal_wb_ack <= '1';            
             end if;
 
-         when FPGA_TEMP =>
+         when FPGA_TEMP | CARD_TEMP | PSC_STATUS | BOX_TEMP =>
             instr_rdy_o <= '1';
             if(ack_i = '1') then
                internal_status_ack <= '1';
             end if;
 
-         when CARD_TEMP =>
-            instr_rdy_o <= '1';
-            if(ack_i = '1') then
-               internal_status_ack <= '1';
-            end if;
-
-         when PSC_STATUS =>
-            instr_rdy_o <= '1';
-            if(ack_i = '1') then
-               internal_status_ack <= '1';
-            end if;
-
-         when BOX_TEMP =>
-            instr_rdy_o <= '1';
-            if(ack_i = '1') then
-               internal_status_ack <= '1';
-            end if;
-
-         when ADVANCE_INTERNAL_CMD_INDEX =>
+         when NEXT_INTERNAL_CMD =>
             internal_status_ack <= '1';
             internal_rb_ack <= '1';
 
          when others =>
       end case;
-   end process;
+   end process state_out2;
 
 end rtl;
