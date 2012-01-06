@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.28 2011-12-08 20:23:38 mandana Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.29 2012-01-05 23:20:10 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -82,8 +82,8 @@ entity ret_dat_wbs is
       -- global interface
       clk_i                  : in std_logic;
       rst_i                  : in std_logic;
-
-      -- to issue_reply:
+      
+      -- issue_reply interface
       start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -100,9 +100,9 @@ entity ret_dat_wbs is
       user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_delay_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
-      cards_present_i        : in std_logic_vector(9 downto 0);
-      cards_to_report_o      : out std_logic_vector(9 downto 0);
-      rcs_to_report_data_o   : out std_logic_vector(9 downto 0);
+      cards_present_i        : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      cards_to_report_o      : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      rcs_to_report_data_o   : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
       ret_dat_req_o          : out std_logic;
       ret_dat_ack_i          : in std_logic;
       awg_dat_o              : out std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
@@ -125,6 +125,7 @@ end ret_dat_wbs;
 architecture rtl of ret_dat_wbs is
 
    constant AWG_ADDR_MIN        : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0) := (others => '0');
+
    signal awg_mem_dat           : std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
    signal awg_sequence_len_wren : std_logic;
    signal awg_addr_wren         : std_logic;
@@ -132,7 +133,6 @@ architecture rtl of ret_dat_wbs is
    signal awg_data_rden         : std_logic;
    signal awg_addr              : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
 
-   constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
    constant STOP_REPLY_WAIT_PERIOD   : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00002710";  -- 10000 u-seconds
 
    -- FSM inputs
@@ -264,7 +264,7 @@ begin
 --      "11" when internal_cmd_mode_data = x"00000003" else "00";
 
    -- Custom register
-   cards_to_report_o <= cards_to_report_data(9 downto 0);
+   cards_to_report_o <= cards_to_report_data(cards_to_report_o'length-1 downto 0);
    cards_to_report_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -277,7 +277,7 @@ begin
    end process cards_to_report_reg;
 
    -- Custom register
-   rcs_to_report_data_o <= rcs_to_report_data(9 downto 0);
+   rcs_to_report_data_o <= rcs_to_report_data(rcs_to_report_data_o'length-1 downto 0);
    rcs_to_report_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -289,7 +289,7 @@ begin
       end if;
    end process rcs_to_report_reg;
 
-   cards_present <= "0000000000000000000000" & cards_present_i;
+   cards_present <= ext(cards_present_i, cards_present'length);
    cards_present_reg : reg
       generic map(WIDTH => WB_DATA_WIDTH)
       port map(
