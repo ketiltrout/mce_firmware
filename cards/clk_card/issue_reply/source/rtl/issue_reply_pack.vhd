@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.59 2011-11-30 22:06:05 mandana Exp $
+-- $Id: issue_reply_pack.vhd,v 1.60 2011-12-01 19:46:11 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.60  2011-12-01 19:46:11  mandana
+-- re-organized pack files
+--
 -- Revision 1.59  2011-11-30 22:06:05  mandana
 -- re-organized pack files in hierarchical manner and moved all component declarations into pack files
 --
@@ -161,13 +164,40 @@ package issue_reply_pack is
    constant BOX_TEMP_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
 
    -- number of frame header words stored in RAM
+   constant DATA_PACKET_HEADER_REVISION: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
    constant NUM_RAM_HEAD_WORDS  : integer := 43;
    constant RAM_HEAD_ADDR_WIDTH : integer :=  6;
 
-   constant FPGA_TEMP_SIZE  : integer := 10; -- Includes space for fpga_temp errno word
-   constant CARD_TEMP_SIZE  : integer := 10; -- Includes space for fpga_temp errno word
-   constant PSC_STATUS_SIZE : integer :=  8; -- Includes space for card_temp errno word
-   constant BOX_TEMP_SIZE   : integer :=  2; -- Includes space for fpga_temp errno word
+   constant FPGA_TEMP_COUNT  : integer := 10; -- Includes space for fpga_temp errno word
+   constant CARD_TEMP_COUNT  : integer := 10; -- Includes space for fpga_temp errno word
+   constant PSC_STATUS_COUNT : integer :=  8; -- Includes space for card_temp errno word
+   constant BOX_TEMP_COUNT   : integer :=  2; -- Includes space for fpga_temp errno word
+
+   -- Memory Map for the header information RAM, version 6
+   constant FPGA_TEMP_OFFSET   : integer := 0;
+   constant CARD_TEMP_OFFSET   : integer := FPGA_TEMP_COUNT;
+   constant PSC_STATUS_OFFSET  : integer := FPGA_TEMP_COUNT + CARD_TEMP_COUNT;
+   constant BOX_TEMP_OFFSET    : integer := FPGA_TEMP_COUNT + CARD_TEMP_COUNT + PSC_STATUS_COUNT;
+    
+   constant FPGA_TEMP_ADDR_AC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000001";
+   constant FPGA_TEMP_ADDR_BC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000010";
+   constant FPGA_TEMP_ADDR_BC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000011";
+   constant FPGA_TEMP_ADDR_BC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000100";
+   constant FPGA_TEMP_ADDR_RC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000101";
+   constant FPGA_TEMP_ADDR_RC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000110";
+   constant FPGA_TEMP_ADDR_RC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000111";
+   constant FPGA_TEMP_ADDR_RC4 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001000";
+   constant FPGA_TEMP_ADDR_CC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001001";
+
+   constant CARD_TEMP_ADDR_AC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001011";
+   constant CARD_TEMP_ADDR_BC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001100";
+   constant CARD_TEMP_ADDR_BC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001101";
+   constant CARD_TEMP_ADDR_BC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001110";
+   constant CARD_TEMP_ADDR_RC1 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001111";
+   constant CARD_TEMP_ADDR_RC2 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010000";
+   constant CARD_TEMP_ADDR_RC3 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010001";
+   constant CARD_TEMP_ADDR_RC4 : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010010";
+   constant CARD_TEMP_ADDR_CC  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010011";
 
    -- This is the data pipeline propagation delay setting for the reply_translator
    constant DATA_PROPAGATION_DELAY : integer := 3;
@@ -256,7 +286,7 @@ package issue_reply_pack is
       awg_addr_incr_o       : out std_logic;
 
       -- ret_dat_wbs interface
-      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
+      internal_cmd_mode_i    : in std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
       step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -264,12 +294,12 @@ package issue_reply_pack is
       step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_phase_i           : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_value_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ret_dat_req_i          : in std_logic;
-      ret_dat_ack_o          : out std_logic;
 
-      -- other inputs
+      -- frame_timing interface
       sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      sync_pulse_i          : in std_logic;
 
       -- signals to cmd_queue
       cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
@@ -282,13 +312,14 @@ package issue_reply_pack is
       cmd_stop_o            : out std_logic;
       last_frame_o          : out std_logic;
       internal_cmd_o        : out std_logic;
+      simple_cmd_o        : out std_logic;      
       num_rows_to_read_i    : in integer;
       num_cols_to_read_i    : in integer;
       override_sync_num_o   : out std_logic;
       ret_dat_in_progress_o : out std_logic;
 
       -- input from the cmd_queue
---      busy_i                : in std_logic;
+      busy_i                : in std_logic;
       ack_i                 : in std_logic;
       rdy_for_data_i        : in std_logic;
       data_timing_err_i     : in std_logic;
@@ -326,7 +357,6 @@ package issue_reply_pack is
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
       issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
---      tes_bias_step_level_o : out std_logic;
       step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- cmd_translator interface
@@ -339,13 +369,13 @@ package issue_reply_pack is
       mop_rdy_i       : in std_logic;
       mop_ack_o       : out std_logic;
       rdy_for_data_o  : out std_logic;
---      busy_o          : out std_logic;
+      busy_o          : out std_logic;
       cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;
       last_frame_i    : in std_logic;
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i  : in std_logic;
---      tes_bias_step_level_i : in std_logic;
+      simple_cmd_i    : in std_logic;
       step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       override_sync_num_i : in std_logic;
       ret_dat_in_progress_i : in std_logic;
@@ -383,6 +413,12 @@ package issue_reply_pack is
    -----------------------------------------------------------------------------
    component reply_queue
    port(
+      -- Global signals
+      rst_i               : in std_logic;
+      clk_i               : in std_logic;
+      clk_n_i             : in std_logic;
+      comm_clk_i          : in std_logic;
+      
       -- cmd_queue interface
       cmd_to_retire_i     : in std_logic;
       cmd_sent_o          : out std_logic;
@@ -412,17 +448,10 @@ package issue_reply_pack is
       ack_i               : in std_logic;
 
       -- reply_translator interface (from reply_queue_retire)
-      -- The reply_queue acks, based on how much data it has to give,
-      -- not how much the reply_transator thinks it needs!
-      --      cmd_sent_i          : in std_logic;
       cmd_valid_o         : out std_logic;
       cmd_code_o          : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       param_id_o          : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
       card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
---      stop_bit_o          : out std_logic;
---      last_frame_bit_o    : out std_logic;
---      frame_status_word_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
---      frame_seq_num_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- ret_dat_wbs interface
       num_rows_to_read_i  : in integer;
@@ -431,9 +460,9 @@ package issue_reply_pack is
       ramp_param_id_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       run_file_id_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      cards_to_report_i   : in std_logic_vector(9 downto 0);
-      rcs_to_report_data_i   : in std_logic_vector(9 downto 0);
-      dead_card_i            : in std_logic;
+      cards_to_report_i   : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      rcs_to_report_data_i: in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      dead_card_i         : in std_logic;
 
       -- clk_switchover interface
       active_clk_i        : in std_logic;
@@ -449,15 +478,9 @@ package issue_reply_pack is
       external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- Bus Backplane interface
-      lvds_reply_all_a_i     : in std_logic_vector(9 downto 0);
-      lvds_reply_all_b_i     : in std_logic_vector(9 downto 0);
-      card_not_present_o  : out std_logic_vector(9 downto 0);
-
-      -- Global signals
-      clk_i               : in std_logic;
-      clk_n_i             : in std_logic;
-      comm_clk_i          : in std_logic;
-      rst_i               : in std_logic
+      lvds_reply_all_a_i  : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      lvds_reply_all_b_i  : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
+      card_not_present_o  : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0)
    );
    end component;
 
@@ -485,8 +508,6 @@ package issue_reply_pack is
       c_param_id_i            : in  std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
 
       -- signals to/from cmd_translator
---      stop_reply_req_i      : in std_logic;
---      stop_reply_ack_o      : out std_logic;
       cmd_stop_i              : in std_logic;
 
       -- signals to/from reply queue
@@ -501,13 +522,6 @@ package issue_reply_pack is
       num_fibre_words_i       : in  integer ;
       fibre_word_ack_o        : out std_logic;
       fibre_word_rdy_i        : in std_logic;
--- The reply_queue acks, based on how much data it has to give,
--- not how much the reply_transator thinks it needs!
---      mop_ack_o               : out std_logic;
---      last_frame_i            : in std_logic;
---      frame_status_word_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
---      frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-
       -- input from the cmd_queue
 --      busy_i                  : in std_logic;
 
