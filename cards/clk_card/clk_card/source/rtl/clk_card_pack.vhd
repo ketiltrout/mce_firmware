@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.20 2010/05/14 22:39:09 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.21 2011-12-01 20:52:14 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.21  2011-12-01 20:52:14  mandana
+-- re-organized pack files, moved global definitions from sync_gen and ret_dat_wbs to top level
+--
 -- Revision 1.20  2010/05/14 22:39:09  bburger
 -- BB:  added a dead_card interface to issue_reply for dead_card detection.
 --
@@ -140,11 +143,21 @@ package clk_card_pack is
    constant DEFAULT_RCS_TO_REPORT    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000003C";
    constant DEFAULT_CARDS_TO_REPORT  : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"000003FF";
    constant DEFAULT_STEP_DATA_NUM    : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000001";  -- Then default number of data words to be send in the ramp command.
+   
+   constant DEFAULT_DATA_RATE        : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000002F";  -- 202.71 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
 
    -- Arbitrary Wave Generator RAM-size parameters (used in ret_dat_wbs, issue_reply, command translator)
    constant AWG_DAT_WIDTH  : integer := 16;
    constant AWG_ADDR_WIDTH : integer := 13; -- 16,384 values
-   
+
+   -- Internal command mode descriptions   
+   constant INTERNAL_CMD_MODE_WIDTH: integer := 2;
+   constant NUM_INTERNAL_CMD_MODES : integer := 4;
+   constant INTERNAL_OFF           : integer := 0;
+   constant INTERNAL_HOUSEKEEPING  : integer := 1;
+   constant INTERNAL_RAMP          : integer := 2;
+   constant INTERNAL_MEM           : integer := 3;
+      
    -------------------------------------------------------
    -- DV-rx and Sync Gen definitions
    -------------------------------------------------------
@@ -418,11 +431,15 @@ package clk_card_pack is
    -------------------------------------------------------
    component ret_dat_wbs is
    port(
+      -- global interface
+      clk_i                  : in std_logic;
+      rst_i                  : in std_logic;
+      
       -- to issue_reply:
       start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      internal_cmd_mode_o    : out std_logic_vector(1 downto 0);
+      internal_cmd_mode_o    : out std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
       step_period_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_size_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -430,12 +447,11 @@ package clk_card_pack is
       step_param_id_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_card_addr_o       : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_phase_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      
       run_file_id_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       user_writable_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_delay_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_o           : out std_logic;
---      num_rows_to_read_o     : out integer;
---      num_cols_to_read_o     : out integer;
       cards_present_i        : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
       cards_to_report_o      : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
       rcs_to_report_data_o   : out std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
@@ -444,10 +460,6 @@ package clk_card_pack is
       awg_dat_o              : out std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_o             : out std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_i        : in std_logic;
-
-      -- global interface
-      clk_i                  : in std_logic;
-      rst_i                  : in std_logic;
 
       -- wishbone interface:
       dat_i                  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -562,7 +574,7 @@ package clk_card_pack is
       run_file_id_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       user_writable_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       stop_delay_i           : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      internal_cmd_mode_i    : in std_logic_vector(1 downto 0);
+      internal_cmd_mode_i    : in std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
       step_period_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_minimum_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_size_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -570,11 +582,10 @@ package clk_card_pack is
       step_param_id_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_card_addr_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       step_data_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      step_phase_i           : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       crc_err_en_i           : in std_logic;
       num_rows_to_read_i     : in integer;
       num_cols_to_read_i     : in integer;
-      ret_dat_req_i          : in std_logic;
-      ret_dat_ack_o          : out std_logic;
       cards_to_report_i      : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
       rcs_to_report_data_i   : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
       awg_dat_i              : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
@@ -602,7 +613,7 @@ package clk_card_pack is
       num_rows_i             : in integer;
 
       -- frame_timing interface
-      sync_pulse_i           : in std_logic;
+      sync_pulse_i           : in std_logic; -- or restart_frame_aligned
       sync_number_i          : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );
    end component;
