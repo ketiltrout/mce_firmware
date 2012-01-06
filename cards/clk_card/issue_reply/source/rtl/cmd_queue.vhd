@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.107 2011-11-30 22:06:05 mandana Exp $
+-- $Id: cmd_queue.vhd,v 1.108 2011-12-01 19:46:11 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -54,9 +54,9 @@ use work.issue_reply_pack.all;
 
 entity cmd_queue is
    port(
-      -- for testing
-      debug_o         : out std_logic_vector(31 downto 0);
-      timer_trigger_o : out std_logic;
+      -- global signals
+      clk_i           : in std_logic;
+      rst_i           : in std_logic;
 
       -- reply_queue interface
       uop_rdy_o       : out std_logic;
@@ -66,17 +66,13 @@ entity cmd_queue is
       data_size_o     : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
       cmd_code_o        : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       data_timing_err_o : out std_logic;
-
-      -- indicates a STOP command was recieved
-      cmd_stop_o      : out std_logic;
-
-      -- indicates the last frame of data for a ret_dat command
-      last_frame_o    : out std_logic;
+      
+      cmd_stop_o      : out std_logic;                                          -- indicates a STOP command was recieved      
+      last_frame_o    : out std_logic;                                          -- indicates the last frame of data for a ret_dat command
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
-      issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
---      tes_bias_step_level_o : out std_logic;
-      step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);        
+      step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);         
 
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -88,13 +84,13 @@ entity cmd_queue is
       mop_rdy_i       : in std_logic;
       mop_ack_o       : out std_logic;
       rdy_for_data_o  : out std_logic;
---      busy_o          : out std_logic;
+      busy_o          : out std_logic;
       cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;
       last_frame_i    : in std_logic;
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      internal_cmd_i  : in std_logic;
---      tes_bias_step_level_i : in std_logic;
+      internal_cmd_i  : in std_logic;  
+      simple_cmd_i    : in std_logic;
       step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       override_sync_num_i : in std_logic;
       ret_dat_in_progress_i : in std_logic;
@@ -105,9 +101,9 @@ entity cmd_queue is
       -- frame_timing interface
       sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
-      -- Clock lines
-      clk_i           : in std_logic;
-      rst_i           : in std_logic
+      -- for testing
+      debug_o         : out std_logic_vector(31 downto 0);
+      timer_trigger_o : out std_logic
    );
 end cmd_queue;
 
@@ -237,8 +233,7 @@ begin
    last_frame_o          <= bit_status(0);
    cmd_stop_o            <= bit_status(1);
    internal_cmd_o        <= bit_status(2);
-   -- No longer used; but present so this bit is not used for anything else.
---   tes_bias_step_level_o <= bit_status(3);
+   -- bit_status(3) formerly tes_bias_step_level_o No longer used
    frame_seq_num_o       <= frame_seq_num;
    step_value_o          <= step_value;
 
@@ -423,7 +418,7 @@ begin
       );
 
    -----------------------------------------------------
-   -- New cmd_queue
+   -- cmd_queue FSM
    -----------------------------------------------------
    state_FF: process(clk_i, rst_i)
    begin
@@ -438,9 +433,11 @@ begin
 
       end if;
    end process;
-
-   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i,
-   data_req_expired, lvds_tx_busy, bit_ctr_count, previous_state, override_sync_num_i, issue_sync, sync_num_i)
+   -----------------------------------------------------
+   -- FSM sequencer
+   -----------------------------------------------------
+   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i, internal_cmd_i,
+   data_req_expired, lvds_tx_busy, bit_ctr_count, previous_state, override_sync_num_i, issue_sync, sync_num_i, simple_cmd_i)
    begin
       next_state <= present_state;
       case present_state is
@@ -507,14 +504,18 @@ begin
             -- This is to indicate that the timing has jitter..
             elsif(data_req_expired = '1') then
                -- If the u-op has expired, it is still issued.
-               -- uops typically will not expire while waiting in the cmd_queue, because the the command queue can issue uops faster than mops will be received from the cmd_translator (assuming the internal commanding rate is reasonable).
-               --next_send_state <= NEXT_UOP;
+               -- uops typically will not expire while waiting in the cmd_queue, because the the command queue can issue 
+               -- uops faster than mops will be received from the cmd_translator (assuming the internal commanding rate is reasonable).
                next_state <= HEADER_A;
             elsif(override_sync_num_i = '1') then
                -- If a STOP command is being executed, issue the last data frame immediately
                next_state <= HEADER_A;
             elsif(issue_sync = sync_num_i) then
                next_state <= HEADER_A;
+            elsif(internal_cmd_i = '1') then
+            	next_state <= STORE_CMD_PARAM;
+            elsif(simple_cmd_i = '1') then -- a non-internal command during data acq, must be a simple (fibre) cmd
+            	next_state <= STORE_CMD_PARAM;            
             else
                -- If the u-op is still good, but isn't supposed to be issued yet, stay in LOAD
                next_state <= WAIT_TO_ISSUE;
@@ -563,8 +564,7 @@ begin
          when CMD_ISSUED =>
             next_state <= WAIT_TO_RETIRE;
 
-         -- Removed 4 July 2006
-         -- Readded 10 July 2006 after i realized that the only safeguard that we need is between the cmd_queue and reply_queue
+         -- Removed/Readded 10 July 2006, after i realized that the only safeguard needed is between the cmd_queue and reply_queue
          -----------------------------------------------------
          -- Retire Command
          -----------------------------------------------------
@@ -585,6 +585,9 @@ begin
 
    data_timing_err_o <= data_timing_err;
    data_size_int_t <= conv_integer(data_size);
+   -----------------------------------------------------
+   -- Misc Registers
+   -----------------------------------------------------
    misc_registers: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -592,9 +595,7 @@ begin
          crc_num_bits    <= 0;
          crc_reg         <= (others => '0');
          data_timing_err <= '0';
-
       elsif(clk_i'event and clk_i = '1') then
-
          if(data_req_expired = '1' and ret_dat_in_progress_i = '1') then
             data_timing_err <= '1';
          elsif(ret_dat_in_progress_i = '0') then
@@ -633,7 +634,9 @@ begin
 
       end if;
    end process;
-
+   -----------------------------------------------------
+   -- data counter
+   -----------------------------------------------------
    data_counter: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -648,7 +651,9 @@ begin
          end if;
       end if;
    end process;
-
+   -----------------------------------------------------
+   -- FSM outputs
+   -----------------------------------------------------
    state_out: process(present_state, data_clk_i, bit_ctr_count, previous_state, cmd_code, override_sync_num_i)
    begin
       --defaults
@@ -665,7 +670,7 @@ begin
       uop_rdy_o            <= '0';
       crc_ena              <= '0';
       sync_num_reg_en      <= '0';
---      busy_o               <= '1';
+      busy_o               <= '1';
       rdy_for_data_o       <= '0';
 
       case present_state is
@@ -674,7 +679,7 @@ begin
             crc_clr              <= '1';
             crc_ena              <= '1';
             update_prev_state    <= '1';
---            busy_o               <= '0';
+            busy_o               <= '0';
 
          -----------------------------------------------------
          -- Store Command
@@ -711,8 +716,8 @@ begin
          -- Issue Command
          -----------------------------------------------------
          when WAIT_TO_ISSUE =>
+            busy_o               <= '0';
             data_count_clr       <= '1';
-
             if(override_sync_num_i = '1') then
                sync_num_reg_en <= '1';
             end if;
@@ -756,7 +761,7 @@ begin
          -- Retire Command
          -----------------------------------------------------
          when WAIT_TO_RETIRE =>
-            null;
+            
 
          when RETIRE =>
             mop_ack_o         <= '1';
