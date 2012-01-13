@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.20  2011-11-18 00:46:42  mandana
+-- v5.1.7: bugfix for duplicate data in high-data-rate rectangle_mode readout.
+-- rd_addr_offset in wbs_frame_data.vhd
+--
 -- Revision 1.19  2011-10-27 19:01:48  mandana
 -- 5.1.6 bugfix for correct handling of ADC latency of Rev. C cards with adjusting coadd_done_o to be tied to ADC_latency parameter
 --
@@ -257,7 +261,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010007";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010008";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals

@@ -391,7 +391,7 @@ dac6_dfb_dat[5]              : D7        : output : 3.3-V LVTTL       :         
 dac7_dfb_dat[1]              : D8        : output : 3.3-V LVTTL       :         : 7A        : Y              
 dac7_dfb_dat[0]              : D9        : output : 3.3-V LVTTL       :         : 7A        : Y              
 bias_dac_ncs[0]              : D10       : output : 3.3-V LVTTL       :         : 7A        : Y              
-mictor_clk                   : D11       : output : 3.3-V LVTTL       :         : 7C        : N              
+RESERVED_INPUT               : D11       :        :                   :         : 7C        :                
 dac2_dfb_dat[3]              : D12       : output : 3.3-V LVTTL       :         : 7C        : Y              
 RESERVED_INPUT               : D13       :        :                   :         : 7C        :                
 RESERVED_INPUT               : D14       :        :                   :         : 7C        :                
@@ -657,7 +657,7 @@ eeprom_sck                   : N20       : output : 3.3-V LVTTL       :         
 VREFB1CN0                    : N22       : power  :                   :         : 1C        :                
 RESERVED_INPUT               : N23       :        :                   :         : 1C        :                
 dev_clr_n                    : N24       : input  : 3.3-V LVTTL       :         : 1C        : Y              
-RESERVED_INPUT               : N25       :        :                   :         : 1C        :                
+mictor_clk                   : N25       : output : 3.3-V LVTTL       :         : 1C        : N              
 RESERVED_INPUT               : N26       :        :                   :         : 1C        :                
 RESERVED_INPUT               : N27       :        :                   :         : 1C        :                
 GND+                         : N28       :        :                   :         : 1C        :                
