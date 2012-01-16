@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.96 2011-11-10 22:15:52 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.97 2012-01-05 23:14:03 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -2100,6 +2100,7 @@ begin
             when bc1_fb_col31_cmd => data <= data + 1; 
             when bc1_flux_fb_cmd => data <= data + 1;
             when bc1_bias_cmd => data <= data + 1;
+            when cc_awg_data_cmd => data <= data + 1;
             
             when rc1_filter_coeff_cmd => 
               -- the way this loop is written, it prepares data for next tga_i, hence it overruns array index!
@@ -2424,62 +2425,62 @@ begin
       load_checksum;
       wait for 50 us;      
 
-      command <= command_wb;
-      address_id <= cc_internal_cmd_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us; --3000
-
---      -------------------------------------
---      -- internal awg cc commands
-      -------------------------------------
---      command <= command_wb;
---      address_id <= cc_awg_sequence_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000008";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
---
---      command <= command_wb;
---      address_id <= cc_awg_data_cmd;
---      data_valid <= X"00000008";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
---
---      command <= command_wb;
---      address_id <= cc_awg_addr_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
---
 --      command <= command_wb;
 --      address_id <= cc_internal_cmd_mode_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000003";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 3000 us;
---
---      command <= command_wb;
---      address_id <= cc_awg_sequence_len_cmd;
 --      data_valid <= X"00000001";
 --      data       <= X"00000002";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 3000 us;
+--      wait for 500 us; --3000
+
+      -------------------------------------
+      -- internal awg cc commands
+    -------------------------------------
+      command <= command_wb;
+      address_id <= cc_awg_sequence_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= cc_awg_data_cmd;
+      data_valid <= X"00000008";
+      data       <= X"00000010";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= cc_awg_addr_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= cc_internal_cmd_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 3000 us;
+
+      command <= command_wb;
+      address_id <= cc_awg_sequence_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 3000 us;
 
       -------------------------------------
       -- AC
