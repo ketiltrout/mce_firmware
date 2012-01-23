@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.25  2010-11-30 19:48:06  mandana
+-- restructure pack files: moved fsfb defines to flux_loop_ctrl_pack and moved filter_coeff defines to flux_loop_pack, because filter_coeffs are now parametrized and asserted from a different block.
+--
 -- Revision 1.24  2010-11-16 00:40:43  mandana
 -- added filter_coeff interface and b11, b12, b21, b22 are not constants anymore
 -- added filter_coeff_defaults to set to filter type 1: fc/fsamp=122Hz/15kHz
@@ -246,6 +249,7 @@ package fsfb_calc_pack is
          current_coadd_dat_i         : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);
          current_diff_dat_i          : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);
          current_integral_dat_i      : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);
+         current_qterm_dat_i         : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);
          ramp_update_new_i           : in           std_logic;
          initialize_window_ext_i     : in           std_logic;
          previous_fsfb_dat_rdy_i     : in           std_logic;                                             
@@ -293,6 +297,7 @@ package fsfb_calc_pack is
          current_coadd_dat_i         : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  
          current_diff_dat_i          : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  
          current_integral_dat_i      : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  
+         current_qterm_dat_i         : in           std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  
          lock_mode_en_i              : in           std_logic;                                            
          p_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
          i_dat_i                     : in           std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);  
