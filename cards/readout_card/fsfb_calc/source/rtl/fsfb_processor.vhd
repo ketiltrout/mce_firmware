@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.15  2010-11-13 00:39:13  mandana
+-- added filter_coeff interface
+--
 -- Revision 1.14  2010/06/03 20:48:06  bburger
 -- BB:  Now uses CONSTANT_MODE, RAMP_MODE, and LOCK_MODE constants instead of literals.
 --
@@ -119,6 +122,7 @@ entity fsfb_processor is
       current_coadd_dat_i     : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current coadded value 
       current_diff_dat_i      : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current difference
       current_integral_dat_i  : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current integral
+      current_qterm_dat_i     : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current qterm
       
       -- control signal from io controller block
       ramp_update_new_i       : in     std_logic;                                             -- enable to latch new ramp result
@@ -324,6 +328,7 @@ begin
          current_coadd_dat_i       => current_coadd_dat_i,  
          current_diff_dat_i        => current_diff_dat_i,  
          current_integral_dat_i    => current_integral_dat_i,  
+         current_qterm_dat_i       => current_qterm_dat_i,           
          lock_mode_en_i            => lock_mode_en,                                            
          p_dat_i                   => p_dat_i,  
          i_dat_i                   => i_dat_i,  
