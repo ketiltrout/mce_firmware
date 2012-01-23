@@ -55,6 +55,9 @@
 -- wren_for_fsfb_i to provide it for fsfb_calc block of the flux_loop_ctrl.  We
 -- do this, in spite of having the data in the coadd memory bank in order to
 -- make the address index signalling simple.
+-- 
+-- 4. qterm is a decayed pterm calculated as: q(n)=coadd(n) + b*q(n-1) where
+-- b=(1-2/n) and n is a wishbone param id
 --
 -- Ports:
 -- #rst_i: global reset active high
@@ -76,6 +79,8 @@
 -- #coadd_dat_frm_bank1_i: Input from qb of coadd_dat_bank1.
 -- #intgrl_dat_frm_bank0_i: Input from qb of intgrl_dat_bank0.
 -- #intgrl_dat_frm_bank1_i: Input from qb of intgrl_dat_bank1.
+-- #qterm_dat_frm_bank0_i: Input from qb of intgrl_dat_bank0.
+-- #qterm_dat_frm_bank1_i: Input from qb of intgrl_dat_bank1.
 -- #current_coadd_dat_o: Output to fsfb_calc block.  The data is valid from 5
 -- clock cycles after the falling edge of adc_coadd_en to 5 clock cycles after
 -- the falling edge of the next adc_coadd_en.
@@ -85,8 +90,13 @@
 -- #current_integral_dat_o: Output to fsfb_calc block. The data is valid from 5
 -- clock cycles after the falling edge of adc_coadd_en to 5 clock cycles after
 -- the falling edge of the next adc_coadd_en.
+-- #current_qterm_dat_o: Output to fsfb_calc block. The data is valid from 5
+-- clock cycles after the falling edge of adc_coadd_en to 5 clock cycles after
+-- the falling edge of the next adc_coadd_en.
 -- #integral_result_o: output to integral memory banks.  This is the output of
 -- the combinational adder for calculating integral.
+-- #qterm_result_o: output to qterm memory banks.  This is the output of
+-- the combinational adder for calculating qterm.
 --
 --
 -- signals:
@@ -94,12 +104,18 @@
 -- #integral_result: Internal representation of integral_result_o.
 -- #previous_intgral: previous value of the integral.
 -- #diff_result: result of the subtraction.
+-- #qterm_result: Internal representation of qterm_result_o.
+-- #previous_qterm: previous value of the qterm
 -- #previous_coadd: previous value of coadd
 -- 
 --
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.8  2010/10/19 23:59:25  mandana
+-- integral_result is now cleared when flx_lp_init is issued
+-- once fsfb hits the clamp value, the clamp is in effect until another flx_lp_init is issued.
+--
 -- Revision 1.7  2010/10/07 18:39:52  mandana
 -- fixed a bug that caused servo instability when a clamp value was specified.
 -- removed clamping of diff and coadd values, this is strictly an integral clamp.
@@ -157,7 +173,8 @@ entity dynamic_manager_data_path is
     -- From System
     rst_i                  : in  std_logic;
     clk_i                  : in  std_logic;
-    i_clamp_val_i          : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    i_clamp_val_i          : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    qterm_decay_bits_i     : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     initialize_window_i    : in  std_logic;
     
     -- From coadd_manager_data_path
@@ -175,13 +192,21 @@ entity dynamic_manager_data_path is
     intgrl_dat_frm_bank0_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     intgrl_dat_frm_bank1_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
+    -- From qterm memory banks
+    qterm_dat_frm_bank0_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    qterm_dat_frm_bank1_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+
     -- Outputs to fsfb_calc
     current_coadd_dat_o    : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     current_diff_dat_o     : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     current_integral_dat_o : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    current_qterm_dat_o    : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
     -- Outputs to integral memory banks
-    integral_result_o      : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0));
+    integral_result_o      : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    
+    -- Outputs to qterm memory banks
+    qterm_result_o         : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0));
   
 
 end dynamic_manager_data_path;
@@ -199,6 +224,11 @@ architecture rtl of dynamic_manager_data_path is
   signal integral_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal previous_intgral : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
+  -- Signals needed for qterm Finder
+  signal qterm_result   : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal previous_qterm : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);    
+  signal previous_qterm_shift : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);    
+  
   -- Signals needed for Difference Finder
   signal diff_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal previous_coadd : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
@@ -206,8 +236,12 @@ architecture rtl of dynamic_manager_data_path is
   -- Signals needed for the Coadd Finder  
   signal en_clamp     : std_logic;  
   
+  signal QTERM_DECAY_BITS : integer range 0 to COADD_DAT_WIDTH-1 := 3;
+  
 begin  -- rtl
-
+  
+  --QTERM_DECAY_BITS <= conv_integer(qterm_decay_bits_i);
+  
   -----------------------------------------------------------------------------
   -- Shift register to delay initialize_window_i by MAX_SHIFT clock cycles. 
   -----------------------------------------------------------------------------
@@ -228,7 +262,7 @@ begin  -- rtl
 
   -----------------------------------------------------------------------------
   -- Integral Adder
-  -- This is a combinational adder that addes the present current coadded value
+  -- This is a combinational adder that adds the present current coadded value
   -- to the previous integral.  However, the previous integral is selected
   -- using two MUXes, one selects the value from current bank and the other
   -- masks the previous value to zero based on the shifted value of
@@ -240,59 +274,60 @@ begin  -- rtl
     (others => '0')        when initialize_window_max_dly = '1' else
     intgrl_dat_frm_bank1_i when current_bank_i = '0' else
     intgrl_dat_frm_bank0_i;
-    
+  
   -----------------------------------------------------------------------------
-  -- strictly Integral-Term Clamping:
+  -- Integral-Term Clamping:
+  -- When integral clamp is enabled (i_clamp_val_i /=0),  I-term is frozen until a flx_lp_init command clears the pipeline.
+  -- Documented on wiki is the formula to calculate the correct clamping value for any set of PID parameters and flux-jump quanta:
   -----------------------------------------------------------------------------
-  -- This is where the clamp needs to be to prevent wrapping.
-  -- A clamp any later in the chain will not prevent the I term from wrapping and causing a whiplash effect
-  -- Since a large FSFB is due to a ramping I term, the I term is the most important thing to be clamped; The P & D terms less so.
-  -- However, since we want to avoid small-scale fluctuations in the FSFB once the I term is clamped, we should also clamp the P and D terms to zero.
-  -- The way to do this is to check for an I term above/below a certain threshold, and if that happens, clamp to a fixed value above/below those thresholds
-  -- That way, the integral term gets frozen until a flx_lp_init command clears the pipeline.
-  -- Note that when i_clamp_val_i = 0, clamping is disabled.
-  -- See the wiki for the formula to calculate the correct clamping value for any set of PID parameters and flux-jump quanta:
-  -- http://e-mode.phas.ubc.ca/mcewiki/index.php/FSFB_Clamping_Commands
-  -----------------------------------------------------------------------------
-  en_clamp <= '0' when i_clamp_val_i = x"00000000" else
-              '1' ;
-              
-  i_clamp_process: process (clk_i, rst_i)
-  begin  -- process i_clamp_process
-    if rst_i = '1' then                 -- asynchronous reset (active high)
-      integral_result <= (others => '0'); 
-      integral_result_o <= (others => '0'); 
-      current_integral_dat_o <= (others => '0');
-      
-    elsif clk_i'event and clk_i = '1' then  -- rising clock edge
-      if en_clamp = '1' then
-        if initialize_window_max_dly = '0' then
-          if previous_intgral >= i_clamp_val_i then 
-            integral_result <= i_clamp_val_i;
-          elsif previous_intgral <= (-i_clamp_val_i) then
-            integral_result <= -i_clamp_val_i;
-          else 
-            integral_result <= current_coadd_dat_i + previous_intgral;
-          end if;  
-        else 
-            integral_result <= current_coadd_dat_i + previous_intgral;
-        end if;    
-      else
-        integral_result <= current_coadd_dat_i + previous_intgral;
-      end if;
-      
-      -- For running integral storage 
-      integral_result_o <= integral_result; 
-      
-      if wren_for_fsfb_i = '1' then
-        -- For PID loop calculation      
-        current_integral_dat_o <= integral_result;        
-      end if;
+  integral_result <= 
+    i_clamp_val_i  when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' else
+    -i_clamp_val_i when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' else    
+    current_coadd_dat_i + previous_intgral;
+  
+  integral_result_o <= integral_result;
 
-    end if;
-  end process i_clamp_process;
-                  
+  -----------------------------------------------------------------------------
+  -- qterm Adder
+  -- This is a combinational adder that adds the present current coadded value
+  -- to the previous qterm.qterm is a decaying p-term with a decay coefficient of 
+  -- 1-1/2^n where n=QTERM_DECAY_BITS
+  -- The previous qterm is selected
+  -- using two MUXes, one selects the value from current bank and the other
+  -- masks the previous value to zero based on the shifted value of
+  -- initialize_window_i.  Note that the MUX that masks the input from memory
+  -- banks has higher priority in the code wirtten here.  Also note that when
+  -- current_bank_i=1, inputs from bank 1 is selected and vice versa.
+  -----------------------------------------------------------------------------
+  previous_qterm <=
+    (others => '0')        when initialize_window_max_dly = '1' else
+    qterm_dat_frm_bank1_i when current_bank_i = '0' else
+    qterm_dat_frm_bank0_i;
 
+--  previous_qterm_shift_proc : process (clk_i, rst_i)
+--  variable k : integer := 0;
+--  begin
+--    if (rst_i = '1') then
+--      previous_qterm_shift <= (others => '0');
+--    elsif (clk_i'event and clk_i = '1') then
+--      k := QTERM_DECAY_BITS;
+--      for i in 0 to previous_qterm_shift'length -1  loop       
+--        if i <= previous_qterm_shift'length-1-QTERM_DECAY_BITS then
+--          previous_qterm_shift(i) <= previous_qterm(k);
+--        else
+--          previous_qterm_shift(i) <= previous_qterm(previous_qterm'left);                      
+--        end if;
+--        k := k + 1;
+--      end loop;   
+--    end if;
+--  end process previous_qterm_shift_proc;
+
+  -- decay coefficient of 1-1/2^n for n=3,, this is 0.875    
+  qterm_result <= current_coadd_dat_i + previous_qterm - --previous_qterm_shift;
+                  sxt(previous_qterm(previous_qterm'length-1 downto QTERM_DECAY_BITS), previous_qterm'length); 
+
+  qterm_result_o <= qterm_result;
+  
   -----------------------------------------------------------------------------
   -- Difference finder
   -- This is a combinational subtractor that subtracts the previous coadd value
@@ -317,7 +352,8 @@ begin  -- rtl
   begin  -- process i_output_for_fsfb
     if rst_i = '1' then                 -- asynchronous reset (active high)
       current_coadd_dat_o    <= (others => '0');
-      --current_integral_dat_o <= (others => '0');
+      current_integral_dat_o <= (others => '0');
+      current_qterm_dat_o    <= (others => '0');     
       current_diff_dat_o     <= (others => '0');
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
@@ -325,16 +361,14 @@ begin  -- rtl
       if wren_for_fsfb_i = '1' then
         -- For PID loop calculation
         current_coadd_dat_o    <= current_coadd_dat_i;
-        -- the integral term is now 
-      --  current_integral_dat_o <= integral_result_o;
+        current_integral_dat_o <= integral_result;
+        current_qterm_dat_o    <= qterm_result;
         current_diff_dat_o     <= diff_result;
       end if;
       
     end if;
   end process i_output_for_fsfb;
-
-  
-  
+   
 end rtl;
 
 
