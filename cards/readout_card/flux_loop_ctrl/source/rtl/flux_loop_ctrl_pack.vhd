@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.14  2010-11-30 19:45:58  mandana
+-- filter_coeff ports reduced to filter_coef_width instead of wb_data_width to help fitting in EP1S40.
+-- reorganized pack files and moved fsfb definitions here to stay compliant with hierarchical pack files
+--
 -- Revision 1.13  2010-11-13 00:37:05  mandana
 -- added filter_coeff interface
 --
@@ -140,6 +144,7 @@ package flux_loop_ctrl_pack is
       clk_50_i                  : in  std_logic;
       rst_i                     : in  std_logic;
       i_clamp_val_i             : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      qterm_decay_bits_i        : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       adc_coadd_en_i            : in  std_logic;
       restart_frame_1row_prev_i : in  std_logic;
       restart_frame_aligned_i   : in  std_logic;
@@ -151,6 +156,7 @@ package flux_loop_ctrl_pack is
       current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
       current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
       current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      current_qterm_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
       adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0));
   end component;
@@ -174,6 +180,7 @@ package flux_loop_ctrl_pack is
          current_coadd_dat_i        : in    std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current coadded value 
          current_diff_dat_i         : in    std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current difference
          current_integral_dat_i     : in    std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current integral
+         current_qterm_dat_i        : in    std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current qterm (qterm(n) = er(n) + b*qterm(n-1) where b=1-1/2^n) 
          restart_frame_aligned_i    : in    std_logic;                                             -- start of frame signal
          restart_frame_1row_post_i  : in    std_logic;                                             -- start of frame signal (1 row behind of actual frame start)
          row_switch_i               : in    std_logic;                                             -- row switch signal to indicate next clock cycle is the beginning of new row

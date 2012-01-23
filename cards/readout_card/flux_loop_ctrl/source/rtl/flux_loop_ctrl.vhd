@@ -41,6 +41,10 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.19  2010-11-30 19:45:58  mandana
+-- filter_coeff ports reduced to filter_coef_width instead of wb_data_width to help fitting in EP1S40.
+-- reorganized pack files and moved fsfb definitions here to stay compliant with hierarchical pack files
+--
 -- Revision 1.18  2010-11-13 00:36:01  mandana
 -- added filtr_coeff interface
 --
@@ -140,6 +144,7 @@ port (
    rst_i                      : in  std_logic;
  
    i_clamp_val_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   qterm_decay_bits_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
 
    -- Frame timing signals
    adc_coadd_en_i             : in  std_logic;
@@ -227,6 +232,7 @@ architecture struct of flux_loop_ctrl is
    signal current_coadd_dat       : std_logic_vector (31 downto 0);
    signal current_diff_dat        : std_logic_vector (31 downto 0);
    signal current_integral_dat    : std_logic_vector (31 downto 0);
+   signal current_qterm_dat       : std_logic_vector (31 downto 0);  -- it really has to be COADD_DAT_WIDTH!!
 
    -- signals from fsfb_calc
    signal fsfb_ctrl_lock_en       : std_logic;
@@ -245,6 +251,7 @@ begin  -- struct
       clk_50_i                  => clk_50_i,
       rst_i                     => rst_i,
       i_clamp_val_i             => i_clamp_val_i,
+      qterm_decay_bits_i        => qterm_decay_bits_i,
       adc_coadd_en_i            => adc_coadd_en_i,
       restart_frame_1row_prev_i => restart_frame_1row_prev_i,
       restart_frame_aligned_i   => restart_frame_aligned_i,
@@ -256,6 +263,7 @@ begin  -- struct
       current_coadd_dat_o       => current_coadd_dat,
       current_diff_dat_o        => current_diff_dat,
       current_integral_dat_o    => current_integral_dat,
+      current_qterm_dat_o       => current_qterm_dat,
       adc_offset_dat_i          => adc_offset_dat_i,
       adc_offset_adr_o          => adc_offset_adr_o
    );
@@ -275,6 +283,7 @@ begin  -- struct
       current_coadd_dat_i        => current_coadd_dat,
       current_diff_dat_i         => current_diff_dat,
       current_integral_dat_i     => current_integral_dat,
+      current_qterm_dat_i        => current_qterm_dat,
       restart_frame_aligned_i    => restart_frame_aligned_i,
       restart_frame_1row_post_i  => restart_frame_1row_post_i,
       row_switch_i               => row_switch_i,
