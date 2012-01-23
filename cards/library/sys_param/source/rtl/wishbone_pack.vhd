@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2011-11-07 23:24:35 $> - <initials $Author: mandana $>
+-- <date $Date: 2012-01-05 23:10:46 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.63  2012-01-05 23:10:46  mandana
+-- added ramp_phase command
+--
 -- Revision 1.62  2011-11-07 23:24:35  mandana
 -- added critical_error and dev_clr
 --
@@ -259,7 +262,7 @@ use sys_param.command_pack.all;
 
 package wishbone_pack is
    --
-   -- unassigned parameter-id:0c-0f, 25-2F, 38-3F, 40, 42, 47-4f, 64, 9e-9f, E9-FF
+   -- unassigned parameter-id:0c-0f, 25-2F, 38-3F, 40, 42, 47-4f, 9e-9f, E9-FF
    --
   ---------------------------------------------------------------------------------
    -- Wishbone bus widths
@@ -355,7 +358,8 @@ package wishbone_pack is
    constant RAMP_AMP_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1D"; -- RCS
    constant RAMP_STEP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1E"; -- RCS
    constant FB_CONST_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F"; -- RCS
-   
+
+   constant QTERM_DECAY_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"64"; -- RCS   
    constant FLTR_TYPE_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"65"; -- RCS
    constant I_CLAMP_VAL_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"66"; -- RCS
    constant READOUT_PRIORITY_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"67"; -- Obsolete.
