@@ -657,7 +657,7 @@ eeprom_sck                   : N20       : output : 3.3-V LVTTL       :         
 VREFB1CN0                    : N22       : power  :                   :         : 1C        :                
 RESERVED_INPUT               : N23       :        :                   :         : 1C        :                
 dev_clr_n                    : N24       : input  : 3.3-V LVTTL       :         : 1C        : Y              
-mictor_clk                   : N25       : output : 3.3-V LVTTL       :         : 1C        : N              
+RESERVED_INPUT               : N25       :        :                   :         : 1C        :                
 RESERVED_INPUT               : N26       :        :                   :         : 1C        :                
 RESERVED_INPUT               : N27       :        :                   :         : 1C        :                
 GND+                         : N28       :        :                   :         : 1C        :                
@@ -799,7 +799,7 @@ RESERVED_INPUT               : V23       :        :                   :         
 RESERVED_INPUT               : V24       :        :                   :         : 2C        :                
 RESERVED_INPUT               : V25       :        :                   :         : 2C        :                
 dip_sw2                      : V26       : input  : 3.3-V LVTTL       :         : 2C        : Y              
-RESERVED_INPUT               : V27       :        :                   :         : 2C        :                
+mictor_clk                   : V27       : output : 3.3-V LVTTL       :         : 2C        : N              
 RESERVED_INPUT               : V28       :        :                   :         : 2C        :                
 RESERVED_INPUT               : W1        :        :                   :         : 5C        :                
 adc1_lvds                    : W2        : input  : LVDS              :         : 5A        : Y              

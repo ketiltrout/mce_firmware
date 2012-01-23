@@ -43,7 +43,7 @@ Slack : 1.878
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 1.883
+Slack : 1.896
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_ac_rise'
@@ -70,92 +70,92 @@ Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy
 Slack : 2.444
 TNS   : 0.000
 
+Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
+Slack : 2.932
+TNS   : 0.000
+
 Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 3.222
+Slack : 3.126
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[1]'
 Slack : 3.236
 TNS   : 0.000
 
-Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 3.307
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 6.445
+Type  : Slow 1100mV 85C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 6.401
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 6.542
+Slack : 6.451
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 6.557
+Slack : 6.575
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 6.754
+Slack : 7.075
 TNS   : 0.000
 
-Type  : Slow 1100mV 85C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 6.808
+Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 7.387
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 9.583
+Slack : 10.304
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 12.892
+Slack : 12.220
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 17.896
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.316
+Slack : 17.546
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 0.380
+Slack : 0.375
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 0.383
+Slack : 0.384
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.398
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 0.412
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.437
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 0.469
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 0.495
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 0.514
+Slack : 0.406
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 0.514
+Slack : 0.477
 TNS   : 0.000
 
-Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 0.524
+Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.489
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 0.531
+Slack : 0.508
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
+Slack : 0.514
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 0.516
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 0.522
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 0.571
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_tDQSS'
@@ -219,67 +219,67 @@ Slack : 2.834
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 4.256
+Slack : 4.258
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 6.768
+Slack : 6.803
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 1.768
+Slack : 2.094
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 6.422
+Slack : 6.546
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 7.683
+Slack : 7.564
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 7.896
+Slack : 7.884
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 8.355
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 17.253
+Slack : 7.991
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 17.914
+Slack : 18.162
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
+Slack : 18.331
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 0.726
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 0.990
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.999
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 1.173
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Removal 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 1.442
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 1.839
+Slack : 0.682
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 1.947
+Slack : 0.969
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 0.994
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
+Slack : 0.997
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 1.083
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Removal 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 1.245
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
+Slack : 1.515
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -307,14 +307,14 @@ Slack : 1.727
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 2.822
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 2.825
+Slack : 2.821
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
+Slack : 2.824
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
 Slack : 2.825
 TNS   : 0.000
 
@@ -323,19 +323,19 @@ Slack : 3.896
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 3.904
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 4.002
+Slack : 3.905
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 4.007
+Slack : 4.008
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
+Slack : 4.010
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 4.170
+Slack : 4.171
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
@@ -351,15 +351,15 @@ Slack : 4.257
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 8.754
+Slack : 8.758
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 8.880
+Slack : 8.881
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 9.168
+Slack : 9.167
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'adc_fco'
@@ -375,7 +375,7 @@ Slack : 19.745
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 39.168
+Slack : 39.169
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_tDQSS'
@@ -411,7 +411,7 @@ Slack : 1.864
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 1.961
+Slack : 1.956
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_ac_fall'
@@ -431,11 +431,11 @@ Slack : 2.027
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ddr_dqsin_mem_dqs[0]'
-Slack : 2.140
+Slack : 2.141
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ddr_dqsin_mem_dqs[1]'
-Slack : 2.140
+Slack : 2.141
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[3]'
@@ -446,92 +446,92 @@ Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_
 Slack : 2.456
 TNS   : 0.000
 
+Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
+Slack : 3.051
+TNS   : 0.000
+
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 3.301
+Slack : 3.209
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[1]'
 Slack : 3.331
 TNS   : 0.000
 
-Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 3.416
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 6.575
+Type  : Slow 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 6.526
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 6.675
+Slack : 6.589
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 6.689
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 6.888
+Slack : 6.710
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 6.904
+Slack : 7.221
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 7.473
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 9.544
+Slack : 10.240
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 13.248
+Slack : 12.601
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 17.980
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.304
+Slack : 17.638
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 0.372
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 0.393
+Slack : 0.329
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 0.410
+Slack : 0.378
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
+Slack : 0.384
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.385
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.412
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 0.438
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 0.478
+Slack : 0.458
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 0.487
+Slack : 0.460
 TNS   : 0.000
 
-Type  : Slow 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 0.489
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 0.504
+Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 0.491
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 0.513
+Slack : 0.492
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
+Slack : 0.494
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 0.503
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 0.545
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_tDQSS'
@@ -555,19 +555,19 @@ Slack : 1.164
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_ac_rise'
-Slack : 1.773
+Slack : 1.772
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_p_mem_clk[0]_ac_rise'
-Slack : 1.776
+Slack : 1.775
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_ac_fall'
-Slack : 1.782
+Slack : 1.781
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_p_mem_clk[0]_ac_fall'
-Slack : 1.785
+Slack : 1.784
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[3]'
@@ -595,67 +595,67 @@ Slack : 2.819
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 4.042
+Slack : 4.045
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 6.754
+Slack : 6.787
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 1.822
+Slack : 2.135
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 6.548
+Slack : 6.676
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 7.742
+Slack : 7.645
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 7.940
+Slack : 7.951
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 8.400
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 17.325
+Slack : 8.043
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 17.995
+Slack : 18.238
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
+Slack : 18.379
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 0.690
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 0.952
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.954
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 1.127
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Removal 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 1.406
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 1.781
+Slack : 0.652
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 1.887
+Slack : 0.932
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 0.956
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
+Slack : 0.957
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 1.037
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Removal 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 1.212
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
+Slack : 1.467
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -671,19 +671,15 @@ Slack : 1.699
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ddr_dqsin_mem_dqs[0]'
-Slack : 1.731
+Slack : 1.732
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ddr_dqsin_mem_dqs[1]'
-Slack : 1.731
+Slack : 1.732
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 1.754
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 2.822
+Slack : 1.755
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
@@ -692,6 +688,10 @@ TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
 Slack : 2.823
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 2.824
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -703,15 +703,15 @@ Slack : 3.852
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 3.954
+Slack : 3.948
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 3.967
+Slack : 3.955
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 4.161
+Slack : 4.163
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
@@ -727,15 +727,15 @@ Slack : 4.279
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 8.755
+Slack : 8.757
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 8.842
+Slack : 8.843
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 9.163
+Slack : 9.166
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'adc_fco'
@@ -751,7 +751,7 @@ Slack : 19.733
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 39.164
+Slack : 39.165
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_tDQSS'
@@ -795,7 +795,7 @@ Slack : 2.232
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_ac_rise'
-Slack : 2.388
+Slack : 2.389
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_n_mem_clk_n[0]_ac_fall'
@@ -803,7 +803,7 @@ Slack : 2.401
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_p_mem_clk[0]_ac_rise'
-Slack : 2.406
+Slack : 2.407
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ck_p_mem_clk[0]_ac_fall'
@@ -819,7 +819,7 @@ Slack : 2.637
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 2.741
+Slack : 2.766
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[1]'
@@ -827,87 +827,87 @@ Slack : 3.649
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 4.072
+Slack : 4.012
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 4.500
+Slack : 4.242
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 7.434
+Slack : 7.476
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 7.448
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 7.832
+Slack : 7.509
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 8.516
+Slack : 8.414
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 8.445
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 8.662
+Slack : 8.492
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 9.289
+Slack : 9.771
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 15.424
+Slack : 14.964
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 18.924
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.109
+Slack : 18.761
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 0.172
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 0.185
+Slack : 0.166
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 0.186
+Slack : 0.180
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.192
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Type  : Fast 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
 Slack : 0.194
 TNS   : 0.000
 
+Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.194
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 0.197
+TNS   : 0.000
+
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 0.208
+Slack : 0.197
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 0.211
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 0.257
+Slack : 0.239
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 0.309
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 0.655
+Slack : 0.318
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 0.693
+Slack : 0.669
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
+Slack : 0.685
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[1]'
@@ -955,11 +955,11 @@ Slack : 2.287
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ddr_dqsin_mem_dqs[0]'
-Slack : 2.602
+Slack : 2.603
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_ddr_dqsin_mem_dqs[1]'
-Slack : 2.602
+Slack : 2.603
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[0].slaves_gen[1].clk_div_slave|clkout'
@@ -971,67 +971,67 @@ Slack : 2.646
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'i_rc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 2.895
+Slack : 2.897
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
-Slack : 6.559
+Slack : 6.572
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 3.134
+Slack : 3.286
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 8.109
+Slack : 8.171
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 8.977
+Slack : 8.922
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 8.999
+Slack : 9.003
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 9.341
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 18.634
+Slack : 9.112
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 19.053
+Slack : 19.162
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Recovery 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
+Slack : 19.324
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 0.206
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 0.389
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.404
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 0.486
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Removal 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.646
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 0.932
+Slack : 0.202
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 1.078
+Slack : 0.375
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
+Slack : 0.391
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
+Slack : 0.402
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.444
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Removal 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.536
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Removal 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
+Slack : 0.702
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -1058,15 +1058,15 @@ Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_c
 Slack : 2.126
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
-Slack : 3.230
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
+Slack : 3.228
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[3]'
 Slack : 3.230
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[4]'
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_adc_pll|altpll_component|auto_generated|pll1|clk[2]'
 Slack : 3.231
 TNS   : 0.000
 
@@ -1078,12 +1078,12 @@ Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto
 Slack : 4.164
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
-Slack : 4.197
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
+Slack : 4.196
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[1].slaves_gen[0].clk_div_slave|clkout'
-Slack : 4.203
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.clk_div_master|clkout'
+Slack : 4.197
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|dpio|ddr_clkdiv_gen.grp_gen[0].slaves_gen[1].clk_div_slave|clkout'
@@ -1095,15 +1095,15 @@ Slack : 4.234
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[6]'
-Slack : 4.632
+Slack : 4.633
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|half_rate.pll|altpll_component|auto_generated|pll1|clk[5]'
-Slack : 4.636
+Slack : 4.635
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'micron_ctrl_inst|micron_ctrl_controller_phy_inst|alt_mem_phy_inst|micron_ctrl_phy_alt_mem_phy_inst|clk|scan_clk|q_clock'
-Slack : 8.909
+Slack : 8.910
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -1127,7 +1127,7 @@ Slack : 19.952
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'i_rc_pll|altpll_component|auto_generated|pll1|clk[3]'
-Slack : 39.635
+Slack : 39.634
 TNS   : 0.000
 
 ------------------------------------------------------------
