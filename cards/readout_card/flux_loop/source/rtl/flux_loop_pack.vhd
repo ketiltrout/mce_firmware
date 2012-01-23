@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.23  2011-01-21 01:32:56  mandana
+-- fixed typo in comments for filter type 2
+--
 -- Revision 1.22  2010-11-30 19:43:46  mandana
 -- filter_coeff ports reduced to filter_coef_width instead of wb_data_width to help fitting in EP1S40.
 -- reorganized pack files and moved filter_coef definitions here to keep hierarchical pack files
@@ -297,6 +300,7 @@ package flux_loop_pack is
       fsfb_fltr_dat_rdy_o         : out std_logic;
       fsfb_fltr_dat_o             : out std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
       i_clamp_val_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      qterm_decay_bits_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         : out std_logic;                                             
@@ -627,6 +631,7 @@ package flux_loop_pack is
       num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
       flux_jumping_en_o       : out std_logic;
       i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      qterm_decay_bits_o      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       dat_i                   : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                  : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
       tga_i                   : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);

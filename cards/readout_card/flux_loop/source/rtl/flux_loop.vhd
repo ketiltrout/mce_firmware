@@ -334,6 +334,7 @@ architecture struct of flux_loop is
    signal ramp_amp              : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
    signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);  
    signal i_clamp_val           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal qterm_decay_bits      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    
    -- Signals Interface between fsfb_corr and flux_loop_ctrl
@@ -567,6 +568,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en0,   
@@ -637,6 +639,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en1,   
@@ -707,6 +710,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en2,   
@@ -777,6 +781,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en3,   
@@ -847,6 +852,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en4,   
@@ -917,6 +923,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en5,   
@@ -987,6 +994,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en6,   
@@ -1057,6 +1065,7 @@ begin  -- struct
       fsfb_fltr_dat_rdy_o       => open,
       fsfb_fltr_dat_o           => open,
       i_clamp_val_i             => i_clamp_val,
+      qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
       fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en7,   
@@ -1385,6 +1394,7 @@ begin  -- struct
       num_ramp_frame_cycles_o => num_ramp_frame_cycles,
       flux_jumping_en_o       => flux_jumping_en,
       i_clamp_val_o           => i_clamp_val,
+      qterm_decay_bits_o      => qterm_decay_bits,
       dat_i                   => dat_i,
       addr_i                  => addr_i,
       tga_i                   => tga_i,
