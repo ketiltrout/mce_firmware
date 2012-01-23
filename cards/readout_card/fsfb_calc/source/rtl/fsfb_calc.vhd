@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.15  2010-11-30 19:46:40  mandana
+-- filter_coeff ports reduced to filter_coef_width instead of wb_data_width
+--
 -- Revision 1.14  2010-11-13 00:39:12  mandana
 -- added filter_coeff interface
 --
@@ -124,6 +127,7 @@ entity fsfb_calc is
       current_coadd_dat_i        : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current coadded value 
       current_diff_dat_i         : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current difference
       current_integral_dat_i     : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current integral
+      current_qterm_dat_i        : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);   -- current qterm
      
       -- control signals from frame timing block
       restart_frame_aligned_i    : in     std_logic;                                             -- start of frame signal
@@ -327,6 +331,7 @@ begin
          current_coadd_dat_i          => current_coadd_dat_i,
          current_diff_dat_i           => current_diff_dat_i,
          current_integral_dat_i       => current_integral_dat_i,
+         current_qterm_dat_i          => current_qterm_dat_i,         
          ramp_update_new_i            => ramp_update_new_o,
          initialize_window_ext_i      => initialize_window_ext_o,
          previous_fsfb_dat_rdy_i      => previous_fsfb_dat_rdy_o,
@@ -357,11 +362,10 @@ begin
          fsfb_proc_fltr_dat_o         => fsfb_proc_fltr_dat_o,
          fsfb_proc_lock_en_o          => fsfb_ctrl_lock_en_o
       ); 
-     
-     
+          
    -- first stage feedback queues
    -- Bank 0 (even)
-   -- Queue is 25-bit wide:  24 (ramp +/-); 23:0 (actual fsfb data)
+   -- Queue is 40-bit wide:  39 (ramp +/-); 38:0 (actual fsfb data)
    i_fsfb_queue_bank0 : ram_40x64
       port map (
          data                         => fsfb_queue_wr_data_o,
@@ -375,7 +379,7 @@ begin
       );   
     
    -- Bank 1 (odd)
-   -- Queue is 25-bit wide:  24 (ramp +/-); 23:0 (actual fsfb data)   
+   -- Queue is 40-bit wide:  39 (ramp +/-); 38:0 (actual fsfb data)   
    i_fsfb_queue_bank1 : ram_40x64
       port map (
          data                         => fsfb_queue_wr_data_o,
