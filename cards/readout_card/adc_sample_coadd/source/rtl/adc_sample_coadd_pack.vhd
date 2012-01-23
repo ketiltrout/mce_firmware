@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.11  2011-10-27 21:10:25  mandana
+-- FSFB_DONE_DELAY has to be tied to ADC_LATENCY and is not a free parameter, it is not used anymore!
+--
 -- Revision 1.10  2010/03/12 20:35:10  bburger
 -- BB: added i_clamp_val interface signals
 --
@@ -87,14 +90,9 @@ package adc_sample_coadd_pack is
   
   -----------------------------------------------------------------------------
   -- Constants used in A/D sampler and coadder
-  -----------------------------------------------------------------------------
-
-  
+  -----------------------------------------------------------------------------  
   constant TOTAL_ROW_NO              : integer := 64;
-  constant FSFB_DONE_DLY             : integer := 6;                    -- This should really be tied to ADC_LATENCY
-  constant NUMB_RAW_FRM_TO_GRAB      : integer := 2;                    -- =#of raw frames to grab
-  constant RAW_DATA_POSITION_POINTER : integer := 13;--USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
-  
+--  constant QTERM_DECAY_BITS          : integer := 3; -- qterm decay factor is: (1-1/2^n) where n=QTERM_DECAY_BITS
 
   -----------------------------------------------------------------------------
   -- Coadd Manager and Dynamic Data Manager Storage Component
@@ -149,7 +147,7 @@ package adc_sample_coadd_pack is
   component coadd_dynamic_manager_ctrl
 
     generic (
-      COADD_DONE_MAX_COUNT : integer := FSFB_DONE_DLY;
+      COADD_DONE_MAX_COUNT : integer;
       MAX_SHIFT            : integer);
  
     port (
@@ -187,6 +185,7 @@ package adc_sample_coadd_pack is
       rst_i                  : in  std_logic;
       clk_i                  : in  std_logic;
       i_clamp_val_i          : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      qterm_decay_bits_i     : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);      
       initialize_window_i    : in  std_logic;
       current_coadd_dat_i    : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       current_bank_i         : in  std_logic;
@@ -195,10 +194,14 @@ package adc_sample_coadd_pack is
       coadd_dat_frm_bank1_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       intgrl_dat_frm_bank0_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       intgrl_dat_frm_bank1_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      qterm_dat_frm_bank0_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      qterm_dat_frm_bank1_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);      
       current_coadd_dat_o    : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       current_diff_dat_o     : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       current_integral_dat_o : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-      integral_result_o      : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0));
+      current_qterm_dat_o    : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);      
+      integral_result_o      : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      qterm_result_o         : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0));
   end component;
 
   -----------------------------------------------------------------------------
