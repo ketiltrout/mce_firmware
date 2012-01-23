@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.10  2010-11-30 21:18:42  mandana
+-- filter_coeff ports reduced to filter_coef_width instead of wb_data_width
+--
 -- Revision 1.9  2010/03/12 21:02:58  bburger
 -- BB: added i_clamp_val interface signals
 --
@@ -313,6 +316,7 @@ package wbs_fb_data_pack is
       num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
       flux_jumping_en_o       : out std_logic;
       i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      qterm_decay_bits_o      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       dat_i                   : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i                  : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
       tga_i                   : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);

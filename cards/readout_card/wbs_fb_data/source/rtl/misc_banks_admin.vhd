@@ -144,6 +144,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.20  2010-11-30 21:17:45  mandana
+-- filter_coeff registers are separated from the misc_bank
+--
 -- Revision 1.19  2010-11-13 00:43:57  mandana
 -- added filter_coeff registers and initialize them to FILTER_COEFF_DEFAULTS for filter_type 1
 --
@@ -314,6 +317,7 @@ entity misc_banks_admin is
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
     flux_jumping_en_o       : out std_logic;
     i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    qterm_decay_bits_o      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);  
     
     -- signals to/from dispatch  (wishbone interface)
     dat_i                   : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
@@ -347,8 +351,9 @@ architecture rtl of misc_banks_admin is
   constant OFFSET_DAT_INDEX_OFFSET : integer := 19;   -- Index of offset_dat in array register
   constant EN_FB_JUMP_OFFSET       : integer := 27;   -- Index of enable flag for the flux-jumping block
   constant I_CLAMP_VAL_OFFSET      : integer := 28;
+  constant QTERM_DECAY_OFFSET      : integer := 29;
  -- constant FILTER_INDEX_OFFSET     : integer := 29;   -- Index of filter_coeff in array register (2 values common for all channels)
-  constant MISC_BANK_MAX_RANGE     : integer := 29;   -- Maximum number of parameters in the Miscellanous bank
+  constant MISC_BANK_MAX_RANGE     : integer := 30;   -- Maximum number of parameters in the Miscellanous bank
  
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
   constant ZERO_XTND_SERVO : std_logic_vector(WB_DATA_WIDTH-SERVO_MODE_SEL_WIDTH-1 downto 0) := (others => '0');
@@ -357,6 +362,7 @@ architecture rtl of misc_banks_admin is
   
   -- I_CLAMP_VAL is set to zero to disable the functionality by default.
   constant I_CLAMP_VAL : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
+  constant DEFAULT_QTERM_DECAY_BITS : integer :=3;
 
   -----------------------------------------------------------------------------
   -- Registers for each value
@@ -429,6 +435,9 @@ begin  -- rtl
 --          j := i - FILTER_INDEX_OFFSET;
 --          reg_temp(i) <= conv_std_logic_vector(FILT_COEF_DEFAULTS(j),WB_DATA_WIDTH);
 --          reg(i) <= conv_std_logic_vector(FILT_COEF_DEFAULTS(j),WB_DATA_WIDTH);
+        elsif(i = QTERM_DECAY_OFFSET) then
+          reg_temp(i) <= conv_std_logic_vector(DEFAULT_QTERM_DECAY_BITS, WB_DATA_WIDTH);
+          reg(i) <= conv_std_logic_vector(DEFAULT_QTERM_DECAY_BITS, WB_DATA_WIDTH);
         else
           reg_temp(i) <= (others => '0');
           reg(i) <= (others => '0');
@@ -521,6 +530,8 @@ begin  -- rtl
         wren(EN_FB_JUMP_OFFSET) <= we_i;
       when I_CLAMP_VAL_ADDR =>
         wren(I_CLAMP_VAL_OFFSET) <= we_i;
+      when QTERM_DECAY_ADDR =>
+        wren(QTERM_DECAY_OFFSET) <= we_i;
 
       when SA_BIAS_ADDR =>
         case tga_i(MAX_BIT_TAG-1 downto 0) is
@@ -585,7 +596,8 @@ begin  -- rtl
     (stb_i and cyc_i) when SERVO_MODE_ADDR | RAMP_STEP_ADDR | -- FILT_COEF_ADDR | 
                            RAMP_AMP_ADDR | FB_CONST_ADDR | RAMP_DLY_ADDR |
                            SA_BIAS_ADDR |  OFFSET_ADDR | EN_FB_JUMP_ADDR |
-                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR | FILT_COEF_ADDR,
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR | FILT_COEF_ADDR | 
+                           QTERM_DECAY_ADDR,
     '0'               when others;
 
   -- ack_write_misc_bank <= ack_read_misc_bank;
@@ -699,6 +711,7 @@ begin  -- rtl
     reg(EN_FB_JUMP_OFFSET)        when EN_FB_JUMP_ADDR,
     ext(FILTER_TYPE, qa_misc_bank_o'length)   when FLTR_TYPE_ADDR,
     reg(I_CLAMP_VAL_OFFSET)       when I_CLAMP_VAL_ADDR,
+    reg(QTERM_DECAY_OFFSET)       when QTERM_DECAY_ADDR,
     ZERO_XTND_SERVO & servo_dat   when others;
     --ext(servo_dat, qa_misc_bank_o'length) when others;           -- default to first value in bank
     -- !!Strangely, ext function to zero-extend worked well in modelsim but would 
@@ -753,6 +766,7 @@ begin  -- rtl
   const_val_ch7_o         <= reg(CONST_VAL_INDEX_OFFSET+7)(CONST_VAL_WIDTH-1 downto 0);  
   flux_jumping_en_o       <= '0' when reg(EN_FB_JUMP_OFFSET) = ZERO else '1';
   i_clamp_val_o           <= reg(I_CLAMP_VAL_OFFSET);
+  qterm_decay_bits_o      <= reg(QTERM_DECAY_OFFSET);
   
   sa_bias_rdy_ch0_o       <= sa_bias_rdy(0);
   sa_bias_rdy_ch1_o       <= sa_bias_rdy(1);

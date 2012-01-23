@@ -81,6 +81,9 @@
 -- Revision history:
 --
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.14  2010-11-30 21:18:42  mandana
+-- filter_coeff ports reduced to filter_coef_width instead of wb_data_width
+--
 -- Revision 1.13  2010-11-13 00:44:30  mandana
 -- *** empty log message ***
 --
@@ -312,7 +315,7 @@ entity wbs_fb_data is
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
     flux_jumping_en_o       : out std_logic;
     i_clamp_val_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
+    qterm_decay_bits_o      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
     -- signals to/from dispatch  (wishbone interface)
     dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
@@ -611,6 +614,7 @@ begin  -- struct
         num_ramp_frame_cycles_o => num_ramp_frame_cycles_o,
         flux_jumping_en_o       => flux_jumping_en_o,
         i_clamp_val_o           => i_clamp_val_o,
+        qterm_decay_bits_o      => qterm_decay_bits_o,
         dat_i                   => dat_i,
         addr_i                  => addr_i,
         tga_i                   => tga_i,
@@ -653,7 +657,7 @@ begin  -- struct
     qa_misc_bank        when FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                              SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR | I_CLAMP_VAL_ADDR |
-                             FLTR_TYPE_ADDR,
+                             FLTR_TYPE_ADDR | QTERM_DECAY_ADDR,
 
     (others => '0')     when others;        -- default to zero
 
