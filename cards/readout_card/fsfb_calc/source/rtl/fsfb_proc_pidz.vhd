@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.18  2011-06-02 20:39:54  mandana
+-- After generating coeffs for many filters, it is certain that a filter_scale_lsb range of 0 to 7 is more than enough.
+--
 -- Revision 1.17  2011-01-21 01:35:35  mandana
 -- added two more stages to the calc_shift_state scheduler to account for the two extra clock cycles added due to configurable filter coeffs.
 -- fixing the bug associated with row0 filter data being written to RAM location 2, etc.
@@ -131,6 +134,7 @@ entity fsfb_proc_pidz is
       current_coadd_dat_i      : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  -- current coadded value
       current_diff_dat_i       : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  -- current difference
       current_integral_dat_i   : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  -- current integral
+      current_qterm_dat_i      : in     std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);  -- current qterm
 
       -- control signals from configuration registers
       lock_mode_en_i           : in     std_logic;                                            -- lock mode enable 
@@ -197,6 +201,7 @@ architecture rtl of fsfb_proc_pidz is
    signal current_coadd_dat_reg    : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current coadded value register
    signal current_diff_dat_reg     : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current difference register
    signal current_integral_dat_reg : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current integral register
+   signal current_qterm_dat_reg    : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current qterm register
    
    signal multiplicand_a           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);         -- selected coefficient multiplicand
    signal multiplicand_b           : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- selected adc_sample_coadd multiplicand
@@ -298,11 +303,13 @@ begin
          current_coadd_dat_reg <= (others => '0');
          current_diff_dat_reg  <= (others => '0');
          current_integral_dat_reg <= (others => '0');
+         current_qterm_dat_reg <= (others => '0');         
       elsif (clk_50_i'event and clk_50_i = '1') then
          if (coadd_done_i = '1') then
             current_coadd_dat_reg    <= current_coadd_dat_i;
             current_diff_dat_reg     <= current_diff_dat_i;
             current_integral_dat_reg <= current_integral_dat_i;
+            current_qterm_dat_reg <= current_qterm_dat_i;
          end if;
       end if;
    end process operand_storages;
@@ -313,9 +320,10 @@ begin
    
    -- Mux the correct data operand input to the single shared multiplier 
    
-   multiply_mux_in : process (current_coadd_dat_reg, p_dat_i, 
+   multiply_mux_in : process (current_qterm_dat_reg, p_dat_i, --current_coadd_dat_reg,
                               current_diff_dat_reg, d_dat_i,
                               current_integral_dat_reg, i_dat_i,
+                               
                               wn11_dat_i, wn12_dat_i, wn21_dat_i, wn22_dat_i,
                               filter_b11_coef, filter_b12_coef, filter_b21_coef, filter_b22_coef,
                               calc_shift_state(6 downto 0))
@@ -323,13 +331,16 @@ begin
       operand_select : case calc_shift_state(6 downto 0) is
       
          -- P*current_coadd_dat
+         -- Q*current_qterm_dat_o
          when "0000001" => multiplicand_a <= p_dat_i;
-                           multiplicand_b <= current_coadd_dat_reg;
+                        --   multiplicand_b <= current_coadd_dat_reg;
+                           multiplicand_b <= current_qterm_dat_reg;
                  
          -- I*current_integral_dat
          when "0000010" => multiplicand_a <= i_dat_i;
                            multiplicand_b <= current_integral_dat_reg;
                           
+
          -- D*current_diff_dat
          when "0000100" => multiplicand_a <= d_dat_i;
                            multiplicand_b <= current_diff_dat_reg;
@@ -412,6 +423,7 @@ begin
          multiplicand_b_reg <= multiplicand_b;
       
          if (calc_shift_state(1) = '1') then
+         -- q_product_reg <= multiplied_result(multiplied_result'left) & multiplied_result;
             p_product_reg <= multiplied_result(multiplied_result'left) & multiplied_result;
          end if;
             
@@ -652,7 +664,7 @@ begin
          -- 1st stage sum
          if (store_1st_add = '1') then
             pi_sum_reg <= pi_sum(pi_sum'left) & pi_sum;
-            dz_sum_reg <= d_product_reg(d_product_reg'left) & d_product_reg;
+            dz_sum_reg <= d_product_reg(d_product_reg'left) & d_product_reg; -- not a sum anymore, just d-term
          end if;
          
          -- 2nd stage sum
