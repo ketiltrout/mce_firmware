@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.11  2011-10-27 21:08:05  mandana
+-- coadd_done_o timing is now tied to ADC_LATENCY parameter
+--
 -- Revision 1.10  2010/03/12 20:34:23  bburger
 -- BB: added i_clamp_val interface signals
 --
@@ -183,7 +186,8 @@ port (
    clk_50_i                  : in  std_logic;
    rst_i                     : in  std_logic;
 
-   i_clamp_val_i              : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   i_clamp_val_i             : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   qterm_decay_bits_i        : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
    -- Frame timing signals
    adc_coadd_en_i            : in  std_logic;
@@ -201,6 +205,7 @@ port (
    current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
    current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
    current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+   current_qterm_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
 
    -- Wishbove Slave (wbs) Feedback (fb) Data Signals
    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -222,6 +227,10 @@ architecture struct of adc_sample_coadd is
    signal intgrl_dat_portb_bank0 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
    signal intgrl_dat_portb_bank1 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
+   -- signlas from dynamic data storage bank 0 and 1
+   signal qterm_dat_portb_bank0 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+   signal qterm_dat_portb_bank1 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+
    -- signals from coadd_manager_data_path
    signal adc_coadd_en_5delay    : std_logic;
    signal adc_coadd_en_4delay    : std_logic;
@@ -239,7 +248,7 @@ architecture struct of adc_sample_coadd is
 
    -- signals from dynamic_dat_manager_data_path
    signal integral_result        : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-
+   signal qterm_result           : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
    
 begin  -- struc
      
@@ -325,6 +334,35 @@ begin  -- struc
       qb          => intgrl_dat_portb_bank1
    );
    
+   -----------------------------------------------------------------------------
+   -- Instantiation of Q-term Data Bank 0
+   -----------------------------------------------------------------------------
+   i_qterm_dat_bank0 : coadd_storage
+   port map (
+      data        => qterm_result,        -- from dynamic data path
+      wraddress   => coadd_write_addr,    -- from coadd data path
+      rdaddress_a => GROUNDED_ADDR,       -- grounded(not used)
+      rdaddress_b => coadd_write_addr,    -- from coadd data path
+      wren        => wren_bank0,          -- from coadd/dynamic controller
+      clock       => clk_50_i,            -- system input
+      qa          => open,
+      qb          => qterm_dat_portb_bank0
+   );
+
+   -----------------------------------------------------------------------------
+   -- Instantiation of Q-term Data Bank 1
+   -----------------------------------------------------------------------------
+   i_qterm_dat_bank1 : coadd_storage
+   port map (
+      data        => qterm_result,        -- from dynamic data path
+      wraddress   => coadd_write_addr,    -- from coadd data path
+      rdaddress_a => GROUNDED_ADDR,       -- grounded (not used)
+      rdaddress_b => coadd_write_addr,    -- from coadd data path
+      wren        => wren_bank1,          -- from coadd/dynamic controller
+      clock       => clk_50_i,            -- system input
+      qa          => open,
+      qb          => qterm_dat_portb_bank1
+   );
    
    -----------------------------------------------------------------------------
    -- Instantiation of Coadd Manager Data Path
@@ -387,6 +425,7 @@ begin  -- struc
       rst_i                  => rst_i,                  -- system input
       clk_i                  => clk_50_i,               -- system input
       i_clamp_val_i          => i_clamp_val_i,
+      qterm_decay_bits_i     => qterm_decay_bits_i,
       initialize_window_i    => initialize_window_i,    -- system input
       current_coadd_dat_i    => samples_coadd_reg,      -- frm coadd data path
       current_bank_i         => current_bank,           -- frm coadd controller
@@ -395,10 +434,14 @@ begin  -- struc
       coadd_dat_frm_bank1_i  => coadd_dat_portb_bank1,   -- coadd memory bank1
       intgrl_dat_frm_bank0_i => intgrl_dat_portb_bank0,  -- intgrl memory bank0
       intgrl_dat_frm_bank1_i => intgrl_dat_portb_bank1,  -- intgrl memory bank1
+      qterm_dat_frm_bank0_i  => qterm_dat_portb_bank0,   -- qterm memory bank0
+      qterm_dat_frm_bank1_i  => qterm_dat_portb_bank1,   -- qterm memory bank1      
       current_coadd_dat_o    => current_coadd_dat_o,  
       current_diff_dat_o     => current_diff_dat_o,
       current_integral_dat_o => current_integral_dat_o,
-      integral_result_o      => integral_result
+      current_qterm_dat_o    => current_qterm_dat_o,
+      integral_result_o      => integral_result,
+      qterm_result_o         => qterm_result
    );
 
 end struct;
