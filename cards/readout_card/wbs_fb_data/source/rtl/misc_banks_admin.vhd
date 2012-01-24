@@ -144,6 +144,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.21  2012-01-23 20:58:15  mandana
+-- added wishbone support for qterm_decay_bits and set default to 3.
+--
 -- Revision 1.20  2010-11-30 21:17:45  mandana
 -- filter_coeff registers are separated from the misc_bank
 --
@@ -362,7 +365,7 @@ architecture rtl of misc_banks_admin is
   
   -- I_CLAMP_VAL is set to zero to disable the functionality by default.
   constant I_CLAMP_VAL : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
-  constant DEFAULT_QTERM_DECAY_BITS : integer :=3;
+  constant DEFAULT_QTERM_DECAY_BITS : integer := 0;
 
   -----------------------------------------------------------------------------
   -- Registers for each value
