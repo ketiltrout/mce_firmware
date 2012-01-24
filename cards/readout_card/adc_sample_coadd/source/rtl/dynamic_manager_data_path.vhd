@@ -112,6 +112,9 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.9  2012-01-23 20:38:57  mandana
+-- added qterm support with qterm_decay_bits hardcoded to 3 for now
+--
 -- Revision 1.8  2010/10/19 23:59:25  mandana
 -- integral_result is now cleared when flx_lp_init is issued
 -- once fsfb hits the clamp value, the clamp is in effect until another flx_lp_init is issued.
@@ -227,7 +230,8 @@ architecture rtl of dynamic_manager_data_path is
   -- Signals needed for qterm Finder
   signal qterm_result   : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal previous_qterm : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);    
-  signal previous_qterm_shift : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);    
+  signal previous_qterm_shift : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);   
+  signal previous_qterm_weighted : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);   
   
   -- Signals needed for Difference Finder
   signal diff_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
@@ -236,11 +240,11 @@ architecture rtl of dynamic_manager_data_path is
   -- Signals needed for the Coadd Finder  
   signal en_clamp     : std_logic;  
   
-  signal QTERM_DECAY_BITS : integer range 0 to COADD_DAT_WIDTH-1 := 3;
+  signal QTERM_DECAY_BITS : integer range 0 to COADD_DAT_WIDTH-1;
   
 begin  -- rtl
   
-  --QTERM_DECAY_BITS <= conv_integer(qterm_decay_bits_i);
+  QTERM_DECAY_BITS <= conv_integer(qterm_decay_bits_i);
   
   -----------------------------------------------------------------------------
   -- Shift register to delay initialize_window_i by MAX_SHIFT clock cycles. 
@@ -304,27 +308,29 @@ begin  -- rtl
     qterm_dat_frm_bank1_i when current_bank_i = '0' else
     qterm_dat_frm_bank0_i;
 
---  previous_qterm_shift_proc : process (clk_i, rst_i)
---  variable k : integer := 0;
---  begin
---    if (rst_i = '1') then
---      previous_qterm_shift <= (others => '0');
---    elsif (clk_i'event and clk_i = '1') then
---      k := QTERM_DECAY_BITS;
---      for i in 0 to previous_qterm_shift'length -1  loop       
---        if i <= previous_qterm_shift'length-1-QTERM_DECAY_BITS then
---          previous_qterm_shift(i) <= previous_qterm(k);
---        else
---          previous_qterm_shift(i) <= previous_qterm(previous_qterm'left);                      
---        end if;
---        k := k + 1;
---      end loop;   
---    end if;
---  end process previous_qterm_shift_proc;
+  previous_qterm_shift_proc : process (clk_i, rst_i)
+  variable k : integer := 0;
+  begin
+    if (rst_i = '1') then
+      previous_qterm_shift <= (others => '0');
+    elsif (clk_i'event and clk_i = '1') then
+      k := QTERM_DECAY_BITS;
+      for i in 0 to previous_qterm_shift'length -1  loop       
+        if i <= previous_qterm_shift'length-1-QTERM_DECAY_BITS then
+          previous_qterm_shift(i) <= previous_qterm(k);
+        else
+          previous_qterm_shift(i) <= previous_qterm(previous_qterm'left);                      
+        end if;
+        k := k + 1;
+      end loop;   
+    end if;
+  end process previous_qterm_shift_proc;
+  
+  previous_qterm_weighted <= previous_qterm - previous_qterm_shift;
 
   -- decay coefficient of 1-1/2^n for n=3,, this is 0.875    
-  qterm_result <= current_coadd_dat_i + previous_qterm - --previous_qterm_shift;
-                  sxt(previous_qterm(previous_qterm'length-1 downto QTERM_DECAY_BITS), previous_qterm'length); 
+  qterm_result <= current_coadd_dat_i + previous_qterm_weighted;--previous_qterm - previous_qterm_shift;
+                  --sxt(previous_qterm(previous_qterm'length-1 downto QTERM_DECAY_BITS), previous_qterm'length); 
 
   qterm_result_o <= qterm_result;
   
