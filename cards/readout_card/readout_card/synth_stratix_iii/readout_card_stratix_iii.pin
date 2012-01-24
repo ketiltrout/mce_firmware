@@ -454,7 +454,7 @@ VCC_CLKIN7C                  : F14       : power  :                   : 2.5V    
 VCCA_PLL_T1                  : F15       : power  :                   : 2.5V    :           :                
 VCC_CLKIN8C                  : F16       : power  :                   : 2.5V    :           :                
 dac_dfb_clk[0]               : F17       : output : 3.3-V LVTTL       :         : 8C        : Y              
-RESERVED_INPUT               : F18       :        :                   :         : 8C        :                
+mictor_clk                   : F18       : output : 3.3-V LVTTL       :         : 8C        : N              
 dac0_dfb_dat[10]             : F19       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac0_dfb_dat[9]              : F20       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac0_dfb_dat[5]              : F21       : output : 3.3-V LVTTL       :         : 8A        : Y              
@@ -799,7 +799,7 @@ RESERVED_INPUT               : V23       :        :                   :         
 RESERVED_INPUT               : V24       :        :                   :         : 2C        :                
 RESERVED_INPUT               : V25       :        :                   :         : 2C        :                
 dip_sw2                      : V26       : input  : 3.3-V LVTTL       :         : 2C        : Y              
-mictor_clk                   : V27       : output : 3.3-V LVTTL       :         : 2C        : N              
+RESERVED_INPUT               : V27       :        :                   :         : 2C        :                
 RESERVED_INPUT               : V28       :        :                   :         : 2C        :                
 RESERVED_INPUT               : W1        :        :                   :         : 5C        :                
 adc1_lvds                    : W2        : input  : LVDS              :         : 5A        : Y              

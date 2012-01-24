@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.22  2012-01-23 21:00:03  mandana
+-- rev. 5.1.9
+-- support added for par_id x64 or qterm_decay_bits, for now hardcoded to n=3!
+--
 -- Revision 1.21  2012-01-13 20:30:46  mandana
 -- 5.1.8 sq1fb is applied with fb_dly=7 when flux-jump is off, with fb_dly=18 when flux-jump is on
 --
@@ -264,7 +268,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05010009";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0501000a";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
