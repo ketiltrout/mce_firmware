@@ -34,7 +34,7 @@
 set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "9.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -478,6 +478,14 @@ set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 2
 set_global_assignment -name MISC_FILE "C:/mce/cards/clk_card/clk_card/synth/clk_card.dpf"
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name ALLOW_POWER_UP_DONT_CARE ON
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_COLOR 14622752 -section_id Top
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+
+
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name VHDL_FILE ../../config_fpga/source/rtl/jtag_data_bank.vhd
 set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/awg_data_bank.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/d_flipflop.vhd
@@ -492,29 +500,21 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl
 set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_pack.vhd
 set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_core_pack.vhd
 set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_pack.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_pack.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_pack.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/clk_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
 set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset_pack.vhd
 set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs_pack.vhd
 set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx_pack.vhd
 set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover_pack.vhd
 set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_ctrl_pack.vhd
-set_global_assignment -name VHDL_FILE ../source/rtl/clk_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/manch_pll.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/three_wire_master.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
 set_global_assignment -name VHDL_FILE ../../subarray_id/source/rtl/subarray_id.vhd
 set_global_assignment -name VHDL_FILE ../../backplane_id_thermo/source/rtl/backplane_id_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/tpram_32bit_x_64.vhd
@@ -536,12 +536,10 @@ set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slo
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
 set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/cc_pll.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_receive.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_sequencer.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_accumulator.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
@@ -558,17 +556,8 @@ set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_tpram.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_arbiter.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_ret_dat_fsm.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_control.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_fifo.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_protocol.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_control.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_fifo.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
@@ -616,12 +605,5 @@ set_global_assignment -name SIGNALTAP_FILE dv_rx_manch_clk.stp
 set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug_.stp
 set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug2_.stp
 set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/Bryce/Desktop/work/latest sofs/awg_testing.cdf"
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_COLOR 14622752 -section_id Top
-set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
-set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
 set_global_assignment -name SIGNALTAP_FILE reply_queue.stp
-
-
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
