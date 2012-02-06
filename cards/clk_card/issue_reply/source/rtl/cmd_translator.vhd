@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.69 2011-12-01 19:46:11 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.70 2012-01-06 23:15:15 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -428,10 +428,11 @@ begin
       if (rst_i = '1') then
          timer_rst <= '1';
       elsif (clk_i'event and clk_i = '1') then      
+         timer_rst  <= '0';       
          if(internal_status_ack = '1') then
             timer_rst            <= '1';
-         else
-            timer_rst <= '0';
+         --else
+         --   timer_rst <= '0';
          end if;
       end if;   
    end process i_timer_rst;
@@ -504,7 +505,7 @@ begin
             -- This state lasts only one clock cycle.! NOT TRUE!!!            
             if (ack_i = '1') then
                -- a healthy data process is here at the last frame
-               if (seq_num /= stop_seq_num_i-1) then -- why -1? MA
+               if (seq_num /= stop_seq_num_i) then -- why -1? MA
                   next_state <= UPDATE_FOR_NEXT;
                else 
                   next_state <= IDLE;
@@ -766,7 +767,7 @@ begin
             end if;
 
             if(ack_i = '1') then 
-               if (seq_num /= stop_seq_num_i-1) then -- why -1?
+               if (seq_num /= stop_seq_num_i) then -- why -1? 
                   if(seq_num = start_seq_num_i and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
                      update_next_toggle_sync <= '1';
                   end if;
@@ -801,6 +802,9 @@ begin
                --   null;
                end if;
             end if;
+            if(seq_num = stop_seq_num_i) then
+	       last_frame_o <= '1';
+	    end if;
 
          when REQ_LAST_DATA_PACKET =>
             instr_rdy_o       <= '1';
