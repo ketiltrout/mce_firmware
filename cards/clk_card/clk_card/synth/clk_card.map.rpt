@@ -1,5 +1,5 @@
 Analysis & Synthesis report for clk_card
-Thu Jan 26 14:16:41 2012
+Mon Feb 06 15:34:52 2012
 Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 
 
@@ -672,12 +672,12 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                 ;
 +-----------------------------+------------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Thu Jan 26 14:16:40 2012          ;
+; Analysis & Synthesis Status ; Successful - Mon Feb 06 15:34:52 2012          ;
 ; Quartus II 64-Bit Version   ; 10.0 Build 262 08/18/2010 SP 1 SJ Full Version ;
 ; Revision Name               ; clk_card                                       ;
 ; Top-level Entity Name       ; clk_card                                       ;
 ; Family                      ; Stratix                                        ;
-; Total logic elements        ; 20,787                                         ;
+; Total logic elements        ; 20,726                                         ;
 ; Total pins                  ; 243                                            ;
 ; Total virtual pins          ; 0                                              ;
 ; Total memory bits           ; 957,952                                        ;
@@ -928,28 +928,28 @@ applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------------------------------------------+
 ; Resource                                    ; Usage                                                                         ;
 +---------------------------------------------+-------------------------------------------------------------------------------+
-; Total logic elements                        ; 20787                                                                         ;
-;     -- Combinational with no register       ; 12193                                                                         ;
+; Total logic elements                        ; 20726                                                                         ;
+;     -- Combinational with no register       ; 12132                                                                         ;
 ;     -- Register only                        ; 3585                                                                          ;
 ;     -- Combinational with a register        ; 5009                                                                          ;
 ;                                             ;                                                                               ;
 ; Logic element usage by number of LUT inputs ;                                                                               ;
-;     -- 4 input functions                    ; 9825                                                                          ;
-;     -- 3 input functions                    ; 3670                                                                          ;
-;     -- 2 input functions                    ; 3446                                                                          ;
-;     -- 1 input functions                    ; 246                                                                           ;
+;     -- 4 input functions                    ; 9801                                                                          ;
+;     -- 3 input functions                    ; 3666                                                                          ;
+;     -- 2 input functions                    ; 3414                                                                          ;
+;     -- 1 input functions                    ; 245                                                                           ;
 ;     -- 0 input functions                    ; 15                                                                            ;
 ;                                             ;                                                                               ;
 ; Logic elements by mode                      ;                                                                               ;
-;     -- normal mode                          ; 17845                                                                         ;
-;     -- arithmetic mode                      ; 2942                                                                          ;
+;     -- normal mode                          ; 17815                                                                         ;
+;     -- arithmetic mode                      ; 2911                                                                          ;
 ;     -- qfbk mode                            ; 0                                                                             ;
 ;     -- register cascade mode                ; 0                                                                             ;
 ;     -- synchronous clear/load mode          ; 2546                                                                          ;
 ;     -- asynchronous clear/load mode         ; 8200                                                                          ;
 ;                                             ;                                                                               ;
 ; Total registers                             ; 8594                                                                          ;
-; Total logic cells in carry chains           ; 3248                                                                          ;
+; Total logic cells in carry chains           ; 3216                                                                          ;
 ; I/O pins                                    ; 243                                                                           ;
 ; Total memory bits                           ; 957952                                                                        ;
 ; DSP block 9-bit elements                    ; 10                                                                            ;
@@ -958,7 +958,7 @@ applicable agreement for further details.
 ;                                             ;                                                                               ;
 ; Maximum fan-out node                        ; clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk0 ;
 ; Maximum fan-out                             ; 9896                                                                          ;
-; Total fan-out                               ; 108991                                                                        ;
+; Total fan-out                               ; 108818                                                                        ;
 ; Average fan-out                             ; 4.84                                                                          ;
 +---------------------------------------------+-------------------------------------------------------------------------------+
 
@@ -968,7 +968,7 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------+-------------+--------------+-------------+------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
 ; Compilation Hierarchy Node                                                   ; Logic Cells ; LC Registers ; Memory Bits ; DSP Blocks ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                                                                                                                                                        ; Library Name ;
 +------------------------------------------------------------------------------+-------------+--------------+-------------+------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
-; |clk_card                                                                    ; 20787 (947) ; 8594         ; 957952      ; 0          ; 10           ; 0       ; 1         ; 1         ; 243  ; 0            ; 12193 (947)  ; 3585 (0)          ; 5009 (0)         ; 3248 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                  ;              ;
+; |clk_card                                                                    ; 20726 (947) ; 8594         ; 957952      ; 0          ; 10           ; 0       ; 1         ; 1         ; 243  ; 0            ; 12132 (947)  ; 3585 (0)          ; 5009 (0)         ; 3216 (0)        ; 0 (0)      ; |clk_card                                                                                                                                                                                                                                                                  ;              ;
 ;    |all_cards:i_all_cards|                                                   ; 410 (154)   ; 256          ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 154 (154)    ; 256 (0)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|all_cards:i_all_cards                                                                                                                                                                                                                                            ;              ;
 ;       |reg:\i_all_cards_bank:0:all_cards_reg|                                ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|all_cards:i_all_cards|reg:\i_all_cards_bank:0:all_cards_reg                                                                                                                                                                                                      ;              ;
 ;       |reg:\i_all_cards_bank:1:all_cards_reg|                                ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|all_cards:i_all_cards|reg:\i_all_cards_bank:1:all_cards_reg                                                                                                                                                                                                      ;              ;
@@ -1129,8 +1129,8 @@ applicable agreement for further details.
 ;       |reg:id_data3|                                                         ; 8 (8)       ; 8            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:id_data3                                                                                                                                                                                                                      ;              ;
 ;       |reg:thermo_data0|                                                     ; 6 (6)       ; 6            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 6 (6)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:thermo_data0                                                                                                                                                                                                                  ;              ;
 ;       |reg:thermo_data1|                                                     ; 8 (8)       ; 8            ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 8 (8)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|id_thermo:card_id_thermo_slave|reg:thermo_data1                                                                                                                                                                                                                  ;              ;
-;    |issue_reply:issue_reply_block|                                           ; 11341 (0)   ; 4811         ; 682496      ; 0          ; 2            ; 0       ; 1         ; 0         ; 0    ; 0            ; 6530 (0)     ; 1395 (0)          ; 3416 (0)         ; 2187 (0)        ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block                                                                                                                                                                                                                                    ;              ;
-;       |cmd_queue:i_cmd_queue|                                                ; 873 (481)   ; 437          ; 8704        ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 436 (358)    ; 97 (32)           ; 340 (91)         ; 181 (128)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue                                                                                                                                                                                                              ;              ;
+;    |issue_reply:issue_reply_block|                                           ; 11280 (0)   ; 4811         ; 682496      ; 0          ; 2            ; 0       ; 1         ; 0         ; 0    ; 0            ; 6469 (0)     ; 1395 (0)          ; 3416 (0)         ; 2155 (0)        ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block                                                                                                                                                                                                                                    ;              ;
+;       |cmd_queue:i_cmd_queue|                                                ; 872 (480)   ; 437          ; 8704        ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 435 (357)    ; 97 (32)           ; 340 (91)         ; 181 (128)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue                                                                                                                                                                                                              ;              ;
 ;          |cmd_queue_tpram:cmd_queue_ram40_inst|                              ; 0 (0)       ; 0            ; 8192        ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst                                                                                                                                                                         ;              ;
 ;             |alt3pram:alt3pram_component|                                    ; 0 (0)       ; 0            ; 8192        ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component                                                                                                                                             ;              ;
 ;                |altdpram:altdpram_component1|                                ; 0 (0)       ; 0            ; 8192        ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component|altdpram:altdpram_component1                                                                                                                ;              ;
@@ -1157,7 +1157,7 @@ applicable agreement for further details.
 ;          |reg:step_value_reg|                                                ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 32 (32)          ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|reg:step_value_reg                                                                                                                                                                                           ;              ;
 ;          |serial_crc:cmd_crc|                                                ; 113 (113)   ; 64           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 49 (49)      ; 0 (0)             ; 64 (64)          ; 32 (32)         ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|serial_crc:cmd_crc                                                                                                                                                                                           ;              ;
 ;          |shift_reg:sh_reg|                                                  ; 32 (32)     ; 32           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 32 (32)          ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_queue:i_cmd_queue|shift_reg:sh_reg                                                                                                                                                                                             ;              ;
-;       |cmd_translator:i_cmd_translator|                                      ; 1131 (1085) ; 341          ; 0           ; 0          ; 2            ; 0       ; 1         ; 0         ; 0    ; 0            ; 790 (780)    ; 157 (154)         ; 184 (151)        ; 387 (351)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator                                                                                                                                                                                                    ;              ;
+;       |cmd_translator:i_cmd_translator|                                      ; 1071 (1025) ; 341          ; 0           ; 0          ; 2            ; 0       ; 1         ; 0         ; 0    ; 0            ; 730 (720)    ; 157 (154)         ; 184 (151)        ; 355 (319)       ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator                                                                                                                                                                                                    ;              ;
 ;          |lpm_mult:Mult0|                                                    ; 0 (0)       ; 0            ; 0           ; 0          ; 2            ; 0       ; 1         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|lpm_mult:Mult0                                                                                                                                                                                     ;              ;
 ;             |mult_iqs:auto_generated|                                        ; 0 (0)       ; 0            ; 0           ; 0          ; 2            ; 0       ; 1         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|lpm_mult:Mult0|mult_iqs:auto_generated                                                                                                                                                             ;              ;
 ;          |us_timer:timer|                                                    ; 46 (46)     ; 36           ; 0           ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |clk_card|issue_reply:issue_reply_block|cmd_translator:i_cmd_translator|us_timer:timer                                                                                                                                                                                     ;              ;
@@ -3958,7 +3958,7 @@ Encoding Type: Safe One-Hot
 ; 1045:1             ; 3 bits    ; 2088 LEs      ; 147 LEs              ; 1941 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[9]                                                                                                 ;
 ; 1045:1             ; 3 bits    ; 2088 LEs      ; 147 LEs              ; 1941 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[4]                                                                                                 ;
 ; 1045:1             ; 2 bits    ; 1392 LEs      ; 112 LEs              ; 1280 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[24]                                                                                                ;
-; 1301:1             ; 2 bits    ; 1734 LEs      ; 114 LEs              ; 1620 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[1]                                                                                                 ;
+; 1301:1             ; 2 bits    ; 1734 LEs      ; 108 LEs              ; 1626 LEs               ; No         ; |clk_card|dispatch:cc_dispatch_block|dispatch_wishbone:wishbone|buf_data_o[1]                                                                                                 ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
@@ -9612,7 +9612,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+----------------------------------+-----------------+
 ; Parameter Name ; Value                            ; Type            ;
 +----------------+----------------------------------+-----------------+
-; revision       ; 00000101000000000000000000001001 ; Unsigned Binary ;
+; revision       ; 00000101000000000000000000001010 ; Unsigned Binary ;
 ; card_type      ; 011                              ; Unsigned Binary ;
 +----------------+----------------------------------+-----------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
@@ -13044,7 +13044,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Analysis & Synthesis
     Info: Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Jan 26 14:13:41 2012
+    Info: Processing started: Mon Feb 06 15:32:00 2012
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off clk_card -c clk_card
 Info: Parallel compilation is enabled and will use 4 of the 4 processors detected
 Info: Found 2 design units, including 1 entities, in source file /mce/cards/clk_card/config_fpga/source/rtl/jtag_data_bank.vhd
@@ -14358,18 +14358,18 @@ Warning: Design contains 27 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "mictor0clk_e"
     Warning (15610): No output dependent on input pin "rx"
     Warning (15610): No output dependent on input pin "nbb_jtag"
-Info: Implemented 22538 device resources after synthesis - the final resource count might be different
+Info: Implemented 22477 device resources after synthesis - the final resource count might be different
     Info: Implemented 75 input pins
     Info: Implemented 134 output pins
     Info: Implemented 34 bidirectional pins
-    Info: Implemented 20787 logic cells
+    Info: Implemented 20726 logic cells
     Info: Implemented 1496 RAM segments
     Info: Implemented 2 PLLs
     Info: Implemented 10 DSP elements
 Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 185 warnings
     Info: Peak virtual memory: 574 megabytes
-    Info: Processing ended: Thu Jan 26 14:16:41 2012
-    Info: Elapsed time: 00:03:00
-    Info: Total CPU time (on all processors): 00:02:54
+    Info: Processing ended: Mon Feb 06 15:34:53 2012
+    Info: Elapsed time: 00:02:53
+    Info: Total CPU time (on all processors): 00:02:52
 
 
