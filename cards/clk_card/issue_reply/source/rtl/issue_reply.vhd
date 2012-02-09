@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.84 2011-12-01 19:46:11 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.85 2012-01-06 23:07:24 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 --
--- <date $Date: 2011-12-01 19:46:11 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2012-01-06 23:07:24 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.85  2012-01-06 23:07:24  mandana
+-- added simple_cmd and busy_io to cmd_translator/cmd_q interface
+-- cosmetic cleanup
+--
 -- Revision 1.84  2011-12-01 19:46:11  mandana
 -- re-organized pack files
 --
@@ -202,6 +206,9 @@ entity issue_reply is
       sync_box_free_run_i    : in std_logic;
       external_dv_i          : in std_logic;
       external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+
+      -- non-manchester encoded fibre input to be encoded in the frame header
+      dv_pulse_fibre_i       : in std_logic;
 
       -- sync_gen interface
       dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
@@ -512,6 +519,9 @@ begin
       sync_box_err_ack_o  => sync_box_err_ack_o,
       sync_box_free_run_i => sync_box_free_run_i,
       external_dv_num_i   => external_dv_num_i,
+      
+      -- non-manchester encoded fibre input to be encoded in the frame header
+      dv_pulse_fibre_i    => dv_pulse_fibre_i,      
 
       -- Bus Backplane interface
       lvds_reply_all_a_i  => lvds_reply_all_a_i,

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.60 2011-12-01 19:46:11 mandana Exp $
+-- $Id: issue_reply_pack.vhd,v 1.61 2012-01-06 23:09:16 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.61  2012-01-06 23:09:16  mandana
+-- parametrized interface definitions
+-- moved all frame-header defines here
+-- added step_phase, revived busy_i to the interface
+--
 -- Revision 1.60  2011-12-01 19:46:11  mandana
 -- re-organized pack files
 --
@@ -164,7 +169,7 @@ package issue_reply_pack is
    constant BOX_TEMP_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word
 
    -- number of frame header words stored in RAM
-   constant DATA_PACKET_HEADER_REVISION: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000006";
+   constant DATA_PACKET_HEADER_REVISION: std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000007";
    constant NUM_RAM_HEAD_WORDS  : integer := 43;
    constant RAM_HEAD_ADDR_WIDTH : integer :=  6;
 
@@ -173,7 +178,7 @@ package issue_reply_pack is
    constant PSC_STATUS_COUNT : integer :=  8; -- Includes space for card_temp errno word
    constant BOX_TEMP_COUNT   : integer :=  2; -- Includes space for fpga_temp errno word
 
-   -- Memory Map for the header information RAM, version 6
+   -- Memory Map for the header information RAM, version 6+
    constant FPGA_TEMP_OFFSET   : integer := 0;
    constant CARD_TEMP_OFFSET   : integer := FPGA_TEMP_COUNT;
    constant PSC_STATUS_OFFSET  : integer := FPGA_TEMP_COUNT + CARD_TEMP_COUNT;
@@ -476,6 +481,9 @@ package issue_reply_pack is
       sync_box_err_ack_o  : out std_logic;
       sync_box_free_run_i : in std_logic;
       external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+
+      -- non-manchester encoded fibre input to be encoded in the frame header
+      dv_pulse_fibre_i       : in std_logic;
 
       -- Bus Backplane interface
       lvds_reply_all_a_i  : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.56 2011-12-01 19:46:11 mandana Exp $
+-- $Id: reply_queue.vhd,v 1.57 2012-01-06 23:10:39 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -34,6 +34,10 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.57  2012-01-06 23:10:39  mandana
+-- cosmetic cleanup and parametrized signals
+-- moved frame-header definitions to issue_reply_pack
+--
 -- Revision 1.56  2011-12-01 19:46:11  mandana
 -- re-organized pack files
 --
@@ -188,6 +192,9 @@ entity reply_queue is
       sync_box_err_ack_o  : out std_logic;
       sync_box_free_run_i : in std_logic;
       external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      
+      -- non-manchester encoded fibre input to be encoded in the frame header
+      dv_pulse_fibre_i    : in std_logic;
 
       -- Bus Backplane interface
       lvds_reply_all_a_i  : in std_logic_vector(NUM_CARDS_TO_REPLY-1 downto 0);
@@ -609,8 +616,8 @@ begin
    bit_status_i <= "00000000000" & 
                     data_timing_err_i & num_cols_reported & 
                     "00" & 
-                    rcs_responding &
-                   "00000" & --formerly TES bias square wave level
+                    rcs_responding & dv_pulse_fibre_i &
+                    "0000" & --formerly TES bias square wave level
                     active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
 
    bit_status_reg: reg

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.21 2011-12-01 20:52:14 mandana Exp $
+-- $Id: clk_card_pack.vhd,v 1.22 2012-01-06 23:03:19 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.22  2012-01-06 23:03:19  mandana
+-- cosmetic cleanup
+--
 -- Revision 1.21  2011-12-01 20:52:14  mandana
 -- re-organized pack files, moved global definitions from sync_gen and ret_dat_wbs to top level
 --
@@ -606,6 +609,9 @@ package clk_card_pack is
       sync_box_free_run_i    : in std_logic;
       external_dv_i          : in std_logic;
       external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      
+      -- non-manchester encoded fibre input to be encoded in the frame header
+      dv_pulse_fibre_i       : in std_logic;
 
       -- sync_gen interface
       dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
