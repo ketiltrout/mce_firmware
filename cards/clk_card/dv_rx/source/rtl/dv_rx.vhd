@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.16 2007/10/18 22:35:43 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.17 2011-12-01 00:54:35 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.17  2011-12-01 00:54:35  mandana
+-- re-organized pack files in a hierarchical manner and removed dead code
+--
 -- Revision 1.16  2007/10/18 22:35:43  bburger
 -- BB:  added a double synchronizer for the manchester input
 --
@@ -128,7 +131,7 @@ architecture top of dv_rx is
    ---------------------------------------------------------
    -- Signal Declarations
    ---------------------------------------------------------
-   type states is (IDLE, FIBRE_DV_HIGH, FIBRE_DV_LOW, MANCH_DV_RCVD, MANCH_DV_ACK);
+   type states is (IDLE, MANCH_DV_RCVD, MANCH_DV_ACK);--FIBRE_DV_HIGH, FIBRE_DV_LOW,
    signal current_state, next_state : states;
 
    type m_states is (IDLE, LATCH_MANCH_PACKET, RX_2, DONE);
@@ -413,7 +416,7 @@ begin
    end process state_ff;
 
    -- This state machine is tuned to execute with the same timing as the one below when a manchester packet arrives
-   dv_ns: process(current_state, dv_mode_i, dv_dat, manch_rdy_dly2)
+   dv_ns: process(current_state, dv_mode_i, manch_rdy_dly2) --dv_dat,
    begin
       next_state <= current_state;
       case current_state is
@@ -421,22 +424,22 @@ begin
          when IDLE =>
             if(dv_mode_i = DV_EXTERNAL_FIBRE) then
                -- Note: the dv input is inverted, so if we detect '0', we wait for the rising edge.
-               if(dv_dat = '0') then
-                  next_state <= FIBRE_DV_HIGH;
-               end if;
+--               if(dv_dat = '0') then
+--                  next_state <= FIBRE_DV_HIGH;
+--               end if;
             elsif(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
                if(manch_rdy_dly2 = '1') then
                   next_state <= MANCH_DV_RCVD;
                end if;
             end if;
 
-         when FIBRE_DV_HIGH =>
-            if(dv_dat = '1') then
-               next_state <= FIBRE_DV_LOW;
-            end if;
+--         when FIBRE_DV_HIGH =>
+--            if(dv_dat = '1') then
+--               next_state <= FIBRE_DV_LOW;
+--            end if;
 
-         when FIBRE_DV_LOW =>
-            next_state <= IDLE;
+--         when FIBRE_DV_LOW =>
+--            next_state <= IDLE;
 
          when MANCH_DV_RCVD =>
             next_state <= MANCH_DV_ACK;
@@ -469,12 +472,12 @@ begin
                end if;
             end if;
 
-         when FIBRE_DV_HIGH =>
+--         when FIBRE_DV_HIGH =>
 
-         when FIBRE_DV_LOW =>
+--         when FIBRE_DV_LOW =>
             -- cmd_translator synchronizes the DV pulse with the clock cycle following the next sync pulse (only for fibre dv input)
             -- DV input from Manchester is alredy sync'd with sync pulse.
-            dv_o <= '1';
+--            dv_o <= '1';
 
          when MANCH_DV_RCVD =>
             -- Manchester sync and DV are active low
