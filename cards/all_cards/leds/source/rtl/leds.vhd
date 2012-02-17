@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.11 2007/12/18 20:17:19 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.12 2007/12/19 23:27:27 mandana Exp $>
 --
 -- Project:      SCUBA2
 -- Author:      Bryce Burger
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: leds.vhd,v $
+-- Revision 1.12  2007/12/19 23:27:27  mandana
+-- added when others to fsm
+--
 -- Revision 1.11  2007/12/18 20:17:19  bburger
 -- BB:  Added a default state assignment to the FSM to lessen the likelyhood of uncontrolled state transitions
 --
@@ -50,7 +53,7 @@
 -- added new wishbone slave controller
 --
 --
--- <date $Date: 2007/12/18 20:17:19 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2007/12/19 23:27:27 $> -     <text>      - <initials $Author: mandana $>
 --
 ------------------------------------------------------------------------
 
@@ -59,7 +62,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
-use work.leds_pack.all;
+use work.all_cards_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;

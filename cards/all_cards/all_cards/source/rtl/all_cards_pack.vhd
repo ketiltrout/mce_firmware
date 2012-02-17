@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2010/07/19 23:38:59 $>    - <initials $Author: mandana $>
+-- <date $Date: 2011-11-29 00:00:17 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.13  2011-11-29 00:00:17  mandana
+-- added reset_clr to support critical_error_rst and dev_clr commands
+--
 -- Revision 1.12  2010/07/19 23:38:59  mandana
 -- added pcb_rev_i defs
 -- took out obsolete packs
@@ -89,7 +92,14 @@ use work.frame_timing_pack.all;
 package all_cards_pack is
    constant PCB_REV_BITS : integer := 4;
    constant SLOT_ID_BITS : integer := 4;
-   constant SPI_DATA_WIDTH:  integer := 3;
+   constant SPI_DATA_WIDTH: integer := 3;
+   
+   -- LED related
+   constant NUM_LEDS   : integer := 3; 
+   constant POWER_LED  : integer := 2;
+   constant STATUS_LED : integer := 1;
+   constant FAULT_LED  : integer := 0;
+   
    -----------------------------------------------------------------------------
    -- all_cards component
    -----------------------------------------------------------------------------
