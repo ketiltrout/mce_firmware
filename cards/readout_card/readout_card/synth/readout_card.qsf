@@ -35,7 +35,7 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "11.1 SP2"
 
 # Pin & Location Assignments
 # ==========================
@@ -62,7 +62,7 @@ set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
 
 # Fitter Assignments
 # ==================
-set_global_assignment -name DEVICE EP1S40F780C6
+set_global_assignment -name DEVICE EP1S40F780C7
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
@@ -671,12 +671,13 @@ set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_w
 
 # end ENTITY(readout_card)
 # ------------------------
-
+set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 1.0
+set_global_assignment -name ENABLE_BENEFICIAL_SKEW_OPTIMIZATION ON
+set_global_assignment -name PRE_MAPPING_RESYNTHESIS OFF
 set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 set_global_assignment -name EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ON -section_id eda_simulation
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
-set_instance_assignment -name PARTITION_HIERARCHY no_file_for_top_partition -to | -section_id Top
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_COLOR 2147039 -section_id Top
 set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
@@ -689,15 +690,14 @@ set_global_assignment -name AUTO_PACKED_REGISTERS NORMAL
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name DO_COMBINED_ANALYSIS ON
 set_global_assignment -name SAFE_STATE_MACHINE ON
-set_global_assignment -name INCREMENTAL_COMPILATION OFF
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
-set_global_assignment -name SEED 1
+set_global_assignment -name SEED 7
 set_instance_assignment -name SYNTH_CRITICAL_CLOCK ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk0"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk2"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk3"
 set_instance_assignment -name GLOBAL_SIGNAL ON -to "rc_pll:i_rc_pll|altpll:altpll_component|_clk4"
-set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA OFF
 set_location_assignment PIN_AC9 -to rst_n
 set_location_assignment PIN_H20 -to red_led
 set_location_assignment PIN_H19 -to ylw_led
@@ -1109,9 +1109,17 @@ set_location_assignment PIN_K24 -to adc8_dat[12]
 set_location_assignment PIN_K23 -to adc8_dat[13]
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_global_assignment -name MISC_FILE "C:/mce/cards/readout_card/readout_card/synth/readout_card.dpf"
-set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER ON
+set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING ON
+set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 6
+set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
+set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name SDC_FILE readout_card.sdc
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
@@ -1214,13 +1222,7 @@ set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 set_global_assignment -name MIF_FILE ../../fsfb_calc/source/rtl/ram_40x64.mif
 set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
 set_global_assignment -name HEX_FILE ../../fsfb_calc/source/rtl/ram_40x64.hex
-set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING ON
-set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
-set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
-set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 6
-set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
-set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name CDF_FILE readout_card2.cdf
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name HDL_MESSAGE_LEVEL LEVEL3
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

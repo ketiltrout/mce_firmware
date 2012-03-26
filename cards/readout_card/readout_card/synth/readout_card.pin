@@ -1,4 +1,4 @@
- -- Copyright (C) 1991-2010 Altera Corporation
+ -- Copyright (C) 1991-2011 Altera Corporation
  -- Your use of Altera Corporation's design tools, logic functions 
  -- and other software and tools, and its AMPP partner logic 
  -- functions, and any output files from any of the foregoing 
@@ -67,8 +67,8 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
-CHIP  "readout_card"  ASSIGNED TO AN: EP1S40F780C6
+Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
+CHIP  "readout_card"  ASSIGNED TO AN: EP1S40F780C7
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
 -------------------------------------------------------------------------------------------------------------
@@ -426,7 +426,7 @@ RESERVED_INPUT               : E19       :        :                   :         
 GND                          : E20       : gnd    :                   :         :           :                
 RESERVED_INPUT               : E21       :        :                   :         : 3         :                
 GND                          : E22       : gnd    :                   :         :           :                
-RESERVED_INPUT               : E23       :        :                   :         : 3         :                
+mictor[6]                    : E23       : output : 3.3-V LVTTL       :         : 3         : N              
 GND                          : E24       : gnd    :                   :         :           :                
 RESERVED_INPUT               : E25       :        :                   :         : 2         :                
 RESERVED_INPUT               : E26       :        :                   :         : 2         :                
@@ -441,7 +441,7 @@ RESERVED_INPUT               : F6        :        :                   :         
 ttl_in1                      : F7        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in2                      : F8        : input  : 3.3-V LVTTL       :         : 4         : Y              
 ttl_in3                      : F9        : input  : 3.3-V LVTTL       :         : 4         : Y              
-mictor[6]                    : F10       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : F10       :        :                   :         : 4         :                
 ttl_out1                     : F11       : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
 TMS                          : F13       : input  :                   :         : 4         :                
@@ -497,8 +497,8 @@ dac_FB2_dat[2]               : H6        : output : 3.3-V LVTTL       :         
 dac_FB2_dat[5]               : H7        : output : 3.3-V LVTTL       :         : 5         : Y              
 dac_FB2_dat[6]               : H8        : output : 3.3-V LVTTL       :         : 5         : Y              
 ttl_dir3                     : H9        : output : 3.3-V LVTTL       :         : 4         : Y              
-mictor[5]                    : H10       : output : 3.3-V LVTTL       :         : 4         : N              
-RESERVED_INPUT               : H11       :        :                   :         : 4         :                
+RESERVED_INPUT               : H10       :        :                   :         : 4         :                
+mictor[5]                    : H11       : output : 3.3-V LVTTL       :         : 4         : N              
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : 3.3-V LVTTL       :         : 4         : N              
 TDO                          : H13       : output :                   :         : 4         :                
 RESERVED_INPUT               : H14       :        :                   :         : 9         :                
