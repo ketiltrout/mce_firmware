@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2012-01-05 23:10:46 $> - <initials $Author: mandana $>
+-- <date $Date: 2012-01-23 20:33:14 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.64  2012-01-23 20:33:14  mandana
+-- added qterm_decay_bits
+--
 -- Revision 1.63  2012-01-05 23:10:46  mandana
 -- added ramp_phase command
 --
@@ -262,7 +265,7 @@ use sys_param.command_pack.all;
 
 package wishbone_pack is
    --
-   -- unassigned parameter-id:0c-0f, 25-2F, 38-3F, 40, 42, 47-4f, 9e-9f, E9-FF
+   -- unassigned parameter-id:0c-0f, 28-2F, 38-3F, 40, 42, 47-4f, 9e-9f, E9-FF
    --
   ---------------------------------------------------------------------------------
    -- Wishbone bus widths
@@ -412,6 +415,9 @@ package wishbone_pack is
    constant SA_HTR0_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"22";
    constant SA_HTR1_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"23";
    constant FLUX_FB_UPPER_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"24";
+   constant ENBL_FLUX_FB_MOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"25";
+   constant ENBL_BIAS_MOD_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"26";
+   constant MOD_VAL_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"27";
 
    ---------------------------------------------------------------------------------------
    -- System (All FPGA Cards) Parameter IDs
