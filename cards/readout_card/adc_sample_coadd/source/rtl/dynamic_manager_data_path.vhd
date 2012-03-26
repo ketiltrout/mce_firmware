@@ -100,6 +100,10 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.8  2010-10-19 23:59:25  mandana
+-- integral_result is now cleared when flx_lp_init is issued
+-- once fsfb hits the clamp value, the clamp is in effect until another flx_lp_init is issued.
+--
 -- Revision 1.7  2010/10/07 18:39:52  mandana
 -- fixed a bug that caused servo instability when a clamp value was specified.
 -- removed clamping of diff and coadd values, this is strictly an integral clamp.
@@ -242,56 +246,16 @@ begin  -- rtl
     intgrl_dat_frm_bank0_i;
     
   -----------------------------------------------------------------------------
-  -- strictly Integral-Term Clamping:
+  -- Integral-Term Clamping:
+  -- When integral clamp is enabled (i_clamp_val_i /=0),  I-term is frozen until a flx_lp_init command clears the pipeline.
+  -- Documented on wiki is the formula to calculate the correct clamping value for any set of PID parameters and flux-jump quanta:
   -----------------------------------------------------------------------------
-  -- This is where the clamp needs to be to prevent wrapping.
-  -- A clamp any later in the chain will not prevent the I term from wrapping and causing a whiplash effect
-  -- Since a large FSFB is due to a ramping I term, the I term is the most important thing to be clamped; The P & D terms less so.
-  -- However, since we want to avoid small-scale fluctuations in the FSFB once the I term is clamped, we should also clamp the P and D terms to zero.
-  -- The way to do this is to check for an I term above/below a certain threshold, and if that happens, clamp to a fixed value above/below those thresholds
-  -- That way, the integral term gets frozen until a flx_lp_init command clears the pipeline.
-  -- Note that when i_clamp_val_i = 0, clamping is disabled.
-  -- See the wiki for the formula to calculate the correct clamping value for any set of PID parameters and flux-jump quanta:
-  -- http://e-mode.phas.ubc.ca/mcewiki/index.php/FSFB_Clamping_Commands
-  -----------------------------------------------------------------------------
-  en_clamp <= '0' when i_clamp_val_i = x"00000000" else
-              '1' ;
-              
-  i_clamp_process: process (clk_i, rst_i)
-  begin  -- process i_clamp_process
-    if rst_i = '1' then                 -- asynchronous reset (active high)
-      integral_result <= (others => '0'); 
-      integral_result_o <= (others => '0'); 
-      current_integral_dat_o <= (others => '0');
-      
-    elsif clk_i'event and clk_i = '1' then  -- rising clock edge
-      if en_clamp = '1' then
-        if initialize_window_max_dly = '0' then
-          if previous_intgral >= i_clamp_val_i then 
-            integral_result <= i_clamp_val_i;
-          elsif previous_intgral <= (-i_clamp_val_i) then
-            integral_result <= -i_clamp_val_i;
-          else 
-            integral_result <= current_coadd_dat_i + previous_intgral;
-          end if;  
-        else 
-            integral_result <= current_coadd_dat_i + previous_intgral;
-        end if;    
-      else
-        integral_result <= current_coadd_dat_i + previous_intgral;
-      end if;
-      
-      -- For running integral storage 
-      integral_result_o <= integral_result; 
-      
-      if wren_for_fsfb_i = '1' then
-        -- For PID loop calculation      
-        current_integral_dat_o <= integral_result;        
-      end if;
-
-    end if;
-  end process i_clamp_process;
-                  
+  integral_result <= 
+    i_clamp_val_i  when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' else
+    -i_clamp_val_i when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' else    
+    current_coadd_dat_i + previous_intgral;
+  
+  integral_result_o <= integral_result;                  
 
   -----------------------------------------------------------------------------
   -- Difference finder
@@ -317,7 +281,7 @@ begin  -- rtl
   begin  -- process i_output_for_fsfb
     if rst_i = '1' then                 -- asynchronous reset (active high)
       current_coadd_dat_o    <= (others => '0');
-      --current_integral_dat_o <= (others => '0');
+      current_integral_dat_o <= (others => '0');
       current_diff_dat_o     <= (others => '0');
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
@@ -325,16 +289,13 @@ begin  -- rtl
       if wren_for_fsfb_i = '1' then
         -- For PID loop calculation
         current_coadd_dat_o    <= current_coadd_dat_i;
-        -- the integral term is now 
-      --  current_integral_dat_o <= integral_result_o;
+        current_integral_dat_o <= integral_result;
         current_diff_dat_o     <= diff_result;
       end if;
       
     end if;
-  end process i_output_for_fsfb;
+  end process i_output_for_fsfb;  
 
-  
-  
 end rtl;
 
 
