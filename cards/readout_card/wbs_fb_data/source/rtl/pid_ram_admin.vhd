@@ -66,6 +66,9 @@
 --
 -- Revision history:
 -- $Log: pid_ram_admin.vhd,v $
+-- Revision 1.4  2008/06/27 18:50:24  mandana
+-- changed ram_10x64 to generic pid_ram so we don't have to modify this file when changing memory width.
+--
 -- Revision 1.3  2006/09/25 23:21:02  mandana
 -- changed PIDZ_DATA_WIDTH from 8b to 10b
 --
@@ -209,13 +212,7 @@ begin  -- rtl
     wren        => wren0,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa0,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb0);                        -- to flux_loop_ctrl ch0
-
---  qa0 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
 
   i_bank_ch1 : pid_ram
     port map (
@@ -226,14 +223,7 @@ begin  -- rtl
     wren        => wren1,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa1,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb1);                      -- to flux_loop_ctrl ch1
-
-
---  qa1 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
   
   i_bank_ch2 : pid_ram
     port map (
@@ -244,14 +234,7 @@ begin  -- rtl
     wren        => wren2,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa2,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb2);                      -- to flux_loop_ctrl ch2
-
-
---  qa2 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
 
   i_bank_ch3 : pid_ram
     port map (
@@ -262,14 +245,7 @@ begin  -- rtl
     wren        => wren3,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa3,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb3);                      -- to flux_loop_ctrl ch3
-
-
---  qa3 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
 
   i_bank_ch4 : pid_ram
     port map (
@@ -280,14 +256,7 @@ begin  -- rtl
     wren        => wren4,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa4,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb4);                      -- to flux_loop_ctrl ch4
-
-
---  qa4 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
 
   i_bank_ch5 : pid_ram
     port map (
@@ -298,14 +267,7 @@ begin  -- rtl
     wren        => wren5,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa5,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb5);                      -- to flux_loop_ctrl ch5
- 
-
---  qa5 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
 
   i_bank_ch6 : pid_ram
     port map (
@@ -316,14 +278,7 @@ begin  -- rtl
     wren        => wren6,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa6,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb6);                      -- to flux_loop_ctrl ch6
-
-
---  qa6 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
 
   i_bank_ch7 : pid_ram
     port map (
@@ -334,16 +289,8 @@ begin  -- rtl
     wren        => wren7,                   -- from controller
     clock       => clk_50_i,                          -- global input
     qa          => qa7,                              -- not used anymore
---    qa          => open,                              -- not used anymore
     qb          => qb7);                      -- to flux_loop_ctrl ch7
 
-
---  qa7 <= (others => '0');     -- Decided not to have access through
-                                        -- dispatch. However, still use 3-port
-                                        -- ram to limit changes.
-
-
-  
   -----------------------------------------------------------------------------
   -- Controller for P Banks:
   -- 
@@ -544,7 +491,5 @@ begin  -- rtl
      sign_xtnd_to_32(qa6) when addr_i = GAINP6_ADDR or addr_i = GAINI6_ADDR or addr_i = GAIND6_ADDR else
      sign_xtnd_to_32(qa7) when addr_i = GAINP7_ADDR or addr_i = GAINI7_ADDR or addr_i = GAIND7_ADDR else
      sign_xtnd_to_32(qa0); -- default to ch0
-
-  
   
 end rtl;
