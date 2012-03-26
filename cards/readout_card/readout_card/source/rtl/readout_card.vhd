@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.100  2011-06-02 23:15:41  mandana
+-- rev. 5.1.4
+-- fixed bug with fsfb_corr when reverting back to applying sq1fb after 7 clk cycles when fj is off
+--
 -- Revision 1.99  2011-06-02 20:53:39  mandana
 -- rev. 5.1.3 reverts back to applying SQ1FB after only 7 clock cycles when flux-jumping is off.
 --
@@ -238,7 +242,7 @@ architecture top of readout_card is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05010004";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0501000b";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
@@ -423,7 +427,7 @@ begin
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
-                            I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
+                            I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR | QTERM_DECAY_ADDR,
       dat_frame        when DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
                             READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       dat_led          when LED_ADDR,
@@ -455,7 +459,7 @@ begin
                            FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                            RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
-                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR | QTERM_DECAY_ADDR,
       ack_frame       when DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR | READOUT_ROW_INDEX_ADDR |
                            READOUT_COL_INDEX_ADDR | READOUT_PRIORITY_ADDR,
       ack_led         when LED_ADDR,
@@ -492,7 +496,7 @@ begin
                            ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                            SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
-                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR,
+                           I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR | QTERM_DECAY_ADDR,
       all_cards_err   when FW_REV_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_err   when CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_err when FPGA_TEMP_ADDR,
