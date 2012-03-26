@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.14 2011-10-26 18:38:46 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.15 2011-11-29 01:08:26 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -36,6 +36,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.15  2011-11-29 01:08:26  mandana
+-- ln_bias RAM handled correctly now
+--
 -- Revision 1.14  2011-10-26 18:38:46  mandana
 -- ln_bias_changed is asserted when any of ln_bias values are re-written
 --
@@ -145,13 +148,23 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal flux_fb_wren     : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal fix_flux_fb_data : flux_fb_dac_array; 
    signal mux_flux_fb_data : flux_fb_dac_array;
+   signal mod_val_data     : flux_fb_dac_array;
    signal wb_mux_flux_fb_data : flux_fb_dac_array;
 
    signal ln_bias_wren     : std_logic;
    signal ln_bias_data     : std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
+   signal ln_bias_data_temp: std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
    
    signal enbl_mux_wren    : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0); 
    signal enbl_mux_data    : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+
+   signal mod_val_wren     : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+
+   signal enbl_flux_fb_mod_wren: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0); 
+   signal enbl_flux_fb_mod_data: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+
+   signal enbl_ln_bias_mod_wren: std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0); 
+   signal enbl_ln_bias_mod_data: std_logic_vector(2**LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
 
    -- index of the ram_16x16 block used to store non-multiplexed values for flux_fb
    signal ram_addr         : std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
@@ -164,6 +177,7 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal mux_ram_addr_int : integer range 0 to NUM_FLUX_FB_DACS-1 := 0;   
    signal ram_addr_int     : integer range 0 to NUM_FLUX_FB_DACS-1 := 0;
    signal ln_bias_ram_addr_int: integer range 0 to 2**LN_BIAS_DAC_ADDR_WIDTH-1 := 0;
+   signal ln_bias_ram_raddr_int: integer range 0 to 2**LN_BIAS_DAC_ADDR_WIDTH-1 := 0;
    
    -- used for generating wishbone ack 
    signal addr_qualifier   : std_logic;
@@ -214,8 +228,10 @@ begin
          end if;
        end if;
      end process fix_flux_fb_reg;                  
+     
+     flux_fb_data_o(i) <= fix_flux_fb_data(i) + mod_val_data(i) when enbl_flux_fb_mod_data(i) = '1' else fix_flux_fb_data(i);        
    end generate reg_bank;
-   flux_fb_data_o <= fix_flux_fb_data;   
+   -- flux_fb_data_o <= fix_flux_fb_data;   
    
    -----------------------------------------------------------------
    -- RAM storage for up-to 16 ln_bias values
@@ -231,10 +247,30 @@ begin
          wraddress         => ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0),
          rdaddress_a       => ln_bias_addr_i,
          rdaddress_b       => ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0),
-         qa                => ln_bias_data_o,
+         qa                => ln_bias_data_temp,
          qb                => ln_bias_data
-      );
-
+      );   
+   ln_bias_data_o <= ln_bias_data_temp + mod_val_data(ln_bias_ram_raddr_int) when enbl_ln_bias_mod_data(ln_bias_ram_raddr_int) = '1' else ln_bias_data_temp;        
+  
+   -----------------------------------------------------------------
+   -- mod_val storage when multiplexing is off (enbl_mux = 0)
+   -----------------------------------------------------------------   
+   mod_reg_bank: for i in 0 to NUM_FLUX_FB_DACS-1 generate
+      -- port a is used for updating DACs and port b for wishbone read
+     mod_val_reg: process(clk_i, rst_i)
+     begin
+       if(rst_i = '1') then
+         mod_val_data(i) <= (others => '0');            
+       elsif(clk_i'event and clk_i = '1') then
+         if(mod_val_wren(i) = '1') then
+           mod_val_data(i) <= dat_i(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
+         else
+           mod_val_data(i) <= mod_val_data(i);
+         end if;
+       end if;
+     end process mod_val_reg;                  
+   end generate mod_reg_bank;
+   
    -----------------------------------------------------------------   
    -- register multiplex mode enabled or not per column
    -----------------------------------------------------------------
@@ -251,11 +287,43 @@ begin
        end if;  
      end process enbl_mux_reg;
    end generate enbl_mux_bank;   
+
+   -----------------------------------------------------------------   
+   -- register flux-fb-modulation enabled or not per column
+   -----------------------------------------------------------------   
+   enbl_flux_fb_mod_bank: for i in 0 to NUM_FLUX_FB_DACS-1 generate
+     enbl_flux_fb_mod_reg: process (clk_i, rst_i)
+     begin 
+       if(rst_i = '1') then
+         enbl_flux_fb_mod_data(i) <= '0'; 
+       elsif(clk_i'event and clk_i = '1') then
+         if(enbl_flux_fb_mod_wren(i) = '1') then
+            enbl_flux_fb_mod_data(i) <= dat_i(0);
+         end if;
+       end if;  
+     end process enbl_flux_fb_mod_reg;
+   end generate enbl_flux_fb_mod_bank;   
+
+   -----------------------------------------------------------------   
+   -- register bias-modulation enabled or not per column
+   -----------------------------------------------------------------   
+   enbl_ln_bias_mod_bank: for i in 0 to NUM_LN_BIAS_DACS-1 generate
+     enbl_ln_bias_mod_reg: process (clk_i, rst_i)
+     begin 
+       if(rst_i = '1') then
+         enbl_ln_bias_mod_data(i) <= '0'; 
+       elsif(clk_i'event and clk_i = '1') then
+         if(enbl_ln_bias_mod_wren(i) = '1') then
+            enbl_ln_bias_mod_data(i) <= dat_i(0);
+         end if;
+       end if;  
+     end process enbl_ln_bias_mod_reg;
+   end generate enbl_ln_bias_mod_bank;   
    
    ------------------------------------------------------------
    -- generate wren signals
    ------------------------------------------------------------
-   i_gen_wren_signals: process (addr_i, we_i, ram_addr_int, mux_ram_addr_int)
+   i_gen_wren_signals: process (addr_i, we_i, ram_addr_int, mux_ram_addr_int, ln_bias_ram_addr_int)
    begin  -- process i_gen_wren_signals
    
      flux_fb_wren <= (others => '0');
@@ -264,18 +332,29 @@ begin
          
      for i in 0 to NUM_FLUX_FB_DACS-1 loop
        enbl_mux_wren(i) <= '0';
+       mod_val_wren(i) <= '0';
+       enbl_flux_fb_mod_wren(i) <= '0';
+     end loop;  -- i
+     for i in 0 to NUM_LN_BIAS_DACS-1 loop
+       enbl_ln_bias_mod_wren(i) <= '0';
      end loop;  -- i
      
      case addr_i is
        when FLUX_FB_ADDR | FLUX_FB_UPPER_ADDR =>
          flux_fb_wren(ram_addr_int) <= we_i;
 
---       when BIAS_ADDR =>
---         ln_bias_wren(ln_bias_ram_addr_int) <= we_i;
-         
        when ENBL_MUX_ADDR =>
          enbl_mux_wren(ram_addr_int) <= we_i;
      
+       when MOD_VAL_ADDR =>
+         mod_val_wren(ram_addr_int) <= we_i;
+
+       when ENBL_FLUX_FB_MOD_ADDR =>
+         enbl_flux_fb_mod_wren(ram_addr_int) <= we_i;
+         
+       when ENBL_BIAS_MOD_ADDR =>
+         enbl_ln_bias_mod_wren(ln_bias_ram_addr_int) <= we_i;
+
        when FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR |
             FB_COL8_ADDR | FB_COL9_ADDR | FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR |
             FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR | FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR |
@@ -288,7 +367,6 @@ begin
    end process i_gen_wren_signals;
    
    ln_bias_wren <= we_i when addr_i = BIAS_ADDR else '0';
-   
    ------------------------------------------------------------
    -- generate ram addresses
    ------------------------------------------------------------
@@ -307,7 +385,10 @@ begin
       
    mux_ram_addr_int <= conv_integer(mux_ram_addr);
    ram_addr_int <= conv_integer(ram_addr);
-   ln_bias_ram_addr_int <= conv_integer(ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0));
+   
+   -- Note that one is the wishbone read/write address and the other is the read address for refreshing DACs
+   ln_bias_ram_addr_int <= conv_integer(ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0)); 
+   ln_bias_ram_raddr_int <= conv_integer(ln_bias_addr_i);
    
    ------------------------------------------------------------
    -- generate flux_fb_changed_o and ln_bias_changed_o
@@ -321,8 +402,13 @@ begin
        when others => null;           
      end case;
    end process i_gen_bias_changed;
-   ln_bias_changed_o <= ln_bias_changed(ln_bias_changed_o'length-1 downto 0);   
-   flux_fb_changed_o <= flux_fb_wren; --'1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
+   ln_bias_changed_o <= ln_bias_changed(ln_bias_changed_o'length-1 downto 0) or 
+                        (mod_val_wren(ln_bias_changed_o'length-1 downto 0) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0)) or
+                        (enbl_ln_bias_mod_wren(ln_bias_changed_o'length-1 downto 0) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0));   
+   flux_fb_changed_o <= flux_fb_wren or 
+                        (mod_val_wren and enbl_flux_fb_mod_data) or
+                        (enbl_flux_fb_mod_wren and enbl_flux_fb_mod_data); 
+                        --'1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
  
    ------------------------------------------------------------
    --  Wishbone interface
@@ -331,11 +417,14 @@ begin
       ext(fix_flux_fb_data(ram_addr_int), WB_DATA_WIDTH)  when ((addr_i = FLUX_FB_ADDR) or (addr_i = FLUX_FB_UPPER_ADDR)) else
       ext(ln_bias_data, WB_DATA_WIDTH) when (addr_i =  BIAS_ADDR) else      
       ext("0",WB_DATA_WIDTH-1) & enbl_mux_data(ram_addr_int) when (addr_i =  ENBL_MUX_ADDR) else      
+      ext("0",WB_DATA_WIDTH-1) & enbl_flux_fb_mod_data(ram_addr_int) when (addr_i =  ENBL_FLUX_FB_MOD_ADDR) else      
+      ext("0",WB_DATA_WIDTH-1) & enbl_ln_bias_mod_data(ram_addr_int) when (addr_i =  ENBL_BIAS_MOD_ADDR) else       
+      ext(mod_val_data(ram_addr_int), WB_DATA_WIDTH)                 when (addr_i = MOD_VAL_ADDR) else
       ext(wb_mux_flux_fb_data(mux_ram_addr_int), WB_DATA_WIDTH) when (( addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL31_ADDR)) else
       (others => '0');
 
    with addr_i select
-      addr_qualifier <= '1' when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR |
+      addr_qualifier <= '1' when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR | ENBL_FLUX_FB_MOD_ADDR | ENBL_BIAS_MOD_ADDR | MOD_VAL_ADDR |
                                  FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR |
                                  FB_COL8_ADDR | FB_COL9_ADDR | FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR |
                                  FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR | FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR |
