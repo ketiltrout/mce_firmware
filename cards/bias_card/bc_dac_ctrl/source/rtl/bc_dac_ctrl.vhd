@@ -18,18 +18,29 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.11 2011-10-26 18:26:32 mandana Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.12 2011-11-29 00:55:44 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
 -- Description:
--- This block processes wishbone commands FLUX_FB_ADDR and BIAS_ADDR and 
+-- This block (and lower level blocks) processes wishbone commands and 
 -- updates 32 flux_fb SPI DACs and 12 low-noise bias SPI DACs.
--- 
+-- Wishbone commands processed by this block are:
+-- FLUX_FB_ADDR 
+-- BIAS_ADDR 
+-- ENBL_MUX_ADDR
+-- ENBL_FLUX_FB_MOD_ADDR
+-- ENBL_BIAS_MOD_ADDR
+-- MOD_VAL_ADDR
+-- FB_COLxx
+--
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.12  2011-11-29 00:55:44  mandana
+-- ln_bias_changed changed to std_logic_vector, one bit per DAC
+--
 -- Revision 1.11  2011-10-26 18:26:32  mandana
 -- *** empty log message ***
 --
