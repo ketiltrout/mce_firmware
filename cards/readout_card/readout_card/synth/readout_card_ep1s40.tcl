@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: readout_card_ep1s40.tcl,v $
+# Revision 1.6  2010-11-18 21:28:07  mandana
+# Quartus 10.1 doesn't support cmp syntax anymore, so updated tcl file appropriately.
+#
 # Revision 1.5  2010/06/29 01:37:32  bburger
 # BB:  Automatic .pof generation
 #
@@ -103,7 +106,7 @@ puts "\nInfo: Assigning pins:"
 #U10.nIOPullup     U10.Y12
 
 # assign device parameters
-set_global_assignment -name DEVICE EP1S40F780C6
+set_global_assignment -name DEVICE EP1S40F780C7
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 
 # dev_clr_n disabled
