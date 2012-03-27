@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_switchover.vhd,v 1.6 2007/07/25 19:02:36 bburger Exp $
+-- $Id: clk_switchover.vhd,v 1.7 2009/03/19 20:22:03 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_switchover.vhd,v $
+-- Revision 1.7  2009/03/19 20:22:03  bburger
+-- BB: Corrected a comment about how many clock cycles it takes to switch from one PLL input to another
+--
 -- Revision 1.6  2007/07/25 19:02:36  bburger
 -- BB: added checking in the block for bad manchester or crystal clocks, and automoatic switchover if this occurs.
 --
@@ -59,6 +62,9 @@ use ieee.std_logic_unsigned.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 
+library work;
+use work.clk_card_pack.all;
+
 entity clk_switchover is
    port(
       -- wishbone interface:
@@ -87,26 +93,6 @@ end clk_switchover;
 
 
 architecture top of clk_switchover is
-
-   component cc_pll
-      port (
-         clkswitch      : IN STD_LOGIC  := '0';
-         inclk0      : IN STD_LOGIC  := '0';
-         inclk1      : IN STD_LOGIC  := '0';
-         e2    : OUT STD_LOGIC ;
-         c0    : OUT STD_LOGIC ;
-         c1    : OUT STD_LOGIC ;
-         c2    : OUT STD_LOGIC ;
-         c3    : OUT STD_LOGIC ;
-         clkloss : out std_logic;
-         locked      : OUT STD_LOGIC ;
-         activeclock    : OUT STD_LOGIC ;
-         e0    : OUT STD_LOGIC ;
-         clkbad0     : OUT STD_LOGIC ;
-         e1    : OUT STD_LOGIC ;
-         clkbad1     : OUT STD_LOGIC
-      );
-   end component;
 
    constant XTAL_CLK               : std_logic := '0';
    constant MANCH_CLK              : std_logic := '1';
