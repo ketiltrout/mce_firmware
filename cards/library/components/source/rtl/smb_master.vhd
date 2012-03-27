@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: smb_master.vhd,v $
+-- Revision 1.2  2007/03/06 00:57:53  bburger
+-- Bryce:  re-vamped the smb_master to make it more modular, and fix some of the flakiness it exhibited in hardware.
+--
 -- Revision 1.1  2006/01/20 21:21:27  erniel
 -- initial version
 --
@@ -81,7 +84,7 @@ architecture behav of smb_master is
    -- timer signals for asserting a waveform on the SMB bus for the proper amount of time
    signal timer_clr   : std_logic;
    signal timer_count : integer ;--range 0 to SMB_CLOCK_CYCLE + 200;
-   signal timer_count_delayed : integer ;--range 0 to SMB_CLOCK_CYCLE + 200;
+   --signal timer_count_delayed : integer ;--range 0 to SMB_CLOCK_CYCLE + 200;
 
    -- byte counter for byte 0 to 3 of each word
    signal bit_count     : integer range 0 to 8;
@@ -95,7 +98,7 @@ architecture behav of smb_master is
    signal start_or_en : std_logic;
 
    signal rx_data_reg_en : std_logic;
-   signal tx_data_reg_en : std_logic;
+--   signal tx_data_reg_en : std_logic;
    signal tx_data : std_logic;
    signal r_nw : std_logic;
 
@@ -156,10 +159,10 @@ begin
    begin
       if(rst_i = '1') then
          r_nw <= '0';
-         timer_count_delayed <= 0;
+         --timer_count_delayed <= 0;
          error <= '0';
       elsif(clk_i'event and clk_i = '1') then
-         timer_count_delayed <= timer_count;
+         --timer_count_delayed <= timer_count;
          if(start_i = '1') then
             r_nw <= r_nw_i;
          end if;
@@ -277,7 +280,7 @@ begin
 
       addr_reg_en    <= '0';
       rx_data_reg_en <= '0';
-      tx_data_reg_en <= '0';
+      --tx_data_reg_en <= '0';
 
       done_o         <= '0';
 
