@@ -449,6 +449,21 @@ set_location_assignment Pin_E19 -to nreconf
 set_location_assignment Pin_D19 -to nepc_sel
 puts "   Assigned: Configuration device selection pins."
 
+# Clock Card Rev. C+ Only! (next 4 pins) They are all unused in Rev. A/B
+set_location_assignment Pin_AA20 -to crc_error_out
+set_location_assignment Pin_AA21 -to crc_error_in 			 
+set_location_assignment Pin_AH13 -to critical_error
+set_location_assignment Pin_AF1 -to dev_clr_fpga_out
+puts "   Assigned: miscellaneous pins."
+
+
+# assign Hardware Revision pins (as of Rev. C Hardware)
+set_location_assignment Pin_J28 -to "pcb_rev\[0\]"
+set_location_assignment Pin_K28 -to "pcb_rev\[1\]"
+set_location_assignment Pin_L28 -to "pcb_rev\[2\]"
+set_location_assignment Pin_L27 -to "pcb_rev\[3\]"
+puts "   Assigned: Hardware Revision pins."
+
 
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
