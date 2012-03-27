@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.17 2011-12-01 00:54:35 mandana Exp $
+-- $Id: dv_rx.vhd,v 1.18 2012-02-09 00:24:41 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.18  2012-02-09 00:24:41  mandana
+-- removed support for DV trigger from dv_pulse_fibre_i input
+--
 -- Revision 1.17  2011-12-01 00:54:35  mandana
 -- re-organized pack files in a hierarchical manner and removed dead code
 --
@@ -263,18 +266,21 @@ begin
    begin
       if(rst_i = '1') then
          manch_reg_dly1 <= (others => '0');
-         manch_reg_dly2 <= (others => '0');
-
          manch_rdy_dly1 <= '0';
-         manch_rdy_dly2 <= '0';
-
-         dv_sequence_num <= (others => '0');
-
       elsif(clk_i'event and clk_i = '1') then
          manch_reg_dly1 <= manch_reg;
-         manch_reg_dly2 <= manch_reg_dly1;
-
          manch_rdy_dly1 <= manch_rdy;
+      end if;
+   end process;
+   
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         manch_reg_dly2 <= (others => '0');
+         manch_rdy_dly2 <= '0';
+         dv_sequence_num <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         manch_reg_dly2 <= manch_reg_dly1;
          manch_rdy_dly2 <= manch_rdy_dly1;
 
          if(reg_en = '1') then
@@ -282,9 +288,9 @@ begin
          else
             dv_sequence_num <= dv_sequence_num;
          end if;
-
       end if;
    end process;
+   
 
    process(rst_i, manch_clk_i)
    begin
