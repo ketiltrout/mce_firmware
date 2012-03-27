@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.70 2012-01-06 23:15:15 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.71 2012-02-06 23:39:44 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -202,7 +202,7 @@ architecture rtl of cmd_translator is
 
    -- For detecting changes in the internal-mode parameters
    signal cmd_mode_changing         : std_logic;
-   signal step_period_changing      : std_logic;   
+   --signal step_period_changing      : std_logic;   
    signal step_phase_changing       : std_logic;   
    
    -------------------------------------------------------------------------------------------
@@ -332,6 +332,8 @@ begin
             internal_wb_req <= '1';
          elsif(internal_wb_ack = '1') then
             internal_wb_req <= '0';
+--         elsif(next_toggle_sync /= sync_number_i) then
+--            internal_wb_req <= '0';
          end if;
          -------------------------
          if(ret_dat_ack = '1') then
@@ -383,7 +385,7 @@ begin
    end process i_regs; 
    
    cmd_mode_changing    <= '0' when internal_cmd_mode_1d = internal_cmd_mode_i else '1';
-   step_period_changing <= '0' when step_period_1d = step_period_i else '1';
+   -- step_period_changing <= '0' when step_period_1d = step_period_i else '1';
    step_phase_changing  <= '0' when step_phase_1d = step_phase_i else '1';
    -------------------------------------------------------------------------------------------      
    i_ramp_awg_advance: process(rst_i, clk_i)
@@ -393,11 +395,12 @@ begin
          ramp_value       <= (others => '0');
          awg_addr         <= (others => '0');         
       elsif(clk_i'event and clk_i = '1') then         
-         if (step_phase_changing = '1' or cmd_mode_changing = '1') then
-            next_toggle_sync <= sync_number_i + step_period_i + step_phase_i;
-         elsif(update_next_toggle_sync = '1' or sync_number_i = next_toggle_sync) then
-             -- and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM))) then
-            next_toggle_sync <= sync_number_i + step_period_i;
+         if (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) then
+            if (step_phase_changing = '1' or cmd_mode_changing = '1') then
+               next_toggle_sync <= sync_number_i + step_period_i + step_phase_i;
+            elsif(update_next_toggle_sync = '1' or sync_number_i = next_toggle_sync) then               
+               next_toggle_sync <= sync_number_i + step_period_i;
+            end if;   
          end if;
          ------------------------------------------------------------
          if(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_RAMP) then -- or (ret_dat_req = '1' and internal_cmd_mode_i = INTERNAL_RAMP)) then
@@ -457,8 +460,8 @@ begin
       end if;
    end process;
    
-   state_ns: process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,
-      internal_cmd_mode_i, internal_status_req, internal_rb_id, internal_wb_req,
+   state_ns: process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i,sync_number_i,
+      internal_cmd_mode_i, internal_status_req, internal_rb_id, internal_wb_req, frame_sync_num,
       simple_cmd_req, rdy_for_data_i, ret_dat_in_progress, ret_dat_stop_req, data_timing_err_i, busy_i)
    begin
       next_state    <= current_state;
@@ -505,7 +508,7 @@ begin
             -- This state lasts only one clock cycle.! NOT TRUE!!!            
             if (ack_i = '1') then
                -- a healthy data process is here at the last frame
-               if (seq_num /= stop_seq_num_i) then -- why -1? MA
+               if (seq_num /= stop_seq_num_i) then 
                   next_state <= UPDATE_FOR_NEXT;
                else 
                   next_state <= IDLE;
@@ -513,7 +516,8 @@ begin
             elsif (busy_i = '0') then
                if(simple_cmd_req = '1') then                  
                   next_state <= SIMPLE;            
-               elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
+               elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and 
+                     (internal_wb_req = '1' and  sync_number_i /= frame_sync_num)) then --sync_number_i = next_toggle_sync and
                   next_state <= INTERNAL_WB_PREP;                        
                elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
                   if(internal_rb_id = FPGA_TEMPERATURE) then
@@ -536,13 +540,26 @@ begin
             elsif(ret_dat_req = '0') then
                -- Issue the last ret_dat command
                next_state <= REQ_LAST_DATA_PACKET;                 
-            elsif(dv_mode_i = DV_INTERNAL) then      
-               -- if we are here, then ret_dat_req is 1, so issue a ret_dat command
-               next_state <= PROCESSING_RET_DAT;
-            -- Otherwise, if we are sourcing DV pulses externally, wait for DV pulse before moving on
-            elsif (external_dv_i = '1') then
-               next_state <= PROCESSING_RET_DAT;               
-            end if; 
+            elsif(dv_mode_i = DV_INTERNAL or external_dv_i = '1') then 
+               if(simple_cmd_req = '1') then                  
+                  next_state <= SIMPLE;            
+	       elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and 
+	             (internal_wb_req = '1' and  sync_number_i /= frame_sync_num)) then --sync_number_i = next_toggle_sync and
+	          next_state <= INTERNAL_WB_PREP;                        
+	       elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
+	          if(internal_rb_id = FPGA_TEMPERATURE) then
+	             next_state <= FPGA_TEMP;
+	          elsif(internal_rb_id = CARD_TEMPERATURE) then
+	             next_state <= CARD_TEMP;
+	          elsif(internal_rb_id = PSUC_STATUS) then
+	             next_state <= PSC_STATUS;
+	          elsif(internal_rb_id = BOX_TEMPERATURE) then
+	             next_state <= BOX_TEMP;
+	          end if;                                             
+	       else    
+                  next_state <= PROCESSING_RET_DAT;	          
+               end if;
+            end if;   
 
          when REQ_LAST_DATA_PACKET =>
             --if(ack_i = '1') then
@@ -690,8 +707,9 @@ begin
    -------------------------------------------------------------------------------------------
    -- FSM Output logic - Part 2: Internal control signals 
    -------------------------------------------------------------------------------------------
-   state_out2: process(current_state, ret_dat_req, stop_seq_num_i, start_seq_num_i, seq_num, ack_i, dv_mode_i, external_dv_i,
-      internal_wb_req, simple_cmd_req, internal_cmd_mode_i, cmd_rdy_i,
+   state_out2: process(current_state, stop_seq_num_i, seq_num, frame_sync_num, sync_number_i,
+      ack_i, dv_mode_i, external_dv_i,
+      ret_dat_req, internal_wb_req, simple_cmd_req, internal_cmd_mode_i, cmd_rdy_i,
       internal_status_req, internal_rb_id, ret_dat_stop_req, ret_dat_in_progress)
    begin
       -- default assignments
@@ -767,10 +785,15 @@ begin
             end if;
 
             if(ack_i = '1') then 
-               if (seq_num /= stop_seq_num_i) then -- why -1? 
-                  if(seq_num = start_seq_num_i and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
-                     update_next_toggle_sync <= '1';
-                  end if;
+               if (seq_num /= stop_seq_num_i) then 
+               --JUST COMMENTED
+                  --if(seq_num = start_seq_num_i and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
+                     --update_next_toggle_sync <= '1';
+                  --end if;
+                  if ((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and 
+                       internal_wb_req = '1' and sync_number_i /= frame_sync_num) then
+                     instr_rdy_o <= '0';
+                  end if;   
                else               
                   ret_dat_done <= '1';
                   ret_dat_ack <= '1';
