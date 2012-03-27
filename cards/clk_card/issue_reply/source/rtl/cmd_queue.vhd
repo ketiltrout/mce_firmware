@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.108 2011-12-01 19:46:11 mandana Exp $
+-- $Id: cmd_queue.vhd,v 1.109 2012-01-06 23:05:17 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -85,7 +85,7 @@ entity cmd_queue is
       mop_ack_o       : out std_logic;
       rdy_for_data_o  : out std_logic;
       busy_o          : out std_logic;
-      cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      cmd_code_i      : in std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;
       last_frame_i    : in std_logic;
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
