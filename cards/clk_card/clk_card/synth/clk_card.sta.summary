@@ -1,0 +1,429 @@
+------------------------------------------------------------
+TimeQuest Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 1.806
+TNS   : 0.000
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 1.806
+TNS   : 0.000
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 1.937
+TNS   : 0.000
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 1.937
+TNS   : 0.000
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 3.029
+TNS   : 0.000
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 3.029
+TNS   : 0.000
+
+Type  : Slow Model Setup 'fibre_rx_clkr'
+Slack : 17.853
+TNS   : 0.000
+
+Type  : Slow Model Setup 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 18.924
+TNS   : 0.000
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 35.790
+TNS   : 0.000
+
+Type  : Slow Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 35.790
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 0.643
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 0.643
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 0.643
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 0.643
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 0.664
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 0.664
+TNS   : 0.000
+
+Type  : Slow Model Hold 'fibre_rx_clkr'
+Slack : 0.664
+TNS   : 0.000
+
+Type  : Slow Model Hold 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 0.668
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 2.989
+TNS   : 0.000
+
+Type  : Slow Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 2.989
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 1.916
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 1.916
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 1.931
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 1.931
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 11.513
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 11.513
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 12.827
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 13.194
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 13.194
+TNS   : 0.000
+
+Type  : Slow Model Recovery 'fibre_rx_clkr'
+Slack : 16.172
+TNS   : 0.000
+
+Type  : Slow Model Removal 'fibre_rx_clkr'
+Slack : 1.031
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 3.952
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 3.952
+TNS   : 0.000
+
+Type  : Slow Model Removal 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 4.326
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 5.138
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 5.138
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 5.221
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 5.221
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 15.146
+TNS   : 0.000
+
+Type  : Slow Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 15.146
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'fibre_rx_clkr'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'inclk1'
+Slack : 20.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'inclk14'
+Slack : 20.000
+TNS   : 0.000
+
+Type  : Slow Model Minimum Pulse Width 'inclk15'
+Slack : 20.000
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 5.452
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 5.452
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 5.554
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 5.554
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 6.145
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 6.145
+TNS   : 0.000
+
+Type  : Fast Model Setup 'fibre_rx_clkr'
+Slack : 18.918
+TNS   : 0.000
+
+Type  : Fast Model Setup 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 19.392
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 37.654
+TNS   : 0.000
+
+Type  : Fast Model Setup 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 37.654
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 0.356
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 0.356
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 0.364
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 0.364
+TNS   : 0.000
+
+Type  : Fast Model Hold 'fibre_rx_clkr'
+Slack : 0.364
+TNS   : 0.000
+
+Type  : Fast Model Hold 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 0.365
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 0.366
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 0.366
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 1.718
+TNS   : 0.000
+
+Type  : Fast Model Hold 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 1.718
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 5.506
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 5.506
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 5.514
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 5.514
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 15.263
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 15.263
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 15.592
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 16.189
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 16.189
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'fibre_rx_clkr'
+Slack : 17.819
+TNS   : 0.000
+
+Type  : Fast Model Removal 'fibre_rx_clkr'
+Slack : 0.644
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 2.236
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 2.236
+TNS   : 0.000
+
+Type  : Fast Model Removal 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 2.860
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 2.886
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 2.886
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 2.939
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 2.939
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 12.891
+TNS   : 0.000
+
+Type  : Fast Model Removal 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 12.891
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[2]~1'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[0]~1'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[1]~1'
+Slack : 9.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'clk_switchover_slave|pll0|altpll_component|pll|clk[3]~1'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'fibre_rx_clkr'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'manch_pll_block|altpll_component|pll|clk[0]'
+Slack : 19.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'inclk1'
+Slack : 20.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'inclk14'
+Slack : 20.000
+TNS   : 0.000
+
+Type  : Fast Model Minimum Pulse Width 'inclk15'
+Slack : 20.000
+TNS   : 0.000
+
+------------------------------------------------------------

@@ -31,10 +31,9 @@
 
 # Project-Wide Assignments
 # ========================
-set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "11.1 SP2"
 
 # Pin & Location Assignments
 # ==========================
@@ -357,8 +356,8 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name FITTER_EFFORT "FAST FIT"
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
 
 # Timing Analysis Assignments
 # ===========================
@@ -456,7 +455,7 @@ set_instance_assignment -name MAX_FANOUT 100 -to *
 # end ENTITY(clk_card)
 # --------------------
 
-set_global_assignment -name SEED 2
+set_global_assignment -name SEED 1
 set_location_assignment PIN_F28 -to misoo
 set_location_assignment PIN_F27 -to sreqo
 set_location_assignment PIN_H21 -to mosii
@@ -475,7 +474,6 @@ set_global_assignment -name SAFE_STATE_MACHINE ON
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 2
-set_global_assignment -name MISC_FILE "C:/mce/cards/clk_card/clk_card/synth/clk_card.dpf"
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name ALLOW_POWER_UP_DONT_CARE ON
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
@@ -486,6 +484,7 @@ set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
 
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name SDC_FILE clk_card.sdc
 set_global_assignment -name VHDL_FILE ../../config_fpga/source/rtl/jtag_data_bank.vhd
 set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/awg_data_bank.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/d_flipflop.vhd
@@ -498,18 +497,11 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_pack.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_core_pack.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_pack.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_pack.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/clk_card_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset_pack.vhd
-set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx_pack.vhd
-set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover_pack.vhd
 set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_ctrl_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards.vhd
@@ -585,25 +577,26 @@ set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_ctrl.vhd
 set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_fail.vhd
 set_global_assignment -name VHDL_FILE ../../sram_ctrl/source/rtl/sram_pass.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/clk_card.vhd
-set_global_assignment -name SIGNALTAP_FILE clk_card.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_new.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_fit.stp
-set_global_assignment -name SIGNALTAP_FILE clock_card_b.stp
-set_global_assignment -name SIGNALTAP_FILE clock_card_d.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_vd.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_more.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_reply_tx_bug.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_dv_rx.stp
-set_global_assignment -name SIGNALTAP_FILE "../../../../../Documents and Settings/Bryce/Desktop/ACT Firmware/clk_card_dv_rx.stp"
-set_global_assignment -name SIGNALTAP_FILE clk_card_checksum.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_psc.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_fibre_rx.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_rc_prob.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_rc_probb.stp
-set_global_assignment -name SIGNALTAP_FILE dv_rx.stp
-set_global_assignment -name SIGNALTAP_FILE dv_rx_manch_clk.stp
-set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug_.stp
-set_global_assignment -name SIGNALTAP_FILE cc_v04000006_resetmcebug2_.stp
-set_global_assignment -name CDF_FILE "../../../../../Documents and Settings/Bryce/Desktop/work/latest sofs/awg_testing.cdf"
-set_global_assignment -name SIGNALTAP_FILE reply_queue.stp
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
+set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL OFF
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING ON
+set_location_assignment PIN_AA20 -to crc_error_out
+set_location_assignment PIN_AA21 -to crc_error_in
+set_location_assignment PIN_AH13 -to critical_error
+set_location_assignment PIN_AF1 -to dev_clr_fpga_out
+set_location_assignment PIN_J28 -to pcb_rev[0]
+set_location_assignment PIN_K28 -to pcb_rev[1]
+set_location_assignment PIN_L28 -to pcb_rev[2]
+set_location_assignment PIN_L27 -to pcb_rev[3]
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
+set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX NORMAL
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to manch_pll_block|altpll_component|pll|clk[0]
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk0"
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk1"
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk2"
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "clk_switchover:clk_switchover_slave|cc_pll:pll0|altpll:altpll_component|_clk3"
+set_global_assignment -name SMART_RECOMPILE OFF
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
