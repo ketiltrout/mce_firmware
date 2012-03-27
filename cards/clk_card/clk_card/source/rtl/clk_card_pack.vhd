@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.22 2012-01-06 23:03:19 mandana Exp $
+-- $Id: clk_card_pack.vhd,v 1.23 2012-02-09 00:19:10 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.23  2012-02-09 00:19:10  mandana
+-- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
+-- header version 7
+--
 -- Revision 1.22  2012-01-06 23:03:19  mandana
 -- cosmetic cleanup
 --
@@ -373,6 +377,28 @@ package clk_card_pack is
       e1_o                : out std_logic
    );
    end component;
+   
+   -- cc_pll for switchover 
+   component cc_pll
+      port (
+         clkswitch      : IN STD_LOGIC  := '0';
+         inclk0      : IN STD_LOGIC  := '0';
+         inclk1      : IN STD_LOGIC  := '0';
+         e2    : OUT STD_LOGIC ;
+         c0    : OUT STD_LOGIC ;
+         c1    : OUT STD_LOGIC ;
+         c2    : OUT STD_LOGIC ;
+         c3    : OUT STD_LOGIC ;
+         clkloss : out std_logic;
+         locked      : OUT STD_LOGIC ;
+         activeclock    : OUT STD_LOGIC ;
+         e0    : OUT STD_LOGIC ;
+         clkbad0     : OUT STD_LOGIC ;
+         e1    : OUT STD_LOGIC ;
+         clkbad1     : OUT STD_LOGIC
+      );
+   end component;
+   
    -------------------------------------------------------
    -- Sync Generator Component
    -------------------------------------------------------
