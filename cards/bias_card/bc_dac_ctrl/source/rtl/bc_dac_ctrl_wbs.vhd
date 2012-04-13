@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.15 2011-11-29 01:08:26 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.16 2012-03-26 21:55:15 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -36,6 +36,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.16  2012-03-26 21:55:15  mandana
+-- added enbl_bias_mod, enbl_flux_fb_mod, mod_val
+--
 -- Revision 1.15  2011-11-29 01:08:26  mandana
 -- ln_bias RAM handled correctly now
 --
@@ -144,11 +147,19 @@ end bc_dac_ctrl_wbs;
 
 architecture rtl of bc_dac_ctrl_wbs is
 
+  -- convert std_logic to std_logic_vector(0 downto 0)
+  function vectorize(s: std_logic) return std_logic_vector is
+  variable v: std_logic_vector(0 downto 0);
+  begin
+      v(0) := s;
+      return v;
+  end;
+
    -- RAM/Register signals
    signal flux_fb_wren     : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
    signal fix_flux_fb_data : flux_fb_dac_array; 
    signal mux_flux_fb_data : flux_fb_dac_array;
-   signal mod_val_data     : flux_fb_dac_array;
+   signal mod_val_data     : std_logic_vector(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
    signal wb_mux_flux_fb_data : flux_fb_dac_array;
 
    signal ln_bias_wren     : std_logic;
@@ -158,7 +169,7 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal enbl_mux_wren    : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0); 
    signal enbl_mux_data    : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
-   signal mod_val_wren     : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+   signal mod_val_wren     : std_logic;
 
    signal enbl_flux_fb_mod_wren: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0); 
    signal enbl_flux_fb_mod_data: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -229,7 +240,7 @@ begin
        end if;
      end process fix_flux_fb_reg;                  
      
-     flux_fb_data_o(i) <= fix_flux_fb_data(i) + mod_val_data(i) when enbl_flux_fb_mod_data(i) = '1' else fix_flux_fb_data(i);        
+     flux_fb_data_o(i) <= fix_flux_fb_data(i) + mod_val_data when enbl_flux_fb_mod_data(i) = '1' else fix_flux_fb_data(i);        
    end generate reg_bank;
    -- flux_fb_data_o <= fix_flux_fb_data;   
    
@@ -250,26 +261,23 @@ begin
          qa                => ln_bias_data_temp,
          qb                => ln_bias_data
       );   
-   ln_bias_data_o <= ln_bias_data_temp + mod_val_data(ln_bias_ram_raddr_int) when enbl_ln_bias_mod_data(ln_bias_ram_raddr_int) = '1' else ln_bias_data_temp;        
+   ln_bias_data_o <= ln_bias_data_temp + mod_val_data when enbl_ln_bias_mod_data(ln_bias_ram_raddr_int) = '1' else ln_bias_data_temp;        
   
    -----------------------------------------------------------------
    -- mod_val storage when multiplexing is off (enbl_mux = 0)
    -----------------------------------------------------------------   
-   mod_reg_bank: for i in 0 to NUM_FLUX_FB_DACS-1 generate
-      -- port a is used for updating DACs and port b for wishbone read
-     mod_val_reg: process(clk_i, rst_i)
-     begin
-       if(rst_i = '1') then
-         mod_val_data(i) <= (others => '0');            
-       elsif(clk_i'event and clk_i = '1') then
-         if(mod_val_wren(i) = '1') then
-           mod_val_data(i) <= dat_i(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
-         else
-           mod_val_data(i) <= mod_val_data(i);
-         end if;
+   mod_val_reg: process(clk_i, rst_i)
+   begin
+     if(rst_i = '1') then
+       mod_val_data <= (others => '0');            
+     elsif(clk_i'event and clk_i = '1') then
+       if(mod_val_wren = '1') then
+         mod_val_data <= dat_i(FLUX_FB_DAC_DATA_WIDTH-1 downto 0);
+       else
+         mod_val_data <= mod_val_data;
        end if;
-     end process mod_val_reg;                  
-   end generate mod_reg_bank;
+     end if;
+   end process mod_val_reg;                  
    
    -----------------------------------------------------------------   
    -- register multiplex mode enabled or not per column
@@ -327,12 +335,11 @@ begin
    begin  -- process i_gen_wren_signals
    
      flux_fb_wren <= (others => '0');
---     ln_bias_wren <= '0';
      row_flux_fb_wren <= (others => '0');
+     mod_val_wren <= '0';
          
      for i in 0 to NUM_FLUX_FB_DACS-1 loop
        enbl_mux_wren(i) <= '0';
-       mod_val_wren(i) <= '0';
        enbl_flux_fb_mod_wren(i) <= '0';
      end loop;  -- i
      for i in 0 to NUM_LN_BIAS_DACS-1 loop
@@ -347,7 +354,7 @@ begin
          enbl_mux_wren(ram_addr_int) <= we_i;
      
        when MOD_VAL_ADDR =>
-         mod_val_wren(ram_addr_int) <= we_i;
+         mod_val_wren <= we_i;
 
        when ENBL_FLUX_FB_MOD_ADDR =>
          enbl_flux_fb_mod_wren(ram_addr_int) <= we_i;
@@ -403,10 +410,10 @@ begin
      end case;
    end process i_gen_bias_changed;
    ln_bias_changed_o <= ln_bias_changed(ln_bias_changed_o'length-1 downto 0) or 
-                        (mod_val_wren(ln_bias_changed_o'length-1 downto 0) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0)) or
+                        (ext(vectorize(mod_val_wren), ln_bias_changed_o'length) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0)) or
                         (enbl_ln_bias_mod_wren(ln_bias_changed_o'length-1 downto 0) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0));   
    flux_fb_changed_o <= flux_fb_wren or 
-                        (mod_val_wren and enbl_flux_fb_mod_data) or
+                        (ext(vectorize(mod_val_wren), flux_fb_changed_o'length) and enbl_flux_fb_mod_data) or
                         (enbl_flux_fb_mod_wren and enbl_flux_fb_mod_data); 
                         --'1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
  
@@ -419,7 +426,7 @@ begin
       ext("0",WB_DATA_WIDTH-1) & enbl_mux_data(ram_addr_int) when (addr_i =  ENBL_MUX_ADDR) else      
       ext("0",WB_DATA_WIDTH-1) & enbl_flux_fb_mod_data(ram_addr_int) when (addr_i =  ENBL_FLUX_FB_MOD_ADDR) else      
       ext("0",WB_DATA_WIDTH-1) & enbl_ln_bias_mod_data(ram_addr_int) when (addr_i =  ENBL_BIAS_MOD_ADDR) else       
-      ext(mod_val_data(ram_addr_int), WB_DATA_WIDTH)                 when (addr_i = MOD_VAL_ADDR) else
+      ext(mod_val_data, WB_DATA_WIDTH)                 when (addr_i = MOD_VAL_ADDR) else
       ext(wb_mux_flux_fb_data(mux_ram_addr_int), WB_DATA_WIDTH) when (( addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL31_ADDR)) else
       (others => '0');
 
