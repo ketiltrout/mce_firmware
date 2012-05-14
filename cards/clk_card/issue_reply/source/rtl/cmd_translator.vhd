@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.71 2012-02-06 23:39:44 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.72 2012-03-27 23:34:42 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -99,8 +99,8 @@ entity cmd_translator is
       step_card_addr_i      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- the target card for the ramp mode						     
       step_data_num_i       : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- number of data elements being ramped for the step_param_id_i in ramp mode
       step_phase_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- startup phase in ramp mode
-      step_value_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- next ramp value
-
+      step_value_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- ramp value	for reply_q to be reported in the header
+     
       -- frame_timing interface
       sync_number_i         : in  std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       sync_pulse_i          : in std_logic;
@@ -154,10 +154,10 @@ architecture rtl of cmd_translator is
    signal f_rx_ret_dat_card_addr : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal f_rx_ret_dat_param_id  : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
    signal f_rx_ret_dat_data      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
    -- command parameters extracted from an incoming simple command
    signal f_rx_card_addr   : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal f_rx_param_id    : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
---   signal f_rx_data        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal f_rx_cmd_code    : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal f_rx_num_data    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
@@ -195,15 +195,22 @@ architecture rtl of cmd_translator is
    signal internal_rb_ack          : std_logic;                                    -- ack for an internal command, asserted for 1 cycle after command completion
 
    signal ramp_value               : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal next_ramp_value          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ramp_value_reported      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ramp_value_reg_en        : std_logic;
    signal internal_cmd_mode_1d     : std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
    signal step_period_1d           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_phase_1d            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ret_dat_in_progress_1d   : std_logic;
    signal awg_addr                 : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
+   signal cmd_collision            : std_logic;
+   signal cmd_collision_reg_en     : std_logic;
 
    -- For detecting changes in the internal-mode parameters
    signal cmd_mode_changing         : std_logic;
    --signal step_period_changing      : std_logic;   
    signal step_phase_changing       : std_logic;   
+   signal realign_ramp2data         : std_logic;   
    
    -------------------------------------------------------------------------------------------
    -- simple command control signals
@@ -212,10 +219,8 @@ architecture rtl of cmd_translator is
    signal simple_cmd_req : std_logic;
 
 begin   
-   -- Acknowledgement signal to fibre_rx
    ack_o <= f_rx_ret_dat_ack or simple_cmd_ack;
    
-   -- Size calculation logic for data packets
    data_size_int          <= num_cols_to_read_i * num_rows_to_read_i;
    data_size              <= conv_std_logic_vector(data_size_int,BB_DATA_SIZE_WIDTH);
    -------------------------------------------------------------------------------------------
@@ -229,13 +234,10 @@ begin
          f_rx_ret_dat_data         <= (others=>'0');
          f_rx_card_addr            <= (others=>'0');
          f_rx_param_id             <= (others=>'0');
---         f_rx_data                 <= (others=>'0');
          f_rx_cmd_code             <= (others=>'0');
          f_rx_num_data             <= (others=>'0');      
       elsif(clk_i'event and clk_i = '1') then
-         -- Latch important command information in response to the cmd_queue's cmd_rdy signal
-         -- The information for ret_dat commands is latched seperately from simple commands
-         -- This is so that simple command information does not corrupt the ret_dat information if it comes during a data run.
+         -- To properly handle simple-cmds that arrive during data run, parameters for simple and ret_dat cmds are latched seperately.
          if(cmd_rdy_i = '1') then
             if(param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
                f_rx_ret_dat_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -244,7 +246,6 @@ begin
             else
                f_rx_card_addr         <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
                f_rx_param_id          <= param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
---               f_rx_data              <= cmd_data_i;
                f_rx_cmd_code          <= cmd_code_i;
                f_rx_num_data          <= num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0);
             end if;
@@ -328,12 +329,14 @@ begin
          -------------------------
          -- Sync up internal commands with start of data acquisition (ret_dat)
          if((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and 
-            (next_toggle_sync = sync_number_i ) and (next_toggle_sync /= frame_sync_num)) then --or ret_dat_start = '1')) then
-            internal_wb_req <= '1';
+            (next_toggle_sync = sync_number_i )) then --or ret_dat_start = '1')) then
+               if (sync_number_i = frame_sync_num) then
+                  internal_wb_req <= '0';
+               else   
+                  internal_wb_req <= '1';
+               end if;   
          elsif(internal_wb_ack = '1') then
             internal_wb_req <= '0';
---         elsif(next_toggle_sync /= sync_number_i) then
---            internal_wb_req <= '0';
          end if;
          -------------------------
          if(ret_dat_ack = '1') then
@@ -377,53 +380,87 @@ begin
          internal_cmd_mode_1d <= "00";
          step_period_1d <= (others => '0');      
          step_phase_1d <= (others => '0');
+         ret_dat_in_progress_1d <= '0';
       elsif(clk_i'event and clk_i = '1') then
          internal_cmd_mode_1d <= internal_cmd_mode_i;
          step_period_1d       <= step_period_i;
          step_phase_1d        <= step_phase_i;
+         ret_dat_in_progress_1d <= ret_dat_in_progress;
       end if;
    end process i_regs; 
    
    cmd_mode_changing    <= '0' when internal_cmd_mode_1d = internal_cmd_mode_i else '1';
    -- step_period_changing <= '0' when step_period_1d = step_period_i else '1';
    step_phase_changing  <= '0' when step_phase_1d = step_phase_i else '1';
+   realign_ramp2data    <= ret_dat_in_progress and not(ret_dat_in_progress_1d);   
    -------------------------------------------------------------------------------------------      
    i_ramp_awg_advance: process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
          next_toggle_sync <= (others => '0');
          ramp_value       <= (others => '0');
-         awg_addr         <= (others => '0');         
-      elsif(clk_i'event and clk_i = '1') then         
+         next_ramp_value  <= (others => '0');
+         ramp_value_reported <= (others => '0');
+         awg_addr         <= (others => '0');      
+         cmd_collision    <= '0';
+      elsif(clk_i'event and clk_i = '1') then    
+      
+         -- when there is a ret_dat/internal_cmd collision, we should still advance the ramp_value
+         if (frame_sync_num = next_toggle_sync and next_toggle_sync = sync_number_i) then
+            cmd_collision <= '1';   
+         elsif cmd_collision_reg_en = '1' then
+            cmd_collision <= '0';
+         else    
+            cmd_collision <= cmd_collision;   
+         end if;   
+         ----- next_toggle_sync logic --------
          if (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) then
-            if (step_phase_changing = '1' or cmd_mode_changing = '1') then
-               next_toggle_sync <= sync_number_i + step_period_i + step_phase_i;
+            if (step_phase_changing = '1' or cmd_mode_changing = '1' or realign_ramp2data = '1') then
+               next_toggle_sync <= sync_number_i + 2 + step_phase_i; 
             elsif(update_next_toggle_sync = '1' or sync_number_i = next_toggle_sync) then               
                next_toggle_sync <= sync_number_i + step_period_i;
             end if;   
          end if;
-         ------------------------------------------------------------
-         if(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_RAMP) then -- or (ret_dat_req = '1' and internal_cmd_mode_i = INTERNAL_RAMP)) then
-            ramp_value  <= step_minimum_i - step_size_i; -- to make sure we start from the minimum specified.
-         elsif(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_MEM) then
+         
+         ----- ramp_value reported in header -----
+         -- only refresh when it's applied 
+         if (ramp_value_reg_en = '1') then
+            ramp_value_reported <= ramp_value;
+         end if;
+       
+         ----- ramp_value logic --------
+         if (ramp_value_reg_en = '1'or cmd_collision_reg_en = '1') then
+            ramp_value <= next_ramp_value;
+         elsif( (cmd_mode_changing = '1' or realign_ramp2data = '1') and internal_cmd_mode_i = INTERNAL_RAMP ) then 
+            ramp_value  <= step_minimum_i; 
+         elsif((cmd_mode_changing = '1' or realign_ramp2data = '1') and internal_cmd_mode_i = INTERNAL_MEM) then
             ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
-            awg_addr   <= awg_addr_i;         
-         elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_RAMP)  then
-            if(ramp_value < (step_maximum_i + 1 - step_size_i)) then
-               ramp_value <= ramp_value + step_size_i;
-            else
-               ramp_value <= step_minimum_i;
-            end if;
-         elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_MEM) then
-            ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
-            awg_addr   <= awg_addr_i;
+            awg_addr   <= awg_addr_i;     
          else
             ramp_value <= ramp_value;
+         end if;  
+         ----- next_ramp_value logic --------
+         if( (cmd_mode_changing = '1' or realign_ramp2data = '1') and internal_cmd_mode_i = INTERNAL_RAMP ) then 
+            next_ramp_value  <= step_minimum_i;
+         elsif(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_MEM) then
+            next_ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
+            awg_addr   <= awg_addr_i;         
+         elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_RAMP)  then
+            if(next_ramp_value < (step_maximum_i + 1 - step_size_i)) then
+               next_ramp_value <= next_ramp_value + step_size_i;
+            else
+               next_ramp_value <= step_minimum_i;
+            end if;
+         elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_MEM) then
+            next_ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
+            awg_addr   <= awg_addr_i;
+         else
+            next_ramp_value <= next_ramp_value;
             awg_addr   <= awg_addr;
          end if;
       end if;  --clk    
    end process i_ramp_awg_advance;   
-   step_value_o <= ext(awg_addr, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value;
+   step_value_o <= ext(awg_addr, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value_reported;
    
    -------------------------------------------------------------------------------------------      
    i_timer_rst: process (clk_i, rst_i)
@@ -503,9 +540,6 @@ begin
             end if;
 
          when PROCESSING_RET_DAT =>
-            -- If there are more frames, then process pending internal commands first, before issuing the next ret_dat
-            -- Note that internal commands/ simple commands are issued asynchronously to sync_number, i.e. anytime.
-            -- This state lasts only one clock cycle.! NOT TRUE!!!            
             if (ack_i = '1') then
                -- a healthy data process is here at the last frame
                if (seq_num /= stop_seq_num_i) then 
@@ -562,9 +596,9 @@ begin
             end if;   
 
          when REQ_LAST_DATA_PACKET =>
-            --if(ack_i = '1') then
+            if(ack_i = '1') then
                next_state <= IDLE;
-            --end if;
+            end if;
 
          when SIMPLE | INTERNAL_WB_DATA | NEXT_INTERNAL_CMD =>
             if(ack_i = '1') then
@@ -611,12 +645,9 @@ begin
       data_size_o      <= (others => '0');
       data_clk_o       <= '0';
       internal_cmd_o   <= '0';
-      data_o           <= (others => '0');
-   
+      data_o           <= (others => '0');   
+
       case current_state is            
-         -- Note that the f_rx_... variables are shared between ret_dat and simple commands
-         -- This introduces a bug whereby if a simple command is received during a data run, the run gets corrupted
-         -- Instead of asking for data from the data slave, the CC asks for data from whichever other slave the simple command referred to.
          when UPDATE_FOR_NEXT | PROCESSING_RET_DAT | REQ_LAST_DATA_PACKET =>
             card_addr_o          <= f_rx_ret_dat_card_addr;
             param_id_o           <= f_rx_ret_dat_param_id;
@@ -655,7 +686,7 @@ begin
                data_clk_o        <= '1';
                internal_cmd_o    <= '1';
                data_o            <= ramp_value;
-            end if;
+           end if;
 
          when FPGA_TEMP =>
             if(internal_status_req = '1') then
@@ -708,7 +739,7 @@ begin
    -- FSM Output logic - Part 2: Internal control signals 
    -------------------------------------------------------------------------------------------
    state_out2: process(current_state, stop_seq_num_i, seq_num, frame_sync_num, sync_number_i,
-      ack_i, dv_mode_i, external_dv_i,
+      ack_i, dv_mode_i, external_dv_i, cmd_collision,
       ret_dat_req, internal_wb_req, simple_cmd_req, internal_cmd_mode_i, cmd_rdy_i,
       internal_status_req, internal_rb_id, ret_dat_stop_req, ret_dat_in_progress)
    begin
@@ -737,6 +768,8 @@ begin
       internal_rb_ack      <= '0';
       simple_cmd_ack       <= '0';
       f_rx_ret_dat_ack     <= '0';
+      ramp_value_reg_en    <= '0';      
+      cmd_collision_reg_en <= '0';
 
       case current_state is
          when IDLE =>
@@ -745,15 +778,12 @@ begin
             if(ret_dat_req = '1') then
                inc_sync_num <= '1';
                load_seq_num  <= '1';
-               -- Set the ret_dat_in_progress register
 	       ret_dat_start <= '1';	       
 
-               -- Ack fibre_rx one cycle before immediately entering the data process on the next cycle.
-               -- This frees up fibre_rx for incoming commands, including STOP commands!!
+               -- Ack fibre_rx 1 cycle before starting the data process to free up fibre_rx for incoming (stop) cmds
                if(dv_mode_i = DV_INTERNAL) then
                   f_rx_ret_dat_ack <= '1';
-               -- Added following condition for a bugfix:   
-               -- if the MCE sources DV pulses from the sync box, but doesn't ever receive them, 
+               -- Bugfix: if the MCE sources DV pulses from the sync box, but doesn't ever receive them, 
                -- we need to free up fibre receive, so STOP command can be received!!
                elsif(dv_mode_i /= DV_INTERNAL and cmd_rdy_i = '1') then
                   f_rx_ret_dat_ack <= '1';
@@ -768,9 +798,9 @@ begin
                -- Acknowledge the command and reply -- but do not return any data packets
                ret_dat_ack <= '1';
                f_rx_ret_dat_ack <= '1';
-            elsif(simple_cmd_req = '1') then
+            elsif simple_cmd_req = '1' then
                null;
-            elsif((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
+            elsif internal_wb_req = '1' then 
                update_next_toggle_sync <= '1';
             elsif(internal_cmd_mode_i = INTERNAL_HOUSEKEEPING and internal_status_req = '1') then
                if(internal_rb_id < NUM_HOUSEKEEPING_CMD_TYPES ) then -- a valid housekeeping command
@@ -780,19 +810,26 @@ begin
 
          when PROCESSING_RET_DAT =>
             instr_rdy_o <= '1';
-            if(seq_num = stop_seq_num_i) then
+            if(seq_num = stop_seq_num_i or ret_dat_stop_req = '1') then -- hesitantly added stop-check, hmmm
                last_frame_o <= '1';
+            end if;
+                     
+            if(ret_dat_stop_req = '1') then
+               cmd_stop_o          <= '1';
+               -- override_sync_num_o is asserted to notify the cmd_queue to issue the command immediately,
+               -- without waiting for the next sync pulse, which may never arrive if the reason that the
+               -- MCE data acquisition has frozen is because the Sync Box fibre is broken/ disconnected.
+               override_sync_num_o <= '1';
             end if;
 
             if(ack_i = '1') then 
                if (seq_num /= stop_seq_num_i) then 
-               --JUST COMMENTED
-                  --if(seq_num = start_seq_num_i and (internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and internal_wb_req = '1') then
-                     --update_next_toggle_sync <= '1';
-                  --end if;
                   if ((internal_cmd_mode_i = INTERNAL_RAMP or internal_cmd_mode_i = INTERNAL_MEM) and 
                        internal_wb_req = '1' and sync_number_i /= frame_sync_num) then
                      instr_rdy_o <= '0';
+                  end if;   
+                  if (cmd_collision = '1') then
+                     cmd_collision_reg_en <= '1';
                   end if;   
                else               
                   ret_dat_done <= '1';
@@ -842,13 +879,13 @@ begin
                override_sync_num_o <= '1';
             end if;
 
---            if(ack_i = '1') then
+            if(ack_i = '1') then
                -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
                instr_rdy_o <= '0';
                ret_dat_ack <= '1';
                ret_dat_done <= '1';
                f_rx_ret_dat_ack <= '1';
---            end if;
+            end if;
 
          when SIMPLE =>
             -- isolate the internal ready signals (ret_dat_rdy, etc) from the fibre_rx rdy (cmd_rdy_i).
@@ -869,10 +906,9 @@ begin
 
          when INTERNAL_WB_DATA =>
             instr_rdy_o       <= '1';
-            -- ack_i is asserted when the cmd_queue acknowledes the receipt of 
-            --an internal command mode change, which causes the cmd_translator to prime itself with the first internal data/ address.            
             if(ack_i = '1') then
                internal_wb_ack <= '1';            
+               ramp_value_reg_en <= '1';
             end if;
 
          when FPGA_TEMP | CARD_TEMP | PSC_STATUS | BOX_TEMP =>
