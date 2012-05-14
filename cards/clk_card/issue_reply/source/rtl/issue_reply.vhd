@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.85 2012-01-06 23:07:24 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.86 2012-02-09 00:19:10 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 --
--- <date $Date: 2012-01-06 23:07:24 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2012-02-09 00:19:10 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.86  2012-02-09 00:19:10  mandana
+-- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
+-- header version 7
+--
 -- Revision 1.85  2012-01-06 23:07:24  mandana
 -- added simple_cmd and busy_io to cmd_translator/cmd_q interface
 -- cosmetic cleanup
@@ -272,7 +276,6 @@ architecture rtl of issue_reply is
    signal frame_seq_num_cr    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal internal_cmd_cr     : std_logic;
    signal step_value          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal step_value2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- reply_queue to reply_translator interface
    signal m_op_rdy            : std_logic;
@@ -417,7 +420,6 @@ begin
       issue_sync_o    => issue_sync,
       cmd_code_o      => reply_cmd_code_b,
       data_timing_err_o => data_timing_err,
-      step_value_o    => step_value2,
 
       -- cmd_translator interface
       card_addr_i     => card_addr2,
@@ -436,7 +438,6 @@ begin
       internal_cmd_i  => internal_cmd,
       simple_cmd_i    => simple_cmd,
       cmd_code_i      => reply_cmd_code,
-      step_value_i    => step_value,
       override_sync_num_i => override_sync_num,
       ret_dat_in_progress_i => ret_dat_in_progress,
 
@@ -473,7 +474,7 @@ begin
       frame_seq_num_i     => frame_seq_num_cr,
       internal_cmd_i      => internal_cmd_cr,
       cmd_code_i          => reply_cmd_code_b,
-      step_value_i        => step_value2,
+      step_value_i        => step_value,
       issue_sync_i        => issue_sync,
       data_timing_err_i   => data_timing_err,
 

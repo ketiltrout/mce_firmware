@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.61 2012-01-06 23:09:16 mandana Exp $
+-- $Id: issue_reply_pack.vhd,v 1.62 2012-02-09 00:19:10 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.62  2012-02-09 00:19:10  mandana
+-- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
+-- header version 7
+--
 -- Revision 1.61  2012-01-06 23:09:16  mandana
 -- parametrized interface definitions
 -- moved all frame-header defines here
@@ -362,7 +366,6 @@ package issue_reply_pack is
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
       issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -381,7 +384,6 @@ package issue_reply_pack is
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i  : in std_logic;
       simple_cmd_i    : in std_logic;
-      step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       override_sync_num_i : in std_logic;
       ret_dat_in_progress_i : in std_logic;
 
