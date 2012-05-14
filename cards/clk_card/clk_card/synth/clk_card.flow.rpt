@@ -1,5 +1,5 @@
 Flow report for clk_card
-Tue Mar 27 14:37:55 2012
+Thu May 10 14:10:44 2012
 Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 
 
@@ -38,14 +38,14 @@ applicable agreement for further details.
 +----------------------------------------------------------------------------+
 ; Flow Summary                                                               ;
 +---------------------------+------------------------------------------------+
-; Flow Status               ; Successful - Tue Mar 27 14:37:39 2012          ;
+; Flow Status               ; Successful - Thu May 10 14:10:26 2012          ;
 ; Quartus II 64-Bit Version ; 11.1 Build 259 01/25/2012 SP 2 SJ Full Version ;
 ; Revision Name             ; clk_card                                       ;
 ; Top-level Entity Name     ; clk_card                                       ;
 ; Family                    ; Stratix                                        ;
 ; Device                    ; EP1S30F780C5                                   ;
 ; Timing Models             ; Final                                          ;
-; Total logic elements      ; 18,979 / 32,470 ( 58 % )                       ;
+; Total logic elements      ; 19,015 / 32,470 ( 59 % )                       ;
 ; Total pins                ; 243 / 598 ( 41 % )                             ;
 ; Total virtual pins        ; 0                                              ;
 ; Total memory bits         ; 957,952 / 3,317,184 ( 29 % )                   ;
@@ -60,7 +60,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 03/27/2012 14:28:08 ;
+; Start date & time ; 05/10/2012 14:00:41 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; clk_card            ;
 +-------------------+---------------------+
@@ -76,7 +76,7 @@ applicable agreement for further details.
 ; ASSG_RULE_MISSING_TIMING                     ; Off                          ; On                             ; --          ; --         ;
 ; AUTO_ENABLE_SMART_COMPILE                    ; Off                          ; --                             ; --          ; --         ;
 ; AUTO_PACKED_REGISTERS_STRATIX                ; Normal                       ; Auto                           ; --          ; --         ;
-; COMPILER_SIGNATURE_ID                        ; 167739110428.133288368703360 ; --                             ; --          ; --         ;
+; COMPILER_SIGNATURE_ID                        ; 167739110428.133668364006356 ; --                             ; --          ; --         ;
 ; ENABLE_CLOCK_LATENCY                         ; On                           ; Off                            ; --          ; --         ;
 ; ENABLE_SIGNALTAP                             ; Off                          ; --                             ; --          ; --         ;
 ; FMAX_REQUIREMENT                             ; 20 ns                        ; --                             ; --          ; --         ;
@@ -113,11 +113,11 @@ applicable agreement for further details.
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis      ; 00:02:28     ; 1.0                     ; 629 MB              ; 00:02:25                           ;
-; Fitter                    ; 00:06:47     ; 1.8                     ; 965 MB              ; 00:08:20                           ;
-; Assembler                 ; 00:00:05     ; 1.0                     ; 556 MB              ; 00:00:05                           ;
-; TimeQuest Timing Analyzer ; 00:00:21     ; 1.5                     ; 597 MB              ; 00:00:26                           ;
-; Total                     ; 00:09:41     ; --                      ; --                  ; 00:11:16                           ;
+; Analysis & Synthesis      ; 00:02:33     ; 1.0                     ; 629 MB              ; 00:02:32                           ;
+; Fitter                    ; 00:06:53     ; 1.8                     ; 966 MB              ; 00:08:17                           ;
+; Assembler                 ; 00:00:06     ; 1.0                     ; 556 MB              ; 00:00:06                           ;
+; TimeQuest Timing Analyzer ; 00:00:24     ; 1.6                     ; 597 MB              ; 00:00:30                           ;
+; Total                     ; 00:09:56     ; --                      ; --                  ; 00:11:25                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
