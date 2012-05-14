@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.101 2012-02-09 00:20:38 mandana Exp $
+-- $Id: clk_card.vhd,v 1.102 2012-03-27 22:58:04 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -31,8 +31,6 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
---use ieee.std_logic_arith.all;
---use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -162,7 +160,8 @@ entity clk_card is
       mictor1clk_o      : out std_logic;
 --      mictor1_e         : out std_logic_vector(15 downto 0);
 --      mictor1clk_e      : out std_logic;
-
+      
+      -- rs232 test interface
       rx                : in std_logic;
       tx                : out std_logic;
 
@@ -187,7 +186,7 @@ entity clk_card is
       fibre_tx_bisten   : out std_logic;
       fibre_tx_foto     : out std_logic;
 
-      -- JTAG
+      -- JTAG controller interface
       fpga_tdo          : out std_logic; -- TDI (into JTAG chain)
       fpga_tck          : out std_logic; -- TCK
       fpga_tms          : out std_logic; -- TMS
@@ -206,7 +205,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0500000c";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0500000d";
 
    -- reset
    signal rst                : std_logic;
@@ -237,7 +236,6 @@ architecture top of clk_card is
    signal external_dv_num      : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
    signal sync_mode            : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
    signal external_sync        : std_logic;
-   signal ret_dat_req          : std_logic;
    signal ret_dat_done         : std_logic;
    signal tes_bias_toggle_en   : std_logic;
    signal tes_bias_high        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -475,11 +473,11 @@ begin
    fibre_rx_bisten <= '1';
    fibre_rx_rf     <= '1';
 
-   -- Pulling ttl_txena1 low enables the TTL transmitter.  This line is used as a BClr.
+   -- configure the spare TTL line, SPTTL1, as output and define it as mce_bclr to reset the subrack.
    ttl_txena1 <= '0';   
-   -- Pulling ttl_txena2 high enables the TTL receiver.  This line is used for detecting unresponsive cards.
-   -- This line has a week pull up.  
-   -- A card that is inserted and not configured would pull this line down, but this line would stay high if cards are inserted and configured.
+   
+   -- configure the spare TTL line, SPTTL2, as input and use this line to detect non-present cards.
+   -- This line would stay high if cards are inserted and configured.
    ttl_txena2 <= '1';
 
    -- ttl_tx1 is an active-low reset transmitted accross the bus backplane to clear FPGA registers (BClr)
@@ -528,18 +526,7 @@ begin
    lvds_reply_all_b(CC)   <= lvds_reply_cc_b;
    lvds_reply_all_b(PSUC) <= lvds_reply_psu_b;
 
---   -- Bits are active-high
---   card_not_present <=
---      lvds_reply_ac_b &
---      lvds_reply_bc1_b &
---      lvds_reply_bc2_b &
---      lvds_reply_bc3_b &
---      lvds_reply_rc1_b &
---      lvds_reply_rc2_b &
---      lvds_reply_rc3_b &
---      lvds_reply_rc4_b &
---      '0' & -- Clock Card
---      '0';  -- PSUC
+--   card_not_present <= lvds_reply_ac_b & everyone else
 
    ----------------------------------------------------------------
    -- Autonomous Clock Card Reset Block
@@ -590,7 +577,6 @@ begin
       slave_data <=
          frame_timing_data   when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          led_data            when LED_ADDR,
---         sync_gen_data       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          sync_gen_data       when USE_DV_ADDR | USE_SYNC_ADDR,
          config_fpga_data    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR | TMS_TDI_ADDR | TDO_ADDR | TDO_SAMPLE_DLY_ADDR | TCK_HALF_PERIOD_ADDR,
          select_clk_data     when SELECT_CLK_ADDR,
@@ -614,7 +600,6 @@ begin
       slave_ack <=
          frame_timing_ack    when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
          led_ack             when LED_ADDR,
---         sync_gen_ack        when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
          sync_gen_ack        when USE_DV_ADDR | USE_SYNC_ADDR,
          config_fpga_ack     when CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR | TMS_TDI_ADDR | TDO_ADDR | TDO_SAMPLE_DLY_ADDR | TCK_HALF_PERIOD_ADDR,
          select_clk_ack      when SELECT_CLK_ADDR,
@@ -638,7 +623,6 @@ begin
       slave_err <=
          '0'                 when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
                                   LED_ADDR |
---                                  USE_DV_ADDR | USE_SYNC_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR |
                                   USE_DV_ADDR | USE_SYNC_ADDR | 
                                   CONFIG_FAC_ADDR | CONFIG_APP_ADDR | JTAG0_ADDR | JTAG1_ADDR | JTAG2_ADDR | TMS_TDI_ADDR | TDO_ADDR | TDO_SAMPLE_DLY_ADDR | TCK_HALF_PERIOD_ADDR |
                                   SELECT_CLK_ADDR |
@@ -659,15 +643,15 @@ begin
 
    cc_dispatch_block: dispatch
    port map(
+      --  Global signals
+      clk_i        => clk,
+      rst_i        => rst,
+      comm_clk_i   => comm_clk,
+      
       lvds_cmd_i   => cmd,
 
       lvds_replya_o => lvds_reply_cc_a,
       lvds_replyb_o => lvds_reply_cc_b,
-
-      --  Global signals
-      clk_i        => clk,
-      comm_clk_i   => comm_clk,
-      rst_i        => rst,
 
       -- Wishbone interface
       dat_o        => data,
@@ -688,9 +672,6 @@ begin
 
    issue_reply_block: issue_reply
    port map(
-      -- For testing
-      debug_o    => debug,
-
       -- global signals
       rst_i             => rst,
       clk_i             => clk,
@@ -771,7 +752,10 @@ begin
 
       -- frame_timing interface
       sync_pulse_i         => sync,
-      sync_number_i        => sync_num
+      sync_number_i        => sync_num,
+      
+      -- For testing
+      debug_o    => debug
    );
 
    i_all_cards: all_cards
@@ -815,6 +799,10 @@ begin
 
    sram_ctrl_slave: sram_ctrl
    port map(
+      -- global signals
+      clk_i   => clk,
+      rst_i   => rst,
+
       -- SRAM signals:
       addr_o  => sram_addr,
       data_bi(15 downto 0) => sram0_data,
@@ -827,8 +815,6 @@ begin
       n_we_o  => sram_nwe,
 
       -- wishbone signals:
-      clk_i   => clk,
-      rst_i   => rst,
       dat_i   => data,
       addr_i  => addr,
       tga_i   => tga,
@@ -841,7 +827,6 @@ begin
 
    -- E0 is 180 degrees out of phase with C3 to ensure that the rising edge of fibre_tx_ena occurs at least 5ns before the rising edge of fibre_tx_clkw.
    -- That is a spec-sheet requirement.
-   -- This should ensure that there is no metastability.
    clk_switchover_slave: clk_switchover
    port map(
       -- wishbone interface:
@@ -869,7 +854,7 @@ begin
 
    config_fpga_slave: config_fpga
    port map(
-      -- Clock and Reset:
+      -- global signals
       clk_i         => clk,
       rst_i         => rst,
 
@@ -984,6 +969,10 @@ begin
 
    sync_gen_slave: sync_gen
    port map(
+      --  Global signals
+      clk_i                => clk,
+      rst_i                => rst,
+
       -- Inputs/Outputs
       dv_mode_o            => dv_mode,
       sync_mode_o          => sync_mode,
@@ -1000,17 +989,17 @@ begin
       stb_i                => stb,
       cyc_i                => cyc,
       dat_o                => sync_gen_data,
-      ack_o                => sync_gen_ack,
-
-      --  Global signals
-      clk_i                => clk,
-      rst_i                => rst
+      ack_o                => sync_gen_ack
    );
 
-   -- Move the row_len and num_rows storage space from sync_gen to frame timing!!!
-   -- Frame_timing is taking on a new nature.  It is sort of the global timing and readout slave.
    frame_timing_slave: frame_timing
    port map(
+      -- global signals
+      clk_i                      => clk,
+      clk_n_i                    => clk_n,
+      rst_i                      => rst,
+
+      sync_i                     => encoded_sync,
       dac_dat_en_o               => open,
       adc_coadd_en_o             => open,
       restart_frame_1row_prev_o  => open,
@@ -1028,6 +1017,7 @@ begin
 
       update_bias_o              => open,
 
+      -- wishbone interface
       dat_i                      => data,
       addr_i                     => addr,
       tga_i                      => tga,
@@ -1035,17 +1025,12 @@ begin
       stb_i                      => stb,
       cyc_i                      => cyc,
       dat_o                      => frame_timing_data,
-      ack_o                      => frame_timing_ack,
-
-      clk_i                      => clk,
-      clk_n_i                    => clk_n,
-      rst_i                      => rst,
-      sync_i                     => encoded_sync
+      ack_o                      => frame_timing_ack
    );
 
    dv_rx_slave: dv_rx
    port map(
-      -- Clock and Reset:
+      -- global signals
       clk_i               => clk,
       manch_clk_i         => manch_clk,  -- Manchester Clock Input
       clk_n_i             => clk_n,
@@ -1067,11 +1052,13 @@ begin
       sync_mode_i         => sync_mode,
       sync_o              => external_sync
    );
+   
    ret_dat_done <= '0';
    cards_present <= not card_not_present;
+   
    ret_dat_parameter_slave: ret_dat_wbs
    port map(
-      -- global interface
+      -- global signals
       clk_i                  => clk,
       rst_i                  => rst,
 
@@ -1092,7 +1079,7 @@ begin
       user_writable_o        => user_writable,
       stop_delay_o           => stop_delay,
       crc_err_en_o           => crc_err_en,
-      ret_dat_req_o          => ret_dat_req,
+      ret_dat_req_o          => open,
       ret_dat_ack_i          => ret_dat_done,
       cards_present_i        => cards_present,
       cards_to_report_o      => cards_to_report,
@@ -1134,15 +1121,16 @@ begin
 
    psuc_dispatch_block: dispatch
    port map(
+      --  Global signals
+      clk_i        => clk,
+      comm_clk_i   => comm_clk,
+      rst_i        => rst,
+
       lvds_cmd_i   => cmd,
 
       lvds_replya_o => lvds_reply_psu_a,
       lvds_replyb_o => lvds_reply_psu_b,
 
-      --  Global signals
-      clk_i        => clk,
-      comm_clk_i   => comm_clk,
-      rst_i        => rst,
 
       -- Wishbone interface
       dat_o        => psu_data,
@@ -1163,7 +1151,7 @@ begin
 
    psu_ctrl_slave: psu_ctrl
    port map(
-      -- Clock and Reset:
+      -- global signals
       clk_i   => clk,
       clk_n_i => clk_n,
       rst_i   => rst,
