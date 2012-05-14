@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.57 2012-01-06 23:10:39 mandana Exp $
+-- $Id: reply_queue.vhd,v 1.58 2012-02-09 00:19:10 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -34,6 +34,10 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.58  2012-02-09 00:19:10  mandana
+-- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
+-- header version 7
+--
 -- Revision 1.57  2012-01-06 23:10:39  mandana
 -- cosmetic cleanup and parametrized signals
 -- moved frame-header definitions to issue_reply_pack
@@ -205,11 +209,9 @@ entity reply_queue is
 end reply_queue;
 
 architecture behav of reply_queue is
-
    -- Max temperature is 100 degrees Celcius.
    constant MAX_NUM_OVERTEMPERATURES : integer := 10;
    constant MAX_TEMP  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"00000064";
-   constant BIT_STATUS_SIZE : integer := PACKET_WORD_WIDTH;   
 
    -- Internal signals
    signal active_clk           : std_logic;
@@ -234,10 +236,9 @@ architecture behav of reply_queue is
    signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);   -- The card address of the m-op
    signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);   -- The parameter id of the m-op
    signal data_size_t          : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);      -- The number of bytes of data in the m-op
-   signal bit_status           : std_logic_vector(BIT_STATUS_SIZE-1 downto 0);
-   signal bit_status_i         : std_logic_vector(BIT_STATUS_SIZE-1 downto 0);
    signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal frame_status         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal frame_status         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);   
+   signal frame_status_reg     : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal issue_sync_num       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
 
@@ -282,7 +283,6 @@ architecture behav of reply_queue is
    signal word_count_new       : integer;
 
    signal status_en            : std_logic;
-   signal status_q             : std_logic_vector(30 downto 0);
 
    signal fpga_temp_stale      : std_logic;
    signal card_temp_stale      : std_logic;
@@ -290,6 +290,7 @@ architecture behav of reply_queue is
    signal box_temp_stale       : std_logic;
 
    signal num_cards        : std_logic_vector(3 downto 0);
+   signal num_cards_int    : integer range 0 to NUM_CARDS_TO_REPLY;
    signal datasize_reg_en  : std_logic;
    signal datasize_reg_q   : std_logic_vector(BB_DATA_SIZE_WIDTH +4 -1 downto 0);
    signal num_cards_reg_en : std_logic;
@@ -432,130 +433,82 @@ begin
       end if;
    end process over_temperature_cntr;
 
-   cmd_code_reg: reg
-      generic map(
-         WIDTH      => PACKET_WORD_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => cmd_code_i,
-         reg_o      => cmd_code
-      );
+   cmd_par_regs: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         cmd_code <= (others => '0');
+         card_addr <= (others => '0');
+         par_id <= (others => '0');
+         data_size_t <= (others => '0');
 
-   card_addr_reg: reg
-      generic map(
-         WIDTH      => BB_CARD_ADDRESS_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => card_addr_i,
-         reg_o      => card_addr
-      );
-
-   par_id_reg: reg
-      generic map(
-         WIDTH      => BB_PARAMETER_ID_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => par_id_i,
-         reg_o      => par_id
-      );
-
-   data_size_reg_t: reg
-      generic map(
-         WIDTH      => BB_DATA_SIZE_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => data_size_i,
-         reg_o      => data_size_t
-      );
+      elsif(clk_i'event and clk_i = '1') then
+         if reg_en = '1' then
+            cmd_code <= cmd_code_i;
+            card_addr <= card_addr_i;
+            par_id <= par_id_i;
+            data_size_t <= data_size_i;            
+         end if;
+      end if;
+   end process cmd_par_regs;
+   cmd_code_o          <= cmd_code;
+   card_addr_o         <= card_addr;
+   param_id_o          <= par_id;
 
    -------------------------------------------------------------------
    -- data size calculation logic and registers
-   -------------------------------------------------------------------
-   psu_slv <= "000" & cards_to_report_i(PSUC);
-   cc_slv  <= "000" & cards_to_report_i(CC);
-   rc4_slv <= "000" & cards_to_report_i(RC4);
-   rc3_slv <= "000" & cards_to_report_i(RC3);
-   rc2_slv <= "000" & cards_to_report_i(RC2);
-   rc1_slv <= "000" & cards_to_report_i(RC1);
-   bc3_slv <= "000" & cards_to_report_i(BC3);
-   bc2_slv <= "000" & cards_to_report_i(BC2);
-   bc1_slv <= "000" & cards_to_report_i(BC1);
-   ac_slv  <= "000" & cards_to_report_i(AC);
-
+   -------------------------------------------------------------------   
    num_cards_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          num_cards <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(num_cards_reg_en = '1') then
-            if(cmd_code = DATA) then
-               if(card_addr = ALL_READOUT_CARDS) then
-                  if(rcs_to_report_data_i(5 downto 2) = "0000") then
-                     num_cards <= x"0";
-                  elsif(rcs_to_report_data_i(5 downto 2) = "1111") then
-                     num_cards <= x"4";
-                  elsif(rcs_to_report_data_i(5 downto 2) = "1000" or rcs_to_report_data_i(5 downto 2) = "0100" or
-                     rcs_to_report_data_i(5 downto 2) = "0010" or rcs_to_report_data_i(5 downto 2) = "0001") then
-                     num_cards <= x"1";
-                  elsif(rcs_to_report_data_i(5 downto 2) = "0111" or rcs_to_report_data_i(5 downto 2) = "1011" or
-                     rcs_to_report_data_i(5 downto 2) = "1101" or rcs_to_report_data_i(5 downto 2) = "1110") then
-                     num_cards <= x"3";
-                  else
-                     num_cards <= x"2";
-                  end if;
-               -- Otherwise, if the card_addr is RC1/ RC2/ RC3/ RC4.
+            if(cmd_code = DATA) then 
+               if (card_addr = ALL_READOUT_CARDS) then 
+                  num_cards <= conv_std_logic_vector(conv_integer(rcs_to_report_data_i(RC1))+ conv_integer(rcs_to_report_data_i(RC2))+ 
+                                   conv_integer(rcs_to_report_data_i(RC3))+ conv_integer(rcs_to_report_data_i(RC4)), num_cards'length);
                else
-                  num_cards <= x"1";
+                   num_cards <= conv_std_logic_vector('1',num_cards'length);
                end if;           
-            else
+            else -- had we chosen a card-target coding scheme compatible with hardware (backplane hardware), the following could have been a one liner!!
                if(card_addr = NO_CARDS) then
-                  num_cards <= x"0";
+                  num_cards <= (others => '0');
                elsif(card_addr = POWER_SUPPLY_CARD) then
-                  num_cards <= psu_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(PSUC), num_cards'length);
                elsif(card_addr = CLOCK_CARD) then
-                  num_cards <= cc_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(CC), num_cards'length);
                elsif(card_addr = READOUT_CARD_1) then
-                  num_cards <= rc1_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(RC1), num_cards'length);
                elsif(card_addr = READOUT_CARD_2) then
-                  num_cards <= rc2_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(RC2), num_cards'length);
                elsif(card_addr = READOUT_CARD_3) then
-                  num_cards <= rc3_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(RC3), num_cards'length);
                elsif(card_addr = READOUT_CARD_4) then
-                  num_cards <= rc4_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(RC4), num_cards'length);
                elsif(card_addr = BIAS_CARD_1) then
-                  num_cards <= bc1_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(BC1), num_cards'length);
                elsif(card_addr = BIAS_CARD_2) then
-                  num_cards <= bc2_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(BC2), num_cards'length);
                elsif(card_addr = BIAS_CARD_3) then
-                  num_cards <= bc3_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(BC3), num_cards'length);
                elsif(card_addr = ADDRESS_CARD) then
-                  num_cards <= ac_slv;
+                  num_cards <= conv_std_logic_vector(cards_to_report_i(AC), num_cards'length);
                elsif(card_addr = ALL_BIAS_CARDS) then
-                  num_cards <= bc1_slv + bc2_slv + bc3_slv;
+                  num_cards <= conv_std_logic_vector(conv_integer(cards_to_report_i(BC1)) + conv_integer(cards_to_report_i(BC2)) + conv_integer(cards_to_report_i(BC3)),num_cards'length);
                elsif(card_addr = ALL_READOUT_CARDS) then
-                  num_cards <= rc1_slv + rc2_slv + rc3_slv + rc4_slv;
+                  num_cards <= conv_std_logic_vector(conv_integer(cards_to_report_i(RC1)) + conv_integer(cards_to_report_i(RC2)) + conv_integer(cards_to_report_i(RC3)) + conv_integer(cards_to_report_i(RC4)),num_cards'length);
                elsif(card_addr = ALL_FPGA_CARDS) then
-                  num_cards <= bc1_slv + bc2_slv + bc3_slv + rc1_slv + rc2_slv + rc3_slv + rc4_slv + cc_slv + ac_slv;
+                  num_cards <= conv_std_logic_vector(conv_integer(cards_to_report_i(RC1)) + conv_integer(cards_to_report_i(RC2)) + conv_integer(cards_to_report_i(RC3)) + conv_integer(cards_to_report_i(RC4)) +
+                                   conv_integer(cards_to_report_i(BC1)) + conv_integer(cards_to_report_i(BC2)) + conv_integer(cards_to_report_i(BC3)) +
+                                   conv_integer(cards_to_report_i(AC)) + conv_integer(cards_to_report_i(CC)),num_cards'length);
                else
-                  num_cards <= x"0";
+                  num_cards <= (others=>'0');
                end if;
-            end if;
-         end if;
-      end if;
-   end process num_cards_reg;
-
+            end if; -- cmd_code 
+         end if; -- reg_en
+      end if; 
+   end process num_cards_reg;   
+   -------------------------------------------------------------------
    data_size <= conv_integer(datasize_reg_q);
    datasize_reg: process(clk_i, rst_i)
    begin
@@ -613,76 +566,44 @@ begin
 
    -- all status bits, except reset and sync-box-error, are latched at frame boundaries and included in the status header of every data frame
    num_cols_reported <= conv_std_logic_vector(num_cols_to_read_i, num_cols_reported'length);   
-   bit_status_i <= "00000000000" & 
+   frame_status <= "00000000000" & 
                     data_timing_err_i & num_cols_reported & 
                     "00" & 
                     rcs_responding & dv_pulse_fibre_i &
                     "0000" & --formerly TES bias square wave level
                     active_clk_i & sync_box_err & sync_box_free_run_i & cmd_stop_i & last_frame_i;
 
-   bit_status_reg: reg
-      generic map(
-         WIDTH      => BIT_STATUS_SIZE
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => bit_status_i,
-         reg_o      => bit_status
-      );
+   -- registers
+   reply_q_regs: process (rst_i, clk_i)
+   begin 
+      if rst_i = '1' then
+         frame_status_reg <= (others => '0');
+         frame_seq_num <= (others => '0');        
+         issue_sync_num <= (others => '0');
 
-   frame_status <= bit_status;
-   -------------------------------------------------------------------
-   -- Miscellaneous Registers
-   -------------------------------------------------------------------
-   frame_seq_num_reg: reg
-      generic map(
-         WIDTH      => PACKET_WORD_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => frame_seq_num_i,
-         reg_o      => frame_seq_num
-      );
-
-   issue_sync_num_reg: reg
-      generic map(
-         WIDTH      => SYNC_NUM_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => issue_sync_i,
-         reg_o      => issue_sync_num
-      );
-
-   -- No need to register the error code here because it is registered in reply_queue_sequencer
+      elsif (clk_i'event and clk_i = '1') then      
+         if reg_en = '1' then
+            frame_status_reg <= frame_status;
+            frame_seq_num <= frame_seq_num_i;
+            issue_sync_num <= issue_sync_i;
+         end if;
+      end if;            
+   end process reply_q_regs;
+ 
+   -- the error code is registered in reply_queue_sequencer
    reset_and_error_code <= reset_event & error_code;
 
    -- In the new protocol, error_code will be include in every packet, and does not have to be duplicated from the header RAM
-   -- When this is the case, we can get rid of the status_reg
-   error_code_o <= '0' & status_q;
-   status_reg : reg
-      generic map(
-         WIDTH => 31
-      )
-      port map(
-         clk_i => clk_i,
-         rst_i => rst_i,
-         ena_i => status_en,
-         reg_i => reset_and_error_code,
-         reg_o => status_q
-      );
-
-   -- Some of the outputs to reply_translator and lvds_rx fifo's
-   cmd_code_o          <= cmd_code;
-   card_addr_o         <= card_addr;
---   frame_seq_num_o     <= frame_seq_num;
-   param_id_o          <= par_id;
+   error_code_reg: process (rst_i, clk_i)
+   begin 
+      if rst_i = '1' then
+         error_code_o <= (others => '0');
+      elsif (clk_i'event and clk_i = '1') then      
+         if status_en = '1' then
+            error_code_o <= ext(reset_and_error_code, error_code_o'length);
+         end if;
+      end if;
+   end process error_code_reg;   
 
    ---------------------------------------------------------
    -- Retire FSM:
@@ -740,13 +661,10 @@ begin
 
          when TX_STATUS =>
             if (ack_i = '1') then
-               -- If is a data frame
                if(cmd_code = DATA) then
                   next_retire_state <= TX_FRAME_STATUS;
-               -- If this is a RB
                elsif(cmd_code = READ_BLOCK) then
                   next_retire_state <= REPLY;
-               -- If this is a WB
                else
                   next_retire_state <= WAIT_FOR_ACK;
                end if;
@@ -865,12 +783,11 @@ begin
       end case;
    end process;
 
-   -- There should be a snapshot of each of these parameters for each command.
    -- In particular, external_dv_num_i should be registered by cmd_queue at the time of issue..maybe..
    with present_retire_state select
       data_o <=
          data_bus                                      when TX_STATUS | TX_SEND_DATA | REPLY,
-         frame_status                                  when TX_FRAME_STATUS,
+         frame_status_reg                              when TX_FRAME_STATUS,
          frame_seq_num                                 when TX_FRAME_SEQUENCE_NUM,
          conv_std_logic_vector(row_len_i,32)           when TX_ROW_LEN,
          -- Should we embed num_cols_to_read in the header too?
@@ -924,7 +841,6 @@ begin
       case present_retire_state is
          when IDLE =>
             clr_word_count <= '1';
-
             if (cmd_to_retire_i = '1') then
                reg_en          <= '1';
             end if;
@@ -975,11 +891,9 @@ begin
                   clr_reset       <= '1';
                   -- The sync box error flag is only reported in data frame headers
                   clr_sync_box_err <= '1';
-               -- If this is a RB
                elsif(cmd_code = READ_BLOCK) then
-                  clr_reset       <= '1';
-               -- If this is a WB
-               else
+                  clr_reset       <= '1';               
+               else 
                   clr_reset       <= '1';
                end if;
             end if;
@@ -1139,8 +1053,10 @@ begin
 
       end case;
    end process;
-
-
+   
+   ----------------------------------
+   -- Reply Queue Sequencer     
+   --
    rq_seq : reply_queue_sequencer
       port map(
          -- for debugging
