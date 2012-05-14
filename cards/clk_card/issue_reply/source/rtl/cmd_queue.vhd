@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.109 2012-01-06 23:05:17 mandana Exp $
+-- $Id: cmd_queue.vhd,v 1.110 2012-03-27 23:34:59 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -72,7 +72,6 @@ entity cmd_queue is
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
       issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);        
-      step_value_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);         
 
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -91,7 +90,6 @@ entity cmd_queue is
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i  : in std_logic;  
       simple_cmd_i    : in std_logic;
-      step_value_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       override_sync_num_i : in std_logic;
       ret_dat_in_progress_i : in std_logic;
 
@@ -142,17 +140,13 @@ architecture behav of cmd_queue is
    signal data_size            : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
    signal data_size_int_t      : integer;
    signal issue_sync           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal cmd_code             : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal cmd_code             : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 
-
-   --signal cmd_type             : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-   signal bit_status           : std_logic_vector(3 downto 0);
-   signal bit_status_i         : std_logic_vector(3 downto 0);
    signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
+   signal stop_reg_en          : std_logic;
    signal sync_num_reg_en      : std_logic;
-   signal step_value           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- Data Word Counter
    signal data_count_clr       : std_logic;
@@ -226,104 +220,65 @@ begin
    -----------------------------------------------------
    -- Outputs
    -----------------------------------------------------
-   card_addr_o           <= card_addr;
-   par_id_o              <= par_id;
-   data_size_o           <= data_size;
-   cmd_code_o            <= cmd_code;
-   last_frame_o          <= bit_status(0);
-   cmd_stop_o            <= bit_status(1);
-   internal_cmd_o        <= bit_status(2);
-   -- bit_status(3) formerly tes_bias_step_level_o No longer used
-   frame_seq_num_o       <= frame_seq_num;
-   step_value_o          <= step_value;
+   card_addr_o     <= card_addr;
+   par_id_o        <= par_id;
+   data_size_o     <= data_size;
+   cmd_code_o      <= cmd_code;
+   frame_seq_num_o <= frame_seq_num;
+
+   issue_sync_o    <= issue_sync;
 
    -----------------------------------------------------
    -- Registers
    -----------------------------------------------------
-   card_addr_reg: reg
-      generic map(WIDTH => BB_CARD_ADDRESS_WIDTH)
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => card_addr_i,
-         reg_o      => card_addr
-      );
+   cmd_param_regs: process (rst_i, clk_i)
+   begin 
+      if rst_i = '1' then
+         card_addr      <= (others => '0');
+         par_id         <= (others => '0');
+         data_size      <= (others => '0');
+         cmd_code       <= (others => '0');
+         frame_seq_num  <= (others => '0');
 
-   par_id_reg: reg
-      generic map(WIDTH => BB_PARAMETER_ID_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => par_id_i,
-         reg_o      => par_id
-      );
+         internal_cmd_o <= '0';
+         cmd_stop_o     <= '0';
+         last_frame_o   <= '0';
 
-   data_size_reg_t: reg
-      generic map(WIDTH => BB_DATA_SIZE_WIDTH)
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => data_size_i,
-         reg_o      => data_size
-      );
+      elsif (clk_i'event and clk_i = '1') then      
+         if reg_en = '1' then
+            card_addr      <= card_addr_i;
+            par_id         <= par_id_i;
+            data_size      <= data_size_i;
+            cmd_code       <= cmd_code_i;   
+            frame_seq_num  <= frame_seq_num_i;            
+            internal_cmd_o <= internal_cmd_i;
+         else
+            card_addr      <= card_addr;
+            par_id         <= par_id;
+            data_size      <= data_size;
+            cmd_code       <= cmd_code;   
+            frame_seq_num  <= frame_seq_num;            
+         
+         end if;
 
-   issue_sync_o <= issue_sync;
-   issue_sync_reg: reg
-      generic map(WIDTH => SYNC_NUM_WIDTH)
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => sync_num_reg_en,
-         reg_i      => issue_sync_i,
-         reg_o      => issue_sync
-      );
+         if stop_reg_en = '1' or reg_en = '1' then
+            last_frame_o   <= last_frame_i;
+            cmd_stop_o     <= cmd_stop_i;   
+         end if;   
 
-   cmd_code_reg: reg
-      generic map(WIDTH => FIBRE_PACKET_TYPE_WIDTH)
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => cmd_code_i,
-         reg_o      => cmd_code
-      );
-
---   bit_status_i <= tes_bias_step_level_i & internal_cmd_i & cmd_stop_i & last_frame_i;
-   bit_status_i <= '0' & internal_cmd_i & cmd_stop_i & last_frame_i;
-   bit_status_reg: reg
-      generic map(WIDTH => 4)
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => bit_status_i,
-         reg_o      => bit_status
-      );
-
-   frame_seq_num_reg: reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => frame_seq_num_i,
-         reg_o      => frame_seq_num
-      );
-
-   step_value_reg: reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => step_value_i,
-         reg_o      => step_value
-      );
-
+      end if;            
+   end process cmd_param_regs;
+ 
+   issue_sync_reg: process (rst_i, clk_i)
+   begin 
+      if rst_i = '1' then
+         issue_sync     <= (others => '0');
+      elsif (clk_i'event and clk_i = '1') then        
+         if sync_num_reg_en = '1' then
+            issue_sync <= issue_sync_i;
+         end if;            
+      end if;      
+   end process issue_sync_reg;      
    -----------------------------------------------------
    -- Buffers and RAM
    -----------------------------------------------------
@@ -342,7 +297,7 @@ begin
    -----------------------------------------------------
    -- LVDS interface to the Bus Backplane
    -----------------------------------------------------
-   cmd_tx2: lvds_tx
+   cmd_lvds_tx: lvds_tx
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
@@ -436,8 +391,9 @@ begin
    -----------------------------------------------------
    -- FSM sequencer
    -----------------------------------------------------
-   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i, internal_cmd_i,
-   data_req_expired, lvds_tx_busy, bit_ctr_count, previous_state, override_sync_num_i, issue_sync, sync_num_i, simple_cmd_i)
+   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i, 
+   data_req_expired, lvds_tx_busy, bit_ctr_count, previous_state, override_sync_num_i, issue_sync, sync_num_i, 
+   internal_cmd_i, simple_cmd_i)
    begin
       next_state <= present_state;
       case present_state is
@@ -445,20 +401,6 @@ begin
             if(mop_rdy_i = '1') then
                next_state <= STORE_CMD_PARAM;
             end if;
-
-         --constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
-         --constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
-         --constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
-         --constant STOP        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "011";
-         --constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
-         --constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
-
-         --constant WRITE_BLOCK : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205742";
-         --constant READ_BLOCK  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205242";
-         --constant GO          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"2020474F";
-         --constant STOP        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205354";
-         --constant RESET       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205253";
-
          -----------------------------------------------------
          -- Store Command
          -----------------------------------------------------
@@ -493,9 +435,8 @@ begin
          -- Issue Command
          -----------------------------------------------------
          -- issue the next ret_dat with the correct timing
-         -- Bug fix: allow the cmd_translator to continue issuing data commands even if the data_rate 
-         -- is too fast and the CC falls behind because it can't process data packets fast enough.
-         -- If this occurs, a timing-error flag should be asserted in the status word until the end of the data run.
+         -- Bug fix: When data-rate is too fast to keep up with, let the cmd_translator continue issuing data 
+         -- commands and set the timing-error bit in the frame status word until the end of the data run.
          -----------------------------------------------------
          when WAIT_TO_ISSUE =>
             if(cmd_code /= DATA) then
@@ -513,10 +454,10 @@ begin
             elsif(issue_sync = sync_num_i) then
                next_state <= HEADER_A;
             elsif(internal_cmd_i = '1') then
-            	next_state <= STORE_CMD_PARAM;
+               next_state <= STORE_CMD_PARAM;
             elsif(simple_cmd_i = '1') then -- a non-internal command during data acq, must be a simple (fibre) cmd
-            	next_state <= STORE_CMD_PARAM;            
-            else
+               next_state <= STORE_CMD_PARAM;            
+            else    
                -- If the u-op is still good, but isn't supposed to be issued yet, stay in LOAD
                next_state <= WAIT_TO_ISSUE;
             end if;
@@ -654,10 +595,9 @@ begin
    -----------------------------------------------------
    -- FSM outputs
    -----------------------------------------------------
-   state_out: process(present_state, data_clk_i, bit_ctr_count, previous_state, cmd_code, override_sync_num_i)
+   state_out: process(present_state, data_clk_i, bit_ctr_count, previous_state, cmd_code, override_sync_num_i, cmd_stop_i, ret_dat_in_progress_i)
    begin
       --defaults
-      reg_en               <= '0';
       data_count_clr       <= '0';
       data_count_incr      <= '0';
       mop_ack_o            <= '0';
@@ -669,6 +609,8 @@ begin
       crc_clr              <= '0';
       uop_rdy_o            <= '0';
       crc_ena              <= '0';
+      reg_en               <= '0';
+      stop_reg_en          <= '0';
       sync_num_reg_en      <= '0';
       busy_o               <= '1';
       rdy_for_data_o       <= '0';
@@ -688,11 +630,8 @@ begin
             reg_en               <= '1';
 
          when IS_THERE_DATA =>
-            -- Asserting mop_ack_o causes cmd_translator to begin passing data through to cmd_queue.
-            -- Assert mop_ack_o here if there is data.
             if(cmd_code /= READ_BLOCK and cmd_code /= DATA) then
                rdy_for_data_o    <= '1';
---               mop_ack_o         <= '1';
             end if;
 
          when STROBE_DETECT =>
@@ -704,13 +643,8 @@ begin
          when LATCH_DATA =>
 
          when DONE_STORE =>
-            -- If there is no data with the m-op, then asserting mop_ack_o in the IS_THERE_DATA state would be too soon
-            -- In this case, by delaying its assertion until DONE_STORE, we ensure that the cmd_translator doesn't try to insert the next m_op too quickly.
-            -- Assert mop_ack_o if there isn't data, or for a second time if there is data.
---            mop_ack_o         <= '1';
-
-         -- Strobe the sliding sync number
-         sync_num_reg_en <= '1';
+            --Strobe the sliding sync number
+            sync_num_reg_en <= '1';
 
          -----------------------------------------------------
          -- Issue Command
@@ -720,6 +654,7 @@ begin
             data_count_clr       <= '1';
             if(override_sync_num_i = '1') then
                sync_num_reg_en <= '1';
+               stop_reg_en     <= '1';
             end if;
 
          when ISSUE =>
@@ -761,8 +696,11 @@ begin
          -- Retire Command
          -----------------------------------------------------
          when WAIT_TO_RETIRE =>
+            if(cmd_stop_i = '1' and ret_dat_in_progress_i = '1') then
+               sync_num_reg_en <= '1';
+               stop_reg_en     <= '1';
+            end if;
             
-
          when RETIRE =>
             mop_ack_o         <= '1';
 
