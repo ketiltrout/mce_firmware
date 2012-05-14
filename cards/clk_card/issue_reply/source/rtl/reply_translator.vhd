@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.65 2011-11-30 22:06:06 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.66 2011-12-17 00:01:35 mandana Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -76,12 +76,12 @@ port(
    r_card_addr_i       : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
    r_param_id_i        : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
    r_cmd_rdy_i         : in std_logic;                                               -- macro op response ready to be processed
-   mop_error_code_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);    -- macro op success (others => '0') else error code
-   fibre_word_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- packet word read from reply queue
-   num_fibre_words_i   : in integer;                                                -- indicate number of packet words to be read from reply queue
-   fibre_word_ack_o    : out std_logic;                                               -- asserted to requeset next fibre word
+   mop_error_code_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);          -- macro op success (others => '0') else error code
+   fibre_word_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);          -- packet word read from reply queue
+   num_fibre_words_i   : in integer;                                                 -- indicate number of packet words to be read from reply queue
+   fibre_word_ack_o    : out std_logic;                                              -- asserted to requeset next fibre word
    fibre_word_rdy_i    : in std_logic;
-   mop_ack_o           : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
+   mop_ack_o           : out std_logic;                                              -- asserted to indicate to reply queue the the packet has been processed
 
    checksum_repeated_o   : out std_logic;
    checksum_prev1_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
