@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.100 2012-03-26 22:01:00 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.101 2012-04-30 23:39:10 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -184,7 +184,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_row_len_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_LEN_ADDR;
    constant cc_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & NUM_ROWS_ADDR;
    constant cc_ret_dat_s_cmd        : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000004";
+   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000040";
    constant cc_led_cmd              : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & LED_ADDR;
    constant cc_array_id_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ARRAY_ID_ADDR;
    constant cc_use_dv_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_DV_ADDR;
@@ -2288,6 +2288,15 @@ begin
       -------------------------------------
       -- general CC commands
       -------------------------------------
+      command <= command_rb;
+      address_id <= cc_fw_rev_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001"; --40      
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 150 us;--150
+
  
       command <= command_wb;
       address_id <= sys_row_len_cmd;
@@ -2320,7 +2329,7 @@ begin
       command <= command_wb;
       address_id <= cc_data_rate_cmd;
       data_valid <= X"00000001";
-      data       <= conv_std_logic_vector(10, 32);
+      data       <= conv_std_logic_vector(2, 32);
       load_preamble;
       load_command;
       load_checksum;
@@ -2339,7 +2348,7 @@ begin
       command <= command_wb;
       address_id <= cc_num_rows_reported_cmd;
       data_valid <= X"00000001";
-      data       <= conv_std_logic_vector(33, 32); 
+      data       <= conv_std_logic_vector(1, 32); --33
       load_preamble;
       load_command;
       load_checksum;
@@ -2369,7 +2378,7 @@ begin
       command <= command_wb;
       address_id <= cc_step_param_id_cmd;
       data_valid <= X"00000001";
-      data       <= X"000000" & FLUX_FB_ADDR;
+      data       <= X"000000" & FB_CONST_ADDR;
       load_preamble;
       load_command;
       load_checksum;
@@ -2378,7 +2387,7 @@ begin
       command <= command_wb;
       address_id <= cc_step_card_addr_cmd;
       data_valid <= X"00000001";
-      data       <= X"000000" & BIAS_CARD_1;
+      data       <= X"000000" & READOUT_CARD_1;
       load_preamble;
       load_command;
       load_checksum;
@@ -2387,7 +2396,7 @@ begin
       command <= command_wb;
       address_id <= cc_step_data_num_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000001";
+      data       <= X"00000008"; --16 data
       load_preamble;
       load_command;
       load_checksum;
@@ -2420,14 +2429,14 @@ begin
       load_checksum;
       wait for 50 us;
       
---      command <= command_wb;
---      address_id <= cc_step_phase_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000002"; --256
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;      
+      command <= command_wb;
+      address_id <= cc_step_phase_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000"; --256
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;      
 
 --      command <= command_wb;
 --      address_id <= cc_internal_cmd_mode_cmd;
@@ -2864,7 +2873,7 @@ begin
       command <= command_wb;
       address_id <= rc1_num_cols_reported_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000002"; --8
+      data       <= X"00000008"; --8
       load_preamble;
       load_command;
       load_checksum;
@@ -2873,7 +2882,7 @@ begin
       command <= command_wb;
       address_id <= rc1_num_rows_reported_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000003"; -- 21
+      data       <= X"00000001"; -- 21
       load_preamble;
       load_command;
       load_checksum;
@@ -2887,85 +2896,89 @@ begin
       load_command;
       load_checksum;
       wait for 50 us;      
-      
-      ------------------------
-      -- D a t a Acquisition - 6 frames
-      ------------------------      
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 2000 us;
-
-      ------------------------
-      -- D a t a Acquisition with stop command
-      ------------------------
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 350 us; -- any less wait, makes the translator freeze.
-
-      --- S T O P ! ---
-      command <= command_st; -- stop command
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
-
-      ------------------------
-      -- D a t a Acquisition with internal command turned on half way
-      ------------------------      
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 2000 us;
+      -----------------------------------------------------------------------------------------
+      --
+      -- *** D a t a   A c q u i s i t i o n     T e s t   C a s e s ***
+      --
+      -----------------------------------------------------------------------------------------
+--      ------------------------
+--      -- D a t a Acquisition - regular frame acquisition
+--      ------------------------      
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 2000 us;
+--
+--      ------------------------
+--      -- D a t a Acquisition with stop command
+--      ------------------------
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 350 us; -- any less wait, makes the translator freeze.
+--
+--      --- S T O P ! ---
+--      command <= command_st; -- stop command
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
+--
+--      ------------------------
+--      -- D a t a Acquisition with internal command turned on half way
+--      ------------------------      
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 2000 us;
       ------------------------
       -- check whether simple commands can get through during data acq
       command <= command_wb;
       address_id <= cc_step_period_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000003"; --256
+      data       <= X"00000003"; --50
       load_preamble;
       load_command;
       load_checksum;
@@ -2978,7 +2991,7 @@ begin
       load_preamble;
       load_command;
       load_checksum;
-      wait for 500 us; --3000
+      wait for 1000 us; --3000
       assert false report "** internal command turned on!" severity NOTE;
 
       ------------------------
@@ -3002,6 +3015,7 @@ begin
       load_checksum;
       wait for 150 us;
       ------------------------
+      wait for 5000 us; 
                   
 ------------------------------------------------------
       wait for 2500us;
