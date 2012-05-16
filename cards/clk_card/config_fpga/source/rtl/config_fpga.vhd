@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.10 2010/03/15 05:11:54 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.11 2011-11-30 22:27:31 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -74,7 +74,8 @@ entity config_fpga is
 end config_fpga;
 
 architecture top of config_fpga is
-
+   
+   
    -- TCK_HALF_PERIOD = number of clock cycles per TCK half-period.
    -- This divisor should set the JTAG TCK frequency slow enough so that programming Flash devices is successful.
    constant TCK_HALF_PERIOD  : std_logic_vector := x"00000008"; -- Clock cycles       
@@ -203,8 +204,20 @@ architecture top of config_fpga is
    signal tdi_reg_wren  : std_logic;
    signal tms           : std_logic;
    signal tms_reg_wren  : std_logic;
-  
+
+   -- timer for config_app/config_fac
+   signal timeout_clr   : std_logic;
+   signal timeout_count : integer;
+
 begin
+
+   timeout_timer : us_timer
+   port map
+   (
+      clk => clk_i,
+      timer_reset_i => timeout_clr,
+      timer_count_o => timeout_count
+   );  
 
    -- Invert the signal.
    n_epc_tdo <= not epc_tdo_i;
@@ -851,14 +864,18 @@ begin
             end if;                  
             
          when SEL_FAC =>     
-            next_out_state <= CONFIG_FAC;            
-            
+            if(timeout_count > 1024) then        
+               next_out_state <= CONFIG_FAC;            
+            end if;            
+         
          when CONFIG_FAC =>     
-            -- wait here until configuration starts         
+            -- wait here until configuration starts                     
 
          when SEL_APP =>     
-            next_out_state <= CONFIG_APP;            
-
+            if(timeout_count > 1024) then   
+               next_out_state <= CONFIG_APP;            
+            end if;
+            
          when CONFIG_APP =>     
             -- wait here until configuration starts         
 
@@ -873,12 +890,15 @@ begin
       -- Default assignments
       config_n_o    <= '1';  -- '0' triggers reconfiguration
       epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+      timeout_clr   <= '1';
      
       case current_out_state is         
          when IDLE  =>                   
             
          when SEL_FAC =>     
             epc16_sel_n_o <= '1';
+            timeout_clr   <= '0';
+            
 
          when CONFIG_FAC =>     
             config_n_o    <= '0';  
@@ -886,6 +906,7 @@ begin
 
          when SEL_APP =>     
             epc16_sel_n_o <= '0';  
+            timeout_clr   <= '0';
 
          when CONFIG_APP =>     
             config_n_o    <= '0';  
