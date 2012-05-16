@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.29 2012-01-05 23:20:10 mandana Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.30 2012-01-06 23:16:08 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -108,6 +108,7 @@ entity ret_dat_wbs is
       awg_dat_o              : out std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_o             : out std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_i        : in std_logic;
+      awg_addr_clr_i         : in std_logic;
 
       -- wishbone interface:
       dat_i                  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -131,7 +132,8 @@ architecture rtl of ret_dat_wbs is
    signal awg_addr_wren         : std_logic;
    signal awg_data_wren         : std_logic;
    signal awg_data_rden         : std_logic;
-   signal awg_addr              : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
+   signal awg_raddr             : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
+   signal awg_waddr             : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
 
    constant STOP_REPLY_WAIT_PERIOD   : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00002710";  -- 10000 u-seconds
 
@@ -213,25 +215,37 @@ begin
 --   raw_dat    <= sxt(raw_dat_i, raw_dat'length) when raw_addr < RAW_ADDR_MAX + 1 else RAW_NULL_DATA;
 --   raw_addr_o <= raw_addr;
 
-   awg_addr_o <= awg_addr;
+   awg_addr_o <= awg_raddr;
    addr_manager: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         awg_addr <= AWG_ADDR_MIN;               
+         awg_raddr <= AWG_ADDR_MIN;               
+         awg_waddr <= AWG_ADDR_MIN;
       elsif(clk_i'event and clk_i = '1') then
-         -- Read/Write address management
+         -- write address 
          if(awg_addr_wren = '1' ) then
-            awg_addr <= dat_i(AWG_ADDR_WIDTH-1 downto 0);
-         elsif(awg_addr_incr_i = '1') then
-            if(awg_addr < awg_sequence_len_data - 1) then 
-               awg_addr <= awg_addr + 1;
-            else
-               awg_addr <= AWG_ADDR_MIN;
-            end if;
-         elsif(awg_data_rden = '1' or awg_data_wren = '1') then
-            awg_addr <= awg_addr + 1;
+            awg_waddr <= dat_i(AWG_ADDR_WIDTH-1 downto 0);
+         elsif awg_data_wren = '1' then
+            awg_waddr <= awg_waddr + 1;
          else
-            awg_addr <= awg_addr;
+            awg_waddr <= awg_waddr;
+         end if;               
+   
+         -- read-address is controlled by wishbone RB and internal-commands (cmd_translator)
+         if(awg_addr_wren = '1' ) then
+            awg_raddr <= dat_i(AWG_ADDR_WIDTH-1 downto 0);
+         elsif awg_data_rden = '1' then
+            awg_raddr <= awg_raddr + 1;
+         elsif (awg_addr_clr_i = '1') then -- comes only from cmd translator
+            awg_raddr <= AWG_ADDR_MIN;
+         elsif(awg_addr_incr_i = '1') then -- comes only from cmd translator
+            if(awg_raddr < awg_sequence_len_data - 1) then 
+               awg_raddr <= awg_raddr + 1;
+            else
+               awg_raddr <= AWG_ADDR_MIN;
+            end if;
+         else
+            awg_raddr <= awg_raddr;
          end if;               
       end if;      
    end process addr_manager;
@@ -251,17 +265,13 @@ begin
       port map (
          clock     => clk_i,
          data      => dat_i(AWG_DAT_WIDTH-1 downto 0),
-         rdaddress => awg_addr,
-         wraddress => awg_addr,
+         rdaddress => awg_raddr,
+         wraddress => awg_waddr,
          wren      => awg_data_wren,
          q         => awg_mem_dat
       );
 
    internal_cmd_mode_o <= internal_cmd_mode_data(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
---      "00" when internal_cmd_mode_data = x"00000000" else
---     "01" when internal_cmd_mode_data = x"00000001" else
---      "10" when internal_cmd_mode_data = x"00000002" else
---      "11" when internal_cmd_mode_data = x"00000003" else "00";
 
    -- Custom register
    cards_to_report_o <= cards_to_report_data(cards_to_report_o'length-1 downto 0);
@@ -786,7 +796,7 @@ begin
       cards_to_report_data            when (addr_i = CARDS_TO_REPORT_ADDR) else
       stop_delay_data                 when (addr_i = STOP_DLY_ADDR) else
       awg_sequence_len_data           when (addr_i = AWG_SEQUENCE_LEN_ADDR) else
-      ext(awg_addr, WB_DATA_WIDTH)    when (addr_i = AWG_ADDR_ADDR) else
+      ext(awg_waddr, WB_DATA_WIDTH)    when (addr_i = AWG_ADDR_ADDR) else
       ext(awg_mem_dat, WB_DATA_WIDTH) when (addr_i = AWG_DATA_ADDR) else
       crc_err_en_data                 when (addr_i = CRC_ERR_EN_ADDR) else (others => '0');
 
