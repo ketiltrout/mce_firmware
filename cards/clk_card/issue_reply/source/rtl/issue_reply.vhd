@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.86 2012-02-09 00:19:10 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.87 2012-05-14 19:55:40 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2012-02-09 00:19:10 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2012-05-14 19:55:40 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.87  2012-05-14 19:55:40  mandana
+-- step_value removed from cmd_q interface. This is only passed to reply translator to be assembled as part of the header.
+--
 -- Revision 1.86  2012-02-09 00:19:10  mandana
 -- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
 -- header version 7
@@ -195,6 +198,7 @@ entity issue_reply is
       awg_dat_i              : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i             : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o        : out std_logic;
+      awg_addr_clr_o         : out std_logic;
       dead_card_i            : in std_logic;
 
       -- clk_switchover interface
@@ -392,6 +396,7 @@ begin
       awg_dat_i           => awg_dat_i, 
       awg_addr_i          => awg_addr_i,
       awg_addr_incr_o     => awg_addr_incr_o,
+      awg_addr_clr_o      => awg_addr_clr_o,
       
       -- frame_timing
       sync_number_i       => sync_number_i,

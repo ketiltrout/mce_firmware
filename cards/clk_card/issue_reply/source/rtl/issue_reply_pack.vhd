@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.62 2012-02-09 00:19:10 mandana Exp $
+-- $Id: issue_reply_pack.vhd,v 1.63 2012-05-14 19:55:40 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.63  2012-05-14 19:55:40  mandana
+-- step_value removed from cmd_q interface. This is only passed to reply translator to be assembled as part of the header.
+--
 -- Revision 1.62  2012-02-09 00:19:10  mandana
 -- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
 -- header version 7
@@ -293,6 +296,7 @@ package issue_reply_pack is
       awg_dat_i             : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i            : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o       : out std_logic;
+      awg_addr_clr_o        : out std_logic;
 
       -- ret_dat_wbs interface
       internal_cmd_mode_i    : in std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);
