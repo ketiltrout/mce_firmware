@@ -20,7 +20,7 @@
 
 --
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.72 2012-03-27 23:34:42 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.73 2012-05-14 20:21:28 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob, re-vamped by Bryce Burger
@@ -90,6 +90,7 @@ entity cmd_translator is
       awg_dat_i             : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i            : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o       : out std_logic;
+      awg_addr_clr_o        : out std_logic;
       internal_cmd_mode_i   : in std_logic_vector(INTERNAL_CMD_MODE_WIDTH-1 downto 0);	  -- indicates one of NUM_INTERNAL_CMD_MODES
       step_period_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- refresh rate for ramp/awg mode
       step_minimum_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);		  -- minimum ramp value for ramp mode 
@@ -194,7 +195,7 @@ architecture rtl of cmd_translator is
    signal internal_rb_id           : integer range 0 to NUM_HOUSEKEEPING_CMD_TYPES;
    signal internal_rb_ack          : std_logic;                                    -- ack for an internal command, asserted for 1 cycle after command completion
 
-   signal ramp_value               : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ramp_value               : std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
    signal next_ramp_value          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ramp_value_reported      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ramp_value_reg_en        : std_logic;
@@ -202,7 +203,10 @@ architecture rtl of cmd_translator is
    signal step_period_1d           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal step_phase_1d            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal ret_dat_in_progress_1d   : std_logic;
+
+   signal ramp_awg_muxed           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal awg_addr                 : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
+   signal awg_addr_reported        : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
    signal cmd_collision            : std_logic;
    signal cmd_collision_reg_en     : std_logic;
 
@@ -398,15 +402,22 @@ begin
    begin
       if(rst_i = '1') then
          next_toggle_sync <= (others => '0');
+  
          ramp_value       <= (others => '0');
          next_ramp_value  <= (others => '0');
          ramp_value_reported <= (others => '0');
-         awg_addr         <= (others => '0');      
+
          cmd_collision    <= '0';
+
+         awg_addr          <= (others => '0');    
+         awg_addr_reported <= (others => '0');         
+         awg_addr_incr_o   <= '0';
+         awg_addr_clr_o    <= '0';
+
       elsif(clk_i'event and clk_i = '1') then    
       
          -- when there is a ret_dat/internal_cmd collision, we should still advance the ramp_value
-         if (frame_sync_num = next_toggle_sync and next_toggle_sync = sync_number_i) then
+         if (frame_sync_num = next_toggle_sync and next_toggle_sync = sync_number_i and conv_integer(sync_number_i) /= 0) then
             cmd_collision <= '1';   
          elsif cmd_collision_reg_en = '1' then
             cmd_collision <= '0';
@@ -426,41 +437,52 @@ begin
          -- only refresh when it's applied 
          if (ramp_value_reg_en = '1') then
             ramp_value_reported <= ramp_value;
+            awg_addr_reported   <= awg_addr;
          end if;
-       
+
          ----- ramp_value logic --------
-         if (ramp_value_reg_en = '1'or cmd_collision_reg_en = '1') then
+         if (ramp_value_reg_en = '1' or cmd_collision_reg_en = '1') then
             ramp_value <= next_ramp_value;
          elsif( (cmd_mode_changing = '1' or realign_ramp2data = '1') and internal_cmd_mode_i = INTERNAL_RAMP ) then 
-            ramp_value  <= step_minimum_i; 
-         elsif((cmd_mode_changing = '1' or realign_ramp2data = '1') and internal_cmd_mode_i = INTERNAL_MEM) then
-            ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
-            awg_addr   <= awg_addr_i;     
-         else
+            ramp_value  <= step_minimum_i;
+         else 
             ramp_value <= ramp_value;
+         end if;   
+            
+         if (ramp_value_reg_en = '1' or cmd_collision_reg_en = '1') then
+            awg_addr_incr_o <= '1';
+         else
+            awg_addr_incr_o <= '0';
+         end if;   
+         
+         if((cmd_mode_changing = '1' or realign_ramp2data = '1') and internal_cmd_mode_i = INTERNAL_MEM) then
+            awg_addr_clr_o <= '1';             
+         else
+            awg_addr_clr_o <= '0';
          end if;  
+
          ----- next_ramp_value logic --------
          if( (cmd_mode_changing = '1' or realign_ramp2data = '1') and internal_cmd_mode_i = INTERNAL_RAMP ) then 
             next_ramp_value  <= step_minimum_i;
-         elsif(cmd_mode_changing = '1' and internal_cmd_mode_i = INTERNAL_MEM) then
-            next_ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
-            awg_addr   <= awg_addr_i;         
          elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_RAMP)  then
             if(next_ramp_value < (step_maximum_i + 1 - step_size_i)) then
                next_ramp_value <= next_ramp_value + step_size_i;
             else
                next_ramp_value <= step_minimum_i;
             end if;
-         elsif(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_MEM) then
-            next_ramp_value <= ext(awg_dat_i, WB_DATA_WIDTH);
-            awg_addr   <= awg_addr_i;
          else
             next_ramp_value <= next_ramp_value;
-            awg_addr   <= awg_addr;
+         end if;   
+            
+         --- awg_addr ----
+         if(sync_number_i = next_toggle_sync and internal_cmd_mode_i = INTERNAL_MEM) then
+            awg_addr   <= awg_addr_i;
          end if;
+         
       end if;  --clk    
    end process i_ramp_awg_advance;   
-   step_value_o <= ext(awg_addr, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value_reported;
+   step_value_o <= ext(awg_addr_reported, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value_reported;
+   ramp_awg_muxed <= ext(awg_dat_i, WB_DATA_WIDTH) when internal_cmd_mode_i = INTERNAL_MEM else ramp_value;
    
    -------------------------------------------------------------------------------------------      
    i_timer_rst: process (clk_i, rst_i)
@@ -635,7 +657,7 @@ begin
    -------------------------------------------------------------------------------------------
    state_out1: process(current_state, f_rx_card_addr, f_rx_param_id, f_rx_cmd_code, f_rx_num_data,
       f_rx_ret_dat_card_addr, f_rx_ret_dat_param_id, f_rx_ret_dat_data,
-      internal_status_req, data_clk_i, step_card_addr_i, step_param_id_i, ramp_value,
+      internal_status_req, data_clk_i, step_card_addr_i, step_param_id_i, ramp_awg_muxed,
       step_data_num_i, cmd_data_i, internal_wb_req, data_size)
    begin
       -- Default statements
@@ -673,7 +695,7 @@ begin
                cmd_code_o        <= WRITE_BLOCK;
                data_size_o       <= step_data_num_i(BB_DATA_SIZE_WIDTH-1 downto 0); -- 1 word by default
                internal_cmd_o    <= '1';
-               data_o            <= ramp_value;
+               data_o            <= ramp_awg_muxed;
             end if;
 
          when INTERNAL_WB_DATA =>
@@ -685,7 +707,7 @@ begin
                -- cmd_queue is level-sensitive, not edge-sensitive.
                data_clk_o        <= '1';
                internal_cmd_o    <= '1';
-               data_o            <= ramp_value;
+               data_o            <= ramp_awg_muxed;
            end if;
 
          when FPGA_TEMP =>
@@ -763,7 +785,6 @@ begin
       internal_status_ack  <= '0';
 
       update_next_toggle_sync <= '0';
-      awg_addr_incr_o      <= '0';
 
       internal_rb_ack      <= '0';
       simple_cmd_ack       <= '0';
@@ -897,7 +918,6 @@ begin
             end if;
 
          when INTERNAL_WB_PREP =>
-            awg_addr_incr_o <= '1';
                
          when INTERNAL_WB_WAIT =>
             
