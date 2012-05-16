@@ -543,7 +543,7 @@ array_id[2]                  : J24       : input  : 3.3-V LVTTL       :         
 RESERVED_INPUT               : J25       :        :                   :         : 2         :                
 RESERVED_INPUT               : J26       :        :                   :         : 2         :                
 RESERVED_INPUT               : J27       :        :                   :         : 2         :                
-RESERVED_INPUT               : J28       :        :                   :         : 2         :                
+pcb_rev[0]                   : J28       : input  : 3.3-V LVTTL       :         : 2         : Y              
 RESERVED_INPUT               : K1        :        :                   :         : 5         :                
 RESERVED_INPUT               : K2        :        :                   :         : 5         :                
 RESERVED_INPUT               : K3        :        :                   :         : 5         :                
@@ -571,7 +571,7 @@ RESERVED_INPUT               : K24       :        :                   :         
 RESERVED_INPUT               : K25       :        :                   :         : 2         :                
 RESERVED_INPUT               : K26       :        :                   :         : 2         :                
 RESERVED_INPUT               : K27       :        :                   :         : 2         :                
-RESERVED_INPUT               : K28       :        :                   :         : 2         :                
+pcb_rev[1]                   : K28       : input  : 3.3-V LVTTL       :         : 2         : Y              
 RESERVED_INPUT               : L1        :        :                   :         : 5         :                
 RESERVED_INPUT               : L2        :        :                   :         : 5         :                
 RESERVED_INPUT               : L3        :        :                   :         : 5         :                
@@ -598,8 +598,8 @@ box_id_in                    : L23       : input  : 3.3-V LVTTL       :         
 ttl_nrx1                     : L24       : input  : 3.3-V LVTTL       :         : 2         : Y              
 RESERVED_INPUT               : L25       :        :                   :         : 2         :                
 RESERVED_INPUT               : L26       :        :                   :         : 2         :                
-RESERVED_INPUT               : L27       :        :                   :         : 2         :                
-RESERVED_INPUT               : L28       :        :                   :         : 2         :                
+pcb_rev[3]                   : L27       : input  : 3.3-V LVTTL       :         : 2         : Y              
+pcb_rev[2]                   : L28       : input  : 3.3-V LVTTL       :         : 2         : Y              
 VCCIO5                       : M1        : power  :                   : 3.3V    : 5         :                
 RESERVED_INPUT               : M2        :        :                   :         : 5         :                
 RESERVED_INPUT               : M3        :        :                   :         : 5         :                

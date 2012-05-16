@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.102 2012-03-27 22:58:04 mandana Exp $
+-- $Id: clk_card.vhd,v 1.103 2012-05-14 19:49:11 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -138,6 +138,7 @@ entity clk_card is
       slot_id           : in std_logic_vector(3 downto 0);
       array_id          : in std_logic_vector(2 downto 0);
       card_id           : inout std_logic;
+      pcb_rev           : in std_logic_vector(PCB_REV_BITS-1 downto 0);      
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
       smb_nalert        : out std_logic;
@@ -158,8 +159,6 @@ entity clk_card is
 
       mictor1_o         : out std_logic_vector(15 downto 0);
       mictor1clk_o      : out std_logic;
---      mictor1_e         : out std_logic_vector(15 downto 0);
---      mictor1clk_e      : out std_logic;
       
       -- rs232 test interface
       rx                : in std_logic;
@@ -205,7 +204,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0500000d";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0500000e";
 
    -- reset
    signal rst                : std_logic;
@@ -399,8 +398,7 @@ architecture top of clk_card is
    signal awg_dat            : std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
    signal awg_addr           : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
    signal awg_addr_incr      : std_logic;
-   
-   signal pcb_rev            : std_logic_vector(PCB_REV_BITS-1 downto 0);
+   signal awg_addr_clr       : std_logic;
 
 begin
    
@@ -454,9 +452,6 @@ begin
 --   mictor0_e(8)          <= fib_tx_ena;
 --   mictor0_e(9)          <= fib_tx_scnd;
 
-   -- PCB Revision pins not present in PCB yet
-   pcb_rev <= (others => '0');
-   
    -- LED signals
    red_led <= fibre_rx_status;
 
@@ -726,6 +721,7 @@ begin
       awg_dat_i            => awg_dat,   
       awg_addr_i           => awg_addr,
       awg_addr_incr_o      => awg_addr_incr,
+      awg_addr_clr_o       => awg_addr_clr,      
       dead_card_i          => ttl_nrx2,
       
       -- dv_rx interface
@@ -1087,6 +1083,7 @@ begin
       awg_dat_o              => awg_dat,   
       awg_addr_o             => awg_addr,
       awg_addr_incr_i        => awg_addr_incr,
+      awg_addr_clr_i         => awg_addr_clr,
       
       -- wishbone interface:
       dat_i                  => data,

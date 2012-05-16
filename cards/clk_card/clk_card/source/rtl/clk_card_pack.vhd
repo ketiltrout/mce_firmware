@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.23 2012-02-09 00:19:10 mandana Exp $
+-- $Id: clk_card_pack.vhd,v 1.24 2012-03-27 22:58:53 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.24  2012-03-27 22:58:53  mandana
+-- pack file clean up again
+--
 -- Revision 1.23  2012-02-09 00:19:10  mandana
 -- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
 -- header version 7
@@ -489,6 +492,7 @@ package clk_card_pack is
       awg_dat_o              : out std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_o             : out std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_i        : in std_logic;
+      awg_addr_clr_i         : in std_logic;
 
       -- wishbone interface:
       dat_i                  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -620,6 +624,7 @@ package clk_card_pack is
       awg_dat_i              : in std_logic_vector(AWG_DAT_WIDTH-1 downto 0);
       awg_addr_i             : in std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
       awg_addr_incr_o        : out std_logic;
+      awg_addr_clr_o         : out std_logic;
       dead_card_i            : in std_logic;
 
       -- clk_switchover interface
