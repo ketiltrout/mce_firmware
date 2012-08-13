@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.8  2010/03/12 20:53:16  bburger
+-- BB: changed lock_dat_left to lock_dat_lsb
+--
 -- Revision 1.7  2006/03/14 22:52:06  mandana
 -- interface changes to accomodate 4-pole filter
 --
@@ -98,8 +101,8 @@ architecture test of tb_fsfb_processor is
    -- constant/signal declarations
 
    constant clk_period               :     time      := 20 ns;   -- 50 MHz clock period
-   constant num_clk_row              :     integer   := 64;      -- number of clock cycles per row
-   constant num_row_frame            :     integer   := 41;      -- number of rows per frame
+   constant num_clk_row              :     integer   := 60;      -- number of clock cycles per row
+   constant num_row_frame            :     integer   := 33;      -- number of rows per frame
    constant coadd_done_cyc           :     integer   := 5;       -- cycle number at which coadd_done occurs
    constant num_ramp_frame_cycles    :     integer   := 2;       -- num of frame_cycles for fixed ramp output
    constant lock_dat_lsb_pos         :     integer   := 0;       -- least significant bit position of lock mode data output 
@@ -159,9 +162,18 @@ architecture test of tb_fsfb_processor is
    signal processor_update_o         :     std_logic;
    signal processor_dat_o            :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
    signal processor_lock_en_o        :     std_logic;
+   signal proc_fltr_mid_update_o     :     std_logic;
+   signal proc_fltr_mid_dat_o        :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);   
    signal proc_fltr_update_o         :     std_logic;
    signal proc_fltr_dat_o            :     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
    
+   -- filter coefficients
+   signal filter_coeff0              :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff1              :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);   
+   signal filter_coeff2              :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff3              :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff4              :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
+   signal filter_coeff5              :   std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
       
    -- procedure for coefficient configuration
    -- Configures the PIDZ coefficients upon config_i = '1' for num_repeat times
@@ -198,8 +210,9 @@ architecture test of tb_fsfb_processor is
       signal integral_dat_o : out std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0)      
       ) is     
     
-      file sine_vector_input: TEXT open READ_MODE is "sine_10_100.dat";
-
+      --file sine_vector_input: TEXT open READ_MODE is "sine_10_100.dat";
+      file sine_vector_input: TEXT open READ_MODE is "white_noise_10rms_33";
+      
       variable fline        : LINE;
       variable sine_dat_vec : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);
       variable sine_dat_int : integer range 0 to 32000;
@@ -292,6 +305,52 @@ architecture test of tb_fsfb_processor is
       init_window_o <= '0';
    end procedure init_window;
       
+   procedure set_filter_coeffs(
+      signal coeff5, coeff4,coeff3, coeff2, coeff1, coeff0: out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0 )
+      ) is
+   begin 
+      -- Filter coefficients for Filter Type: 1
+      --constant FILT_COEF_DEFAULTS : coeff_array := (32092,15750,31238,14895,0, 11);
+
+      -- for type II filter
+      -- constant FILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14);          
+      
+      -- fs/fc= 12973/75Hz, row_len 94
+      -- (32297, 15934, 31683, 15320, 0, 11)
+      
+      -- fs/fc= 13550/75Hz, row_len 90
+      -- 32318, 15953, 31728, 15364, 0, 11
+
+      -- fs/fc= 19050/75Hz, row_len 64
+      -- 32451,16077, 32026, 15652, 0,12
+      
+      -- filter_params = [ 32295, 15915, 32568, 16188, 3, 14];  # type 2 filter
+
+--      coeff0 <= conv_std_logic_vector(32295, FILTER_COEF_WIDTH);
+--      coeff1 <= conv_std_logic_vector(15915, FILTER_COEF_WIDTH);
+--      coeff2 <= conv_std_logic_vector(32568, FILTER_COEF_WIDTH);
+--      coeff3 <= conv_std_logic_vector(16188, FILTER_COEF_WIDTH);
+--      coeff4 <= conv_std_logic_vector(7, FILTER_COEF_WIDTH);
+--      coeff5 <= conv_std_logic_vector(10, FILTER_COEF_WIDTH);      
+
+      -- fs/fc=30303/125Hz, row_len 50
+      -- -1.9796949741106067  0.98036009160268178         
+      -- -1.9525785157424633  0.9532345229266278          
+                                                           
+      -- Scale Values: 0.00016627937301880099 0.00016400179604107951    
+      
+      -- fs/fc=25252/50Hz, row_len=60
+      -- -1.9903694166569621  0.9905234589188765 -1.9771208750692957  0.97727389197616998         
+      -- Scale Values: 0.000038510565478614938 0.000038254226718564593                                            
+
+      coeff0 <= conv_std_logic_vector(32610, FILTER_COEF_WIDTH); 
+      coeff1 <= conv_std_logic_vector(16228, FILTER_COEF_WIDTH);
+      coeff2 <= conv_std_logic_vector(32393, FILTER_COEF_WIDTH);
+      coeff3 <= conv_std_logic_vector(16011, FILTER_COEF_WIDTH);
+      coeff4 <= conv_std_logic_vector(7, FILTER_COEF_WIDTH);
+      coeff5 <= conv_std_logic_vector(12, FILTER_COEF_WIDTH);      
+      
+   end procedure set_filter_coeffs;   
    
 begin
 
@@ -307,10 +366,10 @@ begin
       -- wait for 52480* clk_period;
       
       -- uncomment for filter impulse response test simulation
-      wait for 52480* clk_period*100;
+       wait for 52480* clk_period*1000;
       
       -- uncomment for sine wave simulations
-      -- wait for 104973* clk_period*1000; -- 52480
+      --wait for num_clk_row*num_row_frame*20* clk_period*1000; -- 104973
       
       endsim := true;
    end process end_sim;
@@ -434,7 +493,22 @@ begin
          end if;
       end if;
    end process write_filter_out;
-    
+   
+   -- storing 1-stage filter results to a file when proc_fltr_mid_update is '1'   
+   write_filter_mid_out: process (proc_fltr_mid_update_o) is 
+      file output3 : TEXT open WRITE_MODE is "filter.mid.out";
+
+      variable my_line : LINE;
+      variable my_output_line : LINE;
+   begin
+      if proc_fltr_mid_update_o = '1' then
+         if (frame_counter = 1) then
+            write(my_output_line, proc_fltr_mid_dat_o);
+            writeline(output3, my_output_line);
+         end if;
+      end if;
+   end process write_filter_mid_out;
+     
    -- unit under test:  first stage feedback processor
    -- it encapsulates two sub-blocks:  
    -- 1) first stage feedback processor (lock mode)
@@ -469,11 +543,22 @@ begin
        wn22_dat_i               => wn22_dat_i,
        wn21_dat_i               => wn21_dat_i,
        wn20_dat_o               => wn20_dat_o,
-         fsfb_proc_update_o       => processor_update_o,
-         fsfb_proc_dat_o          => processor_dat_o,
-         fsfb_proc_fltr_update_o  => proc_fltr_update_o,
-         fsfb_proc_fltr_dat_o     => proc_fltr_dat_o,
-         fsfb_proc_lock_en_o      => processor_lock_en_o
+
+      -- Filter Coefficients
+       filter_coeff0_i          => filter_coeff0,
+       filter_coeff1_i          => filter_coeff1, 
+       filter_coeff2_i          => filter_coeff2,
+       filter_coeff3_i          => filter_coeff3,
+       filter_coeff4_i          => filter_coeff4,
+       filter_coeff5_i          => filter_coeff5,
+      
+       fsfb_proc_update_o       => processor_update_o,
+       fsfb_proc_dat_o          => processor_dat_o,
+       fsfb_proc_fltr_mid_update_o  => proc_fltr_mid_update_o,
+       fsfb_proc_fltr_mid_dat_o     => proc_fltr_mid_dat_o,
+       fsfb_proc_fltr_update_o  => proc_fltr_update_o,
+       fsfb_proc_fltr_dat_o     => proc_fltr_dat_o,
+       fsfb_proc_lock_en_o      => processor_lock_en_o
      );  
  
     -- instantiate filter wn storage (set of registers) in order
@@ -496,7 +581,7 @@ begin
    -- set up PIDZ coefficients
    
    -- PIDZ setup for filter impulse response test
-   pidz_config(100, 0, 0, 0, 0, coadd_done_shift(2),
+   pidz_config(64000, 0, 0, 0, 0, coadd_done_shift(2),
                ws_p_dat_i, ws_i_dat_i, ws_d_dat_i, ws_z_dat_i);
                
    -- PIDZ setup for non-filter test            
@@ -505,6 +590,7 @@ begin
    
    -- pidz_config(2**32-4, 2**32-3, 2**32-2, 2**32-1, 2, coadd_done_shift(2),
    --               ws_p_dat_i, ws_i_dat_i, ws_d_dat_i, ws_z_dat_i);
+   
    
    -- generate fsfb data ready signal 4 cycles after each row switch
    io_fsfb_dat_rdy_i <= coadd_done_shift(4);
@@ -531,9 +617,10 @@ begin
    begin
    
    -- NOTE: adjust the duration that the simulation runs for in end_sim process   
+      set_filter_coeffs(filter_coeff5, filter_coeff4, filter_coeff3, filter_coeff2, filter_coeff1, filter_coeff0);
    
       -- testing filter for sine wave response 
---      test_fltr_sine_response(4000*41, adc_coadd_done_i, ws_servo_mode_i, adc_coadd_dat_i,
+--      test_fltr_sine_response(3000*num_row_frame, adc_coadd_done_i, ws_servo_mode_i, adc_coadd_dat_i,
 --      adc_diff_dat_i, adc_integral_dat_i);
 --      endsim := true;
 --      wait until restart_frame = '1';
@@ -544,6 +631,7 @@ begin
                      ws_servo_mode_i, adc_coadd_dat_i, adc_diff_dat_i, adc_integral_dat_i);
       wait until restart_frame = '1';
       wait for 1*clk_period;
+
       
       -- testing for non-filter functionality               
 --      test_lock_mode(2**32-10, 2**32-9, 2**32-8, num_row_frame, adc_coadd_done_i, 

@@ -1,4 +1,0 @@
-".\output\SCUBA2PS.obj",
-".\output\SOFT_RESET.obj" 
-TO ".\output\PSC_3p1" 
-PRINT(".\output\PSC_3p1.m51") RAMSIZE(256) 
