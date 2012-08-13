@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.19  2012-01-23 20:56:53  mandana
+-- multiplies gainp by qterm now to generate a decayed pterm
+--
 -- Revision 1.18  2011-06-02 20:39:54  mandana
 -- After generating coeffs for many filters, it is certain that a filter_scale_lsb range of 0 to 7 is more than enough.
 --
@@ -161,8 +164,11 @@ entity fsfb_proc_pidz is
       wn10_dat_o               : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       wn20_dat_o               : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       fsfb_proc_pidz_update_o  : out    std_logic;                                            -- update pulse to indicate P*Xn+I*In+D*Dn+Z result is ready
-      fsfb_proc_pidz_sum_o     : out    std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0); -- P*Xn+I*In+D*Dn+Z result (66 bits)
-      
+      fsfb_proc_pidz_sum_o     : out    std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);-- P*Xn+I*In+D*Dn+Z result (66 bits)
+
+      fsfb_proc_fltr_mid_update_o: out    std_logic;                                          -- update pulse to indicate filter result is ready
+      fsfb_proc_fltr_mid_sum_o   : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);      -- filter result
+
       fsfb_proc_fltr_update_o  : out    std_logic;                                            -- update pulse to indicate filter result is ready
       fsfb_proc_fltr_sum_o     : out    std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0)    -- filter result
       );
@@ -248,7 +254,7 @@ architecture rtl of fsfb_proc_pidz is
    signal fltr2_sum                : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);          -- wn + 2*wn1 + wn2 adder output (filter biquad2)
    signal fltr2_sum_reg            : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);          -- registered wn + 2*wn1 + wn2 (filter biquad2)
    
-   signal operand_a        : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation 
+   signal operand_a                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation 
    signal operand_b                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation
    signal wtemp                    : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- stores results for b1*wn1+b2*wn2
    signal wtemp_reg_shift          : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);                -- scaled down version with sign preserved of wtemp
@@ -719,10 +725,13 @@ begin
    
    
    -- Output results 
-   fsfb_proc_pidz_sum_o    <= pidz_sum_reg;
-   fsfb_proc_pidz_update_o <= calc_shift_state(6) when lock_mode_en_i = '1' else '0';
---   fsfb_proc_fltr_sum_o <= sxt(fltr2_sum_reg(fltr2_sum_reg'length-1 downto 0), fltr2_sum_reg'length);
+   fsfb_proc_fltr_mid_sum_o <= fltr1_sum_reg_shift;
+   fsfb_proc_fltr_mid_update_o <= calc_shift_state(9) when lock_mode_en_i = '1' else '0';
    
+   fsfb_proc_pidz_sum_o <= pidz_sum_reg;
+   fsfb_proc_pidz_update_o <= calc_shift_state(6) when lock_mode_en_i = '1' else '0';
+
+--   fsfb_proc_fltr_sum_o <= sxt(fltr2_sum_reg(fltr2_sum_reg'length-1 downto 0), fltr2_sum_reg'length);   
    filter_scale_proc : process (clk_50_i, rst_i)
    variable k : integer := 0;
    begin
