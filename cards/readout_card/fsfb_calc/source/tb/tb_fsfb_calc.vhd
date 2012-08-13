@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.13  2011-06-02 20:38:05  mandana
+-- added coeffs for few other filters
+--
 -- Revision 1.12  2011-05-30 23:44:41  mandana
 -- added support for filter_coeffs
 -- parametrized frame length for row_len and num_rows
@@ -409,13 +412,13 @@ architecture test of tb_fsfb_calc is
 
       -- fs/fc= 19050/75Hz, row_len 64
       -- 32451,16077, 32026, 15652, 0,12
-
-      coeff0 <= conv_std_logic_vector(32451, FILTER_COEF_WIDTH);
-      coeff1 <= conv_std_logic_vector(16077, FILTER_COEF_WIDTH);
-      coeff2 <= conv_std_logic_vector(32026, FILTER_COEF_WIDTH);
-      coeff3 <= conv_std_logic_vector(15652, FILTER_COEF_WIDTH);
-      coeff4 <= conv_std_logic_vector(1, FILTER_COEF_WIDTH);
-      coeff5 <= conv_std_logic_vector(11, FILTER_COEF_WIDTH);      
+      
+      coeff0 <= conv_std_logic_vector(32295, FILTER_COEF_WIDTH);
+      coeff1 <= conv_std_logic_vector(15915, FILTER_COEF_WIDTH);
+      coeff2 <= conv_std_logic_vector(32568, FILTER_COEF_WIDTH);
+      coeff3 <= conv_std_logic_vector(16188, FILTER_COEF_WIDTH);
+      coeff4 <= conv_std_logic_vector(3, FILTER_COEF_WIDTH);
+      coeff5 <= conv_std_logic_vector(14, FILTER_COEF_WIDTH);      
    end procedure set_filter_coeffs;   
    
    -- procedure for test mode setting
