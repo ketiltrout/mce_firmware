@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.16  2012-01-23 20:55:17  mandana
+-- added qterm to the interface
+--
 -- Revision 1.15  2010-11-13 00:39:13  mandana
 -- added filter_coeff interface
 --
@@ -164,6 +167,10 @@ entity fsfb_processor is
       -- First stage feedback queue interface (write operation to current queue)
       fsfb_proc_update_o      : out    std_logic;                                             -- update pulse to the current fsfb_queue
       fsfb_proc_dat_o         : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);      -- new data to be written to the current fsfb_queue
+
+      -- First stage feedback filter queue interface (write operation)
+      fsfb_proc_fltr_mid_update_o : out    std_logic;                                             -- update pulse to the current fsfb_queue
+      fsfb_proc_fltr_mid_dat_o    : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       
       -- First stage feedback filter queue interface (write operation)
       fsfb_proc_fltr_update_o : out    std_logic;                                             -- update pulse to the current fsfb_queue
@@ -194,8 +201,10 @@ architecture rtl of fsfb_processor is
    signal ramp_mode_en         : std_logic;                                                    -- ramp mode enable
    signal lock_mode_en         : std_logic;                                                    -- lock mode enable
    
-   signal fltr_update         : std_logic;                                                    -- filter result update
-   signal fltr_sum            : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);           -- filter result
+   signal fltr_update          : std_logic;                                                    -- filter result update
+   signal fltr_sum             : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);           -- filter result
+   signal fltr_mid_update      : std_logic;                                                    -- filter result update
+   signal fltr_mid_sum         : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);                -- filter mid-stage result
    signal pidz_update          : std_logic;                                                    -- PIDZ lock mode result update
    signal pidz_sum             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);        -- PIDZ sum
    signal ramp_update          : std_logic;                                                    -- Ramp mode result update from ramp processor block
@@ -227,6 +236,7 @@ begin
    --fsfb_proc_update_o <= (coadd_done_i and const_mode_en) or ramp_update_1d or pidz_update;
    fsfb_proc_update_o <= (previous_fsfb_dat_rdy_i and const_mode_en) or ramp_update_1d or pidz_update;
    fsfb_proc_fltr_update_o <= fltr_update;
+   fsfb_proc_fltr_mid_update_o <= fltr_mid_update;
    
    -- Latch ramp mode data input with new fsfb_proc_ramp result only when 
    -- ramp_update_new_i = '1'
@@ -272,7 +282,7 @@ begin
        
 
    -- Muxes for update control and data output to the current queue
-   fsfb_proc_mux : process (servo_mode_i, const_dat_ltch, ramp_dat_ltch, pidz_sum, fltr_sum)
+   fsfb_proc_mux : process (servo_mode_i, const_dat_ltch, ramp_dat_ltch, pidz_sum, fltr_sum, fltr_mid_sum)
    begin
       -- The most significant bit of the FSFB_QUEUE will store the flag for
       -- the next operation (add/subtract) performed in RAMP mode.  All other modes
@@ -280,6 +290,7 @@ begin
       
       -- default assignment
       fsfb_proc_fltr_dat_o  <= (others=>'0');
+      fsfb_proc_fltr_mid_dat_o  <= (others=>'0');
       
       update_dat : case servo_mode_i is
          
@@ -306,6 +317,7 @@ begin
             -- FSFB_QUEUE_DATA_WIDTH = 39
             fsfb_proc_dat_o      <= '0' & pidz_sum(FSFB_QUEUE_DATA_WIDTH+lock_dat_lsb-1 downto lock_dat_lsb);
             fsfb_proc_fltr_dat_o <= fltr_sum;
+            fsfb_proc_fltr_mid_dat_o <= fltr_mid_sum;
                         
          -- invalid setting
          when others => fsfb_proc_dat_o <= (others => '0');
@@ -348,6 +360,8 @@ begin
          wn20_dat_o                => wn20_dat_o,
          fsfb_proc_pidz_update_o   => pidz_update,                                            
          fsfb_proc_pidz_sum_o      => pidz_sum,
+         fsfb_proc_fltr_mid_update_o => fltr_mid_update,                                         
+         fsfb_proc_fltr_mid_sum_o  => fltr_mid_sum,
          fsfb_proc_fltr_update_o   => fltr_update,
          fsfb_proc_fltr_sum_o      => fltr_sum
       );   
