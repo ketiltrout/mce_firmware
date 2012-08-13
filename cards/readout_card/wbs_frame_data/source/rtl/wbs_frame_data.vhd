@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2010-11-13 00:46:03 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2011-11-18 00:45:20 $> - <text> - <initials $Author: mandana $>
 --
 -----------------------------------------------------------------------------
 
@@ -443,14 +443,14 @@ begin
 
    -- Data Mode 4
    with ch_mux_sel select fb_error_dat <=
-      fsfb_dat_ch0_i(31) & fsfb_dat_ch0_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
-      fsfb_dat_ch1_i(31) & fsfb_dat_ch1_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
-      fsfb_dat_ch2_i(31) & fsfb_dat_ch2_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
-      fsfb_dat_ch3_i(31) & fsfb_dat_ch3_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
-      fsfb_dat_ch4_i(31) & fsfb_dat_ch4_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
-      fsfb_dat_ch5_i(31) & fsfb_dat_ch5_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
-      fsfb_dat_ch6_i(31) & fsfb_dat_ch6_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
-      fsfb_dat_ch7_i(31) & fsfb_dat_ch7_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
+      fsfb_dat_ch0_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch0_i(13 downto 0) when "000",
+      fsfb_dat_ch1_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch1_i(13 downto 0) when "001",
+      fsfb_dat_ch2_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch2_i(13 downto 0) when "010",
+      fsfb_dat_ch3_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch3_i(13 downto 0) when "011",
+      fsfb_dat_ch4_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch4_i(13 downto 0) when "100",
+      fsfb_dat_ch5_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch5_i(13 downto 0) when "101",
+      fsfb_dat_ch6_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch6_i(13 downto 0) when "110",
+      fsfb_dat_ch7_i(LSB_WINDOW_INDEX+17 downto LSB_WINDOW_INDEX) & coadded_dat_ch7_i(13 downto 0) when others;
 
    -- Data Mode 5
    with ch_mux_sel select fb_flx_cnt_dat <=
