@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.26  2012-01-23 20:54:44  mandana
+-- added qterm to interfaces
+--
 -- Revision 1.25  2010-11-30 19:48:06  mandana
 -- restructure pack files: moved fsfb defines to flux_loop_ctrl_pack and moved filter_coeff defines to flux_loop_pack, because filter_coeffs are now parametrized and asserted from a different block.
 --
@@ -275,6 +278,8 @@ package fsfb_calc_pack is
          wn20_dat_o                  : out          std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);         
          fsfb_proc_update_o          : out          std_logic;
          fsfb_proc_dat_o             : out          std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
+         fsfb_proc_fltr_mid_update_o      : out          std_logic;                                            
+         fsfb_proc_fltr_mid_dat_o         : out          std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);                  
          fsfb_proc_fltr_update_o     : out          std_logic;                                             
          fsfb_proc_fltr_dat_o        : out          std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);        
          fsfb_proc_lock_en_o         : out          std_logic
@@ -319,6 +324,8 @@ package fsfb_calc_pack is
 --         b0_dat_i                    : in           std_logic_vector(FLTR_COEFF_DATA_WIDTH-1 downto 0);   -- b0 coeefficient data width for 2-pole FIR filter         
          fsfb_proc_pidz_update_o     : out          std_logic;                                            
          fsfb_proc_pidz_sum_o        : out          std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);
+         fsfb_proc_fltr_mid_update_o : out          std_logic;                                            
+         fsfb_proc_fltr_mid_sum_o    : out          std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);         
          fsfb_proc_fltr_update_o     : out          std_logic;                                            
          fsfb_proc_fltr_sum_o        : out          std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0)
       );   
