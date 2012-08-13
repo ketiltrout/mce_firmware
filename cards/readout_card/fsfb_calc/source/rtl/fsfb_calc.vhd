@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.16  2012-01-23 20:54:09  mandana
+-- added qterm to interfaces
+--
 -- Revision 1.15  2010-11-30 19:46:40  mandana
 -- filter_coeff ports reduced to filter_coef_width instead of wb_data_width
 --
@@ -364,7 +367,7 @@ begin
       ); 
           
    -- first stage feedback queues
-   -- Bank 0 (even)
+   -- Bank 0 (even), Bank 1 (odd)
    -- Queue is 40-bit wide:  39 (ramp +/-); 38:0 (actual fsfb data)
    i_fsfb_queue_bank0 : ram_40x64
       port map (
@@ -378,8 +381,6 @@ begin
          qb                           => fsfb_queue_rd_datab_bank0_i
       );   
     
-   -- Bank 1 (odd)
-   -- Queue is 40-bit wide:  39 (ramp +/-); 38:0 (actual fsfb data)   
    i_fsfb_queue_bank1 : ram_40x64
       port map (
          data                         => fsfb_queue_wr_data_o,
@@ -436,7 +437,7 @@ begin
    
 
    -- flux quanta counter queues
-   -- Bank 0 (even)
+   -- Bank 0 (even), Bank 1 (odd)
    -- Queue is 8-bit wide: 2's complement -- 7 (sign); 6:0 (magnitude) 
    i_flux_cnt_queue_bank0 : ram_8x64
       port map (
@@ -450,8 +451,6 @@ begin
          qb                           => flux_cnt_queue_rd_datab_bank0_i
       );   
       
-   -- Bank 1 (odd)
-   -- Queue is 8-bit wide: 2's complement -- 7 (sign); 6:0 (magnitude) 
    i_flux_cnt_queue_bank1 : ram_8x64
       port map (
          data                         => flux_cnt_queue_wr_data_o,
