@@ -3,27 +3,27 @@ TimeQuest Timing Analyzer Summary
 ------------------------------------------------------------
 
 Type  : Setup 'pll0|altpll_component|pll|clk[0]'
-Slack : 3.614
+Slack : 3.486
 TNS   : 0.000
 
 Type  : Setup 'pll0|altpll_component|pll|clk[1]'
-Slack : 4.301
+Slack : 4.289
 TNS   : 0.000
 
 Type  : Setup 'pll0|altpll_component|pll|clk[3]'
-Slack : 8.659
-TNS   : 0.000
-
-Type  : Hold 'pll0|altpll_component|pll|clk[0]'
-Slack : 0.538
+Slack : 10.565
 TNS   : 0.000
 
 Type  : Hold 'pll0|altpll_component|pll|clk[3]'
-Slack : 0.539
+Slack : 0.538
+TNS   : 0.000
+
+Type  : Hold 'pll0|altpll_component|pll|clk[0]'
+Slack : 0.540
 TNS   : 0.000
 
 Type  : Hold 'pll0|altpll_component|pll|clk[1]'
-Slack : 0.555
+Slack : 0.556
 TNS   : 0.000
 
 Type  : Minimum Pulse Width 'pll0|altpll_component|pll|clk[1]'
