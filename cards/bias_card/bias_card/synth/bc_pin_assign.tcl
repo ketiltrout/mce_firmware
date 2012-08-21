@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.8  2011-11-29 01:07:14  mandana
+# minor change
+#
 # Revision 1.7  2011-06-23 16:03:26  mandana
 # made compatible with Q10.1 tcl format
 #
@@ -111,9 +114,9 @@
 ###############################################################################
 
 # print welcome message
-puts "\n\nBias Card Pin Assignment Script v4.0"	
-puts "\n compatible for Rev. D and Rev. F pin assignment"
-puts     "----------------------------------------------"
+puts "\n\nBias Card Pin Assignment Script v4.1"	
+puts "\n compatible for Rev. E pin assignment (Rev. D and Rev. F are commented"
+puts     "-----------------------------------------------------------------------"
 
 
 # include Quartus Tcl API
@@ -174,7 +177,7 @@ set_location_assignment Pin_V26 -to "slot_id\[1\]"
 set_location_assignment Pin_T25 -to "slot_id\[2\]"
 set_location_assignment Pin_T26 -to "slot_id\[3\]"
 
-set_location_assignment card_id -to Pin_T21
+set_location_assignment Pin_T21 -to card_id
 puts "   Assigned: ID pins."
 
 # assign Hardware Revision pins (as of Rev. F Hardware)
@@ -327,12 +330,13 @@ puts "   Assigned: Mictor header pins."
 #
 # assign DAC clocks	
 
-set_location_assignment Pin_T5 -to lvds_dac_sclk
+#set_location_assignment Pin_T5 -to lvds_dac_sclk
 
-# Only valid in Rev. E, pin unused in Rev. D, ncs11 in rev F
-#set_location_assignment lvds_dac_sclk -to Pin_T9
+# T9 is lvds_dac_sclk only in Rev. E, pin unused in Rev. D, ncs09 in rev F
+set_location_assignment Pin_T9 -to lvds_dac_sclk 
 
 set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_sclk
+
 set_location_assignment Pin_L23 -to "dac_sclk\[15\]"
 set_location_assignment Pin_L24 -to "dac_sclk\[14\]"
 set_location_assignment Pin_H27 -to "dac_sclk\[13\]"
@@ -387,9 +391,16 @@ set_instance_assignment -name IO_STANDARD LVDS -to "lvds_dac_ncs\[2\]"
 set_instance_assignment -name IO_STANDARD LVDS -to "lvds_dac_ncs\[1\]"
 set_instance_assignment -name IO_STANDARD LVDS -to "lvds_dac_ncs\[0\]"
 
-set_location_assignment Pin_U10 -to "lvds_dac_ncs\[11\]"
+#set_location_assignment Pin_U10 -to "lvds_dac_ncs\[11\]"
+# T3 is valid for lvds_dac_ncs11 Only in Rev. E
+set_location_assignment Pin_T3 -to "lvds_dac_ncs\[11\]"
+
 set_location_assignment Pin_N3 -to "lvds_dac_ncs\[10\]"
-set_location_assignment Pin_T9 -to "lvds_dac_ncs\[9\]"
+
+#set_location_assignment Pin_T9 -to "lvds_dac_ncs\[9\]"
+# T5 is valid for lvds_dac_ncs9 Only in Rev. E
+set_location_assignment Pin_T5 -to "lvds_dac_ncs\[9\]"
+
 set_location_assignment Pin_T8 -to "lvds_dac_ncs\[8\]"
 set_location_assignment Pin_W6 -to "lvds_dac_ncs\[7\]"
 set_location_assignment Pin_V5 -to "lvds_dac_ncs\[6\]"
