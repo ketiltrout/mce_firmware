@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.8  2009/05/27 01:30:31  bburger
+-- BB: Increased the filter storage address width to add storage for two interleaved blocks to make filtered data available on demand.  The top and bottom halves are multiplexed using the even_odd signal and its derivatives.
+--
 -- Revision 1.7  2008/10/03 00:32:57  mandana
 -- BB: Adjusted the indentation in fsfb_io_controller.vhd to make the file more readable.
 --
@@ -372,9 +375,8 @@ begin
       fsfb_queue_rd_dataa_bank1_i(WB_DATA_WIDTH-1 downto 0) when even_odd_delayed = '1' else 
       fsfb_queue_rd_dataa_bank0_i(WB_DATA_WIDTH-1 downto 0);
     
-   fsfb_ws_fltr_dat_o <= fsfb_fltr_rd_data_i;     
-   -- ???? sign extend later
-   -- fsfb_ws_fltr_dat_o (WB_DATA_WIDTH-1 downto FSFB_QUEUE_DATA_WIDTH) <= (others =>fsfb_fltr_rd_data_i(FSFB_QUEUE_DATA_WIDTH-1));
+   fsfb_ws_fltr_dat_o <= fsfb_fltr_rd_data_i(fsfb_ws_fltr_dat_o'length-1 downto 0);     
+   -- what about the sign or just wrap?
    
    -- Read data control (bank 0 and 1, port a)
    flux_cnt_ws_dat_o <= 
