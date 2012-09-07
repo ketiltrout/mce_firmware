@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.8.2.1  2012-08-13 20:16:53  mandana
+-- added filter_mid_out and set_filter_coefficients routine to study filter overflow/roundoff effects
+--
 -- Revision 1.8  2010/03/12 20:53:16  bburger
 -- BB: changed lock_dat_left to lock_dat_lsb
 --
@@ -304,16 +307,14 @@ architecture test of tb_fsfb_processor is
       wait for (1+num_clk_row)*clk_period + 0.1*clk_period;
       init_window_o <= '0';
    end procedure init_window;
-      
-   procedure set_filter_coeffs(
-      signal coeff5, coeff4,coeff3, coeff2, coeff1, coeff0: out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0 )
-      ) is
-   begin 
-      -- Filter coefficients for Filter Type: 1
-      --constant FILT_COEF_DEFAULTS : coeff_array := (32092,15750,31238,14895,0, 11);
 
-      -- for type II filter
-      -- constant FILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14);          
+------------------------------------------------------------------------------------
+      -- Filter coefficients 
+      -- type 1 --row_len 100
+      --constant TBFILT_COEF_DEFAULTS : coeff_array := (32092,15750,31238,14895,0, 11);
+
+      -- type II -- row_len 60
+      -- constant TBFILT_COEF_DEFAULTS : coeff_array := (32295,15915,32568,16188, 3, 14);       
       
       -- fs/fc= 12973/75Hz, row_len 94
       -- (32297, 15934, 31683, 15320, 0, 11)
@@ -324,32 +325,23 @@ architecture test of tb_fsfb_processor is
       -- fs/fc= 19050/75Hz, row_len 64
       -- 32451,16077, 32026, 15652, 0,12
       
-      -- filter_params = [ 32295, 15915, 32568, 16188, 3, 14];  # type 2 filter
-
---      coeff0 <= conv_std_logic_vector(32295, FILTER_COEF_WIDTH);
---      coeff1 <= conv_std_logic_vector(15915, FILTER_COEF_WIDTH);
---      coeff2 <= conv_std_logic_vector(32568, FILTER_COEF_WIDTH);
---      coeff3 <= conv_std_logic_vector(16188, FILTER_COEF_WIDTH);
---      coeff4 <= conv_std_logic_vector(7, FILTER_COEF_WIDTH);
---      coeff5 <= conv_std_logic_vector(10, FILTER_COEF_WIDTH);      
-
-      -- fs/fc=30303/125Hz, row_len 50
-      -- -1.9796949741106067  0.98036009160268178         
-      -- -1.9525785157424633  0.9532345229266278          
-                                                           
-      -- Scale Values: 0.00016627937301880099 0.00016400179604107951    
-      
       -- fs/fc=25252/50Hz, row_len=60
       -- -1.9903694166569621  0.9905234589188765 -1.9771208750692957  0.97727389197616998         
-      -- Scale Values: 0.000038510565478614938 0.000038254226718564593                                            
-
-      coeff0 <= conv_std_logic_vector(32610, FILTER_COEF_WIDTH); 
-      coeff1 <= conv_std_logic_vector(16228, FILTER_COEF_WIDTH);
-      coeff2 <= conv_std_logic_vector(32393, FILTER_COEF_WIDTH);
-      coeff3 <= conv_std_logic_vector(16011, FILTER_COEF_WIDTH);
-      coeff4 <= conv_std_logic_vector(7, FILTER_COEF_WIDTH);
-      coeff5 <= conv_std_logic_vector(12, FILTER_COEF_WIDTH);      
+      -- Scale Values: 0.000038510565478614938 0.000038254226718564593         
+      constant TBFILT_COEF_DEFAULTS: coeff_array := (32610, 16228, 32393, 16011, 7, 12); -- (7?, 12?)
       
+   procedure set_filter_coeffs(
+      signal coeff5, coeff4,coeff3, coeff2, coeff1, coeff0: out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0 )
+      ) is
+   begin 
+
+      coeff0 <= conv_std_logic_vector(TBFILT_COEF_DEFAULTS(0), FILTER_COEF_WIDTH); 
+      coeff1 <= conv_std_logic_vector(TBFILT_COEF_DEFAULTS(1), FILTER_COEF_WIDTH);
+      coeff2 <= conv_std_logic_vector(TBFILT_COEF_DEFAULTS(2), FILTER_COEF_WIDTH);
+      coeff3 <= conv_std_logic_vector(TBFILT_COEF_DEFAULTS(3), FILTER_COEF_WIDTH);
+      coeff4 <= conv_std_logic_vector(TBFILT_COEF_DEFAULTS(4), FILTER_COEF_WIDTH);
+      coeff5 <= conv_std_logic_vector(TBFILT_COEF_DEFAULTS(5), FILTER_COEF_WIDTH);      
+     
    end procedure set_filter_coeffs;   
    
 begin
@@ -524,6 +516,7 @@ begin
        clk_50_i                 => processor_clk_i,
        coadd_done_i             => adc_coadd_done_i,
        current_coadd_dat_i      => adc_coadd_dat_i,
+       current_qterm_dat_i      => adc_coadd_dat_i,
        current_diff_dat_i       => adc_diff_dat_i,
        current_integral_dat_i   => adc_integral_dat_i,
        ramp_update_new_i        => io_ramp_update_new_i,
@@ -581,7 +574,7 @@ begin
    -- set up PIDZ coefficients
    
    -- PIDZ setup for filter impulse response test
-   pidz_config(64000, 0, 0, 0, 0, coadd_done_shift(2),
+   pidz_config(1, 0, 0, 0, 0, coadd_done_shift(2),
                ws_p_dat_i, ws_i_dat_i, ws_d_dat_i, ws_z_dat_i);
                
    -- PIDZ setup for non-filter test            
@@ -620,15 +613,13 @@ begin
       set_filter_coeffs(filter_coeff5, filter_coeff4, filter_coeff3, filter_coeff2, filter_coeff1, filter_coeff0);
    
       -- testing filter for sine wave response 
---      test_fltr_sine_response(3000*num_row_frame, adc_coadd_done_i, ws_servo_mode_i, adc_coadd_dat_i,
---      adc_diff_dat_i, adc_integral_dat_i);
---      endsim := true;
---      wait until restart_frame = '1';
---      wait for 1*clk_period;
+      test_fltr_sine_response(3000*num_row_frame, adc_coadd_done_i, ws_servo_mode_i, adc_coadd_dat_i,
+      adc_diff_dat_i, adc_integral_dat_i);
+      endsim := true;
 
       -- testing filter for impulse response
-      test_lock_mode(conv_integer(impulse), 2, 3, 0, adc_coadd_done_i, --changed from num_row_frame to 0
-                     ws_servo_mode_i, adc_coadd_dat_i, adc_diff_dat_i, adc_integral_dat_i);
+--      test_lock_mode(conv_integer(impulse), 2, 3, 0, adc_coadd_done_i, --changed from num_row_frame to 0
+--                     ws_servo_mode_i, adc_coadd_dat_i, adc_diff_dat_i, adc_integral_dat_i);
       wait until restart_frame = '1';
       wait for 1*clk_period;
 
