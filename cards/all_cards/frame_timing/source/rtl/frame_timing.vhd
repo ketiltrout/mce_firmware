@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.10 2009/01/16 01:32:38 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.11 2009/09/14 20:02:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.11  2009/09/14 20:02:41  bburger
+-- BB: added the row_count_o interface for the Address Card row-specific BIAS_START command
+--
 -- Revision 1.10  2009/01/16 01:32:38  bburger
 -- BB:  Added row_len, num_rows, num_rows_reported, and num_cols_reported outputs for the column data feature.
 --
@@ -138,83 +141,6 @@ architecture beh of frame_timing is
    signal init_window_ack       : std_logic; -- not used yet
    signal fltr_rst_ack          : std_logic; 
    signal fltr_rst_req          : std_logic; 
-
-   component frame_timing_core is
-      port(
-         -- Readout Card interface
-         dac_dat_en_o               : out std_logic;
-         adc_coadd_en_o             : out std_logic;
-         restart_frame_1row_prev_o  : out std_logic;
-         restart_frame_aligned_o    : out std_logic; 
-         restart_frame_1row_post_o  : out std_logic;
-         initialize_window_o        : out std_logic;
-         fltr_rst_o                 : out std_logic;
-         sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-         
-         -- Address Card interface
-         row_count_o                : out std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
-         row_switch_o               : out std_logic;
-         row_en_o                   : out std_logic;
-            
-         -- Bias Card interface
-         update_bias_o              : out std_logic;
-         
-         -- Wishbone interface
-         row_len_i                  : in integer; -- not used yet
-         num_rows_i                 : in integer; -- not used yet
-         sample_delay_i             : in integer;
-         sample_num_i               : in integer;
-         feedback_delay_i           : in integer;
-         address_on_delay_i         : in integer;
-         resync_req_i               : in std_logic;
-         resync_ack_o               : out std_logic; -- not used yet
-         init_window_req_i          : in std_logic;
-         init_window_ack_o          : out std_logic; -- not used yet
-         fltr_rst_ack_o             : out std_logic; 
-         fltr_rst_req_i             : in std_logic; 
-         
-         -- Global signals
-         clk_i                      : in std_logic;
-         clk_n_i                    : in std_logic;
-         rst_i                      : in std_logic;
-         sync_i                     : in std_logic
-      );
-   end component;
-
-   component frame_timing_wbs is        
-      port
-      (
-         -- frame_timing interface:
-         row_len_o           : out integer;
-         num_rows_o          : out integer;
-         num_rows_reported_o : out integer;
-         num_cols_reported_o : out integer;
-         sample_delay_o      : out integer;
-         sample_num_o        : out integer;
-         feedback_delay_o    : out integer;
-         address_on_delay_o  : out integer;
-         resync_ack_i        : in std_logic;      
-         resync_req_o        : out std_logic;
-         init_window_ack_i   : in std_logic;
-         init_window_req_o   : out std_logic;
-         fltr_rst_ack_i      : in std_logic; 
-         fltr_rst_req_o      : out std_logic; 
-
-         -- wishbone interface:
-         dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-         tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-         we_i                : in std_logic;
-         stb_i               : in std_logic;
-         cyc_i               : in std_logic;
-         dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-         ack_o               : out std_logic;
-
-         -- global interface
-         clk_i               : in std_logic;
-         rst_i               : in std_logic 
-      );     
-   end component;
 
 begin
    

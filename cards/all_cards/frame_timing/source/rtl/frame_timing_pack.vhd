@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.19 2011-10-05 22:11:16 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.20 2011-10-26 18:03:15 mandana Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2011-10-05 22:11:16 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2011-10-26 18:03:15 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.20  2011-10-26 18:03:15  mandana
+-- update_bias changed to 1 to initiate the clocking of DACs in preparation for the next row.
+--
 -- Revision 1.19  2011-10-05 22:11:16  mandana
 -- update_bias parameter changed to 10 which causes biases to be loaded few (32?) clock cycles after row switch
 --
@@ -172,5 +175,81 @@ package frame_timing_pack is
    constant DEFAULT_NUM_ROWS_REPORTED : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000029";  -- 41 Rows by default.
    constant DEFAULT_NUM_COLS_REPORTED : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000008";  -- 8 Columns by default.
 
+   component frame_timing_core is
+      port(
+         -- Readout Card interface
+         dac_dat_en_o               : out std_logic;
+         adc_coadd_en_o             : out std_logic;
+         restart_frame_1row_prev_o  : out std_logic;
+         restart_frame_aligned_o    : out std_logic; 
+         restart_frame_1row_post_o  : out std_logic;
+         initialize_window_o        : out std_logic;
+         fltr_rst_o                 : out std_logic;
+         sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+         
+         -- Address Card interface
+         row_count_o                : out std_logic_vector(ROW_COUNT_WIDTH-1 downto 0);
+         row_switch_o               : out std_logic;
+         row_en_o                   : out std_logic;
+            
+         -- Bias Card interface
+         update_bias_o              : out std_logic;
+         
+         -- Wishbone interface
+         row_len_i                  : in integer; -- not used yet
+         num_rows_i                 : in integer; -- not used yet
+         sample_delay_i             : in integer;
+         sample_num_i               : in integer;
+         feedback_delay_i           : in integer;
+         address_on_delay_i         : in integer;
+         resync_req_i               : in std_logic;
+         resync_ack_o               : out std_logic; -- not used yet
+         init_window_req_i          : in std_logic;
+         init_window_ack_o          : out std_logic; -- not used yet
+         fltr_rst_ack_o             : out std_logic; 
+         fltr_rst_req_i             : in std_logic; 
+         
+         -- Global signals
+         clk_i                      : in std_logic;
+         clk_n_i                    : in std_logic;
+         rst_i                      : in std_logic;
+         sync_i                     : in std_logic
+      );
+   end component;
+
+   component frame_timing_wbs is        
+      port
+      (
+         -- frame_timing interface:
+         row_len_o           : out integer;
+         num_rows_o          : out integer;
+         num_rows_reported_o : out integer;
+         num_cols_reported_o : out integer;
+         sample_delay_o      : out integer;
+         sample_num_o        : out integer;
+         feedback_delay_o    : out integer;
+         address_on_delay_o  : out integer;
+         resync_ack_i        : in std_logic;      
+         resync_req_o        : out std_logic;
+         init_window_ack_i   : in std_logic;
+         init_window_req_o   : out std_logic;
+         fltr_rst_ack_i      : in std_logic; 
+         fltr_rst_req_o      : out std_logic; 
+
+         -- wishbone interface:
+         dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+         tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+         we_i                : in std_logic;
+         stb_i               : in std_logic;
+         cyc_i               : in std_logic;
+         dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         ack_o               : out std_logic;
+
+         -- global interface
+         clk_i               : in std_logic;
+         rst_i               : in std_logic 
+      );     
+   end component;
 
 end frame_timing_pack;
