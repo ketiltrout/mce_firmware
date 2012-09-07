@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.24  2012-01-23 20:52:50  mandana
+-- added qterm to interfaces
+--
 -- Revision 1.23  2011-01-21 01:32:56  mandana
 -- fixed typo in comments for filter type 2
 --
@@ -142,21 +145,21 @@ package flux_loop_pack is
    constant PIDZ_MAX               : integer := (2**(PIDZ_DATA_WIDTH-1))-1;
    constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
    
-   constant SERVO_MODE_SEL_WIDTH   : integer := 2;     -- data width of servo mode selection:  00,01=constant; 10=ramp; 11=servo.
+   constant SERVO_MODE_SEL_WIDTH   : integer := 2;                    -- data width of servo mode selection:  00,01=constant; 10=ramp; 11=servo.
    constant CONSTANT_MODE0         : std_logic_vector(1 downto 0) := "00";
    constant CONSTANT_MODE1         : std_logic_vector(1 downto 0) := "01";
    constant RAMP_MODE              : std_logic_vector(1 downto 0) := "10";
    constant LOCK_MODE              : std_logic_vector(1 downto 0) := "11";
 
-   constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH;     -- data width of constant value
-   constant RAMP_STEP_WIDTH        : integer := CONST_VAL_WIDTH;     -- data width of ramp step size
-   constant RAMP_AMP_WIDTH         : integer := CONST_VAL_WIDTH;     -- data width of ramp peak amplitude
-   constant RAMP_CYC_WIDTH         : integer := CONST_VAL_WIDTH;        -- data width of ramp frame cycle number
+   constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH;        -- data width of constant value
+   constant RAMP_STEP_WIDTH        : integer := CONST_VAL_WIDTH;      -- data width of ramp step size
+   constant RAMP_AMP_WIDTH         : integer := CONST_VAL_WIDTH;      -- data width of ramp peak amplitude
+   constant RAMP_CYC_WIDTH         : integer := CONST_VAL_WIDTH;      -- data width of ramp frame cycle number
    
    constant FLUX_QUANTA_ADDR_WIDTH : integer := 6;
    constant FLUX_QUANTA_DATA_WIDTH : integer := 14;
    constant FLUX_QUANTA_MAX        : integer := (2**(FLUX_QUANTA_DATA_WIDTH))-1;
-   constant FLUX_QUANTA_MIN        : integer := 0;  -- Flux Quanta are always positive numbers.
+   constant FLUX_QUANTA_MIN        : integer := 0;                    -- Flux Quanta are always positive numbers.
    
    -- Wishbone frame data specific
    constant RAW_DATA_WIDTH         : integer := ADC_DAT_WIDTH;
@@ -172,7 +175,7 @@ package flux_loop_pack is
    constant FLUX_QUANTA_CNT_WIDTH  : integer := 8;
 
    -- The following is for debug and will be taken out in the final version 
-   constant FSFB_QUEUE_DATA_WIDTH  : integer := 39;---8;        -- data width of first stage feedback queue
+   constant FSFB_QUEUE_DATA_WIDTH  : integer := 39;---8;              -- data width of first stage feedback queue
    constant COEFF_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;        -- data width of PIDZ coefficient queue
    constant COEFF_QUEUE_ADDR_WIDTH : integer := PIDZ_ADDR_WIDTH;      -- address width of PIDZ coefficient queue
 
@@ -181,8 +184,8 @@ package flux_loop_pack is
    constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
    constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
-   constant NUM_FILTER_COEFF       : integer := 6;        -- number of filter coefficients
-   constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
+   constant NUM_FILTER_COEFF       : integer := 6;                    -- number of filter coefficients
+   constant FILTER_COEF_WIDTH      : integer := 15;                   -- number of bits in the coefficient
 
    -- This filter implementation takes 6 parameters: filter_coeff0 to filter_coeff5.
    -- The coefficients are chosen through Simulink FDAtool interface when a 4-pole Butterworth filter is chosen
