@@ -20,7 +20,7 @@ while 1
   t=fgetl(fid);
   if ~ischar(t), break, end
   if (t(1) == '1')
-    z=[z;-(2.^29-bin2dec(t))];
+    z=[z;-(2.^32-bin2dec(t))];
   else
     z=[z;bin2dec(t)];
   end;  
