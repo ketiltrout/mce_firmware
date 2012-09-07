@@ -15,4 +15,5 @@ derive_pll_clocks -create_base_clocks -use_tan_name
 # Creates a clock object and defines its waveform in the current design
 create_clock -period "40.000 ns" -name {inclk} {inclk}
 create_clock -period "20.000 ns" -name {adc_fco} {adc_fco}
+derive_clock_uncertainty
 

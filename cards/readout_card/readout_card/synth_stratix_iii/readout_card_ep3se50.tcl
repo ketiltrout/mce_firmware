@@ -16,7 +16,7 @@
 # File: C:\mce\cards\readout_card\readout_card\synth_stratix_iii\pin_backup03_gold_standard.tcl
 # Generated on: Thu Jun 18 16:03:13 2009
 
-# $Id: readout_card_ep3se50.tcl,v 1.15 2010/10/22 18:10:05 mandana Exp $
+# $Id: readout_card_ep3se50.tcl,v 1.16 2011-11-07 18:04:20 mandana Exp $
 
 
 
@@ -27,9 +27,9 @@ puts "Readout Card Rev D/E Pin Assignment Script"
 puts "-----------------------------------------"
 
 # Run DDR tcl assignments first
-cd ../../ddr2_sdram_ctrl/source/rtl/
-source micron_ctrl_pin_assignments.tcl
-cd ../../../readout_card/synth_stratix_iii/
+# cd ../../ddr2_sdram_ctrl/source/rtl/
+# source micron_ctrl_pin_assignments.tcl
+# cd ../../../readout_card/synth_stratix_iii/
 
 
 # include Quartus Tcl API
@@ -209,70 +209,70 @@ puts "Info: Assigning DDR2 SDRAM"
 set_location_assignment PIN_D27 -to termination_blk0~_rup_pad
 set_location_assignment PIN_C28 -to termination_blk0~_rdn_pad
 set_location_assignment PIN_U28 -to inclk_ddr
-set_location_assignment PIN_AD22 -to mem_dqs[0]
-set_location_assignment PIN_AH23 -to mem_dqs[1]
-set_location_assignment PIN_AF26 -to mem_dm[0]
-set_location_assignment PIN_AD19 -to mem_odt[0]
-set_location_assignment PIN_AD24 -to mem_dm[1]
-set_location_assignment PIN_AB24 -to mem_ba[0]
-set_location_assignment PIN_AD27 -to mem_ba[1]
-set_location_assignment PIN_AC19 -to mem_cas_n
-set_location_assignment PIN_AA18 -to mem_cke[0]
+#set_location_assignment PIN_AD22 -to mem_dqs[0]
+#set_location_assignment PIN_AH23 -to mem_dqs[1]
+#set_location_assignment PIN_AF26 -to mem_dm[0]
+#set_location_assignment PIN_AD19 -to mem_odt[0]
+#set_location_assignment PIN_AD24 -to mem_dm[1]
+#set_location_assignment PIN_AB24 -to mem_ba[0]
+#set_location_assignment PIN_AD27 -to mem_ba[1]
+#set_location_assignment PIN_AC19 -to mem_cas_n
+#set_location_assignment PIN_AA18 -to mem_cke[0]
 set_location_assignment PIN_AF20 -to mem_cs_n[0]
-set_location_assignment PIN_AD18 -to mem_ras_n
-set_location_assignment PIN_AB19 -to mem_we_n
-set_location_assignment PIN_AE27 -to mem_clk[0]
+#set_location_assignment PIN_AD18 -to mem_ras_n
+#set_location_assignment PIN_AB19 -to mem_we_n
+#set_location_assignment PIN_AE27 -to mem_clk[0]
 
-set_location_assignment PIN_Y19 -to mem_addr[0]
-set_location_assignment PIN_AE20 -to mem_addr[1]
-set_location_assignment PIN_AF21 -to mem_addr[2]
-set_location_assignment PIN_Y18 -to mem_addr[3]
-set_location_assignment PIN_AE21 -to mem_addr[4]
-set_location_assignment PIN_AG21 -to mem_addr[5]
-set_location_assignment PIN_Y17 -to mem_addr[6]
-set_location_assignment PIN_AC20 -to mem_addr[7]
-set_location_assignment PIN_AE19 -to mem_addr[8]
-set_location_assignment PIN_AA19 -to mem_addr[9]
-set_location_assignment PIN_AA23 -to mem_addr[10]
-set_location_assignment PIN_W21 -to mem_addr[11]
-set_location_assignment PIN_AD28 -to mem_addr[12]
+#set_location_assignment PIN_Y19 -to mem_addr[0]
+#set_location_assignment PIN_AE20 -to mem_addr[1]
+#set_location_assignment PIN_AF21 -to mem_addr[2]
+#set_location_assignment PIN_Y18 -to mem_addr[3]
+#set_location_assignment PIN_AE21 -to mem_addr[4]
+#set_location_assignment PIN_AG21 -to mem_addr[5]
+#set_location_assignment PIN_Y17 -to mem_addr[6]
+#set_location_assignment PIN_AC20 -to mem_addr[7]
+#set_location_assignment PIN_AE19 -to mem_addr[8]
+#set_location_assignment PIN_AA19 -to mem_addr[9]
+#set_location_assignment PIN_AA23 -to mem_addr[10]
+#set_location_assignment PIN_W21 -to mem_addr[11]
+#set_location_assignment PIN_AD28 -to mem_addr[12]
 
-set_location_assignment PIN_AH27 -to mem_dq[0]
-set_location_assignment PIN_AH25 -to mem_dq[1]
-set_location_assignment PIN_AG25 -to mem_dq[2]
-set_location_assignment PIN_AG27 -to mem_dq[3]
-set_location_assignment PIN_AH26 -to mem_dq[4]
-set_location_assignment PIN_AB20 -to mem_dq[5]
-set_location_assignment PIN_AB21 -to mem_dq[6]
-set_location_assignment PIN_AD21 -to mem_dq[7]
-set_location_assignment PIN_AE23 -to mem_dq[8]
-set_location_assignment PIN_AF24 -to mem_dq[9]
-set_location_assignment PIN_AE24 -to mem_dq[10]
-set_location_assignment PIN_AF23 -to mem_dq[11]
-set_location_assignment PIN_AG24 -to mem_dq[12]
-set_location_assignment PIN_AH20 -to mem_dq[13]
-set_location_assignment PIN_AH21 -to mem_dq[14]
-set_location_assignment PIN_AH22 -to mem_dq[15]
+#set_location_assignment PIN_AH27 -to mem_dq[0]
+#set_location_assignment PIN_AH25 -to mem_dq[1]
+#set_location_assignment PIN_AG25 -to mem_dq[2]
+#set_location_assignment PIN_AG27 -to mem_dq[3]
+#set_location_assignment PIN_AH26 -to mem_dq[4]
+#set_location_assignment PIN_AB20 -to mem_dq[5]
+#set_location_assignment PIN_AB21 -to mem_dq[6]
+#set_location_assignment PIN_AD21 -to mem_dq[7]
+#set_location_assignment PIN_AE23 -to mem_dq[8]
+#set_location_assignment PIN_AF24 -to mem_dq[9]
+#set_location_assignment PIN_AE24 -to mem_dq[10]
+#set_location_assignment PIN_AF23 -to mem_dq[11]
+#set_location_assignment PIN_AG24 -to mem_dq[12]
+#set_location_assignment PIN_AH20 -to mem_dq[13]
+#set_location_assignment PIN_AH21 -to mem_dq[14]
+#set_location_assignment PIN_AH22 -to mem_dq[15]
 
-set_location_assignment PIN_AH7 -to pnf
-set_location_assignment PIN_AG13 -to pnf_per_byte[0]
-set_location_assignment PIN_AG4 -to pnf_per_byte[1]
-set_location_assignment PIN_AE8 -to pnf_per_byte[2]
-set_location_assignment PIN_AF9 -to pnf_per_byte[3]
-set_location_assignment PIN_AG3 -to pnf_per_byte[4]
-set_location_assignment PIN_AF5 -to pnf_per_byte[5]
-set_location_assignment PIN_AH8 -to pnf_per_byte[6]
-set_location_assignment PIN_AE4 -to pnf_per_byte[7]
+#set_location_assignment PIN_AH7 -to pnf
+#set_location_assignment PIN_AG13 -to pnf_per_byte[0]
+#set_location_assignment PIN_AG4 -to pnf_per_byte[1]
+#set_location_assignment PIN_AE8 -to pnf_per_byte[2]
+#set_location_assignment PIN_AF9 -to pnf_per_byte[3]
+#set_location_assignment PIN_AG3 -to pnf_per_byte[4]
+#set_location_assignment PIN_AF5 -to pnf_per_byte[5]
+#set_location_assignment PIN_AH8 -to pnf_per_byte[6]
+#set_location_assignment PIN_AE4 -to pnf_per_byte[7]
 
-set_location_assignment PIN_AG6 -to test_complete
-set_location_assignment PIN_AF14 -to test_status[0]
-set_location_assignment PIN_AB13 -to test_status[1]
-set_location_assignment PIN_AG7 -to test_status[2]
-set_location_assignment PIN_AG9 -to test_status[3]
-set_location_assignment PIN_C20 -to test_status[4]
-set_location_assignment PIN_AB9 -to test_status[5]
-set_location_assignment PIN_AB11 -to test_status[6]
-set_location_assignment PIN_AE10 -to test_status[7]
+#set_location_assignment PIN_AG6 -to test_complete
+#set_location_assignment PIN_AF14 -to test_status[0]
+#set_location_assignment PIN_AB13 -to test_status[1]
+#set_location_assignment PIN_AG7 -to test_status[2]
+#set_location_assignment PIN_AG9 -to test_status[3]
+#set_location_assignment PIN_C20 -to test_status[4]
+#set_location_assignment PIN_AB9 -to test_status[5]
+#set_location_assignment PIN_AB11 -to test_status[6]
+#set_location_assignment PIN_AE10 -to test_status[7]
 
 
 
@@ -456,127 +456,7 @@ set_location_assignment PIN_K7 -to dac7_dfb_dat[11]
 set_location_assignment PIN_J6 -to dac7_dfb_dat[12]
 set_location_assignment PIN_H5 -to dac7_dfb_dat[13]
 
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to termination_blk0~_rup_pad
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to termination_blk0~_rdn_pad
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cke[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dm[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dm[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_odt[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dm[1]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dm[1]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dm[1]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_odt[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_clk[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_clk[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cs_n[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cke[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[1]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[1]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[2]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[2]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[3]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[3]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[4]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[4]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[5]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[5]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[6]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[6]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[7]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[7]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[8]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[8]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[9]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[9]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[10]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[10]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[11]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[11]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_addr[12]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_addr[12]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_ba[0]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ba[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_ba[1]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ba[1]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_ras_n
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ras_n
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cas_n
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cas_n
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_we_n
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_we_n
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[0]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[1]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[1]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[2]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[2]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[3]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[3]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[4]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[4]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[5]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[5]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[6]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[6]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[7]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[7]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[8]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[8]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[9]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[9]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[10]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[10]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[11]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[11]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[12]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[12]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[13]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[13]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[14]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[14]
-set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dq[15]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[15]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs[0]
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs[1]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[1]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[2]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[3]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[4]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[5]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[6]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[7]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[8]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[9]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[10]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[11]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[12]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[13]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[14]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dq[15]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqs[0]
-set_instance_assignment -name OUTPUT_ENABLE_GROUP 517035168 -to mem_dqs[1]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[0]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[1]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[2]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[3]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[4]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[5]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[6]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[7]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[8]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[9]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[10]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[11]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[12]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[13]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[14]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[15]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[0]
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[1]
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_sclk
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_sdio
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_csb_n
@@ -593,8 +473,6 @@ set_instance_assignment -name IO_STANDARD LVDS -to adc_dco
 set_instance_assignment -name IO_STANDARD LVDS -to adc_fco
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to adc_pdwn
 set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cs_n[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqs[0]
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.8-V SSTL CLASS I" -to mem_dqs[1]
 
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."

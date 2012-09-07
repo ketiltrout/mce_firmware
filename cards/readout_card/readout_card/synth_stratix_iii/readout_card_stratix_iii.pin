@@ -1,4 +1,4 @@
- -- Copyright (C) 1991-2010 Altera Corporation
+ -- Copyright (C) 1991-2011 Altera Corporation
  -- Your use of Altera Corporation's design tools, logic functions 
  -- and other software and tools, and its AMPP partner logic 
  -- functions, and any output files from any of the foregoing 
@@ -27,7 +27,7 @@
  -- VCCL          : Dedicated power pin, which MUST be connected to VCC  (1.1V).
  -- VCCIO         : Dedicated power pin, which MUST be connected to VCC
  --                 of its bank.
- --					Bank 1A:		1.8V
+ --					Bank 1A:		3.3V
  --					Bank 1C:		3.3V
  --					Bank 2C:		3.3V
  --					Bank 2A:		1.8V
@@ -72,7 +72,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
+Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 CHIP  "readout_card_stratix_iii"  ASSIGNED TO AN: EP3SE50F780C4
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -120,12 +120,12 @@ GND                          : AA14      : gnd    :                   :         
 adc_clk(n)                   : AA15      : output : LVDS              :         : 3C        : N              
 VREFB3CN0                    : AA16      : power  :                   :         : 3C        :                
 GND                          : AA17      : gnd    :                   :         :           :                
-mem_cke[0]                   : AA18      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_addr[9]                  : AA19      : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AA18      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AA19      :        :                   :         : 3A        :                
 GND                          : AA20      : gnd    :                   :         :           :                
 VCCPGM                       : AA21      : power  :                   : 3.0V/3.3V :           :                
 VCCIO2A                      : AA22      : power  :                   : 1.8V    : 2A        :                
-mem_addr[10]                 : AA23      : output : SSTL-18 Class I   :         : 2A        : Y              
+RESERVED_INPUT               : AA23      :        :                   :         : 2A        :                
 RESERVED_INPUT               : AA24      :        :                   :         : 2A        :                
 RESERVED_INPUT               : AA25      :        :                   :         : 2A        :                
 RESERVED_INPUT               : AA26      :        :                   :         : 2A        :                
@@ -139,22 +139,22 @@ nCEO                         : AB5       :        :                   :         
 VCCPT                        : AB6       : power  :                   : 2.5V    :           :                
 RESERVED_INPUT               : AB7       :        :                   :         : 4A        :                
 RESERVED_INPUT               : AB8       :        :                   :         : 4A        :                
-test_status[5]               : AB9       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AB9       :        :                   :         : 4A        :                
 VREFB4AN0                    : AB10      : power  :                   :         : 4A        :                
-test_status[6]               : AB11      : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AB11      :        :                   :         : 4A        :                
 VCCIO4C                      : AB12      : power  :                   : 3.3V    : 4C        :                
-test_status[1]               : AB13      : output : 3.3-V LVTTL       :         : 4C        : Y              
+RESERVED_INPUT               : AB13      :        :                   :         : 4C        :                
 VCC_CLKIN3C                  : AB14      : power  :                   : 2.5V    :           :                
 VCCD_PLL_B1                  : AB15      : power  :                   : 1.1V    :           :                
 RESERVED_INPUT               : AB16      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AB17      :        :                   :         : 3C        :                
-VREFB3AN0                    : AB18      : power  :                   : 0.9V    : 3A        :                
-mem_we_n                     : AB19      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[5]                    : AB20      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[6]                    : AB21      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
+VREFB3AN0                    : AB18      : power  :                   :         : 3A        :                
+RESERVED_INPUT               : AB19      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AB20      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AB21      :        :                   :         : 3A        :                
 NC                           : AB22      :        :                   :         :           :                
 PORSEL                       : AB23      :        :                   :         : 1A        :                
-mem_ba[0]                    : AB24      : output : SSTL-18 Class I   :         : 2A        : Y              
+RESERVED_INPUT               : AB24      :        :                   :         : 2A        :                
 RESERVED_INPUT               : AB25      :        :                   :         : 2A        :                
 RESERVED_INPUT               : AB26      :        :                   :         : 2A        :                
 adc_pdwn                     : AB27      : output : SSTL-18 Class I   :         : 2A        : Y              
@@ -177,8 +177,8 @@ VCCIO3C                      : AC15      : power  :                   : 2.5V    
 RESERVED_INPUT               : AC16      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AC17      :        :                   :         : 3C        :                
 VCCIO3A                      : AC18      : power  :                   : 1.8V    : 3A        :                
-mem_cas_n                    : AC19      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_addr[7]                  : AC20      : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AC19      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AC20      :        :                   :         : 3A        :                
 RESERVED_INPUT               : AC21      :        :                   :         : 3A        :                
 VCCIO3A                      : AC22      : power  :                   : 1.8V    : 3A        :                
 VCCPT                        : AC23      : power  :                   : 2.5V    :           :                
@@ -204,27 +204,27 @@ GND                          : AD14      : gnd    :                   :         
 VCCPT                        : AD15      : power  :                   : 2.5V    :           :                
 RESERVED_INPUT               : AD16      :        :                   :         : 3C        :                
 GND                          : AD17      : gnd    :                   :         :           :                
-mem_ras_n                    : AD18      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_odt[0]                   : AD19      : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AD18      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AD19      :        :                   :         : 3A        :                
 GND                          : AD20      : gnd    :                   :         :           :                
-mem_dq[7]                    : AD21      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dqs[0]                   : AD22      : bidir  : Differential 1.8-V SSTL Class I :         : 3A        : Y              
+RESERVED_INPUT               : AD21      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AD22      :        :                   :         : 3A        :                
 GND                          : AD23      : gnd    :                   :         :           :                
-mem_dm[1]                    : AD24      : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AD24      :        :                   :         : 3A        :                
 nSTATUS                      : AD25      :        :                   :         : 1A        :                
 VCCIO2A                      : AD26      : power  :                   : 1.8V    : 2A        :                
-mem_ba[1]                    : AD27      : output : SSTL-18 Class I   :         : 2A        : Y              
-mem_addr[12]                 : AD28      : output : SSTL-18 Class I   :         : 2A        : Y              
+RESERVED_INPUT               : AD27      :        :                   :         : 2A        :                
+RESERVED_INPUT               : AD28      :        :                   :         : 2A        :                
 adc5_lvds(n)                 : AE1       : input  : LVDS              :         : 5A        : N              
 RESERVED_INPUT               : AE2       :        :                   :         : 5A        :                
 nIO_PULLUP                   : AE3       :        :                   :         : 1A        :                
-pnf_per_byte[7]              : AE4       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AE4       :        :                   :         : 4A        :                
 RESERVED_INPUT               : AE5       :        :                   :         : 4A        :                
 bias_dac_ncs[4]              : AE6       : output : 3.3-V LVTTL       :         : 4A        : Y              
 RESERVED_INPUT               : AE7       :        :                   :         : 4A        :                
-pnf_per_byte[2]              : AE8       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AE8       :        :                   :         : 4A        :                
 dip_sw0                      : AE9       : input  : 3.3-V LVTTL       :         : 4A        : Y              
-test_status[7]               : AE10      : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AE10      :        :                   :         : 4A        :                
 lvds_spare                   : AE11      : input  : 3.3-V LVTTL       :         : 4C        : Y              
 lvds_cmd                     : AE12      : input  : 3.3-V LVTTL       :         : 4C        : Y              
 RESERVED_INPUT               : AE13      :        :                   :         : 4C        :                
@@ -233,57 +233,57 @@ RESERVED_INPUT               : AE15      :        :                   :         
 RESERVED_INPUT               : AE16      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AE17      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AE18      :        :                   :         : 3C        :                
-mem_addr[8]                  : AE19      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_addr[1]                  : AE20      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_addr[4]                  : AE21      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_dqsn[0]                  : AE22      : bidir  : Differential 1.8-V SSTL Class I :         : 3A        : N              
-mem_dq[8]                    : AE23      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[10]                   : AE24      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AE19      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AE20      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AE21      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AE22      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AE23      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AE24      :        :                   :         : 3A        :                
 NC                           : AE25      :        :                   :         :           :                
 CONF_DONE                    : AE26      :        :                   :         : 1A        :                
-mem_clk[0]                   : AE27      : bidir  : Differential 1.8-V SSTL Class I :         : 2A        : Y              
-mem_clk_n[0]                 : AE28      : bidir  : Differential 1.8-V SSTL Class I :         : 2A        : N              
+RESERVED_INPUT               : AE27      :        :                   :         : 2A        :                
+RESERVED_INPUT               : AE28      :        :                   :         : 2A        :                
 RESERVED_INPUT               : AF1       :        :                   :         : 5A        :                
 adc7_lvds                    : AF2       : input  : LVDS              :         : 5A        : Y              
 GND                          : AF3       : gnd    :                   :         :           :                
 VCCIO4A                      : AF4       : power  :                   : 3.3V    : 4A        :                
-pnf_per_byte[5]              : AF5       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AF5       :        :                   :         : 4A        :                
 RESERVED_INPUT               : AF6       :        :                   :         : 4A        :                
 VCCIO4A                      : AF7       : power  :                   : 3.3V    : 4A        :                
 RESERVED_INPUT               : AF8       :        :                   :         : 4A        :                
-pnf_per_byte[3]              : AF9       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AF9       :        :                   :         : 4A        :                
 wdog                         : AF10      : output : 3.3-V LVTTL       :         : 4C        : Y              
 RESERVED_INPUT               : AF11      :        :                   :         : 4C        :                
 slot_id[1]                   : AF12      : input  : 3.3-V LVTTL       :         : 4C        : Y              
 VCCIO4C                      : AF13      : power  :                   : 3.3V    : 4C        :                
-test_status[0]               : AF14      : output : 3.3-V LVTTL       :         : 4C        : Y              
+RESERVED_INPUT               : AF14      :        :                   :         : 4C        :                
 RESERVED_INPUT               : AF15      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AF16      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AF17      :        :                   :         : 3C        :                
 VCCIO3C                      : AF18      : power  :                   : 2.5V    : 3C        :                
 RESERVED_INPUT               : AF19      :        :                   :         : 3C        :                
 mem_cs_n[0]                  : AF20      : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_addr[2]                  : AF21      : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AF21      :        :                   :         : 3A        :                
 VCCIO3A                      : AF22      : power  :                   : 1.8V    : 3A        :                
-mem_dq[11]                   : AF23      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[9]                    : AF24      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AF23      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AF24      :        :                   :         : 3A        :                
 VCCIO3A                      : AF25      : power  :                   : 1.8V    : 3A        :                
-mem_dm[0]                    : AF26      : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AF26      :        :                   :         : 3A        :                
 GND                          : AF27      : gnd    :                   :         :           :                
 adc_sclk                     : AF28      : output : SSTL-18 Class I   :         : 2A        : Y              
 adc7_lvds(n)                 : AG1       : input  : LVDS              :         : 5A        : N              
 GND                          : AG2       : gnd    :                   :         :           :                
-pnf_per_byte[4]              : AG3       : output : 3.3-V LVTTL       :         : 4A        : Y              
-pnf_per_byte[1]              : AG4       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AG3       :        :                   :         : 4A        :                
+RESERVED_INPUT               : AG4       :        :                   :         : 4A        :                
 GND                          : AG5       : gnd    :                   :         :           :                
-test_complete                : AG6       : output : 3.3-V LVTTL       :         : 4A        : Y              
-test_status[2]               : AG7       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AG6       :        :                   :         : 4A        :                
+RESERVED_INPUT               : AG7       :        :                   :         : 4A        :                
 GND                          : AG8       : gnd    :                   :         :           :                
-test_status[3]               : AG9       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AG9       :        :                   :         : 4A        :                
 red_led                      : AG10      : output : 3.3-V LVTTL       :         : 4C        : Y              
 GND                          : AG11      : gnd    :                   :         :           :                
 slot_id[2]                   : AG12      : input  : 3.3-V LVTTL       :         : 4C        : Y              
-pnf_per_byte[0]              : AG13      : output : 3.3-V LVTTL       :         : 4C        : Y              
+RESERVED_INPUT               : AG13      :        :                   :         : 4C        :                
 GND                          : AG14      : gnd    :                   :         :           :                
 RESERVED_INPUT               : AG15      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AG16      :        :                   :         : 3C        :                
@@ -291,21 +291,21 @@ GND                          : AG17      : gnd    :                   :         
 RESERVED_INPUT               : AG18      :        :                   :         : 3C        :                
 RESERVED_INPUT               : AG19      :        :                   :         : 3C        :                
 GND                          : AG20      : gnd    :                   :         :           :                
-mem_addr[5]                  : AG21      : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AG21      :        :                   :         : 3A        :                
 RESERVED_INPUT               : AG22      :        :                   :         : 3A        :                
 GND                          : AG23      : gnd    :                   :         :           :                
-mem_dq[12]                   : AG24      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[2]                    : AG25      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AG24      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AG25      :        :                   :         : 3A        :                
 GND                          : AG26      : gnd    :                   :         :           :                
-mem_dq[3]                    : AG27      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AG27      :        :                   :         : 3A        :                
 RESERVED_INPUT               : AG28      :        :                   :         : 2A        :                
 offset_dac_ncs[7]            : AH2       : output : 3.3-V LVTTL       :         : 4A        : Y              
 offset_dac_ncs[6]            : AH3       : output : 3.3-V LVTTL       :         : 4A        : Y              
 bias_dac_ncs[6]              : AH4       : output : 3.3-V LVTTL       :         : 4A        : Y              
 bias_dac_ncs[7]              : AH5       : output : 3.3-V LVTTL       :         : 4A        : Y              
 dac_clr_n                    : AH6       : input  : 3.3-V LVTTL       :         : 4A        : Y              
-pnf                          : AH7       : output : 3.3-V LVTTL       :         : 4A        : Y              
-pnf_per_byte[6]              : AH8       : output : 3.3-V LVTTL       :         : 4A        : Y              
+RESERVED_INPUT               : AH7       :        :                   :         : 4A        :                
+RESERVED_INPUT               : AH8       :        :                   :         : 4A        :                
 dip_sw3                      : AH9       : input  : 3.3-V LVTTL       :         : 4A        : Y              
 slot_id[3]                   : AH10      : input  : 3.3-V LVTTL       :         : 4C        : Y              
 ylw_led                      : AH11      : output : 3.3-V LVTTL       :         : 4C        : Y              
@@ -317,14 +317,14 @@ pcb_rev[0]                   : AH16      : input  : 3.3-V LVTTL       :         
 pcb_rev[1]                   : AH17      : input  : 3.3-V LVTTL       :         : 3C        : Y              
 pcb_rev[2]                   : AH18      : input  : 3.3-V LVTTL       :         : 3C        : Y              
 pcb_rev[3]                   : AH19      : input  : 3.3-V LVTTL       :         : 3C        : Y              
-mem_dq[13]                   : AH20      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[14]                   : AH21      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[15]                   : AH22      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dqs[1]                   : AH23      : bidir  : Differential 1.8-V SSTL Class I :         : 3A        : Y              
-mem_dqsn[1]                  : AH24      : bidir  : Differential 1.8-V SSTL Class I :         : 3A        : N              
-mem_dq[1]                    : AH25      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[4]                    : AH26      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
-mem_dq[0]                    : AH27      : bidir  : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : AH20      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AH21      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AH22      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AH23      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AH24      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AH25      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AH26      :        :                   :         : 3A        :                
+RESERVED_INPUT               : AH27      :        :                   :         : 3A        :                
 dac2_dfb_dat[8]              : B1        : output : 3.3-V LVTTL       :         : 6A        : Y              
 dac2_dfb_dat[7]              : B2        : output : 3.3-V LVTTL       :         : 7A        : Y              
 GND                          : B3        : gnd    :                   :         :           :                
@@ -372,7 +372,7 @@ VCCIO8C                      : C16       : power  :                   : 3.3V    
 dac_dfb_clk[4]               : C17       : output : 3.3-V LVTTL       :         : 8C        : Y              
 dac4_dfb_dat[13]             : C18       : output : 3.3-V LVTTL       :         : 8C        : Y              
 dac4_dfb_dat[11]             : C19       : output : 3.3-V LVTTL       :         : 8C        : Y              
-test_status[4]               : C20       : output : 3.3-V LVTTL       :         : 8A        : Y              
+RESERVED_INPUT               : C20       :        :                   :         : 8A        :                
 dac4_dfb_dat[9]              : C21       : output : 3.3-V LVTTL       :         : 8A        : Y              
 VCCIO8A                      : C22       : power  :                   : 3.3V    : 8A        :                
 dac4_dfb_dat[6]              : C23       : output : 3.3-V LVTTL       :         : 8A        : Y              
@@ -380,7 +380,7 @@ dac4_dfb_dat[4]              : C24       : output : 3.3-V LVTTL       :         
 VCCIO8A                      : C25       : power  :                   : 3.3V    : 8A        :                
 TCK                          : C26       : input  :                   :         : 1A        :                
 RESERVED_INPUT               : C27       :        :                   :         : 1A        :                
-termination_blk0~_rdn_pad    : C28       : input  : 1.8 V             :         : 1A        : Y              
+RESERVED_INPUT               : C28       :        :                   :         : 1A        :                
 dac2_dfb_dat[11]             : D1        : output : 3.3-V LVTTL       :         : 6A        : Y              
 dac2_dfb_dat[10]             : D2        : output : 3.3-V LVTTL       :         : 6A        : Y              
 TEMPDIODEp                   : D3        :        :                   :         :           :                
@@ -407,7 +407,7 @@ dac4_dfb_dat[7]              : D23       : output : 3.3-V LVTTL       :         
 dac4_dfb_dat[5]              : D24       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac4_dfb_dat[3]              : D25       : output : 3.3-V LVTTL       :         : 8A        : Y              
 TRST                         : D26       : input  :                   :         : 1A        :                
-termination_blk0~_rup_pad    : D27       : input  : 1.8 V             :         : 1A        : Y              
+RESERVED_INPUT               : D27       :        :                   :         : 1A        :                
 RESERVED_INPUT               : D28       :        :                   :         : 1A        :                
 dac2_dfb_dat[13]             : E1        : output : 3.3-V LVTTL       :         : 6A        : Y              
 dac2_dfb_dat[12]             : E2        : output : 3.3-V LVTTL       :         : 6A        : Y              
@@ -434,7 +434,7 @@ dac0_dfb_dat[6]              : E22       : output : 3.3-V LVTTL       :         
 dac4_dfb_dat[2]              : E23       : output : 3.3-V LVTTL       :         : 8A        : Y              
 GND                          : E24       : gnd    :                   :         :           :                
 NC                           : E25       :        :                   :         :           :                
-VCCIO1A                      : E26       : power  :                   : 1.8V    : 1A        :                
+VCCIO1A                      : E26       : power  :                   : 3.3V    : 1A        :                
 GND                          : E27       : gnd    :                   :         :           :                
 RESERVED_INPUT               : E28       :        :                   :         : 1A        :                
 dac_dfb_clk[2]               : F1        : output : 3.3-V LVTTL       :         : 6A        : Y              
@@ -454,7 +454,7 @@ VCC_CLKIN7C                  : F14       : power  :                   : 2.5V    
 VCCA_PLL_T1                  : F15       : power  :                   : 2.5V    :           :                
 VCC_CLKIN8C                  : F16       : power  :                   : 2.5V    :           :                
 dac_dfb_clk[0]               : F17       : output : 3.3-V LVTTL       :         : 8C        : Y              
-mictor_clk                   : F18       : output : 3.3-V LVTTL       :         : 8C        : N              
+RESERVED_INPUT               : F18       :        :                   :         : 8C        :                
 dac0_dfb_dat[10]             : F19       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac0_dfb_dat[9]              : F20       : output : 3.3-V LVTTL       :         : 8A        : Y              
 dac0_dfb_dat[5]              : F21       : output : 3.3-V LVTTL       :         : 8A        : Y              
@@ -515,10 +515,10 @@ dac2_dfb_dat[1]              : H19       : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : H20       :        :                   :         : 8A        :                
 GND                          : H21       : gnd    :                   :         :           :                
 TMS                          : H22       : input  :                   :         : 1A        :                
-VCCIO1A                      : H23       : power  :                   : 1.8V    : 1A        :                
+VCCIO1A                      : H23       : power  :                   : 3.3V    : 1A        :                
 GND                          : H24       : gnd    :                   :         :           :                
 RESERVED_INPUT               : H25       :        :                   :         : 1A        :                
-VCCIO1A                      : H26       : power  :                   : 1.8V    : 1A        :                
+VCCIO1A                      : H26       : power  :                   : 3.3V    : 1A        :                
 GND                          : H27       : gnd    :                   :         :           :                
 RESERVED_INPUT               : H28       :        :                   :         : 1A        :                
 dac5_dfb_dat[10]             : J1        : output : 3.3-V LVTTL       :         : 6A        : Y              
@@ -595,7 +595,7 @@ VCC                          : L15       : power  :                   : 1.1V    
 GND                          : L16       : gnd    :                   :         :           :                
 VCCL                         : L17       : power  :                   : 1.1V    :           :                
 GND                          : L18       : gnd    :                   :         :           :                
-VCCPD1A                      : L19       : power  :                   : 2.5V    : 1A        :                
+VCCPD1A                      : L19       : power  :                   : 3.3V    : 1A        :                
 NC                           : L20       :        :                   :         :           :                
 GND                          : L21       : gnd    :                   :         :           :                
 RESERVED_INPUT               : L22       :        :                   :         : 1A        :                
@@ -821,7 +821,7 @@ VCCPD3A                      : W17       : power  :                   : 2.5V    
 GND                          : W18       : gnd    :                   :         :           :                
 nCONFIG                      : W19       :        :                   :         : 1A        :                
 RESERVED_INPUT               : W20       :        :                   :         : 2A        :                
-mem_addr[11]                 : W21       : output : SSTL-18 Class I   :         : 2A        : Y              
+RESERVED_INPUT               : W21       :        :                   :         : 2A        :                
 RESERVED_INPUT               : W22       :        :                   :         : 2A        :                
 RESERVED_INPUT               : W23       :        :                   :         : 2A        :                
 RESERVED_INPUT               : W24       :        :                   :         : 2A        :                
@@ -845,9 +845,9 @@ RESERVED_INPUT               : Y13       :        :                   :         
 ttl_out3                     : Y14       : output : 3.3-V LVTTL       :         : 4C        : Y              
 adc_clk                      : Y15       : output : LVDS              :         : 3C        : Y              
 GND                          : Y16       : gnd    :                   :         :           :                
-mem_addr[6]                  : Y17       : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_addr[3]                  : Y18       : output : SSTL-18 Class I   :         : 3A        : Y              
-mem_addr[0]                  : Y19       : output : SSTL-18 Class I   :         : 3A        : Y              
+RESERVED_INPUT               : Y17       :        :                   :         : 3A        :                
+RESERVED_INPUT               : Y18       :        :                   :         : 3A        :                
+RESERVED_INPUT               : Y19       :        :                   :         : 3A        :                
 nCE                          : Y20       :        :                   :         : 1A        :                
 GND                          : Y21       : gnd    :                   :         :           :                
 VREFB2AN0                    : Y22       : power  :                   : 0.9V    : 2A        :                

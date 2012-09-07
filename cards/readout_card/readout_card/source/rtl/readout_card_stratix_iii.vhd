@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.23  2012-01-24 22:35:31  mandana
+-- 5.1.a programmable pterm_decay_bits and default is 0
+--
 -- Revision 1.22  2012-01-23 21:00:03  mandana
 -- rev. 5.1.9
 -- support added for par_id x64 or qterm_decay_bits, for now hardcoded to n=3!
@@ -237,28 +240,10 @@ port(
    
    -- pcb revision identification pins
    pcb_rev         : in std_logic_vector(PCB_REV_BITS-1 downto 0);
-
+   
    -- DDR2 interface
-   -- outputs:
-   mem_addr : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
-   mem_ba : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-   mem_cas_n : OUT STD_LOGIC;
-   mem_cke : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-   mem_clk : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-   mem_clk_n : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-   mem_cs_n : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-   mem_dm : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-   mem_dq : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-   mem_dqs : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-   mem_dqsn : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-   mem_odt : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-   mem_ras_n : OUT STD_LOGIC;
-   mem_we_n : OUT STD_LOGIC;
-   pnf : OUT STD_LOGIC;
-   pnf_per_byte : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-   test_complete : OUT STD_LOGIC;
-   test_status : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-   mictor_clk : out std_logic 
+   mem_cs_n : OUT STD_LOGIC_VECTOR (0 DOWNTO 0)
+ 
 );  
 end readout_card_stratix_iii;
 
@@ -268,7 +253,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0501000a";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0501000c";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
@@ -403,40 +388,7 @@ architecture top of readout_card_stratix_iii is
    signal num_cols_reported       : integer;
    signal data_size               : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
    
-   -- DDR2 signals as copied from micro_ctrl_example_top.vhd generated from MegaWizard DDR2 SDRAM CTRL HP 8.1
-   signal internal_mem_addr :  STD_LOGIC_VECTOR (12 DOWNTO 0);
-   signal internal_mem_ba :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-   signal internal_mem_cas_n :  STD_LOGIC;
-   signal internal_mem_cke :  STD_LOGIC_VECTOR (0 DOWNTO 0);
-   signal internal_mem_cs_n :  STD_LOGIC_VECTOR (0 DOWNTO 0);
-   signal internal_mem_dm :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-   signal internal_mem_odt :  STD_LOGIC_VECTOR (0 DOWNTO 0);
-   signal internal_mem_ras_n :  STD_LOGIC;
-   signal internal_mem_we_n :  STD_LOGIC;
-   signal internal_pnf :  STD_LOGIC;
-   signal internal_pnf_per_byte :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-   signal internal_test_complete :  STD_LOGIC;
-   signal internal_test_status :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-   signal mem_aux_full_rate_clk :  STD_LOGIC;
-   signal mem_aux_half_rate_clk :  STD_LOGIC;
-   signal mem_local_addr :  STD_LOGIC_VECTOR (22 DOWNTO 0);
-   signal mem_local_be :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-   signal mem_local_col_addr :  STD_LOGIC_VECTOR (9 DOWNTO 0);
-   signal mem_local_cs_addr :  STD_LOGIC;
-   signal mem_local_rdata :  STD_LOGIC_VECTOR (63 DOWNTO 0);
-   signal mem_local_rdata_valid :  STD_LOGIC;
-   signal mem_local_read_req :  STD_LOGIC;
-   signal mem_local_ready :  STD_LOGIC;
-   signal mem_local_size :  STD_LOGIC;
-   signal mem_local_wdata :  STD_LOGIC_VECTOR (63 DOWNTO 0);
-   signal mem_local_write_req :  STD_LOGIC;
-   signal oct_ctl_rs_value :  STD_LOGIC_VECTOR (13 DOWNTO 0);
-   signal oct_ctl_rt_value :  STD_LOGIC_VECTOR (13 DOWNTO 0);
-   signal phy_clk :  STD_LOGIC;
-   signal reset_phy_clk_n :  STD_LOGIC;
-   signal tie_high :  STD_LOGIC;
-   signal tie_low :  STD_LOGIC;
-
+   
 begin   
    
    -- Default assignments for ADC control pins
@@ -462,7 +414,7 @@ begin
    eeprom_so <= '0';
    eeprom_sck <= '0';
    eeprom_cs_n <= '0';
-   mictor_clk <= '0';
+   --mictor_clk <= '0';
    
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
@@ -1138,127 +1090,7 @@ begin
    -- DDR2-related Instantitions and connections copied from micron_ctrl_example_top.vhd
    ----------------------------------------------------------------------------
   -- replaced global_reset_n with rst and replaced clk_source with inclk_ddr
-  tie_low <= std_logic'('0');
-  oct_ctl_rs_value <= std_logic_vector'("00000000000000");
-  oct_ctl_rt_value <= std_logic_vector'("00000000000000");
-  tie_high <= std_logic'('1');
-
-  --<< START MEGAWIZARD INSERT WRAPPER_NAME
-  micron_ctrl_inst : micron_ctrl
-  port map(
-     aux_full_rate_clk => mem_aux_full_rate_clk,
-     aux_half_rate_clk => mem_aux_half_rate_clk,
-     global_reset_n => dev_clr_n,
-     local_address => mem_local_addr,
-     local_be => mem_local_be,
-     local_burstbegin => tie_low,
-     local_init_done => open,
-     local_rdata => mem_local_rdata,
-     local_rdata_valid => mem_local_rdata_valid,
-     local_read_req => mem_local_read_req,
-     local_ready => mem_local_ready,
-     local_refresh_ack => open,
-     local_size => mem_local_size,
-     local_wdata => mem_local_wdata,
-     local_wdata_req => open,
-     local_write_req => mem_local_write_req,
-     mem_addr => internal_mem_addr,
-     mem_ba => internal_mem_ba,
-     mem_cas_n => internal_mem_cas_n,
-     mem_cke(0) => internal_mem_cke(0),
-     mem_clk(0) => mem_clk(0),
-     mem_clk_n(0) => mem_clk_n(0),
-     mem_cs_n(0) => internal_mem_cs_n(0),
-     mem_dm => internal_mem_dm(1 DOWNTO 0),
-     mem_dq => mem_dq,
-     mem_dqs => mem_dqs(1 DOWNTO 0),
-     mem_dqsn => mem_dqsn(1 DOWNTO 0),
-     mem_odt(0) => internal_mem_odt(0),
-     mem_ras_n => internal_mem_ras_n,
-     mem_we_n => internal_mem_we_n,
-     oct_ctl_rs_value => oct_ctl_rs_value,
-     oct_ctl_rt_value => oct_ctl_rt_value,
-     phy_clk => phy_clk,
-     pll_ref_clk => inclk_ddr,
-     reset_phy_clk_n => reset_phy_clk_n,
-     reset_request_n => open,
-     soft_reset_n => tie_high
-  );
-  --<< END MEGAWIZARD INSERT WRAPPER_NAME
-
-  --<< START MEGAWIZARD INSERT CS_ADDR_MAP
-  --connect up the column address bits, dropping 2 bits from example driver output because of 4:1 data rate
-  mem_local_addr(7 DOWNTO 0) <= mem_local_col_addr(9 DOWNTO 2);
-  --<< END MEGAWIZARD INSERT CS_ADDR_MAP
-
-  --<< START MEGAWIZARD INSERT EXAMPLE_DRIVER
-  --Self-test, synthesisable code to exercise the DDR SDRAM Controller
-  driver : micron_ctrl_example_driver
-  port map(
-     clk => phy_clk,
-     local_bank_addr => mem_local_addr(22 DOWNTO 21),
-     local_be => mem_local_be,
-     local_col_addr => mem_local_col_addr,
-     local_cs_addr => mem_local_cs_addr,
-     local_rdata => mem_local_rdata,
-     local_rdata_valid => mem_local_rdata_valid,
-     local_read_req => mem_local_read_req,
-     local_ready => mem_local_ready,
-     local_row_addr => mem_local_addr(20 DOWNTO 8),
-     local_size => mem_local_size,
-     local_wdata => mem_local_wdata,
-     local_write_req => mem_local_write_req,
-     pnf_per_byte => internal_pnf_per_byte(7 DOWNTO 0),
-     pnf_persist => internal_pnf,
-     reset_n => reset_phy_clk_n,
-     test_complete => internal_test_complete,
-     test_status => internal_test_status
-  );
-
-  --<< END MEGAWIZARD INSERT EXAMPLE_DRIVER
-
-  --<< START MEGAWIZARD INSERT DLL
-
-  --<< END MEGAWIZARD INSERT DLL
-
-  --<< start europa
-  --vhdl renameroo for output signals
-  mem_addr <= internal_mem_addr;
-  --vhdl renameroo for output signals
-  mem_ba <= internal_mem_ba;
-  --vhdl renameroo for output signals
-  mem_cas_n <= internal_mem_cas_n;
-  --vhdl renameroo for output signals
-  mem_cke <= internal_mem_cke;
-  --vhdl renameroo for output signals
-  mem_cs_n <= internal_mem_cs_n;
-  --vhdl renameroo for output signals
-  mem_dm <= internal_mem_dm;
-  --vhdl renameroo for output signals
-  mem_odt <= internal_mem_odt;
-  --vhdl renameroo for output signals
-  mem_ras_n <= internal_mem_ras_n;
-  --vhdl renameroo for output signals
-  mem_we_n <= internal_mem_we_n;
-  --vhdl renameroo for output signals
---  pnf <= internal_pnf;
-  --vhdl renameroo for output signals
-  pnf_per_byte <= internal_pnf_per_byte;
-  --vhdl renameroo for output signals
-  test_complete <= internal_test_complete;
-  --vhdl renameroo for output signals
-  test_status <= internal_test_status;
-
-
-
-
---   
---   
-----   test_status <= adc_dat1(7 downto 0);
-----   pnf_per_byte <= adc_dat0(7 downto 0);
---   --test_status(0) <= rx_sclk;
---   --test_status(1) <= clk_upper;
---   --test_status(2) <= clk_lower;
---   --test_complete <= adc0_lvds;
-   pnf <= adc_pll_locked;
+  -- all ddr2 code removed, because enabling on-chip termination may have power 
+  mem_cs_n(0) <= '1';
+  
 end top;

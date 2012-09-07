@@ -1,6 +1,6 @@
 Flow report for readout_card_stratix_iii
-Tue Jan 24 14:18:04 2012
-Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
+Thu Sep 06 14:33:13 2012
+Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 
 
 ---------------------
@@ -19,7 +19,7 @@ Quartus II 64-Bit Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Versi
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 1991-2010 Altera Corporation
+Copyright (C) 1991-2011 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
 functions, and any output files from any of the foregoing 
@@ -38,25 +38,24 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------------+
 ; Flow Summary                                                                   ;
 +-------------------------------+------------------------------------------------+
-; Flow Status                   ; Successful - Tue Jan 24 14:18:04 2012          ;
-; Quartus II 64-Bit Version     ; 10.0 Build 262 08/18/2010 SP 1 SJ Full Version ;
+; Flow Status                   ; Successful - Thu Sep 06 14:33:13 2012          ;
+; Quartus II 64-Bit Version     ; 11.1 Build 259 01/25/2012 SP 2 SJ Full Version ;
 ; Revision Name                 ; readout_card_stratix_iii                       ;
 ; Top-level Entity Name         ; readout_card_stratix_iii                       ;
 ; Family                        ; Stratix III                                    ;
 ; Device                        ; EP3SE50F780C4                                  ;
 ; Timing Models                 ; Final                                          ;
-; Met timing requirements       ; N/A                                            ;
-; Logic utilization             ; 85 %                                           ;
-;     Combinational ALUTs       ; 23,533 / 38,000 ( 62 % )                       ;
-;     Memory ALUTs              ; 80 / 19,000 ( < 1 % )                          ;
-;     Dedicated logic registers ; 17,072 / 38,000 ( 45 % )                       ;
-; Total registers               ; 17212                                          ;
-; Total pins                    ; 294 / 488 ( 60 % )                             ;
+; Logic utilization             ; 83 %                                           ;
+;     Combinational ALUTs       ; 22,593 / 38,000 ( 59 % )                       ;
+;     Memory ALUTs              ; 0 / 19,000 ( 0 % )                             ;
+;     Dedicated logic registers ; 15,663 / 38,000 ( 41 % )                       ;
+; Total registers               ; 15663                                          ;
+; Total pins                    ; 229 / 488 ( 47 % )                             ;
 ; Total virtual pins            ; 0                                              ;
-; Total block memory bits       ; 1,440,576 / 5,455,872 ( 26 % )                 ;
+; Total block memory bits       ; 1,444,416 / 5,455,872 ( 26 % )                 ;
 ; DSP block 18-bit elements     ; 40 / 384 ( 10 % )                              ;
-; Total PLLs                    ; 4 / 4 ( 100 % )                                ;
-; Total DLLs                    ; 1 / 4 ( 25 % )                                 ;
+; Total PLLs                    ; 3 / 4 ( 75 % )                                 ;
+; Total DLLs                    ; 0 / 4 ( 0 % )                                  ;
 +-------------------------------+------------------------------------------------+
 
 
@@ -65,7 +64,7 @@ applicable agreement for further details.
 +-------------------+--------------------------+
 ; Option            ; Setting                  ;
 +-------------------+--------------------------+
-; Start date & time ; 01/24/2012 13:50:54      ;
+; Start date & time ; 09/06/2012 14:01:31      ;
 ; Main task         ; Compilation              ;
 ; Revision Name     ; readout_card_stratix_iii ;
 +-------------------+--------------------------+
@@ -88,7 +87,7 @@ applicable agreement for further details.
 ; AUTO_PACKED_REGISTERS_MAXII                     ; Normal                                                                                                  ; Auto                                                    ; --          ; --                   ;
 ; AUTO_PACKED_REGISTERS_STRATIX                   ; Normal                                                                                                  ; Auto                                                    ; --          ; --                   ;
 ; AUTO_PACKED_REGISTERS_STRATIXII                 ; Normal                                                                                                  ; Auto                                                    ; --          ; --                   ;
-; COMPILER_SIGNATURE_ID                           ; 167739110428.132744185407908                                                                            ; --                                                      ; --          ; --                   ;
+; COMPILER_SIGNATURE_ID                           ; 167739110428.134696529007980                                                                            ; --                                                      ; --          ; --                   ;
 ; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION      ; On                                                                                                      ; --                                                      ; --          ; eda_simulation       ;
 ; EDA_INPUT_DATA_FORMAT                           ; Vhdl                                                                                                    ; --                                                      ; --          ; eda_design_synthesis ;
 ; EDA_OUTPUT_DATA_FORMAT                          ; Vhdl                                                                                                    ; --                                                      ; --          ; eda_simulation       ;
@@ -96,12 +95,11 @@ applicable agreement for further details.
 ; ENABLE_BENEFICIAL_SKEW_OPTIMIZATION             ; Off                                                                                                     ; On                                                      ; --          ; --                   ;
 ; ENABLE_CLOCK_LATENCY                            ; On                                                                                                      ; Off                                                     ; --          ; --                   ;
 ; ENABLE_DRC_SETTINGS                             ; On                                                                                                      ; Off                                                     ; --          ; --                   ;
-; ENABLE_SIGNALTAP                                ; On                                                                                                      ; --                                                      ; --          ; --                   ;
+; ENABLE_SIGNALTAP                                ; Off                                                                                                     ; --                                                      ; --          ; --                   ;
 ; FITTER_EFFORT                                   ; Standard Fit                                                                                            ; Auto Fit                                                ; --          ; --                   ;
 ; FIT_ATTEMPTS_TO_SKIP                            ; 0                                                                                                       ; 0.0                                                     ; --          ; --                   ;
 ; FMAX_REQUIREMENT                                ; 50 MHz                                                                                                  ; --                                                      ; --          ; --                   ;
 ; IGNORE_LCELL_BUFFERS                            ; On                                                                                                      ; Off                                                     ; --          ; --                   ;
-; INCREMENTAL_COMPILATION                         ; Off                                                                                                     ; FULL_INCREMENTAL_COMPILATION                            ; --          ; --                   ;
 ; INCREMENTAL_COMPILATION_EXPORT_NETLIST_TYPE     ; POST_FIT                                                                                                ; --                                                      ; --          ; --                   ;
 ; IP_TOOL_NAME                                    ; ALTPLL                                                                                                  ; --                                                      ; --          ; --                   ;
 ; IP_TOOL_VERSION                                 ; 8.1                                                                                                     ; --                                                      ; --          ; --                   ;
@@ -123,9 +121,9 @@ applicable agreement for further details.
 ; OPTIMIZE_MULTI_CORNER_TIMING                    ; On                                                                                                      ; Off                                                     ; --          ; --                   ;
 ; OPTIMIZE_POWER_DURING_FITTING                   ; Extra effort                                                                                            ; Normal compilation                                      ; --          ; --                   ;
 ; OPTIMIZE_POWER_DURING_SYNTHESIS                 ; Off                                                                                                     ; Normal compilation                                      ; --          ; --                   ;
-; OUTPUT_IO_TIMING_ENDPOINT                       ; Near End                                                                                                ; --                                                      ; --          ; --                   ;
 ; PARALLEL_SYNTHESIS                              ; Off                                                                                                     ; On                                                      ; --          ; --                   ;
 ; PARTITION_COLOR                                 ; 2147039                                                                                                 ; --                                                      ; --          ; Top                  ;
+; PARTITION_FITTER_PRESERVATION_LEVEL             ; PLACEMENT_AND_ROUTING                                                                                   ; --                                                      ; --          ; Top                  ;
 ; PARTITION_IMPORT_ASSIGNMENTS                    ; On                                                                                                      ; --                                                      ; --          ; Top                  ;
 ; PARTITION_IMPORT_EXISTING_ASSIGNMENTS           ; REPLACE_CONFLICTING                                                                                     ; --                                                      ; --          ; Top                  ;
 ; PARTITION_IMPORT_EXISTING_LOGICLOCK_REGIONS     ; REPLACE_CONFLICTING                                                                                     ; --                                                      ; --          ; Top                  ;
@@ -166,13 +164,13 @@ applicable agreement for further details.
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis      ; 00:07:30     ; 1.0                     ; 1018 MB             ; 00:07:28                           ;
-; Fitter                    ; 00:15:36     ; 1.3                     ; 1387 MB             ; 00:18:26                           ;
-; Assembler                 ; 00:00:10     ; 1.0                     ; 595 MB              ; 00:00:10                           ;
-; TimeQuest Timing Analyzer ; 00:01:18     ; 1.3                     ; 952 MB              ; 00:01:27                           ;
-; Design Assistant          ; 00:01:00     ; 1.0                     ; 694 MB              ; 00:00:59                           ;
-; EDA Netlist Writer        ; 00:01:21     ; 1.0                     ; 722 MB              ; 00:01:21                           ;
-; Total                     ; 00:26:55     ; --                      ; --                  ; 00:29:51                           ;
+; Analysis & Synthesis      ; 00:09:08     ; 1.0                     ; 1058 MB             ; 00:09:07                           ;
+; Fitter                    ; 00:19:27     ; 1.3                     ; 1452 MB             ; 00:22:45                           ;
+; Assembler                 ; 00:00:11     ; 1.0                     ; 666 MB              ; 00:00:10                           ;
+; TimeQuest Timing Analyzer ; 00:00:37     ; 1.4                     ; 932 MB              ; 00:00:46                           ;
+; Design Assistant          ; 00:00:24     ; 1.0                     ; 784 MB              ; 00:00:24                           ;
+; EDA Netlist Writer        ; 00:01:21     ; 1.0                     ; 843 MB              ; 00:01:20                           ;
+; Total                     ; 00:31:08     ; --                      ; --                  ; 00:34:32                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
