@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.24  2012-09-07 18:12:25  mandana
+-- 5.1.c
+-- ddr2 micron memory instantiation disabled to save power by disabling on-chip termination, ddr2 chips are not installed on board
+-- increased width of butterworth filter delay elements by 3 bits
+--
 -- Revision 1.23  2012-01-24 22:35:31  mandana
 -- 5.1.a programmable pterm_decay_bits and default is 0
 --
@@ -253,7 +258,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0501000c";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"0501000d";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
