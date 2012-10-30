@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.17  2012-08-13 20:43:18  mandana
+-- added filter_mid_out
+--
 -- Revision 1.16  2012-01-23 20:55:17  mandana
 -- added qterm to the interface
 --
@@ -103,7 +106,6 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
-use work.fsfb_corr_pack.all;
 use work.flux_loop_ctrl_pack.all;
 use work.flux_loop_pack.all;
 use work.readout_card_pack.all;
@@ -168,8 +170,8 @@ entity fsfb_processor is
       fsfb_proc_update_o      : out    std_logic;                                             -- update pulse to the current fsfb_queue
       fsfb_proc_dat_o         : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);      -- new data to be written to the current fsfb_queue
 
-      -- First stage feedback filter queue interface (write operation)
-      fsfb_proc_fltr_mid_update_o : out    std_logic;                                             -- update pulse to the current fsfb_queue
+      -- output of the first butterworth biquad for simulation purposes!
+      fsfb_proc_fltr_mid_update_o : out    std_logic;                                         -- for simulation only!
       fsfb_proc_fltr_mid_dat_o    : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
       
       -- First stage feedback filter queue interface (write operation)
