@@ -339,69 +339,69 @@ architecture struct of flux_loop is
    
    -- Signals Interface between fsfb_corr and flux_loop_ctrl
    signal flux_jumping_en           : std_logic;    
-   signal num_flux_quanta_pres_rdy  : std_logic;                                             
+   signal fj_count_rdy  : std_logic;                                             
    signal fsfb_ctrl_corr_rdy        : std_logic;                                                
    
    signal flux_quanta0              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat0            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count0_new     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat0_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr0           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en0        : std_logic;                                             
 
    signal flux_quanta1              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat1            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count1                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count1_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat1_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr1           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en1        : std_logic;                                             
 
    signal flux_quanta2              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat2            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count2                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count2_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat2_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr2           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en2        : std_logic;                                             
 
    signal flux_quanta3              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat3            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count3                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count3_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat3_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr3           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en3        : std_logic;                                             
 
    signal flux_quanta4              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat4            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count4                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count4_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat4_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr4           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en4        : std_logic;                                             
 
    signal flux_quanta5              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat5            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count5                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count5_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat5_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr5           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en5        : std_logic;                                             
 
    signal flux_quanta6              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat6            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count6                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count6_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat6_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr6           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en6        : std_logic;                                             
 
    signal flux_quanta7              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat7            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal num_flux_quanta_prev7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal num_flux_quanta_pres7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count7                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count7_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat7_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en7        : std_logic;                                             
@@ -571,15 +571,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en0,   
-      flux_quanta_o               => flux_quanta0,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat0,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat0_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev0,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres0,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr0         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en0,   
+      flux_quanta_o             => flux_quanta0,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat0,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat0_rdy,      
+      fj_count_o                => fj_count0,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count0_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr0         
    );
 
    
@@ -642,15 +642,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en1,   
-      flux_quanta_o               => flux_quanta1,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat1,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat1_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev1,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres1,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr1         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en1,   
+      flux_quanta_o             => flux_quanta1,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat1,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat1_rdy,      
+      fj_count_o                => fj_count1,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count1_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr1         
    );
 
 
@@ -713,15 +713,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en2,   
-      flux_quanta_o               => flux_quanta2,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat2,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat2_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev2,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres2,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr2         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en2,   
+      flux_quanta_o             => flux_quanta2,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat2,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat2_rdy,      
+      fj_count_o                => fj_count2,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count2_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr2         
    );
 
    
@@ -784,15 +784,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en3,   
-      flux_quanta_o               => flux_quanta3,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat3,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat3_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev3,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres3,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr3         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en3,   
+      flux_quanta_o             => flux_quanta3,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat3,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat3_rdy,      
+      fj_count_o                => fj_count3,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count3_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr3         
    );
 
    
@@ -855,15 +855,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en4,   
-      flux_quanta_o               => flux_quanta4,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat4,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat4_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev4,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres4,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr4         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en4,   
+      flux_quanta_o             => flux_quanta4,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat4,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat4_rdy,      
+      fj_count_o                => fj_count4,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count4_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr4         
    );
 
    
@@ -926,15 +926,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en5,   
-      flux_quanta_o               => flux_quanta5,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat5,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat5_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev5,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres5,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr5         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en5,   
+      flux_quanta_o             => flux_quanta5,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat5,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat5_rdy,      
+      fj_count_o                => fj_count5,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count5_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr5         
    );
 
    
@@ -997,15 +997,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en6,   
-      flux_quanta_o               => flux_quanta6,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat6,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat6_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev6,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres6,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr6         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en6,   
+      flux_quanta_o             => flux_quanta6,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat6,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat6_rdy,      
+      fj_count_o                => fj_count6,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count6_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr6         
    );
 
    
@@ -1068,15 +1068,15 @@ begin  -- struct
       qterm_decay_bits_i        => qterm_decay_bits,
       
       --  fsfb_corr interface
-      fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en7,   
-      flux_quanta_o               => flux_quanta7,   
-      fsfb_ctrl_dat_o             => fsfb_ctrl_dat7,   
-      fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat7_rdy,      
-      num_flux_quanta_prev_o      => num_flux_quanta_prev7,   
-      num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
-      num_flux_quanta_pres_i      => num_flux_quanta_pres7,   
-      fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
-      fsfb_ctrl_dat_i             => fsfb_ctrl_corr7         
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en7,   
+      flux_quanta_o             => flux_quanta7,   
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat7,   
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat7_rdy,      
+      fj_count_o                => fj_count7,   
+      fj_count_rdy_i            => fj_count_rdy,   
+      fj_count_i                => fj_count7_new,   
+      fsfb_ctrl_dat_rdy_i       => fsfb_ctrl_corr_rdy,   
+      fsfb_ctrl_dat_i           => fsfb_ctrl_corr7         
    );
 
 
@@ -1086,79 +1086,79 @@ begin  -- struct
    i_fsfb_corr: fsfb_corr
    port map (
       -- fsfb_calc interface
-      flux_jumping_en_i          => flux_jumping_en,
-      initialize_window_i        => initialize_window_i,
+      flux_jump_en_i       => flux_jumping_en,
+      initialize_window_i  => initialize_window_i,
 
-      fsfb_ctrl_lock_en0_i        => fsfb_ctrl_lock_en0,
-      fsfb_ctrl_lock_en1_i        => fsfb_ctrl_lock_en1,
-      fsfb_ctrl_lock_en2_i        => fsfb_ctrl_lock_en2,
-      fsfb_ctrl_lock_en3_i        => fsfb_ctrl_lock_en3,
-      fsfb_ctrl_lock_en4_i        => fsfb_ctrl_lock_en4,
-      fsfb_ctrl_lock_en5_i        => fsfb_ctrl_lock_en5,
-      fsfb_ctrl_lock_en6_i        => fsfb_ctrl_lock_en6,
-      fsfb_ctrl_lock_en7_i        => fsfb_ctrl_lock_en7,
+      servo_en0_i          => fsfb_ctrl_lock_en0,
+      servo_en1_i          => fsfb_ctrl_lock_en1,
+      servo_en2_i          => fsfb_ctrl_lock_en2,
+      servo_en3_i          => fsfb_ctrl_lock_en3,
+      servo_en4_i          => fsfb_ctrl_lock_en4,
+      servo_en5_i          => fsfb_ctrl_lock_en5,
+      servo_en6_i          => fsfb_ctrl_lock_en6,
+      servo_en7_i          => fsfb_ctrl_lock_en7,
       
-      flux_quanta0_i             => flux_quanta0,
-      flux_quanta1_i             => flux_quanta1,
-      flux_quanta2_i             => flux_quanta2,
-      flux_quanta3_i             => flux_quanta3,
-      flux_quanta4_i             => flux_quanta4,
-      flux_quanta5_i             => flux_quanta5,
-      flux_quanta6_i             => flux_quanta6,
-      flux_quanta7_i             => flux_quanta7,
+      flux_quanta0_i       => flux_quanta0,
+      flux_quanta1_i       => flux_quanta1,
+      flux_quanta2_i       => flux_quanta2,
+      flux_quanta3_i       => flux_quanta3,
+      flux_quanta4_i       => flux_quanta4,
+      flux_quanta5_i       => flux_quanta5,
+      flux_quanta6_i       => flux_quanta6,
+      flux_quanta7_i       => flux_quanta7,
       
-      num_flux_quanta_prev0_i    => num_flux_quanta_prev0,
-      num_flux_quanta_prev1_i    => num_flux_quanta_prev1,
-      num_flux_quanta_prev2_i    => num_flux_quanta_prev2,
-      num_flux_quanta_prev3_i    => num_flux_quanta_prev3,
-      num_flux_quanta_prev4_i    => num_flux_quanta_prev4,
-      num_flux_quanta_prev5_i    => num_flux_quanta_prev5,
-      num_flux_quanta_prev6_i    => num_flux_quanta_prev6,
-      num_flux_quanta_prev7_i    => num_flux_quanta_prev7,
+      fj_count0_i          => fj_count0,
+      fj_count1_i          => fj_count1,
+      fj_count2_i          => fj_count2,
+      fj_count3_i          => fj_count3,
+      fj_count4_i          => fj_count4,
+      fj_count5_i          => fj_count5,
+      fj_count6_i          => fj_count6,
+      fj_count7_i          => fj_count7,
       
-      fsfb_ctrl_dat0_i           => fsfb_ctrl_dat0,
-      fsfb_ctrl_dat1_i           => fsfb_ctrl_dat1,
-      fsfb_ctrl_dat2_i           => fsfb_ctrl_dat2,
-      fsfb_ctrl_dat3_i           => fsfb_ctrl_dat3,
-      fsfb_ctrl_dat4_i           => fsfb_ctrl_dat4,
-      fsfb_ctrl_dat5_i           => fsfb_ctrl_dat5,
-      fsfb_ctrl_dat6_i           => fsfb_ctrl_dat6,
-      fsfb_ctrl_dat7_i           => fsfb_ctrl_dat7,
+      fsfb_ctrl_dat0_i     => fsfb_ctrl_dat0,
+      fsfb_ctrl_dat1_i     => fsfb_ctrl_dat1,
+      fsfb_ctrl_dat2_i     => fsfb_ctrl_dat2,
+      fsfb_ctrl_dat3_i     => fsfb_ctrl_dat3,
+      fsfb_ctrl_dat4_i     => fsfb_ctrl_dat4,
+      fsfb_ctrl_dat5_i     => fsfb_ctrl_dat5,
+      fsfb_ctrl_dat6_i     => fsfb_ctrl_dat6,
+      fsfb_ctrl_dat7_i     => fsfb_ctrl_dat7,
       
-      fsfb_ctrl_dat_rdy0_i       => fsfb_ctrl_dat0_rdy,
-      fsfb_ctrl_dat_rdy1_i       => fsfb_ctrl_dat1_rdy,
-      fsfb_ctrl_dat_rdy2_i       => fsfb_ctrl_dat2_rdy,
-      fsfb_ctrl_dat_rdy3_i       => fsfb_ctrl_dat3_rdy,
-      fsfb_ctrl_dat_rdy4_i       => fsfb_ctrl_dat4_rdy,
-      fsfb_ctrl_dat_rdy5_i       => fsfb_ctrl_dat5_rdy,
-      fsfb_ctrl_dat_rdy6_i       => fsfb_ctrl_dat6_rdy,
-      fsfb_ctrl_dat_rdy7_i       => fsfb_ctrl_dat7_rdy,
+      fsfb_ctrl_dat_rdy0_i => fsfb_ctrl_dat0_rdy,
+      --fsfb_ctrl_dat_rdy1_i       => open,--fsfb_ctrl_dat1_rdy,
+      --fsfb_ctrl_dat_rdy2_i       => open,--fsfb_ctrl_dat2_rdy,
+      --fsfb_ctrl_dat_rdy3_i       => open,--fsfb_ctrl_dat3_rdy,
+      --fsfb_ctrl_dat_rdy4_i       => open,--fsfb_ctrl_dat4_rdy,
+      --fsfb_ctrl_dat_rdy5_i       => open,--fsfb_ctrl_dat5_rdy,
+      --fsfb_ctrl_dat_rdy6_i       => open,--fsfb_ctrl_dat6_rdy,
+      --fsfb_ctrl_dat_rdy7_i       => open,--fsfb_ctrl_dat7_rdy,
       
-      num_flux_quanta_pres0_o    => num_flux_quanta_pres0,
-      num_flux_quanta_pres1_o    => num_flux_quanta_pres1,
-      num_flux_quanta_pres2_o    => num_flux_quanta_pres2,
-      num_flux_quanta_pres3_o    => num_flux_quanta_pres3,
-      num_flux_quanta_pres4_o    => num_flux_quanta_pres4,
-      num_flux_quanta_pres5_o    => num_flux_quanta_pres5,
-      num_flux_quanta_pres6_o    => num_flux_quanta_pres6,
-      num_flux_quanta_pres7_o    => num_flux_quanta_pres7,
+      fj_count0_o          => fj_count0_new,
+      fj_count1_o          => fj_count1_new,
+      fj_count2_o          => fj_count2_new,
+      fj_count3_o          => fj_count3_new,
+      fj_count4_o          => fj_count4_new,
+      fj_count5_o          => fj_count5_new,
+      fj_count6_o          => fj_count6_new,
+      fj_count7_o          => fj_count7_new,
       
-      num_flux_quanta_pres_rdy_o => num_flux_quanta_pres_rdy,
+      fj_count_rdy_o       => fj_count_rdy,
       
       -- fsfb_ctrl interface
-      fsfb_ctrl_dat0_o           => fsfb_ctrl_corr0,
-      fsfb_ctrl_dat1_o           => fsfb_ctrl_corr1,
-      fsfb_ctrl_dat2_o           => fsfb_ctrl_corr2,
-      fsfb_ctrl_dat3_o           => fsfb_ctrl_corr3,
-      fsfb_ctrl_dat4_o           => fsfb_ctrl_corr4,
-      fsfb_ctrl_dat5_o           => fsfb_ctrl_corr5,
-      fsfb_ctrl_dat6_o           => fsfb_ctrl_corr6,
-      fsfb_ctrl_dat7_o           => fsfb_ctrl_corr7,
-      fsfb_ctrl_dat_rdy_o        => fsfb_ctrl_corr_rdy,
+      fsfb_ctrl_dat0_o     => fsfb_ctrl_corr0,
+      fsfb_ctrl_dat1_o     => fsfb_ctrl_corr1,
+      fsfb_ctrl_dat2_o     => fsfb_ctrl_corr2,
+      fsfb_ctrl_dat3_o     => fsfb_ctrl_corr3,
+      fsfb_ctrl_dat4_o     => fsfb_ctrl_corr4,
+      fsfb_ctrl_dat5_o     => fsfb_ctrl_corr5,
+      fsfb_ctrl_dat6_o     => fsfb_ctrl_corr6,
+      fsfb_ctrl_dat7_o     => fsfb_ctrl_corr7,
+      fsfb_ctrl_dat_rdy_o  => fsfb_ctrl_corr_rdy,
       
       -- Global Signals      
-      clk_i                      => clk_50_i,
-      rst_i                      => rst_i
+      clk_i                => clk_50_i,
+      rst_i                => rst_i
    );
 
 
