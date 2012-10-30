@@ -42,7 +42,7 @@
 -- http://e-mode.phas.ubc.ca/mcewiki/index.php/Data_mode
 --
 -- Revision history:
--- <date $Date: 2011-11-18 00:45:20 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2012-08-13 22:23:51 $> - <text> - <initials $Author: mandana $>
 --
 -----------------------------------------------------------------------------
 
@@ -212,7 +212,7 @@ architecture rtl of wbs_frame_data is
    signal filtfb_error_2_dat  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal filtfb_flx_cnt_dat  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal filtfb_flx_cnt_dat2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal filtfb_flx_cnt_dat3 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+--   signal filtfb_flx_cnt_dat3 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal raw_dat             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal chosen_dat          : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    
