@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.20  2012-01-23 20:53:25  mandana
+-- added qterm to interfaces
+--
 -- Revision 1.19  2010-11-30 19:45:58  mandana
 -- filter_coeff ports reduced to filter_coef_width instead of wb_data_width to help fitting in EP1S40.
 -- reorganized pack files and moved fsfb definitions here to stay compliant with hierarchical pack files
@@ -158,14 +161,14 @@ port (
    dac_dat_en_i               : in  std_logic;
 
    -- Wishbone Slave (wbs) Frame Data signals
-   coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
-   coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-
-   fsfb_addr_i               : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
-   fsfb_dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
-   flux_cnt_ws_dat_o         : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-   filtered_addr_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- filter queue address for wishbone access (read only)
-   filtered_dat_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations for filter queue wishbone access
+   coadded_addr_i             : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+   coadded_dat_o              : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+ 
+   fsfb_addr_i                : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
+   fsfb_dat_o                 : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
+   flux_cnt_ws_dat_o          : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   filtered_addr_i            : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- filter queue address for wishbone access (read only)
+   filtered_dat_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations for filter queue wishbone access
    
    -- Wishbove Slave (wbs) Feedback (fb) Data Signals
    adc_offset_dat_i           : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -211,9 +214,9 @@ port (
    fsfb_ctrl_dat_rdy_o        : out std_logic;                                             -- fs feedback queue previous data ready (uncorrected).  The rdy pulse is also good for num_flux_quanta_prev    
    fsfb_ctrl_lock_en_o        : out std_logic;                                             -- fs feedback lock servo mode enable
     
-   num_flux_quanta_prev_o     : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count            
-   num_flux_quanta_pres_rdy_i : in  std_logic;                                             -- flux quanta present count ready
-   num_flux_quanta_pres_i     : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
+   fj_count_o                 : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count            
+   fj_count_rdy_i             : in  std_logic;                                             -- flux quanta present count ready
+   fj_count_i                 : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
    flux_quanta_o              : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- flux quanta value (formerly known as coeff z)
 
    -- fsfb_ctrl Interface
@@ -322,9 +325,9 @@ begin  -- struct
       fsfb_ctrl_dat_o            => fsfb_ctrl_dat_o,
       fsfb_ctrl_lock_en_o        => fsfb_ctrl_lock_en,
 
-      num_flux_quanta_pres_rdy_i => num_flux_quanta_pres_rdy_i,
-      num_flux_quanta_pres_i     => num_flux_quanta_pres_i,
-      num_flux_quanta_prev_o     => num_flux_quanta_prev_o,
+      num_flux_quanta_pres_rdy_i => fj_count_rdy_i,
+      num_flux_quanta_pres_i     => fj_count_i,
+      num_flux_quanta_prev_o     => fj_count_o,
       flux_quanta_o              => flux_quanta_o
    );
 
