@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr_pack.vhd,v 1.9 2009/01/19 20:23:35 bburger Exp $
+-- $Id: fsfb_corr_pack.vhd,v 1.10 2010/08/04 21:44:53 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr_pack.vhd,v $
+-- Revision 1.10  2010/08/04 21:44:53  bburger
+-- BB: increased the width of the flux-quanta multiplier input by 1 to fix a bug associated with signed multiplications.
+--
 -- Revision 1.9  2009/01/19 20:23:35  bburger
 -- BB:  Merged v1.8.2.3 to head
 --
@@ -101,6 +104,26 @@ package fsfb_corr_pack is
    
    constant FSFB_CLAMP_MAX         : std_logic_vector(SUB_WIDTH-1 downto 0) := sxt(b"01111111111111", SUB_WIDTH); --x1FFF; 2^13-1
    constant FSFB_CLAMP_MIN         : std_logic_vector(SUB_WIDTH-1 downto 0) := sxt(b"10000000000000", SUB_WIDTH); --x2000;-2^13
+
+   constant NUM_COLS               : integer range 0 to (2**COL_ADDR_WIDTH) := 2**COL_ADDR_WIDTH;
+
+   subtype fsfb_dac_word is std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);                -- parallel DAC data
+   type fsfb_dac_array is array (NUM_COLS-1 downto 0) of fsfb_dac_word;                                           -- array of parallel DAC data   
+
+   subtype flux_jump_count_word is std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);                            -- flux-jump counter 
+   type flux_jump_count_array is array (NUM_COLS-1 downto 0) of flux_jump_count_word;                             -- array of flux-jump counters
+
+   subtype flux_quanta_word is std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0);                               -- flux-quanta data
+   type flux_quanta_array is array (NUM_COLS-1 downto 0) of flux_quanta_word;                                     -- array of flux-quanta data
+
+   subtype flux_quanta_xtnd_word is std_logic_vector(FLUX_QUANTA_DATA_WIDTH downto 0);                            -- flux-quanta data prepared for subtract block
+   type flux_quanta_xtnd_array is array (NUM_COLS-1 downto 0) of flux_quanta_xtnd_word;                           -- array of flux-quanta data
+
+   subtype mult_res_word is std_logic_vector(PROD_WIDTH-1 downto 0);                                              -- multiplier result
+   type mult_res_array is array (NUM_COLS-1 downto 0) of mult_res_word;
+   
+   subtype sub_res_word is std_logic_vector(SUB_WIDTH-1 downto 0);                                                -- subtraction result
+   type sub_res_array is array (NUM_COLS-1 downto 0) of sub_res_word;
    
    component fsfb_corr_multiplier is
       port (
