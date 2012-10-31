@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.101 2012-04-30 23:39:10 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.102.2.1 2012-10-31 19:33:03 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -1759,71 +1759,71 @@ begin
 --         tx            => bc1_rs232_tx
       );
 
---   i_addr_card : addr_card
---      port map
---      (
---         -- PLL input:
---         inclk            => lvds_clk,
---         rst_n            => rst_n,
---
---         -- LVDS interface:
---         lvds_cmd         => lvds_cmd,
---         lvds_sync        => lvds_sync,
---         lvds_spare       => lvds_spare,
---         lvds_txa         => lvds_reply_ac_a,
---         lvds_txb         => lvds_reply_ac_b,
---
---         -- TTL interface:
---         ttl_nrx1         => bclr_n,
---         ttl_tx1          => open,
---         ttl_txena1       => ac_ttl_txena1,
---
---         ttl_nrx2         => ac_ttl_nrx2,
---         ttl_tx2          => open,
---         ttl_txena2       => ac_ttl_txena2,
---
---         ttl_nrx3         => ac_ttl_nrx3,
---         ttl_tx3          => open,
---         ttl_txena3       => ac_ttl_txena3,
---
---         -- eeprom interface:
---         eeprom_si        => ac_eeprom_si,
---         eeprom_so        => ac_eeprom_so,
---         eeprom_sck       => ac_eeprom_sck,
---         eeprom_cs        => ac_eeprom_cs,
---
---         -- dac interface:
---         dac_data0        => ac_dac_data0,
---         dac_data1        => ac_dac_data1,
---         dac_data2        => ac_dac_data2,
---         dac_data3        => ac_dac_data3,
---         dac_data4        => ac_dac_data4,
---         dac_data5        => ac_dac_data5,
---         dac_data6        => ac_dac_data6,
---         dac_data7        => ac_dac_data7,
---         dac_data8        => ac_dac_data8,
---         dac_data9        => ac_dac_data9,
---         dac_data10       => ac_dac_data10,
---         dac_clk          => ac_dac_clk,
---
---         -- miscellaneous ports:
---         red_led          => ac_red_led,
---         ylw_led          => ac_ylw_led,
---         grn_led          => ac_grn_led,
---         dip_sw3          => ac_dip_sw3,
---         dip_sw4          => ac_dip_sw4,
---         wdog             => ac_wdog,
---         slot_id          => ac_slot_id,
-----         pcb_rev          => ac_pcb_rev,
---         smb_nalert       => open,
---
---         -- debug ports:
---         test             => ac_test,
---         mictor           => ac_mictor,
---         mictorclk        => ac_mictorclk,
---         rx               => ac_rs232_rx,
---         tx               => ac_rs232_tx
---      );
+   i_addr_card : addr_card
+      port map
+      (
+         -- PLL input:
+         inclk            => lvds_clk,
+         rst_n            => rst_n,
+
+         -- LVDS interface:
+         lvds_cmd         => lvds_cmd,
+         lvds_sync        => lvds_sync,
+         lvds_spare       => lvds_spare,
+         lvds_txa         => lvds_reply_ac_a,
+         lvds_txb         => lvds_reply_ac_b,
+
+         -- TTL interface:
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => open,
+         ttl_txena1       => ac_ttl_txena1,
+
+         ttl_nrx2         => ac_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => ac_ttl_txena2,
+
+         ttl_nrx3         => ac_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => ac_ttl_txena3,
+
+         -- eeprom interface:
+         eeprom_si        => ac_eeprom_si,
+         eeprom_so        => ac_eeprom_so,
+         eeprom_sck       => ac_eeprom_sck,
+         eeprom_cs        => ac_eeprom_cs,
+
+         -- dac interface:
+         dac_data0        => ac_dac_data0,
+         dac_data1        => ac_dac_data1,
+         dac_data2        => ac_dac_data2,
+         dac_data3        => ac_dac_data3,
+         dac_data4        => ac_dac_data4,
+         dac_data5        => ac_dac_data5,
+         dac_data6        => ac_dac_data6,
+         dac_data7        => ac_dac_data7,
+         dac_data8        => ac_dac_data8,
+         dac_data9        => ac_dac_data9,
+         dac_data10       => ac_dac_data10,
+         dac_clk          => ac_dac_clk,
+
+         -- miscellaneous ports:
+         red_led          => ac_red_led,
+         ylw_led          => ac_ylw_led,
+         grn_led          => ac_grn_led,
+         dip_sw3          => ac_dip_sw3,
+         dip_sw4          => ac_dip_sw4,
+         wdog             => ac_wdog,
+         slot_id          => ac_slot_id,
+--         pcb_rev          => ac_pcb_rev,
+         smb_nalert       => open,
+
+         -- debug ports:
+         test             => ac_test,
+         mictor           => ac_mictor,
+         mictorclk        => ac_mictorclk,
+         rx               => ac_rs232_rx,
+         tx               => ac_rs232_tx
+      );
 
    ------------------------------------------------
    -- Create test bench stimuli
@@ -2517,32 +2517,32 @@ begin
 --      load_checksum;
 --      wait for 125 us;
 --
---      command <= command_wb;
---      address_id <= ac_row_order_cmd;
---      data_valid <= X"00000029";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 125 us;
---   
---      command <= command_wb;
---      address_id <= ac_on_bias_cmd;
---      data_valid <= X"00000029";
---      data       <= conv_std_logic_vector(1000, 32);
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 125 us;
---
---      command <= command_wb;
---      address_id <= ac_enbl_mux_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 100 us;
+      command <= command_wb;
+      address_id <= ac_row_order_cmd;
+      data_valid <= X"00000029";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+   
+      command <= command_wb;
+      address_id <= ac_on_bias_cmd;
+      data_valid <= X"00000029";
+      data       <= conv_std_logic_vector(1000, 32);
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
+      command <= command_wb;
+      address_id <= ac_enbl_mux_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
 --
 --      command <= command_wb;
 --      address_id <= ac_enbl_mux_cmd;
