@@ -102,6 +102,7 @@ package system_pack is
       slot_id           : in std_logic_vector(3 downto 0);
       array_id          : in std_logic_vector(2 downto 0);
       card_id           : inout std_logic;
+      pcb_rev           : in std_logic_vector(3 downto 0);      
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
       smb_nalert        : out std_logic;
@@ -345,25 +346,25 @@ package system_pack is
 
          -- DDR2 interface
          -- outputs:
-         mem_addr       : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
-         mem_ba         : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_cas_n      : OUT STD_LOGIC;
-         mem_cke        : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_clk        : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_clk_n      : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_cs_n       : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_dm         : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_dq         : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-         mem_dqs        : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_dqsn       : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-         mem_odt        : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
-         mem_ras_n      : OUT STD_LOGIC;
-         mem_we_n       : OUT STD_LOGIC;
-         pnf            : OUT STD_LOGIC;
-         pnf_per_byte   : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-         test_complete  : OUT STD_LOGIC;
-         test_status    : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-         mictor_clk     : out std_logic -- Implement this!!!
+--         mem_addr       : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
+--         mem_ba         : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+--         mem_cas_n      : OUT STD_LOGIC;
+--         mem_cke        : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+--         mem_clk        : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+--         mem_clk_n      : INOUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+         mem_cs_n       : OUT STD_LOGIC_VECTOR (0 DOWNTO 0)
+--         mem_dm         : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+--         mem_dq         : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+--         mem_dqs        : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+--         mem_dqsn       : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+--         mem_odt        : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
+--         mem_ras_n      : OUT STD_LOGIC;
+--         mem_we_n       : OUT STD_LOGIC;
+--         pnf            : OUT STD_LOGIC;
+--         pnf_per_byte   : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+--         test_complete  : OUT STD_LOGIC;
+--         test_status    : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+--         mictor_clk     : out std_logic -- Implement this!!!
       );  
    end component;
 
