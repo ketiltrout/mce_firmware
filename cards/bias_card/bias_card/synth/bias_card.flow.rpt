@@ -1,5 +1,5 @@
 Flow report for bias_card
-Tue Aug 21 12:30:15 2012
+Thu Dec 20 12:38:44 2012
 Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 
 
@@ -38,14 +38,14 @@ applicable agreement for further details.
 +----------------------------------------------------------------------------+
 ; Flow Summary                                                               ;
 +---------------------------+------------------------------------------------+
-; Flow Status               ; Analyzed - Tue Aug 21 12:30:15 2012            ;
+; Flow Status               ; Analyzed - Thu Dec 20 12:38:44 2012            ;
 ; Quartus II 64-Bit Version ; 11.1 Build 259 01/25/2012 SP 2 SJ Full Version ;
 ; Revision Name             ; bias_card                                      ;
 ; Top-level Entity Name     ; bias_card                                      ;
 ; Family                    ; Stratix                                        ;
 ; Device                    ; EP1S10F780C5                                   ;
 ; Timing Models             ; Final                                          ;
-; Total logic elements      ; 7,355 / 10,570 ( 70 % )                        ;
+; Total logic elements      ; 7,394 / 10,570 ( 70 % )                        ;
 ; Total pins                ; 211 / 427 ( 49 % )                             ;
 ; Total virtual pins        ; 0                                              ;
 ; Total memory bits         ; 133,120 / 920,448 ( 14 % )                     ;
@@ -60,53 +60,52 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 08/21/2012 12:26:51 ;
+; Start date & time ; 12/20/2012 12:35:22 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
 
 
-+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Flow Non-Default Global Settings                                                                                                                                         ;
-+---------------------------------------------------+------------------------------------------------------+--------------------------------+-------------+----------------+
-; Assignment Name                                   ; Value                                                ; Default Value                  ; Entity Name ; Section Id     ;
-+---------------------------------------------------+------------------------------------------------------+--------------------------------+-------------+----------------+
-; ADV_NETLIST_OPT_SYNTH_GATE_RETIME                 ; On                                                   ; Off                            ; --          ; --             ;
-; ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP               ; On                                                   ; Off                            ; --          ; --             ;
-; AUTO_ENABLE_SMART_COMPILE                         ; Off                                                  ; --                             ; --          ; --             ;
-; AUTO_PACKED_REGISTERS                             ; Normal                                               ; Off                            ; --          ; --             ;
-; AUTO_PACKED_REGISTERS_CYCLONE                     ; Normal                                               ; Auto                           ; --          ; --             ;
-; AUTO_PACKED_REGISTERS_MAXII                       ; Normal                                               ; Auto                           ; --          ; --             ;
-; AUTO_PACKED_REGISTERS_STRATIX                     ; Normal                                               ; Auto                           ; --          ; --             ;
-; AUTO_PACKED_REGISTERS_STRATIXII                   ; Normal                                               ; Auto                           ; --          ; --             ;
-; COMPILER_SIGNATURE_ID                             ; 167739110428.134557721004480                         ; --                             ; --          ; --             ;
-; DO_COMBINED_ANALYSIS                              ; On                                                   ; Off                            ; --          ; --             ;
-; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; On                                                   ; --                             ; --          ; eda_simulation ;
-; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION        ; On                                                   ; --                             ; --          ; eda_simulation ;
-; EDA_MAP_ILLEGAL_CHARACTERS                        ; On                                                   ; --                             ; --          ; eda_simulation ;
-; EDA_OUTPUT_DATA_FORMAT                            ; Vhdl                                                 ; --                             ; --          ; eda_simulation ;
-; ENABLE_CLOCK_LATENCY                              ; On                                                   ; Off                            ; --          ; --             ;
-; ENABLE_DRC_SETTINGS                               ; On                                                   ; Off                            ; --          ; --             ;
-; ENABLE_RECOVERY_REMOVAL_ANALYSIS                  ; On                                                   ; Off                            ; --          ; --             ;
-; ENABLE_SIGNALTAP                                  ; Off                                                  ; --                             ; --          ; --             ;
-; IGNORE_LCELL_BUFFERS                              ; On                                                   ; Off                            ; --          ; --             ;
-; MISC_FILE                                         ; C:/mce/cards/bias_card/bias_card/synth/bias_card.dpf ; --                             ; --          ; --             ;
-; MUX_RESTRUCTURE                                   ; Off                                                  ; Auto                           ; --          ; --             ;
-; OPTIMIZE_HOLD_TIMING                              ; All Paths                                            ; IO Paths and Minimum TPD Paths ; --          ; --             ;
-; OPTIMIZE_MULTI_CORNER_TIMING                      ; On                                                   ; Off                            ; --          ; --             ;
-; PARTITION_COLOR                                   ; 16764057                                             ; --                             ; --          ; Top            ;
-; PARTITION_FITTER_PRESERVATION_LEVEL               ; PLACEMENT_AND_ROUTING                                ; --                             ; --          ; Top            ;
-; PARTITION_NETLIST_TYPE                            ; SOURCE                                               ; --                             ; --          ; Top            ;
-; PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ; On                                                   ; Off                            ; --          ; --             ;
-; PHYSICAL_SYNTHESIS_COMBO_LOGIC                    ; On                                                   ; Off                            ; --          ; --             ;
-; PHYSICAL_SYNTHESIS_EFFORT                         ; Extra                                                ; Normal                         ; --          ; --             ;
-; PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION           ; On                                                   ; Off                            ; --          ; --             ;
-; PHYSICAL_SYNTHESIS_REGISTER_RETIMING              ; On                                                   ; Off                            ; --          ; --             ;
-; SAFE_STATE_MACHINE                                ; On                                                   ; Off                            ; --          ; --             ;
-; STATE_MACHINE_PROCESSING                          ; One-Hot                                              ; Auto                           ; --          ; --             ;
-; STRATIX_OPTIMIZATION_TECHNIQUE                    ; Speed                                                ; Balanced                       ; --          ; --             ;
-; USE_SIGNALTAP_FILE                                ; bias_card.stp                                        ; --                             ; --          ; --             ;
-+---------------------------------------------------+------------------------------------------------------+--------------------------------+-------------+----------------+
++--------------------------------------------------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                                                                 ;
++---------------------------------------------------+------------------------------+--------------------------------+-------------+----------------+
+; Assignment Name                                   ; Value                        ; Default Value                  ; Entity Name ; Section Id     ;
++---------------------------------------------------+------------------------------+--------------------------------+-------------+----------------+
+; ADV_NETLIST_OPT_SYNTH_GATE_RETIME                 ; On                           ; Off                            ; --          ; --             ;
+; ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP               ; On                           ; Off                            ; --          ; --             ;
+; AUTO_ENABLE_SMART_COMPILE                         ; Off                          ; --                             ; --          ; --             ;
+; AUTO_PACKED_REGISTERS                             ; Normal                       ; Off                            ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_CYCLONE                     ; Normal                       ; Auto                           ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_MAXII                       ; Normal                       ; Auto                           ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_STRATIX                     ; Normal                       ; Auto                           ; --          ; --             ;
+; AUTO_PACKED_REGISTERS_STRATIXII                   ; Normal                       ; Auto                           ; --          ; --             ;
+; COMPILER_SIGNATURE_ID                             ; 167739110428.135603572105216 ; --                             ; --          ; --             ;
+; DO_COMBINED_ANALYSIS                              ; On                           ; Off                            ; --          ; --             ;
+; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; On                           ; --                             ; --          ; eda_simulation ;
+; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION        ; On                           ; --                             ; --          ; eda_simulation ;
+; EDA_MAP_ILLEGAL_CHARACTERS                        ; On                           ; --                             ; --          ; eda_simulation ;
+; EDA_OUTPUT_DATA_FORMAT                            ; Vhdl                         ; --                             ; --          ; eda_simulation ;
+; ENABLE_CLOCK_LATENCY                              ; On                           ; Off                            ; --          ; --             ;
+; ENABLE_DRC_SETTINGS                               ; On                           ; Off                            ; --          ; --             ;
+; ENABLE_RECOVERY_REMOVAL_ANALYSIS                  ; On                           ; Off                            ; --          ; --             ;
+; ENABLE_SIGNALTAP                                  ; Off                          ; --                             ; --          ; --             ;
+; IGNORE_LCELL_BUFFERS                              ; On                           ; Off                            ; --          ; --             ;
+; MUX_RESTRUCTURE                                   ; Off                          ; Auto                           ; --          ; --             ;
+; OPTIMIZE_HOLD_TIMING                              ; All Paths                    ; IO Paths and Minimum TPD Paths ; --          ; --             ;
+; OPTIMIZE_MULTI_CORNER_TIMING                      ; On                           ; Off                            ; --          ; --             ;
+; PARTITION_COLOR                                   ; 16764057                     ; --                             ; --          ; Top            ;
+; PARTITION_FITTER_PRESERVATION_LEVEL               ; PLACEMENT_AND_ROUTING        ; --                             ; --          ; Top            ;
+; PARTITION_NETLIST_TYPE                            ; SOURCE                       ; --                             ; --          ; Top            ;
+; PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ; On                           ; Off                            ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_COMBO_LOGIC                    ; On                           ; Off                            ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_EFFORT                         ; Extra                        ; Normal                         ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION           ; On                           ; Off                            ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_REGISTER_RETIMING              ; On                           ; Off                            ; --          ; --             ;
+; SAFE_STATE_MACHINE                                ; On                           ; Off                            ; --          ; --             ;
+; STATE_MACHINE_PROCESSING                          ; One-Hot                      ; Auto                           ; --          ; --             ;
+; STRATIX_OPTIMIZATION_TECHNIQUE                    ; Speed                        ; Balanced                       ; --          ; --             ;
+; USE_SIGNALTAP_FILE                                ; bias_card.stp                ; --                             ; --          ; --             ;
++---------------------------------------------------+------------------------------+--------------------------------+-------------+----------------+
 
 
 +-------------------------------------------------------------------------------------------------------------------------------+
@@ -114,12 +113,12 @@ applicable agreement for further details.
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis      ; 00:00:42     ; 1.0                     ; 512 MB              ; 00:00:42                           ;
-; Fitter                    ; 00:02:24     ; 1.6                     ; 698 MB              ; 00:02:37                           ;
-; Assembler                 ; 00:00:02     ; 1.0                     ; 402 MB              ; 00:00:02                           ;
-; TimeQuest Timing Analyzer ; 00:00:04     ; 1.4                     ; 431 MB              ; 00:00:04                           ;
-; Design Assistant          ; 00:00:06     ; 1.0                     ; 398 MB              ; 00:00:05                           ;
-; Total                     ; 00:03:18     ; --                      ; --                  ; 00:03:30                           ;
+; Analysis & Synthesis      ; 00:00:43     ; 1.0                     ; 516 MB              ; 00:00:43                           ;
+; Fitter                    ; 00:02:21     ; 1.5                     ; 703 MB              ; 00:02:34                           ;
+; Assembler                 ; 00:00:02     ; 1.0                     ; 407 MB              ; 00:00:02                           ;
+; TimeQuest Timing Analyzer ; 00:00:04     ; 1.4                     ; 435 MB              ; 00:00:04                           ;
+; Design Assistant          ; 00:00:06     ; 1.0                     ; 401 MB              ; 00:00:06                           ;
+; Total                     ; 00:03:16     ; --                      ; --                  ; 00:03:29                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

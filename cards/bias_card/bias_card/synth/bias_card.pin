@@ -714,14 +714,14 @@ GND+                         : R27       :        :                   :         
 GND                          : R28       : gnd    :                   :         :           :                
 RESERVED_INPUT               : T1        :        :                   :         : 6         :                
 GND+                         : T2        :        :                   :         : 6         :                
-lvds_dac_ncs[11]             : T3        : output : LVDS              :         : 6         : Y              
-lvds_dac_ncs[11](n)          : T4        : output : LVDS              :         : 6         : N              
-lvds_dac_ncs[9]              : T5        : output : LVDS              :         : 6         : Y              
-lvds_dac_ncs[9](n)           : T6        : output : LVDS              :         : 6         : N              
+RESERVED_INPUT               : T3        :        :                   :         : 6         :                
+RESERVED_INPUT               : T4        :        :                   :         : 6         :                
+lvds_dac_sclk                : T5        : output : LVDS              :         : 6         : Y              
+lvds_dac_sclk(n)             : T6        : output : LVDS              :         : 6         : N              
 lvds_dac_ncs[8](n)           : T7        : output : LVDS              :         : 6         : N              
 lvds_dac_ncs[8]              : T8        : output : LVDS              :         : 6         : Y              
-lvds_dac_sclk                : T9        : output : LVDS              :         : 6         : Y              
-lvds_dac_sclk(n)             : T10       : output : LVDS              :         : 6         : Y              
+lvds_dac_ncs[9]              : T9        : output : LVDS              :         : 6         : Y              
+lvds_dac_ncs[9](n)           : T10       : output : LVDS              :         : 6         : N              
 GND                          : T11       : gnd    :                   :         :           :                
 VCCINT                       : T12       : power  :                   : 1.5V    :           :                
 GND                          : T13       : gnd    :                   :         :           :                
@@ -748,8 +748,8 @@ lvds_dac_data                : U5        : output : LVDS              :         
 lvds_dac_data(n)             : U6        : output : LVDS              :         : 6         : N              
 RESERVED_INPUT               : U7        :        :                   :         : 6         :                
 RESERVED_INPUT               : U8        :        :                   :         : 6         :                
-RESERVED_INPUT               : U9        :        :                   :         : 6         :                
-RESERVED_INPUT               : U10       :        :                   :         : 6         :                
+lvds_dac_ncs[11](n)          : U9        : output : LVDS              :         : 6         : N              
+lvds_dac_ncs[11]             : U10       : output : LVDS              :         : 6         : Y              
 VCCINT                       : U11       : power  :                   : 1.5V    :           :                
 GND                          : U12       : gnd    :                   :         :           :                
 VCCINT                       : U13       : power  :                   : 1.5V    :           :                
