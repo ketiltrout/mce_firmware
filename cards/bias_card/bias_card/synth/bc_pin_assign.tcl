@@ -32,6 +32,10 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.9  2012-08-21 22:10:47  mandana
+# fixed syntax error on card_id, perhaps didn't work on previous versions.
+# adjusted for Rev. E with proper comments
+#
 # Revision 1.8  2011-11-29 01:07:14  mandana
 # minor change
 #
@@ -115,7 +119,7 @@
 
 # print welcome message
 puts "\n\nBias Card Pin Assignment Script v4.1"	
-puts "\n compatible for Rev. E pin assignment (Rev. D and Rev. F are commented"
+puts "\n compatible for Rev. F pin assignment (Rev. D and Rev. E are commented"
 puts     "-----------------------------------------------------------------------"
 
 
@@ -330,10 +334,10 @@ puts "   Assigned: Mictor header pins."
 #
 # assign DAC clocks	
 
-#set_location_assignment Pin_T5 -to lvds_dac_sclk
+set_location_assignment Pin_T5 -to lvds_dac_sclk
 
 # T9 is lvds_dac_sclk only in Rev. E, pin unused in Rev. D, ncs09 in rev F
-set_location_assignment Pin_T9 -to lvds_dac_sclk 
+#set_location_assignment Pin_T9 -to lvds_dac_sclk 
 
 set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_sclk
 
@@ -391,15 +395,15 @@ set_instance_assignment -name IO_STANDARD LVDS -to "lvds_dac_ncs\[2\]"
 set_instance_assignment -name IO_STANDARD LVDS -to "lvds_dac_ncs\[1\]"
 set_instance_assignment -name IO_STANDARD LVDS -to "lvds_dac_ncs\[0\]"
 
-#set_location_assignment Pin_U10 -to "lvds_dac_ncs\[11\]"
+set_location_assignment Pin_U10 -to "lvds_dac_ncs\[11\]"
 # T3 is valid for lvds_dac_ncs11 Only in Rev. E
-set_location_assignment Pin_T3 -to "lvds_dac_ncs\[11\]"
+#set_location_assignment Pin_T3 -to "lvds_dac_ncs\[11\]"
 
 set_location_assignment Pin_N3 -to "lvds_dac_ncs\[10\]"
 
-#set_location_assignment Pin_T9 -to "lvds_dac_ncs\[9\]"
+set_location_assignment Pin_T9 -to "lvds_dac_ncs\[9\]"
 # T5 is valid for lvds_dac_ncs9 Only in Rev. E
-set_location_assignment Pin_T5 -to "lvds_dac_ncs\[9\]"
+#set_location_assignment Pin_T5 -to "lvds_dac_ncs\[9\]"
 
 set_location_assignment Pin_T8 -to "lvds_dac_ncs\[8\]"
 set_location_assignment Pin_W6 -to "lvds_dac_ncs\[7\]"
