@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_pack.vhd,v 1.9 2010/06/02 17:40:58 mandana Exp $
+-- $Id: bc_dac_ctrl_pack.vhd,v 1.10 2011-11-29 00:55:44 mandana Exp $
 --
 
 -- Project:       SCUBA2
@@ -31,6 +31,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_pack.vhd,v $
+-- Revision 1.10  2011-11-29 00:55:44  mandana
+-- ln_bias_changed changed to std_logic_vector, one bit per DAC
+--
 -- Revision 1.9  2010/06/02 17:40:58  mandana
 -- flux_fb_changed flag is now defined as 1 bit per column
 -- 1row_prev is added to the interface
@@ -78,6 +81,8 @@ library work;
 use work.bias_card_pack.all;
 
 package bc_dac_ctrl_pack is
+
+constant DAC_CYCLE_COUNT_MAX         : integer := 44; -- number of clock cycles to refresh one LN_BIAS DAC, they are refreshed sequentially due to shared data/clock lines
 
 component bc_dac_ctrl_core
    port
