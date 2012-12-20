@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.16 2012-03-26 21:55:15 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.17 2012-04-13 18:08:05 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -36,6 +36,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.17  2012-04-13 18:08:05  mandana
+-- mod_val takes 1 value now
+--
 -- Revision 1.16  2012-03-26 21:55:15  mandana
 -- added enbl_bias_mod, enbl_flux_fb_mod, mod_val
 --
@@ -189,6 +192,7 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal ram_addr_int     : integer range 0 to NUM_FLUX_FB_DACS-1 := 0;
    signal ln_bias_ram_addr_int: integer range 0 to 2**LN_BIAS_DAC_ADDR_WIDTH-1 := 0;
    signal ln_bias_ram_raddr_int: integer range 0 to 2**LN_BIAS_DAC_ADDR_WIDTH-1 := 0;
+   signal ln_bias_addr_1d  : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
    
    -- used for generating wishbone ack 
    signal addr_qualifier   : std_logic;
@@ -395,7 +399,15 @@ begin
    
    -- Note that one is the wishbone read/write address and the other is the read address for refreshing DACs
    ln_bias_ram_addr_int <= conv_integer(ram_addr(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0)); 
-   ln_bias_ram_raddr_int <= conv_integer(ln_bias_addr_i);
+   ln_bias_addr_reg: process(clk_i, rst_i)
+   begin
+     if(rst_i = '1') then
+       ln_bias_addr_1d <= (others => '0');            
+     elsif(clk_i'event and clk_i = '1') then
+         ln_bias_addr_1d <= ln_bias_addr_i;
+     end if;
+   end process ln_bias_addr_reg;                  
+   ln_bias_ram_raddr_int <= conv_integer(ln_bias_addr_1d);
    
    ------------------------------------------------------------
    -- generate flux_fb_changed_o and ln_bias_changed_o
@@ -410,10 +422,10 @@ begin
      end case;
    end process i_gen_bias_changed;
    ln_bias_changed_o <= ln_bias_changed(ln_bias_changed_o'length-1 downto 0) or 
-                        (ext(vectorize(mod_val_wren), ln_bias_changed_o'length) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0)) or
+                        (sxt(vectorize(mod_val_wren), ln_bias_changed_o'length) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0)) or
                         (enbl_ln_bias_mod_wren(ln_bias_changed_o'length-1 downto 0) and enbl_ln_bias_mod_data(ln_bias_changed_o'length-1 downto 0));   
    flux_fb_changed_o <= flux_fb_wren or 
-                        (ext(vectorize(mod_val_wren), flux_fb_changed_o'length) and enbl_flux_fb_mod_data) or
+                        (sxt(vectorize(mod_val_wren), flux_fb_changed_o'length) and enbl_flux_fb_mod_data) or
                         (enbl_flux_fb_mod_wren and enbl_flux_fb_mod_data); 
                         --'1' when ((addr_i = FLUX_FB_ADDR or addr_i = FLUX_FB_UPPER_ADDR) and cyc_i = '1' and we_i = '1') else '0';
  
