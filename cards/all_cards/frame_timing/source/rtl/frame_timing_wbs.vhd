@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.8 2006/05/29 23:11:00 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.9 2009/01/16 01:34:26 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.9  2009/01/16 01:34:26  bburger
+-- BB: Added registers and wishbone logic for num_rows_reported and num_cols_reported.
+--
 -- Revision 1.8  2006/05/29 23:11:00  bburger
 -- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
 --
@@ -106,6 +109,8 @@ entity frame_timing_wbs is
       init_window_req_o   : out std_logic;
       fltr_rst_ack_i      : in std_logic; 
       fltr_rst_req_o      : out std_logic; 
+      servo_rst_ack_i     : in std_logic; 
+      servo_rst_req_o     : out std_logic; 
 
       -- wishbone interface:
       dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -153,6 +158,8 @@ architecture rtl of frame_timing_wbs is
    signal num_rows_to_read_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal num_cols_to_read_wren : std_logic;
    signal num_cols_to_read_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal servo_rst_req_wren    : std_logic;
+   signal servo_rst_req_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
    type states is (IDLE, WR, RD); 
@@ -172,6 +179,8 @@ begin
    resync_req_o       <= '0' when resync_req_data      = x"00000000" else '1';      
    init_window_req_o  <= '0' when init_window_req_data = x"00000000" else '1';   
    fltr_rst_req_o     <= '0' when fltr_rst_req_data    = x"00000000" else '1';   
+   servo_rst_req_o    <= '0' when servo_rst_req_data   = x"00000000" else '1';   
+   
    
    -- Custom register that gets set to MUX_LINE_PERIOD upon reset
    row_len_reg: process(clk_i, rst_i)
@@ -299,6 +308,21 @@ begin
       end if;
    end process init_window_req_reg;
 
+   servo_rst_req_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         servo_rst_req_data <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(servo_rst_ack_i = '1') then
+            servo_rst_req_data <= (others => '0');
+         elsif(servo_rst_ack_i /= '1' and servo_rst_req_wren = '1') then
+            servo_rst_req_data <= dat_i;
+         else
+            servo_rst_req_data <= servo_rst_req_data;
+         end if;
+      end if;
+   end process servo_rst_req_reg;
+
    fltr_rst_req_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -372,8 +396,9 @@ begin
       resync_req_wren       <= '0';
       init_window_req_wren  <= '0';
       fltr_rst_req_wren     <= '0';
-      num_rows_to_read_wren  <= '0';
-      num_cols_to_read_wren  <= '0';
+      num_rows_to_read_wren <= '0';
+      num_cols_to_read_wren <= '0';
+      servo_rst_req_wren    <= '0';
       
       case current_state is         
          when IDLE  =>                   
@@ -404,6 +429,8 @@ begin
                   num_rows_to_read_wren <= '1';
                elsif(addr_i = NUM_COLS_REPORTED_ADDR) then
                   num_cols_to_read_wren <= '1';
+               elsif(addr_i = SERVO_RST_ARM_ADDR) then
+                  servo_rst_req_wren <= '1';                  
                end if;
             end if;
          
@@ -426,6 +453,7 @@ begin
 --  constant RESYNC_ADDR       
 --  constant FLX_LP_INIT_ADDR
 --  constant FLTR_RST_ADDR
+--  constant SERVO_RST_ARM_ADDR
 ------------------------------------------------------------
   
    with addr_i select dat_o <=
@@ -440,16 +468,17 @@ begin
       resync_req_data       when RESYNC_ADDR,
       init_window_req_data  when FLX_LP_INIT_ADDR,
       fltr_rst_req_data     when FLTR_RST_ADDR,
+      servo_rst_req_data    when SERVO_RST_ARM_ADDR,
       (others => '0') when others;
    
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
       (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or addr_i = NUM_ROWS_REPORTED_ADDR or addr_i = NUM_COLS_REPORTED_ADDR or
-       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR) else '0'; 
+       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR or addr_i = SERVO_RST_ARM_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
       (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or addr_i = NUM_ROWS_REPORTED_ADDR or addr_i = NUM_COLS_REPORTED_ADDR or
-       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR) else '0'; 
+       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR or addr_i = SERVO_RST_ARM_ADDR) else '0'; 
       
 end rtl;

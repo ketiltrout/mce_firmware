@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.20 2011-10-26 18:03:15 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.21 2012-09-07 19:49:28 mandana Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2011-10-26 18:03:15 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2012-09-07 19:49:28 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.21  2012-09-07 19:49:28  mandana
+-- moved components declaration to pack file
+--
 -- Revision 1.20  2011-10-26 18:03:15  mandana
 -- update_bias changed to 1 to initiate the clocking of DACs in preparation for the next row.
 --
@@ -185,6 +188,7 @@ package frame_timing_pack is
          restart_frame_1row_post_o  : out std_logic;
          initialize_window_o        : out std_logic;
          fltr_rst_o                 : out std_logic;
+         servo_rst_window_o         : out std_logic;
          sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
          
          -- Address Card interface
@@ -208,6 +212,8 @@ package frame_timing_pack is
          init_window_ack_o          : out std_logic; -- not used yet
          fltr_rst_ack_o             : out std_logic; 
          fltr_rst_req_i             : in std_logic; 
+         servo_rst_req_i            : in std_logic;
+         servo_rst_ack_o            : out std_logic; -- not used yet
          
          -- Global signals
          clk_i                      : in std_logic;
@@ -235,6 +241,8 @@ package frame_timing_pack is
          init_window_req_o   : out std_logic;
          fltr_rst_ack_i      : in std_logic; 
          fltr_rst_req_o      : out std_logic; 
+         servo_rst_ack_i     : in std_logic;
+         servo_rst_req_o   : out std_logic;
 
          -- wishbone interface:
          dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);

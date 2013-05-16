@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.16 2010/06/01 21:10:08 mandana Exp $
+-- $Id: frame_timing_core.vhd,v 1.17 2011-05-11 21:28:49 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.17  2011-05-11 21:28:49  bburger
+-- BB:  Corrected a timing comment
+--
 -- Revision 1.16  2010/06/01 21:10:08  mandana
 -- update_bias _o is now asserted certain clock cycles prior to row switch
 --
@@ -118,6 +121,7 @@ entity frame_timing_core is
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
+      servo_rst_window_o         : out std_logic;
       sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- Address Card interface
@@ -141,6 +145,8 @@ entity frame_timing_core is
       init_window_ack_o          : out std_logic; -- not used yet
       fltr_rst_ack_o             : out std_logic;
       fltr_rst_req_i             : in std_logic;
+      servo_rst_req_i            : in std_logic;
+      servo_rst_ack_o            : out std_logic; -- not used yet
 
       -- Debug interface
       error_o                    : out std_logic;
@@ -162,6 +168,7 @@ architecture beh of frame_timing_core is
    -- This is the length of a frame (row_len * num_rows)
    signal frame_count_int         : integer range 0 to 2147483647;
    signal frame_count_new         : integer range 0 to 2147483647; 
+   signal servo_rst_sync_count    : integer range 0 to 3;
    
    -- These are one-behind and two_behind versions of the variables above.
    signal frame_count_a           : integer range 0 to 2147483647;
@@ -186,7 +193,7 @@ architecture beh of frame_timing_core is
    type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);
    signal current_state, next_state : states;
 
-   type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, RESET_ON, RESET_HOLD, SET, SET_HOLD);
+   type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, FLTR_RST_ON, FLTR_RST_HOLD, SERVO_RST_ON, SERVO_RST_HOLD,SET, SET_HOLD);
    signal current_init_win_state, next_init_win_state : init_win_states;
 
 begin
@@ -285,7 +292,7 @@ begin
       end if;
    end process init_win_state_FF;
 
-   init_win_state_NS: process(current_init_win_state, sync_received, init_window_req_i, fltr_rst_req_i)
+   init_win_state_NS: process(current_init_win_state, sync_received, init_window_req_i, fltr_rst_req_i, servo_rst_req_i, servo_rst_sync_count)
    begin
       next_init_win_state <= current_init_win_state;
 
@@ -299,7 +306,10 @@ begin
                if(init_window_req_i = '1') then
                   next_init_win_state <= INIT_ON;
                elsif(fltr_rst_req_i = '1') then
-                  next_init_win_state <= RESET_ON;
+                  next_init_win_state <= FLTR_RST_ON;
+               elsif(servo_rst_req_i = '1') then
+                  next_init_win_state <= SERVO_RST_ON;
+                  
                end if;
             end if;
 
@@ -311,16 +321,25 @@ begin
                next_init_win_state <= INIT_OFF;
             end if;
 
-         when RESET_ON =>
-            next_init_win_state <= RESET_HOLD;
+         when FLTR_RST_ON =>
+            next_init_win_state <= FLTR_RST_HOLD;
 
-         when RESET_HOLD =>
+         when FLTR_RST_HOLD =>
             if(sync_received = '1') then
                next_init_win_state <= INIT_OFF;
             end if;
 
+         when SERVO_RST_ON =>
+            next_init_win_state <= SERVO_RST_HOLD;
+
+         when SERVO_RST_HOLD =>
+--            if(sync_received = '1') then
+            if (servo_rst_sync_count = 2) then
+               next_init_win_state <= INIT_OFF;
+            end if;
+
          when INIT_OFF =>
-            if(init_window_req_i = '1' or fltr_rst_req_i = '1') then
+            if(init_window_req_i = '1' or fltr_rst_req_i = '1' or servo_rst_req_i = '1') then
                if(sync_received = '1') then
                   next_init_win_state <= SET;
                else
@@ -339,9 +358,12 @@ begin
       init_window_ack_o   <= '0';
       fltr_rst_o          <= '0';
       fltr_rst_ack_o      <= '0';
-
+      servo_rst_window_o  <= '0';
+      servo_rst_ack_o     <= '0';
+      servo_rst_sync_count<=  0;
+      
       case current_init_win_state is
-         when SET =>
+         when SET => 
 
          when SET_HOLD =>
 
@@ -355,14 +377,27 @@ begin
                init_window_ack_o <= '1';
             end if;
 
-         when RESET_ON =>
+         when FLTR_RST_ON =>
             fltr_rst_o <= '1';
 
-         when RESET_HOLD =>
+         when FLTR_RST_HOLD =>
             fltr_rst_o <= '1';
 
             if(sync_received = '1') then
                fltr_rst_ack_o    <= '1';
+            end if;
+
+         when SERVO_RST_ON =>
+            fltr_rst_o <= '1';
+
+         when SERVO_RST_HOLD =>
+            servo_rst_window_o <= '1';
+
+            if(sync_received = '1') then
+               servo_rst_ack_o      <= '1';
+               servo_rst_sync_count <= servo_rst_sync_count + 1;
+            else
+               servo_rst_sync_count <= servo_rst_sync_count;
             end if;
 
          when INIT_OFF =>

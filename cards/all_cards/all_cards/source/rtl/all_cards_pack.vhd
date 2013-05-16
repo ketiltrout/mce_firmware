@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2011-11-29 00:00:17 $>    - <initials $Author: mandana $>
+-- <date $Date: 2012-02-17 22:48:21 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.14  2012-02-17 22:48:21  mandana
+-- merge led pack into all_cards pack
+--
 -- Revision 1.13  2011-11-29 00:00:17  mandana
 -- added reset_clr to support critical_error_rst and dev_clr commands
 --
@@ -201,6 +204,7 @@ package all_cards_pack is
          restart_frame_aligned_o    : out std_logic;
          restart_frame_1row_post_o  : out std_logic;
          initialize_window_o        : out std_logic;
+         servo_rst_window_o         : out std_logic;
          fltr_rst_o                 : out std_logic;
          sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
          row_len_o                  : out integer;

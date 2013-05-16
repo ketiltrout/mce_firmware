@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.11 2009/09/14 20:02:41 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.12 2012-09-07 19:49:28 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.12  2012-09-07 19:49:28  mandana
+-- moved components declaration to pack file
+--
 -- Revision 1.11  2009/09/14 20:02:41  bburger
 -- BB: added the row_count_o interface for the Address Card row-specific BIAS_START command
 --
@@ -94,6 +97,7 @@ entity frame_timing is
       restart_frame_aligned_o    : out std_logic; 
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
+      servo_rst_window_o         : out std_logic;
       fltr_rst_o                 : out std_logic;
       sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       row_len_o                  : out integer;
@@ -141,6 +145,8 @@ architecture beh of frame_timing is
    signal init_window_ack       : std_logic; -- not used yet
    signal fltr_rst_ack          : std_logic; 
    signal fltr_rst_req          : std_logic; 
+   signal servo_rst_req         : std_logic;
+   signal servo_rst_ack         : std_logic; -- not used yet
 
 begin
    
@@ -163,6 +169,8 @@ begin
          init_window_req_o  => init_window_req, 
          fltr_rst_ack_i     => fltr_rst_ack, 
          fltr_rst_req_o     => fltr_rst_req, 
+         servo_rst_ack_i    => servo_rst_ack, 
+         servo_rst_req_o    => servo_rst_req, 
                             
          dat_i              => dat_i, 
          addr_i             => addr_i,
@@ -186,6 +194,7 @@ begin
          restart_frame_aligned_o   => restart_frame_aligned_o,  
          restart_frame_1row_post_o => restart_frame_1row_post_o,
          initialize_window_o       => initialize_window_o,
+         servo_rst_window_o        => servo_rst_window_o,
          fltr_rst_o                => fltr_rst_o,
          sync_num_o                => sync_num_o,
                                   
@@ -210,6 +219,8 @@ begin
          init_window_ack_o         => init_window_ack,
          fltr_rst_ack_o            => fltr_rst_ack, 
          fltr_rst_req_i            => fltr_rst_req, 
+         servo_rst_req_i           => servo_rst_req, 
+         servo_rst_ack_o           => servo_rst_ack,
                                  
          -- Global signals       
          clk_i                     => clk_i,
