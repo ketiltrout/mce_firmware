@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.12  2012-01-23 20:36:22  mandana
+-- added qterm support
+--
 -- Revision 1.11  2011-10-27 21:08:05  mandana
 -- coadd_done_o timing is now tied to ADC_LATENCY parameter
 --
@@ -195,6 +198,7 @@ port (
    restart_frame_aligned_i   : in  std_logic;
    row_switch_i              : in  std_logic;
    initialize_window_i       : in  std_logic;
+   servo_rst_window_i        : in std_logic;
 
    -- Wishbone Slave (wbs) Frame Data signals
    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
@@ -209,7 +213,9 @@ port (
 
    -- Wishbove Slave (wbs) Feedback (fb) Data Signals
    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-   adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0)
+   adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   servo_rst_dat_i           : in std_logic;
+   servo_rst_addr_o          : out std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0)
 );
 end adc_sample_coadd;
 
@@ -384,7 +390,8 @@ begin  -- struc
       samples_coadd_reg_o     => samples_coadd_reg,
       address_count_en_i      => address_count_en,       -- from coadd control
       clr_address_count_i     => clr_address_count,      -- from coadd control
-      coadd_write_addr_o      => coadd_write_addr
+      coadd_write_addr_o      => coadd_write_addr,
+      servo_rst_addr_o        => servo_rst_addr_o
    );
 
 
@@ -427,6 +434,8 @@ begin  -- struc
       i_clamp_val_i          => i_clamp_val_i,
       qterm_decay_bits_i     => qterm_decay_bits_i,
       initialize_window_i    => initialize_window_i,    -- system input
+      servo_rst_window_i     => servo_rst_window_i,     -- system input
+      servo_rst_dat_i        => servo_rst_dat_i,        -- from wishbone fb slave
       current_coadd_dat_i    => samples_coadd_reg,      -- frm coadd data path
       current_bank_i         => current_bank,           -- frm coadd controller
       wren_for_fsfb_i        => wren_for_fsfb,          -- frm coadd controller
