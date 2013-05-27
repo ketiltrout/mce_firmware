@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.11  2012-01-23 20:58:16  mandana
+-- added wishbone support for qterm_decay_bits and set default to 3.
+--
 -- Revision 1.10  2010-11-30 21:18:42  mandana
 -- filter_coeff ports reduced to filter_coef_width instead of wb_data_width
 --
@@ -83,6 +86,7 @@ library work;
 
 -- Call Parent Library
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -177,6 +181,43 @@ package wbs_fb_data_pack is
       ack_bank_o : out std_logic);
   end component;
 
+  -----------------------------------------------------------------------------
+  -- servo_rst Bank Administrator
+  -----------------------------------------------------------------------------
+
+  component servo_rst_ram_admin
+     port (
+        clk_50_i   : in  std_logic;
+        rst_i      : in  std_logic;
+        servo_rst_dat_o   : out std_logic_vector(NUM_COLS-1 downto 0);     
+        addr_ch0_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+        addr_ch1_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+        addr_ch2_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+        addr_ch3_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+        addr_ch4_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+        addr_ch5_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+        addr_ch6_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+        addr_ch7_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+
+        servo_rst_dat2_o : out std_logic_vector(NUM_COLS-1 downto 0);   
+        addr2_ch0_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
+        addr2_ch1_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);   
+        addr2_ch2_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);   
+        addr2_ch3_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);   
+        addr2_ch4_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);   
+        addr2_ch5_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);   
+        addr2_ch6_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);   
+        addr2_ch7_i : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);    
+        dat_i      : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        addr_i     : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+        tga_i      : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_i       : in  std_logic;
+        stb_i      : in  std_logic;
+        cyc_i      : in  std_logic;
+        wb_dat_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        ack_bank_o : out std_logic
+     );
+  end component;
   
   -----------------------------------------------------------------------------
   -- FLUX_LOOP Banks Administrator

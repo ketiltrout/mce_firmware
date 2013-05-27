@@ -81,6 +81,9 @@
 -- Revision history:
 --
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.15  2012-01-23 20:58:15  mandana
+-- added wishbone support for qterm_decay_bits and set default to 3.
+--
 -- Revision 1.14  2010-11-30 21:18:42  mandana
 -- filter_coeff ports reduced to filter_coef_width instead of wb_data_width
 --
@@ -142,6 +145,7 @@ use work.wbs_fb_data_pack.all;
 
 -- Call Parent Library
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -157,10 +161,13 @@ entity wbs_fb_data is
     clk_50_i                : in std_logic;
     rst_i                   : in std_logic;
 
-
+    servo_rst_dat_o         : out std_logic_vector(NUM_COLS-1 downto 0);
+    servo_rst_dat2_o        : out std_logic_vector(NUM_COLS-1 downto 0);
     -- PER Flux_Loop_Ctrl Channel Interface
     adc_offset_dat_ch0_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch0_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch0_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch0_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
     p_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch0_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -175,9 +182,11 @@ entity wbs_fb_data is
     offset_dat_rdy_ch0_o    : out std_logic;
     const_val_ch0_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch0_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
-
+    
     adc_offset_dat_ch1_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch1_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch1_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch1_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
     p_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch1_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -193,9 +202,10 @@ entity wbs_fb_data is
     const_val_ch1_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch1_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
-
     adc_offset_dat_ch2_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch2_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch2_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch2_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);  
     p_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch2_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -211,9 +221,10 @@ entity wbs_fb_data is
     const_val_ch2_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch2_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
-
     adc_offset_dat_ch3_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch3_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch3_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch3_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
     p_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch3_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -229,9 +240,10 @@ entity wbs_fb_data is
     const_val_ch3_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch3_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
-
     adc_offset_dat_ch4_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch4_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch4_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch4_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
     p_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch4_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -247,9 +259,10 @@ entity wbs_fb_data is
     const_val_ch4_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch4_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
-
     adc_offset_dat_ch5_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch5_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch5_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch5_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
     p_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch5_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -265,9 +278,10 @@ entity wbs_fb_data is
     const_val_ch5_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch5_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
-
     adc_offset_dat_ch6_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch6_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch6_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch6_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
     p_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch6_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -283,9 +297,10 @@ entity wbs_fb_data is
     const_val_ch6_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch6_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
 
-
     adc_offset_dat_ch7_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
     adc_offset_addr_ch7_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_ch7_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr2_ch7_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
     p_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     p_addr_ch7_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
     i_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -300,7 +315,6 @@ entity wbs_fb_data is
     offset_dat_rdy_ch7_o    : out std_logic;
     const_val_ch7_o         : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
     servo_mode_ch7_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
-
 
     -- All Flux_Loop_Ctrl Channels
     filter_coeff0_o         : out std_logic_vector(FILTER_COEF_WIDTH-1 downto 0);
@@ -327,8 +341,6 @@ entity wbs_fb_data is
     dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
     ack_o                   : out std_logic);                                      -- acknowledge out
 
-
-
 end wbs_fb_data;
 
 
@@ -340,15 +352,17 @@ architecture struct of wbs_fb_data is
   signal qa_p_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_i_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_d_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_flux_quanta_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_adc_offset_bank   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_misc_bank  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal qa_flux_quanta_bank : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal qa_adc_offset_bank  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal qa_misc_bank        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal qa_servo_rst_bank   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal ack_p_bank    : std_logic;
   signal ack_i_bank    : std_logic;
   signal ack_d_bank    : std_logic;
-  signal ack_flux_quanta_bank    : std_logic;
+  signal ack_flux_quanta_bank : std_logic;
   signal ack_adc_offset_bank  : std_logic;
-  signal ack_misc_bank : std_logic;
+  signal ack_misc_bank        : std_logic;
+  signal ack_servo_rst_bank   : std_logic;
 
 
 
@@ -478,6 +492,41 @@ begin  -- struct
        qa_bank_o  => qa_d_bank,
        ack_bank_o => ack_d_bank);
 
+  -----------------------------------------------------------------------------
+  -- Instantiation of servo_rst Banks Admin
+  -----------------------------------------------------------------------------
+
+  i_servo_rst_bank_admin: servo_rst_ram_admin
+    port map (
+        clk_50_i   => clk_50_i,
+        rst_i      => rst_i,
+        servo_rst_dat_o  => servo_rst_dat_o,
+        servo_rst_dat2_o => servo_rst_dat2_o,
+        addr_ch0_i => servo_rst_addr_ch0_i,
+        addr_ch1_i => servo_rst_addr_ch1_i,
+        addr_ch2_i => servo_rst_addr_ch2_i,
+        addr_ch3_i => servo_rst_addr_ch3_i,
+        addr_ch4_i => servo_rst_addr_ch4_i,
+        addr_ch5_i => servo_rst_addr_ch5_i,
+        addr_ch6_i => servo_rst_addr_ch6_i,
+        addr_ch7_i => servo_rst_addr_ch7_i,
+        addr2_ch0_i => servo_rst_addr2_ch0_i,
+        addr2_ch1_i => servo_rst_addr2_ch1_i,
+        addr2_ch2_i => servo_rst_addr2_ch2_i,
+        addr2_ch3_i => servo_rst_addr2_ch3_i,
+        addr2_ch4_i => servo_rst_addr2_ch4_i,
+        addr2_ch5_i => servo_rst_addr2_ch5_i,
+        addr2_ch6_i => servo_rst_addr2_ch6_i,
+        addr2_ch7_i => servo_rst_addr2_ch7_i,
+        dat_i      => dat_i,
+        addr_i     => addr_i,
+        tga_i      => tga_i,
+        we_i       => we_i,
+        stb_i      => stb_i,
+        cyc_i      => cyc_i,
+        wb_dat_o   => qa_servo_rst_bank,
+        ack_bank_o => ack_servo_rst_bank);
+
 
   -----------------------------------------------------------------------------
   -- Instantiation of Z Banks Admin
@@ -545,7 +594,6 @@ begin  -- struct
         cyc_i                 => cyc_i,
         qa_adc_offset_bank_o  => qa_adc_offset_bank,
         ack_adc_offset_bank_o => ack_adc_offset_bank);
-
 
   -----------------------------------------------------------------------------
   -- Instantiation of Miscellanous Bank Admin
@@ -634,7 +682,7 @@ begin  -- struct
   -----------------------------------------------------------------------------
 
   ack_o <= ack_p_bank or ack_d_bank or ack_i_bank or ack_flux_quanta_bank or
-           ack_adc_offset_bank or ack_misc_bank;
+           ack_adc_offset_bank or ack_misc_bank or ack_servo_rst_bank;
 
 
   with addr_i select
@@ -658,6 +706,9 @@ begin  -- struct
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                              SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR | I_CLAMP_VAL_ADDR |
                              FLTR_TYPE_ADDR | QTERM_DECAY_ADDR,
+    qa_servo_rst_bank   when SERVO_RST_COL0_ADDR | SERVO_RST_COL1_ADDR | SERVO_RST_COL2_ADDR | 
+                             SERVO_RST_COL3_ADDR | SERVO_RST_COL4_ADDR | SERVO_RST_COL5_ADDR | 
+                             SERVO_RST_COL6_ADDR | SERVO_RST_COL7_ADDR,
 
     (others => '0')     when others;        -- default to zero
 
