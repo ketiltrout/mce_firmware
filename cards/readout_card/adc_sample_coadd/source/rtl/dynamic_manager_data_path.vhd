@@ -112,6 +112,9 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.10  2012-01-24 22:36:01  mandana
+-- programmable qterm_decay_bits
+--
 -- Revision 1.9  2012-01-23 20:38:57  mandana
 -- added qterm support with qterm_decay_bits hardcoded to 3 for now
 --
@@ -179,9 +182,11 @@ entity dynamic_manager_data_path is
     i_clamp_val_i          : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     qterm_decay_bits_i     : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     initialize_window_i    : in  std_logic;
+    servo_rst_window_i     : in  std_logic;
     
     -- From coadd_manager_data_path
     current_coadd_dat_i    : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    servo_rst_dat_i        : in std_logic;
 
     -- From coadd_dynamic_controller
     current_bank_i         : in  std_logic;
@@ -222,6 +227,9 @@ architecture rtl of dynamic_manager_data_path is
   signal shifted_initialize_window : std_logic_vector(MAX_SHIFT-1 downto 0);
   alias initialize_window_max_dly  : std_logic is shifted_initialize_window(MAX_SHIFT-1);
 
+  -- Signals needed for shifting servo_rst_window
+  signal shifted_servo_rst_window  : std_logic_vector(MAX_SHIFT-1 downto 0);
+  alias servo_rst_max_dly  : std_logic is shifted_servo_rst_window(MAX_SHIFT-1);
 
   -- Signals needed for Integral Finder
   signal integral_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
@@ -263,7 +271,25 @@ begin  -- rtl
 
     end if;
   end process i_delay_initialize_window;
-
+  
+  -----------------------------------------------------------------------------
+  -- Shift register to delay servo_rst_arm_i by MAX_SHIFT clock cycles. 
+  -----------------------------------------------------------------------------
+    
+  i_delay_servo_rst_window: process (clk_i, rst_i)
+         
+    begin  -- process i_delay_servo_rst_arm_window
+      if rst_i = '1' then                 -- asynchronous reset (active high)
+        shifted_servo_rst_window <= (others => '0');
+        
+      elsif clk_i'event and clk_i = '1' then  -- rising clock edge
+  
+        shifted_servo_rst_window(MAX_SHIFT-1 downto 1) <= shifted_servo_rst_window(MAX_SHIFT-2 downto 0);
+        shifted_servo_rst_window(0)                    <= servo_rst_window_i;
+  
+      end if;
+  end process i_delay_servo_rst_window;
+  
   -----------------------------------------------------------------------------
   -- Integral Adder
   -- This is a combinational adder that adds the present current coadded value
@@ -275,7 +301,7 @@ begin  -- rtl
   -- current_bank_i=1, inputs from bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
   previous_intgral <=
-    (others => '0')        when initialize_window_max_dly = '1' else
+    (others => '0')        when initialize_window_max_dly = '1' or (servo_rst_max_dly = '1' and servo_rst_dat_i = '1') else
     intgrl_dat_frm_bank1_i when current_bank_i = '0' else
     intgrl_dat_frm_bank0_i;
   
@@ -285,8 +311,8 @@ begin  -- rtl
   -- Documented on wiki is the formula to calculate the correct clamping value for any set of PID parameters and flux-jump quanta:
   -----------------------------------------------------------------------------
   integral_result <= 
-    i_clamp_val_i  when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' else
-    -i_clamp_val_i when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' else    
+    i_clamp_val_i  when previous_intgral >= i_clamp_val_i  and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' and (servo_rst_max_dly = '0' or servo_rst_dat_i = '0') else
+    -i_clamp_val_i when previous_intgral <= -i_clamp_val_i and i_clamp_val_i /= x"00000000" and initialize_window_max_dly ='0' and (servo_rst_max_dly = '0' or servo_rst_dat_i = '0') else    
     current_coadd_dat_i + previous_intgral;
   
   integral_result_o <= integral_result;

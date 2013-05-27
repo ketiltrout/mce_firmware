@@ -113,6 +113,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_manager_data_path.vhd,v $
+-- Revision 1.6  2011-09-15 23:46:44  mandana
+-- coadd window now is adjusted for ADC latency as oppose to hard-coded value of 4
+--
 -- Revision 1.5  2009/04/09 19:10:44  bburger
 -- BB: Removed the default assignement of ADC_LATENCY which is a constant that doesn't exist anymore.
 --
@@ -166,7 +169,8 @@ entity coadd_manager_data_path is
     samples_coadd_reg_o       : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     address_count_en_i        : in  std_logic;
     clr_address_count_i       : in  std_logic;
-    coadd_write_addr_o        : out std_logic_vector(COADD_ADDR_WIDTH-1 downto 0));
+    coadd_write_addr_o        : out std_logic_vector(COADD_ADDR_WIDTH-1 downto 0);
+    servo_rst_addr_o          : out std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0));
     
 
 end coadd_manager_data_path;
@@ -309,6 +313,6 @@ begin  -- beh
 
   coadd_write_addr_o <=conv_std_logic_vector(count, coadd_write_addr_o'length);
   adc_offset_adr_o   <=conv_std_logic_vector(count, adc_offset_adr_o'length); 
-
+  servo_rst_addr_o   <=conv_std_logic_vector(count, servo_rst_addr_o'length);
   
 end beh;

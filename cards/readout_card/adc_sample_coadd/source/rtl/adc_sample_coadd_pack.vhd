@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.12  2012-01-23 20:35:58  mandana
+-- removed FSFB_DONE_DLY as this was not tied to any other parameters and just causes potential for future bugs.
+-- added qterm interface
+--
 -- Revision 1.11  2011-10-27 21:10:25  mandana
 -- FSFB_DONE_DELAY has to be tied to ADC_LATENCY and is not a free parameter, it is not used anymore!
 --
@@ -134,10 +138,9 @@ package adc_sample_coadd_pack is
       samples_coadd_reg_o       : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       address_count_en_i        : in  std_logic;
       clr_address_count_i       : in  std_logic;
-      coadd_write_addr_o        : out std_logic_vector(COADD_ADDR_WIDTH-1 downto 0));
-
+      coadd_write_addr_o        : out std_logic_vector(COADD_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_o          : out std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0));
   end component;
-
  
   
   -----------------------------------------------------------------------------
@@ -187,7 +190,9 @@ package adc_sample_coadd_pack is
       i_clamp_val_i          : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       qterm_decay_bits_i     : in std_logic_vector(COADD_DAT_WIDTH-1 downto 0);      
       initialize_window_i    : in  std_logic;
+      servo_rst_window_i     : in  std_logic;
       current_coadd_dat_i    : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      servo_rst_dat_i        : in std_logic;
       current_bank_i         : in  std_logic;
       wren_for_fsfb_i        : in  std_logic;
       coadd_dat_frm_bank0_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
