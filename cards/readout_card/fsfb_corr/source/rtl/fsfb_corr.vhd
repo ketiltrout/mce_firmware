@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.25.2.2 2012-10-31 18:27:52 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.26 2012-10-31 18:34:44 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.26  2012-10-31 18:34:44  mandana
+-- merged from branch to capture the new parallelized fsfb_corr with only 10 clock cycle for fb_dly when flux-jump is enabled.
+--
 -- Revision 1.25.2.2  2012-10-31 18:27:52  mandana
 -- rewritten from pipelined for 8 channels to parallel implementation, fb_dly is now reduced to 10 (previously 18) when flux-jumping is enabled.
 --
@@ -113,9 +116,10 @@ use work.fsfb_corr_pack.all;
 entity fsfb_corr is        
    port
    (
-      -- fsfb_calc interface
+      -- fsfb_calc interface 
       flux_jump_en_i  : in std_logic;
       initialize_window_i : in std_logic;
+      servo_rst_window_i  : in std_logic;
       
       servo_en0_i     : in std_logic;
       servo_en1_i     : in std_logic;
@@ -126,6 +130,8 @@ entity fsfb_corr is
       servo_en6_i     : in std_logic;
       servo_en7_i     : in std_logic;
       
+      servo_rst_dat_i : in std_logic_vector(NUM_COLS-1 downto 0);
+
       flux_quanta0_i  : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
       flux_quanta1_i  : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
       flux_quanta2_i  : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
@@ -221,14 +227,14 @@ signal next_state    : states;
 begin
      
    -- Determine whether to clear flux-jumping registers on a column-by-column basis
-   clear_fj_col(0) <= '1' when (flux_jump_en_i = '0' or servo_en0_i = '0' or initialize_window_i = '1') else '0';
-   clear_fj_col(1) <= '1' when (flux_jump_en_i = '0' or servo_en1_i = '0' or initialize_window_i = '1') else '0';
-   clear_fj_col(2) <= '1' when (flux_jump_en_i = '0' or servo_en2_i = '0' or initialize_window_i = '1') else '0';
-   clear_fj_col(3) <= '1' when (flux_jump_en_i = '0' or servo_en3_i = '0' or initialize_window_i = '1') else '0';
-   clear_fj_col(4) <= '1' when (flux_jump_en_i = '0' or servo_en4_i = '0' or initialize_window_i = '1') else '0';
-   clear_fj_col(5) <= '1' when (flux_jump_en_i = '0' or servo_en5_i = '0' or initialize_window_i = '1') else '0';
-   clear_fj_col(6) <= '1' when (flux_jump_en_i = '0' or servo_en6_i = '0' or initialize_window_i = '1') else '0';
-   clear_fj_col(7) <= '1' when (flux_jump_en_i = '0' or servo_en7_i = '0' or initialize_window_i = '1') else '0';
+   clear_fj_col(0) <= '1' when (flux_jump_en_i = '0' or servo_en0_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(0) = '1')) else '0';
+   clear_fj_col(1) <= '1' when (flux_jump_en_i = '0' or servo_en1_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(1) = '1')) else '0';
+   clear_fj_col(2) <= '1' when (flux_jump_en_i = '0' or servo_en2_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(2) = '1')) else '0';
+   clear_fj_col(3) <= '1' when (flux_jump_en_i = '0' or servo_en3_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(3) = '1')) else '0';
+   clear_fj_col(4) <= '1' when (flux_jump_en_i = '0' or servo_en4_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(4) = '1')) else '0';
+   clear_fj_col(5) <= '1' when (flux_jump_en_i = '0' or servo_en5_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(5) = '1')) else '0';
+   clear_fj_col(6) <= '1' when (flux_jump_en_i = '0' or servo_en6_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(6) = '1')) else '0';
+   clear_fj_col(7) <= '1' when (flux_jump_en_i = '0' or servo_en7_i = '0' or initialize_window_i = '1' or (servo_rst_window_i = '1' and servo_rst_dat_i(7) = '1')) else '0';
   
    -------------------------------
    -- State machine
