@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.21  2012-10-30 19:11:07  mandana
+-- only renaming signals for clarity
+--
 -- Revision 1.20  2012-01-23 20:53:25  mandana
 -- added qterm to interfaces
 --
@@ -156,6 +159,7 @@ port (
    restart_frame_1row_post_i  : in  std_logic;
    row_switch_i               : in  std_logic;
    initialize_window_i        : in  std_logic;
+   servo_rst_window_i         : in  std_logic;
    fltr_rst_i                 : in  std_logic;                                             -- reset internal registers (wn) of the filter block
    num_rows_sub1_i            : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
    dac_dat_en_i               : in  std_logic;
@@ -173,6 +177,8 @@ port (
    -- Wishbove Slave (wbs) Feedback (fb) Data Signals
    adc_offset_dat_i           : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    adc_offset_adr_o           : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   servo_rst_dat_i            : in  std_logic;
+   servo_rst_addr_o           : out std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
 
    servo_mode_i               : in  std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
    ramp_step_size_i           : in  std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
@@ -260,6 +266,7 @@ begin  -- struct
       restart_frame_aligned_i   => restart_frame_aligned_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       coadded_addr_i            => coadded_addr_i,
       coadded_dat_o             => coadded_dat_o,
       coadd_done_o              => coadd_done,
@@ -268,7 +275,9 @@ begin  -- struct
       current_integral_dat_o    => current_integral_dat,
       current_qterm_dat_o       => current_qterm_dat,
       adc_offset_dat_i          => adc_offset_dat_i,
-      adc_offset_adr_o          => adc_offset_adr_o
+      adc_offset_adr_o          => adc_offset_adr_o,
+      servo_rst_dat_i           => servo_rst_dat_i,
+      servo_rst_addr_o          => servo_rst_addr_o     
    );
    
 

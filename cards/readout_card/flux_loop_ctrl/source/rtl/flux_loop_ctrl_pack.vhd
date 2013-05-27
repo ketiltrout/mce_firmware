@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.15  2012-01-23 20:53:25  mandana
+-- added qterm to interfaces
+--
 -- Revision 1.14  2010-11-30 19:45:58  mandana
 -- filter_coeff ports reduced to filter_coef_width instead of wb_data_width to help fitting in EP1S40.
 -- reorganized pack files and moved fsfb definitions here to stay compliant with hierarchical pack files
@@ -150,6 +153,7 @@ package flux_loop_ctrl_pack is
       restart_frame_aligned_i   : in  std_logic;
       row_switch_i              : in  std_logic;
       initialize_window_i       : in  std_logic;
+      servo_rst_window_i        : in  std_logic;
       coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
       coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
       coadd_done_o              : out std_logic;
@@ -158,10 +162,10 @@ package flux_loop_ctrl_pack is
       current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
       current_qterm_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
       adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-      adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0));
+      adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_dat_i           : in std_logic;
+      servo_rst_addr_o          : out std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0));
   end component;
-
- 
 
   -----------------------------------------------------------------------------
   -- First Stage Feedback Calculation Block 
