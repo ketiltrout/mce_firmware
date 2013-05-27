@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.26  2012-10-30 19:08:05  mandana
+-- only renaming signals for clarity
+--
 -- Revision 1.25  2012-09-07 18:37:51  mandana
 -- *** empty log message ***
 --
@@ -60,67 +63,8 @@
 -- Revision 1.18  2009/05/27 01:24:40  bburger
 -- BB: Added raw-data components, new to v5.x from 4.0.d
 --
--- Revision 1.17  2009/03/19 21:31:53  bburger
--- BB:
--- - Added the ADC_LATENCY generic to generalize this block for Readout Card Rev. C
--- - Removed unused signals adc_ovr_i, adc_rdy_i, adc_clk_o from interface
---
--- Revision 1.16  2009/01/16 02:10:48  bburger
--- BB:  Added interface signals to wbs_frame_data for column readout
---
--- Revision 1.15  2008/06/27 20:11:11  mandana
--- merged with pid_ram12 branch where pid_ram width is increased to 12 bits
---
--- Revision 1.14  2007/10/31 20:11:13  mandana
--- sa_bias_rdy and offset_dat_rdy signals are added to the interface to notify controller blocks when these are updated
---
--- Revision 1.13  2006/12/11 18:05:02  mandana
--- Added per-column servo-mode ports for fsfb_corr interface
---
--- Revision 1.12  2006/12/05 22:44:33  mandana
--- split the servo_mode to be column specific. Note that flux_jump will still get enabled based on column 0 servo_mode!
---
--- Revision 1.11  2006/11/24 21:04:56  mandana
--- splitted fb_const to be channel specific
--- undo use frame_timing_pack for num_rows constant, to be added to top level pack file later.
---
--- Revision 1.10  2006/06/09 22:24:09  bburger
--- Bryce:  Moved the no_channels constant from wbs_frame_data_pack to command_pack so that the clock card could use it.  I also modified flux_loop_pack to use no_channels instead of a literal value of 8.
---
--- Revision 1.9  2006/02/15 21:34:23  mandana
--- added fltr_rst_i port
---
--- Revision 1.8  2005/12/12 22:20:03  mandana
--- removed the unused flux_jumping_en_i port
--- changed fsfb_fltr_dat_o port definition to fltr_queue_data_width-1
---
--- Revision 1.7  2005/11/29 18:33:52  mandana
--- added filter queue storage parameters
---
--- Revision 1.6  2005/11/28 19:11:29  bburger
--- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
---
--- Revision 1.5  2005/10/07 21:38:07  bburger
--- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
---
--- Revision 1.4  2005/09/14 23:48:39  bburger
--- bburger:
--- Integrated flux-jumping into flux_loop
---
--- Revision 1.3  2005/04/29 18:14:59  bburger
--- Bryce:  added FLUX_QUANTA_CNT_WIDTH constant, and fsfb_corr component declaration
---
--- Revision 1.2  2004/12/07 19:47:24  mohsen
--- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
---
--- Revision 1.1  2004/12/04 03:08:24  mohsen
--- Initial Release
---
---
---
 --
 ------------------------------------------------------------------------
-
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -141,9 +85,10 @@ package flux_loop_pack is
 
    -- Wishbone fb data specific
    constant ADC_OFFSET_DAT_WIDTH   : integer := 16;                   -- 2 MSB not used
-   constant ADC_OFFSET_ADDR_WIDTH  : integer := 6;                    -- memory used has 2**6 locations 
+   constant ADC_OFFSET_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- memory used has 2**6 locations 
+   constant SERVO_RST_ADDR_WIDTH   : integer := ROW_ADDR_WIDTH;
    
-   constant PIDZ_ADDR_WIDTH        : integer := 6;                    -- Note that same memory storage element is used for PIDZ and ADC_OFFSET and FLUX_QUANTA
+   constant PIDZ_ADDR_WIDTH        : integer := ROW_ADDR_WIDTH;       -- Note that same memory storage element is used for PIDZ and ADC_OFFSET and FLUX_QUANTA
    constant PIDZ_DATA_WIDTH        : integer := 12;
    constant PIDZ_MAX               : integer := (2**(PIDZ_DATA_WIDTH-1))-1;
    constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
@@ -159,7 +104,7 @@ package flux_loop_pack is
    constant RAMP_AMP_WIDTH         : integer := CONST_VAL_WIDTH;      -- data width of ramp peak amplitude
    constant RAMP_CYC_WIDTH         : integer := CONST_VAL_WIDTH;      -- data width of ramp frame cycle number
    
-   constant FLUX_QUANTA_ADDR_WIDTH : integer := 6;
+   constant FLUX_QUANTA_ADDR_WIDTH : integer := ROW_ADDR_WIDTH;
    constant FLUX_QUANTA_DATA_WIDTH : integer := 14;
    constant FLUX_QUANTA_MAX        : integer := (2**(FLUX_QUANTA_DATA_WIDTH))-1;
    constant FLUX_QUANTA_MIN        : integer := 0;                    -- Flux Quanta are always positive numbers.
@@ -184,7 +129,7 @@ package flux_loop_pack is
 
    -- filter related 
    constant FLTR_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of the filter results storage
-   constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
+   constant FLTR_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;
    constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
    constant NUM_FILTER_COEFF       : integer := 6;                    -- number of filter coefficients
@@ -263,6 +208,7 @@ package flux_loop_pack is
       restart_frame_1row_post_i   : in  std_logic;
       row_switch_i                : in  std_logic;
       initialize_window_i         : in  std_logic;
+      servo_rst_window_i          : in  std_logic;
       fltr_rst_i                  : in  std_logic;
       num_rows_sub1_i             : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
       dac_dat_en_i                : in  std_logic;
@@ -275,6 +221,8 @@ package flux_loop_pack is
       filtered_dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       adc_offset_dat_i            : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_adr_o            : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_dat_i             : in  std_logic;
+      servo_rst_addr_o            : out std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
       servo_mode_i                : in  std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       ramp_step_size_i            : in  std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
       ramp_amp_i                  : in  std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
@@ -330,6 +278,9 @@ package flux_loop_pack is
       -- fsfb_calc interface
       flux_jump_en_i       : in std_logic;
       initialize_window_i  : in std_logic;
+      servo_rst_window_i   : in std_logic;
+      
+      servo_rst_dat_i      : in std_logic_vector(NUM_COLS-1 downto 0);
 
       servo_en0_i          : in std_logic;
       servo_en1_i          : in std_logic;
@@ -488,8 +439,12 @@ package flux_loop_pack is
    port (
       clk_50_i                : in  std_logic;
       rst_i                   : in  std_logic;
+      servo_rst_dat_o         : out std_logic_vector(NUM_COLS-1 downto 0);    
+      servo_rst_dat2_o        : out std_logic_vector(NUM_COLS-1 downto 0);      
       adc_offset_dat_ch0_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch0_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch0_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch0_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
       p_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch0_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -506,6 +461,8 @@ package flux_loop_pack is
       servo_mode_ch0_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch1_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch1_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch1_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch1_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);            
       p_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch1_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -522,6 +479,8 @@ package flux_loop_pack is
       servo_mode_ch1_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch2_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch2_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch2_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch2_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
       p_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch2_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -538,6 +497,8 @@ package flux_loop_pack is
       servo_mode_ch2_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch3_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch3_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch3_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch3_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
       p_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch3_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -554,6 +515,8 @@ package flux_loop_pack is
       servo_mode_ch3_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch4_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch4_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch4_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch4_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
       p_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch4_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -570,6 +533,8 @@ package flux_loop_pack is
       servo_mode_ch4_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch5_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch5_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch5_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch5_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
       p_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch5_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -586,6 +551,8 @@ package flux_loop_pack is
       servo_mode_ch5_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch6_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch6_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch6_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch6_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
       p_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch6_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -602,6 +569,8 @@ package flux_loop_pack is
       servo_mode_ch6_o        : out std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);
       adc_offset_dat_ch7_o    : out std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
       adc_offset_addr_ch7_i   : in  std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr_ch7_i    : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+      servo_rst_addr2_ch7_i   : in  std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);      
       p_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       p_addr_ch7_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
       i_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);

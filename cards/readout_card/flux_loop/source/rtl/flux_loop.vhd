@@ -74,6 +74,7 @@ port (
    restart_frame_1row_post_i : in std_logic;
    row_switch_i              : in std_logic;
    initialize_window_i       : in std_logic;
+   servo_rst_window_i        : in std_logic;
    num_rows_sub1_i           : in std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
    dac_dat_en_i              : in std_logic;
    fltr_rst_i                : in std_logic;
@@ -205,14 +206,18 @@ architecture struct of flux_loop is
    signal coadded_addr_ch7  : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
    signal coadded_dat_ch7   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 
-   signal sa_bias_dat_rdy       : std_logic_vector (7 downto 0);
-   signal offset_dat_rdy    : std_logic_vector (7 downto 0);
+   signal sa_bias_dat_rdy   : std_logic_vector (NUM_COLS-1 downto 0);
+   signal offset_dat_rdy    : std_logic_vector (NUM_COLS-1 downto 0);
 
 
    -- Signals Interface between wbs_fb_data and flux_loop_ctrl
-
+   signal servo_rst_dat     : std_logic_vector(NUM_COLS-1 downto 0);
+   signal servo_rst_dat2    : std_logic_vector(NUM_COLS-1 downto 0);
+   signal servo_rst_addr2    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
+   
    signal adc_offset_dat_ch0    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch0   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch0    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -227,6 +232,7 @@ architecture struct of flux_loop is
    signal servo_mode_ch0        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
    signal adc_offset_dat_ch1    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch1   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch1    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -241,6 +247,7 @@ architecture struct of flux_loop is
    signal servo_mode_ch1        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
    signal adc_offset_dat_ch2    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch2   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch2    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -255,6 +262,7 @@ architecture struct of flux_loop is
    signal servo_mode_ch2        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
    signal adc_offset_dat_ch3    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch3   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch3    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -269,6 +277,7 @@ architecture struct of flux_loop is
    signal servo_mode_ch3        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
    signal adc_offset_dat_ch4    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch4   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch4    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -283,6 +292,7 @@ architecture struct of flux_loop is
    signal servo_mode_ch4        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
    signal adc_offset_dat_ch5    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch5   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch5    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -297,6 +307,7 @@ architecture struct of flux_loop is
    signal servo_mode_ch5        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
    signal adc_offset_dat_ch6    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch6   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch6    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -311,6 +322,7 @@ architecture struct of flux_loop is
    signal servo_mode_ch6        : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);  
    signal adc_offset_dat_ch7    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
    signal adc_offset_addr_ch7   : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+   signal servo_rst_addr_ch7    : std_logic_vector(SERVO_RST_ADDR_WIDTH-1 downto 0);
    signal p_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal p_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
    signal i_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -344,8 +356,8 @@ architecture struct of flux_loop is
    
    signal flux_quanta0              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
    signal fsfb_ctrl_dat0            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
-   signal fj_count0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
-   signal fj_count0_new     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count0                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+   signal fj_count0_new             : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
    signal fsfb_ctrl_dat0_rdy        : std_logic;                                             
    signal fsfb_ctrl_corr0           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
    signal fsfb_ctrl_lock_en0        : std_logic;                                             
@@ -420,6 +432,20 @@ architecture struct of flux_loop is
    signal current_state, next_state : states;
   
 begin  -- struct
+
+   increment_servo_rst_addr2: process (clk_50_i, rst_i)
+   begin  
+      if(rst_i = '1') then                
+        servo_rst_addr2 <= (others => '0');
+      elsif(clk_50_i'event and clk_50_i = '1') then      
+         if restart_frame_aligned_i = '1' then
+            servo_rst_addr2 <= (others => '0');
+         elsif row_switch_i = '1' then
+            servo_rst_addr2 <= servo_rst_addr2 + 1;
+         end if;              
+      end if;
+   end process increment_servo_rst_addr2;
+
   
    -----------------------------------------------------------------------------
    -- Instantiation of Raw Data/ Rectangle Mode RAM block
@@ -451,6 +477,7 @@ begin  -- struct
    begin  
       if(rst_i = '1') then                
          raw_wr_addr <= (others => '0');
+
       elsif(clk_50_i'event and clk_50_i = '1') then
          if(raw_wren = '1') then 
             raw_wr_addr <= raw_wr_addr + 1;
@@ -525,6 +552,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -538,6 +566,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch0,
       adc_offset_adr_o          => adc_offset_addr_ch0,
       servo_mode_i              => servo_mode_ch0,
+      servo_rst_dat_i           => servo_rst_dat(0),
+      servo_rst_addr_o          => servo_rst_addr_ch0,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch0,
@@ -596,6 +626,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -609,6 +640,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch1,
       adc_offset_adr_o          => adc_offset_addr_ch1,
       servo_mode_i              => servo_mode_ch1,
+      servo_rst_dat_i           => servo_rst_dat(1),
+      servo_rst_addr_o          => servo_rst_addr_ch1,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch1,
@@ -667,6 +700,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -680,6 +714,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch2,
       adc_offset_adr_o          => adc_offset_addr_ch2,
       servo_mode_i              => servo_mode_ch2,
+      servo_rst_dat_i           => servo_rst_dat(2),
+      servo_rst_addr_o          => servo_rst_addr_ch2,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch2,
@@ -738,6 +774,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -751,6 +788,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch3,
       adc_offset_adr_o          => adc_offset_addr_ch3,
       servo_mode_i              => servo_mode_ch3,
+      servo_rst_dat_i           => servo_rst_dat(3),
+      servo_rst_addr_o          => servo_rst_addr_ch3,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch3,
@@ -809,6 +848,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -822,6 +862,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch4,
       adc_offset_adr_o          => adc_offset_addr_ch4,
       servo_mode_i              => servo_mode_ch4,
+      servo_rst_dat_i           => servo_rst_dat(4),
+      servo_rst_addr_o          => servo_rst_addr_ch4,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch4,
@@ -880,6 +922,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -893,6 +936,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch5,
       adc_offset_adr_o          => adc_offset_addr_ch5,
       servo_mode_i              => servo_mode_ch5,
+      servo_rst_dat_i           => servo_rst_dat(5),
+      servo_rst_addr_o          => servo_rst_addr_ch5,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch5,
@@ -951,6 +996,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -964,6 +1010,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch6,
       adc_offset_adr_o          => adc_offset_addr_ch6,
       servo_mode_i              => servo_mode_ch6,
+      servo_rst_dat_i           => servo_rst_dat(6),
+      servo_rst_addr_o          => servo_rst_addr_ch6,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch6,
@@ -1022,6 +1070,7 @@ begin  -- struct
       restart_frame_1row_post_i => restart_frame_1row_post_i,
       row_switch_i              => row_switch_i,
       initialize_window_i       => initialize_window_i,
+      servo_rst_window_i        => servo_rst_window_i,
       fltr_rst_i                => fltr_rst_i,
       num_rows_sub1_i           => (others =>'0'),                      -- not used
       dac_dat_en_i              => dac_dat_en_i,
@@ -1035,6 +1084,8 @@ begin  -- struct
       adc_offset_dat_i          => adc_offset_dat_ch7,
       adc_offset_adr_o          => adc_offset_addr_ch7,
       servo_mode_i              => servo_mode_ch7,
+      servo_rst_dat_i           => servo_rst_dat(7),
+      servo_rst_addr_o          => servo_rst_addr_ch7,
       ramp_step_size_i          => ramp_step_size,
       ramp_amp_i                => ramp_amp,
       const_val_i               => const_val_ch7,
@@ -1088,7 +1139,9 @@ begin  -- struct
       -- fsfb_calc interface
       flux_jump_en_i       => flux_jumping_en,
       initialize_window_i  => initialize_window_i,
+      servo_rst_window_i   => servo_rst_window_i,
 
+      servo_rst_dat_i      => servo_rst_dat2,
       servo_en0_i          => fsfb_ctrl_lock_en0,
       servo_en1_i          => fsfb_ctrl_lock_en1,
       servo_en2_i          => fsfb_ctrl_lock_en2,
@@ -1254,8 +1307,12 @@ begin  -- struct
    port map (
       clk_50_i                => clk_50_i,
       rst_i                   => rst_i,
+      servo_rst_dat_o         => servo_rst_dat,
+      servo_rst_dat2_o        => servo_rst_dat2,
       adc_offset_dat_ch0_o    => adc_offset_dat_ch0,
       adc_offset_addr_ch0_i   => adc_offset_addr_ch0,
+      servo_rst_addr_ch0_i    => servo_rst_addr_ch0,      
+      servo_rst_addr2_ch0_i   => servo_rst_addr2,      
       p_dat_ch0_o             => p_dat_ch0,
       p_addr_ch0_i            => p_addr_ch0,
       i_dat_ch0_o             => i_dat_ch0,
@@ -1272,6 +1329,8 @@ begin  -- struct
       servo_mode_ch0_o        => servo_mode_ch0,
       adc_offset_dat_ch1_o    => adc_offset_dat_ch1,
       adc_offset_addr_ch1_i   => adc_offset_addr_ch1,
+      servo_rst_addr_ch1_i    => servo_rst_addr_ch1,      
+      servo_rst_addr2_ch1_i   => servo_rst_addr2,      
       p_dat_ch1_o             => p_dat_ch1,
       p_addr_ch1_i            => p_addr_ch1,
       i_dat_ch1_o             => i_dat_ch1,
@@ -1288,6 +1347,8 @@ begin  -- struct
       servo_mode_ch1_o        => servo_mode_ch1,
       adc_offset_dat_ch2_o    => adc_offset_dat_ch2,
       adc_offset_addr_ch2_i   => adc_offset_addr_ch2,
+      servo_rst_addr_ch2_i    => servo_rst_addr_ch2,      
+      servo_rst_addr2_ch2_i    => servo_rst_addr2,            
       p_dat_ch2_o             => p_dat_ch2,
       p_addr_ch2_i            => p_addr_ch2,
       i_dat_ch2_o             => i_dat_ch2,
@@ -1304,6 +1365,8 @@ begin  -- struct
       servo_mode_ch2_o        => servo_mode_ch2,
       adc_offset_dat_ch3_o    => adc_offset_dat_ch3,
       adc_offset_addr_ch3_i   => adc_offset_addr_ch3,
+      servo_rst_addr_ch3_i    => servo_rst_addr_ch3,      
+      servo_rst_addr2_ch3_i   => servo_rst_addr2,      
       p_dat_ch3_o             => p_dat_ch3,
       p_addr_ch3_i            => p_addr_ch3,
       i_dat_ch3_o             => i_dat_ch3,
@@ -1320,6 +1383,8 @@ begin  -- struct
       servo_mode_ch3_o        => servo_mode_ch3,
       adc_offset_dat_ch4_o    => adc_offset_dat_ch4,
       adc_offset_addr_ch4_i   => adc_offset_addr_ch4,
+      servo_rst_addr_ch4_i    => servo_rst_addr_ch4,      
+      servo_rst_addr2_ch4_i   => servo_rst_addr2,      
       p_dat_ch4_o             => p_dat_ch4,
       p_addr_ch4_i            => p_addr_ch4,
       i_dat_ch4_o             => i_dat_ch4,
@@ -1336,6 +1401,8 @@ begin  -- struct
       servo_mode_ch4_o        => servo_mode_ch4,
       adc_offset_dat_ch5_o    => adc_offset_dat_ch5,
       adc_offset_addr_ch5_i   => adc_offset_addr_ch5,
+      servo_rst_addr_ch5_i    => servo_rst_addr_ch5,      
+      servo_rst_addr2_ch5_i   => servo_rst_addr2,      
       p_dat_ch5_o             => p_dat_ch5,
       p_addr_ch5_i            => p_addr_ch5,
       i_dat_ch5_o             => i_dat_ch5,
@@ -1352,6 +1419,8 @@ begin  -- struct
       servo_mode_ch5_o        => servo_mode_ch5,
       adc_offset_dat_ch6_o    => adc_offset_dat_ch6,
       adc_offset_addr_ch6_i   => adc_offset_addr_ch6,
+      servo_rst_addr_ch6_i    => servo_rst_addr_ch6,      
+      servo_rst_addr2_ch6_i   => servo_rst_addr2,      
       p_dat_ch6_o             => p_dat_ch6,
       p_addr_ch6_i            => p_addr_ch6,
       i_dat_ch6_o             => i_dat_ch6,
@@ -1368,6 +1437,8 @@ begin  -- struct
       servo_mode_ch6_o        => servo_mode_ch6,
       adc_offset_dat_ch7_o    => adc_offset_dat_ch7,
       adc_offset_addr_ch7_i   => adc_offset_addr_ch7,
+      servo_rst_addr_ch7_i    => servo_rst_addr_ch7,      
+      servo_rst_addr2_ch7_i   => servo_rst_addr2,      
       p_dat_ch7_o             => p_dat_ch7,
       p_addr_ch7_i            => p_addr_ch7,
       i_dat_ch7_o             => i_dat_ch7,
