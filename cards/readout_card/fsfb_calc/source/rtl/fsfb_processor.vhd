@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.18  2012-10-30 23:18:29  mandana
+-- *** empty log message ***
+--
 -- Revision 1.17  2012-08-13 20:43:18  mandana
 -- added filter_mid_out
 --
@@ -214,11 +217,6 @@ architecture rtl of fsfb_processor is
    signal ramp_dat             : std_logic_vector(RAMP_AMP_WIDTH downto 0);                    -- Ramp mode processor result
    signal ramp_dat_ltch        : std_logic_vector(RAMP_AMP_WIDTH downto 0);                    -- Latched ramp mode processor result (fixed for configurable number of frame cycles)
    signal const_dat_ltch       : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);                   -- Latched constant mode result (to created consistent timing behaviour with ramp mode result)
-
-   signal max_range_fsfb       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
-   signal min_range_fsfb       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
-   signal pos_fsfb_clamp_value : std_logic_vector(FLUX_QUANTA_DATA_WIDTH+FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-   signal neg_fsfb_clamp_value : std_logic_vector(FLUX_QUANTA_DATA_WIDTH+FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 
 begin
 
