@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.20  2011-09-16 23:08:26  mandana
+-- fix ADC_latency compensation bug in coadd window (is parameterized now)
+--
 -- Revision 1.19  2010-11-30 19:51:01  mandana
 -- *** empty log message ***
 --
@@ -92,6 +95,7 @@ package readout_card_pack is
 
    constant ROW_ADDR_WIDTH         : integer := 6;
    constant COL_ADDR_WIDTH         : integer := 3;
+   constant NUM_COLS               : integer range 0 to (2**COL_ADDR_WIDTH) := 2**COL_ADDR_WIDTH;
   
    constant FSFB_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- address width of first stage feedback queue 
 
@@ -148,6 +152,7 @@ package readout_card_pack is
       restart_frame_1row_post_i : in  std_logic;
       row_switch_i              : in  std_logic;
       initialize_window_i       : in  std_logic;
+      servo_rst_window_i        : in  std_logic;
       fltr_rst_i                : in  std_logic;
       num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
       dac_dat_en_i              : in  std_logic;

@@ -31,6 +31,12 @@
 -- Revision history:
 --
 -- $Log: readout_card.vhd,v $
+-- Revision 1.101  2012-03-26 02:04:09  mandana
+-- 5.1.b for RevB cards
+-- bugfix: rectangle mode addressing
+-- bugfix: integral term is now calculated based on all samples
+-- tcl file is now updated to teh correct device of c7 speed grade!
+--
 -- Revision 1.100  2011-06-02 23:15:41  mandana
 -- rev. 5.1.4
 -- fixed bug with fsfb_corr when reverting back to applying sq1fb after 7 clk cycles when fj is off
@@ -242,7 +248,7 @@ architecture top of readout_card is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION : std_logic_vector (31 downto 0) := X"0501000b";
+   constant RC_REVISION : std_logic_vector (31 downto 0) := X"05020000";
 
    -- Global signals
    signal clk                     : std_logic;  -- system clk
@@ -272,6 +278,7 @@ architecture top of readout_card is
    signal restart_frame_aligned   : std_logic;
    signal restart_frame_1row_post : std_logic;
    signal initialize_window       : std_logic;
+   signal servo_rst_window        : std_logic;
    signal fltr_rst                : std_logic;
    signal row_switch              : std_logic;
    signal dat_ft                  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -424,6 +431,8 @@ begin
                             ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
                             ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
                             ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
+                            SERVO_RST_COL0_ADDR | SERVO_RST_COL1_ADDR | SERVO_RST_COL2_ADDR | SERVO_RST_COL3_ADDR |
+                            SERVO_RST_COL4_ADDR | SERVO_RST_COL5_ADDR | SERVO_RST_COL6_ADDR | SERVO_RST_COL7_ADDR |                           
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
@@ -433,7 +442,8 @@ begin
       dat_led          when LED_ADDR,
       dat_ft           when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | SERVO_RST_ARM_ADDR| 
+                            NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
       all_cards_data   when FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_data   when CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_data when FPGA_TEMP_ADDR,
@@ -456,6 +466,8 @@ begin
                            ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
                            ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
                            ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
+                           SERVO_RST_COL0_ADDR | SERVO_RST_COL1_ADDR | SERVO_RST_COL2_ADDR | SERVO_RST_COL3_ADDR |
+                           SERVO_RST_COL4_ADDR | SERVO_RST_COL5_ADDR | SERVO_RST_COL6_ADDR | SERVO_RST_COL7_ADDR |                           
                            FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                            RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
@@ -465,7 +477,8 @@ begin
       ack_led         when LED_ADDR,
       ack_ft          when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                            SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | SERVO_RST_ARM_ADDR |
+                           NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
       all_cards_ack   when FW_REV_ADDR |CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_ack   when CARD_ID_ADDR | CARD_TEMP_ADDR,
       fpga_thermo_ack when FPGA_TEMP_ADDR,
@@ -487,6 +500,8 @@ begin
                            ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
                            ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
                            ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
+                           SERVO_RST_COL0_ADDR | SERVO_RST_COL1_ADDR | SERVO_RST_COL2_ADDR | SERVO_RST_COL3_ADDR |
+                           SERVO_RST_COL4_ADDR | SERVO_RST_COL5_ADDR | SERVO_RST_COL6_ADDR | SERVO_RST_COL7_ADDR |                           
                            FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                            RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
@@ -495,7 +510,8 @@ begin
                            LED_ADDR |
                            ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                            SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
+                           RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | SERVO_RST_ARM_ADDR |
+                           NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR |
                            I_CLAMP_VAL_ADDR | FLTR_TYPE_ADDR | QTERM_DECAY_ADDR,
       all_cards_err   when FW_REV_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR | SLOT_ID_ADDR,
       id_thermo_err   when CARD_ID_ADDR | CARD_TEMP_ADDR,
@@ -513,6 +529,7 @@ begin
       restart_frame_aligned_o   => restart_frame_aligned,
       restart_frame_1row_post_o => restart_frame_1row_post,
       initialize_window_o       => initialize_window,
+      servo_rst_window_o        => servo_rst_window,
       fltr_rst_o                => fltr_rst,
       num_rows_o                => num_rows,
       num_rows_reported_o       => num_rows_reported,
@@ -557,6 +574,7 @@ begin
       restart_frame_1row_post_i => restart_frame_1row_post,
       row_switch_i              => row_switch,
       initialize_window_i       => initialize_window,
+      servo_rst_window_i        => servo_rst_window,     
       fltr_rst_i                => fltr_rst,
       num_rows_sub1_i           => (others => '0'),
       dac_dat_en_i              => dac_dat_en,
