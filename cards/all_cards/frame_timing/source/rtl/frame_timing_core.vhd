@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.17 2011-05-11 21:28:49 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.18 2013/05/16 22:43:57 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.18  2013/05/16 22:43:57  mandana
+-- servo_rst_arm parameter is added to generate a servo_rst_window for the rest of the system
+--
 -- Revision 1.17  2011-05-11 21:28:49  bburger
 -- BB:  Corrected a timing comment
 --
@@ -169,6 +172,8 @@ architecture beh of frame_timing_core is
    signal frame_count_int         : integer range 0 to 2147483647;
    signal frame_count_new         : integer range 0 to 2147483647; 
    signal servo_rst_sync_count    : integer range 0 to 3;
+   signal servo_rst_count_inc     : std_logic;
+   signal servo_rst_count_clr     : std_logic;   
    
    -- These are one-behind and two_behind versions of the variables above.
    signal frame_count_a           : integer range 0 to 2147483647;
@@ -249,6 +254,19 @@ begin
          end if;
       end if;
    end process row_dwell_cntr;
+
+   servo_rst_sync_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         servo_rst_sync_count <= 0;
+      elsif(clk_i'event and clk_i = '1') then
+         if(servo_rst_count_clr = '1') then
+            servo_rst_sync_count <= 0;
+         elsif (servo_rst_count_inc = '1') then
+            servo_rst_sync_count <= servo_rst_sync_count + 1;
+         end if;
+      end if;
+   end process servo_rst_sync_cntr;
 
    -----------------------
    -- Frame-timing signals
@@ -333,8 +351,7 @@ begin
             next_init_win_state <= SERVO_RST_HOLD;
 
          when SERVO_RST_HOLD =>
---            if(sync_received = '1') then
-            if (servo_rst_sync_count = 2) then
+            if (sync_received = '1' and servo_rst_sync_count = 1) then
                next_init_win_state <= INIT_OFF;
             end if;
 
@@ -360,7 +377,8 @@ begin
       fltr_rst_ack_o      <= '0';
       servo_rst_window_o  <= '0';
       servo_rst_ack_o     <= '0';
-      servo_rst_sync_count<=  0;
+      servo_rst_count_inc <= '0';
+      servo_rst_count_clr <= '1';
       
       case current_init_win_state is
          when SET => 
@@ -389,15 +407,14 @@ begin
 
          when SERVO_RST_ON =>
             fltr_rst_o <= '1';
+            servo_rst_window_o <= '1';
 
          when SERVO_RST_HOLD =>
             servo_rst_window_o <= '1';
-
+            servo_rst_count_clr <= '0';
             if(sync_received = '1') then
                servo_rst_ack_o      <= '1';
-               servo_rst_sync_count <= servo_rst_sync_count + 1;
-            else
-               servo_rst_sync_count <= servo_rst_sync_count;
+               servo_rst_count_inc <= '1';
             end if;
 
          when INIT_OFF =>
