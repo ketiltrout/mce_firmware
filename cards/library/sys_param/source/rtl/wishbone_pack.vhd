@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2012-01-23 20:33:14 $> - <initials $Author: mandana $>
+-- <date $Date: 2012-03-26 17:04:26 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.65  2012-03-26 17:04:26  mandana
+-- added bias-card parameters: enbl_flux_fb_mod, enbl_bias_mod, mod_val
+--
 -- Revision 1.64  2012-01-23 20:33:14  mandana
 -- added qterm_decay_bits
 --
@@ -265,7 +268,8 @@ use sys_param.command_pack.all;
 
 package wishbone_pack is
    --
-   -- unassigned parameter-id:0c-0f, 28-2F, 38-3F, 40, 42, 47-4f, 9e-9f, E9-FF
+   -- unassigned parameter-id:0c-0f, 28-2F, 38-3F, 40, 42, 47-4f, 9d-9f, e9-ef, f9-ff 
+   -- preferably set aside E9-EF for AC, 28-2F for BC, 38-3F for system, f9-ff for rc
    --
   ---------------------------------------------------------------------------------
    -- Wishbone bus widths
@@ -339,7 +343,7 @@ package wishbone_pack is
    constant FB_COL37_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E5";
    constant FB_COL38_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E6";
    constant FB_COL39_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E7";
-   constant FB_COL40_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E8";
+   constant FB_COL40_ADDR           : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"E8";   
    ---------------------------------------------------------------------------------------
 
    ---------------------------------------------------------------------------------------
@@ -406,6 +410,15 @@ package wishbone_pack is
    constant GAIND5_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8D";
    constant GAIND6_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8E";
    constant GAIND7_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8F";
+   constant SERVO_RST_COL0_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F0";
+   constant SERVO_RST_COL1_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F1";
+   constant SERVO_RST_COL2_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F2";
+   constant SERVO_RST_COL3_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F3";
+   constant SERVO_RST_COL4_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F4";
+   constant SERVO_RST_COL5_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F5";
+   constant SERVO_RST_COL6_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F6";
+   constant SERVO_RST_COL7_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F7";
+   constant SERVO_RST_ARM_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"F8";
 
    ---------------------------------------------------------------------------------------
    -- Bias Card Specific Parameter IDs
@@ -439,7 +452,7 @@ package wishbone_pack is
    constant VFY_EEPROM_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"44";
    constant CLR_ERROR_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"45";
    constant EEPROM_SRT_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"46";
-   constant BIT_STATUS_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"90";
+   constant BIT_STATUS_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"90"; -- obsolete
    constant FPGA_TEMP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"91";
    constant CARD_TEMP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"92";
    constant CARD_ID_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"93";
