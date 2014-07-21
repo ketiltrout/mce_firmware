@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.26  2013/05/30 19:17:53  mandana
+-- 5.2.0 added servo_rst_col0 and servo_rst_arm commands
+--
 -- Revision 1.25  2012-10-30 23:21:46  mandana
 -- 5.1.d rewritten fsfb_corr or flux-jump to be fully parallel and fb_dly is now reduced to 10 (previously 18) when flux-jumping is enabled.
 --
@@ -261,7 +264,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020000";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020001";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals

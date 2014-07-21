@@ -3,67 +3,67 @@ TimeQuest Timing Analyzer Summary
 ------------------------------------------------------------
 
 Type  : Slow 1100mV 85C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 0.943
+Slack : 0.767
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 2.039
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 6.020
+Slack : 1.881
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 6.044
+Slack : 6.432
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
+Slack : 6.456
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
-Slack : 6.100
+Slack : 7.232
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 13.476
+Slack : 13.641
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 17.384
+Slack : 17.286
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 0.226
+Slack : 0.197
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 0.357
+Slack : 0.412
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
-Slack : 0.422
-TNS   : 0.000
-
-Type  : Slow 1100mV 85C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 0.496
+Slack : 0.415
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 0.518
+Slack : 0.847
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
+Slack : 0.859
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 4.268
+Slack : 4.270
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 6.776
+Slack : 6.827
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 17.785
+Slack : 18.170
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Removal 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 1.274
+Slack : 1.250
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[0]'
@@ -71,27 +71,27 @@ Slack : 0.383
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 2.825
+Slack : 2.819
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 2.826
+Slack : 2.824
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 2.827
+Slack : 2.824
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
-Slack : 3.906
+Slack : 3.910
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 8.757
+Slack : 8.756
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 9.167
+Slack : 9.168
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'adc_fco'
@@ -107,71 +107,71 @@ Slack : 19.729
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 39.170
+Slack : 39.173
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 1.807
+Slack : 1.661
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 2.079
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 6.167
+Slack : 1.946
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 6.191
+Slack : 6.556
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
+Slack : 6.580
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
-Slack : 6.247
+Slack : 7.305
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 13.821
+Slack : 13.979
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 17.469
+Slack : 17.386
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 0.185
+Slack : 0.163
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 0.339
+Slack : 0.388
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
-Slack : 0.398
-TNS   : 0.000
-
-Type  : Slow 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 0.480
+Slack : 0.392
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 0.500
+Slack : 0.818
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
+Slack : 0.834
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 4.052
+Slack : 4.055
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 6.761
+Slack : 6.810
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 17.871
+Slack : 18.248
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Removal 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 1.243
+Slack : 1.218
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[0]'
@@ -179,15 +179,15 @@ Slack : 0.376
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 2.823
+Slack : 2.820
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 2.824
+Slack : 2.822
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 2.824
+Slack : 2.822
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
@@ -199,7 +199,7 @@ Slack : 8.758
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 9.163
+Slack : 9.166
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'adc_fco'
@@ -215,87 +215,87 @@ Slack : 19.735
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 39.165
+Slack : 39.166
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 2.852
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 7.118
+Slack : 2.722
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 7.141
+Slack : 7.357
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Setup 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
+Slack : 7.380
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 8.246
+Slack : 8.662
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
-Slack : 8.309
+Slack : 8.886
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 15.812
+Slack : 15.897
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 18.730
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 0.134
-TNS   : 0.000
-
-Type  : Fast 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
-Slack : 0.136
+Slack : 18.518
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 0.152
+Slack : 0.128
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 0.657
+Type  : Fast 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
+Slack : 0.135
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
+Slack : 0.179
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 0.680
+Slack : 0.899
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
+Slack : 0.918
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 2.899
+Slack : 2.903
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 6.563
+Slack : 6.591
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 18.952
+Slack : 19.174
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Removal 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 0.562
+Slack : 0.542
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[0]'
 Slack : 0.419
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
-Slack : 3.231
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
+Slack : 3.227
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[3]'
-Slack : 3.231
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[2]'
+Slack : 3.230
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'adc_pll_stratix_iii:i_adc_pll|altpll:altpll_component|adc_pll_stratix_iii_altpll:auto_generated|wire_pll1_clk[4]'
-Slack : 3.231
+Slack : 3.230
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[2]'
@@ -303,11 +303,11 @@ Slack : 4.164
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[0]'
-Slack : 9.140
+Slack : 9.139
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[4]'
-Slack : 9.638
+Slack : 9.637
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'adc_fco'
@@ -323,7 +323,7 @@ Slack : 19.950
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'rc_pll_stratix_iii:i_rc_pll|altpll:altpll_component|altpll_k773:auto_generated|clk[3]'
-Slack : 39.634
+Slack : 39.635
 TNS   : 0.000
 
 ------------------------------------------------------------
