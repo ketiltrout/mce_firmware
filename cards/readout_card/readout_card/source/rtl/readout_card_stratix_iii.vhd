@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.27  2014/07/21 20:27:02  mandana
+-- 5.2.1 bugfix: servo_rst_col works for all cols
+--
 -- Revision 1.26  2013/05/30 19:17:53  mandana
 -- 5.2.0 added servo_rst_col0 and servo_rst_arm commands
 --
@@ -264,7 +267,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020001";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020002";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals

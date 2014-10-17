@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.21  2012-09-06 23:11:47  mandana
+-- adjusted for the increased width of wn delay elements
+--
 -- Revision 1.20  2012-08-13 20:45:18  mandana
 -- added filter_mid_out
 --
@@ -70,31 +73,6 @@
 -- Use FILTER_SCALE_LSB to window the final output of the filter
 -- Fix an indexing (maybe bug) with dropping bits between 2 biquads
 --
--- Revision 1.13  2009/05/27 01:31:06  bburger
--- BB: Removed a pointless interlock that added latency.
---
--- Revision 1.12  2008/10/03 00:34:16  mandana
--- BB: Removed the z-term sign extension in fsfb_proc_pidz.vhd, and the [d-term + z-term] adder to free up DSP resources since the z-term is always = 0.
---
--- Revision 1.11  2007/03/21 17:13:00  mandana
--- removed unused wtemp_reg
---
--- Revision 1.10  2007/03/07 21:09:57  mandana
--- filter_input_width is now used to determine how many bits of pid calc results are passed to the filter
---
--- Revision 1.9  2006/08/10 21:30:42  mandana
--- *** empty log message ***
---
--- Revision 1.8  2006/07/28 17:42:13  mandana
--- introduced FILTER_GAIN_WIDTH parameter to divide by 32 between 2 filter biquads
---
--- Revision 1.7  2006/03/14 22:51:06  mandana
--- interface changes to accomodate 4-pole filter
--- registered multiplier inputs to break the timing chain and resolve timing violations introduced in Quartus 5.1 synthesis
---
--- Revision 1.6  2005/12/14 18:21:51  mandana
--- added 2-pole LPF filter functionality, the multiplier is pipelined.
---
 -- Revision 1.5  2004/12/22 00:38:53  mohsen
 -- completed sensitivity list
 --
@@ -111,7 +89,7 @@
 -- Initial release
 --
 --
-
+-- N O T E : At some point the operation width was increased by 3 bits and being lazy, adder labels were not adjusted acoordingly. So adder29 can in fact be 32 bits. CHECK
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -204,8 +182,8 @@ architecture rtl of fsfb_proc_pidz is
    signal store_fltr1_tmp          : std_logic;                                                   -- clock enable to register the intermediate filter output result
    signal store_fltr1_sum          : std_logic;                                                   -- clock enable to register the filter output
    signal store_wn20               : std_logic;                                                   -- clock enable to register wn output (1st filter biquad intermediate results)
-   signal store_fltr2_tmp       : std_logic;                                                   -- clock enable to register the intermediate filter output result
-   signal store_fltr2_sum       : std_logic;                                                   -- clock enable to register the filter output
+   signal store_fltr2_tmp          : std_logic;                                                   -- clock enable to register the intermediate filter output result
+   signal store_fltr2_sum          : std_logic;                                                   -- clock enable to register the filter output
 
 --   signal current_coadd_dat_reg    : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current coadded value register
    signal current_diff_dat_reg     : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current difference register
@@ -234,8 +212,6 @@ architecture rtl of fsfb_proc_pidz is
    signal b21_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b21*Wn21 (15 + 32 + 1 bits)
    signal b22_product_reg          : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- registered b22*Wn22 (15 + 32 + 1 bits)
 
---   signal z_dat_65                 : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- Z input extended to 65 bits
-   
    signal pi_sum                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- P*Xn+I*In adder output (65 bits)
    signal dz_sum                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- D*Dn+Z adder output    (65 bits)
 
@@ -246,7 +222,7 @@ architecture rtl of fsfb_proc_pidz is
    signal pidz_sum_reg             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);
    signal pidz_sum_reg_shift       : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);               -- pidz calculation result that is fed to the filter
                                                                                                   -- the width is due to usage in wn=pidz_sum_reg+wtemp/2^10
-   
+                                                                                                  
    signal fltr1_tmp                : std_logic_vector(FILTER_DLY_WIDTH+1 downto 0);               -- holds the results for wn + 2*wn1 adder output (filter biquad1)
    signal fltr1_tmp_reg            : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- registered wn + 2*wn1(filter biquad1)
    signal fltr1_sum                : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- wn + 2*wn1 + wn2 adder output  (filter biquad1)
@@ -309,13 +285,11 @@ begin
    operand_storages : process (rst_i, clk_50_i)
    begin
       if (rst_i = '1') then
---         current_coadd_dat_reg <= (others => '0');
          current_diff_dat_reg  <= (others => '0');
          current_integral_dat_reg <= (others => '0');
          current_qterm_dat_reg <= (others => '0');         
       elsif (clk_50_i'event and clk_50_i = '1') then
          if (coadd_done_i = '1') then
---            current_coadd_dat_reg    <= current_coadd_dat_i;
             current_diff_dat_reg     <= current_diff_dat_i;
             current_integral_dat_reg <= current_integral_dat_i;
             current_qterm_dat_reg <= current_qterm_dat_i;
@@ -356,21 +330,21 @@ begin
          
          -- B11*Wn11
          when "0001000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B11_COEF;
-                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); --FILTER_B11_COEF(FILTER_B11_COEF'left));
+                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); 
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn11_dat_i;
                            multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn11_dat_i(wn11_dat_i'left));         
          
          -- B12*Wn12
          when "0010000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B12_COEF;
-                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); --FILTER_B12_COEF(FILTER_B12_COEF'left));
+                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); 
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn12_dat_i;
                            multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn12_dat_i(wn12_dat_i'left));
 
          -- B21*Wn21
          when "0100000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B21_COEF;
-                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); --FILTER_B21_COEF(FILTER_B21_COEF'left));
+                           multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); 
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn21_dat_i;
                            multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn21_dat_i(wn21_dat_i'left));         
@@ -431,8 +405,7 @@ begin
          multiplicand_a_reg <= multiplicand_a;
          multiplicand_b_reg <= multiplicand_b;
       
-         if (calc_shift_state(1) = '1') then
-         -- q_product_reg <= multiplied_result(multiplied_result'left) & multiplied_result;
+         if (calc_shift_state(1) = '1') then      
             p_product_reg <= multiplied_result(multiplied_result'left) & multiplied_result;
          end if;
             
@@ -445,23 +418,19 @@ begin
          end if;
          
          if (calc_shift_state(4) = '1') then
-            b11_product_reg <= --multiplied_result(multiplied_result'left) & --multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
+            b11_product_reg <= multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
 
          if (calc_shift_state(5) = '1') then
-            b12_product_reg <= --multiplied_result(multiplied_result'left) & -- multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
+            b12_product_reg <= multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
          
          if (calc_shift_state(6) = '1') then
-            b21_product_reg <=-- multiplied_result(multiplied_result'left) & --multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
+            b21_product_reg <= multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
 
          if (calc_shift_state(7) = '1') then
-            b22_product_reg <= --multiplied_result(multiplied_result'left) & -- multiplied_result(multiplied_result'left) & 
-                               multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
+            b22_product_reg <= multiplied_result(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);
          end if;
          
       end if;
@@ -602,6 +571,7 @@ begin
    
    -- filter wn stage addition  (1st biquad)
    -- wn <= fltr_sum_reg - wtemp;
+   -- A configurable 20-bit window is applied to the output of the stage 1. k is programmable
    inter_stage_gain_proc : process (clk_50_i, rst_i)
    variable k :  integer:= 0;
    begin
@@ -610,8 +580,8 @@ begin
      elsif (clk_50_i'event and clk_50_i = '1') then
        k := filter_gain_width;
        for i in 0 to FILTER_DLY_WIDTH-1 loop
-         if i >= (FILTER_DLY_WIDTH + 2 - filter_gain_width) then
-           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(fltr1_sum_reg'left);
+         if i >= (FILTER_INPUT_WIDTH) then
+           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(FILTER_INPUT_WIDTH+filter_gain_width-1);
          else
            fltr1_sum_reg_shift(i) <= fltr1_sum_reg(k);
            k := k + 1;
@@ -619,8 +589,7 @@ begin
        end loop;   
      end if;
    end process inter_stage_gain_proc;
---   fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto FILTER_DLY_WIDTH+2-FILTER_GAIN_WIDTH) <= (others => fltr1_sum_reg(fltr1_sum_reg'left));
---   fltr1_sum_reg_shift(FLTR_QUEUE_DATA_WIDTH-1-FILTER_GAIN_WIDTH downto 0) <= fltr1_sum_reg(FLTR_QUEUE_DATA_WIDTH-1 downto FILTER_GAIN_WIDTH);
+
    i_wn20_sub : fsfb_calc_sub29
       port map (
          dataa                              => fltr1_sum_reg_shift,
