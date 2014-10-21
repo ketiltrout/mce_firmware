@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.28  2014/10/17 23:50:01  mandana
+-- rev 5.2.2, to address dynamic-range of the filter, a 20-bit window is applied to the output of stage 1 filter with lsb being configurable
+--
 -- Revision 1.27  2014/07/21 20:27:02  mandana
 -- 5.2.1 bugfix: servo_rst_col works for all cols
 --
@@ -267,7 +270,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020002";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020003";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals

@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.22  2014/10/17 23:50:01  mandana
+-- rev 5.2.2, to address dynamic-range of the filter, a 20-bit window is applied to the output of stage 1 filter with lsb being configurable
+--
 -- Revision 1.21  2012-09-06 23:11:47  mandana
 -- adjusted for the increased width of wn delay elements
 --
@@ -220,14 +223,14 @@ architecture rtl of fsfb_proc_pidz is
   
    signal pidz_sum                 : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output (65 + 1 bits)
    signal pidz_sum_reg             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);
-   signal pidz_sum_reg_shift       : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);               -- pidz calculation result that is fed to the filter
-                                                                                                  -- the width is due to usage in wn=pidz_sum_reg+wtemp/2^10
+   signal pidz_sum_reg_shift       : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- pidz calculation result that is fed to the filter
+                                                                                                  -- the width is due to usage in wn=pidz_sum_reg+wtemp/2^14
                                                                                                   
    signal fltr1_tmp                : std_logic_vector(FILTER_DLY_WIDTH+1 downto 0);               -- holds the results for wn + 2*wn1 adder output (filter biquad1)
    signal fltr1_tmp_reg            : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- registered wn + 2*wn1(filter biquad1)
    signal fltr1_sum                : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- wn + 2*wn1 + wn2 adder output  (filter biquad1)
    signal fltr1_sum_reg            : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- registered wn + 2*wn1 + wn2    (filter biquad1)
-   signal fltr1_sum_reg_shift      : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);               -- input to the second filter biquad, the width is due to usage in wn=fltr1_sum_reg+wtemp/2^10 (filter biquad1)
+   signal fltr1_sum_reg_shift      : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- input to the second filter biquad, the width is due to usage in wn=fltr1_sum_reg+wtemp/2^10 (filter biquad1)
    signal fltr2_tmp                : std_logic_vector(FILTER_DLY_WIDTH+1 downto 0);               -- holds the results for wn + 2*wn1 adder output (filter biquad2) 
    signal fltr2_tmp_reg            : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- registered wn + 2*wn1 (filter biquad2)
    signal fltr2_sum                : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- wn + 2*wn1 + wn2 adder output (filter biquad2)
@@ -236,12 +239,12 @@ architecture rtl of fsfb_proc_pidz is
    signal operand_a                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation 
    signal operand_b                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation
    signal wtemp                    : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- stores results for b1*wn1+b2*wn2
-   signal wtemp_reg_shift          : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);                -- scaled down version with sign preserved of wtemp
+   signal wtemp_reg_shift          : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);                -- scaled down version with sign preserved of wtemp
    signal wtemp_reg_shift_corrected: std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);               
    
    signal correction_on            : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);               -- voodoo correction for -1!
-   signal wn10                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
-   signal wn20                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn10                     : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);
+   signal wn20                     : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);
    signal wn10_reg                 : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- 2-bits extension to preapare for the 2-level addition for the final filter result
    signal wn20_reg                 : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);              
    signal wn11_shift               : std_logic_vector(FILTER_DLY_WIDTH+1 downto 0);               -- stores 2*wn11, so one more bit and then one more bit to handle the next addition
@@ -516,30 +519,33 @@ begin
    
    -- wtemp_reg_shift is the scaled down version of wtemp and needs correction, add 1, 
    -- when wtemp is negative
-   i_wn_correction : fsfb_calc_adder29 --adder32 indeed!
-      port map (
-         dataa                              => wtemp_reg_shift,
-         datab                              => correction_on,
-         result                             => wtemp_reg_shift_corrected
-      );
+--   i_wn_correction : fsfb_calc_adder29 --adder32 indeed!
+--      port map (
+--         dataa                              => wtemp_reg_shift,
+--         datab                              => correction_on,
+--         result                             => wtemp_reg_shift_corrected
+--      );
    
-   correction_on <= --"00000000000000000000000000000001" when wtemp_reg_shift(wtemp_reg_shift'left)='1' else 
-                    (others => '0');
+--   correction_on <= --"00000000000000000000000000000001" when wtemp_reg_shift(wtemp_reg_shift'left)='1' else 
+--                    (others => '0');
 
    -- filter wn stage addition  (1st biquad)
    -- wn <= pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(FILTER_DLY_WIDTH-2 downto 0) - wtemp;
    -- extend sign bit for (input_width - delay_width +1)
-   pidz_sum_reg_shift <= pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
+   pidz_sum_reg_shift <= pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
+                         pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
                          pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
                          pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
                          pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
                          pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) &
                          pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1) & 
                          pidz_sum_reg(filter_lock_dat_lsb + FILTER_INPUT_WIDTH-1 downto filter_lock_dat_lsb);
-   i_wn10_sub : fsfb_calc_sub29 --sub32 in fact
+                         
+   i_wn10_sub : fsfb_calc_sub29 --sub35 in fact
       port map (
          dataa                              => pidz_sum_reg_shift,
-         datab                              => wtemp_reg_shift_corrected, --wtemp_reg(FILTER_FB_H_BIT downto FILTER_FB_L_BIT),
+         datab                              => wtemp_reg_shift, --wtemp_reg(FILTER_FB_H_BIT downto FILTER_FB_L_BIT),
          result                             => wn10
       );
    
@@ -579,9 +585,9 @@ begin
        fltr1_sum_reg_shift <= (others => '0');
      elsif (clk_50_i'event and clk_50_i = '1') then
        k := filter_gain_width;
-       for i in 0 to FILTER_DLY_WIDTH-1 loop
+       for i in 0 to fltr1_sum_reg_shift'length-1 loop
          if i >= (FILTER_INPUT_WIDTH) then
-           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(FILTER_INPUT_WIDTH+filter_gain_width-1);
+           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(FILTER_INPUT_WIDTH+filter_gain_width);
          else
            fltr1_sum_reg_shift(i) <= fltr1_sum_reg(k);
            k := k + 1;
@@ -590,10 +596,10 @@ begin
      end if;
    end process inter_stage_gain_proc;
 
-   i_wn20_sub : fsfb_calc_sub29
+   i_wn20_sub : fsfb_calc_sub29 --35 in fact
       port map (
          dataa                              => fltr1_sum_reg_shift,
-         datab                              => wtemp_reg_shift_corrected, 
+         datab                              => wtemp_reg_shift,--_corrected, 
          result                             => wn20
       );
       
@@ -648,17 +654,17 @@ begin
 
          -- wtemp sum biquad 1
          if (store_1st_wtemp = '1') then
-            wtemp_reg_shift <= wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
+            wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
          end if;
 
          -- wtemp sum biquad 2
          if (store_2nd_wtemp = '1') then
-            wtemp_reg_shift <= wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
+            wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
          end if;
 
          -- wn10 sum (wn of biquad 1)
          if (store_wn10 = '1') then
-            wn10_reg <= wn10(wn10'left) & wn10(wn10'left) & wn10(wn10'left) & wn10;
+            wn10_reg <= wn10; --wn10(wn10'left) & wn10(wn10'left) & wn10(wn10'left) & wn10;
          end if;
 
          -- filter temp sum (biquad 1)
@@ -673,7 +679,7 @@ begin
          
          -- wn20 sum (wn of biquad 2)
          if (store_wn20 = '1') then
-            wn20_reg <= wn20(wn20'left) & wn20(wn20'left) & wn20(wn20'left) & wn20;
+            wn20_reg <= wn20; --wn20(wn20'left) & wn20(wn20'left) & wn20(wn20'left) & wn20;
          end if;
 
          -- filter temp sum (biquad 2)
@@ -691,7 +697,7 @@ begin
    
    
    -- Output results 
-   fsfb_proc_fltr_mid_sum_o <= fltr1_sum_reg_shift;
+   fsfb_proc_fltr_mid_sum_o <= fltr1_sum_reg_shift(FILTER_DLY_WIDTH-1 downto 0);
    fsfb_proc_fltr_mid_update_o <= calc_shift_state(9) when lock_mode_en_i = '1' else '0';
    
    fsfb_proc_pidz_sum_o <= pidz_sum_reg;

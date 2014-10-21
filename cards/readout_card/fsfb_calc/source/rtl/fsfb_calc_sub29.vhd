@@ -42,16 +42,16 @@ USE lpm.all;
 ENTITY fsfb_calc_sub29 IS
 	PORT
 	(
-		dataa		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-		datab		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-		result		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+		dataa		: IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+		datab		: IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+		result		: OUT STD_LOGIC_VECTOR (34 DOWNTO 0)
 	);
 END fsfb_calc_sub29;
 
 
 ARCHITECTURE SYN OF fsfb_calc_sub29 IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (31 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (34 DOWNTO 0);
 
 
 
@@ -64,14 +64,14 @@ ARCHITECTURE SYN OF fsfb_calc_sub29 IS
 		lpm_width		: NATURAL
 	);
 	PORT (
-			dataa	: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-			datab	: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-			result	: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+			dataa	: IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+			datab	: IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+			result	: OUT STD_LOGIC_VECTOR (34 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	result    <= sub_wire0(31 DOWNTO 0);
+	result    <= sub_wire0(34 DOWNTO 0);
 
 	LPM_ADD_SUB_component : LPM_ADD_SUB
 	GENERIC MAP (
@@ -79,7 +79,7 @@ BEGIN
 		lpm_hint => "ONE_INPUT_IS_CONSTANT=NO,CIN_USED=NO",
 		lpm_representation => "UNSIGNED",
 		lpm_type => "LPM_ADD_SUB",
-		lpm_width => 32
+		lpm_width => 35
 	)
 	PORT MAP (
 		dataa => dataa,
@@ -112,20 +112,20 @@ END SYN;
 -- Retrieval info: PRIVATE: WhichConstant NUMERIC "0"
 -- Retrieval info: PRIVATE: aclr NUMERIC "0"
 -- Retrieval info: PRIVATE: clken NUMERIC "0"
--- Retrieval info: PRIVATE: nBit NUMERIC "32"
+-- Retrieval info: PRIVATE: nBit NUMERIC "35"
 -- Retrieval info: PRIVATE: new_diagram STRING "1"
 -- Retrieval info: LIBRARY: lpm lpm.lpm_components.all
 -- Retrieval info: CONSTANT: LPM_DIRECTION STRING "SUB"
 -- Retrieval info: CONSTANT: LPM_HINT STRING "ONE_INPUT_IS_CONSTANT=NO,CIN_USED=NO"
 -- Retrieval info: CONSTANT: LPM_REPRESENTATION STRING "UNSIGNED"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_ADD_SUB"
--- Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "32"
--- Retrieval info: USED_PORT: dataa 0 0 32 0 INPUT NODEFVAL "dataa[31..0]"
--- Retrieval info: USED_PORT: datab 0 0 32 0 INPUT NODEFVAL "datab[31..0]"
--- Retrieval info: USED_PORT: result 0 0 32 0 OUTPUT NODEFVAL "result[31..0]"
--- Retrieval info: CONNECT: @dataa 0 0 32 0 dataa 0 0 32 0
--- Retrieval info: CONNECT: @datab 0 0 32 0 datab 0 0 32 0
--- Retrieval info: CONNECT: result 0 0 32 0 @result 0 0 32 0
+-- Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "35"
+-- Retrieval info: USED_PORT: dataa 0 0 35 0 INPUT NODEFVAL "dataa[34..0]"
+-- Retrieval info: USED_PORT: datab 0 0 35 0 INPUT NODEFVAL "datab[34..0]"
+-- Retrieval info: USED_PORT: result 0 0 35 0 OUTPUT NODEFVAL "result[34..0]"
+-- Retrieval info: CONNECT: @dataa 0 0 35 0 dataa 0 0 35 0
+-- Retrieval info: CONNECT: @datab 0 0 35 0 datab 0 0 35 0
+-- Retrieval info: CONNECT: result 0 0 35 0 @result 0 0 35 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_calc_sub29.vhd TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_calc_sub29.inc FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_calc_sub29.cmp FALSE

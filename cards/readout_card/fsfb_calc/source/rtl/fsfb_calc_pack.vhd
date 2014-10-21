@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.28  2012/09/06 23:09:05  mandana
+-- increased data-width of delay elements by 3 bits which affected arithmetic precision
+--
 -- Revision 1.27  2012-08-13 20:47:27  mandana
 -- added filter_mid_out
 --
@@ -163,8 +166,8 @@ package fsfb_calc_pack is
    constant FILTER_FEEDBACK_WIDTH  : integer := 2*FILTER_DLY_WIDTH+1; -- number of bits that results from b1*wn1+b2*wn2 calculations
 
    -- the interim results of the filter calculation are trimmed as follows
-   constant FILTER_FB_L_BIT        : integer := FILTER_COEF_WIDTH-1;                    -- low bit 
-   constant FILTER_FB_H_BIT        : integer := FILTER_FB_L_BIT+FILTER_DLY_WIDTH-1;     -- high bit
+   constant FILTER_FB_L_BIT        : integer := FILTER_COEF_WIDTH-1;                     -- low bit 
+   constant FILTER_FB_H_BIT        : integer := FILTER_FB_L_BIT+FILTER_DLY_WIDTH +1;     -- high bit
    
    
    ---------------------------------------------------------------------------------
@@ -473,9 +476,9 @@ package fsfb_calc_pack is
    component fsfb_calc_sub29
       PORT
       (
-         dataa    : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-         datab    : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-         result      : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+         dataa    : IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+         datab    : IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+         result      : OUT STD_LOGIC_VECTOR (34 DOWNTO 0)
       );
    end component fsfb_calc_sub29;
 
