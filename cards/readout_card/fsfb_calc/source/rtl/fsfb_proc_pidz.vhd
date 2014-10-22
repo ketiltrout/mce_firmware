@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.23  2014/10/21 21:21:00  mandana
+-- 5.2.3 In order to extend the dynamic range of the second stage of the filter, the input to the second stage is 20 bits only and the subtractor width is extended from 32 to to 35 bits with MSBs dropped just prior to writing to wn banks
+--
 -- Revision 1.22  2014/10/17 23:50:01  mandana
 -- rev 5.2.2, to address dynamic-range of the filter, a 20-bit window is applied to the output of stage 1 filter with lsb being configurable
 --
@@ -587,7 +590,7 @@ begin
        k := filter_gain_width;
        for i in 0 to fltr1_sum_reg_shift'length-1 loop
          if i >= (FILTER_INPUT_WIDTH) then
-           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(FILTER_INPUT_WIDTH+filter_gain_width);
+           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(FILTER_INPUT_WIDTH+filter_gain_width-1);
          else
            fltr1_sum_reg_shift(i) <= fltr1_sum_reg(k);
            k := k + 1;

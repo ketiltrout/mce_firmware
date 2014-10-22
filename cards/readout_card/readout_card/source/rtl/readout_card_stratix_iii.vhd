@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.29  2014/10/21 21:21:00  mandana
+-- 5.2.3 In order to extend the dynamic range of the second stage of the filter, the input to the second stage is 20 bits only and the subtractor width is extended from 32 to to 35 bits with MSBs dropped just prior to writing to wn banks
+--
 -- Revision 1.28  2014/10/17 23:50:01  mandana
 -- rev 5.2.2, to address dynamic-range of the filter, a 20-bit window is applied to the output of stage 1 filter with lsb being configurable
 --
@@ -270,7 +273,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020003";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020004";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
