@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.17 2012-04-13 18:08:05 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.18 2012-12-20 20:59:14 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -36,6 +36,10 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.18  2012-12-20 20:59:14  mandana
+-- sxt instead of ext for a single-value mod_val change to assert all LN_BIAS changes when enbl_ln_bias_mod=1
+-- add one clk latency to access enbl_ln_bias_mod register
+--
 -- Revision 1.17  2012-04-13 18:08:05  mandana
 -- mod_val takes 1 value now
 --
@@ -121,6 +125,7 @@ entity bc_dac_ctrl_wbs is
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
       ln_bias_changed_o : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
+      num_idle_rows_o   : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);      
       
       mux_flux_fb_data_o: out flux_fb_dac_array;
       enbl_mux_data_o   : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -178,7 +183,10 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal enbl_flux_fb_mod_data: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
    signal enbl_ln_bias_mod_wren: std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0); 
-   signal enbl_ln_bias_mod_data: std_logic_vector(2**LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
+   signal enbl_ln_bias_mod_data: std_logic_vector(2**LN_BIAS_DAC_ADDR_WIDTH-1 downto 0) := (others => '0');
+
+   signal num_idle_rows_wren : std_logic;
+   signal num_idle_rows    : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 
    -- index of the ram_16x16 block used to store non-multiplexed values for flux_fb
    signal ram_addr         : std_logic_vector(FLUX_FB_DAC_ADDR_WIDTH-1 downto 0);
@@ -332,6 +340,20 @@ begin
      end process enbl_ln_bias_mod_reg;
    end generate enbl_ln_bias_mod_bank;   
    
+   -----------------------------------------------------------------   
+   -- register number of idle_rows
+   -----------------------------------------------------------------   
+   num_idle_rows_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         num_idle_rows <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(num_idle_rows_wren = '1') then
+            num_idle_rows <= dat_i(ROW_ADDR_WIDTH-1 downto 0);
+         end if;
+      end if;
+   end process num_idle_rows_reg;
+   num_idle_rows_o <= num_idle_rows;
    ------------------------------------------------------------
    -- generate wren signals
    ------------------------------------------------------------
@@ -341,6 +363,7 @@ begin
      flux_fb_wren <= (others => '0');
      row_flux_fb_wren <= (others => '0');
      mod_val_wren <= '0';
+     num_idle_rows_wren <= '0';
          
      for i in 0 to NUM_FLUX_FB_DACS-1 loop
        enbl_mux_wren(i) <= '0';
@@ -365,6 +388,9 @@ begin
          
        when ENBL_BIAS_MOD_ADDR =>
          enbl_ln_bias_mod_wren(ln_bias_ram_addr_int) <= we_i;
+         
+       when BC_NUM_IDLE_ROWS_ADDR =>
+         num_idle_rows_wren <= we_i;
 
        when FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR |
             FB_COL8_ADDR | FB_COL9_ADDR | FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR |
@@ -438,12 +464,13 @@ begin
       ext("0",WB_DATA_WIDTH-1) & enbl_mux_data(ram_addr_int) when (addr_i =  ENBL_MUX_ADDR) else      
       ext("0",WB_DATA_WIDTH-1) & enbl_flux_fb_mod_data(ram_addr_int) when (addr_i =  ENBL_FLUX_FB_MOD_ADDR) else      
       ext("0",WB_DATA_WIDTH-1) & enbl_ln_bias_mod_data(ram_addr_int) when (addr_i =  ENBL_BIAS_MOD_ADDR) else       
-      ext(mod_val_data, WB_DATA_WIDTH)                 when (addr_i = MOD_VAL_ADDR) else
+      ext(mod_val_data, WB_DATA_WIDTH)     when (addr_i = MOD_VAL_ADDR) else
+      ext(num_idle_rows, WB_DATA_WIDTH) when (addr_i = BC_NUM_IDLE_ROWS_ADDR) else
       ext(wb_mux_flux_fb_data(mux_ram_addr_int), WB_DATA_WIDTH) when (( addr_i >= FB_COL0_ADDR) and (addr_i <= FB_COL31_ADDR)) else
       (others => '0');
 
    with addr_i select
-      addr_qualifier <= '1' when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR | ENBL_FLUX_FB_MOD_ADDR | ENBL_BIAS_MOD_ADDR | MOD_VAL_ADDR |
+      addr_qualifier <= '1' when FLUX_FB_ADDR | BIAS_ADDR | FLUX_FB_UPPER_ADDR | ENBL_MUX_ADDR | ENBL_FLUX_FB_MOD_ADDR | ENBL_BIAS_MOD_ADDR | MOD_VAL_ADDR |BC_NUM_IDLE_ROWS_ADDR |
                                  FB_COL0_ADDR | FB_COL1_ADDR | FB_COL2_ADDR | FB_COL3_ADDR | FB_COL4_ADDR | FB_COL5_ADDR | FB_COL6_ADDR | FB_COL7_ADDR |
                                  FB_COL8_ADDR | FB_COL9_ADDR | FB_COL10_ADDR | FB_COL11_ADDR | FB_COL12_ADDR | FB_COL13_ADDR | FB_COL14_ADDR | FB_COL15_ADDR |
                                  FB_COL16_ADDR | FB_COL17_ADDR | FB_COL18_ADDR | FB_COL19_ADDR | FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR |

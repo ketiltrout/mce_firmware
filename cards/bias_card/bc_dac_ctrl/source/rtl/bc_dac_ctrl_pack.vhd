@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_pack.vhd,v 1.10 2011-11-29 00:55:44 mandana Exp $
+-- $Id: bc_dac_ctrl_pack.vhd,v 1.11 2012-12-20 20:55:19 mandana Exp $
 --
 
 -- Project:       SCUBA2
@@ -31,6 +31,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_pack.vhd,v $
+-- Revision 1.11  2012-12-20 20:55:19  mandana
+-- added DAC_CYCLE_COUNT_MAX to indicate time spent to refresh each LN_BIAS DAC
+--
 -- Revision 1.10  2011-11-29 00:55:44  mandana
 -- ln_bias_changed changed to std_logic_vector, one bit per DAC
 --
@@ -108,6 +111,7 @@ component bc_dac_ctrl_core
       ln_bias_addr_o    : out std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_i    : in std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
       ln_bias_changed_i : in std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
+      num_idle_rows_i   : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 
       mux_flux_fb_data_i: in flux_fb_dac_array;    
       enbl_mux_data_i   : in std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -136,6 +140,7 @@ component bc_dac_ctrl_wbs is
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);     
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0); 
       ln_bias_changed_o : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
+      num_idle_rows_o   : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 
       mux_flux_fb_data_o: out flux_fb_dac_array;    
       enbl_mux_data_o   : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);

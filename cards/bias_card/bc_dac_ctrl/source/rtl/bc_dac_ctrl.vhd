@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.12 2011-11-29 00:55:44 mandana Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.13 2012-03-26 21:54:12 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.13  2012-03-26 21:54:12  mandana
+-- added comment about new commands!
+--
 -- Revision 1.12  2011-11-29 00:55:44  mandana
 -- ln_bias_changed changed to std_logic_vector, one bit per DAC
 --
@@ -143,6 +146,7 @@ architecture rtl of bc_dac_ctrl is
    signal ln_bias_addr    : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
    signal ln_bias_data    : std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
    signal ln_bias_changed : std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);   
+   signal num_idle_rows   : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    signal row_addr        : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    signal mux_flux_fb_data: flux_fb_dac_array;
    signal enbl_mux_data   : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -170,6 +174,7 @@ begin
       ln_bias_addr_o    => ln_bias_addr,
       ln_bias_data_i    => ln_bias_data,      
       ln_bias_changed_i => ln_bias_changed,   
+      num_idle_rows_i   => num_idle_rows,
 
       mux_flux_fb_data_i=> mux_flux_fb_data,
       enbl_mux_data_i   => enbl_mux_data,
@@ -197,6 +202,7 @@ begin
       ln_bias_addr_i    => ln_bias_addr,
       ln_bias_data_o    => ln_bias_data,      
       ln_bias_changed_o => ln_bias_changed,   
+      num_idle_rows_o   => num_idle_rows,
       
       mux_flux_fb_data_o => mux_flux_fb_data,
       enbl_mux_data_o   => enbl_mux_data,
