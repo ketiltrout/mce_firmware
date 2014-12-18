@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2012-03-26 17:04:26 $> - <initials $Author: mandana $>
+-- <date $Date: 2013/05/31 19:55:48 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.66  2013/05/31 19:55:48  mandana
+-- added servo_rst_col and servo_rst_arm
+--
 -- Revision 1.65  2012-03-26 17:04:26  mandana
 -- added bias-card parameters: enbl_flux_fb_mod, enbl_bias_mod, mod_val
 --
@@ -268,8 +271,8 @@ use sys_param.command_pack.all;
 
 package wishbone_pack is
    --
-   -- unassigned parameter-id:0c-0f, 28-2F, 38-3F, 40, 42, 47-4f, 9d-9f, e9-ef, f9-ff 
-   -- preferably set aside E9-EF for AC, 28-2F for BC, 38-3F for system, f9-ff for rc
+   -- unassigned parameter-id:0c-0f, 29-2F, 38-3F, 40, 42, 47-4f, 9d-9f, e9-ef, f9-ff 
+   -- preferably set aside E9-EF for AC, 29-2F for BC, 38-3F for system, f9-ff for rc
    --
   ---------------------------------------------------------------------------------
    -- Wishbone bus widths
@@ -297,7 +300,6 @@ package wishbone_pack is
    constant BIAS_START_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"09";
    constant HEATER_BIAS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"0A";
    constant HEATER_BIAS_LEN_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"0B";
-
    ---------------------------------------------------------------------------------------
    -- Address Card Specific Parameter IDs
    -- Do not change addresses in the following block because the AC uses the fact that they
@@ -431,6 +433,7 @@ package wishbone_pack is
    constant ENBL_FLUX_FB_MOD_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"25";
    constant ENBL_BIAS_MOD_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"26";
    constant MOD_VAL_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"27";
+   constant BC_NUM_IDLE_ROWS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"28";
 
    ---------------------------------------------------------------------------------------
    -- System (All FPGA Cards) Parameter IDs
@@ -440,8 +443,8 @@ package wishbone_pack is
    constant SAMPLE_DLY_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"32";
    constant SAMPLE_NUM_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"33";
    constant FB_DLY_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"34";
-   constant ROW_DLY_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"35";
-   constant RESYNC_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36";
+   constant ROW_DLY_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"35"; -- obsolete
+   constant RESYNC_ADDR             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36"; -- obsolete?? check
    constant FLX_LP_INIT_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
 
    ---------------------------------------------------------------------------------------
