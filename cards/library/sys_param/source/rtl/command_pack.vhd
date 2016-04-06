@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: command_pack.vhd,v $
+-- Revision 1.25  2010/05/15 00:42:29  bburger
+-- BB: Re-introduced two constants that had been deleted, so that I can simulate cards that use the old constants.
+--
 -- Revision 1.24  2010/01/19 23:03:02  mandana
 -- BC_CARD_TYPE and RC_CARD_TYPE are now managed by card_type.vhd generated through tcl file.
 --
@@ -144,6 +147,8 @@ package command_pack is
    constant BB_COMMAND_TYPE : std_logic_vector(11 downto 11) := "0";
    constant BB_DATA_SIZE    : std_logic_vector(10 downto 0)  := "00000000000";
    constant BB_CARD_ADDRESS : std_logic_vector(31 downto 24) := "00000000";
+   constant BB_CARD_HW_ADDR : std_logic_vector(27 downto 24) := "0000";	 -- the lower nibble is the actual slot id, the upper nibble is used to introduce virtual cards for the purpose of supporting 64 rows.
+   constant BB_CARD_U_ADDRESS: std_logic_vector(28 downto 28) := "0";    -- this bit signifies a virtual card to write to the upper 32 word of a param id.
    constant BB_PARAMETER_ID : std_logic_vector(23 downto 16) := "00000000";
    constant BB_STATUS       : std_logic_vector(15 downto 0)  := "0000000000000000";
 
@@ -154,6 +159,7 @@ package command_pack is
    constant BB_COMMAND_TYPE_WIDTH : integer := BB_COMMAND_TYPE'length;
    constant BB_DATA_SIZE_WIDTH    : integer := BB_DATA_SIZE'length;
    constant BB_CARD_ADDRESS_WIDTH : integer := BB_CARD_ADDRESS'length;
+   constant BB_CARD_HW_ADDR_WIDTH : integer := BB_CARD_HW_ADDR'length;
    constant BB_PARAMETER_ID_WIDTH : integer := BB_PARAMETER_ID'length;
    constant BB_STATUS_WIDTH       : integer := BB_STATUS'length;
 
@@ -180,6 +186,16 @@ package command_pack is
    constant ALL_BIAS_CARDS    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0C";
    constant ALL_FPGA_CARDS    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0D";
    constant ALL_MCE_CARDS     : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0E";
+
+   -- virtual card-ids introduced to support 64 rows or writing upper 32 words of a given parameter id   
+   constant READOUT_CARD_1_U  : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"13";
+   constant READOUT_CARD_2_U  : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"14";
+   constant READOUT_CARD_3_U  : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"15";
+   constant READOUT_CARD_4_U  : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"16";
+   constant BIAS_CARD_1_U     : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"17";
+   constant BIAS_CARD_2_U     : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"18";
+   constant BIAS_CARD_3_U     : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"19";
+   constant ADDRESS_CARD_U    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"1A";
 
    -- parameter id's are defined in wishbone_pack.vhd
 
