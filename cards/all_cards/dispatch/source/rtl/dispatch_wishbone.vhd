@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.18  2008/10/03 00:30:13  mandana
+-- BB: Moved the tga_o signal out of the FSM, and made it a continuous assignment. This signal has one of the highest fan-out counts in the RTL design, and actually was impossible to route in Stratix III chips in its previous configuration because of the number of gates on the fan-out. As a consequence of making it a continuous assignment, the Stratix III fitter was able to succeed, and the Stratix I timing characteristics were greatly improved.
+--
 -- Revision 1.17  2008/08/12 19:08:59  bburger
 -- BB: replaced the binary_counter block for generating address with discrete implementation.  Simulated the block to ensure that the behaviour was the same.
 --
@@ -147,6 +150,7 @@ architecture rtl of dispatch_wishbone is
 
    signal addr_ena : std_logic;
    signal addr_clr : std_logic;
+   signal addr_preload: std_logic;
 --   signal addr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
    signal timer_rst : std_logic;
@@ -154,6 +158,7 @@ architecture rtl of dispatch_wishbone is
 
    signal addr       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
    signal addr_count_new   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal tga_offset : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 begin
 
@@ -161,12 +166,19 @@ begin
    -- Address generator
    ---------------------------------------------------------
 
-   addr_count_new <= addr + "00000000001";
+   addr_count_new <= addr + "00000000001";  
    addr_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          addr <= (others => '0');
+         tga_offset <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
+         if (addr_clr = '1') then
+            tga_offset <= (others => '0');
+         elsif (addr_preload = '1') then
+            tga_offset <= "00000100000";
+         end if;   
+      
          if(addr_clr = '1') then
             addr <= "00000000000";
          elsif(addr_ena = '1') then
@@ -174,19 +186,6 @@ begin
          end if;
       end if;
    end process addr_cntr;
-
-
---   addr_gen : binary_counter
---   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
---   port map(clk_i   => clk_i,
---            rst_i   => rst_i,
---            ena_i   => addr_ena,
---            up_i    => '1',
---            load_i  => '0',
---            clear_i => addr_clr,
---            count_i => (others => '0'),
---            count_o => addr);
-
 
    ---------------------------------------------------------
    -- Watchdog timer
@@ -261,8 +260,8 @@ begin
 
       end case;
    end process stateNS;
-
-   tga_o <= "000000000000000000000" & addr;          -- zero-padded to 32-bits by default assignment
+    
+   tga_o <= "000000000000000000000" & (addr + tga_offset);          -- zero-padded to 32-bits by default assignment
    stateOut: process(pres_state, header0_i, header1_i, buf_data_i, dat_i, ack_i, addr)
    begin
       addr_o          <= (others => '0');
@@ -273,6 +272,7 @@ begin
       stb_o           <= '0';
       addr_ena        <= '0';
       addr_clr        <= '0';
+      addr_preload    <= '0';
       buf_addr_o      <= (others => '0');
       buf_data_o      <= (others => '0');
       buf_wren_o      <= '0';
@@ -285,10 +285,12 @@ begin
 
          when FETCH =>
             buf_addr_o    <= addr;
-
+            addr_preload  <= header1_i(28);
+            
          when WB_CYCLE =>
             addr_o        <= header1_i(BB_PARAMETER_ID'range);
 --            tga_o(BB_DATA_SIZE_WIDTH-1 downto 0) <= addr;          -- zero-padded to 32-bits by default assignment
+            addr_preload  <= header1_i(28);
             cyc_o         <= '1';
             stb_o         <= '1';
 

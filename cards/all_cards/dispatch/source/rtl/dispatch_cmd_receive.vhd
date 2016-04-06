@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.27  2009/08/21 21:07:24  bburger
+-- BB: added FPGA_DEVICE_FAMILY generic to interfaces for synthesis for Stratix I or III
+--
 -- Revision 1.26  2008/02/03 09:37:35  bburger
 -- BB: renamed global constant ALL_CARDS to ALL_FPGA_CARDS
 --
@@ -196,6 +199,7 @@ begin
    cmd_type  <= header0(BB_COMMAND_TYPE'range);
 
    cmd_valid <= '1' when (header1(BB_CARD_ADDRESS'range) = card_i) or
+   			 (header1(BB_CARD_HW_ADDR'range) = card_i(BB_CARD_HW_ADDR_WIDTH -1 downto 0)) or
                          (header1(BB_CARD_ADDRESS'range) = ALL_MCE_CARDS) or
                          (header1(BB_CARD_ADDRESS'range) = ALL_FPGA_CARDS and card_i /= POWER_SUPPLY_CARD) or
                          (header1(BB_CARD_ADDRESS'range) = ALL_BIAS_CARDS and (card_i = BIAS_CARD_1 or card_i = BIAS_CARD_2 or card_i = BIAS_CARD_3)) or
