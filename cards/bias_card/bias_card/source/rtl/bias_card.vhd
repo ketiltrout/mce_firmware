@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.52 2012-12-20 23:17:49 mandana Exp $
+-- $Id: bias_card.vhd,v 1.53 2014/12/18 23:21:42 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.53  2014/12/18 23:21:42  mandana
+-- 5.3.5 added num_idle_rows
+--
 -- Revision 1.52  2012-12-20 23:17:49  mandana
 -- 5.3.4 enbl_bias_mod and enbl_flux_fb_mod now work properly.
 --
@@ -295,7 +298,7 @@ architecture top of bias_card is
 --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
 --               rr is the minor revision number, incremented when new features added
 --               BBBB is the build number, incremented for bug fixes
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"05030005";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"06000000";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);

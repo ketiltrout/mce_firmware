@@ -1,5 +1,5 @@
 Assembler report for bias_card
-Thu Dec 18 14:06:25 2014
+Sat Apr 02 18:03:25 2016
 Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 
 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Thu Dec 18 14:06:25 2014 ;
+; Assembler Status      ; Successful - Sat Apr 02 18:03:25 2016 ;
 ; Revision Name         ; bias_card                             ;
 ; Top-level Entity Name ; bias_card                             ;
 ; Family                ; Stratix                               ;
@@ -96,7 +96,7 @@ applicable agreement for further details.
 +----------------+---------------------------------------------------------------+
 ; Device         ; EP1S10F780C5                                                  ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                    ;
-; Checksum       ; 0x0077D8AE                                                    ;
+; Checksum       ; 0x00785768                                                    ;
 +----------------+---------------------------------------------------------------+
 
 
@@ -107,7 +107,7 @@ applicable agreement for further details.
 +--------------------+-----------------------------------------------------------+
 ; Device             ; EPC4                                                      ;
 ; JTAG usercode      ; 0xFFFFFFFF                                                ;
-; Checksum           ; 0x05A67CFB                                                ;
+; Checksum           ; 0x05A3FD49                                                ;
 ; Compression Ratio  ; 1                                                         ;
 +--------------------+-----------------------------------------------------------+
 
@@ -118,13 +118,13 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Assembler
     Info: Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
-    Info: Processing started: Thu Dec 18 14:06:23 2014
+    Info: Processing started: Sat Apr 02 18:03:23 2016
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 Info (115030): Assembler is generating device programming files
 Info: Quartus II 64-Bit Assembler was successful. 0 errors, 0 warnings
-    Info: Peak virtual memory: 403 megabytes
-    Info: Processing ended: Thu Dec 18 14:06:26 2014
+    Info: Peak virtual memory: 410 megabytes
+    Info: Processing ended: Sat Apr 02 18:03:26 2016
     Info: Elapsed time: 00:00:03
-    Info: Total CPU time (on all processors): 00:00:03
+    Info: Total CPU time (on all processors): 00:00:02
 
 
