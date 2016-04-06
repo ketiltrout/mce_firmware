@@ -155,6 +155,7 @@ package system_pack is
       jtag_sel          : out std_logic; -- JTAG source: '0'=Header, '1'=FGPA
       nbb_jtag          : in std_logic;  -- JTAG source:  readback (jtag_sel)
 
+      dip_sw2           : in std_logic; 
       nreconf           : out std_logic;
       nepc_sel          : out std_logic
    );
