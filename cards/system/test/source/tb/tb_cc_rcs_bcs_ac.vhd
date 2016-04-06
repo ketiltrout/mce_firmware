@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.103 2013/03/14 21:33:51 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.102.2.2 2012-10-31 21:48:38 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -111,6 +111,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_sa_bias_cmd         : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SA_BIAS_ADDR;
    constant rc1_offset_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & OFFSET_ADDR;
    constant rc1_gainp0_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP0_ADDR;
+   constant rc1_gainp0_u_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1_U  & x"00" & GAINP0_ADDR; -- upper register!   
    constant rc1_gainp1_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP1_ADDR;
    constant rc1_gainp2_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP2_ADDR;
    constant rc1_gainp3_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP3_ADDR;
@@ -129,6 +130,15 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_flx_quanta7_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA7_ADDR;
    constant rc1_flx_lp_init_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_LP_INIT_ADDR;
    constant rc1_fltr_rst_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLTR_RST_ADDR;
+   constant rc1_servo_rst_arm_cmd   : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_ARM_ADDR;   
+   constant rc1_servo_rst_col0_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL0_ADDR;   
+   constant rc1_servo_rst_col1_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL1_ADDR;   
+   constant rc1_servo_rst_col2_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL2_ADDR;   
+   constant rc1_servo_rst_col3_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL3_ADDR;   
+   constant rc1_servo_rst_col4_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL4_ADDR;   
+   constant rc1_servo_rst_col5_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL5_ADDR;   
+   constant rc1_servo_rst_col6_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL6_ADDR;   
+   constant rc1_servo_rst_col7_cmd  : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_RST_COL7_ADDR;   
    constant rc1_ramp_step_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_STEP_ADDR;
    constant rc1_ramp_amp_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_AMP_ADDR;
    constant rc1_ramp_dly_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_DLY_ADDR;
@@ -308,7 +318,9 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant bc1_enbl_flux_fb_mod_cmd: std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & ENBL_FLUX_FB_MOD_ADDR;
    constant bc1_mod_val_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & MOD_VAL_ADDR;
    constant bc1_enbl_mux_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & ENBL_MUX_ADDR;
+   constant bc1_num_idle_rows_cmd   : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & BC_NUM_IDLE_ROWS_ADDR;
    constant bc1_fb_col0_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL0_ADDR;
+   constant bc1_u_fb_col0_cmd       : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1_U    & x"00" & FB_COL0_ADDR; -- 64 rows
    constant bc1_fb_col1_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL1_ADDR;
    constant bc1_fb_col2_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL2_ADDR;
    constant bc1_fb_col3_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL3_ADDR;
@@ -1572,27 +1584,7 @@ begin
 --         smb_data       => open, --: inout std_logic;      
 --      -- pcb revision identification pins
 --         pcb_rev        => rc1_pcb_rev,
-----         mem_odt        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-----         mem_cke        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-----         mem_clk        => open, --: INOUT std_logic_vector (0 DOWNTO 0);
-----         mem_clk_n      => open, --: INOUT std_logic_vector (0 DOWNTO 0);
 --         mem_cs_n       => open --: OUT std_logic_vector (0 DOWNTO 0);
-----         mem_cas_n      => open, --: OUT std_logic;
-----         mem_ras_n      => open, --: OUT std_logic;
-----         mem_we_n       => open, --: OUT std_logic;
-----         mem_addr          => open, --: OUT std_logic_vector (12 DOWNTO 0);
-----         mem_ba         => open, --: OUT std_logic_vector (1 DOWNTO 0);
-----         mem_dq         => open, --: INOUT std_logic_vector (15 DOWNTO 0);
-----         ddr_ldm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-----         ddr_udm        => open, --: OUT std_logic_vector (0 DOWNTO 0);
-----         mem_dm         => open,
-----         mem_dqs        => open, --: INOUT std_logic_vector (1 DOWNTO 0);
-----         mem_dqsn       => open, --: INOUT std_logic_vector (1 DOWNTO 0);
-----         mictor_clk     => open, --: out std_logic; -- Implement this!!!
-----         pnf            => open, --: OUT std_logic;
-----         pnf_per_byte   => open, --: OUT std_logic_vector (7 DOWNTO 0);
-----         test_complete  => open, --: OUT std_logic;
-----         test_status    => open --: OUT std_logic_vector (7 DOWNTO 0)
 --      );  
 --
 --
@@ -2072,6 +2064,8 @@ begin
             --when ac_const_val_cmd => data <= data;
             when ac_row_order_cmd => data <= data + 1;
             when bc1_fb_col0_cmd => data <= data + 1;
+            when bc1_u_fb_col0_cmd => data <= data + 1;
+            
             when bc1_fb_col1_cmd => data <= data + 1;
             when bc1_fb_col2_cmd => data <= data + 1;
             when bc1_fb_col3_cmd => data <= data + 1;
@@ -2110,6 +2104,10 @@ begin
             --when bc1_enbl_bias_mod_cmd => data <= data + 1;
             
             when bc1_enbl_flux_fb_mod_cmd => data <= data + 1;
+            
+            when rc1_servo_rst_col0_cmd => data <= data + 1;
+            
+            when rc1_servo_rst_col1_cmd => data <= data + 1;
             
             when rc1_filter_coeff_cmd => 
               -- the way this loop is written, it prepares data for next tga_i, hence it overruns array index!
@@ -2255,7 +2253,7 @@ begin
    begin
 
       sync_en <= "01";
-      wait for clk_period*41*64;
+      wait for clk_period*41*64; -- watch out for 64 rows
       sync_en <= "00";
       wait for clk_period;
 
@@ -2293,14 +2291,14 @@ begin
       -------------------------------------
       -- general CC commands
       -------------------------------------
-      command <= command_rb;
-      address_id <= cc_fw_rev_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001"; --40      
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 150 us;--150
+--      command <= command_rb;
+--      address_id <= cc_fw_rev_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001"; --40      
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 150 us;--150
 
  
       command <= command_wb;
@@ -2311,34 +2309,34 @@ begin
       load_command;
       load_checksum;
       wait for 50 us;--150
-      
+    
       command <= command_wb;
       address_id <= sys_num_rows_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000021"; --33
+      data       <= X"0000000a"; --21 hex or --33
       load_preamble;
       load_command;
       load_checksum;
       wait for 50 us;--250
 
 
-      command <= command_wb;
-      address_id <= cc_rcs_to_report_cmd;
-      data_valid <= X"00000001";
-      data       <= X"0000003C"; --60
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= cc_rcs_to_report_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000003C"; --60
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
 
-      command <= command_wb;
-      address_id <= cc_data_rate_cmd;
-      data_valid <= X"00000001";
-      data       <= conv_std_logic_vector(2, 32);
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= cc_data_rate_cmd;
+--      data_valid <= X"00000001";
+--      data       <= conv_std_logic_vector(2, 32);
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
 
 --      command <= command_wb;
 --      address_id <= cc_num_rows_cmd;
@@ -2350,107 +2348,107 @@ begin
 --      load_checksum;
 --      wait for 50 us;
 
-      command <= command_wb;
-      address_id <= cc_num_rows_reported_cmd;
-      data_valid <= X"00000001";
-      data       <= conv_std_logic_vector(1, 32); --33
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= cc_num_rows_reported_cmd;
+--     data_valid <= X"00000001";
+--      data       <= conv_std_logic_vector(8, 32); --33
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
 
-      command <= command_wb;
-      address_id <= cc_num_cols_reported_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000008"; 
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= cc_num_cols_reported_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000008"; 
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
 
       -------------------------------------
       -- internal ramp cc commands
       -------------------------------------
-      command <= command_wb;
-      address_id <= cc_step_period_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000005"; --256
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_step_param_id_cmd;
-      data_valid <= X"00000001";
-      data       <= X"000000" & MOD_VAL_ADDR;
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_step_card_addr_cmd;
-      data_valid <= X"00000001";
-      data       <= X"000000" & BIAS_CARD_1;
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_step_data_num_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000020"; --16 data
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_step_minimum_cmd;
-      data_valid <= X"00000001";
-      data       <= X"000AA00B";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_step_size_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_step_maximum_cmd;
-      data_valid <= X"00000001";
-      data       <= X"000AA00F";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-      
-      command <= command_wb;
-      address_id <= cc_step_phase_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000005"; --256
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;      
-
-      command <= command_wb;
-      address_id <= cc_internal_cmd_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us; 
+--      command <= command_wb;
+--      address_id <= cc_step_period_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000005"; --256
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_param_id_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"000000" & MOD_VAL_ADDR;
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_card_addr_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"000000" & BIAS_CARD_1;
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_data_num_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000020"; --16 data
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_minimum_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"000AA00B";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_size_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_step_maximum_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"000AA00F";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--      command <= command_wb;
+--      address_id <= cc_step_phase_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000005"; --256
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;      
+--
+--      command <= command_wb;
+--      address_id <= cc_internal_cmd_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us; 
 
     -------------------------------------
     -- internal awg cc commands
@@ -2561,24 +2559,24 @@ begin
       -------------------------------------
       -- BC1
       -------------------------------------
---      command <= command_wb;
---      address_id <= bc1_num_rows_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000021"; --33
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= bc1_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000064"; --100
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---      
+      command <= command_wb;
+      address_id <= bc1_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008"; --21";--33
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= bc1_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000028"; --64"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
 --      command <= command_wb;
 --      address_id <= bc1_crit_er_cmd;
 --      data_valid <= X"00000001";
@@ -2597,88 +2595,6 @@ begin
 --      load_checksum;
 --      wait for 50 us;
 --
-      command <= command_wb;
-      address_id <= bc1_bias_cmd;
-      data_valid <= X"0000000c";
-      data       <= X"00000064"; --100
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= bc1_flux_fb_cmd;
---      data_valid <= X"00000020";
---      data       <= X"0000BAAA"; 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
-      command <= command_wb;
-      address_id <= bc1_enbl_flux_fb_mod_cmd;
-      data_valid <= X"00000020";
-      data       <= X"00000001"; --100
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= bc1_mod_val_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000064"; --100
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
-      command <= command_wb;
-      address_id <= bc1_enbl_bias_mod_cmd;
-      data_valid <= X"0000000c";
-      data       <= X"00000001"; --16
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
---      command <= command_rb;
---      address_id <= bc1_enbl_flux_fb_mod_cmd;
---      data_valid <= X"00000020";
---      data       <= X"00000064"; --100
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
-      
---
---      command <= command_wb;
---      address_id <= bc1_fb_col0_cmd;
---      data_valid <= X"00000029";
---      data       <= X"0000A000"; 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 150 us;
---
---      command <= command_wb;
---      address_id <= bc1_fb_col29_cmd;
---      data_valid <= X"00000029";
---      data       <= X"0000F000"; 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 70 us;
---
---      command <= command_wb;
---      address_id <= bc1_enbl_mux_cmd;
---      data_valid <= X"00000020";
---      data       <= X"00000001"; 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 70 us;
---
 --      command <= command_wb;
 --      address_id <= bc1_bias_cmd;
 --      data_valid <= X"0000000c";
@@ -2691,57 +2607,168 @@ begin
 --      command <= command_wb;
 --      address_id <= bc1_flux_fb_cmd;
 --      data_valid <= X"00000020";
---      data       <= X"0000AAAA"; 
+--      data       <= X"0000BAAA"; 
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      wait for 50 us;
 --
---      -- Wait for the BRst to finish, which takes 100us
---      present_sim_state <= NOTHING;
---      wait for 150 us;
-
 --      command <= command_wb;
---      address_id <= rc1_fb_const_cmd;
---      data_valid <= X"00000008";
---      data       <= X"00000FFF";         
+--      address_id <= bc1_enbl_flux_fb_mod_cmd;
+--      data_valid <= X"00000020";
+--      data       <= X"00000001"; --100
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 100 us;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= bc1_mod_val_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000064"; --100
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= bc1_enbl_bias_mod_cmd;
+--      data_valid <= X"0000000c";
+--      data       <= X"00000001"; --16
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_rb;
+--      address_id <= bc1_enbl_flux_fb_mod_cmd;
+--      data_valid <= X"00000020";
+--      data       <= X"00000064"; --100
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+    
+
+      command <= command_wb;
+      address_id <= bc1_u_fb_col0_cmd;
+      data_valid <= X"00000020";
+      data       <= X"0000A000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= bc1_fb_col29_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000F000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+      
+      command <= command_rb;
+      address_id <= bc1_u_fb_col0_cmd;
+      data_valid <= X"00000020";
+      data       <= X"B0000000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 350 us;
+
+      command <= command_rb;
+      address_id <= bc1_fb_col29_cmd;
+      data_valid <= X"00000029";
+      data       <= X"0000F000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;      
+      
+
+      command <= command_wb;
+      address_id <= bc1_enbl_mux_cmd;
+      data_valid <= X"00000020";
+      data       <= X"00000001"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
+
+      command <= command_wb;
+      address_id <= bc1_bias_cmd;
+      data_valid <= X"0000000c";
+      data       <= X"00000064"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= bc1_flux_fb_cmd;
+      data_valid <= X"00000020";
+      data       <= X"0000AAAA"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      -- Wait for the BRst to finish, which takes 100us
+      present_sim_state <= NOTHING;
+      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000008";
+      data       <= X"00000FFF";         
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+      
+      command <= command_wb;
+      address_id <= bc1_num_idle_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
       -------------------------------------
       -- RC1
       -------------------------------------
       
---      command <= command_wb;
---      address_id <= rc1_sample_num_cmd;
---      data_valid <= X"00000001";
---      data       <= X"0000000A"; -- was 10
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;      
---      
---      command <= command_wb;
---      address_id <= rc1_sample_dly_cmd;
---      data_valid <= X"00000001";
---      data       <= conv_std_logic_vector(30, 32); 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;      
---      -------------------------------------
---      -- rc1 servo setup
---      -------------------------------------
---
---      command <= command_wb;
---      address_id <= rc1_data_mode_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";  -- data-mode 10, mixed fj counter / filtered
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;
+      command <= command_wb;
+      address_id <= rc1_sample_num_cmd;
+      data_valid <= X"00000001";
+      data       <= X"0000000A"; -- was 10
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;      
+      
+      command <= command_wb;
+      address_id <= rc1_sample_dly_cmd;
+      data_valid <= X"00000001";
+      data       <= conv_std_logic_vector(30, 32); 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;      
+      -------------------------------------
+      -- rc1 servo setup
+      -------------------------------------
+
+      command <= command_wb;
+      address_id <= rc1_data_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";  -- data-mode 10, mixed fj counter / filtered
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
 
 --      command <= command_wb;
 --      address_id <= rc1_qterm_decay_bits_cmd;
@@ -2752,15 +2779,15 @@ begin
 --      load_checksum;
 --      wait for 20 us;
 --
---     command <= command_wb;
---     address_id <= rc1_servo_mode_cmd;
---     data_valid <= X"00000008";
---     data       <= X"00000003";
---     load_preamble;
---     load_command;
---     load_checksum;
---     wait for 50 us;
---
+      command <= command_wb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000008";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
 --      command <= command_wb;
 --      address_id <= rc1_gainp0_cmd;
 --      data_valid <= X"00000001"; -- was x21
@@ -2769,34 +2796,43 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 50 us;      
---
---      command <= command_wb;
---      address_id <= rc1_adc_offset0_cmd;
---      data_valid <= X"00000021";
---      data       <= conv_std_logic_vector(1000, 32);	-- change 0 to any decimal number you wish
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= rc1_gaini0_cmd;
+      data_valid <= X"00000010"; -- was x21
+      data       <= conv_std_logic_vector(1000, 32); -- 2047=0x7FF; -2048=0x800; -512=0xE00; 511=0x1FF; -256=0xF00; 256=0x0FF (The last two are the largest numbers allowed)
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;      
+
+      command <= command_wb;
+      address_id <= rc1_adc_offset0_cmd;
+      data_valid <= X"00000021";
+      data       <= conv_std_logic_vector(1000, 32);	-- change 0 to any decimal number you wish
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 150 us;
 
      
---      command <= command_wb;
---      address_id <= rc1_flx_quanta0_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00001F40"; -- RC1, flx_quanta0, row 0.  0x1000=4064, 0x2020=8224, 0x1F40=8000
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;
---
---      command <= command_wb;
---      address_id <= rc1_en_fb_jump_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;
+      command <= command_wb;
+      address_id <= rc1_flx_quanta0_cmd;
+      data_valid <= X"00000020";
+      data       <= X"00001F40"; -- RC1, flx_quanta0, row 0.  0x1000=4064, 0x2020=8224, 0x1F40=8000
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 40 us;
+
+      command <= command_wb;
+      address_id <= rc1_en_fb_jump_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_i_clamp_val_cmd;
@@ -2825,15 +2861,33 @@ begin
 --      load_checksum;
 --      wait for 100 us;
 
---      command <= command_wb;
---      address_id <= rc1_flx_lp_init_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      --wait for 4000 us;
---      wait for 1000 us;
+      command <= command_wb;
+      address_id <= rc1_servo_rst_col0_cmd;
+      data_valid <= X"00000004"; -- NOT 20?
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;     -- increased from 100 to 200
+
+      command <= command_wb;
+      address_id <= rc1_servo_rst_col1_cmd;
+      data_valid <= X"00000008";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command <= command_wb;
+      address_id <= rc1_flx_lp_init_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      --wait for 4000 us;
+      wait for 300 us;
       
 --      command <= command_wb;
 --      address_id <= rc1_captr_raw_cmd;
@@ -2875,23 +2929,42 @@ begin
 --      load_checksum;
 --      wait for 50 us;
 --      
---      command <= command_wb;
---      address_id <= rc1_num_cols_reported_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000008"; --8
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= rc1_num_rows_reported_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001"; -- 21
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 150 us;      
+      command <= command_wb;
+      address_id <= rc1_num_cols_reported_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008"; --8
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_num_rows_reported_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008";    --20 hex or 32
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 150 us;      
+
+      command <= command_wb;
+      address_id <= rc1_servo_rst_arm_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 1000 us;
+
+      command <= command_rb;
+      address_id <= rc1_servo_rst_col0_cmd;
+      data_valid <= X"00000020";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+      
 --      
 --      command <= command_wb;
 --      address_id <= rc1_fltr_rst_cmd;
@@ -2919,24 +2992,24 @@ begin
 --      ------------------------
 --      -- D a t a Acquisition - regular frame acquisition
 --      ------------------------      
---      command <= command_wb;
---      address_id <= cc_ret_dat_s_cmd;
---      data_valid <= X"00000002";
---      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_go;
---      address_id <= rc1_ret_dat_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 2000 us;
---
+      command <= command_wb;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000000"; -- careful, this is set by ret_dat_s_stop
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_go;
+      address_id <= rc1_ret_dat_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 2000 us;
+
 --      ------------------------
 --      -- D a t a Acquisition with stop command
 --      ------------------------
@@ -3012,15 +3085,15 @@ begin
 --      ------------------------
 --      -- D a t a Acquisition with internal cmd enabled
 --      ------------------------      
-      wait for 200us;
-      command <= command_wb;
-      address_id <= bc1_enbl_flux_fb_mod_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000"; --100
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
+--      wait for 200us;
+--      command <= command_wb;
+--      address_id <= bc1_enbl_flux_fb_mod_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000"; --100
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
 
       command <= command_wb;
       address_id <= cc_ret_dat_s_cmd;
@@ -3043,16 +3116,16 @@ begin
 --      wait for 5000 us; 
                   
 ------------------------------------------------------
-      wait for 2500 us;
+--      wait for 2500 us;
       
---      command <= command_wb;
---      address_id <= rc1_en_fb_jump_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;
+      command <= command_wb;
+      address_id <= rc1_en_fb_jump_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
 
       wait for 2500 us;
       
