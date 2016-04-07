@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.22 2009/11/19 20:38:39 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.23 2016/04/07 21:35:20 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.23  2016/04/07 21:35:20  mandana
+-- added 64-element rb/wb suuport by introducing virtual card-ids. When the virtual card_id is used, a tga offset of 32 is applied when writing to a parameter id.
+-- v6.0.1
+-- also merged some of the changes in ac 5.0.3 to optimize logic utilization
+--
 -- Revision 1.22  2009/11/19 20:38:39  bburger
 -- BB:
 -- - Reduced all DAC data register widths from 32 to 14 bits
@@ -114,16 +119,12 @@ use sys_param.command_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
+use work.addr_card_pack.all;
 use work.ac_dac_ctrl_pack.all;
-use work.ac_dac_ctrl_wbs_pack.all;
---use work.ac_dac_ctrl_core_pack.all;
 use work.frame_timing_pack.all;
 
 library components;
 use components.component_pack.all;
-
--- Need this?
-use work.ac_dac_ctrl_core_pack.all;
 
 entity ac_dac_ctrl is
    port(
@@ -205,7 +206,8 @@ architecture rtl of ac_dac_ctrl is
    -- datab needs to be a vector of 64 signals, because its addressed using ROW_ADDR_WIDTH, which is 6 bits wide: 2^6 = 64
    signal datab               : w14_array64;
 
-   signal mode_wren_slv       : std_logic_vector(AC_NUM_DACS-1 downto 0);
+   signal mode_wren_slv       : std_logic_vector(AC_NUM_DACS-1 downto 0); 
+   signal mode_wren_vec       : w1_array64;   
    signal val_wren_vec        : w1_array64;
    signal heater_bias_wren_vec: w1_array64;
    signal mode_data_slv       : std_logic_vector(AC_NUM_DACS-1 downto 0);
@@ -317,13 +319,13 @@ begin
          update_const_dly1 <= update_const;
          update_const_dly2 <= update_const_dly1;
 
-         if(mode_data_slv(row_to_turn_on_int) = '0' and mux_en /= 0) then
+         if(mode_data_vec(row_to_turn_on_int)(0) = '0' and mux_en /= 0) then
             slow_dac_data_on <= on_dataa(AC_BUS_WIDTH-1 downto 0);
          else
             slow_dac_data_on <= const_data_vec(row_to_turn_on_int);
          end if;
 
-         if(mode_data_slv(row_to_turn_off_int) = '0' and mux_en /= 0) then
+         if(mode_data_vec(row_to_turn_off_int)(0) = '0' and mux_en /= 0) then
             slow_dac_data_off <= off_dataa(AC_BUS_WIDTH-1 downto 0);
          else
             slow_dac_data_off <= const_data_vec(row_to_turn_off_int);
@@ -1103,7 +1105,7 @@ begin
       row_order_wren <= '0';
       ack_o          <= '0';
       val_changing   <= '0';
-      mode_wren_slv  <= (others => '0');
+      mode_wren_vec  <= (others => '0');
       val_wren_vec   <= (others => '0');
       heater_bias_wren_vec <= (others => '0');
       heater_bias_len_wren <= '0';
@@ -1148,7 +1150,7 @@ begin
                   -- mux_en = 0, we are in const mode, and fb_col values do not need to be latched into the DACs
                   -- mux_en = 2, the fb_col value will be latched in during the next frame period.
                elsif(addr_i = CONST_MODE_ADDR) then
-                  mode_wren_slv(tga_int) <= '1';
+                  mode_wren_vec(tga_int) <= '1';
                   -- We should update the constant outputs if either the mode bit or value changes.
                   val_changing           <= '1';
                elsif(addr_i = CONST_VAL_ADDR) then
@@ -1295,28 +1297,19 @@ begin
          reg_o             => mux_en_data
       );
    
-   mode_register: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         mode_data_slv <= (others => '0');
-      elsif(clk_i'event and clk_i = '1') then
-         for i in 0 to AC_NUM_DACS-1 loop
-            if(mode_wren_slv(i) = '1') then
-               mode_data_slv(i) <= dat_i(0);
-            end if;         
-         end loop;
-      end if;
-   end process mode_register;
-   
--- This register instantiates exactly the same number of Logic Elements as fast_dac_reg below, which it would have replaced if it used less
--- I guess QuartusII does a good job of optimizing things.
---   data_latch: process(clk_i)
+--   mode_register: process(clk_i, rst_i)
 --   begin
---      if(clk_i'event and clk_i = '1') then
---         fast_dac_data <= pre_reg_data;
+--      if(rst_i = '1') then
+--         mode_data_slv <= (others => '0');
+--      elsif(clk_i'event and clk_i = '1') then
+--         for i in 0 to AC_NUM_DACS-1 loop
+--            if(mode_wren_slv(i) = '1') then
+--               mode_data_slv(i) <= dat_i(0);
+--            end if;         
+--         end loop;
 --      end if;
---   end process data_latch;
-
+--   end process mode_register;
+   
    -----------------------------------------------------------------------------
    -- Instantiation of All SQ2FB Fast Switching RAM Banks
    -----------------------------------------------------------------------------
@@ -1325,9 +1318,6 @@ begin
       pre_reg_data(i) <=
          dataa(i)       when mode_data_vec(i)(0) = '0' and mux_en = 2 else 
          hb_data_vec(i) when mode_data_vec(i)(0) = '0' and mux_en = 3 else         
-         const_data_vec(i);
-         dataa(i)       when mode_data_slv(i) = '0' and mux_en = 2 else 
-         hb_data_vec(i) when mode_data_slv(i) = '0' and mux_en = 3 else         
          const_data_vec(i);
       
       mode_data_slv(i) <= mode_data_vec(i)(0);
@@ -1383,7 +1373,7 @@ begin
       -- Mode 2:  These are the SQ2FB values for each new row.
       ram : tpram_14bit_x_64
       port map(
-         data              => dat_i,
+         data              => dat_i(AC_BUS_WIDTH-1 downto 0),
          wren              => fb_wren(i),
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
          rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
