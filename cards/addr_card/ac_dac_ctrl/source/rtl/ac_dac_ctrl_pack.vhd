@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_pack.vhd,v 1.9 2008/06/17 17:36:01 bburger Exp $
+-- $Id: ac_dac_ctrl_pack.vhd,v 1.10 2009/09/14 20:12:00 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.10  2009/09/14 20:12:00  bburger
+-- BB: tied AC_NUM_DACS to NUM_OF_ROWS
+--
 -- Revision 1.9  2008/06/17 17:36:01  bburger
 -- BB:  Added the AC_NUM_DACS constant
 --
@@ -66,7 +69,7 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.ac_dac_ctrl_wbs_pack.all;
+use work.addr_card_pack.all;
 use work.frame_timing_pack.all;
 
 package ac_dac_ctrl_pack is
@@ -74,10 +77,35 @@ package ac_dac_ctrl_pack is
    constant AC_NUM_DACS : integer := NUM_OF_ROWS;
    constant AC_NUM_BUSES : integer := 11;
    constant AC_BUS_WIDTH : integer := 14;
-   constant ROW_COUNTER_MAX : integer := 63;
+   constant ROW_COUNTER_MAX : integer := 64;
 
    -- The reset value is one less than the max value so that the counter does not stop, and hold reset high forever.
    constant FRAME_RESTART_DELAY_MAX : integer := 2;
    constant FRAME_RESTART_RESET : integer := 1;
+   
+   component tpram_32bit_x_64 port
+   (
+      data        : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+      wraddress   : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_a : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+      rdaddress_b : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+      wren        : IN STD_LOGIC  := '1';
+      clock       : IN STD_LOGIC ;
+      qa          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+      qb          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+   );
+   end component;   
+   component tpram_14bit_x_64 port
+   (
+      clock       : IN STD_LOGIC ;
+      data        : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+      rdaddress_a : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      rdaddress_b : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      wraddress   : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      wren        : IN STD_LOGIC  := '0';
+      qa          : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+      qb          : OUT STD_LOGIC_VECTOR (13 DOWNTO 0)
+   );
+   end component;   
 
 end ac_dac_ctrl_pack;
