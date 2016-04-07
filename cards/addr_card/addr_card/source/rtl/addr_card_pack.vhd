@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: addr_card_pack.vhd,v 1.4 2005/01/21 01:12:35 mandana Exp $
+-- $Id: addr_card_pack.vhd,v 1.5 2005/01/31 23:35:17 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: addr_card_pack.vhd,v $
+-- Revision 1.5  2005/01/31 23:35:17  mandana
+-- slot_id and ttl_nrx1 are now assigned in the self_test module
+--
 -- Revision 1.4  2005/01/21 01:12:35  mandana
 -- added addr_card_self_test component
 --
@@ -49,7 +52,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+
 package addr_card_pack is
+
+-- This constant is now defined in AC,BC, RC top level!
+constant ROW_ADDR_WIDTH         : integer := 6;
 
 component addr_card
    port(
