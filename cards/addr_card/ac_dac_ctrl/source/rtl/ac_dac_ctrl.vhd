@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.20 2009/10/09 16:44:39 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.21 2009/10/16 17:57:25 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.21  2009/10/16 17:57:25  bburger
+-- BB: Added and extra state because there was not enough settling time for the DAC data buses.
+--
 -- Revision 1.20  2009/10/09 16:44:39  bburger
 -- BB: Added mux_en = 3 mode.  Includes new FSM states, signals, registers, and the following commands:
 -- - HEATER_BIAS_ADDR
@@ -105,16 +108,13 @@ use sys_param.command_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
+use work.addr_card_pack.all;
 use work.ac_dac_ctrl_pack.all;
-use work.ac_dac_ctrl_wbs_pack.all;
---use work.ac_dac_ctrl_core_pack.all;
 use work.frame_timing_pack.all;
 
 library components;
 use components.component_pack.all;
 
--- Need this?
-use work.ac_dac_ctrl_core_pack.all;
 
 entity ac_dac_ctrl is
    port(
@@ -186,7 +186,7 @@ architecture rtl of ac_dac_ctrl is
    -- DAC signals
    signal k                   : integer range 0 to AC_NUM_BUSES;
    signal dac_id_int          : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal tga_int             : integer range 0 to MAX_NUM_OF_ROWS-1;
+   signal tga_int             : integer range 0 to MAX_NUM_OF_ROWS;
 
    signal fb_wren             : w1_array64;
    signal pre_reg_data        : w14_array64;
@@ -223,32 +223,6 @@ architecture rtl of ac_dac_ctrl is
    -----------------------------------------------------------------------
    -- WBS Signals
    -----------------------------------------------------------------------
-   component tpram_32bit_x_64 port
-   (
-      data        : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-      wraddress   : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
-      rdaddress_a : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
-      rdaddress_b : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
-      wren        : IN STD_LOGIC  := '1';
-      clock       : IN STD_LOGIC ;
-      qa          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-      qb          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-   );
-   end component;
-
-   component tpram_16bit_x_64 port
-   (
-      clock       : IN STD_LOGIC ;
-      data        : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-      rdaddress_a : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_b : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      wraddress   : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      wren        : IN STD_LOGIC  := '1';
-      qa          : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-      qb          : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
-   );
-   end component;
-
    -- FSM inputs
    signal wr_cmd               : std_logic;
    signal rd_cmd               : std_logic;
@@ -285,14 +259,14 @@ architecture rtl of ac_dac_ctrl is
 
    signal update_row_index             : std_logic;
    signal start_row                    : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal next_row_order_index_int     : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal next_row_order_index_int_new : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal next_row_order_index_int     : integer range 0 to (2**ROW_ADDR_WIDTH);
+   signal next_row_order_index_int_new : integer range 0 to (2**ROW_ADDR_WIDTH);   -- simulation only
 
 begin
    ------------------------------------------------------------
    -- Specialized Registers
    ------------------------------------------------------------
-   next_row_order_index_int_new <= 0 when restart_frame_1row_prev_i = '1' else next_row_order_index_int + 1;
+   next_row_order_index_int_new <= 0 when restart_frame_1row_prev_i = '1' or rst_i = '1' else next_row_order_index_int + 1;
    row_num_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -300,6 +274,8 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          if(row_switch_i = '1') then
             next_row_order_index_int <= next_row_order_index_int_new;
+         elsif (restart_frame_1row_prev_i = '1' ) then
+            next_row_order_index_int <= 0;
          end if;
       end if;
    end process row_num_cntr;
@@ -1296,17 +1272,6 @@ begin
          qb                => row_order_data
       );
 
---   heater_bias_ram : tpram_32bit_x_64
---      port map(
---         data              => dat_i,
---         wren              => heater_bias_wren,
---         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
---         rdaddress_a       => row_to_turn_on_slv(ROW_ADDR_WIDTH-1 downto 0),
---         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), 
---         clock             => clk_i,
---         qa                => heater_bias_dataa,
---         qb                => heater_bias_datab
---      );
 
    heater_bias_len_reg : reg
       generic map(
