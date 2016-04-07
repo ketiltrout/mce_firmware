@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: addr_card.vhd,v $
+-- Revision 1.37  2009/11/24 23:49:31  bburger
+-- BB: Made a top-level modification that does not affect old cards with the MAX1618, but enables the LM95235 on new cards.
+--
 -- Revision 1.36  2009/11/19 20:02:17  bburger
 -- BB: ac_v05000003
 --
@@ -168,7 +171,7 @@ architecture top of addr_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant AC_REVISION: std_logic_vector (31 downto 0) := X"05000003";
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"06000001";
 
    -- clocks
    signal clk      : std_logic;
@@ -218,6 +221,8 @@ architecture top of addr_card is
    signal all_cards_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal all_cards_ack     : std_logic;
    signal all_cards_err     : std_logic;
+   
+   signal pcb_rev           : std_logic_vector(PCB_REV_BITS-1 downto 0);
 
    -- frame_timing interface
    signal restart_frame_aligned   : std_logic;
@@ -279,6 +284,7 @@ begin
    ttl_tx2 <= '0';
    ttl_txena3 <= '0';
    ttl_tx3 <= '0';
+   pcb_rev <= (others => '0');
 
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
@@ -341,6 +347,7 @@ begin
       stb_i           => stb,
       cyc_i           => cyc,
       slot_id_i       => slot_id,
+      pcb_rev_i       => pcb_rev,
       err_o           => all_cards_err,
       dat_o           => all_cards_data,
       ack_o           => all_cards_ack
