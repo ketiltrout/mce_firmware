@@ -1,5 +1,5 @@
 Fitter report for ac_test
-Thu Dec 23 11:51:46 2010
+Thu Dec 23 14:44:34 2010
 Quartus II Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
 
 
@@ -67,14 +67,14 @@ applicable agreement for further details.
 +---------------------------------------------------------------------------+
 ; Fitter Summary                                                            ;
 +--------------------------+------------------------------------------------+
-; Fitter Status            ; Successful - Thu Dec 23 11:51:46 2010          ;
+; Fitter Status            ; Successful - Thu Dec 23 14:44:34 2010          ;
 ; Quartus II Version       ; 10.0 Build 262 08/18/2010 SP 1 SJ Full Version ;
 ; Revision Name            ; ac_test                                        ;
 ; Top-level Entity Name    ; ac_test                                        ;
 ; Family                   ; Stratix                                        ;
 ; Device                   ; EP1S10F780C5                                   ;
 ; Timing Models            ; Final                                          ;
-; Total logic elements     ; 285 / 10,570 ( 3 % )                           ;
+; Total logic elements     ; 292 / 10,570 ( 3 % )                           ;
 ; Total pins               ; 199 / 427 ( 47 % )                             ;
 ; Total virtual pins       ; 0                                              ;
 ; Total memory bits        ; 640 / 920,448 ( < 1 % )                        ;
@@ -139,12 +139,12 @@ applicable agreement for further details.
 ; Number detected on machine ; 4           ;
 ; Maximum allowed            ; 4           ;
 ;                            ;             ;
-; Average used               ; 2.09        ;
+; Average used               ; 1.00        ;
 ; Maximum used               ; 4           ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     1 processor            ; 100.0%      ;
-;     2-4 processors         ;  12.5%      ;
+;     2-4 processors         ; < 0.1%      ;
 +----------------------------+-------------+
 
 
@@ -254,8 +254,8 @@ applicable agreement for further details.
 ; Type                ; Value                  ;
 +---------------------+------------------------+
 ; Placement (by node) ;                        ;
-;     -- Requested    ; 0 / 502 ( 0.00 % )     ;
-;     -- Achieved     ; 0 / 502 ( 0.00 % )     ;
+;     -- Requested    ; 0 / 509 ( 0.00 % )     ;
+;     -- Achieved     ; 0 / 509 ( 0.00 % )     ;
 ;                     ;                        ;
 ; Routing (by net)    ;                        ;
 ;     -- Requested    ; 0 / 0 ( 0.00 % )       ;
@@ -278,7 +278,7 @@ applicable agreement for further details.
 +--------------------------------+---------+-------------------+-------------------------+-------------------+
 ; Partition Name                 ; # Nodes ; # Preserved Nodes ; Preservation Level Used ; Netlist Type Used ;
 +--------------------------------+---------+-------------------+-------------------------+-------------------+
-; Top                            ; 500     ; 0                 ; N/A                     ; Source File       ;
+; Top                            ; 507     ; 0                 ; N/A                     ; Source File       ;
 ; hard_block:auto_generated_inst ; 2       ; 0                 ; N/A                     ; Source File       ;
 +--------------------------------+---------+-------------------+-------------------------+-------------------+
 
@@ -294,29 +294,29 @@ The pin-out file can be found in C:/mce/cards/addr_card/test/synth/ac_test.pin.
 +---------------------------------------------+------------------------------------------------+
 ; Resource                                    ; Usage                                          ;
 +---------------------------------------------+------------------------------------------------+
-; Total logic elements                        ; 285 / 10,570 ( 3 % )                           ;
-;     -- Combinational with no register       ; 157                                            ;
+; Total logic elements                        ; 292 / 10,570 ( 3 % )                           ;
+;     -- Combinational with no register       ; 152                                            ;
 ;     -- Register only                        ; 16                                             ;
-;     -- Combinational with a register        ; 112                                            ;
+;     -- Combinational with a register        ; 124                                            ;
 ;                                             ;                                                ;
 ; Logic element usage by number of LUT inputs ;                                                ;
-;     -- 4 input functions                    ; 124                                            ;
-;     -- 3 input functions                    ; 58                                             ;
-;     -- 2 input functions                    ; 79                                             ;
+;     -- 4 input functions                    ; 115                                            ;
+;     -- 3 input functions                    ; 60                                             ;
+;     -- 2 input functions                    ; 93                                             ;
 ;     -- 1 input functions                    ; 6                                              ;
 ;     -- 0 input functions                    ; 2                                              ;
 ;                                             ;                                                ;
 ; Logic elements by mode                      ;                                                ;
-;     -- normal mode                          ; 219                                            ;
-;     -- arithmetic mode                      ; 66                                             ;
+;     -- normal mode                          ; 222                                            ;
+;     -- arithmetic mode                      ; 70                                             ;
 ;     -- qfbk mode                            ; 2                                              ;
 ;     -- register cascade mode                ; 0                                              ;
-;     -- synchronous clear/load mode          ; 37                                             ;
-;     -- asynchronous clear/load mode         ; 128                                            ;
+;     -- synchronous clear/load mode          ; 44                                             ;
+;     -- asynchronous clear/load mode         ; 140                                            ;
 ;                                             ;                                                ;
-; Total registers                             ; 128 / 13,052 ( < 1 % )                         ;
+; Total registers                             ; 140 / 13,052 ( 1 % )                           ;
 ; Total LABs                                  ; 35 / 1,057 ( 3 % )                             ;
-; Logic elements in carry chains              ; 77                                             ;
+; Logic elements in carry chains              ; 81                                             ;
 ; User inserted logic elements                ; 0                                              ;
 ; Virtual pins                                ; 0                                              ;
 ; I/O pins                                    ; 199 / 427 ( 47 % )                             ;
@@ -339,13 +339,13 @@ The pin-out file can be found in C:/mce/cards/addr_card/test/synth/ac_test.pin.
 ; CRC blocks                                  ; 0 / 1 ( 0 % )                                  ;
 ; Remote update blocks                        ; 0 / 1 ( 0 % )                                  ;
 ; Average interconnect usage (total/H/V)      ; 0% / 0% / 0%                                   ;
-; Peak interconnect usage (total/H/V)         ; 2% / 1% / 3%                                   ;
+; Peak interconnect usage (total/H/V)         ; 1% / 1% / 2%                                   ;
 ; Maximum fan-out node                        ; ac_test_pll:clk0|altpll:altpll_component|_clk0 ;
-; Maximum fan-out                             ; 133                                            ;
+; Maximum fan-out                             ; 145                                            ;
 ; Highest non-global fan-out signal           ; dac_clk~0                                      ;
 ; Highest non-global fan-out                  ; 41                                             ;
-; Total fan-out                               ; 1454                                           ;
-; Average fan-out                             ; 2.98                                           ;
+; Total fan-out                               ; 1484                                           ;
+; Average fan-out                             ; 3.00                                           ;
 +---------------------------------------------+------------------------------------------------+
 
 
@@ -356,10 +356,10 @@ The pin-out file can be found in C:/mce/cards/addr_card/test/synth/ac_test.pin.
 +---------------------------------------------+--------------------+--------------------------------+
 ; Difficulty Clustering Region                ; Low                ; Low                            ;
 ;                                             ;                    ;                                ;
-; Total logic elements                        ; 285                ; 0                              ;
-;     -- Combinational with no register       ; 157                ; 0                              ;
+; Total logic elements                        ; 292                ; 0                              ;
+;     -- Combinational with no register       ; 152                ; 0                              ;
 ;     -- Register only                        ; 16                 ; 0                              ;
-;     -- Combinational with a register        ; 112                ; 0                              ;
+;     -- Combinational with a register        ; 124                ; 0                              ;
 ;                                             ;                    ;                                ;
 ; Logic element usage by number of LUT inputs ;                    ;                                ;
 ;     -- 4 input functions                    ; 0                  ; 0                              ;
@@ -376,7 +376,7 @@ The pin-out file can be found in C:/mce/cards/addr_card/test/synth/ac_test.pin.
 ;     -- synchronous clear/load mode          ; 0                  ; 0                              ;
 ;     -- asynchronous clear/load mode         ; 0                  ; 0                              ;
 ;                                             ;                    ;                                ;
-; Total registers                             ; 128 / 5285 ( 2 % ) ; 0 / 5285 ( 0 % )               ;
+; Total registers                             ; 140 / 5285 ( 2 % ) ; 0 / 5285 ( 0 % )               ;
 ; Virtual pins                                ; 0                  ; 0                              ;
 ; I/O pins                                    ; 199                ; 0                              ;
 ; DSP block 9-bit elements                    ; 0 / 48 ( 0 % )     ; 0 / 48 ( 0 % )                 ;
@@ -386,22 +386,22 @@ The pin-out file can be found in C:/mce/cards/addr_card/test/synth/ac_test.pin.
 ; M512                                        ; 2 / 94 ( 2 % )     ; 0 / 94 ( 0 % )                 ;
 ;                                             ;                    ;                                ;
 ; Connections                                 ;                    ;                                ;
-;     -- Input Connections                    ; 133                ; 1                              ;
-;     -- Registered Input Connections         ; 127                ; 0                              ;
-;     -- Output Connections                   ; 1                  ; 133                            ;
+;     -- Input Connections                    ; 145                ; 1                              ;
+;     -- Registered Input Connections         ; 139                ; 0                              ;
+;     -- Output Connections                   ; 1                  ; 145                            ;
 ;     -- Registered Output Connections        ; 0                  ; 0                              ;
 ;                                             ;                    ;                                ;
 ; Internal Connections                        ;                    ;                                ;
-;     -- Total Connections                    ; 1530               ; 134                            ;
-;     -- Registered Connections               ; 745                ; 0                              ;
+;     -- Total Connections                    ; 1568               ; 146                            ;
+;     -- Registered Connections               ; 748                ; 0                              ;
 ;                                             ;                    ;                                ;
 ; External Connections                        ;                    ;                                ;
-;     -- Top                                  ; 0                  ; 134                            ;
-;     -- hard_block:auto_generated_inst       ; 134                ; 0                              ;
+;     -- Top                                  ; 0                  ; 146                            ;
+;     -- hard_block:auto_generated_inst       ; 146                ; 0                              ;
 ;                                             ;                    ;                                ;
 ; Partition Interface                         ;                    ;                                ;
 ;     -- Input Ports                          ; 3                  ; 1                              ;
-;     -- Output Ports                         ; 196                ; 164                            ;
+;     -- Output Ports                         ; 196                ; 176                            ;
 ;     -- Bidir Ports                          ; 0                  ; 0                              ;
 ;                                             ;                    ;                                ;
 ; Registered Ports                            ;                    ;                                ;
@@ -1553,14 +1553,14 @@ Note: User assignments will override these defaults. The user specified values a
 +--------------------------------------------------+-------------+--------------+-------------+-------+------+--------+------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
 ; Compilation Hierarchy Node                       ; Logic Cells ; LC Registers ; Memory Bits ; M512s ; M4Ks ; M-RAMs ; DSP Blocks ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                            ; Library Name ;
 +--------------------------------------------------+-------------+--------------+-------------+-------+------+--------+------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
-; |ac_test                                         ; 285 (95)    ; 128          ; 640         ; 2     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 199  ; 0            ; 157 (85)     ; 16 (0)            ; 112 (10)         ; 77 (0)          ; 2 (2)      ; |ac_test                                                                                                                                       ;              ;
+; |ac_test                                         ; 292 (78)    ; 140          ; 640         ; 2     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 199  ; 0            ; 152 (68)     ; 16 (0)            ; 124 (10)         ; 81 (0)          ; 2 (2)      ; |ac_test                                                                                                                                       ;              ;
 ;    |ac_dac_ctrl_test:ac_dac_fix|                 ; 16 (16)     ; 6            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 0 (0)             ; 6 (6)            ; 0 (0)           ; 0 (0)      ; |ac_test|ac_dac_ctrl_test:ac_dac_fix                                                                                                           ;              ;
 ;    |ac_dac_ramp:ac_dac_ramp1|                    ; 16 (16)     ; 16           ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 13 (13)         ; 0 (0)      ; |ac_test|ac_dac_ramp:ac_dac_ramp1                                                                                                              ;              ;
 ;    |ac_test_pll:clk0|                            ; 0 (0)       ; 0            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |ac_test|ac_test_pll:clk0                                                                                                                      ;              ;
 ;       |altpll:altpll_component|                  ; 0 (0)       ; 0            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |ac_test|ac_test_pll:clk0|altpll:altpll_component                                                                                              ;              ;
 ;    |counter:tx_char_counter|                     ; 9 (9)       ; 7            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 2 (2)        ; 0 (0)             ; 7 (7)            ; 7 (7)           ; 0 (0)      ; |ac_test|counter:tx_char_counter                                                                                                               ;              ;
-;    |rs232_rx:rx0|                                ; 68 (7)      ; 49           ; 128         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 19 (3)       ; 16 (1)            ; 33 (3)           ; 32 (0)          ; 0 (0)      ; |ac_test|rs232_rx:rx0                                                                                                                          ;              ;
-;       |binary_counter:sample_counter|            ; 8 (8)       ; 8            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 8 (8)            ; 8 (8)           ; 0 (0)      ; |ac_test|rs232_rx:rx0|binary_counter:sample_counter                                                                                            ;              ;
+;    |rs232_rx:rx0|                                ; 78 (8)      ; 58           ; 128         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 20 (4)       ; 16 (1)            ; 42 (3)           ; 33 (0)          ; 0 (0)      ; |ac_test|rs232_rx:rx0                                                                                                                          ;              ;
+;       |binary_counter:sample_counter|            ; 9 (9)       ; 9            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 9 (9)            ; 9 (9)           ; 0 (0)      ; |ac_test|rs232_rx:rx0|binary_counter:sample_counter                                                                                            ;              ;
 ;       |dcfifo:data_buffer|                       ; 40 (0)      ; 25           ; 128         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 15 (0)       ; 15 (0)            ; 10 (0)           ; 24 (0)          ; 0 (0)      ; |ac_test|rs232_rx:rx0|dcfifo:data_buffer                                                                                                       ;              ;
 ;          |dcfifo_la12:auto_generated|            ; 40 (0)      ; 25           ; 128         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 15 (0)       ; 15 (0)            ; 10 (0)           ; 24 (0)          ; 0 (0)      ; |ac_test|rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated                                                                            ;              ;
 ;             |alt_sync_fifo_dbj:sync_fifo|        ; 40 (30)     ; 25           ; 128         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 15 (10)      ; 15 (15)           ; 10 (5)           ; 24 (14)         ; 0 (0)      ; |ac_test|rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo                                                ;              ;
@@ -1569,9 +1569,9 @@ Note: User assignments will override these defaults. The user specified values a
 ;                |dpram_g341:dpram4|               ; 0 (0)       ; 0            ; 128         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |ac_test|rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|dpram_g341:dpram4                              ;              ;
 ;                   |altsyncram_6oh1:altsyncram14| ; 0 (0)       ; 0            ; 128         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |ac_test|rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|dpram_g341:dpram4|altsyncram_6oh1:altsyncram14 ;              ;
 ;       |shift_reg:rx_buffer|                      ; 10 (10)     ; 9            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 1 (1)        ; 0 (0)             ; 9 (9)            ; 0 (0)           ; 0 (0)      ; |ac_test|rs232_rx:rx0|shift_reg:rx_buffer                                                                                                      ;              ;
-;       |shift_reg:rx_sample|                      ; 3 (3)       ; 3            ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 3 (3)            ; 0 (0)           ; 0 (0)      ; |ac_test|rs232_rx:rx0|shift_reg:rx_sample                                                                                                      ;              ;
-;    |rs232_tx:tx0|                                ; 81 (34)     ; 40           ; 512         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 41 (30)      ; 0 (0)             ; 40 (4)           ; 25 (0)          ; 0 (0)      ; |ac_test|rs232_tx:tx0                                                                                                                          ;              ;
-;       |counter:bit_counter|                      ; 18 (18)     ; 13           ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 5 (5)        ; 0 (0)             ; 13 (13)          ; 13 (13)         ; 0 (0)      ; |ac_test|rs232_tx:tx0|counter:bit_counter                                                                                                      ;              ;
+;       |shift_reg:rx_sample|                      ; 11 (11)     ; 11           ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 11 (11)          ; 0 (0)           ; 0 (0)      ; |ac_test|rs232_rx:rx0|shift_reg:rx_sample                                                                                                      ;              ;
+;    |rs232_tx:tx0|                                ; 95 (44)     ; 43           ; 512         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 52 (40)      ; 0 (0)             ; 43 (4)           ; 28 (0)          ; 0 (0)      ; |ac_test|rs232_tx:tx0                                                                                                                          ;              ;
+;       |counter:bit_counter|                      ; 22 (22)     ; 16           ; 0           ; 0     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 6 (6)        ; 0 (0)             ; 16 (16)          ; 16 (16)         ; 0 (0)      ; |ac_test|rs232_tx:tx0|counter:bit_counter                                                                                                      ;              ;
 ;       |fifo:data_buffer|                         ; 19 (7)      ; 13           ; 512         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 6 (6)        ; 0 (0)             ; 13 (1)           ; 12 (0)          ; 0 (0)      ; |ac_test|rs232_tx:tx0|fifo:data_buffer                                                                                                         ;              ;
 ;          |altsyncram:fifo_storage|               ; 0 (0)       ; 0            ; 512         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |ac_test|rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage                                                                                 ;              ;
 ;             |altsyncram_7nb1:auto_generated|     ; 0 (0)       ; 0            ; 512         ; 1     ; 0    ; 0      ; 0          ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |ac_test|rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated                                                  ;              ;
@@ -1785,7 +1785,7 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 ; dac_clk[38]    ; Output   ; --            ; --            ; --                    ; --                      ; --                                     ; --                              ; --                             ; --  ; OFF  ; OFF                        ;
 ; dac_clk[39]    ; Output   ; --            ; --            ; --                    ; --                      ; --                                     ; --                              ; --                             ; --  ; OFF  ; OFF                        ;
 ; dac_clk[40]    ; Output   ; --            ; --            ; --                    ; --                      ; --                                     ; --                              ; --                             ; --  ; OFF  ; OFF                        ;
-; rst_n          ; Input    ; ON            ; OFF           ; --                    ; --                      ; --                                     ; --                              ; --                             ; --  ; --   ; --                         ;
+; rst_n          ; Input    ; OFF           ; ON            ; --                    ; --                      ; --                                     ; --                              ; --                             ; --  ; --   ; --                         ;
 ; inclk          ; Input    ; --            ; --            ; --                    ; --                      ; --                                     ; --                              ; --                             ; --  ; --   ; --                         ;
 ; rx             ; Input    ; ON            ; ON            ; --                    ; --                      ; --                                     ; --                              ; --                             ; --  ; --   ; --                         ;
 +----------------+----------+---------------+---------------+-----------------------+-------------------------+----------------------------------------+---------------------------------+--------------------------------+-----+------+----------------------------+
@@ -1797,19 +1797,19 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 ; Source Pin / Fanout              ; Pad To Core Index ; Setting ;
 +----------------------------------+-------------------+---------+
 ; rst_n                            ;                   ;         ;
-;      - pres_state.RESET          ; 1                 ; OFF     ;
-;      - rst                       ; 0                 ; ON      ;
-;      - pres_state.FIXED_DAC_TEST ; 1                 ; OFF     ;
-;      - pres_state.WAIT_DAC_DONE  ; 1                 ; OFF     ;
-;      - pres_state.WAIT_RAMP_DONE ; 1                 ; OFF     ;
-;      - pres_state.RAMP_DAC_TEST  ; 1                 ; OFF     ;
-;      - pres_state.RX_CMD1        ; 1                 ; OFF     ;
-;      - pres_state.TX_RESET       ; 1                 ; OFF     ;
-;      - pres_state.TX_ERROR       ; 1                 ; OFF     ;
-;      - pres_state.TX_IDLE        ; 1                 ; OFF     ;
+;      - pres_state.RESET          ; 0                 ; OFF     ;
+;      - rst                       ; 1                 ; ON      ;
+;      - pres_state.FIXED_DAC_TEST ; 0                 ; OFF     ;
+;      - pres_state.WAIT_DAC_DONE  ; 0                 ; OFF     ;
+;      - pres_state.WAIT_RAMP_DONE ; 0                 ; OFF     ;
+;      - pres_state.RAMP_DAC_TEST  ; 0                 ; OFF     ;
+;      - pres_state.RX_CMD1        ; 0                 ; OFF     ;
+;      - pres_state.TX_RESET       ; 0                 ; OFF     ;
+;      - pres_state.TX_IDLE        ; 0                 ; OFF     ;
+;      - pres_state.TX_ERROR       ; 0                 ; OFF     ;
 ; inclk                            ;                   ;         ;
 ; rx                               ;                   ;         ;
-;      - rs232_rx:rx0|rs232_temp   ; 0                 ; ON      ;
+;      - rs232_rx:rx0|rs232_temp   ; 1                 ; ON      ;
 +----------------------------------+-------------------+---------+
 
 
@@ -1818,24 +1818,24 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +-------------------------------------------------------------------------------------------------+---------------+---------+----------------------------+--------+----------------------+------------------+
 ; Name                                                                                            ; Location      ; Fan-Out ; Usage                      ; Global ; Global Resource Used ; Global Line Name ;
 +-------------------------------------------------------------------------------------------------+---------------+---------+----------------------------+--------+----------------------+------------------+
-; Selector8~2                                                                                     ; LC_X5_Y17_N8  ; 7       ; Clock enable               ; no     ; --                   ; --               ;
-; WideOr9~0                                                                                       ; LC_X2_Y18_N4  ; 1       ; Latch enable               ; no     ; --                   ; --               ;
-; ac_dac_ramp:ac_dac_ramp1|ramp                                                                   ; LC_X25_Y4_N7  ; 16      ; Clock enable               ; no     ; --                   ; --               ;
-; ac_test_pll:clk0|altpll:altpll_component|_clk0                                                  ; PLL_5         ; 78      ; Clock                      ; yes    ; Global Clock         ; GCLK12           ;
+; Selector8~2                                                                                     ; LC_X41_Y19_N8 ; 7       ; Clock enable               ; no     ; --                   ; --               ;
+; WideOr9~0                                                                                       ; LC_X35_Y20_N6 ; 1       ; Latch enable               ; no     ; --                   ; --               ;
+; ac_dac_ramp:ac_dac_ramp1|ramp                                                                   ; LC_X33_Y4_N7  ; 16      ; Clock enable               ; no     ; --                   ; --               ;
+; ac_test_pll:clk0|altpll:altpll_component|_clk0                                                  ; PLL_5         ; 81      ; Clock                      ; yes    ; Global Clock         ; GCLK12           ;
 ; ac_test_pll:clk0|altpll:altpll_component|_clk1                                                  ; PLL_5         ; 15      ; Clock                      ; yes    ; Global Clock         ; GCLK14           ;
-; ac_test_pll:clk0|altpll:altpll_component|_clk2                                                  ; PLL_5         ; 39      ; Clock                      ; yes    ; Global Clock         ; GCLK15           ;
-; counter:tx_char_counter|count[5]~15                                                             ; LC_X5_Y17_N9  ; 7       ; Sync. load                 ; no     ; --                   ; --               ;
+; ac_test_pll:clk0|altpll:altpll_component|_clk2                                                  ; PLL_5         ; 48      ; Clock                      ; yes    ; Global Clock         ; GCLK15           ;
+; counter:tx_char_counter|count[1]~15                                                             ; LC_X41_Y19_N9 ; 7       ; Sync. load                 ; no     ; --                   ; --               ;
 ; inclk                                                                                           ; PIN_K17       ; 1       ; Clock                      ; no     ; --                   ; --               ;
-; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|cs10a[1] ; LC_X32_Y21_N6 ; 6       ; Clock enable, Write enable ; no     ; --                   ; --               ;
-; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|cs13     ; LC_X29_Y21_N6 ; 1       ; Clock enable               ; no     ; --                   ; --               ;
-; rs232_rx:rx0|serial_receiving                                                                   ; LC_X28_Y21_N6 ; 22      ; Sync. clear                ; no     ; --                   ; --               ;
-; rs232_rx:rx0|shift_reg:rx_buffer|reg[9]~1                                                       ; LC_X28_Y21_N4 ; 9       ; Clock enable               ; no     ; --                   ; --               ;
-; rs232_tx:tx0|Selector2~21                                                                       ; LC_X39_Y14_N3 ; 10      ; Clock enable               ; no     ; --                   ; --               ;
-; rs232_tx:tx0|bit_count_ena                                                                      ; LC_X39_Y13_N4 ; 13      ; Clock enable               ; no     ; --                   ; --               ;
-; rs232_tx:tx0|counter:bit_counter|count[1]~30                                                    ; LC_X39_Y13_N2 ; 13      ; Sync. load                 ; no     ; --                   ; --               ;
-; rs232_tx:tx0|fifo:data_buffer|write_ena~0                                                       ; LC_X6_Y16_N8  ; 8       ; Clock enable, Write enable ; no     ; --                   ; --               ;
-; rst                                                                                             ; LC_X5_Y18_N8  ; 119     ; Async. clear               ; yes    ; Global Clock         ; GCLK0            ;
-; rst_n                                                                                           ; PIN_AC9       ; 10      ; Async. clear               ; yes    ; Global Clock         ; GCLK10           ;
+; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|cs10a[1] ; LC_X28_Y21_N7 ; 6       ; Clock enable, Write enable ; no     ; --                   ; --               ;
+; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|cs13     ; LC_X27_Y21_N6 ; 1       ; Clock enable               ; no     ; --                   ; --               ;
+; rs232_rx:rx0|serial_receiving                                                                   ; LC_X31_Y21_N0 ; 31      ; Sync. clear                ; no     ; --                   ; --               ;
+; rs232_rx:rx0|shift_reg:rx_buffer|reg[1]~1                                                       ; LC_X31_Y21_N6 ; 9       ; Clock enable               ; no     ; --                   ; --               ;
+; rs232_tx:tx0|Selector2~32                                                                       ; LC_X48_Y12_N3 ; 10      ; Clock enable               ; no     ; --                   ; --               ;
+; rs232_tx:tx0|bit_count_ena                                                                      ; LC_X48_Y10_N4 ; 16      ; Clock enable               ; no     ; --                   ; --               ;
+; rs232_tx:tx0|counter:bit_counter|count[8]~34                                                    ; LC_X47_Y11_N8 ; 16      ; Sync. load                 ; no     ; --                   ; --               ;
+; rs232_tx:tx0|fifo:data_buffer|write_ena~0                                                       ; LC_X48_Y14_N6 ; 7       ; Clock enable, Write enable ; no     ; --                   ; --               ;
+; rst                                                                                             ; LC_X1_Y17_N2  ; 131     ; Async. clear               ; yes    ; Global Clock         ; GCLK0            ;
+; rst_n                                                                                           ; PIN_AC9       ; 10      ; Async. clear               ; yes    ; Global Clock         ; GCLK4            ;
 +-------------------------------------------------------------------------------------------------+---------------+---------+----------------------------+--------+----------------------+------------------+
 
 
@@ -1844,70 +1844,70 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +------------------------------------------------+--------------+---------+----------------------+------------------+
 ; Name                                           ; Location     ; Fan-Out ; Global Resource Used ; Global Line Name ;
 +------------------------------------------------+--------------+---------+----------------------+------------------+
-; ac_test_pll:clk0|altpll:altpll_component|_clk0 ; PLL_5        ; 78      ; Global Clock         ; GCLK12           ;
+; ac_test_pll:clk0|altpll:altpll_component|_clk0 ; PLL_5        ; 81      ; Global Clock         ; GCLK12           ;
 ; ac_test_pll:clk0|altpll:altpll_component|_clk1 ; PLL_5        ; 15      ; Global Clock         ; GCLK14           ;
-; ac_test_pll:clk0|altpll:altpll_component|_clk2 ; PLL_5        ; 39      ; Global Clock         ; GCLK15           ;
-; rst                                            ; LC_X5_Y18_N8 ; 119     ; Global Clock         ; GCLK0            ;
-; rst_n                                          ; PIN_AC9      ; 10      ; Global Clock         ; GCLK10           ;
+; ac_test_pll:clk0|altpll:altpll_component|_clk2 ; PLL_5        ; 48      ; Global Clock         ; GCLK15           ;
+; rst                                            ; LC_X1_Y17_N2 ; 131     ; Global Clock         ; GCLK0            ;
+; rst_n                                          ; PIN_AC9      ; 10      ; Global Clock         ; GCLK4            ;
 +------------------------------------------------+--------------+---------+----------------------+------------------+
 
 
-+-----------------------------------------------------------------------------------------------------------+
-; Non-Global High Fan-Out Signals                                                                           ;
-+-------------------------------------------------------------------------------------------------+---------+
-; Name                                                                                            ; Fan-Out ;
-+-------------------------------------------------------------------------------------------------+---------+
-; dac_clk~0                                                                                       ; 41      ;
-; counter:tx_char_counter|count[3]                                                                ; 28      ;
-; counter:tx_char_counter|count[2]                                                                ; 24      ;
-; counter:tx_char_counter|count[1]                                                                ; 23      ;
-; counter:tx_char_counter|count[0]                                                                ; 23      ;
-; rs232_rx:rx0|serial_receiving                                                                   ; 22      ;
-; ramp_mode_reg                                                                                   ; 17      ;
-; counter:tx_char_counter|count[6]                                                                ; 17      ;
-; counter:tx_char_counter|count[5]                                                                ; 17      ;
-; counter:tx_char_counter|count[4]                                                                ; 17      ;
-; ac_dac_ramp:ac_dac_ramp1|ramp                                                                   ; 16      ;
-; ac_dac_ctrl_test:ac_dac_fix|idat[0]                                                             ; 15      ;
-; ac_dac_ctrl_test:ac_dac_fix|idat[2]                                                             ; 14      ;
-; ac_dac_ctrl_test:ac_dac_fix|idat[1]                                                             ; 14      ;
-; pres_state.TX_ERROR                                                                             ; 13      ;
-; rs232_tx:tx0|bit_count_ena                                                                      ; 13      ;
-; rs232_tx:tx0|counter:bit_counter|count[1]~30                                                    ; 13      ;
-; ac_dac_ctrl_test:ac_dac_fix|idat[3]                                                             ; 13      ;
-; ~GND                                                                                            ; 11      ;
-; pres_state.TX_IDLE                                                                              ; 11      ;
-; rs232_tx:tx0|pres_state.IDLE                                                                    ; 11      ;
-; rs232_tx:tx0|Selector0~0                                                                        ; 11      ;
-; rs232_tx:tx0|pres_state.SETUP                                                                   ; 11      ;
-; dac_data0~15                                                                                    ; 11      ;
-; dac_data0~14                                                                                    ; 11      ;
-; dac_data0~12                                                                                    ; 11      ;
-; dac_data0~11                                                                                    ; 11      ;
-; dac_data0~10                                                                                    ; 11      ;
-; dac_data0~9                                                                                     ; 11      ;
-; dac_data0~8                                                                                     ; 11      ;
-; dac_data0~7                                                                                     ; 11      ;
-; dac_data0~5                                                                                     ; 11      ;
-; dac_data0~4                                                                                     ; 11      ;
-; dac_data0~3                                                                                     ; 11      ;
-; dac_data0~2                                                                                     ; 11      ;
-; dac_data0~1                                                                                     ; 11      ;
-; dac_data0~0                                                                                     ; 11      ;
-; rs232_tx:tx0|Selector2~21                                                                       ; 10      ;
-; rs232_rx:rx0|shift_reg:rx_buffer|reg[9]~1                                                       ; 9       ;
-; rs232_tx:tx0|fifo:data_buffer|write_ena~0                                                       ; 9       ;
-; pres_state.FIXED_DAC_TEST                                                                       ; 9       ;
-; rs232_tx:tx0|counter:bit_counter|count[7]                                                       ; 9       ;
-; rs232_tx:tx0|counter:bit_counter|count[4]                                                       ; 8       ;
-; rs232_tx:tx0|counter:bit_counter|count[6]                                                       ; 8       ;
-; rs232_tx:tx0|counter:bit_counter|count[1]                                                       ; 8       ;
-; Selector8~2                                                                                     ; 7       ;
-; counter:tx_char_counter|count[5]~15                                                             ; 7       ;
-; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|cs10a[1] ; 7       ;
-; Selector17~0                                                                                    ; 7       ;
-; rs232_tx:tx0|pres_state.SEND                                                                    ; 7       ;
-+-------------------------------------------------------------------------------------------------+---------+
++--------------------------------------------------------+
+; Non-Global High Fan-Out Signals                        ;
++----------------------------------------------+---------+
+; Name                                         ; Fan-Out ;
++----------------------------------------------+---------+
+; dac_clk~0                                    ; 41      ;
+; rs232_rx:rx0|serial_receiving                ; 31      ;
+; counter:tx_char_counter|count[3]             ; 20      ;
+; counter:tx_char_counter|count[1]             ; 19      ;
+; counter:tx_char_counter|count[0]             ; 19      ;
+; counter:tx_char_counter|count[2]             ; 18      ;
+; ramp_mode_reg                                ; 17      ;
+; rs232_tx:tx0|bit_count_ena                   ; 16      ;
+; rs232_tx:tx0|counter:bit_counter|count[8]~34 ; 16      ;
+; ac_dac_ramp:ac_dac_ramp1|ramp                ; 16      ;
+; rs232_tx:tx0|pres_state.IDLE                 ; 15      ;
+; ac_dac_ctrl_test:ac_dac_fix|idat[0]          ; 15      ;
+; ac_dac_ctrl_test:ac_dac_fix|idat[2]          ; 14      ;
+; ac_dac_ctrl_test:ac_dac_fix|idat[1]          ; 14      ;
+; ac_dac_ctrl_test:ac_dac_fix|idat[3]          ; 13      ;
+; rs232_tx:tx0|Selector0~0                     ; 11      ;
+; rs232_tx:tx0|pres_state.SETUP                ; 11      ;
+; dac_data0~15                                 ; 11      ;
+; dac_data0~14                                 ; 11      ;
+; dac_data0~12                                 ; 11      ;
+; dac_data0~11                                 ; 11      ;
+; dac_data0~10                                 ; 11      ;
+; dac_data0~9                                  ; 11      ;
+; dac_data0~8                                  ; 11      ;
+; dac_data0~7                                  ; 11      ;
+; dac_data0~5                                  ; 11      ;
+; dac_data0~4                                  ; 11      ;
+; dac_data0~3                                  ; 11      ;
+; dac_data0~2                                  ; 11      ;
+; dac_data0~1                                  ; 11      ;
+; dac_data0~0                                  ; 11      ;
+; ~GND                                         ; 10      ;
+; rs232_tx:tx0|Selector2~32                    ; 10      ;
+; rs232_tx:tx0|counter:bit_counter|count[7]    ; 10      ;
+; rs232_rx:rx0|shift_reg:rx_buffer|reg[1]~1    ; 9       ;
+; pres_state.FIXED_DAC_TEST                    ; 9       ;
+; rs232_tx:tx0|pres_state.SEND                 ; 9       ;
+; rs232_tx:tx0|counter:bit_counter|count[4]    ; 9       ;
+; rs232_tx:tx0|fifo:data_buffer|write_ena~0    ; 8       ;
+; counter:tx_char_counter|count[6]             ; 8       ;
+; counter:tx_char_counter|count[5]             ; 8       ;
+; counter:tx_char_counter|count[4]             ; 8       ;
+; rs232_tx:tx0|counter:bit_counter|count[8]    ; 8       ;
+; rs232_tx:tx0|counter:bit_counter|count[3]    ; 8       ;
+; rs232_tx:tx0|counter:bit_counter|count[10]   ; 8       ;
+; rs232_tx:tx0|counter:bit_counter|count[14]   ; 8       ;
+; rs232_tx:tx0|counter:bit_counter|count[5]    ; 8       ;
+; rs232_tx:tx0|counter:bit_counter|count[11]   ; 8       ;
+; Selector8~2                                  ; 7       ;
+; counter:tx_char_counter|count[1]~15          ; 7       ;
++----------------------------------------------+---------+
 
 
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -1916,7 +1916,7 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 ; Name                                                                                                                                             ; Type ; Mode             ; Clock Mode  ; Port A Depth ; Port A Width ; Port B Depth ; Port B Width ; Port A Input Registers ; Port A Output Registers ; Port B Input Registers ; Port B Output Registers ; Size ; Implementation Port A Depth ; Implementation Port A Width ; Implementation Port B Depth ; Implementation Port B Width ; Implementation Bits ; M512s ; M4Ks ; M-RAMs ; MIF  ; Location     ;
 +--------------------------------------------------------------------------------------------------------------------------------------------------+------+------------------+-------------+--------------+--------------+--------------+--------------+------------------------+-------------------------+------------------------+-------------------------+------+-----------------------------+-----------------------------+-----------------------------+-----------------------------+---------------------+-------+------+--------+------+--------------+
 ; rs232_rx:rx0|dcfifo:data_buffer|dcfifo_la12:auto_generated|alt_sync_fifo_dbj:sync_fifo|dpram_g341:dpram4|altsyncram_6oh1:altsyncram14|ALTSYNCRAM ; AUTO ; Simple Dual Port ; Dual Clocks ; 16           ; 8            ; 16           ; 8            ; yes                    ; no                      ; yes                    ; no                      ; 128  ; 16                          ; 8                           ; 16                          ; 8                           ; 128                 ; 1     ; 0    ; 0      ; None ; M512_X26_Y21 ;
-; rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated|ALTSYNCRAM                                                  ; AUTO ; Simple Dual Port ; Dual Clocks ; 64           ; 8            ; 64           ; 8            ; yes                    ; no                      ; yes                    ; no                      ; 512  ; 64                          ; 8                           ; 64                          ; 8                           ; 512                 ; 1     ; 0    ; 0      ; None ; M512_X4_Y15  ;
+; rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated|ALTSYNCRAM                                                  ; AUTO ; Simple Dual Port ; Dual Clocks ; 64           ; 8            ; 64           ; 8            ; yes                    ; no                      ; yes                    ; no                      ; 512  ; 64                          ; 8                           ; 64                          ; 8                           ; 512                 ; 1     ; 0    ; 0      ; None ; M512_X49_Y14 ;
 +--------------------------------------------------------------------------------------------------------------------------------------------------+------+------------------+-------------+--------------+--------------+--------------+--------------+------------------------+-------------------------+------------------------+-------------------------+------+-----------------------------+-----------------------------+-----------------------------+-----------------------------+---------------------+-------+------+--------+------+--------------+
 Note: Fitter may spread logical memories into multiple blocks to improve timing. The actual required RAM blocks can be found in the Fitter Resource Usage section.
 
@@ -1926,22 +1926,22 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 +-----------------------------+------------------------+
 ; Interconnect Resource Type  ; Usage                  ;
 +-----------------------------+------------------------+
-; C16 interconnects           ; 62 / 2,286 ( 3 % )     ;
-; C4 interconnects            ; 206 / 31,320 ( < 1 % ) ;
-; C8 interconnects            ; 16 / 7,272 ( < 1 % )   ;
+; C16 interconnects           ; 42 / 2,286 ( 2 % )     ;
+; C4 interconnects            ; 202 / 31,320 ( < 1 % ) ;
+; C8 interconnects            ; 53 / 7,272 ( < 1 % )   ;
 ; DIFFIOCLKs                  ; 0 / 16 ( 0 % )         ;
 ; DQS bus muxes               ; 0 / 56 ( 0 % )         ;
 ; DQS-32 I/O buses            ; 0 / 4 ( 0 % )          ;
 ; DQS-8 I/O buses             ; 0 / 16 ( 0 % )         ;
-; Direct links                ; 60 / 44,740 ( < 1 % )  ;
+; Direct links                ; 64 / 44,740 ( < 1 % )  ;
 ; Fast regional clocks        ; 0 / 8 ( 0 % )          ;
 ; Global clocks               ; 5 / 16 ( 31 % )        ;
-; I/O buses                   ; 32 / 208 ( 15 % )      ;
-; LUT chains                  ; 7 / 9,513 ( < 1 % )    ;
-; Local routing interconnects ; 165 / 10,570 ( 2 % )   ;
-; R24 interconnects           ; 73 / 2,280 ( 3 % )     ;
-; R4 interconnects            ; 219 / 62,520 ( < 1 % ) ;
-; R8 interconnects            ; 33 / 10,410 ( < 1 % )  ;
+; I/O buses                   ; 30 / 208 ( 14 % )      ;
+; LUT chains                  ; 9 / 9,513 ( < 1 % )    ;
+; Local routing interconnects ; 172 / 10,570 ( 2 % )   ;
+; R24 interconnects           ; 45 / 2,280 ( 2 % )     ;
+; R4 interconnects            ; 179 / 62,520 ( < 1 % ) ;
+; R8 interconnects            ; 61 / 10,410 ( < 1 % )  ;
 ; Regional clocks             ; 0 / 16 ( 0 % )         ;
 +-----------------------------+------------------------+
 
@@ -1949,27 +1949,27 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 +---------------------------------------------------------------------------+
 ; LAB Logic Elements                                                        ;
 +--------------------------------------------+------------------------------+
-; Number of Logic Elements  (Average = 8.14) ; Number of LABs  (Total = 35) ;
+; Number of Logic Elements  (Average = 8.34) ; Number of LABs  (Total = 35) ;
 +--------------------------------------------+------------------------------+
-; 1                                          ; 5                            ;
-; 2                                          ; 0                            ;
+; 1                                          ; 4                            ;
+; 2                                          ; 1                            ;
 ; 3                                          ; 0                            ;
-; 4                                          ; 1                            ;
-; 5                                          ; 0                            ;
-; 6                                          ; 2                            ;
-; 7                                          ; 2                            ;
-; 8                                          ; 0                            ;
+; 4                                          ; 0                            ;
+; 5                                          ; 1                            ;
+; 6                                          ; 1                            ;
+; 7                                          ; 1                            ;
+; 8                                          ; 1                            ;
 ; 9                                          ; 0                            ;
-; 10                                         ; 25                           ;
+; 10                                         ; 26                           ;
 +--------------------------------------------+------------------------------+
 
 
 +-------------------------------------------------------------------+
 ; LAB-wide Signals                                                  ;
 +------------------------------------+------------------------------+
-; LAB-wide Signals  (Average = 1.63) ; Number of LABs  (Total = 35) ;
+; LAB-wide Signals  (Average = 1.66) ; Number of LABs  (Total = 35) ;
 +------------------------------------+------------------------------+
-; 1 Async. clear                     ; 23                           ;
+; 1 Async. clear                     ; 24                           ;
 ; 1 Clock                            ; 21                           ;
 ; 1 Clock enable                     ; 5                            ;
 ; 1 Sync. clear                      ; 1                            ;
@@ -1982,19 +1982,19 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 +----------------------------------------------------------------------------+
 ; LAB Signals Sourced                                                        ;
 +---------------------------------------------+------------------------------+
-; Number of Signals Sourced  (Average = 7.94) ; Number of LABs  (Total = 35) ;
+; Number of Signals Sourced  (Average = 8.14) ; Number of LABs  (Total = 35) ;
 +---------------------------------------------+------------------------------+
 ; 0                                           ; 0                            ;
-; 1                                           ; 5                            ;
-; 2                                           ; 0                            ;
+; 1                                           ; 4                            ;
+; 2                                           ; 1                            ;
 ; 3                                           ; 0                            ;
-; 4                                           ; 1                            ;
-; 5                                           ; 0                            ;
-; 6                                           ; 4                            ;
-; 7                                           ; 2                            ;
-; 8                                           ; 0                            ;
+; 4                                           ; 0                            ;
+; 5                                           ; 1                            ;
+; 6                                           ; 3                            ;
+; 7                                           ; 1                            ;
+; 8                                           ; 1                            ;
 ; 9                                           ; 0                            ;
-; 10                                          ; 22                           ;
+; 10                                          ; 23                           ;
 ; 11                                          ; 1                            ;
 +---------------------------------------------+------------------------------+
 
@@ -2006,44 +2006,48 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 +-------------------------------------------------+------------------------------+
 ; 0                                               ; 0                            ;
 ; 1                                               ; 5                            ;
-; 2                                               ; 1                            ;
+; 2                                               ; 2                            ;
 ; 3                                               ; 3                            ;
-; 4                                               ; 5                            ;
-; 5                                               ; 5                            ;
-; 6                                               ; 4                            ;
-; 7                                               ; 4                            ;
-; 8                                               ; 3                            ;
+; 4                                               ; 2                            ;
+; 5                                               ; 4                            ;
+; 6                                               ; 7                            ;
+; 7                                               ; 3                            ;
+; 8                                               ; 6                            ;
 ; 9                                               ; 1                            ;
-; 10                                              ; 4                            ;
+; 10                                              ; 2                            ;
 +-------------------------------------------------+------------------------------+
 
 
 +----------------------------------------------------------------------------+
 ; LAB Distinct Inputs                                                        ;
 +---------------------------------------------+------------------------------+
-; Number of Distinct Inputs  (Average = 9.54) ; Number of LABs  (Total = 35) ;
+; Number of Distinct Inputs  (Average = 9.77) ; Number of LABs  (Total = 35) ;
 +---------------------------------------------+------------------------------+
 ; 0                                           ; 0                            ;
 ; 1                                           ; 0                            ;
-; 2                                           ; 0                            ;
+; 2                                           ; 2                            ;
 ; 3                                           ; 2                            ;
-; 4                                           ; 5                            ;
+; 4                                           ; 3                            ;
 ; 5                                           ; 1                            ;
-; 6                                           ; 2                            ;
-; 7                                           ; 0                            ;
+; 6                                           ; 4                            ;
+; 7                                           ; 2                            ;
 ; 8                                           ; 0                            ;
-; 9                                           ; 4                            ;
-; 10                                          ; 4                            ;
-; 11                                          ; 6                            ;
+; 9                                           ; 2                            ;
+; 10                                          ; 3                            ;
+; 11                                          ; 4                            ;
 ; 12                                          ; 2                            ;
 ; 13                                          ; 1                            ;
-; 14                                          ; 3                            ;
-; 15                                          ; 2                            ;
-; 16                                          ; 0                            ;
-; 17                                          ; 0                            ;
-; 18                                          ; 0                            ;
+; 14                                          ; 1                            ;
+; 15                                          ; 0                            ;
+; 16                                          ; 2                            ;
+; 17                                          ; 1                            ;
+; 18                                          ; 1                            ;
 ; 19                                          ; 0                            ;
-; 20                                          ; 2                            ;
+; 20                                          ; 0                            ;
+; 21                                          ; 1                            ;
+; 22                                          ; 1                            ;
+; 23                                          ; 0                            ;
+; 24                                          ; 1                            ;
 +---------------------------------------------+------------------------------+
 
 
@@ -2087,7 +2091,7 @@ Note: Fitter may spread logical memories into multiple blocks to improve timing.
 Info: *******************************************************************
 Info: Running Quartus II Fitter
     Info: Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Dec 23 11:51:40 2010
+    Info: Processing started: Thu Dec 23 14:44:28 2010
 Info: Command: quartus_fit --read_settings_files=off --write_settings_files=off ac_test -c ac_test
 Info: Parallel compilation is enabled and will use 4 of the 4 processors detected
 Info: Selected device EP1S10F780C5 for design "ac_test"
@@ -2221,16 +2225,16 @@ Info: Fitter placement preparation operations beginning
 Info: Fitter placement preparation operations ending: elapsed time is 00:00:00
 Info: Fitter placement operations beginning
 Info: Fitter placement was successful
-Info: Fitter placement operations ending: elapsed time is 00:00:01
-Info: Estimated most critical path is memory to register delay of 5.921 ns
-    Info: 1: + IC(0.000 ns) + CELL(0.000 ns) = 0.000 ns; Loc. = M512_X4_Y15; Fanout = 1; MEM Node = 'rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated|ram_block1a0~portb_address_reg5'
-    Info: 2: + IC(0.000 ns) + CELL(2.613 ns) = 2.613 ns; Loc. = M512_X4_Y15; Fanout = 1; MEM Node = 'rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated|q_b[0]'
-    Info: 3: + IC(2.850 ns) + CELL(0.458 ns) = 5.921 ns; Loc. = LAB_X39_Y14; Fanout = 1; REG Node = 'rs232_tx:tx0|shift_reg:tx_buffer|reg[1]'
-    Info: Total cell delay = 3.071 ns ( 51.87 % )
-    Info: Total interconnect delay = 2.850 ns ( 48.13 % )
+Info: Fitter placement operations ending: elapsed time is 00:00:00
+Info: Estimated most critical path is memory to register delay of 3.832 ns
+    Info: 1: + IC(0.000 ns) + CELL(0.000 ns) = 0.000 ns; Loc. = M512_X49_Y14; Fanout = 1; MEM Node = 'rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated|ram_block1a0~portb_address_reg5'
+    Info: 2: + IC(0.000 ns) + CELL(2.613 ns) = 2.613 ns; Loc. = M512_X49_Y14; Fanout = 1; MEM Node = 'rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated|q_b[0]'
+    Info: 3: + IC(0.761 ns) + CELL(0.458 ns) = 3.832 ns; Loc. = LAB_X48_Y12; Fanout = 1; REG Node = 'rs232_tx:tx0|shift_reg:tx_buffer|reg[1]'
+    Info: Total cell delay = 3.071 ns ( 80.14 % )
+    Info: Total interconnect delay = 0.761 ns ( 19.86 % )
 Info: Fitter routing operations beginning
 Info: Router estimated average interconnect usage is 0% of the available device resources
-    Info: Router estimated peak interconnect usage is 2% of the available device resources in the region that extends from location X0_Y10 to location X9_Y20
+    Info: Router estimated peak interconnect usage is 1% of the available device resources in the region that extends from location X43_Y10 to location X53_Y20
 Info: Fitter routing operations ending: elapsed time is 00:00:01
 Info: The Fitter performed an Auto Fit compilation.  Optimizations were skipped to reduce compilation time.
     Info: Optimizations that may affect the design's routability were skipped
@@ -2244,7 +2248,7 @@ Warning: Found invalid Fitter assignments. See the Ignored Assignments panel in 
 Info: Generated suppressed messages file C:/mce/cards/addr_card/test/synth/ac_test.fit.smsg
 Info: Quartus II Fitter was successful. 0 errors, 95 warnings
     Info: Peak virtual memory: 312 megabytes
-    Info: Processing ended: Thu Dec 23 11:51:46 2010
+    Info: Processing ended: Thu Dec 23 14:44:34 2010
     Info: Elapsed time: 00:00:06
     Info: Total CPU time (on all processors): 00:00:08
 

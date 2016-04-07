@@ -29,8 +29,11 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2010-12-23 18:44:05 $>	- <initials $Author: mandana $>
+-- <date $Date: 2010-12-23 19:52:53 $>	- <initials $Author: mandana $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.15  2010-12-23 19:52:53  mandana
+-- oh, error message had to be fixed.
+--
 -- Revision 1.14  2010-12-23 18:44:05  mandana
 -- v3.4 ramp now works, rs232 is set to 115200
 --
@@ -229,7 +232,7 @@ begin
 
    
    with tx_count select 
-      -- reset message is AC Test v3.4
+      -- reset message is AC Test v3.5
       reset_msg <= newline   when 0,
                    newline   when 1,
                    shift(a)  when 2,
@@ -244,7 +247,7 @@ begin
                    period    when 11, 
                    three     when 12, 
                    period    when 13,
-                   four      when 14,
+                   five      when 14,
                    newline   when others;
 
    with tx_count select
@@ -420,8 +423,8 @@ begin
                                tx_count_ena <= '1';
                                tx_count_clr <= '1';
                             end if;
-                            tx_data <= error_msg;
-                            --tx_data <= bin2asc(rx_data(tx_count)); -- to print the faulty character
+                            --tx_data <= error_msg;
+                            tx_data <= bin2asc(rx_data(tx_count)); -- to print the faulty character
 
 
          when RX_CMD1 =>    rx_ack       <= '1';

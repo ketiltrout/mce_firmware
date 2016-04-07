@@ -1,9 +1,9 @@
-Analysis & Synthesis Status : Successful - Thu Dec 23 11:51:39 2010
+Analysis & Synthesis Status : Successful - Thu Dec 23 14:44:27 2010
 Quartus II Version : 10.0 Build 262 08/18/2010 SP 1 SJ Full Version
 Revision Name : ac_test
 Top-level Entity Name : ac_test
 Family : Stratix
-Total logic elements : 287
+Total logic elements : 294
 Total pins : 199
 Total virtual pins : 0
 Total memory bits : 640
