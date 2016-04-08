@@ -1,5 +1,5 @@
 Analysis & Synthesis report for addr_card
-Thu Apr 07 15:37:15 2016
+Fri Apr 08 11:07:57 2016
 Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 
 
@@ -516,12 +516,12 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                 ;
 +-----------------------------+------------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Thu Apr 07 15:37:15 2016          ;
+; Analysis & Synthesis Status ; Successful - Fri Apr 08 11:07:56 2016          ;
 ; Quartus II 64-Bit Version   ; 11.1 Build 259 01/25/2012 SP 2 SJ Full Version ;
 ; Revision Name               ; addr_card                                      ;
 ; Top-level Entity Name       ; addr_card                                      ;
 ; Family                      ; Stratix                                        ;
-; Total logic elements        ; 10,993                                         ;
+; Total logic elements        ; 10,999                                         ;
 ; Total pins                  ; 279                                            ;
 ; Total virtual pins          ; 0                                              ;
 ; Total memory bits           ; 151,936                                        ;
@@ -730,24 +730,24 @@ applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------+
 ; Resource                                    ; Usage                                     ;
 +---------------------------------------------+-------------------------------------------+
-; Total logic elements                        ; 10993                                     ;
-;     -- Combinational with no register       ; 6427                                      ;
-;     -- Register only                        ; 3254                                      ;
-;     -- Combinational with a register        ; 1312                                      ;
+; Total logic elements                        ; 10999                                     ;
+;     -- Combinational with no register       ; 6433                                      ;
+;     -- Register only                        ; 3253                                      ;
+;     -- Combinational with a register        ; 1313                                      ;
 ;                                             ;                                           ;
 ; Logic element usage by number of LUT inputs ;                                           ;
-;     -- 4 input functions                    ; 5836                                      ;
-;     -- 3 input functions                    ; 1319                                      ;
-;     -- 2 input functions                    ; 557                                       ;
-;     -- 1 input functions                    ; 24                                        ;
+;     -- 4 input functions                    ; 5841                                      ;
+;     -- 3 input functions                    ; 1320                                      ;
+;     -- 2 input functions                    ; 556                                       ;
+;     -- 1 input functions                    ; 26                                        ;
 ;     -- 0 input functions                    ; 3                                         ;
 ;                                             ;                                           ;
 ; Logic elements by mode                      ;                                           ;
-;     -- normal mode                          ; 10570                                     ;
+;     -- normal mode                          ; 10576                                     ;
 ;     -- arithmetic mode                      ; 423                                       ;
 ;     -- qfbk mode                            ; 0                                         ;
 ;     -- register cascade mode                ; 0                                         ;
-;     -- synchronous clear/load mode          ; 1004                                      ;
+;     -- synchronous clear/load mode          ; 998                                       ;
 ;     -- asynchronous clear/load mode         ; 4458                                      ;
 ;                                             ;                                           ;
 ; Total registers                             ; 4566                                      ;
@@ -760,7 +760,7 @@ applicable agreement for further details.
 ;                                             ;                                           ;
 ; Maximum fan-out node                        ; ac_pll:pll0|altpll:altpll_component|_clk0 ;
 ; Maximum fan-out                             ; 6061                                      ;
-; Total fan-out                               ; 63808                                     ;
+; Total fan-out                               ; 63824                                     ;
 ; Average fan-out                             ; 5.01                                      ;
 +---------------------------------------------+-------------------------------------------+
 
@@ -770,8 +770,8 @@ applicable agreement for further details.
 +--------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
 ; Compilation Hierarchy Node                             ; Logic Cells ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                                                                                                            ; Library Name ;
 +--------------------------------------------------------+-------------+--------------+-------------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
-; |addr_card                                             ; 10993 (396) ; 4566         ; 151936      ; 8            ; 0       ; 0         ; 1         ; 279  ; 0            ; 6427 (396)   ; 3254 (0)          ; 1312 (0)         ; 460 (0)         ; 0 (0)      ; |addr_card                                                                                                                                                                                     ;              ;
-;    |ac_dac_ctrl:ac_dac_ctrl_slave|                     ; 7385 (4287) ; 3178         ; 84864       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4207 (4207)  ; 2538 (14)         ; 640 (66)         ; 53 (53)         ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave                                                                                                                                                       ;              ;
+; |addr_card                                             ; 10999 (396) ; 4566         ; 151936      ; 8            ; 0       ; 0         ; 1         ; 279  ; 0            ; 6433 (396)   ; 3253 (0)          ; 1313 (0)         ; 460 (0)         ; 0 (0)      ; |addr_card                                                                                                                                                                                     ;              ;
+;    |ac_dac_ctrl:ac_dac_ctrl_slave|                     ; 7392 (4294) ; 3178         ; 84864       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4214 (4214)  ; 2537 (13)         ; 641 (67)         ; 53 (53)         ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave                                                                                                                                                       ;              ;
 ;       |reg:\ram_bank:0:fast_dac_reg|                   ; 14 (14)     ; 14           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 14 (14)          ; 0 (0)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:fast_dac_reg                                                                                                                          ;              ;
 ;       |reg:\ram_bank:0:heater_bias_reg|                ; 14 (14)     ; 14           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 14 (14)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:heater_bias_reg                                                                                                                       ;              ;
 ;       |reg:\ram_bank:0:mode_reg|                       ; 32 (32)     ; 32           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 32 (32)           ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:mode_reg                                                                                                                              ;              ;
@@ -1362,8 +1362,8 @@ applicable agreement for further details.
 ;          |shift_reg:tx_addr_reg|                       ; 4 (4)       ; 4            ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 4 (4)            ; 0 (0)           ; 0 (0)      ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|shift_reg:tx_addr_reg                                                                                                                   ;              ;
 ;          |us_timer:smb_timer|                          ; 46 (46)     ; 36           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer                                                                                                                      ;              ;
 ;       |us_timer:timeout_timer|                         ; 46 (46)     ; 36           ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 10 (10)      ; 3 (3)             ; 33 (33)          ; 36 (36)         ; 0 (0)      ; |addr_card|fpga_thermo:fpga_thermo0|us_timer:timeout_timer                                                                                                                                     ;              ;
-;    |frame_timing:frame_timing_slave|                   ; 1037 (0)    ; 453          ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 584 (0)      ; 282 (0)           ; 171 (0)          ; 127 (0)         ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave                                                                                                                                                     ;              ;
-;       |frame_timing_core:ftc|                          ; 218 (218)   ; 66           ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 152 (152)    ; 2 (2)             ; 64 (64)          ; 127 (127)       ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc                                                                                                                               ;              ;
+;    |frame_timing:frame_timing_slave|                   ; 1036 (0)    ; 453          ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 583 (0)      ; 282 (0)           ; 171 (0)          ; 127 (0)         ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave                                                                                                                                                     ;              ;
+;       |frame_timing_core:ftc|                          ; 217 (217)   ; 66           ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 151 (151)    ; 2 (2)             ; 64 (64)          ; 127 (127)       ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc                                                                                                                               ;              ;
 ;          |lpm_mult:Mult0|                              ; 0 (0)       ; 0            ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|lpm_mult:Mult0                                                                                                                ;              ;
 ;             |mult_tqs:auto_generated|                  ; 0 (0)       ; 0            ; 0           ; 8            ; 0       ; 0         ; 1         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|lpm_mult:Mult0|mult_tqs:auto_generated                                                                                        ;              ;
 ;       |frame_timing_wbs:wbi|                           ; 819 (659)   ; 387          ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 432 (432)    ; 280 (120)         ; 107 (107)        ; 0 (0)           ; 0 (0)      ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi                                                                                                                                ;              ;
@@ -2026,7 +2026,8 @@ Encoding Type: Safe One-Hot
 ; dispatch:cmd0|dispatch_cmd_receive:receiver|reg:hdr0|reg_o[17]                            ; Merged with dispatch:cmd0|dispatch_cmd_receive:receiver|reg:hdr0|reg_o[13] ;
 ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.GOT_BIT3              ; Stuck at GND due to stuck port data_in                                     ;
 ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.WAIT_FRM_RST          ; Stuck at GND due to stuck port data_in                                     ;
-; Total Number of Removed Registers = 60                                                    ;                                                                            ;
+; ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[6..31]                             ; Lost fanout                                                                ;
+; Total Number of Removed Registers = 86                                                    ;                                                                            ;
 +-------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 
 
@@ -2066,10 +2067,10 @@ Encoding Type: Safe One-Hot
 ; Statistic                                    ; Value ;
 +----------------------------------------------+-------+
 ; Total registers                              ; 4566  ;
-; Number of registers using Synchronous Clear  ; 363   ;
+; Number of registers using Synchronous Clear  ; 357   ;
 ; Number of registers using Synchronous Load   ; 641   ;
-; Number of registers using Asynchronous Clear ; 4458  ;
-; Number of registers using Asynchronous Load  ; 0     ;
+; Number of registers using Asynchronous Clear ; 4457  ;
+; Number of registers using Asynchronous Load  ; 1     ;
 ; Number of registers using Clock Enable       ; 3549  ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
@@ -2087,12 +2088,13 @@ Encoding Type: Safe One-Hot
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_data[0]         ; 3       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_to_read_data[5] ; 1       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_data[5]         ; 3       ;
+; ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[0]                     ; 3       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_to_read_data[3] ; 1       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_cols_to_read_data[3] ; 1       ;
 ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_data[3]         ; 3       ;
 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds               ; 2       ;
 ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_temp          ; 1       ;
-; Total number of inverted registers = 12                                       ;         ;
+; Total number of inverted registers = 13                                       ;         ;
 +-------------------------------------------------------------------------------+---------+
 
 
@@ -2101,95 +2103,95 @@ Encoding Type: Safe One-Hot
 +--------------------+-----------+---------------+----------------------+------------------------+--------------------------------------------------------------------------------------------------------------+----------------------------+
 ; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered                                                                                                   ; Example Multiplexer Output ;
 +--------------------+-----------+---------------+----------------------+------------------------+--------------------------------------------------------------------------------------------------------------+----------------------------+
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; |addr_card|fpga_thermo:fpga_thermo0|us_timer:timeout_timer|us_count[16]                                      ;                            ;
-; 3:1                ; 48 bits   ; 96 LEs        ; 48 LEs               ; 48 LEs                 ; |addr_card|dispatch:cmd0|reg:hdr0|reg_o[25]                                                                  ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|shift_reg:tx_buffer|reg[3]   ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer|reg[31]  ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:7:fast_dac_reg|reg_o[6]                               ;                            ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; |addr_card|fpga_thermo:fpga_thermo0|us_timer:timeout_timer|us_count[17]                                      ;                            ;
+; 3:1                ; 48 bits   ; 96 LEs        ; 48 LEs               ; 48 LEs                 ; |addr_card|dispatch:cmd0|reg:hdr0|reg_o[21]                                                                  ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|shift_reg:tx_buffer|reg[26]  ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 64 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|shift_reg:tx_buffer|reg[26]  ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:7:fast_dac_reg|reg_o[0]                               ;                            ;
 ; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:5:fast_dac_reg|reg_o[0]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:2:fast_dac_reg|reg_o[8]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:fast_dac_reg|reg_o[11]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:6:fast_dac_reg|reg_o[1]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:4:fast_dac_reg|reg_o[2]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:3:fast_dac_reg|reg_o[4]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:1:fast_dac_reg|reg_o[3]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:15:fast_dac_reg|reg_o[9]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:13:fast_dac_reg|reg_o[11]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:10:fast_dac_reg|reg_o[9]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:8:fast_dac_reg|reg_o[7]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:14:fast_dac_reg|reg_o[3]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:12:fast_dac_reg|reg_o[1]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:11:fast_dac_reg|reg_o[4]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:9:fast_dac_reg|reg_o[7]                               ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:23:fast_dac_reg|reg_o[3]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:21:fast_dac_reg|reg_o[4]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:18:fast_dac_reg|reg_o[2]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:16:fast_dac_reg|reg_o[7]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:22:fast_dac_reg|reg_o[11]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:20:fast_dac_reg|reg_o[9]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:19:fast_dac_reg|reg_o[12]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:17:fast_dac_reg|reg_o[11]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:31:fast_dac_reg|reg_o[12]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:29:fast_dac_reg|reg_o[3]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:26:fast_dac_reg|reg_o[4]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:24:fast_dac_reg|reg_o[2]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:30:fast_dac_reg|reg_o[13]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:28:fast_dac_reg|reg_o[7]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:27:fast_dac_reg|reg_o[2]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:25:fast_dac_reg|reg_o[3]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:39:fast_dac_reg|reg_o[13]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:37:fast_dac_reg|reg_o[13]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:34:fast_dac_reg|reg_o[7]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:32:fast_dac_reg|reg_o[5]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:38:fast_dac_reg|reg_o[9]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:36:fast_dac_reg|reg_o[11]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:2:fast_dac_reg|reg_o[0]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:0:fast_dac_reg|reg_o[0]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:6:fast_dac_reg|reg_o[0]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:4:fast_dac_reg|reg_o[8]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:3:fast_dac_reg|reg_o[5]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:1:fast_dac_reg|reg_o[7]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:15:fast_dac_reg|reg_o[0]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:13:fast_dac_reg|reg_o[0]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:10:fast_dac_reg|reg_o[1]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:8:fast_dac_reg|reg_o[1]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:14:fast_dac_reg|reg_o[9]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:12:fast_dac_reg|reg_o[12]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:11:fast_dac_reg|reg_o[1]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:9:fast_dac_reg|reg_o[5]                               ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:23:fast_dac_reg|reg_o[8]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:21:fast_dac_reg|reg_o[1]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:18:fast_dac_reg|reg_o[11]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:16:fast_dac_reg|reg_o[11]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:22:fast_dac_reg|reg_o[1]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:20:fast_dac_reg|reg_o[11]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:19:fast_dac_reg|reg_o[4]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:17:fast_dac_reg|reg_o[6]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:31:fast_dac_reg|reg_o[13]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:29:fast_dac_reg|reg_o[1]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:26:fast_dac_reg|reg_o[9]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:24:fast_dac_reg|reg_o[6]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:30:fast_dac_reg|reg_o[1]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:28:fast_dac_reg|reg_o[13]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:27:fast_dac_reg|reg_o[12]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:25:fast_dac_reg|reg_o[11]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:39:fast_dac_reg|reg_o[1]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:37:fast_dac_reg|reg_o[11]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:34:fast_dac_reg|reg_o[2]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:32:fast_dac_reg|reg_o[8]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:38:fast_dac_reg|reg_o[12]                             ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:36:fast_dac_reg|reg_o[12]                             ;                            ;
 ; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:35:fast_dac_reg|reg_o[4]                              ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:33:fast_dac_reg|reg_o[10]                             ;                            ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:40:fast_dac_reg|reg_o[10]                             ;                            ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[1]                                 ;                            ;
-; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|us_count[28]                       ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:33:fast_dac_reg|reg_o[4]                              ;                            ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|reg:\ram_bank:40:fast_dac_reg|reg_o[4]                              ;                            ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[23]                                ;                            ;
+; 3:1                ; 30 bits   ; 60 LEs        ; 30 LEs               ; 30 LEs                 ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|us_timer:smb_timer|us_count[14]                       ;                            ;
 ; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[1]                      ;                            ;
-; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[28]            ;                            ;
-; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; |addr_card|id_thermo:id_thermo0|counter:byte_counter|count[0]                                                ;                            ;
-; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|counter:bit_counter|count[3] ;                            ;
-; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter|count[1] ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[2]                ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|servo_rst_req_data[26]                       ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_data[19]                        ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data[24]                     ;                            ;
-; 65:1               ; 14 bits   ; 602 LEs       ; 392 LEs              ; 210 LEs                ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|slow_dac_data_off[6]                                                ;                            ;
-; 65:1               ; 14 bits   ; 602 LEs       ; 392 LEs              ; 210 LEs                ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|slow_dac_data_on[6]                                                 ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[3]                                                 ;                            ;
+; 3:1                ; 33 bits   ; 66 LEs        ; 33 LEs               ; 33 LEs                 ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[27]            ;                            ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; |addr_card|id_thermo:id_thermo0|counter:byte_counter|count[2]                                                ;                            ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_b|counter:bit_counter|count[4] ;                            ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 14 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx_a|counter:bit_counter|count[5] ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[16]               ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|servo_rst_req_data[11]                       ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_data[11]                        ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data[2]                      ;                            ;
+; 65:1               ; 14 bits   ; 602 LEs       ; 392 LEs              ; 210 LEs                ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|slow_dac_data_off[12]                                               ;                            ;
+; 65:1               ; 14 bits   ; 602 LEs       ; 392 LEs              ; 210 LEs                ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|slow_dac_data_on[8]                                                 ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|dat_o[17]                                                ;                            ;
 ; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; |addr_card|id_thermo:id_thermo0|id3_ld                                                                       ;                            ;
-; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; |addr_card|id_thermo:id_thermo0|thermo0_ld                                                                   ;                            ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; |addr_card|id_thermo:id_thermo0|thermo1_ld                                                                   ;                            ;
 ; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; |addr_card|id_thermo:id_thermo0|one_wire_master:master|next_state                                            ;                            ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|buf_data_o[28]                                        ;                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|buf_data_o[10]                                        ;                            ;
 ; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx_data_b                                  ;                            ;
 ; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|crc_data                                        ;                            ;
-; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; |addr_card|id_thermo:id_thermo0|wb_ns.WB_IDLE                                                                ;                            ;
-; 4:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector24                                                          ;                            ;
-; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; |addr_card|fpga_thermo:fpga_thermo0|Selector5                                                                ;                            ;
-; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Selector0                                    ;                            ;
-; 6:1                ; 41 bits   ; 164 LEs       ; 41 LEs               ; 123 LEs                ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|heater_bias_wren_vec[37]                                            ;                            ;
-; 7:1                ; 2 bits    ; 8 LEs         ; 6 LEs                ; 2 LEs                  ; |addr_card|dispatch:cmd0|Selector3                                                                           ;                            ;
-; 7:1                ; 140 bits  ; 560 LEs       ; 560 LEs              ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector95                                                          ;                            ;
-; 7:1                ; 2 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector226                                                         ;                            ;
-; 7:1                ; 14 bits   ; 56 LEs        ; 56 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector32                                      ;                            ;
-; 8:1                ; 2 bits    ; 10 LEs        ; 4 LEs                ; 6 LEs                  ; |addr_card|dispatch:cmd0|Selector4                                                                           ;                            ;
-; 8:1                ; 18 bits   ; 90 LEs        ; 72 LEs               ; 18 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector80                                      ;                            ;
-; 8:1                ; 18 bits   ; 90 LEs        ; 72 LEs               ; 18 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector22                                      ;                            ;
-; 9:1                ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|Selector6                                             ;                            ;
-; 8:1                ; 2 bits    ; 10 LEs        ; 4 LEs                ; 6 LEs                  ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|Selector5                                             ;                            ;
-; 9:1                ; 2 bits    ; 12 LEs        ; 10 LEs               ; 2 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector17                                                          ;                            ;
-; 10:1               ; 2 bits    ; 12 LEs        ; 8 LEs                ; 4 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector5                                       ;                            ;
+; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; |addr_card|id_thermo:id_thermo0|wb_ns.WB_ERROR                                                               ;                            ;
+; 4:1                ; 14 bits   ; 28 LEs        ; 28 LEs               ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector33                                                          ;                            ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; |addr_card|fpga_thermo:fpga_thermo0|Selector3                                                                ;                            ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 6 LEs                ; 3 LEs                  ; |addr_card|frame_timing:frame_timing_slave|frame_timing_wbs:wbi|Selector2                                    ;                            ;
+; 6:1                ; 41 bits   ; 164 LEs       ; 41 LEs               ; 123 LEs                ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|heater_bias_wren_vec[10]                                            ;                            ;
+; 7:1                ; 2 bits    ; 8 LEs         ; 6 LEs                ; 2 LEs                  ; |addr_card|dispatch:cmd0|Selector2                                                                           ;                            ;
+; 7:1                ; 140 bits  ; 560 LEs       ; 560 LEs              ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector100                                                         ;                            ;
+; 7:1                ; 2 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector228                                                         ;                            ;
+; 7:1                ; 14 bits   ; 56 LEs        ; 56 LEs               ; 0 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector36                                      ;                            ;
+; 8:1                ; 2 bits    ; 10 LEs        ; 4 LEs                ; 6 LEs                  ; |addr_card|dispatch:cmd0|Selector1                                                                           ;                            ;
+; 8:1                ; 18 bits   ; 90 LEs        ; 72 LEs               ; 18 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector76                                      ;                            ;
+; 8:1                ; 18 bits   ; 90 LEs        ; 72 LEs               ; 18 LEs                 ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector13                                      ;                            ;
+; 9:1                ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|Selector3                                             ;                            ;
+; 8:1                ; 2 bits    ; 10 LEs        ; 4 LEs                ; 6 LEs                  ; |addr_card|dispatch:cmd0|dispatch_cmd_receive:receiver|Selector4                                             ;                            ;
+; 9:1                ; 2 bits    ; 12 LEs        ; 10 LEs               ; 2 LEs                  ; |addr_card|ac_dac_ctrl:ac_dac_ctrl_slave|Selector9                                                           ;                            ;
+; 10:1               ; 2 bits    ; 12 LEs        ; 8 LEs                ; 4 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector1                                       ;                            ;
 ; 11:1               ; 2 bits    ; 14 LEs        ; 8 LEs                ; 6 LEs                  ; |addr_card|dispatch:cmd0|dispatch_reply_transmit:transmitter|Selector2                                       ;                            ;
-; 12:1               ; 4 bits    ; 32 LEs        ; 16 LEs               ; 16 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|Selector1                                   ;                            ;
-; 9:1                ; 3 bits    ; 18 LEs        ; 12 LEs               ; 6 LEs                  ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|Selector4                                             ;                            ;
+; 12:1               ; 4 bits    ; 32 LEs        ; 16 LEs               ; 16 LEs                 ; |addr_card|frame_timing:frame_timing_slave|frame_timing_core:ftc|Selector5                                   ;                            ;
+; 9:1                ; 3 bits    ; 18 LEs        ; 12 LEs               ; 6 LEs                  ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|Selector1                                             ;                            ;
 ; 10:1               ; 2 bits    ; 12 LEs        ; 4 LEs                ; 8 LEs                  ; |addr_card|fpga_thermo:fpga_thermo0|smb_master:master2|Selector0                                             ;                            ;
-; 541:1              ; 16 bits   ; 5760 LEs      ; 896 LEs              ; 4864 LEs               ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[15]                                           ;                            ;
+; 541:1              ; 16 bits   ; 5760 LEs      ; 896 LEs              ; 4864 LEs               ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[18]                                           ;                            ;
 ; 795:1              ; 2 bits    ; 1060 LEs      ; 128 LEs              ; 932 LEs                ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[26]                                           ;                            ;
-; 926:1              ; 10 bits   ; 6170 LEs      ; 1360 LEs             ; 4810 LEs               ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[13]                                           ;                            ;
-; 1181:1             ; 3 bits    ; 2361 LEs      ; 435 LEs              ; 1926 LEs               ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[1]                                            ;                            ;
+; 926:1              ; 10 bits   ; 6170 LEs      ; 1360 LEs             ; 4810 LEs               ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[5]                                            ;                            ;
+; 1181:1             ; 3 bits    ; 2361 LEs      ; 435 LEs              ; 1926 LEs               ; |addr_card|dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[2]                                            ;                            ;
 +--------------------+-----------+---------------+----------------------+------------------------+--------------------------------------------------------------------------------------------------------------+----------------------------+
 
 
@@ -8555,7 +8557,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------------+
 ; Partition Name ; Elapsed Time ;
 +----------------+--------------+
-; Top            ; 00:01:01     ;
+; Top            ; 00:01:04     ;
 +----------------+--------------+
 
 
@@ -8565,7 +8567,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Analysis & Synthesis
     Info: Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
-    Info: Processing started: Thu Apr 07 15:36:10 2016
+    Info: Processing started: Fri Apr 08 11:06:40 2016
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off addr_card -c addr_card
 Info (20030): Parallel compilation is enabled and will use 4 of the 4 processors detected
 Info (12021): Found 2 design units, including 1 entities, in source file /mce/cards/library/components/source/rtl/parallel_crc.vhd
@@ -8905,11 +8907,11 @@ Info (12128): Elaborating entity "altsyncram_h9u3" for hierarchy "dispatch:cmd0|
 Info (12128): Elaborating entity "all_cards" for hierarchy "all_cards:i_all_cards"
 Info (12128): Elaborating entity "leds" for hierarchy "leds:leds_slave"
 Info (12128): Elaborating entity "ac_dac_ctrl" for hierarchy "ac_dac_ctrl:ac_dac_ctrl_slave"
-Warning (10036): Verilog HDL or VHDL warning at ac_dac_ctrl.vhd(191): object "frame_aligned_reg" assigned a value but never read
-Warning (10873): Using initial value X (don't care) for net "hb_data_vec[63..41]" at ac_dac_ctrl.vhd(204)
-Warning (10873): Using initial value X (don't care) for net "datab[63..41]" at ac_dac_ctrl.vhd(207)
-Warning (10873): Using initial value X (don't care) for net "mode_data_vec[63..41]" at ac_dac_ctrl.vhd(214)
-Warning (10873): Using initial value X (don't care) for net "const_data_vec[63..41]" at ac_dac_ctrl.vhd(215)
+Warning (10036): Verilog HDL or VHDL warning at ac_dac_ctrl.vhd(194): object "frame_aligned_reg" assigned a value but never read
+Warning (10873): Using initial value X (don't care) for net "hb_data_vec[63..41]" at ac_dac_ctrl.vhd(207)
+Warning (10873): Using initial value X (don't care) for net "datab[63..41]" at ac_dac_ctrl.vhd(210)
+Warning (10873): Using initial value X (don't care) for net "mode_data_vec[63..41]" at ac_dac_ctrl.vhd(217)
+Warning (10873): Using initial value X (don't care) for net "const_data_vec[63..41]" at ac_dac_ctrl.vhd(218)
 Info (12128): Elaborating entity "tpram_32bit_x_64" for hierarchy "ac_dac_ctrl:ac_dac_ctrl_slave|tpram_32bit_x_64:bias_start_ram"
 Info (12128): Elaborating entity "alt3pram" for hierarchy "ac_dac_ctrl:ac_dac_ctrl_slave|tpram_32bit_x_64:bias_start_ram|alt3pram:alt3pram_component"
 Info (12130): Elaborated megafunction instantiation "ac_dac_ctrl:ac_dac_ctrl_slave|tpram_32bit_x_64:bias_start_ram|alt3pram:alt3pram_component"
@@ -9172,13 +9174,39 @@ Warning (13024): Output pins are stuck at VCC or GND
     Warning (13410): Pin "mictorclk[2]" is stuck at GND
     Warning (13410): Pin "tx" is stuck at GND
 Info (18000): Registers with preset signals will power-up high
-Info (17049): 6 registers lost all their fanouts during netlist optimizations. The first 6 are displayed below.
+Info (17049): 32 registers lost all their fanouts during netlist optimizations. The first 32 are displayed below.
     Info (17050): Register "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[0]" lost all its fanouts during netlist optimizations.
     Info (17050): Register "dispatch:cmd0|dispatch_wishbone:wishbone|tga_offset[10]" lost all its fanouts during netlist optimizations.
     Info (17050): Register "dispatch:cmd0|dispatch_wishbone:wishbone|tga_offset[9]" lost all its fanouts during netlist optimizations.
     Info (17050): Register "dispatch:cmd0|dispatch_wishbone:wishbone|tga_offset[8]" lost all its fanouts during netlist optimizations.
     Info (17050): Register "dispatch:cmd0|dispatch_wishbone:wishbone|tga_offset[7]" lost all its fanouts during netlist optimizations.
     Info (17050): Register "dispatch:cmd0|dispatch_wishbone:wishbone|tga_offset[6]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[31]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[30]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[29]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[28]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[27]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[26]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[25]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[24]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[23]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[22]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[21]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[20]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[19]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[18]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[17]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[16]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[15]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[14]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[13]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[12]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[11]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[10]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[9]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[8]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[7]" lost all its fanouts during netlist optimizations.
+    Info (17050): Register "ac_dac_ctrl:ac_dac_ctrl_slave|next_row_order_index_int[6]" lost all its fanouts during netlist optimizations.
 Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding node "ac_pll:pll0|altpll:altpll_component|pll"
 Warning (21074): Design contains 7 input pin(s) that do not drive logic
@@ -9189,18 +9217,18 @@ Warning (21074): Design contains 7 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "dip_sw3"
     Warning (15610): No output dependent on input pin "dip_sw4"
     Warning (15610): No output dependent on input pin "rx"
-Info (21057): Implemented 12735 device resources after synthesis - the final resource count might be different
+Info (21057): Implemented 12741 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 16 input pins
     Info (21059): Implemented 247 output pins
     Info (21060): Implemented 16 bidirectional pins
-    Info (21061): Implemented 10993 logic cells
+    Info (21061): Implemented 10999 logic cells
     Info (21064): Implemented 1454 RAM segments
     Info (21065): Implemented 1 PLLs
     Info (21062): Implemented 8 DSP elements
 Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 170 warnings
-    Info: Peak virtual memory: 541 megabytes
-    Info: Processing ended: Thu Apr 07 15:37:16 2016
-    Info: Elapsed time: 00:01:06
-    Info: Total CPU time (on all processors): 00:01:02
+    Info: Peak virtual memory: 537 megabytes
+    Info: Processing ended: Fri Apr 08 11:07:57 2016
+    Info: Elapsed time: 00:01:17
+    Info: Total CPU time (on all processors): 00:01:03
 
 
