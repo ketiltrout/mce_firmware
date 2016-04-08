@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.23 2016/04/07 21:35:20 mandana Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.24 2016/04/07 22:52:02 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.24  2016/04/07 22:52:02  mandana
+-- cleanup after merge
+--
 -- Revision 1.23  2016/04/07 21:35:20  mandana
 -- added 64-element rb/wb suuport by introducing virtual card-ids. When the virtual card_id is used, a tga offset of 32 is applied when writing to a parameter id.
 -- v6.0.1
@@ -266,8 +269,8 @@ architecture rtl of ac_dac_ctrl is
 
    signal update_row_index             : std_logic;
    signal start_row                    : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal next_row_order_index_int     : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
-   signal next_row_order_index_int_new : integer range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal next_row_order_index_int     : integer; --range 0 to (2**ROW_ADDR_WIDTH)-1;
+   signal next_row_order_index_int_new : integer; --range 0 to (2**ROW_ADDR_WIDTH);
 
 begin
    ------------------------------------------------------------

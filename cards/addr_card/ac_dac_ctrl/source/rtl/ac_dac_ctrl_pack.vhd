@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_pack.vhd,v 1.10 2009/09/14 20:12:00 bburger Exp $
+-- $Id: ac_dac_ctrl_pack.vhd,v 1.11 2016/04/07 21:36:01 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.11  2016/04/07 21:36:01  mandana
+-- added 14_64 ram block
+--
 -- Revision 1.10  2009/09/14 20:12:00  bburger
 -- BB: tied AC_NUM_DACS to NUM_OF_ROWS
 --
@@ -95,6 +98,7 @@ package ac_dac_ctrl_pack is
       qb          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
    );
    end component;   
+
    component tpram_14bit_x_64 port
    (
       clock       : IN STD_LOGIC ;
