@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.30  2014/10/22 16:40:08  mandana
+-- 5.2.4 filter fixed an accidental error in inter-stage-windowing in fltr1_sum_reg_shift
+--
 -- Revision 1.29  2014/10/21 21:21:00  mandana
 -- 5.2.3 In order to extend the dynamic range of the second stage of the filter, the input to the second stage is 20 bits only and the subtractor width is extended from 32 to to 35 bits with MSBs dropped just prior to writing to wn banks
 --
@@ -273,7 +276,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"05020004";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"06000001";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
