@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.27  2013/05/27 20:26:05  mandana
+-- added servo_rst_window interface
+--
 -- Revision 1.26  2012-10-30 19:08:05  mandana
 -- only renaming signals for clarity
 --
@@ -130,7 +133,7 @@ package flux_loop_pack is
    -- filter related 
    constant FLTR_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of the filter results storage
    constant FLTR_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;
-   constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
+   constant FLTR_QUEUE_COUNT       : integer := 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
    constant NUM_FILTER_COEFF       : integer := 6;                    -- number of filter coefficients
    constant FILTER_COEF_WIDTH      : integer := 15;                   -- number of bits in the coefficient

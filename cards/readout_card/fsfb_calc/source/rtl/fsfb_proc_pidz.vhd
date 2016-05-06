@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.24  2014/10/22 16:40:08  mandana
+-- 5.2.4 filter fixed an accidental error in inter-stage-windowing in fltr1_sum_reg_shift
+--
 -- Revision 1.23  2014/10/21 21:21:00  mandana
 -- 5.2.3 In order to extend the dynamic range of the second stage of the filter, the input to the second stage is 20 bits only and the subtractor width is extended from 32 to to 35 bits with MSBs dropped just prior to writing to wn banks
 --
@@ -243,9 +246,9 @@ architecture rtl of fsfb_proc_pidz is
    signal operand_b                : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- selected operand (biquad1 or biquad2) for wtemp subtractor operation
    signal wtemp                    : std_logic_vector(FILTER_DLY_WIDTH+FILTER_COEF_WIDTH downto 0);-- stores results for b1*wn1+b2*wn2
    signal wtemp_reg_shift          : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);                -- scaled down version with sign preserved of wtemp
-   signal wtemp_reg_shift_corrected: std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);               
+   signal wtemp_reg_shift_corrected: std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               
    
-   signal correction_on            : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);               -- voodoo correction for -1!
+   signal correction_on            : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- voodoo correction for -1!
    signal wn10                     : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);
    signal wn20                     : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);
    signal wn10_reg                 : std_logic_vector(FILTER_DLY_WIDTH+2 downto 0);               -- 2-bits extension to preapare for the 2-level addition for the final filter result
@@ -322,7 +325,6 @@ begin
          -- P*current_coadd_dat
          -- Q*current_qterm_dat_o
          when "0000001" => multiplicand_a <= p_dat_i;
-                        --   multiplicand_b <= current_coadd_dat_reg;
                            multiplicand_b <= current_qterm_dat_reg;
                  
          -- I*current_integral_dat
@@ -339,28 +341,28 @@ begin
                            multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); 
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn11_dat_i;
-                           multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn11_dat_i(wn11_dat_i'left));         
+        --                   multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn11_dat_i(wn11_dat_i'left));         
          
          -- B12*Wn12
          when "0010000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B12_COEF;
                            multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); 
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn12_dat_i;
-                           multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn12_dat_i(wn12_dat_i'left));
+        --                   multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn12_dat_i(wn12_dat_i'left));
 
          -- B21*Wn21
          when "0100000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B21_COEF;
                            multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others => '0'); 
                          
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn21_dat_i;
-                           multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn21_dat_i(wn21_dat_i'left));         
+        --                   multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn21_dat_i(wn21_dat_i'left));         
          
          -- B22*Wn22
          when "1000000" => multiplicand_a(FILTER_COEF_WIDTH-1 downto 0) <= FILTER_B22_COEF;
                            multiplicand_a(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_COEF_WIDTH) <= (others=> '0'); --FILTER_B22_COEF(FILTER_B22_COEF'left));
                            
                            multiplicand_b(FILTER_DLY_WIDTH-1 downto 0) <= wn22_dat_i;
-                           multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn22_dat_i(wn22_dat_i'left));
+        --                   multiplicand_b(COEFF_QUEUE_DATA_WIDTH-1 downto FILTER_DLY_WIDTH) <= (others=> wn22_dat_i(wn22_dat_i'left));
                        
          -- Invalid
          when others => multiplicand_a <= (others => '0');
@@ -457,18 +459,7 @@ begin
          datab                              => i_product_reg,
          result                             => pi_sum 
       );
-   
-   -- Sign extended z_dat_i to 64 bits 
---   z_dat_65 <= sxt(z_dat_i, z_dat_65'length);               
---   
---   i_dz_add : fsfb_calc_adder65
---      port map (
---         dataa                              => d_product_reg,
---         datab                              => z_dat_65,
---         result                             => dz_sum
---      );
-      
-      
+            
    -- 2nd stage addition
    -- Consists of one addition:  pi_sum + dz_sum
    --
@@ -522,15 +513,15 @@ begin
    
    -- wtemp_reg_shift is the scaled down version of wtemp and needs correction, add 1, 
    -- when wtemp is negative
---   i_wn_correction : fsfb_calc_adder29 --adder32 indeed!
---      port map (
---         dataa                              => wtemp_reg_shift,
---         datab                              => correction_on,
---         result                             => wtemp_reg_shift_corrected
---      );
+   i_wn_correction : fsfb_calc_adder29 --adder35 indeed!
+      port map (
+         dataa                              => wtemp_reg_shift,
+         datab                              => correction_on,
+         result                             => wtemp_reg_shift_corrected
+      );
    
---   correction_on <= --"00000000000000000000000000000001" when wtemp_reg_shift(wtemp_reg_shift'left)='1' else 
---                    (others => '0');
+   correction_on <= "00000000000000000000000000000000001" when wtemp_reg_shift(wtemp_reg_shift'left)='1' else 
+                    (others => '0');
 
    -- filter wn stage addition  (1st biquad)
    -- wn <= pidz_sum_reg(pidz_sum_reg'left) & pidz_sum_reg(FILTER_DLY_WIDTH-2 downto 0) - wtemp;
@@ -548,7 +539,7 @@ begin
    i_wn10_sub : fsfb_calc_sub29 --sub35 in fact
       port map (
          dataa                              => pidz_sum_reg_shift,
-         datab                              => wtemp_reg_shift, --wtemp_reg(FILTER_FB_H_BIT downto FILTER_FB_L_BIT),
+         datab                              => wtemp_reg_shift, --_corrected--wtemp_reg(FILTER_FB_H_BIT downto FILTER_FB_L_BIT),
          result                             => wn10
       );
    
@@ -558,7 +549,7 @@ begin
    wn11_shift <= wn11_dat_i(wn11_dat_i'left) & wn11_dat_i & '0';
    wn12_shift <= wn12_dat_i(wn12_dat_i'left) & wn12_dat_i(wn12_dat_i'left) & wn12_dat_i;
 
-   i_fltr1_tmp : fsfb_calc_adder31
+   i_fltr1_tmp : fsfb_calc_adder31 --adder34 in fact
       port map (
          dataa                              => wn11_shift,
          datab                              => wn12_shift,
@@ -567,7 +558,7 @@ begin
 
    -- filter second stage addition  (1st biquad)
    -- fltr_sum <= wn_reg + fltr_tmp_reg;
-   i_fltr1_add : fsfb_calc_adder32
+   i_fltr1_add : fsfb_calc_adder32 --adder35 infact
       port map (
          dataa                              => wn10_reg,
          datab                              => fltr1_tmp_reg,
@@ -587,10 +578,10 @@ begin
      if (rst_i = '1') then
        fltr1_sum_reg_shift <= (others => '0');
      elsif (clk_50_i'event and clk_50_i = '1') then
-       k := filter_gain_width;
+       k := 12;--filter_gain_width;*******
        for i in 0 to fltr1_sum_reg_shift'length-1 loop
          if i >= (FILTER_INPUT_WIDTH) then
-           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(FILTER_INPUT_WIDTH+filter_gain_width-1);
+           fltr1_sum_reg_shift(i) <= fltr1_sum_reg(FILTER_INPUT_WIDTH+11);--filter_gain_width-1);*******
          else
            fltr1_sum_reg_shift(i) <= fltr1_sum_reg(k);
            k := k + 1;
@@ -657,12 +648,12 @@ begin
 
          -- wtemp sum biquad 1
          if (store_1st_wtemp = '1') then
-            wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
+            wtemp_reg_shift <= wtemp(FILTER_FB_H_BIT) & wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
          end if;
 
          -- wtemp sum biquad 2
          if (store_2nd_wtemp = '1') then
-            wtemp_reg_shift <= wtemp(wtemp'left) & wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
+            wtemp_reg_shift <= wtemp(FILTER_FB_H_BIT) & wtemp(FILTER_FB_H_BIT downto FILTER_FB_L_BIT);
          end if;
 
          -- wn10 sum (wn of biquad 1)
@@ -730,6 +721,6 @@ begin
    -- We clear the filter when servo mode changes, and when the servo is off, zero inputs effectively null the servo.
    fsfb_proc_fltr_update_o <= calc_shift_state(13); -- when lock_mode_en_i = '1' else '0';
    
-   wn10_dat_o              <= wn10_reg(FILTER_DLY_WIDTH-1 downto 0);
-   wn20_dat_o              <= wn20_reg(FILTER_DLY_WIDTH-1 downto 0);
+   wn10_dat_o              <= wn10_reg(wn10_reg'left) & wn10_reg(FILTER_DLY_WIDTH-2 downto 0); --wn10_reg(FILTER_DLY_WIDTH-1 downto 0);
+   wn20_dat_o              <= wn20_reg(wn20_reg'left) & wn20_reg(FILTER_DLY_WIDTH-2 downto 0); --wn20_reg(FILTER_DLY_WIDTH-1 downto 0);
 end rtl;

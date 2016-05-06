@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.29  2014/10/21 21:21:00  mandana
+-- 5.2.3 In order to extend the dynamic range of the second stage of the filter, the input to the second stage is 20 bits only and the subtractor width is extended from 32 to to 35 bits with MSBs dropped just prior to writing to wn banks
+--
 -- Revision 1.28  2012/09/06 23:09:05  mandana
 -- increased data-width of delay elements by 3 bits which affected arithmetic precision
 --
@@ -490,9 +493,9 @@ package fsfb_calc_pack is
    component fsfb_calc_adder29
       PORT
       (
-         dataa    : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-         datab    : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-         result      : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+         dataa    : IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+         datab    : IN STD_LOGIC_VECTOR (34 DOWNTO 0);
+         result      : OUT STD_LOGIC_VECTOR (34 DOWNTO 0)
       );
    end component fsfb_calc_adder29;
    -----------------------------------------------------------------------------------
