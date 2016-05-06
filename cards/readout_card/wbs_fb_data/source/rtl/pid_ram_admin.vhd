@@ -66,6 +66,9 @@
 --
 -- Revision history:
 -- $Log: pid_ram_admin.vhd,v $
+-- Revision 1.5  2012-03-26 01:55:11  mandana
+-- cleanup
+--
 -- Revision 1.4  2008/06/27 18:50:24  mandana
 -- changed ram_10x64 to generic pid_ram so we don't have to modify this file when changing memory width.
 --
@@ -441,7 +444,7 @@ begin  -- rtl
         
          if (stb_i='1') and (ack_read_bank='0') then
             count:=count+1;
-            if count=2 then
+            if count=3 then
                ack_read_bank <= '1';
                count:=0;
             else 
