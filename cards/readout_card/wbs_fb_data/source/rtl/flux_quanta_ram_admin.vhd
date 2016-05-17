@@ -66,6 +66,9 @@
 --
 -- Revision history:
 -- $Log: flux_quanta_ram_admin.vhd,v $
+-- Revision 1.5  2010/02/13 00:36:39  bburger
+-- BB: Merged 1.4.2.1 into the main line.
+--
 -- Revision 1.4  2009/08/28 17:56:46  bburger
 -- BB:  fixed a bug in the flx_quanta that signed extended an unsigned value.
 --
@@ -432,7 +435,7 @@ begin  -- rtl
         
          if (stb_i='1') and (ack_read_bank='0') then
             count:=count+1;
-            if count=2 then
+            if count=3 then
                ack_read_bank <= '1';
                count:=0;
             else 

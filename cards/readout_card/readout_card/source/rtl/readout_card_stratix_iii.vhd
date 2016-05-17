@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.31  2016/05/06 22:16:34  mandana
+-- 6.0.1 support of upper 32 word needs an additional wait cycle for ack_read
+--
 -- Revision 1.30  2014/10/22 16:40:08  mandana
 -- 5.2.4 filter fixed an accidental error in inter-stage-windowing in fltr1_sum_reg_shift
 --
@@ -276,7 +279,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"06000001";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"06000002";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals

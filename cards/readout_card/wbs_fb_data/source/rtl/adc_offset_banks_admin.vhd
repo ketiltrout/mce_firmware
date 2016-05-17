@@ -69,6 +69,10 @@
 -- Revision history:
 -- 
 -- $Log: adc_offset_banks_admin.vhd,v $
+-- Revision 1.5  2008/07/08 21:59:13  mandana
+-- incomplete if statement for ack_read_bank is fixed.
+-- count is set to 0 as a start value.
+--
 -- Revision 1.4  2006/09/22 20:16:52  mandana
 -- enabled adc_offset read back by connecting porta for dispatch read
 --
@@ -439,7 +443,7 @@ begin  -- rtl
         
         if (stb_i='1') and (ack_read_adc_offset_bank='0') then
           count:=count+1;
-          if count=2 then
+          if count=3 then
             ack_read_adc_offset_bank <= '1';
             count:=0;
           else
