@@ -1,5 +1,5 @@
 Flow report for bias_card
-Tue May 17 19:51:40 2016
+Thu May 19 15:47:23 2016
 Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 
 
@@ -38,14 +38,14 @@ applicable agreement for further details.
 +----------------------------------------------------------------------------+
 ; Flow Summary                                                               ;
 +---------------------------+------------------------------------------------+
-; Flow Status               ; Analyzed - Tue May 17 19:51:40 2016            ;
+; Flow Status               ; Analyzed - Thu May 19 15:47:23 2016            ;
 ; Quartus II 64-Bit Version ; 11.1 Build 259 01/25/2012 SP 2 SJ Full Version ;
 ; Revision Name             ; bias_card                                      ;
 ; Top-level Entity Name     ; bias_card                                      ;
 ; Family                    ; Stratix                                        ;
 ; Device                    ; EP1S10F780C5                                   ;
 ; Timing Models             ; Final                                          ;
-; Total logic elements      ; 7,584 / 10,570 ( 72 % )                        ;
+; Total logic elements      ; 7,623 / 10,570 ( 72 % )                        ;
 ; Total pins                ; 211 / 427 ( 49 % )                             ;
 ; Total virtual pins        ; 0                                              ;
 ; Total memory bits         ; 133,120 / 920,448 ( 14 % )                     ;
@@ -60,7 +60,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 05/17/2016 19:47:49 ;
+; Start date & time ; 05/19/2016 15:43:41 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -79,7 +79,7 @@ applicable agreement for further details.
 ; AUTO_PACKED_REGISTERS_MAXII                       ; Normal                                               ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIX                     ; Normal                                               ; Auto                           ; --          ; --             ;
 ; AUTO_PACKED_REGISTERS_STRATIXII                   ; Normal                                               ; Auto                           ; --          ; --             ;
-; COMPILER_SIGNATURE_ID                             ; 178382124260098.146353966806756                      ; --                             ; --          ; --             ;
+; COMPILER_SIGNATURE_ID                             ; 178382124260098.146369781902432                      ; --                             ; --          ; --             ;
 ; DO_COMBINED_ANALYSIS                              ; On                                                   ; Off                            ; --          ; --             ;
 ; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; On                                                   ; --                             ; --          ; eda_simulation ;
 ; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION        ; On                                                   ; --                             ; --          ; eda_simulation ;
@@ -114,12 +114,12 @@ applicable agreement for further details.
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis      ; 00:00:54     ; 1.0                     ; 531 MB              ; 00:00:46                           ;
-; Fitter                    ; 00:02:36     ; 1.4                     ; 707 MB              ; 00:02:47                           ;
+; Analysis & Synthesis      ; 00:00:59     ; 1.0                     ; 531 MB              ; 00:00:46                           ;
+; Fitter                    ; 00:02:23     ; 1.6                     ; 708 MB              ; 00:02:34                           ;
 ; Assembler                 ; 00:00:03     ; 1.0                     ; 411 MB              ; 00:00:02                           ;
-; TimeQuest Timing Analyzer ; 00:00:04     ; 1.0                     ; 440 MB              ; 00:00:04                           ;
+; TimeQuest Timing Analyzer ; 00:00:05     ; 1.0                     ; 441 MB              ; 00:00:04                           ;
 ; Design Assistant          ; 00:00:06     ; 1.0                     ; 407 MB              ; 00:00:06                           ;
-; Total                     ; 00:03:43     ; --                      ; --                  ; 00:03:45                           ;
+; Total                     ; 00:03:36     ; --                      ; --                  ; 00:03:32                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

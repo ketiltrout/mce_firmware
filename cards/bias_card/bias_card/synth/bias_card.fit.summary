@@ -1,11 +1,11 @@
-Fitter Status : Successful - Tue May 17 19:51:23 2016
+Fitter Status : Successful - Thu May 19 15:47:06 2016
 Quartus II 64-Bit Version : 11.1 Build 259 01/25/2012 SP 2 SJ Full Version
 Revision Name : bias_card
 Top-level Entity Name : bias_card
 Family : Stratix
 Device : EP1S10F780C5
 Timing Models : Final
-Total logic elements : 7,584 / 10,570 ( 72 % )
+Total logic elements : 7,623 / 10,570 ( 72 % )
 Total pins : 211 / 427 ( 49 % )
 Total virtual pins : 0
 Total memory bits : 133,120 / 920,448 ( 14 % )

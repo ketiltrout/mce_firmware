@@ -624,7 +624,7 @@ dac_data[5]                  : M21       : output : 3.3-V LVTTL       :         
 dac_ncs[5]                   : M22       : output : 3.3-V LVTTL       :         : 2         : Y              
 dac_data[6]                  : M23       : output : 3.3-V LVTTL       :         : 2         : Y              
 dac_ncs[6]                   : M24       : output : 3.3-V LVTTL       :         : 2         : Y              
-RESERVED_INPUT               : M25       :        :                   :         : 2         :                
+dac_nclr                     : M25       : output : 3.3-V LVTTL       :         : 2         : N              
 RESERVED_INPUT               : M26       :        :                   :         : 2         :                
 dac_ncs[14]                  : M27       : output : 3.3-V LVTTL       :         : 2         : Y              
 VCCIO2                       : M28       : power  :                   : 3.3V    : 2         :                
@@ -681,7 +681,7 @@ GNDG_PLL1                    : P22       : gnd    :                   :         
 VCCA_PLL1                    : P23       : power  :                   : 1.5V    :           :                
 GNDA_PLL1                    : P24       : gnd    :                   :         :           :                
 GND+                         : P25       :        :                   :         : 2         :                
-dac_nclr                     : P26       : output : 3.3-V LVTTL       :         : 2         : N              
+RESERVED_INPUT               : P26       :        :                   :         : 2         :                
 GND+                         : P27       :        :                   :         : 2         :                
 GND                          : P28       : gnd    :                   :         :           :                
 GND                          : R1        : gnd    :                   :         :           :                
