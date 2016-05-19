@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.13 2012-03-26 21:54:12 mandana Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.14 2014/12/18 23:21:41 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.14  2014/12/18 23:21:41  mandana
+-- 5.3.5 added num_idle_rows
+--
 -- Revision 1.13  2012-03-26 21:54:12  mandana
 -- added comment about new commands!
 --
@@ -126,6 +129,7 @@ entity bc_dac_ctrl is
       -- frame_timing signals
       row_switch_i      : in std_logic;
       update_bias_i     : in std_logic;
+      flux_fb_dly_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;      
       restart_frame_1row_prev_i : in std_logic;
       
@@ -174,7 +178,7 @@ begin
       ln_bias_addr_o    => ln_bias_addr,
       ln_bias_data_i    => ln_bias_data,      
       ln_bias_changed_i => ln_bias_changed,   
-      num_idle_rows_i   => num_idle_rows,
+--      num_idle_rows_i   => num_idle_rows,
 
       mux_flux_fb_data_i=> mux_flux_fb_data,
       enbl_mux_data_i   => enbl_mux_data,
@@ -182,6 +186,7 @@ begin
       -- frame_timing signals
       row_switch_i      => row_switch_i,
       update_bias_i     => update_bias_i,
+      flux_fb_dly_i     => flux_fb_dly_i,
       restart_frame_aligned_i => restart_frame_aligned_i,
       restart_frame_1row_prev_i => restart_frame_1row_prev_i,
 
