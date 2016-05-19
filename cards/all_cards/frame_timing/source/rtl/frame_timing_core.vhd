@@ -288,7 +288,7 @@ begin
 
    -- The bias card DACs begin to be updated 10 cycles after update_bias_o is asserted.
    -- The length of time required to update all 32 flux_feedback values on the bias card is longer than one row dwell period.
-   update_bias_o              <= '1' when row_count_int = row_len_i - UPDATE_BIAS else '0';
+   update_bias_o              <= '1' when row_count_int = flux_fb_dly_i + 1 else '0'; -- row_len_i - UPDATE_BIAS else '0';
    flux_fb_dly_o              <= '1' when row_count_int = flux_fb_dly_i else '0';
 
    -- row_switch_o is pulsed on the last clock cycle of every

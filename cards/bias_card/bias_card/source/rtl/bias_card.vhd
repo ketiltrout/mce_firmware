@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.54 2016/04/06 01:52:07 mandana Exp $
+-- $Id: bias_card.vhd,v 1.55 2016/05/19 22:14:24 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.55  2016/05/19 22:14:24  mandana
+-- 6.0.1 added flux_fb_dly parameter and removed num_idle_rows implementation
+--
 -- Revision 1.54  2016/04/06 01:52:07  mandana
 -- added 64-element rb/wb suuport by introducing virtual card-ids. When the virtual card_id is used, a tga offset of 32 is applied when writing to a parameter id.
 -- v6.0.0
@@ -302,7 +305,7 @@ architecture top of bias_card is
 --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
 --               rr is the minor revision number, incremented when new features added
 --               BBBB is the build number, incremented for bug fixes
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"06000001";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"06000002";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
