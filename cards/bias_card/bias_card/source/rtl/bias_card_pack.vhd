@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.16 2010/07/19 23:43:25 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.17 2011-06-23 16:04:39 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.17  2011-06-23 16:04:39  mandana
+-- added bias_card component, so card defs could be removed from system testbench
+--
 -- Revision 1.16  2010/07/19 23:43:25  mandana
 -- added pcb_rev_i interface
 --
@@ -153,6 +156,7 @@ component bc_dac_ctrl
       -- frame_timing signals
       row_switch_i      : in std_logic;
       update_bias_i     : in std_logic;
+      flux_fb_dly_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;
       restart_frame_1row_prev_i : in std_logic;
       

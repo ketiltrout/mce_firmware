@@ -1,5 +1,5 @@
 TimeQuest Timing Analyzer report for bias_card
-Sat Apr 02 18:03:28 2016
+Tue May 17 19:51:33 2016
 Quartus II 64-Bit Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
 
 
@@ -76,13 +76,12 @@ applicable agreement for further details.
 ; Number detected on machine ; 4           ;
 ; Maximum allowed            ; 4           ;
 ;                            ;             ;
-; Average used               ; 1.40        ;
-; Maximum used               ; 2           ;
+; Average used               ; 1.00        ;
+; Maximum used               ; 1           ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     1 processor            ; 100.0%      ;
-;     2 processors           ;  25.0%      ;
-;     3-4 processors         ;   0.0%      ;
+;     2-4 processors         ;   0.0%      ;
 +----------------------------+-------------+
 
 
@@ -91,7 +90,7 @@ applicable agreement for further details.
 +---------------+--------+--------------------------+
 ; SDC File Path ; Status ; Read at                  ;
 +---------------+--------+--------------------------+
-; bias_card.sdc ; OK     ; Sat Apr 02 18:03:26 2016 ;
+; bias_card.sdc ; OK     ; Tue May 17 19:51:31 2016 ;
 +---------------+--------+--------------------------+
 
 
@@ -113,9 +112,9 @@ applicable agreement for further details.
 +------------+-----------------+----------------------------------+------+
 ; Fmax       ; Restricted Fmax ; Clock Name                       ; Note ;
 +------------+-----------------+----------------------------------+------+
-; 59.73 MHz  ; 59.73 MHz       ; pll0|altpll_component|pll|clk[0] ;      ;
-; 168.89 MHz ; 168.89 MHz      ; pll0|altpll_component|pll|clk[3] ;      ;
-; 169.84 MHz ; 169.84 MHz      ; pll0|altpll_component|pll|clk[1] ;      ;
+; 61.17 MHz  ; 61.17 MHz       ; pll0|altpll_component|pll|clk[0] ;      ;
+; 173.64 MHz ; 173.64 MHz      ; pll0|altpll_component|pll|clk[1] ;      ;
+; 175.25 MHz ; 175.25 MHz      ; pll0|altpll_component|pll|clk[3] ;      ;
 +------------+-----------------+----------------------------------+------+
 This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
 
@@ -125,9 +124,9 @@ This panel reports FMAX for every clock in the design, regardless of the user-sp
 +----------------------------------+--------+---------------+
 ; Clock                            ; Slack  ; End Point TNS ;
 +----------------------------------+--------+---------------+
-; pll0|altpll_component|pll|clk[0] ; 3.259  ; 0.000         ;
-; pll0|altpll_component|pll|clk[1] ; 4.112  ; 0.000         ;
-; pll0|altpll_component|pll|clk[3] ; 10.558 ; 0.000         ;
+; pll0|altpll_component|pll|clk[0] ; 3.652  ; 0.000         ;
+; pll0|altpll_component|pll|clk[1] ; 4.241  ; 0.000         ;
+; pll0|altpll_component|pll|clk[3] ; 10.329 ; 0.000         ;
 +----------------------------------+--------+---------------+
 
 
@@ -136,9 +135,9 @@ This panel reports FMAX for every clock in the design, regardless of the user-sp
 +----------------------------------+-------+---------------+
 ; Clock                            ; Slack ; End Point TNS ;
 +----------------------------------+-------+---------------+
-; pll0|altpll_component|pll|clk[0] ; 0.538 ; 0.000         ;
-; pll0|altpll_component|pll|clk[3] ; 0.538 ; 0.000         ;
-; pll0|altpll_component|pll|clk[1] ; 0.559 ; 0.000         ;
+; pll0|altpll_component|pll|clk[0] ; 0.539 ; 0.000         ;
+; pll0|altpll_component|pll|clk[3] ; 0.539 ; 0.000         ;
+; pll0|altpll_component|pll|clk[1] ; 0.554 ; 0.000         ;
 +----------------------------------+-------+---------------+
 
 
@@ -172,20 +171,20 @@ No paths to report.
 +-------------+------------+--------+--------+------------+----------------------------------+
 ; Data Port   ; Clock Port ; Rise   ; Fall   ; Clock Edge ; Clock Reference                  ;
 +-------------+------------+--------+--------+------------+----------------------------------+
-; card_id     ; inclk      ; 6.076  ; 6.076  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; pcb_rev[*]  ; inclk      ; 12.621 ; 12.621 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[0] ; inclk      ; 11.544 ; 11.544 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[1] ; inclk      ; 12.621 ; 12.621 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[2] ; inclk      ; 11.451 ; 11.451 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[3] ; inclk      ; 11.549 ; 11.549 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; slot_id[*]  ; inclk      ; 14.048 ; 14.048 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[0] ; inclk      ; 11.443 ; 11.443 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[1] ; inclk      ; 13.566 ; 13.566 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[2] ; inclk      ; 13.968 ; 13.968 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[3] ; inclk      ; 14.048 ; 14.048 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; smb_data    ; inclk      ; 5.568  ; 5.568  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; lvds_cmd    ; inclk      ; 5.542  ; 5.542  ; Rise       ; pll0|altpll_component|pll|clk[1] ;
-; lvds_sync   ; inclk      ; -3.999 ; -3.999 ; Rise       ; pll0|altpll_component|pll|clk[2] ;
+; card_id     ; inclk      ; 5.903  ; 5.903  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; pcb_rev[*]  ; inclk      ; 11.498 ; 11.498 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[0] ; inclk      ; 11.498 ; 11.498 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[1] ; inclk      ; 10.634 ; 10.634 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[2] ; inclk      ; 9.758  ; 9.758  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[3] ; inclk      ; 11.319 ; 11.319 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; slot_id[*]  ; inclk      ; 12.381 ; 12.381 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[0] ; inclk      ; 12.381 ; 12.381 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[1] ; inclk      ; 11.129 ; 11.129 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[2] ; inclk      ; 11.274 ; 11.274 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[3] ; inclk      ; 10.951 ; 10.951 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data    ; inclk      ; 5.726  ; 5.726  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; lvds_cmd    ; inclk      ; 5.535  ; 5.535  ; Rise       ; pll0|altpll_component|pll|clk[1] ;
+; lvds_sync   ; inclk      ; -3.820 ; -3.820 ; Rise       ; pll0|altpll_component|pll|clk[2] ;
 +-------------+------------+--------+--------+------------+----------------------------------+
 
 
@@ -194,20 +193,20 @@ No paths to report.
 +-------------+------------+---------+---------+------------+----------------------------------+
 ; Data Port   ; Clock Port ; Rise    ; Fall    ; Clock Edge ; Clock Reference                  ;
 +-------------+------------+---------+---------+------------+----------------------------------+
-; card_id     ; inclk      ; -5.966  ; -5.966  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; pcb_rev[*]  ; inclk      ; -11.286 ; -11.286 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[0] ; inclk      ; -11.379 ; -11.379 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[1] ; inclk      ; -12.456 ; -12.456 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[2] ; inclk      ; -11.286 ; -11.286 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  pcb_rev[3] ; inclk      ; -11.384 ; -11.384 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; slot_id[*]  ; inclk      ; -8.093  ; -8.093  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[0] ; inclk      ; -8.367  ; -8.367  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[1] ; inclk      ; -8.815  ; -8.815  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[2] ; inclk      ; -8.154  ; -8.154  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  slot_id[3] ; inclk      ; -8.093  ; -8.093  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; smb_data    ; inclk      ; -5.458  ; -5.458  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; lvds_cmd    ; inclk      ; -5.432  ; -5.432  ; Rise       ; pll0|altpll_component|pll|clk[1] ;
-; lvds_sync   ; inclk      ; 4.109   ; 4.109   ; Rise       ; pll0|altpll_component|pll|clk[2] ;
+; card_id     ; inclk      ; -5.793  ; -5.793  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; pcb_rev[*]  ; inclk      ; -9.593  ; -9.593  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[0] ; inclk      ; -11.333 ; -11.333 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[1] ; inclk      ; -10.469 ; -10.469 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[2] ; inclk      ; -9.593  ; -9.593  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  pcb_rev[3] ; inclk      ; -11.154 ; -11.154 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; slot_id[*]  ; inclk      ; -6.844  ; -6.844  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[0] ; inclk      ; -7.081  ; -7.081  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[1] ; inclk      ; -7.168  ; -7.168  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[2] ; inclk      ; -6.844  ; -6.844  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  slot_id[3] ; inclk      ; -6.900  ; -6.900  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data    ; inclk      ; -5.616  ; -5.616  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; lvds_cmd    ; inclk      ; -5.425  ; -5.425  ; Rise       ; pll0|altpll_component|pll|clk[1] ;
+; lvds_sync   ; inclk      ; 3.930   ; 3.930   ; Rise       ; pll0|altpll_component|pll|clk[2] ;
 +-------------+------------+---------+---------+------------+----------------------------------+
 
 
@@ -216,198 +215,198 @@ No paths to report.
 +-------------------+------------+--------+--------+------------+----------------------------------+
 ; Data Port         ; Clock Port ; Rise   ; Fall   ; Clock Edge ; Clock Reference                  ;
 +-------------------+------------+--------+--------+------------+----------------------------------+
-; card_id           ; inclk      ; 10.286 ; 10.286 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; critical_error    ; inclk      ; 4.448  ; 4.448  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; dac_ncs[*]        ; inclk      ; 10.206 ; 10.206 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[0]       ; inclk      ; 6.658  ; 6.658  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[1]       ; inclk      ; 7.459  ; 7.459  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[2]       ; inclk      ; 7.386  ; 7.386  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[3]       ; inclk      ; 8.841  ; 8.841  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[4]       ; inclk      ; 8.055  ; 8.055  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[5]       ; inclk      ; 7.444  ; 7.444  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[6]       ; inclk      ; 8.372  ; 8.372  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[7]       ; inclk      ; 6.930  ; 6.930  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[8]       ; inclk      ; 7.578  ; 7.578  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[9]       ; inclk      ; 7.019  ; 7.019  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[10]      ; inclk      ; 7.869  ; 7.869  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[11]      ; inclk      ; 7.023  ; 7.023  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[12]      ; inclk      ; 7.419  ; 7.419  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[13]      ; inclk      ; 7.728  ; 7.728  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[14]      ; inclk      ; 7.488  ; 7.488  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[15]      ; inclk      ; 8.326  ; 8.326  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[16]      ; inclk      ; 7.432  ; 7.432  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[17]      ; inclk      ; 7.588  ; 7.588  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[18]      ; inclk      ; 10.060 ; 10.060 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[19]      ; inclk      ; 10.206 ; 10.206 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[20]      ; inclk      ; 8.474  ; 8.474  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[21]      ; inclk      ; 10.061 ; 10.061 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[22]      ; inclk      ; 8.239  ; 8.239  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[23]      ; inclk      ; 10.099 ; 10.099 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[24]      ; inclk      ; 7.610  ; 7.610  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[25]      ; inclk      ; 8.226  ; 8.226  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[26]      ; inclk      ; 9.388  ; 9.388  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[27]      ; inclk      ; 7.570  ; 7.570  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[28]      ; inclk      ; 7.565  ; 7.565  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[29]      ; inclk      ; 7.909  ; 7.909  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[30]      ; inclk      ; 8.398  ; 8.398  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[31]      ; inclk      ; 7.679  ; 7.679  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; dev_clr_fpga_out  ; inclk      ; 5.809  ; 5.809  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; grn_led           ; inclk      ; 5.605  ; 5.605  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; lvds_txa          ; inclk      ; 6.610  ; 6.610  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; lvds_txb          ; inclk      ; 6.142  ; 6.142  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; red_led           ; inclk      ; 5.643  ; 5.643  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; smb_clk           ; inclk      ; 9.540  ; 9.540  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; smb_data          ; inclk      ; 10.478 ; 10.478 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; wdog              ; inclk      ; 8.286  ; 8.286  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; ylw_led           ; inclk      ; 5.588  ; 5.588  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; dac_data[*]       ; inclk      ; 6.032  ; 6.032  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[0]      ; inclk      ; 5.789  ; 5.789  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[1]      ; inclk      ; 5.855  ; 5.855  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[2]      ; inclk      ; 4.546  ; 4.546  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[3]      ; inclk      ; 4.770  ; 4.770  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[4]      ; inclk      ; 4.763  ; 4.763  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[5]      ; inclk      ; 4.638  ; 4.638  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[6]      ; inclk      ; 4.308  ; 4.308  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[7]      ; inclk      ; 4.780  ; 4.780  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[8]      ; inclk      ; 4.363  ; 4.363  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[9]      ; inclk      ; 4.804  ; 4.804  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[10]     ; inclk      ; 4.896  ; 4.896  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[11]     ; inclk      ; 5.014  ; 5.014  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[12]     ; inclk      ; 4.315  ; 4.315  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[13]     ; inclk      ; 4.625  ; 4.625  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[14]     ; inclk      ; 3.876  ; 3.876  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[15]     ; inclk      ; 5.061  ; 5.061  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[16]     ; inclk      ; 5.633  ; 5.633  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[17]     ; inclk      ; 5.619  ; 5.619  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[18]     ; inclk      ; 4.527  ; 4.527  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[19]     ; inclk      ; 5.639  ; 5.639  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[20]     ; inclk      ; 6.032  ; 6.032  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[21]     ; inclk      ; 5.566  ; 5.566  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[22]     ; inclk      ; 5.583  ; 5.583  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[23]     ; inclk      ; 5.470  ; 5.470  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[24]     ; inclk      ; 5.566  ; 5.566  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[25]     ; inclk      ; 5.074  ; 5.074  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[26]     ; inclk      ; 4.549  ; 4.549  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[27]     ; inclk      ; 5.746  ; 5.746  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[28]     ; inclk      ; 4.412  ; 4.412  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[29]     ; inclk      ; 5.004  ; 5.004  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[30]     ; inclk      ; 5.014  ; 5.014  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[31]     ; inclk      ; 5.638  ; 5.638  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; dac_ncs[*]        ; inclk      ; 7.879  ; 7.879  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[0]       ; inclk      ; 4.754  ; 4.754  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[1]       ; inclk      ; 6.326  ; 6.326  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[2]       ; inclk      ; 5.709  ; 5.709  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[3]       ; inclk      ; 5.305  ; 5.305  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[4]       ; inclk      ; 7.746  ; 7.746  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[5]       ; inclk      ; 5.382  ; 5.382  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[6]       ; inclk      ; 6.075  ; 6.075  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[7]       ; inclk      ; 5.153  ; 5.153  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[8]       ; inclk      ; 5.731  ; 5.731  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[9]       ; inclk      ; 4.728  ; 4.728  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[10]      ; inclk      ; 6.627  ; 6.627  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[11]      ; inclk      ; 5.005  ; 5.005  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[12]      ; inclk      ; 6.989  ; 6.989  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[13]      ; inclk      ; 5.624  ; 5.624  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[14]      ; inclk      ; 7.115  ; 7.115  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[15]      ; inclk      ; 5.691  ; 5.691  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[16]      ; inclk      ; 5.569  ; 5.569  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[17]      ; inclk      ; 5.707  ; 5.707  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[18]      ; inclk      ; 7.091  ; 7.091  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[19]      ; inclk      ; 7.515  ; 7.515  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[20]      ; inclk      ; 5.916  ; 5.916  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[21]      ; inclk      ; 7.095  ; 7.095  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[22]      ; inclk      ; 5.954  ; 5.954  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[23]      ; inclk      ; 7.879  ; 7.879  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[24]      ; inclk      ; 5.205  ; 5.205  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[25]      ; inclk      ; 5.849  ; 5.849  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[26]      ; inclk      ; 6.347  ; 6.347  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[27]      ; inclk      ; 4.861  ; 4.861  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[28]      ; inclk      ; 5.682  ; 5.682  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[29]      ; inclk      ; 5.071  ; 5.071  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[30]      ; inclk      ; 5.864  ; 5.864  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[31]      ; inclk      ; 6.113  ; 6.113  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; dac_sclk[*]       ; inclk      ; 6.559  ; 6.559  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[0]      ; inclk      ; 5.351  ; 5.351  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[1]      ; inclk      ; 5.128  ; 5.128  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[2]      ; inclk      ; 5.252  ; 5.252  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[3]      ; inclk      ; 5.444  ; 5.444  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[4]      ; inclk      ; 5.579  ; 5.579  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[5]      ; inclk      ; 5.098  ; 5.098  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[6]      ; inclk      ; 6.252  ; 6.252  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[7]      ; inclk      ; 5.171  ; 5.171  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[8]      ; inclk      ; 5.733  ; 5.733  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[9]      ; inclk      ; 4.803  ; 4.803  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[10]     ; inclk      ; 4.635  ; 4.635  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[11]     ; inclk      ; 4.767  ; 4.767  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[12]     ; inclk      ; 5.560  ; 5.560  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[13]     ; inclk      ; 5.002  ; 5.002  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[14]     ; inclk      ; 5.160  ; 5.160  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[15]     ; inclk      ; 5.790  ; 5.790  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[16]     ; inclk      ; 5.454  ; 5.454  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[17]     ; inclk      ; 5.720  ; 5.720  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[18]     ; inclk      ; 5.724  ; 5.724  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[19]     ; inclk      ; 5.661  ; 5.661  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[20]     ; inclk      ; 4.988  ; 4.988  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[21]     ; inclk      ; 5.295  ; 5.295  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[22]     ; inclk      ; 4.636  ; 4.636  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[23]     ; inclk      ; 5.801  ; 5.801  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[24]     ; inclk      ; 5.116  ; 5.116  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[25]     ; inclk      ; 5.070  ; 5.070  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[26]     ; inclk      ; 6.559  ; 6.559  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[27]     ; inclk      ; 5.683  ; 5.683  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[28]     ; inclk      ; 5.490  ; 5.490  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[29]     ; inclk      ; 5.583  ; 5.583  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[30]     ; inclk      ; 5.927  ; 5.927  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[31]     ; inclk      ; 6.038  ; 6.038  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_data     ; inclk      ; 7.057  ; 7.057  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_ncs[*]   ; inclk      ; 6.511  ; 6.511  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[0]  ; inclk      ; 4.584  ; 4.584  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[1]  ; inclk      ; 6.511  ; 6.511  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[2]  ; inclk      ; 4.840  ; 4.840  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[3]  ; inclk      ; 5.494  ; 5.494  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[4]  ; inclk      ; 5.461  ; 5.461  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[5]  ; inclk      ; 6.184  ; 6.184  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[6]  ; inclk      ; 5.785  ; 5.785  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[7]  ; inclk      ; 6.140  ; 6.140  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[8]  ; inclk      ; 5.525  ; 5.525  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[9]  ; inclk      ; 5.713  ; 5.713  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[10] ; inclk      ; 5.248  ; 5.248  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[11] ; inclk      ; 5.877  ; 5.877  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_sclk     ; inclk      ; 7.746  ; 7.746  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; dac_sclk[*]       ; inclk      ;        ; 5.973  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[0]      ; inclk      ;        ; 4.713  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[1]      ; inclk      ;        ; 4.494  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[2]      ; inclk      ;        ; 4.660  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[3]      ; inclk      ;        ; 4.854  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[4]      ; inclk      ;        ; 4.952  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[5]      ; inclk      ;        ; 4.489  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[6]      ; inclk      ;        ; 5.642  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[7]      ; inclk      ;        ; 4.527  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[8]      ; inclk      ;        ; 5.093  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[9]      ; inclk      ;        ; 4.176  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[10]     ; inclk      ;        ; 4.020  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[11]     ; inclk      ;        ; 4.146  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[12]     ; inclk      ;        ; 4.956  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[13]     ; inclk      ;        ; 4.367  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[14]     ; inclk      ;        ; 4.540  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[15]     ; inclk      ;        ; 5.179  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[16]     ; inclk      ;        ; 4.873  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[17]     ; inclk      ;        ; 4.719  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[18]     ; inclk      ;        ; 5.104  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[19]     ; inclk      ;        ; 5.037  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[20]     ; inclk      ;        ; 4.074  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[21]     ; inclk      ;        ; 4.674  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[22]     ; inclk      ;        ; 4.026  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[23]     ; inclk      ;        ; 5.200  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[24]     ; inclk      ;        ; 4.527  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[25]     ; inclk      ;        ; 4.142  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[26]     ; inclk      ;        ; 5.973  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[27]     ; inclk      ;        ; 5.073  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[28]     ; inclk      ;        ; 4.880  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[29]     ; inclk      ;        ; 4.976  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[30]     ; inclk      ;        ; 5.331  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[31]     ; inclk      ;        ; 5.400  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_sclk     ; inclk      ;        ; 4.230  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+; card_id           ; inclk      ; 9.300  ; 9.300  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; critical_error    ; inclk      ; 4.962  ; 4.962  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; dac_ncs[*]        ; inclk      ; 13.982 ; 13.982 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[0]       ; inclk      ; 12.688 ; 12.688 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[1]       ; inclk      ; 12.195 ; 12.195 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[2]       ; inclk      ; 13.982 ; 13.982 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[3]       ; inclk      ; 12.983 ; 12.983 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[4]       ; inclk      ; 13.717 ; 13.717 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[5]       ; inclk      ; 12.922 ; 12.922 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[6]       ; inclk      ; 13.213 ; 13.213 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[7]       ; inclk      ; 12.465 ; 12.465 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[8]       ; inclk      ; 13.127 ; 13.127 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[9]       ; inclk      ; 13.523 ; 13.523 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[10]      ; inclk      ; 12.127 ; 12.127 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[11]      ; inclk      ; 13.000 ; 13.000 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[12]      ; inclk      ; 13.766 ; 13.766 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[13]      ; inclk      ; 13.192 ; 13.192 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[14]      ; inclk      ; 13.729 ; 13.729 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[15]      ; inclk      ; 11.993 ; 11.993 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[16]      ; inclk      ; 12.033 ; 12.033 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[17]      ; inclk      ; 12.220 ; 12.220 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[18]      ; inclk      ; 12.587 ; 12.587 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[19]      ; inclk      ; 12.658 ; 12.658 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[20]      ; inclk      ; 11.760 ; 11.760 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[21]      ; inclk      ; 12.427 ; 12.427 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[22]      ; inclk      ; 12.232 ; 12.232 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[23]      ; inclk      ; 12.029 ; 12.029 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[24]      ; inclk      ; 12.716 ; 12.716 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[25]      ; inclk      ; 12.002 ; 12.002 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[26]      ; inclk      ; 10.969 ; 10.969 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[27]      ; inclk      ; 10.866 ; 10.866 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[28]      ; inclk      ; 11.915 ; 11.915 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[29]      ; inclk      ; 12.369 ; 12.369 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[30]      ; inclk      ; 10.724 ; 10.724 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[31]      ; inclk      ; 13.127 ; 13.127 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; dev_clr_fpga_out  ; inclk      ; 4.843  ; 4.843  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; grn_led           ; inclk      ; 4.649  ; 4.649  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; lvds_txa          ; inclk      ; 5.592  ; 5.592  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; lvds_txb          ; inclk      ; 7.534  ; 7.534  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; red_led           ; inclk      ; 4.240  ; 4.240  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_clk           ; inclk      ; 8.978  ; 8.978  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data          ; inclk      ; 9.386  ; 9.386  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; wdog              ; inclk      ; 7.818  ; 7.818  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; ylw_led           ; inclk      ; 4.691  ; 4.691  ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; dac_data[*]       ; inclk      ; 5.910  ; 5.910  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[0]      ; inclk      ; 4.801  ; 4.801  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[1]      ; inclk      ; 5.302  ; 5.302  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[2]      ; inclk      ; 5.276  ; 5.276  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[3]      ; inclk      ; 5.532  ; 5.532  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[4]      ; inclk      ; 4.936  ; 4.936  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[5]      ; inclk      ; 4.639  ; 4.639  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[6]      ; inclk      ; 4.631  ; 4.631  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[7]      ; inclk      ; 5.327  ; 5.327  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[8]      ; inclk      ; 5.360  ; 5.360  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[9]      ; inclk      ; 5.491  ; 5.491  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[10]     ; inclk      ; 5.785  ; 5.785  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[11]     ; inclk      ; 5.574  ; 5.574  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[12]     ; inclk      ; 4.642  ; 4.642  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[13]     ; inclk      ; 5.730  ; 5.730  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[14]     ; inclk      ; 5.774  ; 5.774  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[15]     ; inclk      ; 5.284  ; 5.284  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[16]     ; inclk      ; 5.368  ; 5.368  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[17]     ; inclk      ; 4.806  ; 4.806  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[18]     ; inclk      ; 5.726  ; 5.726  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[19]     ; inclk      ; 4.619  ; 4.619  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[20]     ; inclk      ; 4.877  ; 4.877  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[21]     ; inclk      ; 4.805  ; 4.805  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[22]     ; inclk      ; 4.903  ; 4.903  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[23]     ; inclk      ; 4.911  ; 4.911  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[24]     ; inclk      ; 5.899  ; 5.899  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[25]     ; inclk      ; 5.343  ; 5.343  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[26]     ; inclk      ; 4.634  ; 4.634  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[27]     ; inclk      ; 5.910  ; 5.910  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[28]     ; inclk      ; 5.566  ; 5.566  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[29]     ; inclk      ; 5.185  ; 5.185  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[30]     ; inclk      ; 5.858  ; 5.858  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[31]     ; inclk      ; 5.121  ; 5.121  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; dac_ncs[*]        ; inclk      ; 7.927  ; 7.927  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[0]       ; inclk      ; 5.386  ; 5.386  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[1]       ; inclk      ; 5.787  ; 5.787  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[2]       ; inclk      ; 5.742  ; 5.742  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[3]       ; inclk      ; 5.544  ; 5.544  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[4]       ; inclk      ; 5.912  ; 5.912  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[5]       ; inclk      ; 5.561  ; 5.561  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[6]       ; inclk      ; 5.410  ; 5.410  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[7]       ; inclk      ; 5.544  ; 5.544  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[8]       ; inclk      ; 5.426  ; 5.426  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[9]       ; inclk      ; 5.837  ; 5.837  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[10]      ; inclk      ; 5.286  ; 5.286  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[11]      ; inclk      ; 5.765  ; 5.765  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[12]      ; inclk      ; 6.057  ; 6.057  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[13]      ; inclk      ; 5.217  ; 5.217  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[14]      ; inclk      ; 6.471  ; 6.471  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[15]      ; inclk      ; 5.842  ; 5.842  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[16]      ; inclk      ; 5.691  ; 5.691  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[17]      ; inclk      ; 4.536  ; 4.536  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[18]      ; inclk      ; 5.619  ; 5.619  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[19]      ; inclk      ; 5.445  ; 5.445  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[20]      ; inclk      ; 4.801  ; 4.801  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[21]      ; inclk      ; 4.727  ; 4.727  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[22]      ; inclk      ; 6.067  ; 6.067  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[23]      ; inclk      ; 5.591  ; 5.591  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[24]      ; inclk      ; 5.595  ; 5.595  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[25]      ; inclk      ; 5.841  ; 5.841  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[26]      ; inclk      ; 7.927  ; 7.927  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[27]      ; inclk      ; 7.101  ; 7.101  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[28]      ; inclk      ; 5.170  ; 5.170  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[29]      ; inclk      ; 5.209  ; 5.209  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[30]      ; inclk      ; 7.288  ; 7.288  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[31]      ; inclk      ; 5.427  ; 5.427  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; dac_sclk[*]       ; inclk      ; 8.324  ; 8.324  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[0]      ; inclk      ; 4.778  ; 4.778  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[1]      ; inclk      ; 5.692  ; 5.692  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[2]      ; inclk      ; 4.755  ; 4.755  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[3]      ; inclk      ; 4.733  ; 4.733  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[4]      ; inclk      ; 4.806  ; 4.806  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[5]      ; inclk      ; 4.518  ; 4.518  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[6]      ; inclk      ; 5.479  ; 5.479  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[7]      ; inclk      ; 5.122  ; 5.122  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[8]      ; inclk      ; 5.699  ; 5.699  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[9]      ; inclk      ; 5.843  ; 5.843  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[10]     ; inclk      ; 5.379  ; 5.379  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[11]     ; inclk      ; 5.366  ; 5.366  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[12]     ; inclk      ; 5.486  ; 5.486  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[13]     ; inclk      ; 5.507  ; 5.507  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[14]     ; inclk      ; 5.218  ; 5.218  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[15]     ; inclk      ; 5.319  ; 5.319  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[16]     ; inclk      ; 6.214  ; 6.214  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[17]     ; inclk      ; 5.647  ; 5.647  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[18]     ; inclk      ; 6.125  ; 6.125  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[19]     ; inclk      ; 6.244  ; 6.244  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[20]     ; inclk      ; 5.693  ; 5.693  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[21]     ; inclk      ; 5.527  ; 5.527  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[22]     ; inclk      ; 5.959  ; 5.959  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[23]     ; inclk      ; 5.259  ; 5.259  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[24]     ; inclk      ; 8.324  ; 8.324  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[25]     ; inclk      ; 6.167  ; 6.167  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[26]     ; inclk      ; 5.099  ; 5.099  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[27]     ; inclk      ; 5.113  ; 5.113  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[28]     ; inclk      ; 5.161  ; 5.161  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[29]     ; inclk      ; 4.791  ; 4.791  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[30]     ; inclk      ; 6.742  ; 6.742  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[31]     ; inclk      ; 5.599  ; 5.599  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_data     ; inclk      ; 6.755  ; 6.755  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_ncs[*]   ; inclk      ; 6.162  ; 6.162  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[0]  ; inclk      ; 4.223  ; 4.223  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[1]  ; inclk      ; 5.370  ; 5.370  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[2]  ; inclk      ; 5.300  ; 5.300  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[3]  ; inclk      ; 5.517  ; 5.517  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[4]  ; inclk      ; 6.098  ; 6.098  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[5]  ; inclk      ; 6.162  ; 6.162  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[6]  ; inclk      ; 5.492  ; 5.492  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[7]  ; inclk      ; 5.556  ; 5.556  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[8]  ; inclk      ; 5.281  ; 5.281  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[9]  ; inclk      ; 5.149  ; 5.149  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[10] ; inclk      ; 5.812  ; 5.812  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[11] ; inclk      ; 4.939  ; 4.939  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_sclk     ; inclk      ; 7.633  ; 7.633  ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; dac_sclk[*]       ; inclk      ;        ; 6.136  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[0]      ; inclk      ;        ; 4.182  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[1]      ; inclk      ;        ; 5.049  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[2]      ; inclk      ;        ; 4.154  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[3]      ; inclk      ;        ; 4.115  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[4]      ; inclk      ;        ; 4.200  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[5]      ; inclk      ;        ; 3.936  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[6]      ; inclk      ;        ; 4.859  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[7]      ; inclk      ;        ; 4.483  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[8]      ; inclk      ;        ; 5.072  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[9]      ; inclk      ;        ; 5.250  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[10]     ; inclk      ;        ; 4.812  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[11]     ; inclk      ;        ; 4.732  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[12]     ; inclk      ;        ; 4.921  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[13]     ; inclk      ;        ; 4.917  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[14]     ; inclk      ;        ; 4.654  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[15]     ; inclk      ;        ; 4.721  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[16]     ; inclk      ;        ; 5.609  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[17]     ; inclk      ;        ; 5.077  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[18]     ; inclk      ;        ; 5.506  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[19]     ; inclk      ;        ; 5.654  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[20]     ; inclk      ;        ; 4.887  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[21]     ; inclk      ;        ; 4.954  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[22]     ; inclk      ;        ; 5.327  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[23]     ; inclk      ;        ; 4.667  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[24]     ; inclk      ;        ; 5.527  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[25]     ; inclk      ;        ; 5.565  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[26]     ; inclk      ;        ; 4.470  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[27]     ; inclk      ;        ; 4.497  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[28]     ; inclk      ;        ; 4.571  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[29]     ; inclk      ;        ; 4.203  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[30]     ; inclk      ;        ; 6.136  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[31]     ; inclk      ;        ; 5.026  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_sclk     ; inclk      ;        ; 4.153  ; Fall       ; pll0|altpll_component|pll|clk[3] ;
 +-------------------+------------+--------+--------+------------+----------------------------------+
 
 
@@ -416,198 +415,198 @@ No paths to report.
 +-------------------+------------+-------+-------+------------+----------------------------------+
 ; Data Port         ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                  ;
 +-------------------+------------+-------+-------+------------+----------------------------------+
-; card_id           ; inclk      ; 6.963 ; 6.963 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; critical_error    ; inclk      ; 4.448 ; 4.448 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; dac_ncs[*]        ; inclk      ; 6.039 ; 6.039 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[0]       ; inclk      ; 6.501 ; 6.501 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[1]       ; inclk      ; 7.274 ; 7.274 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[2]       ; inclk      ; 6.303 ; 6.303 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[3]       ; inclk      ; 7.443 ; 7.443 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[4]       ; inclk      ; 6.664 ; 6.664 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[5]       ; inclk      ; 6.399 ; 6.399 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[6]       ; inclk      ; 6.831 ; 6.831 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[7]       ; inclk      ; 6.204 ; 6.204 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[8]       ; inclk      ; 7.297 ; 7.297 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[9]       ; inclk      ; 6.970 ; 6.970 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[10]      ; inclk      ; 6.456 ; 6.456 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[11]      ; inclk      ; 6.039 ; 6.039 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[12]      ; inclk      ; 6.220 ; 6.220 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[13]      ; inclk      ; 7.165 ; 7.165 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[14]      ; inclk      ; 6.719 ; 6.719 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[15]      ; inclk      ; 7.527 ; 7.527 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[16]      ; inclk      ; 6.715 ; 6.715 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[17]      ; inclk      ; 7.495 ; 7.495 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[18]      ; inclk      ; 7.931 ; 7.931 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[19]      ; inclk      ; 7.525 ; 7.525 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[20]      ; inclk      ; 8.139 ; 8.139 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[21]      ; inclk      ; 9.400 ; 9.400 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[22]      ; inclk      ; 6.917 ; 6.917 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[23]      ; inclk      ; 8.522 ; 8.522 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[24]      ; inclk      ; 7.307 ; 7.307 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[25]      ; inclk      ; 7.069 ; 7.069 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[26]      ; inclk      ; 7.839 ; 7.839 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[27]      ; inclk      ; 6.837 ; 6.837 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[28]      ; inclk      ; 6.993 ; 6.993 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[29]      ; inclk      ; 6.480 ; 6.480 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[30]      ; inclk      ; 7.274 ; 7.274 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-;  dac_ncs[31]      ; inclk      ; 7.635 ; 7.635 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; dev_clr_fpga_out  ; inclk      ; 5.809 ; 5.809 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; grn_led           ; inclk      ; 5.605 ; 5.605 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; lvds_txa          ; inclk      ; 6.293 ; 6.293 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; lvds_txb          ; inclk      ; 6.069 ; 6.069 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; red_led           ; inclk      ; 5.643 ; 5.643 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; smb_clk           ; inclk      ; 7.019 ; 7.019 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; smb_data          ; inclk      ; 6.876 ; 6.876 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; wdog              ; inclk      ; 5.982 ; 5.982 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; ylw_led           ; inclk      ; 5.588 ; 5.588 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
-; dac_data[*]       ; inclk      ; 3.876 ; 3.876 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[0]      ; inclk      ; 5.789 ; 5.789 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[1]      ; inclk      ; 5.855 ; 5.855 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[2]      ; inclk      ; 4.546 ; 4.546 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[3]      ; inclk      ; 4.770 ; 4.770 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[4]      ; inclk      ; 4.763 ; 4.763 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[5]      ; inclk      ; 4.638 ; 4.638 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[6]      ; inclk      ; 4.308 ; 4.308 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[7]      ; inclk      ; 4.780 ; 4.780 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[8]      ; inclk      ; 4.363 ; 4.363 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[9]      ; inclk      ; 4.804 ; 4.804 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[10]     ; inclk      ; 4.896 ; 4.896 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[11]     ; inclk      ; 5.014 ; 5.014 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[12]     ; inclk      ; 4.315 ; 4.315 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[13]     ; inclk      ; 4.625 ; 4.625 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[14]     ; inclk      ; 3.876 ; 3.876 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[15]     ; inclk      ; 5.061 ; 5.061 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[16]     ; inclk      ; 5.633 ; 5.633 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[17]     ; inclk      ; 5.619 ; 5.619 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[18]     ; inclk      ; 4.527 ; 4.527 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[19]     ; inclk      ; 5.639 ; 5.639 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[20]     ; inclk      ; 6.032 ; 6.032 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[21]     ; inclk      ; 5.566 ; 5.566 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[22]     ; inclk      ; 5.583 ; 5.583 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[23]     ; inclk      ; 5.470 ; 5.470 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[24]     ; inclk      ; 5.566 ; 5.566 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[25]     ; inclk      ; 5.074 ; 5.074 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[26]     ; inclk      ; 4.549 ; 4.549 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[27]     ; inclk      ; 5.746 ; 5.746 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[28]     ; inclk      ; 4.412 ; 4.412 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[29]     ; inclk      ; 5.004 ; 5.004 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[30]     ; inclk      ; 5.014 ; 5.014 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_data[31]     ; inclk      ; 5.638 ; 5.638 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; dac_ncs[*]        ; inclk      ; 4.728 ; 4.728 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[0]       ; inclk      ; 4.754 ; 4.754 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[1]       ; inclk      ; 6.326 ; 6.326 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[2]       ; inclk      ; 5.709 ; 5.709 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[3]       ; inclk      ; 5.305 ; 5.305 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[4]       ; inclk      ; 7.746 ; 7.746 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[5]       ; inclk      ; 5.382 ; 5.382 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[6]       ; inclk      ; 6.075 ; 6.075 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[7]       ; inclk      ; 5.153 ; 5.153 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[8]       ; inclk      ; 5.731 ; 5.731 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[9]       ; inclk      ; 4.728 ; 4.728 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[10]      ; inclk      ; 6.627 ; 6.627 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[11]      ; inclk      ; 5.005 ; 5.005 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[12]      ; inclk      ; 6.989 ; 6.989 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[13]      ; inclk      ; 5.624 ; 5.624 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[14]      ; inclk      ; 7.115 ; 7.115 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[15]      ; inclk      ; 5.691 ; 5.691 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[16]      ; inclk      ; 5.569 ; 5.569 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[17]      ; inclk      ; 5.707 ; 5.707 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[18]      ; inclk      ; 7.091 ; 7.091 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[19]      ; inclk      ; 7.515 ; 7.515 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[20]      ; inclk      ; 5.916 ; 5.916 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[21]      ; inclk      ; 7.095 ; 7.095 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[22]      ; inclk      ; 5.954 ; 5.954 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[23]      ; inclk      ; 7.879 ; 7.879 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[24]      ; inclk      ; 5.205 ; 5.205 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[25]      ; inclk      ; 5.849 ; 5.849 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[26]      ; inclk      ; 6.347 ; 6.347 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[27]      ; inclk      ; 4.861 ; 4.861 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[28]      ; inclk      ; 5.682 ; 5.682 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[29]      ; inclk      ; 5.071 ; 5.071 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[30]      ; inclk      ; 5.864 ; 5.864 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_ncs[31]      ; inclk      ; 6.113 ; 6.113 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; dac_sclk[*]       ; inclk      ; 4.020 ; 4.635 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[0]      ; inclk      ; 4.713 ; 5.351 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[1]      ; inclk      ; 4.494 ; 5.128 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[2]      ; inclk      ; 4.660 ; 5.252 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[3]      ; inclk      ; 4.854 ; 5.444 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[4]      ; inclk      ; 4.952 ; 5.579 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[5]      ; inclk      ; 4.489 ; 5.098 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[6]      ; inclk      ; 5.642 ; 6.252 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[7]      ; inclk      ; 4.527 ; 5.171 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[8]      ; inclk      ; 5.093 ; 5.733 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[9]      ; inclk      ; 4.176 ; 4.803 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[10]     ; inclk      ; 4.020 ; 4.635 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[11]     ; inclk      ; 4.146 ; 4.767 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[12]     ; inclk      ; 4.956 ; 5.560 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[13]     ; inclk      ; 4.367 ; 5.002 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[14]     ; inclk      ; 4.540 ; 5.160 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[15]     ; inclk      ; 5.179 ; 5.790 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[16]     ; inclk      ; 4.873 ; 5.454 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[17]     ; inclk      ; 4.719 ; 5.720 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[18]     ; inclk      ; 5.104 ; 5.724 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[19]     ; inclk      ; 5.037 ; 5.661 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[20]     ; inclk      ; 4.074 ; 4.988 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[21]     ; inclk      ; 4.674 ; 5.295 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[22]     ; inclk      ; 4.026 ; 4.636 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[23]     ; inclk      ; 5.200 ; 5.801 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[24]     ; inclk      ; 4.527 ; 5.116 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[25]     ; inclk      ; 4.142 ; 5.070 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[26]     ; inclk      ; 5.973 ; 6.559 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[27]     ; inclk      ; 5.073 ; 5.683 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[28]     ; inclk      ; 4.880 ; 5.490 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[29]     ; inclk      ; 4.976 ; 5.583 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[30]     ; inclk      ; 5.331 ; 5.927 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[31]     ; inclk      ; 5.400 ; 6.038 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_data     ; inclk      ; 5.933 ; 5.933 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_ncs[*]   ; inclk      ; 4.584 ; 4.584 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[0]  ; inclk      ; 4.584 ; 4.584 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[1]  ; inclk      ; 6.511 ; 6.511 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[2]  ; inclk      ; 4.840 ; 4.840 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[3]  ; inclk      ; 5.494 ; 5.494 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[4]  ; inclk      ; 5.461 ; 5.461 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[5]  ; inclk      ; 6.184 ; 6.184 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[6]  ; inclk      ; 5.785 ; 5.785 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[7]  ; inclk      ; 6.140 ; 6.140 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[8]  ; inclk      ; 5.525 ; 5.525 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[9]  ; inclk      ; 5.713 ; 5.713 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[10] ; inclk      ; 5.248 ; 5.248 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-;  lvds_dac_ncs[11] ; inclk      ; 5.877 ; 5.877 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_sclk     ; inclk      ; 4.230 ; 5.507 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
-; dac_sclk[*]       ; inclk      ;       ; 4.020 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[0]      ; inclk      ;       ; 4.713 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[1]      ; inclk      ;       ; 4.494 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[2]      ; inclk      ;       ; 4.660 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[3]      ; inclk      ;       ; 4.854 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[4]      ; inclk      ;       ; 4.952 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[5]      ; inclk      ;       ; 4.489 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[6]      ; inclk      ;       ; 5.642 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[7]      ; inclk      ;       ; 4.527 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[8]      ; inclk      ;       ; 5.093 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[9]      ; inclk      ;       ; 4.176 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[10]     ; inclk      ;       ; 4.020 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[11]     ; inclk      ;       ; 4.146 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[12]     ; inclk      ;       ; 4.956 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[13]     ; inclk      ;       ; 4.367 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[14]     ; inclk      ;       ; 4.540 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[15]     ; inclk      ;       ; 5.179 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[16]     ; inclk      ;       ; 4.873 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[17]     ; inclk      ;       ; 4.719 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[18]     ; inclk      ;       ; 5.104 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[19]     ; inclk      ;       ; 5.037 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[20]     ; inclk      ;       ; 4.074 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[21]     ; inclk      ;       ; 4.674 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[22]     ; inclk      ;       ; 4.026 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[23]     ; inclk      ;       ; 5.200 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[24]     ; inclk      ;       ; 4.527 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[25]     ; inclk      ;       ; 4.142 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[26]     ; inclk      ;       ; 5.973 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[27]     ; inclk      ;       ; 5.073 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[28]     ; inclk      ;       ; 4.880 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[29]     ; inclk      ;       ; 4.976 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[30]     ; inclk      ;       ; 5.331 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-;  dac_sclk[31]     ; inclk      ;       ; 5.400 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
-; lvds_dac_sclk     ; inclk      ;       ; 4.230 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+; card_id           ; inclk      ; 6.780 ; 6.780 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; critical_error    ; inclk      ; 4.962 ; 4.962 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; dac_ncs[*]        ; inclk      ; 5.237 ; 5.237 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[0]       ; inclk      ; 6.583 ; 6.583 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[1]       ; inclk      ; 8.091 ; 8.091 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[2]       ; inclk      ; 7.195 ; 7.195 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[3]       ; inclk      ; 7.417 ; 7.417 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[4]       ; inclk      ; 7.052 ; 7.052 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[5]       ; inclk      ; 7.282 ; 7.282 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[6]       ; inclk      ; 6.775 ; 6.775 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[7]       ; inclk      ; 7.272 ; 7.272 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[8]       ; inclk      ; 8.032 ; 8.032 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[9]       ; inclk      ; 6.601 ; 6.601 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[10]      ; inclk      ; 6.325 ; 6.325 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[11]      ; inclk      ; 6.581 ; 6.581 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[12]      ; inclk      ; 9.876 ; 9.876 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[13]      ; inclk      ; 6.447 ; 6.447 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[14]      ; inclk      ; 8.814 ; 8.814 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[15]      ; inclk      ; 8.936 ; 8.936 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[16]      ; inclk      ; 7.329 ; 7.329 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[17]      ; inclk      ; 5.778 ; 5.778 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[18]      ; inclk      ; 7.786 ; 7.786 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[19]      ; inclk      ; 6.354 ; 6.354 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[20]      ; inclk      ; 5.237 ; 5.237 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[21]      ; inclk      ; 5.804 ; 5.804 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[22]      ; inclk      ; 7.714 ; 7.714 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[23]      ; inclk      ; 6.657 ; 6.657 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[24]      ; inclk      ; 6.993 ; 6.993 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[25]      ; inclk      ; 6.695 ; 6.695 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[26]      ; inclk      ; 7.567 ; 7.567 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[27]      ; inclk      ; 7.174 ; 7.174 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[28]      ; inclk      ; 6.888 ; 6.888 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[29]      ; inclk      ; 7.350 ; 7.350 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[30]      ; inclk      ; 8.124 ; 8.124 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+;  dac_ncs[31]      ; inclk      ; 7.909 ; 7.909 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; dev_clr_fpga_out  ; inclk      ; 4.843 ; 4.843 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; grn_led           ; inclk      ; 4.649 ; 4.649 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; lvds_txa          ; inclk      ; 5.039 ; 5.039 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; lvds_txb          ; inclk      ; 5.635 ; 5.635 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; red_led           ; inclk      ; 4.240 ; 4.240 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_clk           ; inclk      ; 6.142 ; 6.142 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data          ; inclk      ; 5.687 ; 5.687 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; wdog              ; inclk      ; 5.527 ; 5.527 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; ylw_led           ; inclk      ; 4.691 ; 4.691 ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; dac_data[*]       ; inclk      ; 4.619 ; 4.619 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[0]      ; inclk      ; 4.801 ; 4.801 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[1]      ; inclk      ; 5.302 ; 5.302 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[2]      ; inclk      ; 5.276 ; 5.276 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[3]      ; inclk      ; 5.532 ; 5.532 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[4]      ; inclk      ; 4.936 ; 4.936 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[5]      ; inclk      ; 4.639 ; 4.639 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[6]      ; inclk      ; 4.631 ; 4.631 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[7]      ; inclk      ; 5.327 ; 5.327 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[8]      ; inclk      ; 5.360 ; 5.360 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[9]      ; inclk      ; 5.491 ; 5.491 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[10]     ; inclk      ; 5.785 ; 5.785 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[11]     ; inclk      ; 5.574 ; 5.574 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[12]     ; inclk      ; 4.642 ; 4.642 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[13]     ; inclk      ; 5.730 ; 5.730 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[14]     ; inclk      ; 5.774 ; 5.774 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[15]     ; inclk      ; 5.284 ; 5.284 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[16]     ; inclk      ; 5.368 ; 5.368 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[17]     ; inclk      ; 4.806 ; 4.806 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[18]     ; inclk      ; 5.726 ; 5.726 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[19]     ; inclk      ; 4.619 ; 4.619 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[20]     ; inclk      ; 4.877 ; 4.877 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[21]     ; inclk      ; 4.805 ; 4.805 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[22]     ; inclk      ; 4.903 ; 4.903 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[23]     ; inclk      ; 4.911 ; 4.911 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[24]     ; inclk      ; 5.899 ; 5.899 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[25]     ; inclk      ; 5.343 ; 5.343 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[26]     ; inclk      ; 4.634 ; 4.634 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[27]     ; inclk      ; 5.910 ; 5.910 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[28]     ; inclk      ; 5.566 ; 5.566 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[29]     ; inclk      ; 5.185 ; 5.185 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[30]     ; inclk      ; 5.858 ; 5.858 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_data[31]     ; inclk      ; 5.121 ; 5.121 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; dac_ncs[*]        ; inclk      ; 4.536 ; 4.536 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[0]       ; inclk      ; 5.386 ; 5.386 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[1]       ; inclk      ; 5.787 ; 5.787 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[2]       ; inclk      ; 5.742 ; 5.742 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[3]       ; inclk      ; 5.544 ; 5.544 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[4]       ; inclk      ; 5.912 ; 5.912 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[5]       ; inclk      ; 5.561 ; 5.561 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[6]       ; inclk      ; 5.410 ; 5.410 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[7]       ; inclk      ; 5.544 ; 5.544 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[8]       ; inclk      ; 5.426 ; 5.426 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[9]       ; inclk      ; 5.837 ; 5.837 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[10]      ; inclk      ; 5.286 ; 5.286 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[11]      ; inclk      ; 5.765 ; 5.765 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[12]      ; inclk      ; 6.057 ; 6.057 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[13]      ; inclk      ; 5.217 ; 5.217 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[14]      ; inclk      ; 6.471 ; 6.471 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[15]      ; inclk      ; 5.842 ; 5.842 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[16]      ; inclk      ; 5.691 ; 5.691 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[17]      ; inclk      ; 4.536 ; 4.536 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[18]      ; inclk      ; 5.619 ; 5.619 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[19]      ; inclk      ; 5.445 ; 5.445 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[20]      ; inclk      ; 4.801 ; 4.801 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[21]      ; inclk      ; 4.727 ; 4.727 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[22]      ; inclk      ; 6.067 ; 6.067 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[23]      ; inclk      ; 5.591 ; 5.591 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[24]      ; inclk      ; 5.595 ; 5.595 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[25]      ; inclk      ; 5.841 ; 5.841 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[26]      ; inclk      ; 7.927 ; 7.927 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[27]      ; inclk      ; 7.101 ; 7.101 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[28]      ; inclk      ; 5.170 ; 5.170 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[29]      ; inclk      ; 5.209 ; 5.209 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[30]      ; inclk      ; 7.288 ; 7.288 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_ncs[31]      ; inclk      ; 5.427 ; 5.427 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; dac_sclk[*]       ; inclk      ; 3.936 ; 4.518 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[0]      ; inclk      ; 4.182 ; 4.778 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[1]      ; inclk      ; 5.049 ; 5.692 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[2]      ; inclk      ; 4.154 ; 4.755 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[3]      ; inclk      ; 4.115 ; 4.733 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[4]      ; inclk      ; 4.200 ; 4.806 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[5]      ; inclk      ; 3.936 ; 4.518 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[6]      ; inclk      ; 4.859 ; 5.479 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[7]      ; inclk      ; 4.483 ; 5.122 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[8]      ; inclk      ; 5.072 ; 5.699 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[9]      ; inclk      ; 5.250 ; 5.843 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[10]     ; inclk      ; 4.812 ; 5.379 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[11]     ; inclk      ; 4.732 ; 5.366 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[12]     ; inclk      ; 4.921 ; 5.486 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[13]     ; inclk      ; 4.917 ; 5.507 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[14]     ; inclk      ; 4.654 ; 5.218 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[15]     ; inclk      ; 4.721 ; 5.319 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[16]     ; inclk      ; 5.609 ; 6.214 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[17]     ; inclk      ; 5.077 ; 5.647 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[18]     ; inclk      ; 5.506 ; 6.125 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[19]     ; inclk      ; 5.654 ; 6.244 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[20]     ; inclk      ; 4.887 ; 5.693 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[21]     ; inclk      ; 4.954 ; 5.527 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[22]     ; inclk      ; 5.327 ; 5.959 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[23]     ; inclk      ; 4.667 ; 5.259 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[24]     ; inclk      ; 5.527 ; 8.324 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[25]     ; inclk      ; 5.565 ; 6.167 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[26]     ; inclk      ; 4.470 ; 5.099 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[27]     ; inclk      ; 4.497 ; 5.113 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[28]     ; inclk      ; 4.571 ; 5.161 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[29]     ; inclk      ; 4.203 ; 4.791 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[30]     ; inclk      ; 6.136 ; 6.742 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[31]     ; inclk      ; 5.026 ; 5.599 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_data     ; inclk      ; 5.098 ; 5.098 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_ncs[*]   ; inclk      ; 4.223 ; 4.223 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[0]  ; inclk      ; 4.223 ; 4.223 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[1]  ; inclk      ; 5.370 ; 5.370 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[2]  ; inclk      ; 5.300 ; 5.300 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[3]  ; inclk      ; 5.517 ; 5.517 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[4]  ; inclk      ; 6.098 ; 6.098 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[5]  ; inclk      ; 6.162 ; 6.162 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[6]  ; inclk      ; 5.492 ; 5.492 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[7]  ; inclk      ; 5.556 ; 5.556 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[8]  ; inclk      ; 5.281 ; 5.281 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[9]  ; inclk      ; 5.149 ; 5.149 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[10] ; inclk      ; 5.812 ; 5.812 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+;  lvds_dac_ncs[11] ; inclk      ; 4.939 ; 4.939 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_sclk     ; inclk      ; 4.153 ; 5.475 ; Rise       ; pll0|altpll_component|pll|clk[3] ;
+; dac_sclk[*]       ; inclk      ;       ; 3.936 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[0]      ; inclk      ;       ; 4.182 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[1]      ; inclk      ;       ; 5.049 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[2]      ; inclk      ;       ; 4.154 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[3]      ; inclk      ;       ; 4.115 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[4]      ; inclk      ;       ; 4.200 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[5]      ; inclk      ;       ; 3.936 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[6]      ; inclk      ;       ; 4.859 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[7]      ; inclk      ;       ; 4.483 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[8]      ; inclk      ;       ; 5.072 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[9]      ; inclk      ;       ; 5.250 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[10]     ; inclk      ;       ; 4.812 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[11]     ; inclk      ;       ; 4.732 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[12]     ; inclk      ;       ; 4.921 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[13]     ; inclk      ;       ; 4.917 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[14]     ; inclk      ;       ; 4.654 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[15]     ; inclk      ;       ; 4.721 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[16]     ; inclk      ;       ; 5.609 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[17]     ; inclk      ;       ; 5.077 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[18]     ; inclk      ;       ; 5.506 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[19]     ; inclk      ;       ; 5.654 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[20]     ; inclk      ;       ; 4.887 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[21]     ; inclk      ;       ; 4.954 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[22]     ; inclk      ;       ; 5.327 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[23]     ; inclk      ;       ; 4.667 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[24]     ; inclk      ;       ; 5.527 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[25]     ; inclk      ;       ; 5.565 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[26]     ; inclk      ;       ; 4.470 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[27]     ; inclk      ;       ; 4.497 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[28]     ; inclk      ;       ; 4.571 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[29]     ; inclk      ;       ; 4.203 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[30]     ; inclk      ;       ; 6.136 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+;  dac_sclk[31]     ; inclk      ;       ; 5.026 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
+; lvds_dac_sclk     ; inclk      ;       ; 4.153 ; Fall       ; pll0|altpll_component|pll|clk[3] ;
 +-------------------+------------+-------+-------+------------+----------------------------------+
 
 
@@ -616,96 +615,96 @@ No paths to report.
 +------------+------------------+--------+----+----+--------+
 ; Input Port ; Output Port      ; RR     ; RF ; FR ; FF     ;
 +------------+------------------+--------+----+----+--------+
-; rst_n      ; dac_data[0]      ; 11.222 ;    ;    ; 11.222 ;
-; rst_n      ; dac_data[1]      ; 11.463 ;    ;    ; 11.463 ;
-; rst_n      ; dac_data[2]      ; 9.982  ;    ;    ; 9.982  ;
-; rst_n      ; dac_data[3]      ; 10.377 ;    ;    ; 10.377 ;
-; rst_n      ; dac_data[4]      ; 11.431 ;    ;    ; 11.431 ;
-; rst_n      ; dac_data[5]      ; 10.244 ;    ;    ; 10.244 ;
-; rst_n      ; dac_data[6]      ; 10.978 ;    ;    ; 10.978 ;
-; rst_n      ; dac_data[7]      ; 10.220 ;    ;    ; 10.220 ;
-; rst_n      ; dac_data[8]      ; 11.040 ;    ;    ; 11.040 ;
-; rst_n      ; dac_data[9]      ; 10.237 ;    ;    ; 10.237 ;
-; rst_n      ; dac_data[10]     ; 10.509 ;    ;    ; 10.509 ;
-; rst_n      ; dac_data[11]     ; 10.627 ;    ;    ; 10.627 ;
-; rst_n      ; dac_data[12]     ; 10.990 ;    ;    ; 10.990 ;
-; rst_n      ; dac_data[13]     ; 10.063 ;    ;    ; 10.063 ;
-; rst_n      ; dac_data[14]     ; 10.545 ;    ;    ; 10.545 ;
-; rst_n      ; dac_data[15]     ; 10.669 ;    ;    ; 10.669 ;
-; rst_n      ; dac_data[16]     ; 11.241 ;    ;    ; 11.241 ;
-; rst_n      ; dac_data[17]     ; 11.233 ;    ;    ; 11.233 ;
-; rst_n      ; dac_data[18]     ; 10.058 ;    ;    ; 10.058 ;
-; rst_n      ; dac_data[19]     ; 11.249 ;    ;    ; 11.249 ;
-; rst_n      ; dac_data[20]     ; 12.701 ;    ;    ; 12.701 ;
-; rst_n      ; dac_data[21]     ; 11.000 ;    ;    ; 11.000 ;
-; rst_n      ; dac_data[22]     ; 12.256 ;    ;    ; 12.256 ;
-; rst_n      ; dac_data[23]     ; 10.910 ;    ;    ; 10.910 ;
-; rst_n      ; dac_data[24]     ; 11.000 ;    ;    ; 11.000 ;
-; rst_n      ; dac_data[25]     ; 10.506 ;    ;    ; 10.506 ;
-; rst_n      ; dac_data[26]     ; 10.062 ;    ;    ; 10.062 ;
-; rst_n      ; dac_data[27]     ; 12.422 ;    ;    ; 12.422 ;
-; rst_n      ; dac_data[28]     ; 9.851  ;    ;    ; 9.851  ;
-; rst_n      ; dac_data[29]     ; 10.618 ;    ;    ; 10.618 ;
-; rst_n      ; dac_data[30]     ; 11.691 ;    ;    ; 11.691 ;
-; rst_n      ; dac_data[31]     ; 11.158 ;    ;    ; 11.158 ;
-; rst_n      ; dac_nclr         ; 10.973 ;    ;    ; 10.973 ;
-; rst_n      ; lvds_dac_ncs[0]  ; 10.322 ;    ;    ; 10.322 ;
-; rst_n      ; lvds_dac_ncs[1]  ; 10.023 ;    ;    ; 10.023 ;
-; rst_n      ; lvds_dac_ncs[2]  ; 10.442 ;    ;    ; 10.442 ;
-; rst_n      ; lvds_dac_ncs[3]  ; 9.979  ;    ;    ; 9.979  ;
-; rst_n      ; lvds_dac_ncs[4]  ; 9.810  ;    ;    ; 9.810  ;
-; rst_n      ; lvds_dac_ncs[5]  ; 9.827  ;    ;    ; 9.827  ;
-; rst_n      ; lvds_dac_ncs[6]  ; 10.586 ;    ;    ; 10.586 ;
-; rst_n      ; lvds_dac_ncs[7]  ; 10.775 ;    ;    ; 10.775 ;
-; rst_n      ; lvds_dac_ncs[8]  ; 10.406 ;    ;    ; 10.406 ;
-; rst_n      ; lvds_dac_ncs[9]  ; 10.347 ;    ;    ; 10.347 ;
-; rst_n      ; lvds_dac_ncs[10] ; 10.123 ;    ;    ; 10.123 ;
-; rst_n      ; lvds_dac_ncs[11] ; 10.545 ;    ;    ; 10.545 ;
-; ttl_nrx1   ; dac_data[0]      ; 11.426 ;    ;    ; 11.426 ;
-; ttl_nrx1   ; dac_data[1]      ; 11.597 ;    ;    ; 11.597 ;
-; ttl_nrx1   ; dac_data[2]      ; 10.180 ;    ;    ; 10.180 ;
-; ttl_nrx1   ; dac_data[3]      ; 10.511 ;    ;    ; 10.511 ;
-; ttl_nrx1   ; dac_data[4]      ; 9.791  ;    ;    ; 9.791  ;
-; ttl_nrx1   ; dac_data[5]      ; 10.377 ;    ;    ; 10.377 ;
-; ttl_nrx1   ; dac_data[6]      ; 9.338  ;    ;    ; 9.338  ;
-; ttl_nrx1   ; dac_data[7]      ; 10.405 ;    ;    ; 10.405 ;
-; ttl_nrx1   ; dac_data[8]      ; 9.400  ;    ;    ; 9.400  ;
-; ttl_nrx1   ; dac_data[9]      ; 10.443 ;    ;    ; 10.443 ;
-; ttl_nrx1   ; dac_data[10]     ; 10.630 ;    ;    ; 10.630 ;
-; ttl_nrx1   ; dac_data[11]     ; 10.745 ;    ;    ; 10.745 ;
-; ttl_nrx1   ; dac_data[12]     ; 9.349  ;    ;    ; 9.349  ;
-; ttl_nrx1   ; dac_data[13]     ; 10.256 ;    ;    ; 10.256 ;
-; ttl_nrx1   ; dac_data[14]     ; 8.900  ;    ;    ; 8.900  ;
-; ttl_nrx1   ; dac_data[15]     ; 10.802 ;    ;    ; 10.802 ;
-; ttl_nrx1   ; dac_data[16]     ; 11.371 ;    ;    ; 11.371 ;
-; ttl_nrx1   ; dac_data[17]     ; 11.350 ;    ;    ; 11.350 ;
-; ttl_nrx1   ; dac_data[18]     ; 11.132 ;    ;    ; 11.132 ;
-; ttl_nrx1   ; dac_data[19]     ; 11.375 ;    ;    ; 11.375 ;
-; ttl_nrx1   ; dac_data[20]     ; 11.055 ;    ;    ; 11.055 ;
-; ttl_nrx1   ; dac_data[21]     ; 11.202 ;    ;    ; 11.202 ;
-; ttl_nrx1   ; dac_data[22]     ; 10.615 ;    ;    ; 10.615 ;
-; ttl_nrx1   ; dac_data[23]     ; 11.096 ;    ;    ; 11.096 ;
-; ttl_nrx1   ; dac_data[24]     ; 11.206 ;    ;    ; 11.206 ;
-; ttl_nrx1   ; dac_data[25]     ; 10.710 ;    ;    ; 10.710 ;
-; ttl_nrx1   ; dac_data[26]     ; 11.144 ;    ;    ; 11.144 ;
-; ttl_nrx1   ; dac_data[27]     ; 10.781 ;    ;    ; 10.781 ;
-; ttl_nrx1   ; dac_data[28]     ; 10.040 ;    ;    ; 10.040 ;
-; ttl_nrx1   ; dac_data[29]     ; 10.736 ;    ;    ; 10.736 ;
-; ttl_nrx1   ; dac_data[30]     ; 10.050 ;    ;    ; 10.050 ;
-; ttl_nrx1   ; dac_data[31]     ; 12.235 ;    ;    ; 12.235 ;
-; ttl_nrx1   ; dac_nclr         ; 9.824  ;    ;    ; 9.824  ;
-; ttl_nrx1   ; lvds_dac_ncs[0]  ; 10.475 ;    ;    ; 10.475 ;
-; ttl_nrx1   ; lvds_dac_ncs[1]  ; 10.911 ;    ;    ; 10.911 ;
-; ttl_nrx1   ; lvds_dac_ncs[2]  ; 10.596 ;    ;    ; 10.596 ;
-; ttl_nrx1   ; lvds_dac_ncs[3]  ; 10.863 ;    ;    ; 10.863 ;
-; ttl_nrx1   ; lvds_dac_ncs[4]  ; 10.887 ;    ;    ; 10.887 ;
-; ttl_nrx1   ; lvds_dac_ncs[5]  ; 10.712 ;    ;    ; 10.712 ;
-; ttl_nrx1   ; lvds_dac_ncs[6]  ; 11.283 ;    ;    ; 11.283 ;
-; ttl_nrx1   ; lvds_dac_ncs[7]  ; 11.470 ;    ;    ; 11.470 ;
-; ttl_nrx1   ; lvds_dac_ncs[8]  ; 11.072 ;    ;    ; 11.072 ;
-; ttl_nrx1   ; lvds_dac_ncs[9]  ; 11.367 ;    ;    ; 11.367 ;
-; ttl_nrx1   ; lvds_dac_ncs[10] ; 10.788 ;    ;    ; 10.788 ;
-; ttl_nrx1   ; lvds_dac_ncs[11] ; 11.211 ;    ;    ; 11.211 ;
+; rst_n      ; dac_data[0]      ; 9.913  ;    ;    ; 9.913  ;
+; rst_n      ; dac_data[1]      ; 10.934 ;    ;    ; 10.934 ;
+; rst_n      ; dac_data[2]      ; 10.906 ;    ;    ; 10.906 ;
+; rst_n      ; dac_data[3]      ; 10.641 ;    ;    ; 10.641 ;
+; rst_n      ; dac_data[4]      ; 10.058 ;    ;    ; 10.058 ;
+; rst_n      ; dac_data[5]      ; 10.454 ;    ;    ; 10.454 ;
+; rst_n      ; dac_data[6]      ; 10.448 ;    ;    ; 10.448 ;
+; rst_n      ; dac_data[7]      ; 10.946 ;    ;    ; 10.946 ;
+; rst_n      ; dac_data[8]      ; 11.273 ;    ;    ; 11.273 ;
+; rst_n      ; dac_data[9]      ; 10.612 ;    ;    ; 10.612 ;
+; rst_n      ; dac_data[10]     ; 10.894 ;    ;    ; 10.894 ;
+; rst_n      ; dac_data[11]     ; 11.208 ;    ;    ; 11.208 ;
+; rst_n      ; dac_data[12]     ; 10.460 ;    ;    ; 10.460 ;
+; rst_n      ; dac_data[13]     ; 10.853 ;    ;    ; 10.853 ;
+; rst_n      ; dac_data[14]     ; 11.393 ;    ;    ; 11.393 ;
+; rst_n      ; dac_data[15]     ; 10.909 ;    ;    ; 10.909 ;
+; rst_n      ; dac_data[16]     ; 11.001 ;    ;    ; 11.001 ;
+; rst_n      ; dac_data[17]     ; 9.923  ;    ;    ; 9.923  ;
+; rst_n      ; dac_data[18]     ; 11.534 ;    ;    ; 11.534 ;
+; rst_n      ; dac_data[19]     ; 10.542 ;    ;    ; 10.542 ;
+; rst_n      ; dac_data[20]     ; 10.499 ;    ;    ; 10.499 ;
+; rst_n      ; dac_data[21]     ; 9.928  ;    ;    ; 9.928  ;
+; rst_n      ; dac_data[22]     ; 10.537 ;    ;    ; 10.537 ;
+; rst_n      ; dac_data[23]     ; 10.827 ;    ;    ; 10.827 ;
+; rst_n      ; dac_data[24]     ; 11.702 ;    ;    ; 11.702 ;
+; rst_n      ; dac_data[25]     ; 11.157 ;    ;    ; 11.157 ;
+; rst_n      ; dac_data[26]     ; 10.261 ;    ;    ; 10.261 ;
+; rst_n      ; dac_data[27]     ; 11.721 ;    ;    ; 11.721 ;
+; rst_n      ; dac_data[28]     ; 10.681 ;    ;    ; 10.681 ;
+; rst_n      ; dac_data[29]     ; 10.988 ;    ;    ; 10.988 ;
+; rst_n      ; dac_data[30]     ; 10.977 ;    ;    ; 10.977 ;
+; rst_n      ; dac_data[31]     ; 10.940 ;    ;    ; 10.940 ;
+; rst_n      ; dac_nclr         ; 9.965  ;    ;    ; 9.965  ;
+; rst_n      ; lvds_dac_ncs[0]  ; 9.518  ;    ;    ; 9.518  ;
+; rst_n      ; lvds_dac_ncs[1]  ; 10.109 ;    ;    ; 10.109 ;
+; rst_n      ; lvds_dac_ncs[2]  ; 10.161 ;    ;    ; 10.161 ;
+; rst_n      ; lvds_dac_ncs[3]  ; 10.373 ;    ;    ; 10.373 ;
+; rst_n      ; lvds_dac_ncs[4]  ; 10.697 ;    ;    ; 10.697 ;
+; rst_n      ; lvds_dac_ncs[5]  ; 10.651 ;    ;    ; 10.651 ;
+; rst_n      ; lvds_dac_ncs[6]  ; 10.160 ;    ;    ; 10.160 ;
+; rst_n      ; lvds_dac_ncs[7]  ; 9.939  ;    ;    ; 9.939  ;
+; rst_n      ; lvds_dac_ncs[8]  ; 10.145 ;    ;    ; 10.145 ;
+; rst_n      ; lvds_dac_ncs[9]  ; 10.125 ;    ;    ; 10.125 ;
+; rst_n      ; lvds_dac_ncs[10] ; 10.655 ;    ;    ; 10.655 ;
+; rst_n      ; lvds_dac_ncs[11] ; 9.536  ;    ;    ; 9.536  ;
+; ttl_nrx1   ; dac_data[0]      ; 11.217 ;    ;    ; 11.217 ;
+; ttl_nrx1   ; dac_data[1]      ; 11.402 ;    ;    ; 11.402 ;
+; ttl_nrx1   ; dac_data[2]      ; 11.379 ;    ;    ; 11.379 ;
+; ttl_nrx1   ; dac_data[3]      ; 11.949 ;    ;    ; 11.949 ;
+; ttl_nrx1   ; dac_data[4]      ; 11.342 ;    ;    ; 11.342 ;
+; ttl_nrx1   ; dac_data[5]      ; 9.757  ;    ;    ; 9.757  ;
+; ttl_nrx1   ; dac_data[6]      ; 9.750  ;    ;    ; 9.750  ;
+; ttl_nrx1   ; dac_data[7]      ; 11.435 ;    ;    ; 11.435 ;
+; ttl_nrx1   ; dac_data[8]      ; 12.054 ;    ;    ; 12.054 ;
+; ttl_nrx1   ; dac_data[9]      ; 11.900 ;    ;    ; 11.900 ;
+; ttl_nrx1   ; dac_data[10]     ; 12.202 ;    ;    ; 12.202 ;
+; ttl_nrx1   ; dac_data[11]     ; 11.672 ;    ;    ; 11.672 ;
+; ttl_nrx1   ; dac_data[12]     ; 9.762  ;    ;    ; 9.762  ;
+; ttl_nrx1   ; dac_data[13]     ; 12.133 ;    ;    ; 12.133 ;
+; ttl_nrx1   ; dac_data[14]     ; 11.881 ;    ;    ; 11.881 ;
+; ttl_nrx1   ; dac_data[15]     ; 11.389 ;    ;    ; 11.389 ;
+; ttl_nrx1   ; dac_data[16]     ; 11.464 ;    ;    ; 11.464 ;
+; ttl_nrx1   ; dac_data[17]     ; 11.219 ;    ;    ; 11.219 ;
+; ttl_nrx1   ; dac_data[18]     ; 10.836 ;    ;    ; 10.836 ;
+; ttl_nrx1   ; dac_data[19]     ; 11.319 ;    ;    ; 11.319 ;
+; ttl_nrx1   ; dac_data[20]     ; 10.983 ;    ;    ; 10.983 ;
+; ttl_nrx1   ; dac_data[21]     ; 11.208 ;    ;    ; 11.208 ;
+; ttl_nrx1   ; dac_data[22]     ; 11.000 ;    ;    ; 11.000 ;
+; ttl_nrx1   ; dac_data[23]     ; 11.605 ;    ;    ; 11.605 ;
+; ttl_nrx1   ; dac_data[24]     ; 10.998 ;    ;    ; 10.998 ;
+; ttl_nrx1   ; dac_data[25]     ; 10.459 ;    ;    ; 10.459 ;
+; ttl_nrx1   ; dac_data[26]     ; 10.738 ;    ;    ; 10.738 ;
+; ttl_nrx1   ; dac_data[27]     ; 11.023 ;    ;    ; 11.023 ;
+; ttl_nrx1   ; dac_data[28]     ; 11.981 ;    ;    ; 11.981 ;
+; ttl_nrx1   ; dac_data[29]     ; 10.287 ;    ;    ; 10.287 ;
+; ttl_nrx1   ; dac_data[30]     ; 12.269 ;    ;    ; 12.269 ;
+; ttl_nrx1   ; dac_data[31]     ; 10.242 ;    ;    ; 10.242 ;
+; ttl_nrx1   ; dac_nclr         ; 9.266  ;    ;    ; 9.266  ;
+; ttl_nrx1   ; lvds_dac_ncs[0]  ; 10.787 ;    ;    ; 10.787 ;
+; ttl_nrx1   ; lvds_dac_ncs[1]  ; 10.885 ;    ;    ; 10.885 ;
+; ttl_nrx1   ; lvds_dac_ncs[2]  ; 11.080 ;    ;    ; 11.080 ;
+; ttl_nrx1   ; lvds_dac_ncs[3]  ; 11.642 ;    ;    ; 11.642 ;
+; ttl_nrx1   ; lvds_dac_ncs[4]  ; 10.359 ;    ;    ; 10.359 ;
+; ttl_nrx1   ; lvds_dac_ncs[5]  ; 9.959  ;    ;    ; 9.959  ;
+; ttl_nrx1   ; lvds_dac_ncs[6]  ; 9.439  ;    ;    ; 9.439  ;
+; ttl_nrx1   ; lvds_dac_ncs[7]  ; 9.603  ;    ;    ; 9.603  ;
+; ttl_nrx1   ; lvds_dac_ncs[8]  ; 9.454  ;    ;    ; 9.454  ;
+; ttl_nrx1   ; lvds_dac_ncs[9]  ; 9.443  ;    ;    ; 9.443  ;
+; ttl_nrx1   ; lvds_dac_ncs[10] ; 9.972  ;    ;    ; 9.972  ;
+; ttl_nrx1   ; lvds_dac_ncs[11] ; 9.197  ;    ;    ; 9.197  ;
 +------------+------------------+--------+----+----+--------+
 
 
@@ -714,96 +713,96 @@ No paths to report.
 +------------+------------------+--------+----+----+--------+
 ; Input Port ; Output Port      ; RR     ; RF ; FR ; FF     ;
 +------------+------------------+--------+----+----+--------+
-; rst_n      ; dac_data[0]      ; 11.222 ;    ;    ; 11.222 ;
-; rst_n      ; dac_data[1]      ; 11.463 ;    ;    ; 11.463 ;
-; rst_n      ; dac_data[2]      ; 9.982  ;    ;    ; 9.982  ;
-; rst_n      ; dac_data[3]      ; 10.377 ;    ;    ; 10.377 ;
-; rst_n      ; dac_data[4]      ; 11.431 ;    ;    ; 11.431 ;
-; rst_n      ; dac_data[5]      ; 10.244 ;    ;    ; 10.244 ;
-; rst_n      ; dac_data[6]      ; 10.978 ;    ;    ; 10.978 ;
-; rst_n      ; dac_data[7]      ; 10.220 ;    ;    ; 10.220 ;
-; rst_n      ; dac_data[8]      ; 11.040 ;    ;    ; 11.040 ;
-; rst_n      ; dac_data[9]      ; 10.237 ;    ;    ; 10.237 ;
-; rst_n      ; dac_data[10]     ; 10.509 ;    ;    ; 10.509 ;
-; rst_n      ; dac_data[11]     ; 10.627 ;    ;    ; 10.627 ;
-; rst_n      ; dac_data[12]     ; 10.990 ;    ;    ; 10.990 ;
-; rst_n      ; dac_data[13]     ; 10.063 ;    ;    ; 10.063 ;
-; rst_n      ; dac_data[14]     ; 10.545 ;    ;    ; 10.545 ;
-; rst_n      ; dac_data[15]     ; 10.669 ;    ;    ; 10.669 ;
-; rst_n      ; dac_data[16]     ; 11.241 ;    ;    ; 11.241 ;
-; rst_n      ; dac_data[17]     ; 11.233 ;    ;    ; 11.233 ;
-; rst_n      ; dac_data[18]     ; 10.058 ;    ;    ; 10.058 ;
-; rst_n      ; dac_data[19]     ; 11.249 ;    ;    ; 11.249 ;
-; rst_n      ; dac_data[20]     ; 12.701 ;    ;    ; 12.701 ;
-; rst_n      ; dac_data[21]     ; 11.000 ;    ;    ; 11.000 ;
-; rst_n      ; dac_data[22]     ; 12.256 ;    ;    ; 12.256 ;
-; rst_n      ; dac_data[23]     ; 10.910 ;    ;    ; 10.910 ;
-; rst_n      ; dac_data[24]     ; 11.000 ;    ;    ; 11.000 ;
-; rst_n      ; dac_data[25]     ; 10.506 ;    ;    ; 10.506 ;
-; rst_n      ; dac_data[26]     ; 10.062 ;    ;    ; 10.062 ;
-; rst_n      ; dac_data[27]     ; 12.422 ;    ;    ; 12.422 ;
-; rst_n      ; dac_data[28]     ; 9.851  ;    ;    ; 9.851  ;
-; rst_n      ; dac_data[29]     ; 10.618 ;    ;    ; 10.618 ;
-; rst_n      ; dac_data[30]     ; 11.691 ;    ;    ; 11.691 ;
-; rst_n      ; dac_data[31]     ; 11.158 ;    ;    ; 11.158 ;
-; rst_n      ; dac_nclr         ; 10.973 ;    ;    ; 10.973 ;
-; rst_n      ; lvds_dac_ncs[0]  ; 10.322 ;    ;    ; 10.322 ;
-; rst_n      ; lvds_dac_ncs[1]  ; 10.023 ;    ;    ; 10.023 ;
-; rst_n      ; lvds_dac_ncs[2]  ; 10.442 ;    ;    ; 10.442 ;
-; rst_n      ; lvds_dac_ncs[3]  ; 9.979  ;    ;    ; 9.979  ;
-; rst_n      ; lvds_dac_ncs[4]  ; 9.810  ;    ;    ; 9.810  ;
-; rst_n      ; lvds_dac_ncs[5]  ; 9.827  ;    ;    ; 9.827  ;
-; rst_n      ; lvds_dac_ncs[6]  ; 10.586 ;    ;    ; 10.586 ;
-; rst_n      ; lvds_dac_ncs[7]  ; 10.775 ;    ;    ; 10.775 ;
-; rst_n      ; lvds_dac_ncs[8]  ; 10.406 ;    ;    ; 10.406 ;
-; rst_n      ; lvds_dac_ncs[9]  ; 10.347 ;    ;    ; 10.347 ;
-; rst_n      ; lvds_dac_ncs[10] ; 10.123 ;    ;    ; 10.123 ;
-; rst_n      ; lvds_dac_ncs[11] ; 10.545 ;    ;    ; 10.545 ;
-; ttl_nrx1   ; dac_data[0]      ; 11.426 ;    ;    ; 11.426 ;
-; ttl_nrx1   ; dac_data[1]      ; 11.597 ;    ;    ; 11.597 ;
-; ttl_nrx1   ; dac_data[2]      ; 10.180 ;    ;    ; 10.180 ;
-; ttl_nrx1   ; dac_data[3]      ; 10.511 ;    ;    ; 10.511 ;
-; ttl_nrx1   ; dac_data[4]      ; 9.791  ;    ;    ; 9.791  ;
-; ttl_nrx1   ; dac_data[5]      ; 10.377 ;    ;    ; 10.377 ;
-; ttl_nrx1   ; dac_data[6]      ; 9.338  ;    ;    ; 9.338  ;
-; ttl_nrx1   ; dac_data[7]      ; 10.405 ;    ;    ; 10.405 ;
-; ttl_nrx1   ; dac_data[8]      ; 9.400  ;    ;    ; 9.400  ;
-; ttl_nrx1   ; dac_data[9]      ; 10.443 ;    ;    ; 10.443 ;
-; ttl_nrx1   ; dac_data[10]     ; 10.630 ;    ;    ; 10.630 ;
-; ttl_nrx1   ; dac_data[11]     ; 10.745 ;    ;    ; 10.745 ;
-; ttl_nrx1   ; dac_data[12]     ; 9.349  ;    ;    ; 9.349  ;
-; ttl_nrx1   ; dac_data[13]     ; 10.256 ;    ;    ; 10.256 ;
-; ttl_nrx1   ; dac_data[14]     ; 8.900  ;    ;    ; 8.900  ;
-; ttl_nrx1   ; dac_data[15]     ; 10.802 ;    ;    ; 10.802 ;
-; ttl_nrx1   ; dac_data[16]     ; 11.371 ;    ;    ; 11.371 ;
-; ttl_nrx1   ; dac_data[17]     ; 11.350 ;    ;    ; 11.350 ;
-; ttl_nrx1   ; dac_data[18]     ; 11.132 ;    ;    ; 11.132 ;
-; ttl_nrx1   ; dac_data[19]     ; 11.375 ;    ;    ; 11.375 ;
-; ttl_nrx1   ; dac_data[20]     ; 11.055 ;    ;    ; 11.055 ;
-; ttl_nrx1   ; dac_data[21]     ; 11.202 ;    ;    ; 11.202 ;
-; ttl_nrx1   ; dac_data[22]     ; 10.615 ;    ;    ; 10.615 ;
-; ttl_nrx1   ; dac_data[23]     ; 11.096 ;    ;    ; 11.096 ;
-; ttl_nrx1   ; dac_data[24]     ; 11.206 ;    ;    ; 11.206 ;
-; ttl_nrx1   ; dac_data[25]     ; 10.710 ;    ;    ; 10.710 ;
-; ttl_nrx1   ; dac_data[26]     ; 11.144 ;    ;    ; 11.144 ;
-; ttl_nrx1   ; dac_data[27]     ; 10.781 ;    ;    ; 10.781 ;
-; ttl_nrx1   ; dac_data[28]     ; 10.040 ;    ;    ; 10.040 ;
-; ttl_nrx1   ; dac_data[29]     ; 10.736 ;    ;    ; 10.736 ;
-; ttl_nrx1   ; dac_data[30]     ; 10.050 ;    ;    ; 10.050 ;
-; ttl_nrx1   ; dac_data[31]     ; 12.235 ;    ;    ; 12.235 ;
-; ttl_nrx1   ; dac_nclr         ; 9.824  ;    ;    ; 9.824  ;
-; ttl_nrx1   ; lvds_dac_ncs[0]  ; 10.475 ;    ;    ; 10.475 ;
-; ttl_nrx1   ; lvds_dac_ncs[1]  ; 10.911 ;    ;    ; 10.911 ;
-; ttl_nrx1   ; lvds_dac_ncs[2]  ; 10.596 ;    ;    ; 10.596 ;
-; ttl_nrx1   ; lvds_dac_ncs[3]  ; 10.863 ;    ;    ; 10.863 ;
-; ttl_nrx1   ; lvds_dac_ncs[4]  ; 10.887 ;    ;    ; 10.887 ;
-; ttl_nrx1   ; lvds_dac_ncs[5]  ; 10.712 ;    ;    ; 10.712 ;
-; ttl_nrx1   ; lvds_dac_ncs[6]  ; 11.283 ;    ;    ; 11.283 ;
-; ttl_nrx1   ; lvds_dac_ncs[7]  ; 11.470 ;    ;    ; 11.470 ;
-; ttl_nrx1   ; lvds_dac_ncs[8]  ; 11.072 ;    ;    ; 11.072 ;
-; ttl_nrx1   ; lvds_dac_ncs[9]  ; 11.367 ;    ;    ; 11.367 ;
-; ttl_nrx1   ; lvds_dac_ncs[10] ; 10.788 ;    ;    ; 10.788 ;
-; ttl_nrx1   ; lvds_dac_ncs[11] ; 11.211 ;    ;    ; 11.211 ;
+; rst_n      ; dac_data[0]      ; 9.913  ;    ;    ; 9.913  ;
+; rst_n      ; dac_data[1]      ; 10.934 ;    ;    ; 10.934 ;
+; rst_n      ; dac_data[2]      ; 10.906 ;    ;    ; 10.906 ;
+; rst_n      ; dac_data[3]      ; 10.641 ;    ;    ; 10.641 ;
+; rst_n      ; dac_data[4]      ; 10.058 ;    ;    ; 10.058 ;
+; rst_n      ; dac_data[5]      ; 10.454 ;    ;    ; 10.454 ;
+; rst_n      ; dac_data[6]      ; 10.448 ;    ;    ; 10.448 ;
+; rst_n      ; dac_data[7]      ; 10.946 ;    ;    ; 10.946 ;
+; rst_n      ; dac_data[8]      ; 11.273 ;    ;    ; 11.273 ;
+; rst_n      ; dac_data[9]      ; 10.612 ;    ;    ; 10.612 ;
+; rst_n      ; dac_data[10]     ; 10.894 ;    ;    ; 10.894 ;
+; rst_n      ; dac_data[11]     ; 11.208 ;    ;    ; 11.208 ;
+; rst_n      ; dac_data[12]     ; 10.460 ;    ;    ; 10.460 ;
+; rst_n      ; dac_data[13]     ; 10.853 ;    ;    ; 10.853 ;
+; rst_n      ; dac_data[14]     ; 11.393 ;    ;    ; 11.393 ;
+; rst_n      ; dac_data[15]     ; 10.909 ;    ;    ; 10.909 ;
+; rst_n      ; dac_data[16]     ; 11.001 ;    ;    ; 11.001 ;
+; rst_n      ; dac_data[17]     ; 9.923  ;    ;    ; 9.923  ;
+; rst_n      ; dac_data[18]     ; 11.534 ;    ;    ; 11.534 ;
+; rst_n      ; dac_data[19]     ; 10.542 ;    ;    ; 10.542 ;
+; rst_n      ; dac_data[20]     ; 10.499 ;    ;    ; 10.499 ;
+; rst_n      ; dac_data[21]     ; 9.928  ;    ;    ; 9.928  ;
+; rst_n      ; dac_data[22]     ; 10.537 ;    ;    ; 10.537 ;
+; rst_n      ; dac_data[23]     ; 10.827 ;    ;    ; 10.827 ;
+; rst_n      ; dac_data[24]     ; 11.702 ;    ;    ; 11.702 ;
+; rst_n      ; dac_data[25]     ; 11.157 ;    ;    ; 11.157 ;
+; rst_n      ; dac_data[26]     ; 10.261 ;    ;    ; 10.261 ;
+; rst_n      ; dac_data[27]     ; 11.721 ;    ;    ; 11.721 ;
+; rst_n      ; dac_data[28]     ; 10.681 ;    ;    ; 10.681 ;
+; rst_n      ; dac_data[29]     ; 10.988 ;    ;    ; 10.988 ;
+; rst_n      ; dac_data[30]     ; 10.977 ;    ;    ; 10.977 ;
+; rst_n      ; dac_data[31]     ; 10.940 ;    ;    ; 10.940 ;
+; rst_n      ; dac_nclr         ; 9.965  ;    ;    ; 9.965  ;
+; rst_n      ; lvds_dac_ncs[0]  ; 9.518  ;    ;    ; 9.518  ;
+; rst_n      ; lvds_dac_ncs[1]  ; 10.109 ;    ;    ; 10.109 ;
+; rst_n      ; lvds_dac_ncs[2]  ; 10.161 ;    ;    ; 10.161 ;
+; rst_n      ; lvds_dac_ncs[3]  ; 10.373 ;    ;    ; 10.373 ;
+; rst_n      ; lvds_dac_ncs[4]  ; 10.697 ;    ;    ; 10.697 ;
+; rst_n      ; lvds_dac_ncs[5]  ; 10.651 ;    ;    ; 10.651 ;
+; rst_n      ; lvds_dac_ncs[6]  ; 10.160 ;    ;    ; 10.160 ;
+; rst_n      ; lvds_dac_ncs[7]  ; 9.939  ;    ;    ; 9.939  ;
+; rst_n      ; lvds_dac_ncs[8]  ; 10.145 ;    ;    ; 10.145 ;
+; rst_n      ; lvds_dac_ncs[9]  ; 10.125 ;    ;    ; 10.125 ;
+; rst_n      ; lvds_dac_ncs[10] ; 10.655 ;    ;    ; 10.655 ;
+; rst_n      ; lvds_dac_ncs[11] ; 9.536  ;    ;    ; 9.536  ;
+; ttl_nrx1   ; dac_data[0]      ; 11.217 ;    ;    ; 11.217 ;
+; ttl_nrx1   ; dac_data[1]      ; 11.402 ;    ;    ; 11.402 ;
+; ttl_nrx1   ; dac_data[2]      ; 11.379 ;    ;    ; 11.379 ;
+; ttl_nrx1   ; dac_data[3]      ; 11.949 ;    ;    ; 11.949 ;
+; ttl_nrx1   ; dac_data[4]      ; 11.342 ;    ;    ; 11.342 ;
+; ttl_nrx1   ; dac_data[5]      ; 9.757  ;    ;    ; 9.757  ;
+; ttl_nrx1   ; dac_data[6]      ; 9.750  ;    ;    ; 9.750  ;
+; ttl_nrx1   ; dac_data[7]      ; 11.435 ;    ;    ; 11.435 ;
+; ttl_nrx1   ; dac_data[8]      ; 12.054 ;    ;    ; 12.054 ;
+; ttl_nrx1   ; dac_data[9]      ; 11.900 ;    ;    ; 11.900 ;
+; ttl_nrx1   ; dac_data[10]     ; 12.202 ;    ;    ; 12.202 ;
+; ttl_nrx1   ; dac_data[11]     ; 11.672 ;    ;    ; 11.672 ;
+; ttl_nrx1   ; dac_data[12]     ; 9.762  ;    ;    ; 9.762  ;
+; ttl_nrx1   ; dac_data[13]     ; 12.133 ;    ;    ; 12.133 ;
+; ttl_nrx1   ; dac_data[14]     ; 11.881 ;    ;    ; 11.881 ;
+; ttl_nrx1   ; dac_data[15]     ; 11.389 ;    ;    ; 11.389 ;
+; ttl_nrx1   ; dac_data[16]     ; 11.464 ;    ;    ; 11.464 ;
+; ttl_nrx1   ; dac_data[17]     ; 11.219 ;    ;    ; 11.219 ;
+; ttl_nrx1   ; dac_data[18]     ; 10.836 ;    ;    ; 10.836 ;
+; ttl_nrx1   ; dac_data[19]     ; 11.319 ;    ;    ; 11.319 ;
+; ttl_nrx1   ; dac_data[20]     ; 10.983 ;    ;    ; 10.983 ;
+; ttl_nrx1   ; dac_data[21]     ; 11.208 ;    ;    ; 11.208 ;
+; ttl_nrx1   ; dac_data[22]     ; 11.000 ;    ;    ; 11.000 ;
+; ttl_nrx1   ; dac_data[23]     ; 11.605 ;    ;    ; 11.605 ;
+; ttl_nrx1   ; dac_data[24]     ; 10.998 ;    ;    ; 10.998 ;
+; ttl_nrx1   ; dac_data[25]     ; 10.459 ;    ;    ; 10.459 ;
+; ttl_nrx1   ; dac_data[26]     ; 10.738 ;    ;    ; 10.738 ;
+; ttl_nrx1   ; dac_data[27]     ; 11.023 ;    ;    ; 11.023 ;
+; ttl_nrx1   ; dac_data[28]     ; 11.981 ;    ;    ; 11.981 ;
+; ttl_nrx1   ; dac_data[29]     ; 10.287 ;    ;    ; 10.287 ;
+; ttl_nrx1   ; dac_data[30]     ; 12.269 ;    ;    ; 12.269 ;
+; ttl_nrx1   ; dac_data[31]     ; 10.242 ;    ;    ; 10.242 ;
+; ttl_nrx1   ; dac_nclr         ; 9.266  ;    ;    ; 9.266  ;
+; ttl_nrx1   ; lvds_dac_ncs[0]  ; 10.787 ;    ;    ; 10.787 ;
+; ttl_nrx1   ; lvds_dac_ncs[1]  ; 10.885 ;    ;    ; 10.885 ;
+; ttl_nrx1   ; lvds_dac_ncs[2]  ; 11.080 ;    ;    ; 11.080 ;
+; ttl_nrx1   ; lvds_dac_ncs[3]  ; 11.642 ;    ;    ; 11.642 ;
+; ttl_nrx1   ; lvds_dac_ncs[4]  ; 10.359 ;    ;    ; 10.359 ;
+; ttl_nrx1   ; lvds_dac_ncs[5]  ; 9.959  ;    ;    ; 9.959  ;
+; ttl_nrx1   ; lvds_dac_ncs[6]  ; 9.439  ;    ;    ; 9.439  ;
+; ttl_nrx1   ; lvds_dac_ncs[7]  ; 9.603  ;    ;    ; 9.603  ;
+; ttl_nrx1   ; lvds_dac_ncs[8]  ; 9.454  ;    ;    ; 9.454  ;
+; ttl_nrx1   ; lvds_dac_ncs[9]  ; 9.443  ;    ;    ; 9.443  ;
+; ttl_nrx1   ; lvds_dac_ncs[10] ; 9.972  ;    ;    ; 9.972  ;
+; ttl_nrx1   ; lvds_dac_ncs[11] ; 9.197  ;    ;    ; 9.197  ;
 +------------+------------------+--------+----+----+--------+
 
 
@@ -812,7 +811,7 @@ No paths to report.
 +-----------+------------+-------+------+------------+----------------------------------+
 ; Data Port ; Clock Port ; Rise  ; Fall ; Clock Edge ; Clock Reference                  ;
 +-----------+------------+-------+------+------------+----------------------------------+
-; smb_data  ; inclk      ; 6.746 ;      ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data  ; inclk      ; 5.418 ;      ; Rise       ; pll0|altpll_component|pll|clk[0] ;
 +-----------+------------+-------+------+------------+----------------------------------+
 
 
@@ -821,7 +820,7 @@ No paths to report.
 +-----------+------------+-------+------+------------+----------------------------------+
 ; Data Port ; Clock Port ; Rise  ; Fall ; Clock Edge ; Clock Reference                  ;
 +-----------+------------+-------+------+------------+----------------------------------+
-; smb_data  ; inclk      ; 6.551 ;      ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data  ; inclk      ; 5.200 ;      ; Rise       ; pll0|altpll_component|pll|clk[0] ;
 +-----------+------------+-------+------+------------+----------------------------------+
 
 
@@ -830,7 +829,7 @@ No paths to report.
 +-----------+------------+-----------+-----------+------------+----------------------------------+
 ; Data Port ; Clock Port ; 0 to Hi-Z ; 1 to Hi-Z ; Clock Edge ; Clock Reference                  ;
 +-----------+------------+-----------+-----------+------------+----------------------------------+
-; smb_data  ; inclk      ; 6.746     ;           ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data  ; inclk      ; 5.418     ;           ; Rise       ; pll0|altpll_component|pll|clk[0] ;
 +-----------+------------+-----------+-----------+------------+----------------------------------+
 
 
@@ -839,7 +838,7 @@ No paths to report.
 +-----------+------------+-----------+-----------+------------+----------------------------------+
 ; Data Port ; Clock Port ; 0 to Hi-Z ; 1 to Hi-Z ; Clock Edge ; Clock Reference                  ;
 +-----------+------------+-----------+-----------+------------+----------------------------------+
-; smb_data  ; inclk      ; 6.551     ;           ; Rise       ; pll0|altpll_component|pll|clk[0] ;
+; smb_data  ; inclk      ; 5.200     ;           ; Rise       ; pll0|altpll_component|pll|clk[0] ;
 +-----------+------------+-----------+-----------+------------+----------------------------------+
 
 
@@ -848,7 +847,7 @@ No paths to report.
 +----------------------------------+----------------------------------+----------+----------+----------+----------+
 ; From Clock                       ; To Clock                         ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
 +----------------------------------+----------------------------------+----------+----------+----------+----------+
-; pll0|altpll_component|pll|clk[0] ; pll0|altpll_component|pll|clk[0] ; 5009778  ; 256      ; 8        ; 0        ;
+; pll0|altpll_component|pll|clk[0] ; pll0|altpll_component|pll|clk[0] ; 4562560  ; 256      ; 8        ; 0        ;
 ; pll0|altpll_component|pll|clk[1] ; pll0|altpll_component|pll|clk[0] ; 5        ; 0        ; 0        ; 0        ;
 ; pll0|altpll_component|pll|clk[2] ; pll0|altpll_component|pll|clk[0] ; 1        ; 0        ; 0        ; 0        ;
 ; pll0|altpll_component|pll|clk[3] ; pll0|altpll_component|pll|clk[0] ; 144      ; 0        ; 0        ; 0        ;
@@ -865,7 +864,7 @@ Entries labeled "false path" only account for clock-to-clock false paths and not
 +----------------------------------+----------------------------------+----------+----------+----------+----------+
 ; From Clock                       ; To Clock                         ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
 +----------------------------------+----------------------------------+----------+----------+----------+----------+
-; pll0|altpll_component|pll|clk[0] ; pll0|altpll_component|pll|clk[0] ; 5009778  ; 256      ; 8        ; 0        ;
+; pll0|altpll_component|pll|clk[0] ; pll0|altpll_component|pll|clk[0] ; 4562560  ; 256      ; 8        ; 0        ;
 ; pll0|altpll_component|pll|clk[1] ; pll0|altpll_component|pll|clk[0] ; 5        ; 0        ; 0        ; 0        ;
 ; pll0|altpll_component|pll|clk[2] ; pll0|altpll_component|pll|clk[0] ; 1        ; 0        ; 0        ; 0        ;
 ; pll0|altpll_component|pll|clk[3] ; pll0|altpll_component|pll|clk[0] ; 144      ; 0        ; 0        ; 0        ;
@@ -897,9 +896,9 @@ No dedicated SERDES Receiver circuitry present in device or used in design
 ; Illegal Clocks                  ; 0     ; 0    ;
 ; Unconstrained Clocks            ; 0     ; 0    ;
 ; Unconstrained Input Ports       ; 14    ; 14   ;
-; Unconstrained Input Port Paths  ; 7592  ; 7592 ;
+; Unconstrained Input Port Paths  ; 7582  ; 7582 ;
 ; Unconstrained Output Ports      ; 122   ; 122  ;
-; Unconstrained Output Port Paths ; 460   ; 460  ;
+; Unconstrained Output Port Paths ; 1964  ; 1964 ;
 +---------------------------------+-------+------+
 
 
@@ -909,24 +908,24 @@ No dedicated SERDES Receiver circuitry present in device or used in design
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
     Info: Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
-    Info: Processing started: Sat Apr 02 18:03:23 2016
+    Info: Processing started: Tue May 17 19:51:28 2016
 Info: Command: quartus_sta bias_card -c bias_card
 Info: qsta_default_script.tcl version: #1
 Info (20030): Parallel compilation is enabled and will use 4 of the 4 processors detected
 Info (332104): Reading SDC File: 'bias_card.sdc'
 Info: Found TIMEQUEST_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS = ON
-Info (332146): Worst-case setup slack is 3.259
+Info (332146): Worst-case setup slack is 3.652
     Info (332119):     Slack End Point TNS Clock 
     Info (332119): ========= ============= =====================
-    Info (332119):     3.259         0.000 pll0|altpll_component|pll|clk[0] 
-    Info (332119):     4.112         0.000 pll0|altpll_component|pll|clk[1] 
-    Info (332119):    10.558         0.000 pll0|altpll_component|pll|clk[3] 
-Info (332146): Worst-case hold slack is 0.538
+    Info (332119):     3.652         0.000 pll0|altpll_component|pll|clk[0] 
+    Info (332119):     4.241         0.000 pll0|altpll_component|pll|clk[1] 
+    Info (332119):    10.329         0.000 pll0|altpll_component|pll|clk[3] 
+Info (332146): Worst-case hold slack is 0.539
     Info (332119):     Slack End Point TNS Clock 
     Info (332119): ========= ============= =====================
-    Info (332119):     0.538         0.000 pll0|altpll_component|pll|clk[0] 
-    Info (332119):     0.538         0.000 pll0|altpll_component|pll|clk[3] 
-    Info (332119):     0.559         0.000 pll0|altpll_component|pll|clk[1] 
+    Info (332119):     0.539         0.000 pll0|altpll_component|pll|clk[0] 
+    Info (332119):     0.539         0.000 pll0|altpll_component|pll|clk[3] 
+    Info (332119):     0.554         0.000 pll0|altpll_component|pll|clk[1] 
 Info (332140): No Recovery paths to report
 Info (332140): No Removal paths to report
 Info (332146): Worst-case minimum pulse width slack is 4.000
@@ -941,8 +940,8 @@ Info (332001): The selected device family is not supported by the report_metasta
 Info (332102): Design is not fully constrained for setup requirements
 Info (332102): Design is not fully constrained for hold requirements
 Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 0 warnings
-    Info: Peak virtual memory: 439 megabytes
-    Info: Processing ended: Sat Apr 02 18:03:28 2016
+    Info: Peak virtual memory: 440 megabytes
+    Info: Processing ended: Tue May 17 19:51:33 2016
     Info: Elapsed time: 00:00:05
     Info: Total CPU time (on all processors): 00:00:04
 

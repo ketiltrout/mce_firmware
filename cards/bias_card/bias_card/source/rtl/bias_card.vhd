@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.53 2014/12/18 23:21:42 mandana Exp $
+-- $Id: bias_card.vhd,v 1.54 2016/04/06 01:52:07 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 -- Revision history:
 --
 -- $Log: bias_card.vhd,v $
+-- Revision 1.54  2016/04/06 01:52:07  mandana
+-- added 64-element rb/wb suuport by introducing virtual card-ids. When the virtual card_id is used, a tga offset of 32 is applied when writing to a parameter id.
+-- v6.0.0
+--
 -- Revision 1.53  2014/12/18 23:21:42  mandana
 -- 5.3.5 added num_idle_rows
 --
@@ -298,7 +302,7 @@ architecture top of bias_card is
 --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
 --               rr is the minor revision number, incremented when new features added
 --               BBBB is the build number, incremented for bug fixes
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"06000000";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"06000001";
 
 -- all_cards regs (including fw_rev, card_type, slot_id, scratch) signals
 signal all_cards_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -350,6 +354,7 @@ signal reset_clr_err   : std_logic;
 
 -- frame_timing interface
 signal update_bias : std_logic;
+signal flux_fb_dly : std_logic;
 signal restart_frame_aligned : std_logic;
 signal restart_frame_1row_prev: std_logic;
 signal row_switch  : std_logic;
@@ -554,6 +559,7 @@ begin
       -- frame_timing signals
       row_switch_i               => row_switch,
       update_bias_i              => update_bias,
+      flux_fb_dly_i              => flux_fb_dly,
       restart_frame_aligned_i    => restart_frame_aligned,
       restart_frame_1row_prev_i  => restart_frame_1row_prev,
       
@@ -578,6 +584,7 @@ begin
       row_en_o                   => open,
 
       update_bias_o              => update_bias,
+      flux_fb_dly_o              => flux_fb_dly,
 
       dat_i                      => data,
       addr_i                     => addr,
@@ -611,7 +618,7 @@ begin
                                 FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR | FB_COL30_ADDR | FB_COL31_ADDR,
                                 
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR |  
-                                FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+                                FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR | FLUX_FB_DLY_ADDR,
                                 
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          
@@ -629,7 +636,7 @@ begin
                                FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                FB_COL30_ADDR | FB_COL31_ADDR,
                                
-         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR | FLUX_FB_DLY_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_ack  when FPGA_TEMP_ADDR,
          '0'              when others;
@@ -642,7 +649,7 @@ begin
                                FB_COL20_ADDR | FB_COL21_ADDR | FB_COL22_ADDR | FB_COL23_ADDR | FB_COL24_ADDR | FB_COL25_ADDR | FB_COL26_ADDR | FB_COL27_ADDR | FB_COL28_ADDR | FB_COL29_ADDR |
                                FB_COL30_ADDR | FB_COL31_ADDR |                               
                                CRIT_ERR_RST_ADDR | DEV_CLR_ADDR |
-                               ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR,
+                               ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | NUM_COLS_REPORTED_ADDR | NUM_ROWS_REPORTED_ADDR | FLUX_FB_DLY_ADDR,
          all_cards_err    when FW_REV_ADDR | SLOT_ID_ADDR | CARD_TYPE_ADDR | SCRATCH_ADDR,
          --reset_clr_err    when CRIT_ERR_RST_ADDR | DEV_CLR_ADDR,         
          id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,

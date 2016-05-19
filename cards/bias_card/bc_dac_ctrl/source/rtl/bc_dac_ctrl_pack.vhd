@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_pack.vhd,v 1.11 2012-12-20 20:55:19 mandana Exp $
+-- $Id: bc_dac_ctrl_pack.vhd,v 1.12 2014/12/18 23:21:41 mandana Exp $
 --
 
 -- Project:       SCUBA2
@@ -31,6 +31,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_pack.vhd,v $
+-- Revision 1.12  2014/12/18 23:21:41  mandana
+-- 5.3.5 added num_idle_rows
+--
 -- Revision 1.11  2012-12-20 20:55:19  mandana
 -- added DAC_CYCLE_COUNT_MAX to indicate time spent to refresh each LN_BIAS DAC
 --
@@ -111,7 +114,6 @@ component bc_dac_ctrl_core
       ln_bias_addr_o    : out std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);
       ln_bias_data_i    : in std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);
       ln_bias_changed_i : in std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
-      num_idle_rows_i   : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 
       mux_flux_fb_data_i: in flux_fb_dac_array;    
       enbl_mux_data_i   : in std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -119,6 +121,7 @@ component bc_dac_ctrl_core
       -- frame_timing signals
       row_switch_i      : in std_logic;
       update_bias_i     : in std_logic;
+      flux_fb_dly_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;
       restart_frame_1row_prev_i : in std_logic;
       
