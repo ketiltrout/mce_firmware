@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.15 2012-12-20 23:13:09 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.16 2014/12/18 23:21:41 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -35,6 +35,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.16  2014/12/18 23:21:41  mandana
+-- 5.3.5 added num_idle_rows
+--
 -- Revision 1.15  2012-12-20 23:13:09  mandana
 -- LN_BIAS_DACs are now scheduled to refresh one after the other taking 44 (DAC_CYCLE_COUNT_MAX) clk cycles each. Cases where ARZ smaller than 44x12 not adequately tested.
 --
@@ -147,6 +150,7 @@ entity bc_dac_ctrl_core is
       -- frame_timing signals
       row_switch_i      : in std_logic;      
       update_bias_i     : in std_logic;
+      flux_fb_dly_i     : in std_logic;
       restart_frame_aligned_i : in std_logic;
       restart_frame_1row_prev_i: in std_logic;
       
@@ -418,7 +422,7 @@ begin
       -- Bit 2:  chip select (active low)
       -- Bit 1:  serial clock out
       -- Bit 0:  serial data out
-      flux_fb_ncs_o (k)  <= flux_fb_dac_spi(k)(2) when enbl_mux_data_i(k) = '0' else row_switch_1dly;
+      flux_fb_ncs_o (k)  <= flux_fb_dac_spi(k)(2) when enbl_mux_data_i(k) = '0' else flux_fb_dly_i;
       flux_fb_clk_o (k)  <= flux_fb_dac_spi(k)(1);
       flux_fb_data_o (k) <= flux_fb_dac_spi(k)(0) when rst_i ='0' else '0';
       
