@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.18 2013/05/16 22:43:57 mandana Exp $
+-- $Id: frame_timing_core.vhd,v 1.19 2013/05/31 19:54:17 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.19  2013/05/31 19:54:17  mandana
+-- fixed the combinational loop for servo_rst_sync_count
+--
 -- Revision 1.18  2013/05/16 22:43:57  mandana
 -- servo_rst_arm parameter is added to generate a servo_rst_window for the rest of the system
 --
@@ -134,6 +137,7 @@ entity frame_timing_core is
 
       -- Bias Card interface
       update_bias_o              : out std_logic;
+      flux_fb_dly_o              : out std_logic;
 
       -- Wishbone interface
       row_len_i                  : in integer; -- not used yet
@@ -142,6 +146,7 @@ entity frame_timing_core is
       sample_num_i               : in integer;
       feedback_delay_i           : in integer;
       address_on_delay_i         : in integer;
+      flux_fb_dly_i              : in integer;
       resync_req_i               : in std_logic;
       resync_ack_o               : out std_logic; -- not used yet
       init_window_req_i          : in std_logic;
@@ -284,6 +289,7 @@ begin
    -- The bias card DACs begin to be updated 10 cycles after update_bias_o is asserted.
    -- The length of time required to update all 32 flux_feedback values on the bias card is longer than one row dwell period.
    update_bias_o              <= '1' when row_count_int = row_len_i - UPDATE_BIAS else '0';
+   flux_fb_dly_o              <= '1' when row_count_int = flux_fb_dly_i else '0';
 
    -- row_switch_o is pulsed on the last clock cycle of every
    row_switch_o               <= '1' when row_count_int = row_len_i - 1 or sync_received = '1' else '0';

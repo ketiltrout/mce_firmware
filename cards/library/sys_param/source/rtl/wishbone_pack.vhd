@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2013/05/31 19:55:48 $> - <initials $Author: mandana $>
+-- <date $Date: 2014/12/18 23:25:12 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.67  2014/12/18 23:25:12  mandana
+-- num_idle_rows
+--
 -- Revision 1.66  2013/05/31 19:55:48  mandana
 -- added servo_rst_col and servo_rst_arm
 --
@@ -271,7 +274,7 @@ use sys_param.command_pack.all;
 
 package wishbone_pack is
    --
-   -- unassigned parameter-id:0c-0f, 29-2F, 38-3F, 40, 42, 47-4f, 9d-9f, e9-ef, f9-ff 
+   -- unassigned parameter-id:0c-0f, 2A-2F, 38-3F, 40, 42, 47-4f, 9d-9f, e9-ef, f9-ff 
    -- preferably set aside E9-EF for AC, 29-2F for BC, 38-3F for system, f9-ff for rc
    --
   ---------------------------------------------------------------------------------
@@ -434,6 +437,7 @@ package wishbone_pack is
    constant ENBL_BIAS_MOD_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"26";
    constant MOD_VAL_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"27";
    constant BC_NUM_IDLE_ROWS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"28";
+   constant FLUX_FB_DLY_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"29";
 
    ---------------------------------------------------------------------------------------
    -- System (All FPGA Cards) Parameter IDs

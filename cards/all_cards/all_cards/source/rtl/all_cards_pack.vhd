@@ -30,8 +30,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2012-02-17 22:48:21 $>    - <initials $Author: mandana $>
+-- <date $Date: 2013/05/16 22:43:57 $>    - <initials $Author: mandana $>
 -- $Log: all_cards_pack.vhd,v $
+-- Revision 1.15  2013/05/16 22:43:57  mandana
+-- servo_rst_arm parameter is added to generate a servo_rst_window for the rest of the system
+--
 -- Revision 1.14  2012-02-17 22:48:21  mandana
 -- merge led pack into all_cards pack
 --
@@ -219,6 +222,7 @@ package all_cards_pack is
 
          -- Bias Card interface
          update_bias_o              : out std_logic;
+         flux_fb_dly_o              : out std_logic;
 
          -- Wishbone interface
          dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);

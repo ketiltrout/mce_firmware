@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.21 2012-09-07 19:49:28 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.22 2013/05/16 22:43:58 mandana Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2012-09-07 19:49:28 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2013/05/16 22:43:58 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.22  2013/05/16 22:43:58  mandana
+-- servo_rst_arm parameter is added to generate a servo_rst_window for the rest of the system
+--
 -- Revision 1.21  2012-09-07 19:49:28  mandana
 -- moved components declaration to pack file
 --
@@ -172,6 +175,7 @@ package frame_timing_pack is
    -- UPDATE_BIAS specifies the number of clock cycles before the beginning of a new frame needed to prime the DACs with data.
    -- It takes 16 x 25MHz clock cycles or 32 clock cycles to update the DAC plus 10 clock cycles of over head, total of 42
    constant UPDATE_BIAS : integer := 1;
+   constant FLUX_FB_DLY_INIT: integer := 1;
    
    ------------------------------------------------------------------------------------
    -- For data readout
@@ -198,6 +202,7 @@ package frame_timing_pack is
             
          -- Bias Card interface
          update_bias_o              : out std_logic;
+         flux_fb_dly_o              : out std_logic;
          
          -- Wishbone interface
          row_len_i                  : in integer; -- not used yet
@@ -206,6 +211,7 @@ package frame_timing_pack is
          sample_num_i               : in integer;
          feedback_delay_i           : in integer;
          address_on_delay_i         : in integer;
+         flux_fb_dly_i              : in integer;
          resync_req_i               : in std_logic;
          resync_ack_o               : out std_logic; -- not used yet
          init_window_req_i          : in std_logic;
@@ -235,6 +241,7 @@ package frame_timing_pack is
          sample_num_o        : out integer;
          feedback_delay_o    : out integer;
          address_on_delay_o  : out integer;
+         flux_fb_dly_o       : out integer;
          resync_ack_i        : in std_logic;      
          resync_req_o        : out std_logic;
          init_window_ack_i   : in std_logic;

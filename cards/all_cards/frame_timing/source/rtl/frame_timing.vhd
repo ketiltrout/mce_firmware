@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.12 2012-09-07 19:49:28 mandana Exp $
+-- $Id: frame_timing.vhd,v 1.13 2013/05/16 22:43:57 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.13  2013/05/16 22:43:57  mandana
+-- servo_rst_arm parameter is added to generate a servo_rst_window for the rest of the system
+--
 -- Revision 1.12  2012-09-07 19:49:28  mandana
 -- moved components declaration to pack file
 --
@@ -112,6 +115,7 @@ entity frame_timing is
          
       -- Bias Card interface
       update_bias_o              : out std_logic;
+      flux_fb_dly_o              : out std_logic;
       
       -- Wishbone interface
       dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -135,6 +139,7 @@ architecture beh of frame_timing is
    
    signal row_len               : integer; -- not used yet
    signal num_rows              : integer; -- not used yet
+   signal flux_fb_dly_temp      : integer;
    signal sample_delay          : integer;
    signal sample_num            : integer;
    signal feedback_delay        : integer;
@@ -163,6 +168,7 @@ begin
          sample_num_o       => sample_num,      
          feedback_delay_o   => feedback_delay,  
          address_on_delay_o => address_on_delay,
+         flux_fb_dly_o      => flux_fb_dly_temp,
          resync_ack_i       => resync_ack,      
          resync_req_o       => resync_req,      
          init_window_ack_i  => init_window_ack, 
@@ -205,6 +211,7 @@ begin
                                          
          -- Bias Card interface       
          update_bias_o             => update_bias_o,           
+         flux_fb_dly_o             => flux_fb_dly_o,
                                   
          -- Wishbone interface    
          row_len_i                 => row_len,         
@@ -213,6 +220,7 @@ begin
          sample_num_i              => sample_num,      
          feedback_delay_i          => feedback_delay,  
          address_on_delay_i        => address_on_delay,
+         flux_fb_dly_i             => flux_fb_dly_temp,
          resync_req_i              => resync_req,      
          resync_ack_o              => resync_ack,      
          init_window_req_i         => init_window_req, 
