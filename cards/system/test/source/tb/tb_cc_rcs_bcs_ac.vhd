@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 --
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.102.4.2 2016/04/06 01:52:42 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.102.4.3 2016/05/06 22:36:44 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -320,6 +320,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant bc1_mod_val_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & MOD_VAL_ADDR;
    constant bc1_enbl_mux_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & ENBL_MUX_ADDR;
    constant bc1_num_idle_rows_cmd   : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & BC_NUM_IDLE_ROWS_ADDR;
+   constant bc1_flux_fb_dly_cmd     : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FLUX_FB_DLY_ADDR;
    constant bc1_fb_col0_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL0_ADDR;
    constant bc1_u_fb_col0_cmd       : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1_U    & x"00" & FB_COL0_ADDR; -- 64 rows
    constant bc1_fb_col1_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1      & x"00" & FB_COL1_ADDR;
@@ -1697,61 +1698,61 @@ begin
 --         tx            => bc2_rs232_tx
 --      );
 --
---   i_bias_card1: bias_card
---      port map
---      (
---         -- PLL input:
---         inclk         => lvds_clk,
---         rst_n         => rst_n,
---
---         -- LVDS interface:
---         lvds_cmd      => lvds_cmd,
---         lvds_sync     => lvds_sync,
---         lvds_spare    => lvds_spare,
---         lvds_txa      => lvds_reply_bc1_a,
---         lvds_txb      => lvds_reply_bc1_b,
---
---         -- TTL interface:
---         ttl_nrx1      => bclr_n,
---         ttl_tx1       => open,
---         ttl_txena1    => bc1_ttl_txena1,
---
---         ttl_nrx2      => bc1_ttl_nrx2,
---         ttl_tx2       => open,
---         ttl_txena2    => bc1_ttl_txena2,
---
---         ttl_nrx3      => bc1_ttl_nrx3,
---         ttl_tx3       => open,
---         ttl_txena3    => bc1_ttl_txena3,
---
---         -- dac interface:
---         dac_ncs       => bc1_dac_ncs,
---         dac_sclk      => bc1_dac_sclk,
---         dac_data      => bc1_dac_data,
---         lvds_dac_ncs  => bc1_lvds_dac_ncs,
---         lvds_dac_sclk => bc1_lvds_dac_sclk,
---         lvds_dac_data => bc1_lvds_dac_data,
---         dac_nclr      => bc1_dac_nclr,
---
---         -- miscellaneous ports:
---         red_led       => bc1_red_led,
---         ylw_led       => bc1_ylw_led,
---         grn_led       => bc1_grn_led,
---         dip_sw3       => bc1_dip_sw3,
---         dip_sw4       => bc1_dip_sw4,
---         wdog          => bc1_wdog,
---         slot_id       => bc1_slot_id,
---         pcb_rev       => bc1_pcb_rev,
---         smb_nalert    => open,
---         critical_error => bc1_critical_error,
---
---         -- debug ports:
---         test          => bc1_test,
---         mictor        => bc1_mictor,
---         mictorclk     => bc1_mictorclk,
---         rx            => bc1_rs232_rx
-----         tx            => bc1_rs232_tx
---      );
+   i_bias_card1: bias_card
+      port map
+      (
+         -- PLL input:
+         inclk         => lvds_clk,
+         rst_n         => rst_n,
+
+         -- LVDS interface:
+         lvds_cmd      => lvds_cmd,
+         lvds_sync     => lvds_sync,
+         lvds_spare    => lvds_spare,
+         lvds_txa      => lvds_reply_bc1_a,
+         lvds_txb      => lvds_reply_bc1_b,
+
+         -- TTL interface:
+         ttl_nrx1      => bclr_n,
+         ttl_tx1       => open,
+         ttl_txena1    => bc1_ttl_txena1,
+
+         ttl_nrx2      => bc1_ttl_nrx2,
+         ttl_tx2       => open,
+         ttl_txena2    => bc1_ttl_txena2,
+
+         ttl_nrx3      => bc1_ttl_nrx3,
+         ttl_tx3       => open,
+         ttl_txena3    => bc1_ttl_txena3,
+
+         -- dac interface:
+         dac_ncs       => bc1_dac_ncs,
+         dac_sclk      => bc1_dac_sclk,
+         dac_data      => bc1_dac_data,
+         lvds_dac_ncs  => bc1_lvds_dac_ncs,
+         lvds_dac_sclk => bc1_lvds_dac_sclk,
+         lvds_dac_data => bc1_lvds_dac_data,
+         dac_nclr      => bc1_dac_nclr,
+
+         -- miscellaneous ports:
+         red_led       => bc1_red_led,
+         ylw_led       => bc1_ylw_led,
+         grn_led       => bc1_grn_led,
+         dip_sw3       => bc1_dip_sw3,
+         dip_sw4       => bc1_dip_sw4,
+         wdog          => bc1_wdog,
+         slot_id       => bc1_slot_id,
+         pcb_rev       => bc1_pcb_rev,
+         smb_nalert    => open,
+         critical_error => bc1_critical_error,
+
+         -- debug ports:
+         test          => bc1_test,
+         mictor        => bc1_mictor,
+         mictorclk     => bc1_mictorclk,
+         rx            => bc1_rs232_rx
+--         tx            => bc1_rs232_tx
+      );
 
 --   i_addr_card : addr_card
 --      port map
@@ -2309,7 +2310,7 @@ begin
       command <= command_wb;
       address_id <= sys_row_len_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000028"; --40      
+      data       <= X"00000040"; --40      
       load_preamble;
       load_command;
       load_checksum;
@@ -2592,23 +2593,23 @@ begin
       -------------------------------------
       -- BC1
       -------------------------------------
---      command <= command_wb;
---      address_id <= bc1_num_rows_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000008"; --21";--33
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= bc1_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000028"; --64"; --100
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
+      command <= command_wb;
+      address_id <= bc1_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008"; --21";--33
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= bc1_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000040"; --64"; --100
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
       
 --      command <= command_wb;
 --      address_id <= bc1_crit_er_cmd;
@@ -2637,14 +2638,15 @@ begin
 --      load_checksum;
 --      wait for 50 us;
 --
---      command <= command_wb;
---      address_id <= bc1_flux_fb_cmd;
---      data_valid <= X"00000020";
---      data       <= X"0000BAAA"; 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
+      command <= command_wb;
+      address_id <= bc1_flux_fb_cmd;
+      data_valid <= X"00000020";
+      data       <= X"0000BAAA"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
 --
 --      command <= command_wb;
 --      address_id <= bc1_enbl_flux_fb_mod_cmd;
@@ -2681,16 +2683,16 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 50 us;
-    
 
---      command <= command_wb;
---      address_id <= bc1_u_fb_col0_cmd;
---      data_valid <= X"00000020";
---      data       <= X"0000A000"; 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= bc1_u_fb_col0_cmd;
+      data_valid <= X"00000020";
+      data       <= X"0000A000"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 150 us;
 --
 --      command <= command_wb;
 --      address_id <= bc1_fb_col29_cmd;
@@ -2720,14 +2722,14 @@ begin
 --      wait for 70 us;      
 --      
 --
---      command <= command_wb;
---      address_id <= bc1_enbl_mux_cmd;
---      data_valid <= X"00000020";
---      data       <= X"00000001"; 
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 70 us;
+      command <= command_wb;
+      address_id <= bc1_enbl_mux_cmd;
+      data_valid <= X"00000020";
+      data       <= X"00000001"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 70 us;
 --
 --      command <= command_wb;
 --      address_id <= bc1_bias_cmd;
@@ -2747,9 +2749,19 @@ begin
 --      load_checksum;
 --      wait for 50 us;
 --
---      -- Wait for the BRst to finish, which takes 100us
---      present_sim_state <= NOTHING;
---      wait for 150 us;
+      -- Wait for the BRst to finish, which takes 100us
+      present_sim_state <= NOTHING;
+      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= bc1_flux_fb_dly_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000009"; 
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
 --
 --      command <= command_wb;
 --      address_id <= rc1_fb_const_cmd;
