@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.24 2012-03-27 22:58:53 mandana Exp $
+-- $Id: clk_card_pack.vhd,v 1.25 2012-05-16 22:58:46 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.25  2012-05-16 22:58:46  mandana
+-- 5.0.e pcb_rev bits added for Rev. C PCB
+-- bugfix: awg now works with the new commanding scheme
+--
 -- Revision 1.24  2012-03-27 22:58:53  mandana
 -- pack file clean up again
 --
@@ -348,6 +352,7 @@ package clk_card_pack is
       nbb_jtag_i    : in std_logic;  -- JTAG source:  readback (jtag_sel)
 
       -- Configuration Interface
+--      epc16_sel_n_i : in std_logic;
       config_n_o    : out std_logic;
       epc16_sel_n_o : out std_logic
    );

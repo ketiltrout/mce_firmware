@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.58 2012-02-09 00:19:10 mandana Exp $
+-- $Id: reply_queue.vhd,v 1.59 2012-05-14 19:53:38 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -34,6 +34,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.59  2012-05-14 19:53:38  mandana
+-- Mostly code cleanup and restructure, reduced about 200 lines. More cleanup needed...FSM to be revisited.
+--
 -- Revision 1.58  2012-02-09 00:19:10  mandana
 -- dv_pulse_fibre_i is now reported in bit 9 of the frame-status word of the frame header
 -- header version 7
@@ -477,21 +480,21 @@ begin
                   num_cards <= conv_std_logic_vector(cards_to_report_i(PSUC), num_cards'length);
                elsif(card_addr = CLOCK_CARD) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(CC), num_cards'length);
-               elsif(card_addr = READOUT_CARD_1) then
+               elsif(card_addr = READOUT_CARD_1 or card_addr = READOUT_CARD_1_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(RC1), num_cards'length);
-               elsif(card_addr = READOUT_CARD_2) then
+               elsif(card_addr = READOUT_CARD_2 or card_addr = READOUT_CARD_2_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(RC2), num_cards'length);
-               elsif(card_addr = READOUT_CARD_3) then
+               elsif(card_addr = READOUT_CARD_3 or card_addr = READOUT_CARD_3_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(RC3), num_cards'length);
-               elsif(card_addr = READOUT_CARD_4) then
+               elsif(card_addr = READOUT_CARD_4 or card_addr = READOUT_CARD_4_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(RC4), num_cards'length);
-               elsif(card_addr = BIAS_CARD_1) then
+               elsif(card_addr = BIAS_CARD_1 or card_addr = BIAS_CARD_1_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(BC1), num_cards'length);
-               elsif(card_addr = BIAS_CARD_2) then
+               elsif(card_addr = BIAS_CARD_2 or card_addr = BIAS_CARD_2_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(BC2), num_cards'length);
-               elsif(card_addr = BIAS_CARD_3) then
+               elsif(card_addr = BIAS_CARD_3 or card_addr = BIAS_CARD_3_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(BC3), num_cards'length);
-               elsif(card_addr = ADDRESS_CARD) then
+               elsif(card_addr = ADDRESS_CARD or card_addr = ADDRESS_CARD_U) then
                   num_cards <= conv_std_logic_vector(cards_to_report_i(AC), num_cards'length);
                elsif(card_addr = ALL_BIAS_CARDS) then
                   num_cards <= conv_std_logic_vector(conv_integer(cards_to_report_i(BC1)) + conv_integer(cards_to_report_i(BC2)) + conv_integer(cards_to_report_i(BC3)),num_cards'length);
@@ -566,6 +569,7 @@ begin
 
    -- all status bits, except reset and sync-box-error, are latched at frame boundaries and included in the status header of every data frame
    num_cols_reported <= conv_std_logic_vector(num_cols_to_read_i, num_cols_reported'length);   
+   -- bit 31 is reserved for software use 
    frame_status <= "00000000000" & 
                     data_timing_err_i & num_cols_reported & 
                     "00" & 

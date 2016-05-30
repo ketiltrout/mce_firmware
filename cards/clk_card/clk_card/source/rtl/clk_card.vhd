@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.103 2012-05-14 19:49:11 mandana Exp $
+-- $Id: clk_card.vhd,v 1.104 2012-05-16 22:58:46 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger/ Greg Dennis
@@ -192,6 +192,10 @@ entity clk_card is
       epc_tdo           : in std_logic;  -- TDO (out of JTAG chain)
       jtag_sel          : out std_logic; -- JTAG source: '0'=Header, '1'=FGPA
       nbb_jtag          : in std_logic;  -- JTAG source:  readback (jtag_sel)
+
+      dev_clr_fpga_out  : out std_logic;
+      critical_error    : out std_logic; -- can initiate reconfig when a critical error happens
+      dip_sw2           : in  std_logic; -- used as startup-epc-select, default is 1 which means factory epc
       
       nreconf           : out std_logic; -- To CPLD: triggers a reconfiguration
       nepc_sel          : out std_logic  -- To CPLD: selects factory/application EPC16
@@ -204,7 +208,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0500000e";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"06000002";
 
    -- reset
    signal rst                : std_logic;
@@ -399,7 +403,11 @@ architecture top of clk_card is
    signal awg_addr           : std_logic_vector(AWG_ADDR_WIDTH-1 downto 0);
    signal awg_addr_incr      : std_logic;
    signal awg_addr_clr       : std_logic;
-
+   
+   signal reset_clr_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal reset_clr_ack   : std_logic;
+   signal reset_clr_err   : std_logic;
+   
 begin
    
    ----------------------------------------------------------------
@@ -528,7 +536,7 @@ begin
    ----------------------------------------------------------------
    -- At the moment, no differentiation is made between types of resets in the frame header.
    reset_event <= brst_event or mce_bclr_event or cc_bclr_event;
-
+   
    cc_reset_block: cc_reset
    port map(
       clk_i        => clk,
@@ -564,6 +572,30 @@ begin
       ack_o        => cc_reset_ack
    );
 
+   --------------------------------------------------------------
+   -- handle dev_clr_fpga_out and critical_error output  
+   --------------------------------------------------------------
+   i_reset_clr: reset_clr
+   port map(
+      clk_i                      => clk,
+      rst_i                      => rst,
+
+      -- Wishbone signals
+      dat_i                      => data,
+      addr_i                     => addr,
+      tga_i                      => tga,
+      we_i                       => we,
+      stb_i                      => stb,
+      cyc_i                      => cyc,
+      err_o                      => reset_clr_err,
+      dat_o                      => reset_clr_data,
+      ack_o                      => reset_clr_ack,
+      
+      -- outputs
+      critical_error_o           => critical_error,
+      dev_clr_o                  => dev_clr_fpga_out
+   );
+
    ----------------------------------------------------------------
    -- Clock Card Dispatch Block and Slaves
    ----------------------------------------------------------------
@@ -589,6 +621,7 @@ begin
          fpga_thermo_data    when FPGA_TEMP_ADDR,
          array_id_data       when ARRAY_ID_ADDR,
          cc_reset_data       when MCE_BCLR_ADDR | CC_BCLR_ADDR,
+         reset_clr_data      when CRIT_ERR_RST_ADDR | DEV_CLR_ADDR,         
          (others => '0')     when others;
 
    with addr select
@@ -612,6 +645,7 @@ begin
          fpga_thermo_ack     when FPGA_TEMP_ADDR,
          array_id_ack        when ARRAY_ID_ADDR,
          cc_reset_ack        when MCE_BCLR_ADDR | CC_BCLR_ADDR,
+         reset_clr_ack       when CRIT_ERR_RST_ADDR | DEV_CLR_ADDR,         
          '0'                 when others;
 
    with addr select
@@ -634,6 +668,7 @@ begin
          backplane_id_thermo_err  when BOX_TEMP_ADDR | BOX_ID_ADDR,
          fpga_thermo_err     when FPGA_TEMP_ADDR,
          array_id_err        when ARRAY_ID_ADDR,
+         --reset_clr_err      when CRIT_ERR_RST_ADDR | DEV_CLR_ADDR,         
          '1'                 when others;
 
    cc_dispatch_block: dispatch
@@ -873,6 +908,7 @@ begin
       nbb_jtag_i    => nbb_jtag,
 
       -- Configuration Interface
+--      epc16_sel_n_i => dip_sw2,
       config_n_o    => nreconf,
       epc16_sel_n_o => nepc_sel
    );

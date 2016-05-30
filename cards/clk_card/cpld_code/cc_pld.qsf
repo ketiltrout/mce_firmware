@@ -28,7 +28,7 @@ set_global_assignment -name FAMILY MAX3000A
 set_global_assignment -name TOP_LEVEL_ENTITY cc_pld
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "3.0 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "14:53:25  FEBRUARY 17, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 6.1
+set_global_assignment -name LAST_QUARTUS_VERSION "11.1 SP2"
 set_global_assignment -name GDF_FILE cc_pldtest.gdf
 set_global_assignment -name GDF_FILE cc_pld_orig.gdf
 set_global_assignment -name GDF_FILE cc_pld.gdf
@@ -42,7 +42,6 @@ set_global_assignment -name ASSG_RULE_MISSING_TIMING OFF
 set_global_assignment -name CLK_CAT OFF
 set_global_assignment -name CLK_RULE_CLKNET_CLKSPINES OFF
 set_global_assignment -name CLK_RULE_COMB_CLOCK OFF
-set_global_assignment -name CLK_RULE_GATING_SCHEME OFF
 set_global_assignment -name CLK_RULE_INPINS_CLKNET OFF
 set_global_assignment -name CLK_RULE_INV_CLOCK OFF
 set_global_assignment -name CLK_RULE_MIX_EDGES OFF

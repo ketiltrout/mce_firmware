@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.44  2011-12-01 19:46:11  mandana
+-- re-organized pack files
+--
 -- Revision 1.43  2011-11-30 22:06:06  mandana
 -- re-organized pack files in hierarchical manner and moved all component declarations into pack files
 --
@@ -585,14 +588,14 @@ begin
       "0000000000" when (card_addr_i = NO_CARDS) else
       "0000000001" when (card_addr_i = POWER_SUPPLY_CARD) else
       "0000000010" when (card_addr_i = CLOCK_CARD) else
-      "0000000100" when (card_addr_i = READOUT_CARD_4) else
-      "0000001000" when (card_addr_i = READOUT_CARD_3) else
-      "0000010000" when (card_addr_i = READOUT_CARD_2) else
-      "0000100000" when (card_addr_i = READOUT_CARD_1) else
-      "0001000000" when (card_addr_i = BIAS_CARD_3) else
-      "0010000000" when (card_addr_i = BIAS_CARD_2) else
-      "0100000000" when (card_addr_i = BIAS_CARD_1) else
-      "1000000000" when (card_addr_i = ADDRESS_CARD) else
+      "0000000100" when (card_addr_i = READOUT_CARD_4 or card_addr_i = READOUT_CARD_4_U) else
+      "0000001000" when (card_addr_i = READOUT_CARD_3 or card_addr_i = READOUT_CARD_3_U) else
+      "0000010000" when (card_addr_i = READOUT_CARD_2 or card_addr_i = READOUT_CARD_2_U) else
+      "0000100000" when (card_addr_i = READOUT_CARD_1 or card_addr_i = READOUT_CARD_1_U) else
+      "0001000000" when (card_addr_i = BIAS_CARD_3 or card_addr_i = BIAS_CARD_3_U) else
+      "0010000000" when (card_addr_i = BIAS_CARD_2 or card_addr_i = BIAS_CARD_2_U) else
+      "0100000000" when (card_addr_i = BIAS_CARD_1 or card_addr_i = BIAS_CARD_1_U) else
+      "1000000000" when (card_addr_i = ADDRESS_CARD  or card_addr_i = ADDRESS_CARD_U) else
       "0111000000" when (card_addr_i = ALL_BIAS_CARDS) else
       "0000111100" when (card_addr_i = ALL_READOUT_CARDS) else
       "1111111110" when (card_addr_i = ALL_FPGA_CARDS) else
@@ -672,21 +675,21 @@ begin
                   (cc_rdy = '1'  or card_not_present(CC) = '1')) or
                (card_addr_i = POWER_SUPPLY_CARD and
                   (psu_rdy = '1' or card_not_present(PSUC) = '1')) or
-               (card_addr_i = ADDRESS_CARD and
+               ((card_addr_i = ADDRESS_CARD or card_addr_i = ADDRESS_CARD_U) and
                   (ac_rdy = '1'  or card_not_present(AC) = '1')) or
-               (card_addr_i = BIAS_CARD_1 and
+               ((card_addr_i = BIAS_CARD_1 or card_addr_i = BIAS_CARD_1_U) and
                   (bc1_rdy = '1' or card_not_present(BC1) = '1')) or
-               (card_addr_i = BIAS_CARD_2 and
+               ((card_addr_i = BIAS_CARD_2 or card_addr_i = BIAS_CARD_2_U) and
                   (bc2_rdy = '1' or card_not_present(BC2) = '1')) or
-               (card_addr_i = BIAS_CARD_3 and
+               ((card_addr_i = BIAS_CARD_3 or card_addr_i = BIAS_CARD_3_U) and 
                   (bc3_rdy = '1' or card_not_present(BC3) = '1')) or
-               (card_addr_i = READOUT_CARD_1 and
+               ((card_addr_i = READOUT_CARD_1 or card_addr_i = READOUT_CARD_1_U) and
                   (rc1_rdy = '1' or card_not_present(RC1) = '1')) or
-               (card_addr_i = READOUT_CARD_2 and
+               ((card_addr_i = READOUT_CARD_2 or card_addr_i = READOUT_CARD_2_U) and
                   (rc2_rdy = '1' or card_not_present(RC2) = '1')) or
-               (card_addr_i = READOUT_CARD_3 and
+               ((card_addr_i = READOUT_CARD_3 or card_addr_i = READOUT_CARD_3_U) and
                   (rc3_rdy = '1' or card_not_present(RC3) = '1')) or
-               (card_addr_i = READOUT_CARD_4 and
+               ((card_addr_i = READOUT_CARD_4 or card_addr_i = READOUT_CARD_4_U) and
                   (rc4_rdy = '1' or card_not_present(RC4) = '1')) or
                (card_addr_i = ALL_BIAS_CARDS and
                   (bc1_rdy = '1' or card_not_present(BC1) = '1') and
@@ -742,21 +745,21 @@ begin
                      next_state <= READ_PSU;
                   elsif(card_addr_i = CLOCK_CARD and cards_to_report_i(CC) = '1') then
                      next_state <= READ_CC;
-                  elsif(card_addr_i = BIAS_CARD_1 and cards_to_report_i(BC1) = '1') then
+                  elsif((card_addr_i = BIAS_CARD_1 or card_addr_i = BIAS_CARD_1_U) and cards_to_report_i(BC1) = '1') then
                      next_state <= READ_BC1;
-                  elsif(card_addr_i = BIAS_CARD_2 and cards_to_report_i(BC2) = '1') then
+                  elsif((card_addr_i = BIAS_CARD_2 or card_addr_i = BIAS_CARD_2_U) and cards_to_report_i(BC2) = '1') then
                      next_state <= READ_BC2;
-                  elsif(card_addr_i = BIAS_CARD_3 and cards_to_report_i(BC3) = '1') then
+                  elsif((card_addr_i = BIAS_CARD_3 or card_addr_i = BIAS_CARD_3_U) and cards_to_report_i(BC3) = '1') then
                      next_state <= READ_BC3;
-                  elsif(card_addr_i = ADDRESS_CARD and cards_to_report_i(AC) = '1') then
+                  elsif((card_addr_i = ADDRESS_CARD or card_addr_i = ADDRESS_CARD_U) and cards_to_report_i(AC) = '1') then
                      next_state <= READ_AC;
-                  elsif(card_addr_i = READOUT_CARD_1 and cards_to_report_i(RC1) = '1') then
+                  elsif((card_addr_i = READOUT_CARD_1 or card_addr_i = READOUT_CARD_1_U) and cards_to_report_i(RC1) = '1') then
                      next_state <= READ_RC1;
-                  elsif(card_addr_i = READOUT_CARD_2 and cards_to_report_i(RC2) = '1') then
+                  elsif((card_addr_i = READOUT_CARD_2 or card_addr_i = READOUT_CARD_2_U) and cards_to_report_i(RC2) = '1') then
                      next_state <= READ_RC2;
-                  elsif(card_addr_i = READOUT_CARD_3 and cards_to_report_i(RC3) = '1') then
+                  elsif((card_addr_i = READOUT_CARD_3 or card_addr_i = READOUT_CARD_3_U) and cards_to_report_i(RC3) = '1') then
                      next_state <= READ_RC3;
-                  elsif(card_addr_i = READOUT_CARD_4 and cards_to_report_i(RC4) = '1') then
+                  elsif((card_addr_i = READOUT_CARD_4 or card_addr_i = READOUT_CARD_4_U) and cards_to_report_i(RC4) = '1') then
                      next_state <= READ_RC4;
                   elsif(card_addr_i = ALL_BIAS_CARDS) then
                      if(cards_to_report_i(BC1) = '1') then

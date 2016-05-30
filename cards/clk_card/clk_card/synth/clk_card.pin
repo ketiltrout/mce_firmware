@@ -238,7 +238,7 @@ RESERVED_INPUT               : AE25      :        :                   :         
 GND                          : AE26      : gnd    :                   :         :           :                
 RESERVED_INPUT               : AE27      :        :                   :         : 1         :                
 lvds_reply_rc2_a             : AE28      : input  : 3.3-V LVTTL       :         : 1         : Y              
-RESERVED_INPUT               : AF1       :        :                   :         : 6         :                
+dev_clr_fpga_out             : AF1       : output : 3.3-V LVTTL       :         : 6         : Y              
 RESERVED_INPUT               : AF2       :        :                   :         : 6         :                
 GND                          : AF3       : gnd    :                   :         :           :                
 fibre_tx_data[2]             : AF4       : output : 3.3-V LVTTL       :         : 7         : Y              
@@ -305,7 +305,7 @@ fibre_rx_data[4]             : AH9       : input  : 3.3-V LVTTL       :         
 fibre_rx_status              : AH10      : input  : 3.3-V LVTTL       :         : 7         : Y              
 fibre_rx_rf                  : AH11      : output : 3.3-V LVTTL       :         : 7         : Y              
 VCCIO7                       : AH12      : power  :                   : 3.3V    : 7         :                
-RESERVED_INPUT               : AH13      :        :                   :         : 7         :                
+critical_error               : AH13      : output : 3.3-V LVTTL       :         : 7         : Y              
 GND                          : AH14      : gnd    :                   :         :           :                
 GND                          : AH15      : gnd    :                   :         :           :                
 RESERVED_INPUT               : AH16      :        :                   :         : 8         :                
@@ -327,7 +327,7 @@ RESERVED_INPUT               : B4        :        :                   :         
 RESERVED_INPUT               : B5        :        :                   :         : 4         :                
 RESERVED_INPUT               : B6        :        :                   :         : 4         :                
 RESERVED_INPUT               : B7        :        :                   :         : 4         :                
-RESERVED_INPUT               : B8        :        :                   :         : 4         :                
+dip_sw2                      : B8        : input  : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : B9        :        :                   :         : 4         :                
 RESERVED_INPUT               : B10       :        :                   :         : 4         :                
 RESERVED_INPUT               : B11       :        :                   :         : 4         :                
