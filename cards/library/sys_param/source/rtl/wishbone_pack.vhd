@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2014/12/18 23:25:12 $> - <initials $Author: mandana $>
+-- <date $Date: 2016/05/19 22:09:39 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.68  2016/05/19 22:09:39  mandana
+-- added flux_fb_dly parameter
+--
 -- Revision 1.67  2014/12/18 23:25:12  mandana
 -- num_idle_rows
 --
@@ -471,7 +474,7 @@ package wishbone_pack is
    constant LED_ADDR                : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
    constant SCRATCH_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9A";
    constant CRIT_ERR_RST_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9B"; 
-   constant DEV_CLR_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9C";
+   constant DEV_CLR_ADDR            : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"9C";-- fpga_clr
 
    ---------------------------------------------------------------------------------------
    -- Clock Card Specific Parameter IDs
