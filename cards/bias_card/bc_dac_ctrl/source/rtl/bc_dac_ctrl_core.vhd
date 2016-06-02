@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.16 2014/12/18 23:21:41 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.17 2016/05/19 22:14:09 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -35,6 +35,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.17  2016/05/19 22:14:09  mandana
+-- 6.0.1 added flux_fb_dly parameter and removed num_idle_rows implementation
+--
 -- Revision 1.16  2014/12/18 23:21:41  mandana
 -- 5.3.5 added num_idle_rows
 --
@@ -142,7 +145,6 @@ entity bc_dac_ctrl_core is
       ln_bias_addr_o    : out std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);       -- ln_bias ram address
       ln_bias_data_i    : in std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0);        -- parallel ln_bias data
       ln_bias_changed_i : in std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
-      num_idle_rows_i   : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
       
       mux_flux_fb_data_i: in flux_fb_dac_array;
       enbl_mux_data_i   : in std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -179,8 +181,6 @@ architecture rtl of bc_dac_ctrl_core is
    signal ln_bias_rd_addr        : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);             
    signal ln_bias_rd_addr_1d     : std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);              -- to account for RAM read latency          
    signal row_addr               : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-   signal idle_row_addr          : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);                      -- counter for number of idle_rows
-   signal idle_row_status        : std_logic;
    
    -- control signals for DAC updates
    signal flux_fb_update_pending : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);                    -- extended update-request for flux_fb
@@ -262,9 +262,7 @@ begin
       if (rst_i = '1') then
          row_switch_1dly <= '0';
       elsif (clk_i'event and clk_i = '1') then
-         if idle_row_status = '0' then
-            row_switch_1dly <= row_switch_i;
-         end if;  
+         row_switch_1dly <= row_switch_i;
       end if;
    end process row_switch_1dly_proc;      
          
@@ -275,9 +273,9 @@ begin
       if (rst_i = '1') then
          row_addr <= (others =>'0');
       elsif (clk_i'event and clk_i = '1') then
-         if ((restart_frame_1row_prev_i = '1' and update_bias_i = '1') or idle_row_status = '1') then 
+         if (restart_frame_1row_prev_i = '1' and update_bias_i = '1') then 
             row_addr <= (others =>'0');
-         elsif (update_bias_i = '1' and idle_row_status = '0') then
+         elsif update_bias_i = '1' then
             row_addr <= row_addr + 1;
          else
             row_addr <= row_addr;
@@ -285,23 +283,6 @@ begin
       end if;
    end process row_counter_proc;      
    row_addr_o <= row_addr;
-   ------------------------------------------------------------------------
-   -- idle row counter
-   idle_row_counter_proc : process (rst_i, clk_i)
-   begin
-      if (rst_i = '1') then
-         idle_row_addr <= (others =>'0');
-      elsif (clk_i'event and clk_i = '1') then
-         if restart_frame_1row_prev_i = '1' then 
-            idle_row_addr <= (others =>'0');
-         elsif row_switch_i = '1' then
-            idle_row_addr <= idle_row_addr + 1;
-         else
-            idle_row_addr <= idle_row_addr;
-         end if;            
-      end if;
-   end process idle_row_counter_proc; 
-   idle_row_status <= '1' when idle_row_addr < num_idle_rows_i else '0';
    ------------------------------------------------------------------------
    -- register previous row 
    extend_1row_prev:process(rst_i, clk_i)
@@ -311,7 +292,7 @@ begin
      elsif (clk_i'event and clk_i = '1') then
        if (restart_frame_1row_prev_i = '1') then
          row_addr_clr_pending <= '1';
-       elsif (update_bias_i = '1' and idle_row_status = '0') then
+       elsif update_bias_i = '1' then
          row_addr_clr_pending <= '0';
        else   
          row_addr_clr_pending <= row_addr_clr_pending;
@@ -329,7 +310,7 @@ begin
         elsif (clk_i'event and clk_i = '1') then
           if (flux_fb_changed_i (k) = '1') then
             flux_fb_update_pending (k) <= '1';
-          elsif (update_bias_i = '1' and row_addr_clr_pending = '1' and idle_row_status = '0') then
+          elsif (update_bias_i = '1' and row_addr_clr_pending = '1') then
             flux_fb_update_pending (k) <= '0';
           else   
             flux_fb_update_pending (k) <= flux_fb_update_pending(k);
@@ -389,7 +370,7 @@ begin
       -- flux-fb DACs are refreshed:
       -- on every row_switch when multiplexing is on (enbl_mux = 1)
       -- only when new values are written (through wishbone interface) when multiplexing is off (enbl_mux = 0) 
-      update_aligned(k) <= update_bias_i when (enbl_mux_data_i(k) = '1' and ( idle_row_status = '0' or (idle_row_status = '1' and num_idle_rows_i > 0))) else
+      update_aligned(k) <= update_bias_i when enbl_mux_data_i(k) = '1' else
                            (restart_frame_aligned_i and flux_fb_update_pending(k));
       
       flux_fb_dat_ready(k) <= enbl_mux_data_i(k) or flux_fb_changed_i(k); 

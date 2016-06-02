@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_pack.vhd,v 1.12 2014/12/18 23:21:41 mandana Exp $
+-- $Id: bc_dac_ctrl_pack.vhd,v 1.13 2016/05/19 22:14:24 mandana Exp $
 --
 
 -- Project:       SCUBA2
@@ -31,6 +31,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_pack.vhd,v $
+-- Revision 1.13  2016/05/19 22:14:24  mandana
+-- 6.0.1 added flux_fb_dly parameter and removed num_idle_rows implementation
+--
 -- Revision 1.12  2014/12/18 23:21:41  mandana
 -- 5.3.5 added num_idle_rows
 --
@@ -143,7 +146,6 @@ component bc_dac_ctrl_wbs is
       ln_bias_addr_i    : in std_logic_vector(LN_BIAS_DAC_ADDR_WIDTH-1 downto 0);     
       ln_bias_data_o    : out std_logic_vector(LN_BIAS_DAC_DATA_WIDTH-1 downto 0); 
       ln_bias_changed_o : out std_logic_vector(NUM_LN_BIAS_DACS-1 downto 0);
-      num_idle_rows_o   : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 
       mux_flux_fb_data_o: out flux_fb_dac_array;    
       enbl_mux_data_o   : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
