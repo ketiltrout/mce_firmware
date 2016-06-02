@@ -1,52 +1,105 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/rst_n
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/clk
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/dispatch_dat_out
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/dispatch_addr_out
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/dispatch_we_out
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/dispatch_tga_out
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/dispatch_dat_in
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/dispatch_ack_in
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/adc_coadd_en
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/restart_frame_aligned
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/initialize_window
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/fltr_rst
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/row_switch
-add wave -noupdate -divider {filter calc}
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/filter_coeff0_i
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/filter_coeff1_i
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/filter_coeff2_i
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/filter_coeff3_i
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/filter_coeff4_i
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/filter_coeff5_i
-add wave -noupdate -divider {Filter- pidz}
-add wave -noupdate -expand /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/i_fsfb_processor/i_fsfb_proc_pidz/filter_b22_coef
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/i_fsfb_processor/i_fsfb_proc_pidz/filter_b21_coef
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/i_fsfb_processor/i_fsfb_proc_pidz/filter_b12_coef
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/i_fsfb_processor/i_fsfb_proc_pidz/filter_b11_coef
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/i_fsfb_processor/i_fsfb_proc_pidz/filter_coeff4_i
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_flux_loop_ctrl_ch0/i_fsfb_calc/i_fsfb_processor/i_fsfb_proc_pidz/filter_coeff5_i
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg(29)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg(30)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg(31)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg(32)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg(33)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg(34)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg_temp(29)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg_temp(30)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg_temp(31)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg_temp(32)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg_temp(33)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/reg_temp(34)
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/i_misc_bank(0)/i_reg/j
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/i_misc_bank(29)/i_reg/j
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/i_misc_bank(30)/i_reg/j
-add wave -noupdate /tb_cc_rcs_bcs_ac/i_readout_card1/i_flux_loop/i_wbs_fb_data/i_misc_banks_admin/rst_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/rst_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/clk_50_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/coadd_done_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/current_coadd_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/current_diff_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/current_integral_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/lock_mode_en_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/p_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/i_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/d_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn11_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn12_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn21_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn22_dat_i
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn10_dat_o
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn20_dat_o
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fsfb_proc_pidz_update_o
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fsfb_proc_pidz_sum_o
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fsfb_proc_fltr_update_o
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fsfb_proc_fltr_sum_o
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/calc_shift_state
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_1st_add
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_2nd_add
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_1st_wtemp
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_2nd_wtemp
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_wn10
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_fltr1_tmp
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_fltr1_sum
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_wn20
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_fltr2_tmp
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/store_fltr2_sum
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/current_diff_dat_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/current_integral_dat_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/multiplicand_a
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/multiplicand_b
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/multiplied_result
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/multiplicand_a_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/multiplicand_b_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/filter_scale_lsb
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/filter_gain_width
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/p_product_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/b11_product_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/b12_product_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/b21_product_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/b22_product_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/pi_sum
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/pi_sum_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/dz_sum_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/pidz_sum
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/pidz_sum_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/pidz_sum_reg_shift
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr1_tmp
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr1_tmp_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr1_sum
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr1_sum_reg
+add wave -noupdate -color pink -itemcolor pink /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr1_sum_reg_shift
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr2_tmp
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr2_tmp_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr2_sum
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/fltr2_sum_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/operand_a
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/operand_b
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wtemp
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wtemp_reg_shift
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wtemp_reg_shift_corrected
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/correction_on
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn10
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn10_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn11_shift
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn12_shift
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn20
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn20_reg
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn21_shift
+add wave -noupdate /tb_fsfb_processor/uut/i_fsfb_proc_pidz/wn22_shift
+add wave -noupdate -radix unsigned /tb_fsfb_processor/uut/i_fsfb_proc_pidz/filter_b22_coef
+add wave -noupdate -radix unsigned /tb_fsfb_processor/uut/i_fsfb_proc_pidz/filter_b21_coef
+add wave -noupdate -radix unsigned /tb_fsfb_processor/uut/i_fsfb_proc_pidz/filter_b12_coef
+add wave -noupdate -radix unsigned /tb_fsfb_processor/uut/i_fsfb_proc_pidz/filter_b11_coef
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/rst_i
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/clk_50_i
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/fltr_rst_i
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/addr_i
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn12_o
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn11_o
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn10_i
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn22_o
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn21_o
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn20_i
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wren_i
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn11_temp
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn11_temp_muxed
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn21_temp
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn21_temp_muxed
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn10_muxed
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wn20_muxed
+add wave -noupdate /tb_fsfb_processor/i_fsfb_fltr_regs/wren_muxed
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {21917538 ps} 0}
-configure wave -namecolwidth 338
-configure wave -valuecolwidth 79
+WaveRestoreCursors {{Cursor 1} {21237364 ps} 0}
+configure wave -namecolwidth 433
+configure wave -valuecolwidth 100
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
 configure wave -snapdistance 10
@@ -59,4 +112,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {373967999 ps}
+WaveRestoreZoom {20463275 ps} {22072103 ps}
