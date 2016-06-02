@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_stratix_iii.vhd,v $
+-- Revision 1.32  2016/05/17 00:26:05  mandana
+-- 6.0.2 bugfix for reading back flx_quanta and adc_offset, delay wishbone readback by one clock cycle.
+--
 -- Revision 1.31  2016/05/06 22:16:34  mandana
 -- 6.0.1 support of upper 32 word needs an additional wait cycle for ack_read
 --
@@ -279,7 +282,7 @@ architecture top of readout_card_stratix_iii is
    --               RR is the major revision number, incremented when major new features are added and possibly incompatible with previous versions
    --               rr is the minor revision number, incremented when new features added
    --               BBBB is the build number, incremented for bug fixes
-   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"06000002";
+   constant RC_REVISION  : std_logic_vector (31 downto 0) := X"06000003";
    constant FPGA_DEVICE_FAMILY : string := "Stratix III";
    
    -- Global signals
